@@ -29,12 +29,33 @@ Read `docs/executable.md` and `docs/evidence.md` before changing anything.
 - The Amiga version (`assets/amiga/`) is the original game and a source of meaning only; it
   proves nothing about DOS bytes.
 
+## Source layout and proof
+
+- `src/asm/GAME.ASM`, `SOUND.ASM`, `TIMER.ASM`: maintained assembly, one code segment per module.
+- `src/c/module.c`: the C module (BCC 3.0 `-mh -2`). `src/data/*.ASM`: data modules, raw `db`
+  dumps for now (debt).
+- Edit only the clean sources under `src/`. The fragmented proof sources and `LAYOUT.ASM` are
+  generated under `build/link/` by `tools/fragment.py`; never edit them.
+- `metadata/reloc-layout.json` is a relocation-table-derived reproducing layout, not recovered
+  source structure. A label rename must update the source and the matching value in its flat
+  `labels` dictionary together.
+- Finding the natural source arrangement that makes TASM emit the original relocation order
+  would retire `fragment.py`; until then the plain build is expected to differ in exactly 35
+  table positions and `verify.py` fails if that number changes.
+
 ## Commands
 
 ```
-python tools/oracle.py           # packed file, expansion and repack against the lock
-python tools/census.py           # every image byte classified; --relocs lists link-order evidence
+python tools/verify.py           # the gate: plain build (image + relocation set), proof build
+                                 # (packed file equal), identical load images; exit 0 = all three
+python tools/asmverify.py        # assembly contributions in isolation
+python tools/cjudge.py           # C functions in isolation
+python tools/libmatch.py         # runtime attribution against C0H.OBJ and CH.LIB
+python tools/oracle.py           # original file, expansion and repack against the lock
+python tools/census.py           # coarse region table; --relocs lists link-order evidence
 ```
 
+Run `verify.py`, `asmverify.py` and `cjudge.py` before proposing any change to `src/`.
+
 Tools run under `C:\tools\nmlgcdos\msdos.exe` through `tools/dos.py`, which checks each binary
-against `metadata/toolchain-lock.json`.
+against `metadata/toolchain-lock.json`. Worker conventions: `docs/workers.md`.

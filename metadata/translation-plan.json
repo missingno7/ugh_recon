@@ -1,0 +1,2957 @@
+{
+  "schema": 1,
+  "routine_count": 286,
+  "authority": "metadata/naming-regions.json partition; names.json identities; graph.py direct-call evidence",
+  "policy": "Leaf waves precede callers. Same-wave packages own disjoint files and can run in parallel. A package in a later wave can start once its depends_on packages are accepted. Indirect callbacks and runtime/system boundaries need explicit contracts before composed tests. Do not implement fake success stubs for unfinished callees. Cyclic direct families are indivisible.",
+  "reserved_files": [
+    "c/ugh.h",
+    "c/platform.h",
+    "c/platform.c",
+    "c/memory.c",
+    "c/ugh_sym.h"
+  ],
+  "shared_file_owner": "c-infra/supervisor; workers propose exact interface additions in reports",
+  "parallel_waves": [
+    {
+      "wave": 0,
+      "packages": [
+        "c_01_w00",
+        "game_01_w00",
+        "game_02_w00",
+        "game_03_w00",
+        "game_04_w00",
+        "game_05_w00",
+        "game_06_w00",
+        "pilot_core",
+        "sound_01_w00",
+        "timer_01_w00"
+      ]
+    },
+    {
+      "wave": 1,
+      "packages": [
+        "c_01_w01",
+        "game_01_w01",
+        "game_02_w01",
+        "game_03_w01",
+        "game_04_w01",
+        "game_05_w01",
+        "game_06_w01",
+        "sound_01_w01",
+        "timer_01_w01"
+      ]
+    },
+    {
+      "wave": 2,
+      "packages": [
+        "game_01_w02",
+        "game_02_w02",
+        "game_05_w02",
+        "game_06_w02",
+        "sound_01_w02"
+      ]
+    },
+    {
+      "wave": 3,
+      "packages": [
+        "c_01_w03",
+        "game_05_w03",
+        "game_06_w03",
+        "sound_01_w03"
+      ]
+    },
+    {
+      "wave": 4,
+      "packages": [
+        "c_01_w04",
+        "game_05_w04",
+        "game_06_w04",
+        "sound_01_w04"
+      ]
+    },
+    {
+      "wave": 5,
+      "packages": [
+        "c_01_w05",
+        "sound_01_w05"
+      ]
+    },
+    {
+      "wave": 6,
+      "packages": [
+        "c_01_w06",
+        "game_03_w06",
+        "game_06_w06",
+        "sound_01_w06"
+      ]
+    },
+    {
+      "wave": 7,
+      "packages": [
+        "c_01_w07",
+        "game_03_w07",
+        "game_06_w07"
+      ]
+    },
+    {
+      "wave": 8,
+      "packages": [
+        "c_01_w08",
+        "game_03_w08",
+        "game_04_w08",
+        "game_06_w08"
+      ]
+    },
+    {
+      "wave": 9,
+      "packages": [
+        "game_01_w09",
+        "game_02_w09",
+        "game_06_w09"
+      ]
+    },
+    {
+      "wave": 10,
+      "packages": [
+        "game_01_w10",
+        "game_02_w10",
+        "game_05_w10"
+      ]
+    },
+    {
+      "wave": 11,
+      "packages": [
+        "game_01_w11",
+        "game_02_w11"
+      ]
+    },
+    {
+      "wave": 12,
+      "packages": [
+        "game_01_w12",
+        "game_06_w12"
+      ]
+    },
+    {
+      "wave": 13,
+      "packages": [
+        "game_01_w13"
+      ]
+    }
+  ],
+  "packages": [
+    {
+      "id": "c_01_w00",
+      "wave": 0,
+      "files": [
+        "c/c_01_w00.c"
+      ],
+      "test_files": [
+        "tests/c_01_w00.py"
+      ],
+      "naming_regions": [
+        "c-01"
+      ],
+      "routines": [
+        {
+          "name": "C:ResetAdlibTrackChannelCursor",
+          "address": "0878:0F2D",
+          "status": "untranslated"
+        },
+        {
+          "name": "C:GetMusicTrackDuration",
+          "address": "0878:1A8E",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {
+        "C:GetMusicTrackDuration": [
+          "1B1B: jmp word ptr cs:[bx + 0x1b95]"
+        ]
+      },
+      "depends_on": []
+    },
+    {
+      "id": "game_01_w00",
+      "wave": 0,
+      "files": [
+        "c/game_01_w00.c"
+      ],
+      "test_files": [
+        "tests/game_01_w00.py"
+      ],
+      "naming_regions": [
+        "game-01"
+      ],
+      "routines": [
+        {
+          "name": "GAME:loc_001C",
+          "address": "013B:001C",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:loc_001D",
+          "address": "013B:001D",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:loc_001E",
+          "address": "013B:001E",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:loc_001F",
+          "address": "013B:001F",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:GetHighScoreRow",
+          "address": "013B:043A",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:GetHighScoreDigits",
+          "address": "013B:0446",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:CopyIndexedMenuString",
+          "address": "013B:0652",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": []
+    },
+    {
+      "id": "game_02_w00",
+      "wave": 0,
+      "files": [
+        "c/game_02_w00.c"
+      ],
+      "test_files": [
+        "tests/game_02_w00.py"
+      ],
+      "naming_regions": [
+        "game-02"
+      ],
+      "routines": [
+        {
+          "name": "GAME:StartDemoFadeWhenSpriteHidden",
+          "address": "013B:0989",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:SetDemoRevealSpriteWidth",
+          "address": "013B:099F",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:AdvanceDemoScripts",
+          "address": "013B:09D7",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:loc_0B4E",
+          "address": "013B:0B4E",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:ResetSpriteEraseState",
+          "address": "013B:0B4F",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:SamplePlayerCollisionPixels",
+          "address": "013B:1457",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:DispatchActorUpdates",
+          "address": "013B:1486",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {
+        "GAME:AdvanceDemoScripts": [
+          "0A15: call word ptr [bx + 0x2c2d]"
+        ],
+        "GAME:DispatchActorUpdates": [
+          "1492: call word ptr [bx + 0x2a0d]"
+        ]
+      },
+      "depends_on": []
+    },
+    {
+      "id": "game_03_w00",
+      "wave": 0,
+      "files": [
+        "c/game_03_w00.c"
+      ],
+      "test_files": [
+        "tests/game_03_w00.py"
+      ],
+      "naming_regions": [
+        "game-03"
+      ],
+      "routines": [
+        {
+          "name": "GAME:WaitForPassengerPlatform",
+          "address": "013B:1509",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:PlacePassengerOnPlatform",
+          "address": "013B:153B",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:AnimatePassengerArrival",
+          "address": "013B:1582",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:BeginPassengerPlatformWait",
+          "address": "013B:15B4",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:BeginPassengerDestinationDisplay",
+          "address": "013B:16F6",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:BeginPassengerQuestionDisplay",
+          "address": "013B:17E6",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:BeginPassengerApproach",
+          "address": "013B:18C8",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:BoardPassenger",
+          "address": "013B:19FB",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:UpdateCarriedPassenger",
+          "address": "013B:1A42",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:WalkPassengerToExit",
+          "address": "013B:1B29",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:BeginPassengerDeparture",
+          "address": "013B:1BBE",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:AnimatePassengerDeparture",
+          "address": "013B:1BD6",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:IgnoreActorState",
+          "address": "013B:1C0E",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:BeginStonePickupWait",
+          "address": "013B:1C0F",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:AttachStoneToPlayer",
+          "address": "013B:1C48",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:WaitForStoneRelease",
+          "address": "013B:1C6B",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:UpdateThrownStone",
+          "address": "013B:1CEE",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:BeginPassengerResurfacing",
+          "address": "013B:1DA8",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:UpdatePassengerResurfacing",
+          "address": "013B:1DD5",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:BeginPassengerSinking",
+          "address": "013B:1E9C",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:UpdatePassengerSinking",
+          "address": "013B:1EC0",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:BeginPassengerFloating",
+          "address": "013B:1F24",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:UpdatePassengerFloating",
+          "address": "013B:1F43",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:UpdateFloatingDestinationDisplay",
+          "address": "013B:1FE2",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:UpdateFloatingQuestionDisplay",
+          "address": "013B:2068",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:UpdateFloatingPassengerApproach",
+          "address": "013B:20C1",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:IgnoreWaterbornePassengerState",
+          "address": "013B:2195",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:FindThrownStoneHittingEnemy",
+          "address": "013B:2196",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:FindPlayerTouchingFallingItem",
+          "address": "013B:2207",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:FindPlayerTouchingActor",
+          "address": "013B:2276",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:FindPlayerTouchingEnemy",
+          "address": "013B:22F1",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:DispatchEnemyStates",
+          "address": "013B:2363",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:BeginBirdDelay",
+          "address": "013B:2379",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:WaitForBirdFlight",
+          "address": "013B:239F",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:WaitForBirdWarning",
+          "address": "013B:23D9",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:StunBirdAndAwardScore",
+          "address": "013B:252B",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:UpdateStunnedBird",
+          "address": "013B:255E",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:BeginDinosaurPatrol",
+          "address": "013B:25B1",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:BeginDinosaurAlert",
+          "address": "013B:2667",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:BeginDinosaurCharge",
+          "address": "013B:272E",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:BeginDinosaurRecovery",
+          "address": "013B:2830",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:BeginDinosaurImpactRecovery",
+          "address": "013B:288F",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:StunDinosaurAndAwardScore",
+          "address": "013B:28EE",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:UpdateStunnedDinosaur",
+          "address": "013B:2914",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:loc_295B",
+          "address": "013B:295B",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:loc_2A53",
+          "address": "013B:2A53",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:loc_2A76",
+          "address": "013B:2A76",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:InitializeFruitTreeAnimation",
+          "address": "013B:2A87",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {
+        "GAME:WaitForPassengerPlatform": [
+          "1537: jmp word ptr [si + 0xc]"
+        ],
+        "GAME:AnimatePassengerArrival": [
+          "15AC: jmp word ptr [si + 0x10]"
+        ],
+        "GAME:UpdateCarriedPassenger": [
+          "1A7A: jmp word ptr [si + 0x24]"
+        ],
+        "GAME:WalkPassengerToExit": [
+          "1BBA: jmp word ptr [si + 0x28]"
+        ],
+        "GAME:AnimatePassengerDeparture": [
+          "1C0A: jmp word ptr [si + 8]"
+        ],
+        "GAME:WaitForStoneRelease": [
+          "1C7D: jmp word ptr [si + 0x24]"
+        ],
+        "GAME:UpdateThrownStone": [
+          "1D9F: jmp word ptr [si + 0x10]"
+        ],
+        "GAME:UpdatePassengerResurfacing": [
+          "1E98: jmp word ptr [si + 0x10]"
+        ],
+        "GAME:UpdatePassengerFloating": [
+          "1FD2: jmp word ptr [si + 0x14]",
+          "1FDE: jmp word ptr [si + 0xc]"
+        ],
+        "GAME:UpdateFloatingDestinationDisplay": [
+          "2026: jmp word ptr [si + 0x18]",
+          "2064: jmp word ptr [si + 0x1c]"
+        ],
+        "GAME:UpdateFloatingQuestionDisplay": [
+          "20BD: jmp word ptr [si + 0xc]"
+        ],
+        "GAME:UpdateFloatingPassengerApproach": [
+          "2109: jmp word ptr [si + 0x18]",
+          "213B: jmp word ptr [si + 0x20]"
+        ],
+        "GAME:DispatchEnemyStates": [
+          "236F: call word ptr [bx + 0x2cf3]"
+        ],
+        "GAME:WaitForBirdFlight": [
+          "23AC: jmp word ptr [si + 0xc]"
+        ],
+        "GAME:WaitForBirdWarning": [
+          "23E6: jmp word ptr [si + 0x10]"
+        ],
+        "GAME:UpdateStunnedBird": [
+          "257A: jmp word ptr [si + 8]"
+        ],
+        "GAME:UpdateStunnedDinosaur": [
+          "2921: jmp word ptr [si + 8]"
+        ],
+        "GAME:loc_2A76": [
+          "2A83: jmp word ptr [si + 0x10]"
+        ]
+      },
+      "depends_on": []
+    },
+    {
+      "id": "game_04_w00",
+      "wave": 0,
+      "files": [
+        "c/game_04_w00.c"
+      ],
+      "test_files": [
+        "tests/game_04_w00.py"
+      ],
+      "naming_regions": [
+        "game-04"
+      ],
+      "routines": [
+        {
+          "name": "GAME:AdvanceTreeRewardCooldown",
+          "address": "013B:2B58",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:IgnoreExhaustedTree",
+          "address": "013B:2B7E",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:DispatchFallingItems",
+          "address": "013B:2B7F",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:SpawnFallingItem",
+          "address": "013B:2B96",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:AdvanceFallingItem",
+          "address": "013B:2BE4",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:LandFallingItem",
+          "address": "013B:2C97",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:DrawWaterSurface",
+          "address": "013B:2DB9",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:DrawWaterSurfaceFrame0",
+          "address": "013B:2E03",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:DrawWaterSurfaceFrame1",
+          "address": "013B:31CD",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:DrawWaterSurfaceFrame2",
+          "address": "013B:3597",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:ResetScoreLivesAndMultiplier",
+          "address": "013B:3961",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {
+        "GAME:DispatchFallingItems": [
+          "2B8C: call word ptr [bx + 0x2d83]"
+        ],
+        "GAME:AdvanceFallingItem": [
+          "2C8E: jmp word ptr [si + 8]"
+        ],
+        "GAME:DrawWaterSurface": [
+          "2DFE: jmp word ptr cs:[si + 0x2db3]"
+        ]
+      },
+      "depends_on": []
+    },
+    {
+      "id": "game_05_w00",
+      "wave": 0,
+      "files": [
+        "c/game_05_w00.c"
+      ],
+      "test_files": [
+        "tests/game_05_w00.py"
+      ],
+      "naming_regions": [
+        "game-05"
+      ],
+      "routines": [
+        {
+          "name": "GAME:RestoreRainBackground",
+          "address": "013B:3CDE",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:DrawRainParticles",
+          "address": "013B:3D19",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:ScaleLevelYToThreeQuarters",
+          "address": "013B:3D4D",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:ScaleLevelSpeedToThreeHalves",
+          "address": "013B:3D5A",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:EncodeSixDecimalDigits",
+          "address": "013B:3F0F",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:EncodeFourDecimalDigits",
+          "address": "013B:3F2F",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:EncodeTwoDecimalDigits",
+          "address": "013B:3F43",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:DrawTransparentSprite",
+          "address": "013B:41FD",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:CachePlayerDrawState",
+          "address": "013B:4352",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:RestoreTileBackground",
+          "address": "013B:43D7",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:RestoreBackgroundRectangle",
+          "address": "013B:43EA",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:SaveDrawPageBackground",
+          "address": "013B:446F",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": []
+    },
+    {
+      "id": "game_06_w00",
+      "wave": 0,
+      "files": [
+        "c/game_06_w00.c"
+      ],
+      "test_files": [
+        "tests/game_06_w00.py"
+      ],
+      "naming_regions": [
+        "game-06"
+      ],
+      "routines": [
+        {
+          "name": "GAME:WaitVerticalRetraceActive",
+          "address": "013B:44C6",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:WaitVerticalRetraceInactive",
+          "address": "013B:44D2",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:InstallKeyboardSequenceInterrupt",
+          "address": "013B:450A",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:RestoreKeyboardInterrupt",
+          "address": "013B:454C",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:HandleKeyboardScanInterrupt",
+          "address": "013B:4567",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:DuplicateSourcePaletteHalves",
+          "address": "013B:466A",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:loc_4681",
+          "address": "013B:4681",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:loc_4981",
+          "address": "013B:4981",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:UnpackIceToScratch",
+          "address": "013B:4CA5",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:FailDosCriticalError",
+          "address": "013B:4E57",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:InstallDosCriticalErrorFailHandler",
+          "address": "013B:4E5B",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:SeedRandomFromDosSeconds",
+          "address": "013B:4EFF",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:NextRandomBelowAx",
+          "address": "013B:4F09",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:EnableAllVgaWritePlanes",
+          "address": "013B:4FA8",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:SampleJoystickAxesAndButtons",
+          "address": "013B:51EC",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": []
+    },
+    {
+      "id": "pilot_core",
+      "wave": 0,
+      "files": [
+        "c/game_pilot.c",
+        "c/ice.c",
+        "c/module_pilot.c",
+        "c/sound_pilot.c",
+        "c/timer_pilot.c"
+      ],
+      "test_files": [
+        "tests/game_pilot.py",
+        "tests/ice.py",
+        "tests/render_pilot.py",
+        "tests/timer_pilot.py",
+        "tests/module_pilot.py"
+      ],
+      "naming_regions": [
+        "c-01",
+        "game-01",
+        "game-02",
+        "game-06",
+        "sound-01",
+        "timer-01"
+      ],
+      "routines": [
+        {
+          "name": "GAME:CopyFarBytes",
+          "address": "013B:0020",
+          "status": "pilot_direct_test"
+        },
+        {
+          "name": "GAME:ComplementHighScoreTable",
+          "address": "013B:03CD",
+          "status": "pilot_direct_test"
+        },
+        {
+          "name": "GAME:TestAllDemoScriptsFinished",
+          "address": "013B:09BC",
+          "status": "pilot_direct_test"
+        },
+        {
+          "name": "GAME:PollKeyboardScanChange",
+          "address": "013B:44F1",
+          "status": "pilot_direct_test"
+        },
+        {
+          "name": "GAME:UploadChunkyImageToVgaPlanes",
+          "address": "013B:4634",
+          "status": "pilot_direct_test"
+        },
+        {
+          "name": "GAME:UnpackIceStream",
+          "address": "013B:4CAD",
+          "status": "pilot_direct_test"
+        },
+        {
+          "name": "GAME:DecodeIceLiteralAndMatchStream",
+          "address": "013B:4CE9",
+          "status": "pilot_inline_only"
+        },
+        {
+          "name": "GAME:ReadIceBitToCarry",
+          "address": "013B:4D2A",
+          "status": "pilot_inline_only"
+        },
+        {
+          "name": "GAME:ReadIceBitsToDx",
+          "address": "013B:4D37",
+          "status": "pilot_inline_only"
+        },
+        {
+          "name": "SOUND:ClearSoundState",
+          "address": "0664:112B",
+          "status": "pilot_direct_test"
+        },
+        {
+          "name": "C:SwapDwordByteOrder",
+          "address": "0878:0A70",
+          "status": "pilot_direct_test"
+        },
+        {
+          "name": "C:DisableMusicSectionLoop",
+          "address": "0878:1491",
+          "status": "pilot_direct_test"
+        },
+        {
+          "name": "C:GetElapsedMusicTime",
+          "address": "0878:1A50",
+          "status": "pilot_direct_test"
+        },
+        {
+          "name": "TIMER:HandleTimerInterrupt",
+          "address": "0A32:00D2",
+          "status": "pilot_direct_test"
+        },
+        {
+          "name": "TIMER:RegisterTimerCallback",
+          "address": "0A32:01AA",
+          "status": "pilot_direct_test"
+        }
+      ],
+      "unresolved_indirect": {
+        "TIMER:HandleTimerInterrupt": [
+          "0145: lcall [si + 0x7b2e]"
+        ]
+      },
+      "depends_on": []
+    },
+    {
+      "id": "sound_01_w00",
+      "wave": 0,
+      "files": [
+        "c/sound_01_w00.c"
+      ],
+      "test_files": [
+        "tests/sound_01_w00.py"
+      ],
+      "naming_regions": [
+        "sound-01"
+      ],
+      "routines": [
+        {
+          "name": "SOUND:CalibrateSoundDelay",
+          "address": "0664:113F",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:BeginSoundDelayMeasurement",
+          "address": "0664:1179",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:FinishSoundDelayMeasurement",
+          "address": "0664:1193",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:DelaySoundIo",
+          "address": "0664:11B5",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:RunMainAdlxEvents",
+          "address": "0664:15D3",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:HandleMainAdlxLongWait",
+          "address": "0664:15E8",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:HandleMainAdlxShortWait",
+          "address": "0664:1737",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:RunEffectAdlxEvents",
+          "address": "0664:176B",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:HandleEffectAdlxLongWait",
+          "address": "0664:1780",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:HandleEffectAdlxShortWait",
+          "address": "0664:18F7",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:ResetSampleVoiceCursor",
+          "address": "0664:1B3A",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:WriteSoundBlasterDsp",
+          "address": "0664:1B4D",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:LocateDmaMixBuffers",
+          "address": "0664:1C74",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:MixSampleVoicePairs",
+          "address": "0664:1CF9",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:HandleDspProbeInterrupt",
+          "address": "0664:1EF5",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {
+        "SOUND:RunMainAdlxEvents": [
+          "15E5: jmp word ptr cs:[bx]"
+        ],
+        "SOUND:RunEffectAdlxEvents": [
+          "177D: jmp word ptr cs:[bx]"
+        ]
+      },
+      "depends_on": []
+    },
+    {
+      "id": "timer_01_w00",
+      "wave": 0,
+      "files": [
+        "c/timer_01_w00.c"
+      ],
+      "test_files": [
+        "tests/timer_01_w00.py"
+      ],
+      "naming_regions": [
+        "timer-01"
+      ],
+      "routines": [
+        {
+          "name": "TIMER:InstallTimerInterrupt",
+          "address": "0A32:0008",
+          "status": "untranslated"
+        },
+        {
+          "name": "TIMER:ChainSavedTimerInterrupt",
+          "address": "0A32:0099",
+          "status": "untranslated"
+        },
+        {
+          "name": "TIMER:RestoreTimerInterrupt",
+          "address": "0A32:00A0",
+          "status": "untranslated"
+        },
+        {
+          "name": "TIMER:RemoveTimerCallback",
+          "address": "0A32:021B",
+          "status": "untranslated"
+        },
+        {
+          "name": "TIMER:SetTimerCallbackInterval",
+          "address": "0A32:02C1",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {
+        "TIMER:ChainSavedTimerInterrupt": [
+          "009B: lcall [0x7b72]"
+        ]
+      },
+      "depends_on": []
+    },
+    {
+      "id": "c_01_w01",
+      "wave": 1,
+      "files": [
+        "c/c_01_w01.c"
+      ],
+      "test_files": [
+        "tests/c_01_w01.py"
+      ],
+      "naming_regions": [
+        "c-01"
+      ],
+      "routines": [
+        {
+          "name": "C:LoadSoundBankResource",
+          "address": "0878:00F5",
+          "status": "untranslated"
+        },
+        {
+          "name": "C:LoadAdlibTrackData",
+          "address": "0878:0AA9",
+          "status": "untranslated"
+        },
+        {
+          "name": "C:ScanMusicEvents",
+          "address": "0878:11AD",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {
+        "C:ScanMusicEvents": [
+          "12C6: jmp word ptr cs:[bx + 0xe]"
+        ]
+      },
+      "depends_on": [
+        "game_01_w00",
+        "pilot_core"
+      ]
+    },
+    {
+      "id": "game_01_w01",
+      "wave": 1,
+      "files": [
+        "c/game_01_w01.c"
+      ],
+      "test_files": [
+        "tests/game_01_w01.py"
+      ],
+      "naming_regions": [
+        "game-01"
+      ],
+      "routines": [
+        {
+          "name": "GAME:SaveHighScores",
+          "address": "013B:03DA",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:TestHighScoreQualification",
+          "address": "013B:0452",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:CopyHighScoreRowDown",
+          "address": "013B:04B3",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:DrawMenuHeaderSprites",
+          "address": "013B:06F7",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:DrawTextLine",
+          "address": "013B:077C",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "game_01_w00",
+        "game_05_w00",
+        "pilot_core"
+      ]
+    },
+    {
+      "id": "game_02_w01",
+      "wave": 1,
+      "files": [
+        "c/game_02_w01.c"
+      ],
+      "test_files": [
+        "tests/game_02_w01.py"
+      ],
+      "naming_regions": [
+        "game-02"
+      ],
+      "routines": [
+        {
+          "name": "GAME:DrawDemoSprites",
+          "address": "013B:0A58",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:InitializeDemoScripts",
+          "address": "013B:0AEB",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:PollPlayerControls",
+          "address": "013B:0FE8",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:MovePlayerWithVgaCollisions",
+          "address": "013B:1095",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "game_02_w00",
+        "game_05_w00",
+        "game_06_w00",
+        "pilot_core"
+      ]
+    },
+    {
+      "id": "game_03_w01",
+      "wave": 1,
+      "files": [
+        "c/game_03_w01.c"
+      ],
+      "test_files": [
+        "tests/game_03_w01.py"
+      ],
+      "naming_regions": [
+        "game-03"
+      ],
+      "routines": [
+        {
+          "name": "GAME:ReadPassengerJourneyLeg",
+          "address": "013B:149C",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:UpdatePassengerPlatformWait",
+          "address": "013B:15D7",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:UpdatePassengerDestinationDisplay",
+          "address": "013B:172A",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:UpdatePassengerQuestionDisplay",
+          "address": "013B:180A",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:UpdatePassengerApproach",
+          "address": "013B:18E6",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:BoardWaterbornePassenger",
+          "address": "013B:19E0",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:UpdateStonePickupWait",
+          "address": "013B:1C27",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:UpdateDinosaurPatrol",
+          "address": "013B:25C9",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:UpdateDinosaurAlert",
+          "address": "013B:2681",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:UpdateDinosaurCharge",
+          "address": "013B:2748",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:AnimateDinosaurRecovery",
+          "address": "013B:2844",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:AnimateDinosaurImpactRecovery",
+          "address": "013B:28A3",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:UpdateFruitTreeAnimation",
+          "address": "013B:2AB5",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {
+        "GAME:ReadPassengerJourneyLeg": [
+          "14DB: jmp ax"
+        ],
+        "GAME:UpdatePassengerPlatformWait": [
+          "1614: jmp word ptr [si + 8]",
+          "16CD: jmp word ptr [si + 8]",
+          "16E9: jmp word ptr [si + 0x14]"
+        ],
+        "GAME:UpdatePassengerDestinationDisplay": [
+          "1763: jmp word ptr [si + 8]",
+          "177D: jmp word ptr [si + 8]",
+          "17A4: jmp word ptr [si + 0x18]",
+          "17E2: jmp word ptr [si + 0x1c]"
+        ],
+        "GAME:UpdatePassengerQuestionDisplay": [
+          "1843: jmp word ptr [si + 8]",
+          "185D: jmp word ptr [si + 8]",
+          "18B8: jmp word ptr [si + 0x14]",
+          "18C4: jmp word ptr [si + 0x10]"
+        ],
+        "GAME:UpdatePassengerApproach": [
+          "191F: jmp word ptr [si + 8]",
+          "1939: jmp word ptr [si + 8]",
+          "1954: jmp word ptr [si + 0x18]",
+          "1986: jmp word ptr [si + 0x20]"
+        ],
+        "GAME:UpdateStonePickupWait": [
+          "1C3E: jmp word ptr [si + 0x20]"
+        ],
+        "GAME:UpdateDinosaurPatrol": [
+          "2645: jmp word ptr [si + 0xc]",
+          "2663: jmp word ptr [si + 0x1c]"
+        ],
+        "GAME:UpdateDinosaurAlert": [
+          "268E: jmp word ptr [si + 0x10]",
+          "26D9: jmp word ptr [si + 0x1c]",
+          "26F4: jmp word ptr [si + 8]"
+        ],
+        "GAME:UpdateDinosaurCharge": [
+          "2794: jmp word ptr [si + 0x1c]",
+          "27AF: jmp word ptr [si + 0x14]",
+          "282C: jmp word ptr [si + 0x18]"
+        ],
+        "GAME:AnimateDinosaurRecovery": [
+          "2872: jmp word ptr [si + 8]",
+          "288B: jmp word ptr [si + 0x1c]"
+        ],
+        "GAME:AnimateDinosaurImpactRecovery": [
+          "28D1: jmp word ptr [si + 8]",
+          "28EA: jmp word ptr [si + 0x1c]"
+        ],
+        "GAME:UpdateFruitTreeAnimation": [
+          "2B08: jmp word ptr [si + 0x1c]"
+        ]
+      },
+      "depends_on": [
+        "game_03_w00",
+        "game_05_w00"
+      ]
+    },
+    {
+      "id": "game_04_w01",
+      "wave": 1,
+      "files": [
+        "c/game_04_w01.c"
+      ],
+      "test_files": [
+        "tests/game_04_w01.py"
+      ],
+      "naming_regions": [
+        "game-04"
+      ],
+      "routines": [
+        {
+          "name": "GAME:ExpireOrCollectFallingItem",
+          "address": "013B:2CA9",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:AdvanceWaterSurface",
+          "address": "013B:2D1C",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "game_03_w00",
+        "game_05_w00"
+      ]
+    },
+    {
+      "id": "game_05_w01",
+      "wave": 1,
+      "files": [
+        "c/game_05_w01.c"
+      ],
+      "test_files": [
+        "tests/game_05_w01.py"
+      ],
+      "naming_regions": [
+        "game-05"
+      ],
+      "routines": [
+        {
+          "name": "GAME:RespawnRainParticle",
+          "address": "013B:3C35",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:DrawHudBorders",
+          "address": "013B:3E79",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:DrawHudDigit",
+          "address": "013B:3EAA",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:AnimateAndDrawPlayer",
+          "address": "013B:418D",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:RestorePlayfieldBackground",
+          "address": "013B:43A5",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:RestoreSpriteBackground",
+          "address": "013B:43B9",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:DrawMapTile",
+          "address": "013B:4454",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "game_05_w00",
+        "game_06_w00"
+      ]
+    },
+    {
+      "id": "game_06_w01",
+      "wave": 1,
+      "files": [
+        "c/game_06_w01.c"
+      ],
+      "test_files": [
+        "tests/game_06_w01.py"
+      ],
+      "naming_regions": [
+        "game-06"
+      ],
+      "routines": [
+        {
+          "name": "GAME:WaitNextVerticalRetrace",
+          "address": "013B:44C3",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:WaitThroughVerticalRetrace",
+          "address": "013B:44CF",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:UnpackPictureAndCopyPalette",
+          "address": "013B:4C81",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:ClearAllVgaPlanes",
+          "address": "013B:4F96",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:DetectAndCalibrateJoysticks",
+          "address": "013B:50C6",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "game_06_w00",
+        "pilot_core"
+      ]
+    },
+    {
+      "id": "sound_01_w01",
+      "wave": 1,
+      "files": [
+        "c/sound_01_w01.c"
+      ],
+      "test_files": [
+        "tests/sound_01_w01.py"
+      ],
+      "naming_regions": [
+        "sound-01"
+      ],
+      "routines": [
+        {
+          "name": "SOUND:WriteAdlibRegister",
+          "address": "0664:11F2",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:CancelMusicFade",
+          "address": "0664:1331",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:ScheduleMusicFade",
+          "address": "0664:134E",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:KeyOffAdlibChannel",
+          "address": "0664:14B1",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:SetAdlibFrequency",
+          "address": "0664:1503",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:HandleMainAdlxNoOp",
+          "address": "0664:16AF",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:HandleMainAdlxTimerPeriod",
+          "address": "0664:16B2",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:HandleMainAdlxControl",
+          "address": "0664:16CE",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:HandleEffectAdlxNoOp",
+          "address": "0664:1847",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:HandleEffectAdlxTimerPeriod",
+          "address": "0664:184A",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:StartDmaSampleBlock",
+          "address": "0664:1B77",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:SetDspSampleRate",
+          "address": "0664:1C39",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:ResetSoundBlasterDsp",
+          "address": "0664:2114",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "pilot_core",
+        "sound_01_w00",
+        "timer_01_w00"
+      ]
+    },
+    {
+      "id": "timer_01_w01",
+      "wave": 1,
+      "files": [
+        "c/timer_01_w01.c"
+      ],
+      "test_files": [
+        "tests/timer_01_w01.py"
+      ],
+      "naming_regions": [
+        "timer-01"
+      ],
+      "routines": [
+        {
+          "name": "TIMER:RegisterTimerCallbackFromStack",
+          "address": "0A32:030E",
+          "status": "untranslated"
+        },
+        {
+          "name": "TIMER:RemoveTimerCallbackFromStack",
+          "address": "0A32:0323",
+          "status": "untranslated"
+        },
+        {
+          "name": "TIMER:loc_032F",
+          "address": "0A32:032F",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "pilot_core",
+        "timer_01_w00"
+      ]
+    },
+    {
+      "id": "game_01_w02",
+      "wave": 2,
+      "files": [
+        "c/game_01_w02.c"
+      ],
+      "test_files": [
+        "tests/game_01_w02.py"
+      ],
+      "naming_regions": [
+        "game-01"
+      ],
+      "routines": [
+        {
+          "name": "GAME:DrawTextBlock",
+          "address": "013B:0776",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "game_01_w01"
+      ]
+    },
+    {
+      "id": "game_02_w02",
+      "wave": 2,
+      "files": [
+        "c/game_02_w02.c"
+      ],
+      "test_files": [
+        "tests/game_02_w02.py"
+      ],
+      "naming_regions": [
+        "game-02"
+      ],
+      "routines": [
+        {
+          "name": "GAME:EraseDemoSprites",
+          "address": "013B:0AB1",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "game_05_w01"
+      ]
+    },
+    {
+      "id": "game_05_w02",
+      "wave": 2,
+      "files": [
+        "c/game_05_w02.c"
+      ],
+      "test_files": [
+        "tests/game_05_w02.py"
+      ],
+      "naming_regions": [
+        "game-05"
+      ],
+      "routines": [
+        {
+          "name": "GAME:AdvanceRainParticles",
+          "address": "013B:3C78",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:DrawHudDigitAndAdvance",
+          "address": "013B:3EA1",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:RedrawChangedFourDigitNumber",
+          "address": "013B:3ECF",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:DrawTileMap",
+          "address": "013B:4172",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:RestorePlayerBackground",
+          "address": "013B:436D",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "game_05_w00",
+        "game_05_w01"
+      ]
+    },
+    {
+      "id": "game_06_w02",
+      "wave": 2,
+      "files": [
+        "c/game_06_w02.c"
+      ],
+      "test_files": [
+        "tests/game_06_w02.py"
+      ],
+      "naming_regions": [
+        "game-06"
+      ],
+      "routines": [
+        {
+          "name": "GAME:WaitForInputOrRetraceTimeout",
+          "address": "013B:4497",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:WaitRetraceCount",
+          "address": "013B:44BB",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:WaitForScanChangeOrJoystickButton",
+          "address": "013B:44DB",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:UploadBasePalette",
+          "address": "013B:4E68",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:BlackenVgaPalette",
+          "address": "013B:4E9B",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "game_06_w00",
+        "game_06_w01",
+        "pilot_core"
+      ]
+    },
+    {
+      "id": "sound_01_w02",
+      "wave": 2,
+      "files": [
+        "c/sound_01_w02.c"
+      ],
+      "test_files": [
+        "tests/sound_01_w02.py"
+      ],
+      "naming_regions": [
+        "sound-01"
+      ],
+      "routines": [
+        {
+          "name": "SOUND:SetAdlibChannelVolume",
+          "address": "0664:1211",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:HandleMainAdlxFrequency",
+          "address": "0664:1607",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:HandleMainAdlxKeyOff",
+          "address": "0664:1649",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:HandleEffectAdlxFrequency",
+          "address": "0664:17B0",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:HandleEffectAdlxKeyOff",
+          "address": "0664:17D2",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:SilenceAdlibOperators",
+          "address": "0664:1A37",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:HandleSampleDmaInterrupt",
+          "address": "0664:1E04",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:ProbeSoundBlasterDmaIrq",
+          "address": "0664:1F00",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:ShutdownDspPlayback",
+          "address": "0664:20B9",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "game_01_w00",
+        "sound_01_w00",
+        "sound_01_w01"
+      ]
+    },
+    {
+      "id": "c_01_w03",
+      "wave": 3,
+      "files": [
+        "c/c_01_w03.c"
+      ],
+      "test_files": [
+        "tests/c_01_w03.py"
+      ],
+      "naming_regions": [
+        "c-01"
+      ],
+      "routines": [
+        {
+          "name": "C:SetMusicTrackVolume",
+          "address": "0878:1128",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "sound_01_w02"
+      ]
+    },
+    {
+      "id": "game_05_w03",
+      "wave": 3,
+      "files": [
+        "c/game_05_w03.c"
+      ],
+      "test_files": [
+        "tests/game_05_w03.py"
+      ],
+      "naming_regions": [
+        "game-05"
+      ],
+      "routines": [
+        {
+          "name": "GAME:LoadCurrentLevelState",
+          "address": "013B:3976",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:RedrawChangedSixDigitNumber",
+          "address": "013B:3EBD",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:RedrawChangedTwoDigitNumber",
+          "address": "013B:3EFF",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "game_05_w00",
+        "game_05_w01",
+        "game_05_w02",
+        "game_06_w00"
+      ]
+    },
+    {
+      "id": "game_06_w03",
+      "wave": 3,
+      "files": [
+        "c/game_06_w03.c"
+      ],
+      "test_files": [
+        "tests/game_06_w03.py"
+      ],
+      "naming_regions": [
+        "game-06"
+      ],
+      "routines": [
+        {
+          "name": "GAME:ScaleAndUploadFadedPalette",
+          "address": "013B:4E36",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "game_06_w01",
+        "game_06_w02"
+      ]
+    },
+    {
+      "id": "sound_01_w03",
+      "wave": 3,
+      "files": [
+        "c/sound_01_w03.c"
+      ],
+      "test_files": [
+        "tests/sound_01_w03.py"
+      ],
+      "naming_regions": [
+        "sound-01"
+      ],
+      "routines": [
+        {
+          "name": "SOUND:LoadAdlibInstrument",
+          "address": "0664:1377",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:SetAdlibChannelGain",
+          "address": "0664:1571",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:ShutdownAdlibPlayback",
+          "address": "0664:1A65",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:InitializeAdlibPlayback",
+          "address": "0664:1A89",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:PrimeSampleDmaPlayback",
+          "address": "0664:1E97",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:InitializeDspPlayback",
+          "address": "0664:205C",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "pilot_core",
+        "sound_01_w00",
+        "sound_01_w01",
+        "sound_01_w02",
+        "timer_01_w00"
+      ]
+    },
+    {
+      "id": "c_01_w04",
+      "wave": 4,
+      "files": [
+        "c/c_01_w04.c"
+      ],
+      "test_files": [
+        "tests/c_01_w04.py"
+      ],
+      "naming_regions": [
+        "c-01"
+      ],
+      "routines": [
+        {
+          "name": "C:ShutdownSoundSystem",
+          "address": "0878:008A",
+          "status": "untranslated"
+        },
+        {
+          "name": "C:RestoreAdlibVoiceAllocation",
+          "address": "0878:14BB",
+          "status": "untranslated"
+        },
+        {
+          "name": "C:ApplyScannedMusicEvents",
+          "address": "0878:1943",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "pilot_core",
+        "sound_01_w01",
+        "sound_01_w02",
+        "sound_01_w03"
+      ]
+    },
+    {
+      "id": "game_05_w04",
+      "wave": 4,
+      "files": [
+        "c/game_05_w04.c"
+      ],
+      "test_files": [
+        "tests/game_05_w04.py"
+      ],
+      "naming_regions": [
+        "game-05"
+      ],
+      "routines": [
+        {
+          "name": "GAME:RefreshHudAndTimerBar",
+          "address": "013B:3F55",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "game_05_w00",
+        "game_05_w02",
+        "game_05_w03"
+      ]
+    },
+    {
+      "id": "game_06_w04",
+      "wave": 4,
+      "files": [
+        "c/game_06_w04.c"
+      ],
+      "test_files": [
+        "tests/game_06_w04.py"
+      ],
+      "naming_regions": [
+        "game-06"
+      ],
+      "routines": [
+        {
+          "name": "GAME:FadePaletteIn",
+          "address": "013B:4E19",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:FadePaletteOut",
+          "address": "013B:4E28",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "game_06_w03"
+      ]
+    },
+    {
+      "id": "sound_01_w04",
+      "wave": 4,
+      "files": [
+        "c/sound_01_w04.c"
+      ],
+      "test_files": [
+        "tests/sound_01_w04.py"
+      ],
+      "naming_regions": [
+        "sound-01"
+      ],
+      "routines": [
+        {
+          "name": "SOUND:AdvanceMusicFade",
+          "address": "0664:12E5",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:HandleMainAdlxGain",
+          "address": "0664:167D",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:HandleMainAdlxInstrument",
+          "address": "0664:1696",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:HandleEffectAdlxGain",
+          "address": "0664:17EF",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:HandleEffectAdlxInstrument",
+          "address": "0664:1810",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "c_01_w03",
+        "sound_01_w00",
+        "sound_01_w03",
+        "timer_01_w00"
+      ]
+    },
+    {
+      "id": "c_01_w05",
+      "wave": 5,
+      "files": [
+        "c/c_01_w05.c"
+      ],
+      "test_files": [
+        "tests/c_01_w05.py"
+      ],
+      "naming_regions": [
+        "c-01"
+      ],
+      "routines": [
+        {
+          "name": "C:InitializeSoundSystem",
+          "address": "0878:0003",
+          "status": "untranslated"
+        },
+        {
+          "name": "C:StopAdlibTrackChannel",
+          "address": "0878:1768",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "c_01_w04",
+        "game_01_w00",
+        "pilot_core",
+        "sound_01_w01",
+        "sound_01_w03"
+      ]
+    },
+    {
+      "id": "sound_01_w05",
+      "wave": 5,
+      "files": [
+        "c/sound_01_w05.c"
+      ],
+      "test_files": [
+        "tests/sound_01_w05.py"
+      ],
+      "naming_regions": [
+        "sound-01"
+      ],
+      "routines": [
+        {
+          "name": "SOUND:TickAdlxPlayback",
+          "address": "0664:1939",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "c_01_w04",
+        "sound_01_w00"
+      ]
+    },
+    {
+      "id": "c_01_w06",
+      "wave": 6,
+      "files": [
+        "c/c_01_w06.c"
+      ],
+      "test_files": [
+        "tests/c_01_w06.py"
+      ],
+      "naming_regions": [
+        "c-01"
+      ],
+      "routines": [
+        {
+          "name": "C:LoadAdlibChannel",
+          "address": "0878:0691",
+          "status": "untranslated"
+        },
+        {
+          "name": "C:StopSoundChannel",
+          "address": "0878:09CA",
+          "status": "untranslated"
+        },
+        {
+          "name": "C:StartAdlibTrackChannel",
+          "address": "0878:0CFC",
+          "status": "untranslated"
+        },
+        {
+          "name": "C:StopMusicTrack",
+          "address": "0878:1059",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "c_01_w01",
+        "c_01_w05",
+        "pilot_core",
+        "sound_01_w01",
+        "sound_01_w02"
+      ]
+    },
+    {
+      "id": "game_03_w06",
+      "wave": 6,
+      "files": [
+        "c/game_03_w06.c"
+      ],
+      "test_files": [
+        "tests/game_03_w06.py"
+      ],
+      "naming_regions": [
+        "game-03"
+      ],
+      "routines": [
+        {
+          "name": "GAME:StopBirdFlightSound",
+          "address": "013B:25A0",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "c_01_w05"
+      ]
+    },
+    {
+      "id": "game_06_w06",
+      "wave": 6,
+      "files": [
+        "c/game_06_w06.c"
+      ],
+      "test_files": [
+        "tests/game_06_w06.py"
+      ],
+      "naming_regions": [
+        "game-06"
+      ],
+      "routines": [
+        {
+          "name": "GAME:InitializeAdLibSound",
+          "address": "013B:4F43",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "c_01_w05"
+      ]
+    },
+    {
+      "id": "sound_01_w06",
+      "wave": 6,
+      "files": [
+        "c/sound_01_w06.c"
+      ],
+      "test_files": [
+        "tests/sound_01_w06.py"
+      ],
+      "naming_regions": [
+        "sound-01"
+      ],
+      "routines": [
+        {
+          "name": "SOUND:AdvanceGuardedSoundClock",
+          "address": "0664:11C3",
+          "status": "untranslated"
+        },
+        {
+          "name": "SOUND:HandleEffectAdlxControl",
+          "address": "0664:189C",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "c_01_w05",
+        "sound_01_w00",
+        "sound_01_w05"
+      ]
+    },
+    {
+      "id": "c_01_w07",
+      "wave": 7,
+      "files": [
+        "c/c_01_w07.c"
+      ],
+      "test_files": [
+        "tests/c_01_w07.py"
+      ],
+      "naming_regions": [
+        "c-01"
+      ],
+      "routines": [
+        {
+          "name": "C:LoadIffSample",
+          "address": "0878:0176",
+          "status": "untranslated"
+        },
+        {
+          "name": "C:StartSoundOutputs",
+          "address": "0878:096B",
+          "status": "untranslated"
+        },
+        {
+          "name": "C:StartMusicTrack",
+          "address": "0878:0F88",
+          "status": "untranslated"
+        },
+        {
+          "name": "C:PlayAdlibEffect",
+          "address": "0878:1852",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "c_01_w01",
+        "c_01_w03",
+        "c_01_w05",
+        "c_01_w06",
+        "sound_01_w01",
+        "sound_01_w03"
+      ]
+    },
+    {
+      "id": "game_03_w07",
+      "wave": 7,
+      "files": [
+        "c/game_03_w07.c"
+      ],
+      "test_files": [
+        "tests/game_03_w07.py"
+      ],
+      "naming_regions": [
+        "game-03"
+      ],
+      "routines": [
+        {
+          "name": "GAME:UpdateBirdFlight",
+          "address": "013B:2493",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {
+        "GAME:UpdateBirdFlight": [
+          "24B2: jmp word ptr [si + 8]",
+          "2500: jmp word ptr [si + 0x1c]"
+        ]
+      },
+      "depends_on": [
+        "game_03_w00",
+        "game_03_w06"
+      ]
+    },
+    {
+      "id": "game_06_w07",
+      "wave": 7,
+      "files": [
+        "c/game_06_w07.c"
+      ],
+      "test_files": [
+        "tests/game_06_w07.py"
+      ],
+      "naming_regions": [
+        "game-06"
+      ],
+      "routines": [
+        {
+          "name": "GAME:FadeAndShutdownSound",
+          "address": "013B:4F4E",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "c_01_w04",
+        "c_01_w06"
+      ]
+    },
+    {
+      "id": "c_01_w08",
+      "wave": 8,
+      "files": [
+        "c/c_01_w08.c"
+      ],
+      "test_files": [
+        "tests/c_01_w08.py"
+      ],
+      "naming_regions": [
+        "c-01"
+      ],
+      "routines": [
+        {
+          "name": "C:LoadBankSoundByIndex",
+          "address": "0878:06E4",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "c_01_w06",
+        "c_01_w07"
+      ]
+    },
+    {
+      "id": "game_03_w08",
+      "wave": 8,
+      "files": [
+        "c/game_03_w08.c"
+      ],
+      "test_files": [
+        "tests/game_03_w08.py"
+      ],
+      "naming_regions": [
+        "game-03"
+      ],
+      "routines": [
+        {
+          "name": "GAME:DeliverPassenger",
+          "address": "013B:1A7E",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:ThrowCarriedStone",
+          "address": "013B:1C81",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:BeginBirdWarning",
+          "address": "013B:23B0",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:LaunchBirdTowardPlayer",
+          "address": "013B:23EA",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:loc_2973",
+          "address": "013B:2973",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {
+        "GAME:DeliverPassenger": [
+          "1AEB: call word ptr [si + 4]"
+        ],
+        "GAME:loc_2973": [
+          "2A4F: jmp word ptr [si + 0x1c]"
+        ]
+      },
+      "depends_on": [
+        "c_01_w07",
+        "game_03_w00"
+      ]
+    },
+    {
+      "id": "game_04_w08",
+      "wave": 8,
+      "files": [
+        "c/game_04_w08.c"
+      ],
+      "test_files": [
+        "tests/game_04_w08.py"
+      ],
+      "naming_regions": [
+        "game-04"
+      ],
+      "routines": [
+        {
+          "name": "GAME:ReleaseTreeReward",
+          "address": "013B:2B0C",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {
+        "GAME:ReleaseTreeReward": [
+          "2B3A: call word ptr [si + 4]"
+        ]
+      },
+      "depends_on": [
+        "c_01_w07"
+      ]
+    },
+    {
+      "id": "game_06_w08",
+      "wave": 8,
+      "files": [
+        "c/game_06_w08.c"
+      ],
+      "test_files": [
+        "tests/game_06_w08.py"
+      ],
+      "naming_regions": [
+        "game-06"
+      ],
+      "routines": [
+        {
+          "name": "GAME:SwapAndDisplayVgaPage",
+          "address": "013B:4EBB",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "game_06_w00",
+        "game_06_w07"
+      ]
+    },
+    {
+      "id": "game_01_w09",
+      "wave": 9,
+      "files": [
+        "c/game_01_w09.c"
+      ],
+      "test_files": [
+        "tests/game_01_w09.py"
+      ],
+      "naming_regions": [
+        "game-01"
+      ],
+      "routines": [
+        {
+          "name": "GAME:DrawMainMenu",
+          "address": "013B:0039",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:ShowHighScores",
+          "address": "013B:01B1",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:DrawHighScoreNameEntry",
+          "address": "013B:01F1",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:DrawControlOptions",
+          "address": "013B:05BB",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:ShowLevelIntroduction",
+          "address": "013B:0664",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:PrepareAttractMap0",
+          "address": "013B:0720",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "c_01_w06",
+        "c_01_w07",
+        "game_01_w00",
+        "game_01_w01",
+        "game_01_w02",
+        "game_04_w00",
+        "game_05_w00",
+        "game_05_w01",
+        "game_05_w02",
+        "game_06_w00",
+        "game_06_w01",
+        "game_06_w02",
+        "game_06_w04",
+        "game_06_w08"
+      ]
+    },
+    {
+      "id": "game_02_w09",
+      "wave": 9,
+      "files": [
+        "c/game_02_w09.c"
+      ],
+      "test_files": [
+        "tests/game_02_w09.py"
+      ],
+      "naming_regions": [
+        "game-02"
+      ],
+      "routines": [
+        {
+          "name": "GAME:ShowCreditsPages",
+          "address": "013B:07F6",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:RunScriptedDemo",
+          "address": "013B:08D5",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:ShowPackedPictureAndWait",
+          "address": "013B:0B83",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "game_01_w01",
+        "game_01_w02",
+        "game_02_w00",
+        "game_02_w01",
+        "game_02_w02",
+        "game_04_w00",
+        "game_05_w00",
+        "game_05_w01",
+        "game_06_w00",
+        "game_06_w01",
+        "game_06_w02",
+        "game_06_w03",
+        "game_06_w04",
+        "game_06_w08",
+        "pilot_core"
+      ]
+    },
+    {
+      "id": "game_06_w09",
+      "wave": 9,
+      "files": [
+        "c/game_06_w09.c"
+      ],
+      "test_files": [
+        "tests/game_06_w09.py"
+      ],
+      "naming_regions": [
+        "game-06"
+      ],
+      "routines": [
+        {
+          "name": "GAME:ConfigureVgaPicturePages",
+          "address": "013B:4FB3",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:ConfigureVgaGameplayPages",
+          "address": "013B:503B",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "game_06_w01",
+        "game_06_w02",
+        "game_06_w08"
+      ]
+    },
+    {
+      "id": "game_01_w10",
+      "wave": 10,
+      "files": [
+        "c/game_01_w10.c"
+      ],
+      "test_files": [
+        "tests/game_01_w10.py"
+      ],
+      "naming_regions": [
+        "game-01"
+      ],
+      "routines": [
+        {
+          "name": "GAME:InsertHighScoreAndClearScore",
+          "address": "013B:0210",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:EditLevelPassword",
+          "address": "013B:04CA",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:SelectPlayerControls",
+          "address": "013B:05E6",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:PrepareAttractMap90",
+          "address": "013B:0712",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "c_01_w06",
+        "c_01_w07",
+        "game_01_w00",
+        "game_01_w01",
+        "game_01_w02",
+        "game_01_w09",
+        "game_04_w00",
+        "game_05_w00",
+        "game_05_w01",
+        "game_06_w00",
+        "game_06_w01",
+        "game_06_w02",
+        "game_06_w04",
+        "game_06_w08",
+        "pilot_core"
+      ]
+    },
+    {
+      "id": "game_02_w10",
+      "wave": 10,
+      "files": [
+        "c/game_02_w10.c"
+      ],
+      "test_files": [
+        "tests/game_02_w10.py"
+      ],
+      "naming_regions": [
+        "game-02"
+      ],
+      "routines": [
+        {
+          "name": "GAME:PlaySpriteRevealDemo",
+          "address": "013B:088D",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:PlayGameCompletionDemo",
+          "address": "013B:08A2",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:PlayPreGameDemo",
+          "address": "013B:08C7",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:ShowStartupPictures",
+          "address": "013B:0BB8",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "c_01_w06",
+        "c_01_w07",
+        "game_01_w09",
+        "game_02_w00",
+        "game_02_w09",
+        "game_06_w08"
+      ]
+    },
+    {
+      "id": "game_05_w10",
+      "wave": 10,
+      "files": [
+        "c/game_05_w10.c"
+      ],
+      "test_files": [
+        "tests/game_05_w10.py"
+      ],
+      "naming_regions": [
+        "game-05"
+      ],
+      "routines": [
+        {
+          "name": "GAME:InitializeLevelDisplay",
+          "address": "013B:3D66",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "game_01_w09",
+        "game_02_w00",
+        "game_03_w00",
+        "game_05_w00",
+        "game_05_w01",
+        "game_05_w02",
+        "game_05_w03",
+        "game_06_w00",
+        "game_06_w01",
+        "game_06_w02",
+        "game_06_w08"
+      ]
+    },
+    {
+      "id": "game_01_w11",
+      "wave": 11,
+      "files": [
+        "c/game_01_w11.c"
+      ],
+      "test_files": [
+        "tests/game_01_w11.py"
+      ],
+      "naming_regions": [
+        "game-01"
+      ],
+      "routines": [
+        {
+          "name": "GAME:LoadHighScores",
+          "address": "013B:0405",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "game_01_w10",
+        "pilot_core"
+      ]
+    },
+    {
+      "id": "game_02_w11",
+      "wave": 11,
+      "files": [
+        "c/game_02_w11.c"
+      ],
+      "test_files": [
+        "tests/game_02_w11.py"
+      ],
+      "naming_regions": [
+        "game-02"
+      ],
+      "routines": [
+        {
+          "name": "GAME:PlayAttractDemo",
+          "address": "013B:08CF",
+          "status": "untranslated"
+        },
+        {
+          "name": "GAME:RunGameFromPassword",
+          "address": "013B:0C07",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "c_01_w06",
+        "c_01_w07",
+        "game_01_w10",
+        "game_02_w00",
+        "game_02_w01",
+        "game_02_w10",
+        "game_03_w00",
+        "game_04_w00",
+        "game_04_w01",
+        "game_05_w00",
+        "game_05_w01",
+        "game_05_w02",
+        "game_05_w04",
+        "game_05_w10",
+        "game_06_w01",
+        "game_06_w02",
+        "game_06_w03",
+        "game_06_w08",
+        "pilot_core"
+      ]
+    },
+    {
+      "id": "game_01_w12",
+      "wave": 12,
+      "files": [
+        "c/game_01_w12.c"
+      ],
+      "test_files": [
+        "tests/game_01_w12.py"
+      ],
+      "naming_regions": [
+        "game-01"
+      ],
+      "routines": [
+        {
+          "name": "GAME:RunMainMenuAndAttractLoop",
+          "address": "013B:0063",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "c_01_w06",
+        "c_01_w07",
+        "game_01_w01",
+        "game_01_w02",
+        "game_01_w09",
+        "game_01_w10",
+        "game_02_w09",
+        "game_02_w10",
+        "game_02_w11",
+        "game_05_w00",
+        "game_05_w01",
+        "game_06_w00",
+        "game_06_w01",
+        "game_06_w02",
+        "game_06_w04",
+        "game_06_w08",
+        "pilot_core"
+      ]
+    },
+    {
+      "id": "game_06_w12",
+      "wave": 12,
+      "files": [
+        "c/game_06_w12.c"
+      ],
+      "test_files": [
+        "tests/game_06_w12.py"
+      ],
+      "naming_regions": [
+        "game-06"
+      ],
+      "routines": [
+        {
+          "name": "GAME:InitializeDosVideoInputAndSound",
+          "address": "013B:4F5E",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "game_01_w11",
+        "game_06_w00",
+        "game_06_w01",
+        "game_06_w06",
+        "game_06_w08",
+        "game_06_w09"
+      ]
+    },
+    {
+      "id": "game_01_w13",
+      "wave": 13,
+      "files": [
+        "c/game_01_w13.c"
+      ],
+      "test_files": [
+        "tests/game_01_w13.py"
+      ],
+      "naming_regions": [
+        "game-01"
+      ],
+      "routines": [
+        {
+          "name": "GAME:RunDosGame",
+          "address": "013B:0008",
+          "status": "untranslated"
+        }
+      ],
+      "unresolved_indirect": {},
+      "depends_on": [
+        "game_01_w12",
+        "game_02_w10",
+        "game_06_w08",
+        "game_06_w09",
+        "game_06_w12"
+      ]
+    }
+  ]
+}

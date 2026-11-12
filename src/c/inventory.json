@@ -1,0 +1,1577 @@
+{
+  "frame": "0878",
+  "functions": [
+    {
+      "name": "fn_0003",
+      "address": "0878:0003",
+      "length": 135,
+      "instruction_length": 135,
+      "locals": 0,
+      "ds_offsets": [
+        "0000"
+      ],
+      "callees": [
+        {
+          "site": "0026",
+          "target": "0x8a",
+          "kind": "call"
+        },
+        {
+          "site": "0029",
+          "target": "0x664, 0x112b",
+          "kind": "lcall"
+        },
+        {
+          "site": "0035",
+          "target": "0x664, 0x205c",
+          "kind": "lcall"
+        },
+        {
+          "site": "0045",
+          "target": "0x13b, 0x1f",
+          "kind": "lcall"
+        },
+        {
+          "site": "004A",
+          "target": "0x13b, 0x1e",
+          "kind": "lcall"
+        },
+        {
+          "site": "0058",
+          "target": "0x664, 0x1c39",
+          "kind": "lcall"
+        },
+        {
+          "site": "0065",
+          "target": "0x664, 0x1a89",
+          "kind": "lcall"
+        }
+      ],
+      "relocation_sites": [
+        "0072",
+        "0068",
+        "005B",
+        "004D",
+        "0048",
+        "0038",
+        "002C",
+        "0018",
+        "000A"
+      ],
+      "status": "exact (fresh cjudge required)",
+      "far_globals": [
+        "g_026A"
+      ],
+      "dgroup_offsets": []
+    },
+    {
+      "name": "fn_008A",
+      "address": "0878:008A",
+      "length": 107,
+      "instruction_length": 107,
+      "locals": 0,
+      "ds_offsets": [
+        "0002"
+      ],
+      "callees": [
+        {
+          "site": "00B5",
+          "target": "0x664, 0x1331",
+          "kind": "lcall"
+        },
+        {
+          "site": "00C8",
+          "target": "0x664, 0x20b9",
+          "kind": "lcall"
+        },
+        {
+          "site": "00DB",
+          "target": "0x664, 0x1a65",
+          "kind": "lcall"
+        }
+      ],
+      "relocation_sites": [
+        "00E1",
+        "00DE",
+        "00CE",
+        "00CB",
+        "00BB",
+        "00B8",
+        "00AA",
+        "009B",
+        "008F"
+      ],
+      "status": "exact (fresh cjudge required)",
+      "far_globals": [
+        "g_0236",
+        "g_026A"
+      ],
+      "dgroup_offsets": []
+    },
+    {
+      "name": "fn_00F5",
+      "address": "0878:00F5",
+      "length": 129,
+      "instruction_length": 129,
+      "locals": 4,
+      "ds_offsets": [],
+      "callees": [
+        {
+          "site": "0111",
+          "target": "0x13b, 0x1d",
+          "kind": "lcall"
+        },
+        {
+          "site": "0123",
+          "target": "0, 0x372",
+          "kind": "lcall"
+        },
+        {
+          "site": "014D",
+          "target": "0x13b, 0x1c",
+          "kind": "lcall"
+        }
+      ],
+      "relocation_sites": [
+        "0164",
+        "0156",
+        "0150",
+        "0133",
+        "0126",
+        "0114",
+        "00FB"
+      ],
+      "status": "exact (fresh cjudge required)",
+      "far_globals": [
+        "g_024E",
+        "g_0252"
+      ],
+      "dgroup_offsets": []
+    },
+    {
+      "name": "fn_0176",
+      "address": "0878:0176",
+      "length": 1307,
+      "instruction_length": 1307,
+      "locals": 10,
+      "ds_offsets": [],
+      "callees": [
+        {
+          "site": "01B7",
+          "target": "0, 0x54d",
+          "kind": "lcall"
+        },
+        {
+          "site": "01D0",
+          "target": "0, 0x54d",
+          "kind": "lcall"
+        },
+        {
+          "site": "01E9",
+          "target": "0, 0x54d",
+          "kind": "lcall"
+        },
+        {
+          "site": "0202",
+          "target": "0, 0x54d",
+          "kind": "lcall"
+        },
+        {
+          "site": "022D",
+          "target": "0, 0x465",
+          "kind": "lcall"
+        },
+        {
+          "site": "023A",
+          "target": "0, 0x444",
+          "kind": "lcall"
+        },
+        {
+          "site": "0262",
+          "target": "0, 0x465",
+          "kind": "lcall"
+        },
+        {
+          "site": "026F",
+          "target": "0, 0x444",
+          "kind": "lcall"
+        },
+        {
+          "site": "0297",
+          "target": "0, 0x465",
+          "kind": "lcall"
+        },
+        {
+          "site": "02A4",
+          "target": "0, 0x444",
+          "kind": "lcall"
+        },
+        {
+          "site": "02CC",
+          "target": "0, 0x465",
+          "kind": "lcall"
+        },
+        {
+          "site": "02DF",
+          "target": "0, 0x4ed",
+          "kind": "lcall"
+        },
+        {
+          "site": "02EA",
+          "target": "0, 0x372",
+          "kind": "lcall"
+        },
+        {
+          "site": "02FE",
+          "target": "0, 0x54d",
+          "kind": "lcall"
+        },
+        {
+          "site": "0317",
+          "target": "0, 0x54d",
+          "kind": "lcall"
+        },
+        {
+          "site": "0330",
+          "target": "0, 0x54d",
+          "kind": "lcall"
+        },
+        {
+          "site": "0349",
+          "target": "0, 0x54d",
+          "kind": "lcall"
+        },
+        {
+          "site": "0366",
+          "target": "0, 0x4ed",
+          "kind": "lcall"
+        },
+        {
+          "site": "0383",
+          "target": "0, 0x4ed",
+          "kind": "lcall"
+        },
+        {
+          "site": "03A2",
+          "target": "0, 0x4ed",
+          "kind": "lcall"
+        },
+        {
+          "site": "03C7",
+          "target": "0, 0x4ed",
+          "kind": "lcall"
+        },
+        {
+          "site": "03D2",
+          "target": "0, 0x372",
+          "kind": "lcall"
+        },
+        {
+          "site": "03E6",
+          "target": "0, 0x54d",
+          "kind": "lcall"
+        },
+        {
+          "site": "03FF",
+          "target": "0, 0x54d",
+          "kind": "lcall"
+        },
+        {
+          "site": "0418",
+          "target": "0, 0x54d",
+          "kind": "lcall"
+        },
+        {
+          "site": "0431",
+          "target": "0, 0x54d",
+          "kind": "lcall"
+        },
+        {
+          "site": "045D",
+          "target": "0, 0x465",
+          "kind": "lcall"
+        },
+        {
+          "site": "046A",
+          "target": "0, 0x444",
+          "kind": "lcall"
+        },
+        {
+          "site": "0492",
+          "target": "0, 0x465",
+          "kind": "lcall"
+        },
+        {
+          "site": "049F",
+          "target": "0, 0x444",
+          "kind": "lcall"
+        },
+        {
+          "site": "04C7",
+          "target": "0, 0x465",
+          "kind": "lcall"
+        },
+        {
+          "site": "04D4",
+          "target": "0, 0x444",
+          "kind": "lcall"
+        },
+        {
+          "site": "04FC",
+          "target": "0, 0x465",
+          "kind": "lcall"
+        },
+        {
+          "site": "0518",
+          "target": "0x9ca",
+          "kind": "call"
+        }
+      ],
+      "relocation_sites": [
+        "03E9",
+        "03D5",
+        "03CA",
+        "03A5",
+        "0386",
+        "0369",
+        "034C",
+        "0333",
+        "031A",
+        "0301",
+        "02ED",
+        "02E2",
+        "02CF",
+        "02A7",
+        "029A",
+        "0272",
+        "0265",
+        "023D",
+        "0230",
+        "0205",
+        "01EC",
+        "01D3",
+        "01BA",
+        "0192",
+        "017E",
+        "067D",
+        "066B",
+        "065E",
+        "064F",
+        "063D",
+        "0629",
+        "0613",
+        "05F6",
+        "05E1",
+        "05D1",
+        "05BE",
+        "05A9",
+        "0582",
+        "0572",
+        "055F",
+        "054C",
+        "0534",
+        "04FF",
+        "04D7",
+        "04CA",
+        "04A2",
+        "0495",
+        "046D",
+        "0460",
+        "0434",
+        "041B",
+        "0402"
+      ],
+      "status": "exact (fresh cjudge required)",
+      "far_globals": [
+        "g_000E",
+        "g_0014",
+        "g_026A",
+        "g_026E",
+        "g_0270"
+      ],
+      "dgroup_offsets": []
+    },
+    {
+      "name": "fn_0691",
+      "address": "0878:0691",
+      "length": 83,
+      "instruction_length": 83,
+      "locals": 0,
+      "ds_offsets": [],
+      "callees": [
+        {
+          "site": "06AB",
+          "target": "0x1768",
+          "kind": "call"
+        },
+        {
+          "site": "06BB",
+          "target": "0xaa9",
+          "kind": "call"
+        }
+      ],
+      "relocation_sites": [
+        "06CB",
+        "0697"
+      ],
+      "status": "exact (fresh cjudge required)",
+      "far_globals": [
+        "g_0014"
+      ],
+      "dgroup_offsets": []
+    },
+    {
+      "name": "fn_06E4",
+      "address": "0878:06E4",
+      "length": 647,
+      "instruction_length": 647,
+      "locals": 4,
+      "ds_offsets": [],
+      "callees": [
+        {
+          "site": "0727",
+          "target": "0, 0x4ed",
+          "kind": "lcall"
+        },
+        {
+          "site": "072E",
+          "target": "0, 0x4ed",
+          "kind": "lcall"
+        },
+        {
+          "site": "0738",
+          "target": "0, 0x4ed",
+          "kind": "lcall"
+        },
+        {
+          "site": "0760",
+          "target": "0, 0x4ed",
+          "kind": "lcall"
+        },
+        {
+          "site": "076B",
+          "target": "0, 0x372",
+          "kind": "lcall"
+        },
+        {
+          "site": "078C",
+          "target": "0, 0x4ed",
+          "kind": "lcall"
+        },
+        {
+          "site": "07AE",
+          "target": "0, 0x4ed",
+          "kind": "lcall"
+        },
+        {
+          "site": "07CB",
+          "target": "0, 0x4ed",
+          "kind": "lcall"
+        },
+        {
+          "site": "07E8",
+          "target": "0, 0x4ed",
+          "kind": "lcall"
+        },
+        {
+          "site": "0805",
+          "target": "0, 0x4ed",
+          "kind": "lcall"
+        },
+        {
+          "site": "081F",
+          "target": "0, 0x4ed",
+          "kind": "lcall"
+        },
+        {
+          "site": "0839",
+          "target": "0, 0x4ed",
+          "kind": "lcall"
+        },
+        {
+          "site": "0853",
+          "target": "0, 0x4ed",
+          "kind": "lcall"
+        },
+        {
+          "site": "0873",
+          "target": "0x176",
+          "kind": "call"
+        },
+        {
+          "site": "0896",
+          "target": "0, 0x4ed",
+          "kind": "lcall"
+        },
+        {
+          "site": "08B3",
+          "target": "0, 0x4ed",
+          "kind": "lcall"
+        },
+        {
+          "site": "08D0",
+          "target": "0, 0x4ed",
+          "kind": "lcall"
+        },
+        {
+          "site": "08ED",
+          "target": "0, 0x4ed",
+          "kind": "lcall"
+        },
+        {
+          "site": "0907",
+          "target": "0, 0x4ed",
+          "kind": "lcall"
+        },
+        {
+          "site": "0921",
+          "target": "0, 0x4ed",
+          "kind": "lcall"
+        },
+        {
+          "site": "093B",
+          "target": "0, 0x4ed",
+          "kind": "lcall"
+        },
+        {
+          "site": "0958",
+          "target": "0x691",
+          "kind": "call"
+        }
+      ],
+      "relocation_sites": [
+        "07EB",
+        "07CE",
+        "07B1",
+        "078F",
+        "077F",
+        "076E",
+        "0763",
+        "0752",
+        "0744",
+        "073B",
+        "0731",
+        "072A",
+        "071A",
+        "0707",
+        "06EC",
+        "093E",
+        "0924",
+        "090A",
+        "08F0",
+        "08D3",
+        "08B6",
+        "0899",
+        "0856",
+        "083C",
+        "0822",
+        "0808"
+      ],
+      "status": "exact (fresh cjudge required)",
+      "far_globals": [
+        "g_024E",
+        "g_0252"
+      ],
+      "dgroup_offsets": []
+    },
+    {
+      "name": "fn_096B",
+      "address": "0878:096B",
+      "length": 95,
+      "instruction_length": 95,
+      "locals": 0,
+      "ds_offsets": [],
+      "callees": [
+        {
+          "site": "0990",
+          "target": "0x664, 0x1e97",
+          "kind": "lcall"
+        },
+        {
+          "site": "09BA",
+          "target": "0xcfc",
+          "kind": "call"
+        }
+      ],
+      "relocation_sites": [
+        "09AE",
+        "0996",
+        "0993",
+        "0984",
+        "0976",
+        "0971"
+      ],
+      "status": "exact (fresh cjudge required)",
+      "far_globals": [
+        "g_0014",
+        "g_026A",
+        "g_026E"
+      ],
+      "dgroup_offsets": []
+    },
+    {
+      "name": "fn_09CA",
+      "address": "0878:09CA",
+      "length": 166,
+      "instruction_length": 166,
+      "locals": 0,
+      "ds_offsets": [],
+      "callees": [
+        {
+          "site": "0A63",
+          "target": "0x1768",
+          "kind": "call"
+        }
+      ],
+      "relocation_sites": [
+        "0A53",
+        "0A49",
+        "0A33",
+        "0A1E",
+        "0A10",
+        "09FC",
+        "09E0",
+        "09CF"
+      ],
+      "status": "exact (fresh cjudge required)",
+      "far_globals": [
+        "g_000E",
+        "g_0014",
+        "g_026A",
+        "g_026E",
+        "g_0270"
+      ],
+      "dgroup_offsets": []
+    },
+    {
+      "name": "fn_0A70",
+      "address": "0878:0A70",
+      "length": 57,
+      "instruction_length": 57,
+      "locals": 4,
+      "ds_offsets": [],
+      "callees": [],
+      "relocation_sites": [
+        "0A76"
+      ],
+      "status": "exact (fresh cjudge required)",
+      "far_globals": [],
+      "dgroup_offsets": []
+    },
+    {
+      "name": "fn_0AA9",
+      "address": "0878:0AA9",
+      "length": 595,
+      "instruction_length": 595,
+      "locals": 16,
+      "ds_offsets": [],
+      "callees": [
+        {
+          "site": "0B5A",
+          "target": "0xa70",
+          "kind": "call"
+        },
+        {
+          "site": "0BA9",
+          "target": "0xa70",
+          "kind": "call"
+        },
+        {
+          "site": "0C57",
+          "target": "0xa70",
+          "kind": "call"
+        }
+      ],
+      "relocation_sites": [
+        "0BFB",
+        "0ABC",
+        "0AB1",
+        "0CE8",
+        "0CD6",
+        "0CC1",
+        "0CA7",
+        "0C8D",
+        "0C7E",
+        "0C66",
+        "0C40",
+        "0C32",
+        "0C1D"
+      ],
+      "status": "exact (fresh cjudge required)",
+      "far_globals": [
+        "g_0014",
+        "g_0238",
+        "g_0266",
+        "g_026A",
+        "g_026C"
+      ],
+      "dgroup_offsets": []
+    },
+    {
+      "name": "fn_0CFC",
+      "address": "0878:0CFC",
+      "length": 561,
+      "instruction_length": 561,
+      "locals": 2,
+      "ds_offsets": [],
+      "callees": [
+        {
+          "site": "0D99",
+          "target": "0x1768",
+          "kind": "call"
+        },
+        {
+          "site": "0E53",
+          "target": "0x13b, 0x20",
+          "kind": "lcall"
+        },
+        {
+          "site": "0E95",
+          "target": "0x664, 0x1211",
+          "kind": "lcall"
+        },
+        {
+          "site": "0E9E",
+          "target": "0x664, 0x14b1",
+          "kind": "lcall"
+        }
+      ],
+      "relocation_sites": [
+        "0F16",
+        "0EF5",
+        "0EF2",
+        "0EE2",
+        "0ECC",
+        "0EBD",
+        "0EAA",
+        "0EA1",
+        "0E98",
+        "0E89",
+        "0E7A",
+        "0E64",
+        "0E61",
+        "0E56",
+        "0E4C",
+        "0E40",
+        "0E2E",
+        "0E1F",
+        "0E0E",
+        "0E01",
+        "0DE8",
+        "0DE5",
+        "0DD3",
+        "0DC9",
+        "0DB7",
+        "0DAD",
+        "0DA3",
+        "0D85",
+        "0D74",
+        "0D64",
+        "0D51",
+        "0D2C",
+        "0D18",
+        "0D0C",
+        "0D04"
+      ],
+      "status": "exact (fresh cjudge required)",
+      "far_globals": [
+        "g_0014",
+        "g_022E",
+        "g_0236",
+        "g_023A",
+        "g_025A",
+        "g_026A",
+        "g_026C",
+        "g_0274",
+        "g_0278",
+        "g_032C"
+      ],
+      "dgroup_offsets": []
+    },
+    {
+      "name": "fn_0F2D",
+      "address": "0878:0F2D",
+      "length": 91,
+      "instruction_length": 91,
+      "locals": 0,
+      "ds_offsets": [],
+      "callees": [],
+      "relocation_sites": [
+        "0F71",
+        "0F5D",
+        "0F45",
+        "0F33"
+      ],
+      "status": "exact (fresh cjudge required)",
+      "far_globals": [
+        "g_0014"
+      ],
+      "dgroup_offsets": []
+    },
+    {
+      "name": "fn_0F88",
+      "address": "0878:0F88",
+      "length": 209,
+      "instruction_length": 209,
+      "locals": 0,
+      "ds_offsets": [],
+      "callees": [
+        {
+          "site": "0FAD",
+          "target": "0x664, 0x1331",
+          "kind": "lcall"
+        },
+        {
+          "site": "0FBD",
+          "target": "0xaa9",
+          "kind": "call"
+        },
+        {
+          "site": "0FDD",
+          "target": "0xcfc",
+          "kind": "call"
+        },
+        {
+          "site": "0FE6",
+          "target": "0x1128",
+          "kind": "call"
+        },
+        {
+          "site": "0FF1",
+          "target": "0xcfc",
+          "kind": "call"
+        },
+        {
+          "site": "1023",
+          "target": "0x664, 0x134e",
+          "kind": "lcall"
+        }
+      ],
+      "relocation_sites": [
+        "0FF8",
+        "0FCA",
+        "0FB0",
+        "0F9A",
+        "0F8F",
+        "1041",
+        "1033",
+        "1029",
+        "1026",
+        "101A",
+        "100E",
+        "1004"
+      ],
+      "status": "exact (fresh cjudge required)",
+      "far_globals": [
+        "g_023A",
+        "g_023E",
+        "g_0246",
+        "g_0248",
+        "g_024A",
+        "g_024C",
+        "g_0256",
+        "g_025A",
+        "g_026A"
+      ],
+      "dgroup_offsets": []
+    },
+    {
+      "name": "fn_1059",
+      "address": "0878:1059",
+      "length": 207,
+      "instruction_length": 207,
+      "locals": 0,
+      "ds_offsets": [],
+      "callees": [
+        {
+          "site": "1083",
+          "target": "0x1768",
+          "kind": "call"
+        },
+        {
+          "site": "109C",
+          "target": "0x664, 0x1331",
+          "kind": "lcall"
+        },
+        {
+          "site": "10E7",
+          "target": "0x664, 0x134e",
+          "kind": "lcall"
+        },
+        {
+          "site": "1107",
+          "target": "0x664, 0x1331",
+          "kind": "lcall"
+        },
+        {
+          "site": "1118",
+          "target": "0x664, 0x1a37",
+          "kind": "lcall"
+        }
+      ],
+      "relocation_sites": [
+        "111B",
+        "110D",
+        "110A",
+        "10FC",
+        "10EF",
+        "10EA",
+        "10DE",
+        "10D2",
+        "10C9",
+        "10C0",
+        "10B4",
+        "10A6",
+        "109F",
+        "108E",
+        "1068",
+        "1060"
+      ],
+      "status": "exact (fresh cjudge required)",
+      "far_globals": [
+        "g_0246",
+        "g_0248",
+        "g_024A",
+        "g_024C",
+        "g_0256",
+        "g_0258",
+        "g_025A",
+        "g_026A",
+        "g_0274"
+      ],
+      "dgroup_offsets": []
+    },
+    {
+      "name": "fn_1128",
+      "address": "0878:1128",
+      "length": 133,
+      "instruction_length": 133,
+      "locals": 2,
+      "ds_offsets": [],
+      "callees": [
+        {
+          "site": "1181",
+          "target": "0x664, 0x1211",
+          "kind": "lcall"
+        }
+      ],
+      "relocation_sites": [
+        "1197",
+        "118B",
+        "1184",
+        "1170",
+        "1166",
+        "1157",
+        "1144",
+        "1138",
+        "1130"
+      ],
+      "status": "exact (fresh cjudge required)",
+      "far_globals": [
+        "g_022E",
+        "g_0256",
+        "g_025A",
+        "g_026A",
+        "g_0274"
+      ],
+      "dgroup_offsets": []
+    },
+    {
+      "name": "fn_11AD",
+      "address": "0878:11AD",
+      "length": 740,
+      "instruction_length": 712,
+      "locals": 24,
+      "ds_offsets": [],
+      "callees": [
+        {
+          "site": "120F",
+          "target": "0, 0x106b",
+          "kind": "lcall"
+        },
+        {
+          "site": "1251",
+          "target": "0, 0x35b",
+          "kind": "lcall"
+        },
+        {
+          "site": "12D3",
+          "target": "0, 0x444",
+          "kind": "lcall"
+        },
+        {
+          "site": "12F1",
+          "target": "0, 0x444",
+          "kind": "lcall"
+        },
+        {
+          "site": "138F",
+          "target": "0x13b, 0x20",
+          "kind": "lcall"
+        },
+        {
+          "site": "144A",
+          "target": "0, 0x35b",
+          "kind": "lcall"
+        }
+      ],
+      "relocation_sites": [
+        "13A3",
+        "1392",
+        "1382",
+        "1362",
+        "133A",
+        "1312",
+        "12F4",
+        "12D6",
+        "1297",
+        "128E",
+        "1262",
+        "1254",
+        "1247",
+        "1236",
+        "1224",
+        "1221",
+        "1212",
+        "120A",
+        "11F6",
+        "11E2",
+        "11DA",
+        "11BA",
+        "11B5",
+        "145F",
+        "144D",
+        "1440",
+        "142C",
+        "1417",
+        "140F"
+      ],
+      "status": "exact (fresh cjudge required)",
+      "far_globals": [
+        "g_0212",
+        "g_0216",
+        "g_022E",
+        "g_0238",
+        "g_0242",
+        "g_0256",
+        "g_025A",
+        "g_025C",
+        "g_025E",
+        "g_0262",
+        "g_026A",
+        "g_03E0"
+      ],
+      "dgroup_offsets": []
+    },
+    {
+      "name": "fn_1491",
+      "address": "0878:1491",
+      "length": 42,
+      "instruction_length": 42,
+      "locals": 0,
+      "ds_offsets": [],
+      "callees": [],
+      "relocation_sites": [
+        "14A8",
+        "149B",
+        "1496"
+      ],
+      "status": "exact (fresh cjudge required)",
+      "far_globals": [
+        "g_0256",
+        "g_025C"
+      ],
+      "dgroup_offsets": []
+    },
+    {
+      "name": "fn_14BB",
+      "address": "0878:14BB",
+      "length": 685,
+      "instruction_length": 685,
+      "locals": 8,
+      "ds_offsets": [],
+      "callees": [
+        {
+          "site": "15B7",
+          "target": "0x13b, 0x20",
+          "kind": "lcall"
+        },
+        {
+          "site": "166A",
+          "target": "0x664, 0x14b1",
+          "kind": "lcall"
+        },
+        {
+          "site": "167D",
+          "target": "0x664, 0x1377",
+          "kind": "lcall"
+        },
+        {
+          "site": "1689",
+          "target": "0x664, 0x1503",
+          "kind": "lcall"
+        },
+        {
+          "site": "1716",
+          "target": "0x664, 0x14b1",
+          "kind": "lcall"
+        },
+        {
+          "site": "1729",
+          "target": "0x664, 0x1377",
+          "kind": "lcall"
+        },
+        {
+          "site": "1741",
+          "target": "0x664, 0x1503",
+          "kind": "lcall"
+        },
+        {
+          "site": "1749",
+          "target": "0x664, 0x14b1",
+          "kind": "lcall"
+        },
+        {
+          "site": "1752",
+          "target": "0x664, 0x1211",
+          "kind": "lcall"
+        }
+      ],
+      "relocation_sites": [
+        "1755",
+        "174C",
+        "1744",
+        "1737",
+        "172C",
+        "1725",
+        "1719",
+        "1709",
+        "16F8",
+        "16E7",
+        "16DD",
+        "16CE",
+        "16B8",
+        "16B5",
+        "16A1",
+        "168C",
+        "1680",
+        "1679",
+        "166D",
+        "165D",
+        "164F",
+        "1645",
+        "1636",
+        "1627",
+        "1616",
+        "1607",
+        "15F6",
+        "15E7",
+        "15D6",
+        "15C7",
+        "15BA",
+        "15B0",
+        "15A2",
+        "1588",
+        "1570",
+        "1557",
+        "1545",
+        "1535",
+        "1521",
+        "1502",
+        "14F6",
+        "14D8",
+        "14CE",
+        "14C3"
+      ],
+      "status": "exact (fresh cjudge required)",
+      "far_globals": [
+        "g_0014",
+        "g_022E",
+        "g_025A",
+        "g_026C",
+        "g_0274",
+        "g_0278",
+        "g_032C"
+      ],
+      "dgroup_offsets": []
+    },
+    {
+      "name": "fn_1768",
+      "address": "0878:1768",
+      "length": 234,
+      "instruction_length": 234,
+      "locals": 2,
+      "ds_offsets": [],
+      "callees": [
+        {
+          "site": "1822",
+          "target": "0x664, 0x14b1",
+          "kind": "lcall"
+        },
+        {
+          "site": "183C",
+          "target": "0x14bb",
+          "kind": "call"
+        }
+      ],
+      "relocation_sites": [
+        "17EA",
+        "17D9",
+        "17C8",
+        "17B7",
+        "17A4",
+        "1784",
+        "1778",
+        "1770",
+        "1841",
+        "182F",
+        "1825",
+        "1816",
+        "17FE"
+      ],
+      "status": "exact (fresh cjudge required)",
+      "far_globals": [
+        "g_0014",
+        "g_0236",
+        "g_026A"
+      ],
+      "dgroup_offsets": []
+    },
+    {
+      "name": "fn_1852",
+      "address": "0878:1852",
+      "length": 241,
+      "instruction_length": 241,
+      "locals": 2,
+      "ds_offsets": [],
+      "callees": [
+        {
+          "site": "189E",
+          "target": "0x691",
+          "kind": "call"
+        },
+        {
+          "site": "18AB",
+          "target": "0xcfc",
+          "kind": "call"
+        },
+        {
+          "site": "18FC",
+          "target": "0x1768",
+          "kind": "call"
+        },
+        {
+          "site": "191F",
+          "target": "0x691",
+          "kind": "call"
+        },
+        {
+          "site": "192C",
+          "target": "0xcfc",
+          "kind": "call"
+        }
+      ],
+      "relocation_sites": [
+        "1906",
+        "18DA",
+        "18C5",
+        "1885",
+        "186A",
+        "185A"
+      ],
+      "status": "exact (fresh cjudge required)",
+      "far_globals": [
+        "g_0014",
+        "g_026A"
+      ],
+      "dgroup_offsets": []
+    },
+    {
+      "name": "fn_1943",
+      "address": "0878:1943",
+      "length": 269,
+      "instruction_length": 269,
+      "locals": 0,
+      "ds_offsets": [],
+      "callees": [
+        {
+          "site": "19C9",
+          "target": "0x13b, 0x20",
+          "kind": "lcall"
+        },
+        {
+          "site": "19DE",
+          "target": "0x664, 0x1377",
+          "kind": "lcall"
+        },
+        {
+          "site": "19F6",
+          "target": "0x664, 0x1503",
+          "kind": "lcall"
+        },
+        {
+          "site": "1A1C",
+          "target": "0x13b, 0x20",
+          "kind": "lcall"
+        },
+        {
+          "site": "1A34",
+          "target": "0x664, 0x1211",
+          "kind": "lcall"
+        }
+      ],
+      "relocation_sites": [
+        "1A3E",
+        "1A37",
+        "1A2A",
+        "1A1F",
+        "1A15",
+        "1A09",
+        "19F9",
+        "19EC",
+        "19E1",
+        "19DA",
+        "19CC",
+        "19C2",
+        "19B6",
+        "199D",
+        "1989",
+        "197B",
+        "196D",
+        "195F",
+        "194E",
+        "1949"
+      ],
+      "status": "exact (fresh cjudge required)",
+      "far_globals": [
+        "g_021C",
+        "g_022E",
+        "g_023E",
+        "g_0242",
+        "g_025E",
+        "g_026A",
+        "g_026C",
+        "g_0278",
+        "g_032C",
+        "g_03E0"
+      ],
+      "dgroup_offsets": []
+    },
+    {
+      "name": "fn_1A50",
+      "address": "0878:1A50",
+      "length": 62,
+      "instruction_length": 62,
+      "locals": 0,
+      "ds_offsets": [],
+      "callees": [
+        {
+          "site": "1A84",
+          "target": "0, 0x39d",
+          "kind": "lcall"
+        }
+      ],
+      "relocation_sites": [
+        "1A87",
+        "1A74",
+        "1A66",
+        "1A5A",
+        "1A55"
+      ],
+      "status": "exact (fresh cjudge required)",
+      "far_globals": [
+        "g_0238",
+        "g_023A",
+        "g_023E"
+      ],
+      "dgroup_offsets": []
+    },
+    {
+      "name": "fn_1A8E",
+      "address": "0878:1A8E",
+      "length": 279,
+      "instruction_length": 263,
+      "locals": 14,
+      "ds_offsets": [],
+      "callees": [
+        {
+          "site": "1B89",
+          "target": "0, 0x39d",
+          "kind": "lcall"
+        }
+      ],
+      "relocation_sites": [
+        "1B8C",
+        "1B78",
+        "1AE7",
+        "1AD3",
+        "1AC4",
+        "1AB7",
+        "1AA4",
+        "1A95"
+      ],
+      "status": "exact (fresh cjudge required)",
+      "far_globals": [
+        "g_0212",
+        "g_0216",
+        "g_0238",
+        "g_0256",
+        "g_026A"
+      ],
+      "dgroup_offsets": []
+    }
+  ],
+  "non_functions": [
+    {
+      "start": "0000",
+      "end": "0003",
+      "class": "UNKNOWN",
+      "note": "retf; stc; retf assembly stubs"
+    },
+    {
+      "start": "1475",
+      "end": "1491",
+      "class": "DATA",
+      "note": "switch values and targets for fn_11AD"
+    },
+    {
+      "start": "1B95",
+      "end": "1BA5",
+      "class": "DATA",
+      "note": "8 switch targets for fn_1A8E; crosses old census boundary by 5 bytes"
+    }
+  ],
+  "note": "C source covers 0878:0003..1BA4 inclusive: 7030 instruction bytes and 44 switch-table bytes. The prior frame-based census boundary at 1BA0 truncates the last table.",
+  "external_callers": [
+    {
+      "caller": "013B:0065",
+      "target": "1059",
+      "preceding_hex": "0b e8 fb 05 be e4 0a b9 48 00 e8 16 07 e9 58 4e 6a 11"
+    },
+    {
+      "caller": "013B:0078",
+      "target": "0F88",
+      "preceding_hex": "59 10 78 08 83 c4 02 68 a5 00 6a 00 68 37 36 90 6a 00"
+    },
+    {
+      "caller": "013B:017F",
+      "target": "1059",
+      "preceding_hex": "03 29 c8 00 be 0c 0c b9 48 00 e8 fc 05 e8 3e 4d 6a 11"
+    },
+    {
+      "caller": "013B:0192",
+      "target": "1852",
+      "preceding_hex": "59 10 78 08 83 c4 02 6a 01 68 e1 00 68 6b 32 90 6a 00"
+    },
+    {
+      "caller": "013B:0284",
+      "target": "1059",
+      "preceding_hex": "cd e8 d0 01 be 05 00 8a 84 c8 00 88 00 4e 79 f7 6a 11"
+    },
+    {
+      "caller": "013B:0297",
+      "target": "0F88",
+      "preceding_hex": "59 10 78 08 83 c4 02 68 a5 00 6a 00 68 79 32 90 6a 00"
+    },
+    {
+      "caller": "013B:06CF",
+      "target": "1059",
+      "preceding_hex": "90 90 90 ac 22 c0 75 fb 74 f2 e8 b2 00 e8 ee 47 6a 11"
+    },
+    {
+      "caller": "013B:06E2",
+      "target": "1852",
+      "preceding_hex": "59 10 78 08 83 c4 02 6a 01 68 e1 00 68 29 36 90 6a 00"
+    },
+    {
+      "caller": "013B:08A7",
+      "target": "1059",
+      "preceding_hex": "00 9c 33 db 89 1e ed 2a e8 ff 00 9d c3 e8 7b fe 6a 11"
+    },
+    {
+      "caller": "013B:08BA",
+      "target": "0F88",
+      "preceding_hex": "59 10 78 08 83 c4 02 68 a5 00 6a 00 68 79 32 90 6a 00"
+    },
+    {
+      "caller": "013B:0C59",
+      "target": "1059",
+      "preceding_hex": "38 87 4e 0b 75 e8 43 eb ec 89 0e 1c 26 e8 70 fc 6a 11"
+    },
+    {
+      "caller": "013B:0C75",
+      "target": "0F88",
+      "preceding_hex": "2c e8 34 42 e8 fc 30 68 a5 00 6a 00 68 44 34 90 6a 00"
+    },
+    {
+      "caller": "013B:0FA9",
+      "target": "1059",
+      "preceding_hex": "90 e8 dd 2c e8 7b 2d e8 18 1e e8 17 3f e9 d6 fc 6a 11"
+    },
+    {
+      "caller": "013B:1AFA",
+      "target": "1852",
+      "preceding_hex": "be 38 7a ff 54 04 53 6a 01 68 ff 00 68 74 32 90 6a 00"
+    },
+    {
+      "caller": "013B:1CE4",
+      "target": "1852",
+      "preceding_hex": "44 26 89 87 0d 2a 53 6a 01 68 ff 00 68 32 36 90 6a 00"
+    },
+    {
+      "caller": "013B:23CE",
+      "target": "1852",
+      "preceding_hex": "87 fd 2c 46 00 53 06 6a 01 68 ff 00 68 5b 32 90 6a 00"
+    },
+    {
+      "caller": "013B:2484",
+      "target": "1852",
+      "preceding_hex": "12 89 87 f3 2c 06 53 6a 00 68 ff 00 68 60 32 90 6a 00"
+    },
+    {
+      "caller": "013B:25A6",
+      "target": "1768",
+      "preceding_hex": "cb 2c 3d 00 18 7d db 89 87 cb 2c c3 53 56 ff b7 61 2d"
+    },
+    {
+      "caller": "013B:29A2",
+      "target": "1852",
+      "preceding_hex": "75 1a 90 90 90 53 56 6a 01 68 ff 00 68 65 32 90 6a 00"
+    },
+    {
+      "caller": "013B:2B4E",
+      "target": "1852",
+      "preceding_hex": "04 83 87 d5 2c 02 53 6a 01 68 ff 00 68 74 32 90 6a 00"
+    },
+    {
+      "caller": "013B:4F45",
+      "target": "0003",
+      "preceding_hex": "fd 4e 13 c2 2e a3 f7 4e 59 f7 e1 8b c2 5a 59 c3 6a 01"
+    },
+    {
+      "caller": "013B:4F50",
+      "target": "1059",
+      "preceding_hex": "8b c2 5a 59 c3 6a 01 9a 03 00 78 08 83 c4 02 c3 6a 11"
+    },
+    {
+      "caller": "013B:4F58",
+      "target": "008A",
+      "preceding_hex": "03 00 78 08 83 c4 02 c3 6a 11 9a 59 10 78 08 83 c4 02"
+    },
+    {
+      "caller": "0664:1312",
+      "target": "1128",
+      "preceding_hex": "2e 8b 0e 4a 02 2e a1 4c 02 2b c1 f7 ea f7 fb 03 c1 50"
+    },
+    {
+      "caller": "0664:18DD",
+      "target": "1768",
+      "preceding_hex": "1a 90 90 90 2e ff 4f 04 7f 11 90 90 90 2e ff 36 74 02"
+    },
+    {
+      "caller": "0664:19B8",
+      "target": "1943",
+      "preceding_hex": "02 01 00 74 17 90 90 90 2e 3b 3e 62 02 72 0d 90 90 90"
+    }
+  ]
+}

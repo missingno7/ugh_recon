@@ -2,33 +2,32 @@
 ; Image contribution 013B8..0664C (end exclusive).
 .286
 JUMPS
-extrn ext_0878:far
-extrn ext_0A67:far
-extrn ext_1E1F:far
-extrn ext_2BF6:far
-extrn ext_2D9A:far
-extrn ext_2F9E:far
-extrn ext_2FB7:far
-extrn ext_325B:far
-extrn ext_3260:far
-extrn ext_3265:far
-extrn ext_326B:far
-extrn ext_3274:far
-extrn ext_3279:far
-extrn ext_3444:far
+; This frame is known before CODE; other far-bank declarations follow CODE.
 extrn ext_3629:far
-extrn ext_3632:far
-extrn ext_3637:far
-extrn ext_37A7:far
-extrn ext_438A:far
-extrn ext_4E83:far
-extrn ext_5B63:far
+extrn _fn_0003:far
+extrn _fn_008A:far
+extrn _fn_0F88:far
+extrn _fn_1059:far
+extrn _fn_1768:far
+extrn _fn_1852:far
 extrn ext_5C09:far
 GAMESEG segment word public 'CODE'
 assume cs:GAMESEG
 public ext_013B
 ext_013B label far
 GAME_BASE label byte
+public _main
+_main equ GAME_BASE+00h
+public _fn_013B_001E
+_fn_013B_001E equ GAME_BASE+016h
+public _fn_013B_001F
+_fn_013B_001F equ GAME_BASE+017h
+public _fn_013B_001D
+_fn_013B_001D equ GAME_BASE+015h
+public _fn_013B_001C
+_fn_013B_001C equ GAME_BASE+014h
+public _fn_013B_0020
+_fn_013B_0020 equ GAME_BASE+018h
 ds_0092 equ 092h
 ds_0093 equ 093h
 ds_0095 equ 095h
@@ -344,14 +343,14 @@ loc_0039:
     jmp near ptr loc_4EBB ; @0060
 loc_0063:
     push 011h ; @0063
-    call far ptr ext_0878+01056h ; @0065
+    call far ptr _fn_1059 ; @0065
     add sp, 2 ; @006A
     push word ptr 0A5h ; @006D
     push 0 ; @0070
     push seg ext_3637 ; @0072
     nop ; @0075
     push 0 ; @0076
-    call far ptr ext_0878+0F85h ; @0078
+    call far ptr _fn_0F88 ; @0078
     add sp, 8 ; @007D
 loc_0080:
     call loc_088D ; @0080
@@ -449,14 +448,14 @@ loc_014B:
     call loc_0776 ; @0177
     call loc_4EBB ; @017A
     push 011h ; @017D
-    call far ptr ext_0878+01056h ; @017F
+    call far ptr _fn_1059 ; @017F
     add sp, 2 ; @0184
     push 1 ; @0187
     push word ptr 0E1h ; @0189
     push seg ext_326B ; @018C
     nop ; @018F
     push 0 ; @0190
-    call far ptr ext_0878+0184Fh ; @0192
+    call far ptr _fn_1852 ; @0192
     add sp, 8 ; @0197
     call loc_4E19 ; @019A
     mov cx, 02BCh ; @019D
@@ -563,14 +562,14 @@ loc_0279:
     dec si ; @027F
     jns short loc_0279 ; @0280
     push 011h ; @0282
-    call far ptr ext_0878+01056h ; @0284
+    call far ptr _fn_1059 ; @0284
     add sp, 2 ; @0289
     push word ptr 0A5h ; @028C
     push 0 ; @028F
     push seg ext_3279 ; @0291
     nop ; @0294
     push 0 ; @0295
-    call far ptr ext_0878+0F85h ; @0297
+    call far ptr _fn_0F88 ; @0297
     add sp, 8 ; @029C
     call loc_454C ; @029F
     mov si, 0Bh ; @02A2
@@ -1015,14 +1014,14 @@ loc_06C7:
     call loc_077C ; @06C7
     call loc_4EBB ; @06CA
     push 011h ; @06CD
-    call far ptr ext_0878+01056h ; @06CF
+    call far ptr _fn_1059 ; @06CF
     add sp, 2 ; @06D4
     push 1 ; @06D7
     push word ptr 0E1h ; @06D9
     push seg ext_3629 ; @06DC
     nop ; @06DF
     push 0 ; @06E0
-    call far ptr ext_0878+0184Fh ; @06E2
+    call far ptr _fn_1852 ; @06E2
     add sp, 8 ; @06E7
     call loc_4E19 ; @06EA
     call loc_44DB ; @06ED
@@ -1224,14 +1223,14 @@ loc_088D:
 loc_08A2:
     call loc_0720 ; @08A2
     push 011h ; @08A5
-    call far ptr ext_0878+01056h ; @08A7
+    call far ptr _fn_1059 ; @08A7
     add sp, 2 ; @08AC
     push word ptr 0A5h ; @08AF
     push 0 ; @08B2
     push seg ext_3279 ; @08B4
     nop ; @08B7
     push 0 ; @08B8
-    call far ptr ext_0878+0F85h ; @08BA
+    call far ptr _fn_0F88 ; @08BA
     add sp, 8 ; @08BF
     mov si, 01020h ; @08C2
     jmp short loc_08D5 ; @08C5
@@ -1583,7 +1582,7 @@ loc_0C50:
     mov word ptr ds:[ds_261C], cx ; @0C50
     call loc_08C7 ; @0C54
     push 011h ; @0C57
-    call far ptr ext_0878+01056h ; @0C59
+    call far ptr _fn_1059 ; @0C59
     add sp, 2 ; @0C5E
     call loc_3961 ; @0C61
     call loc_4E9B ; @0C64
@@ -1594,7 +1593,7 @@ loc_0C67:
     push seg ext_3444 ; @0C6F
     nop ; @0C72
     push 0 ; @0C73
-    call far ptr ext_0878+0F85h ; @0C75
+    call far ptr _fn_0F88 ; @0C75
     add sp, 8 ; @0C7A
 loc_0C7D:
     mov cx, word ptr ds:[ds_27A8] ; @0C7D
@@ -1862,7 +1861,7 @@ loc_0F9E:
     jmp near ptr loc_0C7D ; @0FA4
 loc_0FA7:
     push 011h ; @0FA7
-    call far ptr ext_0878+01056h ; @0FA9
+    call far ptr _fn_1059 ; @0FA9
     add sp, 2 ; @0FAE
     test byte ptr ds:[ds_27CF], 0FFh ; @0FB1
     nop ; @0FB6
@@ -2810,7 +2809,7 @@ loc_1A7E:
     push seg ext_3274 ; @1AF4
     nop ; @1AF7
     push 0 ; @1AF8
-    call far ptr ext_0878+0184Fh ; @1AFA
+    call far ptr _fn_1852 ; @1AFA
     add sp, 8 ; @1AFF
     pop bx ; @1B02
 loc_1B03:
@@ -2970,7 +2969,7 @@ loc_1C81:
     push seg ext_3632 ; @1CDE
     nop ; @1CE1
     push 0 ; @1CE2
-    call far ptr ext_0878+0184Fh ; @1CE4
+    call far ptr _fn_1852 ; @1CE4
     add sp, 8 ; @1CE9
     pop bx ; @1CEC
     ret ; @1CED
@@ -3543,7 +3542,7 @@ loc_23B0:
     push seg ext_325B ; @23C8
     nop ; @23CB
     push 0 ; @23CC
-    call far ptr ext_0878+0184Fh ; @23CE
+    call far ptr _fn_1852 ; @23CE
     add sp, 8 ; @23D3
     pop es ; @23D6
     pop bx ; @23D7
@@ -3609,7 +3608,7 @@ loc_246C:
     push seg ext_3260 ; @247E
     nop ; @2481
     push 0 ; @2482
-    call far ptr ext_0878+0184Fh ; @2484
+    call far ptr _fn_1852 ; @2484
     add sp, 8 ; @2489
     pop bx ; @248C
     pop es ; @248D
@@ -3705,7 +3704,7 @@ loc_25A0:
     push bx ; @25A0
     push si ; @25A1
     push word ptr [bx + ds_2D61] ; @25A2
-    call far ptr ext_0878+01765h ; @25A6
+    call far ptr _fn_1768 ; @25A6
     add sp, 2 ; @25AB
     pop si ; @25AE
     pop bx ; @25AF
@@ -4023,7 +4022,7 @@ loc_2973:
     push seg ext_3265 ; @299C
     nop ; @299F
     push 0 ; @29A0
-    call far ptr ext_0878+0184Fh ; @29A2
+    call far ptr _fn_1852 ; @29A2
     add sp, 8 ; @29A7
     pop si ; @29AA
     pop bx ; @29AB
@@ -4162,7 +4161,7 @@ loc_2B0C:
     push seg ext_3274 ; @2B48
     nop ; @2B4B
     push 0 ; @2B4C
-    call far ptr ext_0878+0184Fh ; @2B4E
+    call far ptr _fn_1852 ; @2B4E
     add sp, 8 ; @2B53
     pop bx ; @2B56
     ret ; @2B57
@@ -7903,14 +7902,14 @@ loc_4F09:
     ret ; @4F42
 loc_4F43:
     push 1 ; @4F43
-    call far ptr ext_0878+00h ; @4F45
+    call far ptr _fn_0003 ; @4F45
     add sp, 2 ; @4F4A
     ret ; @4F4D
 loc_4F4E:
     push 011h ; @4F4E
-    call far ptr ext_0878+01056h ; @4F50
+    call far ptr _fn_1059 ; @4F50
     add sp, 2 ; @4F55
-    call far ptr ext_0878+087h ; @4F58
+    call far ptr _fn_008A ; @4F58
     ret ; @4F5D
 loc_4F5E:
     mov ah, 0Fh ; @4F5E
@@ -8285,4 +8284,23 @@ loc_5294:
     or ax, word ptr ds:[ds_331F] ; @5297
     ret ; @529B
 GAMESEG ends
+extrn ext_0A67:far
+extrn ext_1E1F:far
+extrn ext_2BF6:far
+extrn ext_2D9A:far
+extrn ext_2F9E:far
+extrn ext_2FB7:far
+extrn ext_325B:far
+extrn ext_3260:far
+extrn ext_3265:far
+extrn ext_326B:far
+extrn ext_3274:far
+extrn ext_3279:far
+extrn ext_3444:far
+extrn ext_3632:far
+extrn ext_3637:far
+extrn ext_37A7:far
+extrn ext_438A:far
+extrn ext_4E83:far
+extrn ext_5B63:far
 end

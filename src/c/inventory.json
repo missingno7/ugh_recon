@@ -1425,8 +1425,8 @@
     {
       "start": "0000",
       "end": "0003",
-      "class": "UNKNOWN",
-      "note": "retf; stc; retf assembly stubs"
+      "class": "ASM",
+      "note": "retf; stc; retf: SOUND.ASM tail at 0664:2140..2143, verified by asmverify.py and the natural whole-image link"
     },
     {
       "start": "1475",

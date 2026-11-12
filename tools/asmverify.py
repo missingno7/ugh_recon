@@ -68,23 +68,29 @@ def materialize(blob, mod):
         if f.segment!=1 or not f.self_relative:raise ValueError(f'unsupported OMF fixup {f}')
         if f.target_method==0:
             if f.target_datum!=1:raise ValueError(f'unknown segment {f}')
-            target=ownbase
+            target_frame,target_offset=mod['frame'],mod['start']
         elif f.target_method==2:
             name=obj.externals[f.target_datum-1]['name']
             match=re.fullmatch('EXT_([0-9A-F]{4})',name)
-            if not match:raise ValueError(f'unbound external {name}')
-            fr=int(match[1],16)
-            target=fr*16+mod.get('external_starts',{}).get(f'{fr:04X}',0)
+            function=re.fullmatch('_FN_(?:([0-9A-F]{4})_)?([0-9A-F]{4})',name)
+            if match:
+                target_frame=int(match[1],16)
+                target_offset=mod.get('external_starts',{}).get(f'{target_frame:04X}',0)
+            elif function:
+                target_frame=int(function[1],16) if function[1] else 0x878
+                target_offset=int(function[2],16)
+            else:raise ValueError(f'unbound external {name}')
         else:raise ValueError(f'unsupported fixup target {f}')
+        target=target_frame*16+target_offset
         if f.frame_method!=5:raise ValueError(f'unsupported fixup frame {f}')
         p=f.offset;disp=f.displacement or 0
         def addword(at,value):
             struct.pack_into('<H',raw,at,(struct.unpack_from('<H',raw,at)[0]+value)&0xffff)
-        if f.location==1:addword(p,(target&15)+disp)
+        if f.location==1:addword(p,target_offset+disp)
         elif f.location==2:
-            addword(p,(target>>4)+disp);relocs.append(ownbase+p)
+            addword(p,target_frame+disp);relocs.append(ownbase+p)
         elif f.location==3:
-            addword(p,(target&15)+disp);addword(p+2,target>>4);relocs.append(ownbase+p+2)
+            addword(p,target_offset+disp);addword(p+2,target_frame);relocs.append(ownbase+p+2)
         else:raise ValueError(f'unsupported fixup location {f}')
         details.append({'offset':p,'location':f.location,'target_linear':target,'displacement':disp})
     return bytes(raw),relocs,details,obj

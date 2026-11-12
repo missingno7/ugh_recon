@@ -2,12 +2,21 @@
 ; Image contribution 0A326..0A661 (end exclusive).
 .286
 JUMPS
-extrn ext_5C09:far
 TIMERSEG segment word public 'CODE'
 assume cs:TIMERSEG
 public ext_0A32
 ext_0A32 label far
 TIMER_BASE label byte
+public _fn_0A32_0008
+_fn_0A32_0008 equ TIMER_BASE+02h
+public _fn_0A32_00A0
+_fn_0A32_00A0 equ TIMER_BASE+09Ah
+public _fn_0A32_01AA
+_fn_0A32_01AA equ TIMER_BASE+01A4h
+public _fn_0A32_021B
+_fn_0A32_021B equ TIMER_BASE+0215h
+public _fn_0A32_02C1
+_fn_0A32_02C1 equ TIMER_BASE+02BBh
 ds_7A4C equ 07A4Ch
 ds_7A4E equ 07A4Eh
 ds_7A6E equ 07A6Eh
@@ -357,4 +366,5 @@ loc_032F:
     pop bp ; @033F
     retf ; @0340
 TIMERSEG ends
+extrn ext_5C09:far
 end

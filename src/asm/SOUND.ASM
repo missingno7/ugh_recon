@@ -2,14 +2,113 @@
 ; Image contribution 0664C..08783 (end exclusive).
 .286
 JUMPS
-extrn ext_013B:far
-extrn ext_0878:far
-extrn ext_0A32:far
+extrn _fn_013B_001F:far
+extrn _fn_0A32_0008:far
+extrn _fn_0A32_00A0:far
+extrn _fn_0A32_01AA:far
+extrn _fn_0A32_021B:far
+extrn _fn_0A32_02C1:far
+extrn _fn_0003:far
+extrn _fn_1128:far
+extrn _fn_1768:far
+extrn _fn_1943:far
 SOUNDSEG segment word public 'CODE'
 assume cs:SOUNDSEG
 public ext_0664
 ext_0664 label far
 SOUND_BASE label byte
+public _g_0236
+_g_0236 equ SOUND_BASE+022Ah
+public _g_0256
+_g_0256 equ SOUND_BASE+024Ah
+public _g_025C
+_g_025C equ SOUND_BASE+0250h
+public _g_026A
+_g_026A equ SOUND_BASE+025Eh
+public _fn_0664_1331
+_fn_0664_1331 equ SOUND_BASE+01325h
+public _fn_0664_20B9
+_fn_0664_20B9 equ SOUND_BASE+020ADh
+public _fn_0664_1A65
+_fn_0664_1A65 equ SOUND_BASE+01A59h
+public _g_0014
+_g_0014 equ SOUND_BASE+08h
+public _g_0238
+_g_0238 equ SOUND_BASE+022Ch
+public _g_023A
+_g_023A equ SOUND_BASE+022Eh
+public _g_023E
+_g_023E equ SOUND_BASE+0232h
+public _g_000E
+_g_000E equ SOUND_BASE+02h
+public _g_024E
+_g_024E equ SOUND_BASE+0242h
+public _g_0252
+_g_0252 equ SOUND_BASE+0246h
+public _g_026E
+_g_026E equ SOUND_BASE+0262h
+public _g_0270
+_g_0270 equ SOUND_BASE+0264h
+public _fn_0664_112B
+_fn_0664_112B equ SOUND_BASE+0111Fh
+public _fn_0664_205C
+_fn_0664_205C equ SOUND_BASE+02050h
+public _fn_0664_1C39
+_fn_0664_1C39 equ SOUND_BASE+01C2Dh
+public _fn_0664_1A89
+_fn_0664_1A89 equ SOUND_BASE+01A7Dh
+public _fn_0664_1E97
+_fn_0664_1E97 equ SOUND_BASE+01E8Bh
+public _g_0212
+_g_0212 equ SOUND_BASE+0206h
+public _g_0216
+_g_0216 equ SOUND_BASE+020Ah
+public _g_022E
+_g_022E equ SOUND_BASE+0222h
+public _g_0242
+_g_0242 equ SOUND_BASE+0236h
+public _g_0246
+_g_0246 equ SOUND_BASE+023Ah
+public _g_0248
+_g_0248 equ SOUND_BASE+023Ch
+public _g_024A
+_g_024A equ SOUND_BASE+023Eh
+public _g_024C
+_g_024C equ SOUND_BASE+0240h
+public _g_0258
+_g_0258 equ SOUND_BASE+024Ch
+public _g_025A
+_g_025A equ SOUND_BASE+024Eh
+public _g_0266
+_g_0266 equ SOUND_BASE+025Ah
+public _g_026C
+_g_026C equ SOUND_BASE+0260h
+public _g_0274
+_g_0274 equ SOUND_BASE+0268h
+public _g_0278
+_g_0278 equ SOUND_BASE+026Ch
+public _g_032C
+_g_032C equ SOUND_BASE+0320h
+public _g_03E0
+_g_03E0 equ SOUND_BASE+03D4h
+public _fn_0664_134E
+_fn_0664_134E equ SOUND_BASE+01342h
+public _fn_0664_1A37
+_fn_0664_1A37 equ SOUND_BASE+01A2Bh
+public _fn_0664_1211
+_fn_0664_1211 equ SOUND_BASE+01205h
+public _fn_0664_14B1
+_fn_0664_14B1 equ SOUND_BASE+014A5h
+public _fn_0664_1377
+_fn_0664_1377 equ SOUND_BASE+0136Bh
+public _fn_0664_1503
+_fn_0664_1503 equ SOUND_BASE+014F7h
+public _g_021C
+_g_021C equ SOUND_BASE+0210h
+public _g_025E
+_g_025E equ SOUND_BASE+0252h
+public _g_0262
+_g_0262 equ SOUND_BASE+0256h
 byte_000C equ SOUND_BASE+00h
 byte_000E equ SOUND_BASE+02h
 byte_0010 equ SOUND_BASE+04h
@@ -577,7 +676,7 @@ loc_12E5:
     idiv bx ; @130D
     add ax, cx ; @130F
     push ax ; @1311
-    call far ptr ext_0878+01125h ; @1312
+    call far ptr _fn_1128 ; @1312
     add sp, 2 ; @1317
 loc_131A:
     pop dx ; @131A
@@ -587,14 +686,14 @@ loc_131A:
     retf ; @131E
 loc_131F:
     mov ax, word ptr cs:[byte_1124] ; @131F
-    call far ptr ext_0A32+0215h ; @1323
+    call far ptr _fn_0A32_021B ; @1323
     mov word ptr cs:[byte_0258], 0 ; @1328
     jmp short loc_131A ; @132F
 loc_1331:
     test word ptr cs:[byte_0258], 1 ; @1331
     je loc_134D ; @1338
     mov ax, word ptr cs:[byte_1124] ; @133D
-    call far ptr ext_0A32+0215h ; @1341
+    call far ptr _fn_0A32_021B ; @1341
     mov word ptr cs:[byte_0258], 0 ; @1346
 loc_134D:
     retf ; @134D
@@ -605,7 +704,7 @@ loc_134E:
     mov cx, 1 ; @135D
     mov ax, offset loc_12E5 ; @1360
     mov dx, seg SOUNDSEG ; @1363
-    call far ptr ext_0A32+01A4h ; @1366
+    call far ptr _fn_0A32_01AA ; @1366
     mov word ptr cs:[byte_1124], ax ; @136B
     mov word ptr cs:[byte_0258], 1 ; @136F
 loc_1376:
@@ -974,7 +1073,7 @@ loc_16B2:
     mov word ptr cs:[byte_000C], bx ; @16B8
     mov ax, word ptr cs:[byte_1122] ; @16BD
     xor cx, cx ; @16C1
-    call far ptr ext_0A32+02BBh ; @16C3
+    call far ptr _fn_0A32_02C1 ; @16C3
     inc di ; @16C8
     inc di ; @16C9
     pop cx ; @16CA
@@ -1138,7 +1237,7 @@ loc_184A:
     mov word ptr cs:[byte_000C], bx ; @1869
     mov ax, word ptr cs:[byte_1122] ; @186E
     xor cx, cx ; @1872
-    call far ptr ext_0A32+02BBh ; @1874
+    call far ptr _fn_0A32_02C1 ; @1874
     jmp loc_1895 ; @1879
 loc_187C:
     xor dx, dx ; @187C
@@ -1177,7 +1276,7 @@ loc_18BF:
     dec word ptr cs:[bx + 4] ; @18CF
     jg loc_18E6 ; @18D3
     push word ptr cs:[byte_0274] ; @18D8
-    call far ptr ext_0878+01765h ; @18DD
+    call far ptr _fn_1768 ; @18DD
     add sp, 2 ; @18E2
     retf ; @18E5
 loc_18E6:
@@ -1248,7 +1347,7 @@ loc_198C:
     je loc_19C2 ; @19A9
     cmp di, word ptr cs:[byte_0262] ; @19AE
     jb loc_19C2 ; @19B3
-    call far ptr ext_0878+01940h ; @19B8
+    call far ptr _fn_1943 ; @19B8
     les di, dword ptr cs:[byte_021C] ; @19BD
 loc_19C2:
     call far ptr loc_15D3 ; @19C2 same-segment far call
@@ -1317,9 +1416,9 @@ loc_1A65:
     cmp byte ptr cs:[byte_1126], 0 ; @1A65
     je loc_1A79 ; @1A6B
     mov ax, word ptr cs:[byte_1122] ; @1A70
-    call far ptr ext_0A32+0215h ; @1A74
+    call far ptr _fn_0A32_021B ; @1A74
 loc_1A79:
-    call far ptr ext_0A32+09Ah ; @1A79
+    call far ptr _fn_0A32_00A0 ; @1A79
     mov byte ptr cs:[byte_1126], 0 ; @1A7E
     call far ptr loc_1A37 ; @1A84 same-segment far call
     retf ; @1A88
@@ -1368,12 +1467,12 @@ loc_1A97:
     call far ptr loc_1A37 ; @1B09 same-segment far call
     mov bx, 0120h ; @1B0D
     call far ptr loc_11F2 ; @1B10 same-segment far call
-    call far ptr ext_0A32+02h ; @1B14
+    call far ptr _fn_0A32_0008 ; @1B14
     mov bx, 01843h ; @1B19
     xor cx, cx ; @1B1C
     mov ax, offset loc_1939 ; @1B1E
     mov dx, seg SOUNDSEG ; @1B21
-    call far ptr ext_0A32+01A4h ; @1B24
+    call far ptr _fn_0A32_01AA ; @1B24
     mov word ptr cs:[byte_1122], ax ; @1B29
 loc_1B2D:
     mov ax, 1 ; @1B2D
@@ -1819,8 +1918,8 @@ loc_1F00:
     mov word ptr cs:[byte_0012], 1 ; @1F06
     mov word ptr cs:[byte_0010], 0200h ; @1F0D
 loc_1F14:
-    call far ptr ext_013B+017h ; @1F14
-    call far ptr ext_013B+017h ; @1F19
+    call far ptr _fn_013B_001F ; @1F14
+    call far ptr _fn_013B_001F ; @1F19
     cmp word ptr cs:[byte_0010], word ptr 0260h ; @1F1E
     jae loc_2044 ; @1F25 JUMPS expansion
 loc_1F2A:
@@ -1830,8 +1929,8 @@ loc_1F2A:
     mov byte ptr cs:[byte_04A1], 0 ; @1F37
     mov al, 0D3h ; @1F3D
     call far ptr loc_1B4D ; @1F3F same-segment far call
-    call far ptr ext_013B+017h ; @1F43
-    call far ptr ext_013B+017h ; @1F48
+    call far ptr _fn_013B_001F ; @1F43
+    call far ptr _fn_013B_001F ; @1F48
     xor bx, bx ; @1F4D
 loc_1F4F:
     mov cl, byte ptr cs:[bx + byte_2058] ; @1F4F
@@ -1848,8 +1947,8 @@ loc_1F4F:
     mov ax, es ; @1F6D
     mov word ptr cs:[byte_0497], ax ; @1F6F
     mov word ptr cs:[byte_0495], bx ; @1F73
-    call far ptr ext_013B+017h ; @1F78
-    call far ptr ext_013B+017h ; @1F7D
+    call far ptr _fn_013B_001F ; @1F78
+    call far ptr _fn_013B_001F ; @1F7D
     in al, 021h ; @1F82
     or al, byte ptr cs:[byte_0494] ; @1F84
     jmp loc_1F8E ; @1F89
@@ -1865,16 +1964,16 @@ loc_1F93:
     nop ; @1F97
 loc_1F98:
     out 021h, al ; @1F98
-    call far ptr ext_013B+017h ; @1F9A
-    call far ptr ext_013B+017h ; @1F9F
+    call far ptr _fn_013B_001F ; @1F9A
+    call far ptr _fn_013B_001F ; @1F9F
     mov bx, seg SOUNDSEG ; @1FA4
     mov dx, offset loc_1EF5 ; @1FA7
     mov ah, 025h ; @1FAA
     mov al, byte ptr cs:[byte_0012] ; @1FAC
     mov ds, bx ; @1FB0
     int 021h ; @1FB2
-    call far ptr ext_013B+017h ; @1FB4
-    call far ptr ext_013B+017h ; @1FB9
+    call far ptr _fn_013B_001F ; @1FB4
+    call far ptr _fn_013B_001F ; @1FB9
     in al, 021h ; @1FBE
     xor al, byte ptr cs:[byte_0494] ; @1FC0
     jmp loc_1FCA ; @1FC5
@@ -1913,14 +2012,14 @@ loc_2003:
     nop ; @2007
 loc_2008:
     out 021h, al ; @2008
-    call far ptr ext_013B+017h ; @200A
-    call far ptr ext_013B+017h ; @200F
+    call far ptr _fn_013B_001F ; @200A
+    call far ptr _fn_013B_001F ; @200F
     mov ah, 025h ; @2014
     mov al, byte ptr cs:[byte_0012] ; @2016
     lds dx, dword ptr cs:[byte_0495] ; @201A
     int 021h ; @201F
-    call far ptr ext_013B+017h ; @2021
-    call far ptr ext_013B+017h ; @2026
+    call far ptr _fn_013B_001F ; @2021
+    call far ptr _fn_013B_001F ; @2026
     cmp cx, 0 ; @202B
     jne loc_2051 ; @202E
     pop bx ; @2033
@@ -1990,8 +2089,8 @@ loc_20B9:
     push ds ; @20B9
     mov al, 0D3h ; @20BA
     call far ptr loc_1B4D ; @20BC same-segment far call
-    call far ptr ext_013B+017h ; @20C0
-    call far ptr ext_013B+017h ; @20C5
+    call far ptr _fn_013B_001F ; @20C0
+    call far ptr _fn_013B_001F ; @20C5
     in al, 021h ; @20CA
     or al, byte ptr cs:[byte_0494] ; @20CC
     jmp loc_20D6 ; @20D1
@@ -2007,17 +2106,17 @@ loc_20DB:
     nop ; @20DF
 loc_20E0:
     out 021h, al ; @20E0
-    call far ptr ext_013B+017h ; @20E2
-    call far ptr ext_013B+017h ; @20E7
+    call far ptr _fn_013B_001F ; @20E2
+    call far ptr _fn_013B_001F ; @20E7
     mov ah, 025h ; @20EC
     mov al, byte ptr cs:[byte_0012] ; @20EE
     lds dx, dword ptr cs:[byte_0495] ; @20F2
     int 021h ; @20F7
-    call far ptr ext_013B+017h ; @20F9
-    call far ptr ext_013B+017h ; @20FE
+    call far ptr _fn_013B_001F ; @20F9
+    call far ptr _fn_013B_001F ; @20FE
     call far ptr loc_2114 ; @2103 same-segment far call
-    call far ptr ext_013B+017h ; @2108
-    call far ptr ext_013B+017h ; @210D
+    call far ptr _fn_013B_001F ; @2108
+    call far ptr _fn_013B_001F ; @210D
     pop ds ; @2112
     retf ; @2113
 loc_2114:

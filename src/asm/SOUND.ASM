@@ -1,4 +1,5 @@
-; Maintained reconstruction; asmgen.py is the bootstrap, asmverify.py is the gate.
+; Maintained grouped reconstruction. Physical layout: src/data/LAYOUT.ASM.
+; Fragment declaration order reproduces the relocation stream; see docs/link.md.
 ; Image contribution 0664C..08783 (end exclusive).
 .286
 JUMPS
@@ -13,7 +14,38 @@ extrn _fn_1128:far
 extrn _fn_1768:far
 extrn _fn_1943:far
 SOUNDSEG segment word public 'CODE'
-assume cs:SOUNDSEG
+SOUNDSEG ends
+SCODE00 segment byte public 'CODE'
+SCODE00 ends
+SCODE02 segment byte public 'CODE'
+SCODE02 ends
+SCODE01 segment byte public 'CODE'
+SCODE01 ends
+SCODE03 segment byte public 'CODE'
+SCODE03 ends
+SCODE05 segment byte public 'CODE'
+SCODE05 ends
+SCODE07 segment byte public 'CODE'
+SCODE07 ends
+SCODE04 segment byte public 'CODE'
+SCODE04 ends
+SCODE06 segment byte public 'CODE'
+SCODE06 ends
+SCODE08 segment byte public 'CODE'
+SCODE08 ends
+SCODE10 segment byte public 'CODE'
+SCODE10 ends
+SCODE09 segment byte public 'CODE'
+SCODE09 ends
+SCODE11 segment byte public 'CODE'
+SCODE11 ends
+SCODE13 segment byte public 'CODE'
+SCODE13 ends
+SCODE12 segment byte public 'CODE'
+SCODE12 ends
+SOUND_GROUP group SOUNDSEG,SCODE00,SCODE01,SCODE02,SCODE03,SCODE04,SCODE05,SCODE06,SCODE07,SCODE08,SCODE09,SCODE10,SCODE11,SCODE12,SCODE13
+SOUNDSEG segment word public 'CODE'
+assume cs:SOUND_GROUP
 public ext_0664
 ext_0664 label far
 SOUND_BASE label byte
@@ -461,6 +493,10 @@ byte_data_000C:
     db 011h, 012h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 10FC..110C
     db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 110C..111C
     db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 111C..112B
+SOUNDSEG ends
+SCODE00 segment byte public 'CODE'
+assume cs:SOUND_GROUP
+; Physical range 112B..1312; ordinary source emission order.
 loc_112B:
     push es ; @112B
     push di ; @112C
@@ -487,7 +523,7 @@ loc_113F:
     mov word ptr cs:[byte_10CD], es ; @114F
     mov ax, seg SOUNDSEG ; @1154
     mov ds, ax ; @1157
-    mov dx, offset loc_1179 ; @1159
+    mov dx, offset SOUND_GROUP:loc_1179 ; @1159
     mov ax, 02508h ; @115C
     int 021h ; @115F
     xor ax, ax ; @1161
@@ -515,7 +551,7 @@ loc_1179:
     out 020h, al ; @117D
     mov ax, seg SOUNDSEG ; @117F
     mov ds, ax ; @1182
-    mov dx, offset loc_1193 ; @1184
+    mov dx, offset SOUND_GROUP:loc_1193 ; @1184
     mov ax, 02508h ; @1187
     int 021h ; @118A
     pop ds ; @118C
@@ -556,7 +592,9 @@ loc_11D2:
     test word ptr cs:[byte_0236], 1 ; @11D2
     jne loc_11F1 ; @11D9
     mov word ptr cs:[byte_0236], 1 ; @11DE
-    call far ptr loc_1939 ; @11E5 same-segment far call
+    push cs
+    call near ptr loc_1939
+    nop
     mov word ptr cs:[byte_0236], 0 ; @11EA
 loc_11F1:
     retf ; @11F1
@@ -668,7 +706,10 @@ loc_12E5:
     mov word ptr cs:[byte_0246], dx ; @12EF
     mov bx, word ptr cs:[byte_0248] ; @12F4
     cmp dx, bx ; @12F9
-    ja loc_131F ; @12FB
+    ja short loc_131F+1
+    nop
+    nop
+    nop
     mov cx, word ptr cs:[byte_024A] ; @1300
     mov ax, word ptr cs:[byte_024C] ; @1305
     sub ax, cx ; @1309
@@ -676,6 +717,15 @@ loc_12E5:
     idiv bx ; @130D
     add ax, cx ; @130F
     push ax ; @1311
+SCODE00 ends
+SCODE02 segment byte public 'CODE'
+assume cs:SOUND_GROUP
+; Physical range 1363..1366; ordinary source emission order.
+    mov dx, seg SOUNDSEG ; @1363
+SCODE02 ends
+SCODE01 segment byte public 'CODE'
+assume cs:SOUND_GROUP
+; Physical range 1312..1363; ordinary source emission order.
     call far ptr _fn_1128 ; @1312
     add sp, 2 ; @1317
 loc_131A:
@@ -699,11 +749,17 @@ loc_134D:
     retf ; @134D
 loc_134E:
     test word ptr cs:[byte_0258], 1 ; @134E
-    jne loc_1376 ; @1355
+    jne short loc_1376+1
+    nop
+    nop
+    nop
     mov bx, 0D1EBh ; @135A
     mov cx, 1 ; @135D
-    mov ax, offset loc_12E5 ; @1360
-    mov dx, seg SOUNDSEG ; @1363
+    mov ax, offset SOUND_GROUP:loc_12E5 ; @1360
+SCODE01 ends
+SCODE03 segment byte public 'CODE'
+assume cs:SOUND_GROUP
+; Physical range 1366..1B14; ordinary source emission order.
     call far ptr _fn_0A32_01AA ; @1366
     mov word ptr cs:[byte_1124], ax ; @136B
     mov word ptr cs:[byte_0258], 1 ; @136F
@@ -763,7 +819,8 @@ loc_13D3:
     inc si ; @13EF
     mov bh, ch ; @13F0
     add bh, 020h ; @13F2
-    call far ptr loc_11F2 ; @13F5 same-segment far call
+    push cs
+    call near ptr loc_11F2
     mov bl, byte ptr [si] ; @13F9
     inc si ; @13FB
     mov bh, ch ; @13FC
@@ -772,56 +829,67 @@ loc_13D3:
     je loc_140D ; @1405
     or bl, 03Fh ; @140A
 loc_140D:
-    call far ptr loc_11F2 ; @140D same-segment far call
+    push cs
+    call near ptr loc_11F2
     mov bl, byte ptr [si] ; @1411
     inc si ; @1413
     mov bh, ch ; @1414
     add bh, 060h ; @1416
-    call far ptr loc_11F2 ; @1419 same-segment far call
+    push cs
+    call near ptr loc_11F2
     mov bl, byte ptr [si] ; @141D
     inc si ; @141F
     mov bh, ch ; @1420
     add bh, 080h ; @1422
-    call far ptr loc_11F2 ; @1425 same-segment far call
+    push cs
+    call near ptr loc_11F2
     mov bl, byte ptr [si] ; @1429
     inc si ; @142B
     mov bh, ch ; @142C
     add bh, 0E0h ; @142E
-    call far ptr loc_11F2 ; @1431 same-segment far call
+    push cs
+    call near ptr loc_11F2
     add ch, 3 ; @1435
     mov bl, byte ptr [si] ; @1438
     inc si ; @143A
     mov bh, ch ; @143B
     add bh, 020h ; @143D
-    call far ptr loc_11F2 ; @1440 same-segment far call
+    push cs
+    call near ptr loc_11F2
     mov bl, byte ptr [si] ; @1444
     inc si ; @1446
     mov bh, ch ; @1447
     add bh, 040h ; @1449
     or bl, 03Fh ; @144C
-    call far ptr loc_11F2 ; @144F same-segment far call
+    push cs
+    call near ptr loc_11F2
     mov bl, byte ptr [si] ; @1453
     inc si ; @1455
     mov bh, ch ; @1456
     add bh, 060h ; @1458
-    call far ptr loc_11F2 ; @145B same-segment far call
+    push cs
+    call near ptr loc_11F2
     mov bl, byte ptr [si] ; @145F
     inc si ; @1461
     mov bh, ch ; @1462
     add bh, 080h ; @1464
-    call far ptr loc_11F2 ; @1467 same-segment far call
+    push cs
+    call near ptr loc_11F2
     mov bx, 0120h ; @146B
-    call far ptr loc_11F2 ; @146E same-segment far call
+    push cs
+    call near ptr loc_11F2
     mov bl, byte ptr [si] ; @1472
     inc si ; @1474
     mov bh, ch ; @1475
     add bh, 0E0h ; @1477
-    call far ptr loc_11F2 ; @147A same-segment far call
+    push cs
+    call near ptr loc_11F2
     mov bl, byte ptr [si] ; @147E
     inc si ; @1480
     mov bh, cl ; @1481
     add bh, 0C0h ; @1483
-    call far ptr loc_11F2 ; @1486 same-segment far call
+    push cs
+    call near ptr loc_11F2
     mov ax, 014h ; @148A
     mul cl ; @148D
     mov bx, ax ; @148F
@@ -829,7 +897,8 @@ loc_140D:
     mov word ptr cs:[bx + byte_0288], ax ; @1495
     push word ptr cs:[bx + byte_0284] ; @149A
     push word ptr [bp + 6] ; @149F
-    call far ptr loc_1211 ; @14A2 same-segment far call
+    push cs
+    call near ptr loc_1211
     add sp, 4 ; @14A6
 loc_14A9:
     pop dx ; @14A9
@@ -865,12 +934,14 @@ loc_14B1:
     out dx, al ; @14E7
     mov bh, ah ; @14E8
     mov ax, 1 ; @14EA
-    call far ptr loc_11B5 ; @14ED same-segment far call
+    push cs
+    call near ptr loc_11B5
     mov dx, 0389h ; @14F1
     mov al, bh ; @14F4
     out dx, al ; @14F6
     mov ax, 2 ; @14F7
-    call far ptr loc_11B5 ; @14FA same-segment far call
+    push cs
+    call near ptr loc_11B5
 loc_14FE:
     pop dx ; @14FE
     pop bx ; @14FF
@@ -900,12 +971,14 @@ loc_1503:
     mov al, bh ; @1531
     out dx, al ; @1533
     mov ax, 1 ; @1534
-    call far ptr loc_11B5 ; @1537 same-segment far call
+    push cs
+    call near ptr loc_11B5
     mov dx, 0389h ; @153B
     mov al, bl ; @153E
     out dx, al ; @1540
     mov ax, 3 ; @1541
-    call far ptr loc_11B5 ; @1544 same-segment far call
+    push cs
+    call near ptr loc_11B5
     pop ax ; @1548
     mov bl, ah ; @1549
     mov bh, cl ; @154B
@@ -914,13 +987,15 @@ loc_1503:
     mov al, bh ; @1553
     out dx, al ; @1555
     mov ax, 1 ; @1556
-    call far ptr loc_11B5 ; @1559 same-segment far call
+    push cs
+    call near ptr loc_11B5
     mov dx, 0389h ; @155D
     mov al, bl ; @1560
     out dx, al ; @1562
     sti ; @1563
     mov ax, 2 ; @1564
-    call far ptr loc_11B5 ; @1567 same-segment far call
+    push cs
+    call near ptr loc_11B5
 loc_156B:
     pop dx ; @156B
     pop cx ; @156C
@@ -959,7 +1034,8 @@ loc_15BC:
     mov byte ptr cs:[si + byte_0286], dl ; @15BC
     push word ptr cs:[si + byte_0284] ; @15C1
     push cx ; @15C6
-    call far ptr loc_1211 ; @15C7 same-segment far call
+    push cs
+    call near ptr loc_1211
     add sp, 4 ; @15CB
     pop si ; @15CE
     pop dx ; @15CF
@@ -1119,22 +1195,22 @@ loc_1737:
     mov word ptr cs:[byte_021C], di ; @1745
     retf ; @174A
 byte_data_174B:
-    dw offset loc_15E8
-    dw offset loc_1607
-    dw offset loc_1649
-    dw offset loc_167D
-    dw offset loc_1696
-    dw offset loc_16AF
-    dw offset loc_16B2
-    dw offset loc_16CE
-    dw offset loc_1737
-    dw offset loc_1737
-    dw offset loc_1737
-    dw offset loc_1737
-    dw offset loc_1737
-    dw offset loc_1737
-    dw offset loc_1737
-    dw offset loc_1737
+    dw offset SOUND_GROUP:loc_15E8
+    dw offset SOUND_GROUP:loc_1607
+    dw offset SOUND_GROUP:loc_1649
+    dw offset SOUND_GROUP:loc_167D
+    dw offset SOUND_GROUP:loc_1696
+    dw offset SOUND_GROUP:loc_16AF
+    dw offset SOUND_GROUP:loc_16B2
+    dw offset SOUND_GROUP:loc_16CE
+    dw offset SOUND_GROUP:loc_1737
+    dw offset SOUND_GROUP:loc_1737
+    dw offset SOUND_GROUP:loc_1737
+    dw offset SOUND_GROUP:loc_1737
+    dw offset SOUND_GROUP:loc_1737
+    dw offset SOUND_GROUP:loc_1737
+    dw offset SOUND_GROUP:loc_1737
+    dw offset SOUND_GROUP:loc_1737
 loc_176B:
     mov al, byte ptr es:[di] ; @176B
     inc di ; @176E
@@ -1299,22 +1375,22 @@ loc_18F7:
     pop dx ; @1917
     retf ; @1918
 byte_data_1919:
-    dw offset loc_1780
-    dw offset loc_17B0
-    dw offset loc_17D2
-    dw offset loc_17EF
-    dw offset loc_1810
-    dw offset loc_1847
-    dw offset loc_184A
-    dw offset loc_189C
-    dw offset loc_18F7
-    dw offset loc_18F7
-    dw offset loc_18F7
-    dw offset loc_18F7
-    dw offset loc_18F7
-    dw offset loc_18F7
-    dw offset loc_18F7
-    dw offset loc_18F7
+    dw offset SOUND_GROUP:loc_1780
+    dw offset SOUND_GROUP:loc_17B0
+    dw offset SOUND_GROUP:loc_17D2
+    dw offset SOUND_GROUP:loc_17EF
+    dw offset SOUND_GROUP:loc_1810
+    dw offset SOUND_GROUP:loc_1847
+    dw offset SOUND_GROUP:loc_184A
+    dw offset SOUND_GROUP:loc_189C
+    dw offset SOUND_GROUP:loc_18F7
+    dw offset SOUND_GROUP:loc_18F7
+    dw offset SOUND_GROUP:loc_18F7
+    dw offset SOUND_GROUP:loc_18F7
+    dw offset SOUND_GROUP:loc_18F7
+    dw offset SOUND_GROUP:loc_18F7
+    dw offset SOUND_GROUP:loc_18F7
+    dw offset SOUND_GROUP:loc_18F7
 loc_1939:
     inc word ptr cs:[byte_023A] ; @1939
     jne loc_1948 ; @193E
@@ -1396,18 +1472,22 @@ loc_1A36:
 loc_1A37:
     push si ; @1A37
     mov bx, 0100h ; @1A38
-    call far ptr loc_11F2 ; @1A3B same-segment far call
+    push cs
+    call near ptr loc_11F2
     mov bx, 0120h ; @1A3F
-    call far ptr loc_11F2 ; @1A42 same-segment far call
+    push cs
+    call near ptr loc_11F2
     mov cx, 9 ; @1A46
     xor si, si ; @1A49
 loc_1A4B:
     mov bh, byte ptr cs:[si + byte_10F5] ; @1A4B
     add bh, 040h ; @1A50
     mov bl, 03Fh ; @1A53
-    call far ptr loc_11F2 ; @1A55 same-segment far call
+    push cs
+    call near ptr loc_11F2
     add bh, 3 ; @1A59
-    call far ptr loc_11F2 ; @1A5C same-segment far call
+    push cs
+    call near ptr loc_11F2
     inc si ; @1A60
     loop loc_1A4B ; @1A61
     pop si ; @1A63
@@ -1427,51 +1507,92 @@ loc_1A89:
     push di ; @1A8A
     push si ; @1A8B
     cmp byte ptr cs:[byte_1126], 0 ; @1A8C
-    jne loc_1B2D ; @1A92 JUMPS expansion
+    je short branch_skip_1A92
+    jmp near ptr loc_1B2D
+branch_skip_1A92:
 loc_1A97:
     mov byte ptr cs:[byte_1126], 1 ; @1A97
-    call far ptr loc_113F ; @1A9D same-segment far call
+    push cs
+    call near ptr loc_113F
     mov bx, 0100h ; @1AA1
-    call far ptr loc_11F2 ; @1AA4 same-segment far call
+    push cs
+    call near ptr loc_11F2
     mov bx, 0460h ; @1AA8
-    call far ptr loc_11F2 ; @1AAB same-segment far call
+    push cs
+    call near ptr loc_11F2
     mov al, 014h ; @1AAF
-    call far ptr loc_11B5 ; @1AB1 same-segment far call
+    push cs
+    call near ptr loc_11B5
     mov bx, 0480h ; @1AB5
-    call far ptr loc_11F2 ; @1AB8 same-segment far call
+    push cs
+    call near ptr loc_11F2
     mov al, 014h ; @1ABC
-    call far ptr loc_11B5 ; @1ABE same-segment far call
+    push cs
+    call near ptr loc_11B5
     mov dx, 0388h ; @1AC2
     in al, dx ; @1AC5
     test al, 0E0h ; @1AC6
-    jne loc_1B34 ; @1AC8
+    jne short loc_1B34+1
+    nop
+    nop
+    nop
     mov bx, 02FFh ; @1ACD
-    call far ptr loc_11F2 ; @1AD0 same-segment far call
+    push cs
+    call near ptr loc_11F2
     mov al, 014h ; @1AD4
-    call far ptr loc_11B5 ; @1AD6 same-segment far call
+    push cs
+    call near ptr loc_11B5
     mov bx, 0421h ; @1ADA
-    call far ptr loc_11F2 ; @1ADD same-segment far call
+    push cs
+    call near ptr loc_11F2
     mov al, 0FFh ; @1AE1
-    call far ptr loc_11B5 ; @1AE3 same-segment far call
+    push cs
+    call near ptr loc_11B5
     in al, dx ; @1AE7
     test al, 0E0h ; @1AE8
-    je loc_1B34 ; @1AEA
+    je short loc_1B34+1
+    nop
+    nop
+    nop
     mov bx, 0460h ; @1AEF
-    call far ptr loc_11F2 ; @1AF2 same-segment far call
+    push cs
+    call near ptr loc_11F2
     mov al, 014h ; @1AF6
-    call far ptr loc_11B5 ; @1AF8 same-segment far call
+    push cs
+    call near ptr loc_11B5
     mov bx, 0480h ; @1AFC
-    call far ptr loc_11F2 ; @1AFF same-segment far call
+    push cs
+    call near ptr loc_11F2
     mov al, 014h ; @1B03
-    call far ptr loc_11B5 ; @1B05 same-segment far call
+    push cs
+    call near ptr loc_11B5
     call far ptr loc_1A37 ; @1B09 same-segment far call
     mov bx, 0120h ; @1B0D
-    call far ptr loc_11F2 ; @1B10 same-segment far call
+    push cs
+    call near ptr loc_11F2
+SCODE03 ends
+SCODE05 segment byte public 'CODE'
+assume cs:SOUND_GROUP
+; Physical range 1B21..1B24; ordinary source emission order.
+    mov dx, seg SOUNDSEG ; @1B21
+SCODE05 ends
+SCODE07 segment byte public 'CODE'
+assume cs:SOUND_GROUP
+; Physical range 1C74..1C77; ordinary source emission order.
+loc_1C74:
+    mov ax, seg SOUNDSEG ; @1C74
+SCODE07 ends
+SCODE04 segment byte public 'CODE'
+assume cs:SOUND_GROUP
+; Physical range 1B14..1B21; ordinary source emission order.
     call far ptr _fn_0A32_0008 ; @1B14
     mov bx, 01843h ; @1B19
     xor cx, cx ; @1B1C
-    mov ax, offset loc_1939 ; @1B1E
-    mov dx, seg SOUNDSEG ; @1B21
+    mov ax, offset SOUND_GROUP:loc_1939 ; @1B1E
+SCODE04 ends
+SCODE06 segment byte public 'CODE'
+assume cs:SOUND_GROUP
+; Physical range 1B24..1C74; ordinary source emission order.
     call far ptr _fn_0A32_01AA ; @1B24
     mov word ptr cs:[byte_1122], ax ; @1B29
 loc_1B2D:
@@ -1688,8 +1809,10 @@ loc_1C6F:
     pop ax ; @1C71
     leave ; @1C72
     retf ; @1C73
-loc_1C74:
-    mov ax, seg SOUNDSEG ; @1C74
+SCODE06 ends
+SCODE08 segment byte public 'CODE'
+assume cs:SOUND_GROUP
+; Physical range 1C77..1F14; ordinary source emission order.
     mov cx, ax ; @1C77
     shr ch, 4 ; @1C79
     shl ax, 4 ; @1C7C
@@ -1840,7 +1963,8 @@ loc_1E38:
     xor byte ptr cs:[byte_04A5], 1 ; @1E45
     mov dx, word ptr cs:[si + byte_04AB] ; @1E4B
     mov ch, byte ptr cs:[si + byte_04A9] ; @1E50
-    call far ptr loc_1B77 ; @1E55 same-segment far call
+    push cs
+    call near ptr loc_1B77
     mov word ptr cs:[si + byte_04A7], 0 ; @1E59
     neg si ; @1E60
     mov dx, word ptr cs:[si + byte_08B7] ; @1E62
@@ -1879,7 +2003,8 @@ loc_1EA3:
     cmp word ptr cs:[byte_026E], 0 ; @1EAC
     jle loc_1EF4 ; @1EB2
     mov al, 0D0h ; @1EB7
-    call far ptr loc_1B4D ; @1EB9 same-segment far call
+    push cs
+    call near ptr loc_1B4D
     mov dx, word ptr cs:[byte_04AD] ; @1EBD
     mov bx, 0400h ; @1EC2
     call far ptr loc_1CF9 ; @1EC5 same-segment far call
@@ -1914,21 +2039,36 @@ loc_1EF5:
 loc_1F00:
     push es ; @1F00
     push ds ; @1F01
-    call far ptr loc_1C74 ; @1F02 same-segment far call
+    push cs
+    call near ptr loc_1C74
     mov word ptr cs:[byte_0012], 1 ; @1F06
     mov word ptr cs:[byte_0010], 0200h ; @1F0D
+SCODE08 ends
+SCODE10 segment byte public 'CODE'
+assume cs:SOUND_GROUP
+; Physical range 1FA4..1FA7; ordinary source emission order.
+    mov bx, seg SOUNDSEG ; @1FA4
+SCODE10 ends
+SCODE09 segment byte public 'CODE'
+assume cs:SOUND_GROUP
+; Physical range 1F14..1FA4; ordinary source emission order.
 loc_1F14:
     call far ptr _fn_013B_001F ; @1F14
     call far ptr _fn_013B_001F ; @1F19
     cmp word ptr cs:[byte_0010], word ptr 0260h ; @1F1E
-    jae loc_2044 ; @1F25 JUMPS expansion
+    jb short branch_skip_1F25
+    jmp near ptr loc_2044
+branch_skip_1F25:
 loc_1F2A:
     add word ptr cs:[byte_0010], 010h ; @1F2A
-    call far ptr loc_2114 ; @1F30 same-segment far call
+    push cs
+    call near ptr loc_2114
+    nop
     jb short loc_1F14 ; @1F35
     mov byte ptr cs:[byte_04A1], 0 ; @1F37
     mov al, 0D3h ; @1F3D
-    call far ptr loc_1B4D ; @1F3F same-segment far call
+    push cs
+    call near ptr loc_1B4D
     call far ptr _fn_013B_001F ; @1F43
     call far ptr _fn_013B_001F ; @1F48
     xor bx, bx ; @1F4D
@@ -1966,8 +2106,11 @@ loc_1F98:
     out 021h, al ; @1F98
     call far ptr _fn_013B_001F ; @1F9A
     call far ptr _fn_013B_001F ; @1F9F
-    mov bx, seg SOUNDSEG ; @1FA4
-    mov dx, offset loc_1EF5 ; @1FA7
+SCODE09 ends
+SCODE11 segment byte public 'CODE'
+assume cs:SOUND_GROUP
+; Physical range 1FA7..2081; ordinary source emission order.
+    mov dx, offset SOUND_GROUP:loc_1EF5 ; @1FA7
     mov ah, 025h ; @1FAA
     mov al, byte ptr cs:[byte_0012] ; @1FAC
     mov ds, bx ; @1FB0
@@ -1992,7 +2135,8 @@ loc_1FD4:
     mov ch, byte ptr cs:[byte_04A9] ; @1FD6
     mov dx, word ptr cs:[byte_04AB] ; @1FDB
     mov bx, 3 ; @1FE0
-    call far ptr loc_1B77 ; @1FE3 same-segment far call
+    push cs
+    call near ptr loc_1B77
     mov cx, 01000h ; @1FE7
 loc_1FEA:
     test byte ptr cs:[byte_04A1], 1 ; @1FEA
@@ -2025,7 +2169,9 @@ loc_2008:
     pop bx ; @2033
     inc bx ; @2034
     cmp bx, 3 ; @2035
-    jbe loc_1F4F ; @2038 JUMPS expansion
+    ja short branch_skip_2038
+    jmp near ptr loc_1F4F
+branch_skip_2038:
 loc_203D:
     mov word ptr cs:[byte_0012], 0 ; @203D
 loc_2044:
@@ -2045,19 +2191,27 @@ byte_data_2058:
 loc_205C:
     push ds ; @205C
     push es ; @205D
-    call far ptr loc_113F ; @205E same-segment far call
-    call far ptr loc_1F00 ; @2062 same-segment far call
+    push cs
+    call near ptr loc_113F
+    push cs
+    call near ptr loc_1F00
     test ax, 1 ; @2066
-    je loc_20B6 ; @2069
+    je short loc_20B6+1
+    nop
+    nop
+    nop
     mov ah, 035h ; @206E
     mov al, byte ptr cs:[byte_0012] ; @2070
     int 021h ; @2074
     mov ax, es ; @2076
     mov word ptr cs:[byte_0497], ax ; @2078
     mov word ptr cs:[byte_0495], bx ; @207C
-    mov ax, seg SOUNDSEG ; @2081
+SCODE11 ends
+SCODE13 segment byte public 'CODE'
+assume cs:SOUND_GROUP
+; Physical range 2084..2143; ordinary source emission order.
     mov ds, ax ; @2084
-    mov dx, offset loc_1E04 ; @2086
+    mov dx, offset SOUND_GROUP:loc_1E04 ; @2086
     mov ah, 025h ; @2089
     mov al, byte ptr cs:[byte_0012] ; @208B
     int 021h ; @208F
@@ -2079,7 +2233,8 @@ loc_20A6:
 loc_20AB:
     out 021h, al ; @20AB
     mov al, 0D1h ; @20AD
-    call far ptr loc_1B4D ; @20AF same-segment far call
+    push cs
+    call near ptr loc_1B4D
     mov ax, 1 ; @20B3
 loc_20B6:
     pop es ; @20B6
@@ -2088,7 +2243,8 @@ loc_20B6:
 loc_20B9:
     push ds ; @20B9
     mov al, 0D3h ; @20BA
-    call far ptr loc_1B4D ; @20BC same-segment far call
+    push cs
+    call near ptr loc_1B4D
     call far ptr _fn_013B_001F ; @20C0
     call far ptr _fn_013B_001F ; @20C5
     in al, 021h ; @20CA
@@ -2125,7 +2281,8 @@ loc_2114:
     mov al, 1 ; @211C
     out dx, al ; @211E
     mov ax, 3 ; @211F
-    call far ptr loc_11B5 ; @2122 same-segment far call
+    push cs
+    call near ptr loc_11B5
     xor al, al ; @2126
     out dx, al ; @2128
     add dx, 8 ; @2129
@@ -2143,5 +2300,11 @@ loc_212F:
 loc_2141:
     stc ; @2141
     retf ; @2142
-SOUNDSEG ends
+SCODE13 ends
+SCODE12 segment byte public 'CODE'
+assume cs:SOUND_GROUP
+; Physical range 2081..2084; ordinary source emission order.
+    mov ax, seg SOUNDSEG ; @2081
+SCODE12 ends
+
 end

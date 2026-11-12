@@ -4,7 +4,7 @@ from common import ROOT, BUILD, TOOLS, load_json, sha256
 from dos import dos
 
 WORK=BUILD/'link'
-OBJECTS=['C0H','DGDATA','GAME','SOUND','ZERO','MODULE','TIMER',
+OBJECTS=['C0H','LAYOUT','DGDATA','GAME','SOUND','ZERO','MODULE','TIMER',
          'B1A38','B1E1F','B2BC6','B2BF6','B2D9A','B2F9E','B2FB7',
          'B325B','B3260','B3265','B326B','B3274','B3279','B3444',
          'B3629','B3632','B3637','B37A7','B438A','B4E83','B5B63','RESERVE']
@@ -32,6 +32,14 @@ def build():
             if folder=='asm':
                 mod=mapped[p.stem]
                 source_audit(p,WORK/(p.stem+'.LST'),mod,mod['end']-mod['start'])
+            else:
+                from omf import parse
+                obj=parse((WORK/(p.stem+'.OBJ')).read_bytes())
+                if p.stem=='LAYOUT':
+                    if any(s['size'] for s in obj.segments) or obj.data or obj.fixups or obj.publics:
+                        raise ValueError('LAYOUT must contain empty segment declarations only')
+                elif any(s['class_name']=='CODE' for s in obj.segments):
+                    raise ValueError('code segment in a data-only source')
     shutil.copyfile(ROOT/'src/c/module.c',WORK/'MODULE.C')
     (WORK/'MODULE.log').write_text(dos('BCC',['-c','-mh','-2','-n.','MODULE.C'],WORK))
     command='/m /s '+'+'.join(n+'.OBJ' for n in OBJECTS)+',UGH.EXE,UGH.MAP,CH.LIB'

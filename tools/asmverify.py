@@ -25,9 +25,46 @@ def validate_map(doc):
                 raise ValueError(f"{mod['name']}: gap, overlap or UNKNOWN in {sp}")
             p=sp['end']
         if p!=mod['end']:raise ValueError('incomplete classification')
+        if mod.get('pieces'):
+            p=mod['start']
+            for piece in mod['pieces']:
+                if piece['start']!=p or piece['end']<=p:raise ValueError('fragment gap/overlap')
+                p=piece['end']
+            if p!=mod['end']:raise ValueError('fragment extent changed')
+
+def grouped_source_audit(source,listing,mod):
+    """Map listing-local offsets through the independently curated segment pieces."""
+    pieces={p['segment']:p for p in mod['pieces']};rows={n:[] for n in pieces};current=None
+    if any(re.match(r'\s*(incbin|org)\b',s.split(';',1)[0],re.I) for s in source.read_text().splitlines()):
+        raise ValueError('forbidden source directive')
+    for line in listing.read_text().splitlines():
+        # Pinned TASM's source column begins at 37; unindented SEGMENT names
+        # would be truncated by the legacy instruction-only column 40.
+        statement=line.expandtabs(8)[37:].split(';',1)[0].strip()
+        start=re.match(r'(\w+)\s+segment\b',statement,re.I)
+        end=re.match(r'(\w+)\s+ends\b',statement,re.I)
+        if start:current=start[1].upper();continue
+        if end:current=None;continue
+        match=re.match(r'\s*(?:1\s+)?(\d+)\s+([0-9A-F]{4})\s',line)
+        if current not in pieces or not match:continue
+        if statement and not statement.endswith(':') and ' equ ' not in statement.lower():
+            rows[current].append((int(match[2],16),int(match[1]),statement))
+    data={p for span in mod['spans'] if span['kind']=='data' for p in range(span['start'],span['end'])}
+    audited=set()
+    for name,items in rows.items():
+        piece=pieces[name];size=piece['end']-piece['start']
+        for off,num,statement in items:
+            if re.search(r'\b(incbin|org)\b',statement,re.I):raise ValueError('forbidden source directive')
+            if re.search(r'\b(db|dw|dd|dq|dt)\b',statement,re.I):
+                end=next((p for p,_,_ in items if p>off),size)
+                if end<=off or not all(piece['start']+p in data for p in range(off,end)):
+                    raise ValueError(f'{mod["name"]}: instruction bytes as data in {name} at listing line {num}')
+                audited.update(range(piece['start']+off,piece['start']+end))
+    if audited!=data:raise ValueError(f'listing data coverage {len(audited)}/{len(data)} differs; missing {sorted(data-audited)[:12]}')
 
 def source_audit(source, listing, mod, size):
     """Reject byte/word directives anywhere outside classified data, using actual LST addresses."""
+    if mod.get('pieces'):return grouped_source_audit(source,listing,mod)
     src=source.read_text().splitlines();rows=[]
     if any(re.match(r'\s*(incbin|org)\b',s.split(';',1)[0],re.I) for s in src):
         raise ValueError('forbidden source directive')
@@ -47,11 +84,82 @@ def source_audit(source, listing, mod, size):
             if not all(p+mod['start'] in data for p in range(off,end)):
                 raise ValueError(f"{mod['name']}: instruction bytes as data at source line {num}")
 
+def grouped_materialize(obj,mod):
+    """Resolve ordinary OMF segment/group and relative fixups without masking bytes.
+
+    Piece placement is an independent object certificate. The natural build uses
+    LAYOUT.ASM, never this metadata, to obtain the placement from TLINK.
+    """
+    pieces={p['segment']:p for p in mod['pieces']}
+    if {s['name'] for s in obj.segments}!=set(pieces):raise ValueError('unexpected owned fragments')
+    if len(obj.groups)!=1 or obj.groups[0]['name']!=mod['group']:raise ValueError('unexpected code group')
+    group_names=[obj.segments[i-1]['name'] for kind,i in obj.groups[0]['items'] if kind=='segment']
+    # TASM 3.0 writes GRPDEF members in reverse of the source GROUP declaration.
+    if group_names!=[p['segment'] for p in reversed(mod['pieces'])]:raise ValueError('code group member order changed')
+    starts={};raw=bytearray(mod['end']-mod['start']);covered=bytearray(len(raw))
+    for s in obj.segments:
+        p=pieces[s['name']];starts[s['index']]=mod['frame']*16+p['start']
+        if s['size']!=p['end']-p['start']:raise ValueError('fragment size changed: '+s['name'])
+        if s['attr']>>5!={'byte':1,'word':2}[p['alignment']]:raise ValueError('fragment alignment changed')
+        if (s['attr']>>2)&7!=2 or s['class_name']!='CODE':raise ValueError('fragment combine/class changed')
+    ownbase=mod['frame']*16+mod['start'];groupbase=mod['frame']*16
+    for d in obj.data:
+        at=starts[d['segment']]-ownbase+d['offset'];end=at+len(d['data'])
+        if at<0 or end>len(raw) or any(covered[at:end]):raise ValueError('overlapping/out-of-range object data')
+        raw[at:end]=d['data'];covered[at:end]=b'\1'*(end-at)
+    if not all(covered):raise ValueError('uninitialized bytes in owned fragments')
+    def target(method,datum):
+        if method==0:
+            base=starts[datum];return base,base//16*16
+        if method==1:
+            if datum!=1:raise ValueError('unknown target group')
+            return groupbase,groupbase
+        if method==2:
+            name=obj.externals[datum-1]['name']
+            match=re.fullmatch('EXT_([0-9A-F]{4})',name)
+            function=re.fullmatch('_FN_(?:([0-9A-F]{4})_)?([0-9A-F]{4})',name)
+            if match:
+                fr=int(match[1],16);off=mod.get('external_starts',{}).get(f'{fr:04X}',0)
+            elif function:fr=int(function[1],16) if function[1] else 0x878;off=int(function[2],16)
+            else:raise ValueError('unbound external '+name)
+            return fr*16+off,fr*16
+        raise ValueError('unsupported target method')
+    sites=[];details=[]
+    for f in obj.fixups:
+        address,default_frame=target(f.target_method,f.target_datum)
+        if f.frame_method==5:frame=default_frame
+        elif f.frame_method==0:frame=starts[f.frame_datum]//16*16
+        elif f.frame_method==1:
+            if f.frame_datum!=1:raise ValueError('unknown frame group')
+            frame=groupbase
+        else:raise ValueError('unsupported frame method')
+        site=starts[f.segment]+f.offset;at=site-ownbase;disp=f.displacement or 0
+        if not f.self_relative:
+            if f.location not in (0,1):raise ValueError('unsupported relative fixup')
+            width=1 if f.location==0 else 2
+            add=int.from_bytes(raw[at:at+width],'little')
+            # Pinned TLINK subtracts two for LOC0 as well as LOC1; source cross-
+            # segment SHORT references carry +1. groupbranch.py proves this.
+            value=(address+disp+add-(site+2))&((1<<(width*8))-1)
+            raw[at:at+width]=value.to_bytes(width,'little')
+        else:
+            def addword(p,value):struct.pack_into('<H',raw,p,(struct.unpack_from('<H',raw,p)[0]+value)&65535)
+            if f.location==1:addword(at,address-frame+disp)
+            elif f.location==2:addword(at,frame//16+disp);sites.append(site)
+            elif f.location==3:
+                addword(at,address-frame+disp);addword(at+2,frame//16);sites.append(site+2)
+            else:raise ValueError('unsupported segment-relative fixup')
+        details.append({'segment':obj.segments[f.segment-1]['name'],'offset':at,'location':f.location,
+                        'target_linear':address,'frame_linear':frame,'displacement':disp,
+                        'segment_relative':f.self_relative})
+    return bytes(raw),sites,details,obj
+
 def materialize(blob, mod):
-    # No current source needs LIDATA. Avoid silently relying on the shared reader's
-    # unverified nested/repeated-data path (see docs/asm.md).
+    # The maintained ASM contribution certificate deliberately remains LEDATA-only.
+    # Data-only modules may use LIDATA through the natural linker build.
     if any(t in (0xa2,0xa3) for t,_ in records(blob)):raise ValueError('LIDATA is not certified by this gate; use explicit data initializers')
     obj=parse(blob)
+    if mod.get('pieces'):return grouped_materialize(obj,mod)
     if len(obj.segments)!=1:raise ValueError('expected one owned segment')
     alignment={'byte':1,'word':2}[mod.get('alignment','word')]
     if obj.segments[0]['attr']>>5!=alignment:raise ValueError('segment alignment changed')
@@ -104,7 +212,7 @@ def compare(mod, oracle, blob, out):
     fixok=sorted(sites)==expected and len(sites)==len(set(sites))
     mismatch=[p for p in range(min(len(want),len(data))) if want[p]!=data[p]]
     count=sum(want[p]==data[p] for p in range(min(len(want),len(data))))
-    okay=len(want)==len(data) and not mismatch and fixok
+    okay=len(want)==len(data) and not mismatch and fixok and sites==expected_order
     result={'module':mod['name'],'start_linear':a,'end_linear':b,'expected_bytes':len(want),
             'object_bytes':len(data),'bytes_equal_at_position':count,'mismatch_count':len(mismatch),
             'relocations_expected':expected,'relocations_emitted':sites,'relocations_equal':fixok,
@@ -142,7 +250,7 @@ def main():
         databytes=sum(s['end']-s['start'] for s in mod['spans'] if s['kind']=='data')
         print(f"{name}: {r['bytes_equal_at_position']}/{r['expected_bytes']} bytes; "
               f"{len(r['relocations_emitted'])}/{len(r['relocations_expected'])} relocation fixups "
-              f"({'equal' if r['relocations_equal'] else 'DIFFER'}); "
+              f"({'equal' if r['relocations_equal'] else 'DIFFER'}, order {'equal' if r['relocation_order_equal'] else 'DIFFER'}); "
               f"{len(r['omf_fixups'])} total OMF fixups resolved; "
               f"{len(exceptions)} encoding exceptions; {databytes} data bytes; "
               f"{'EXACT contribution' if r['strict_object_contribution_match'] else 'FAIL'}")

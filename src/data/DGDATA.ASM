@@ -1,9 +1,8 @@
 ; RAW data debt. Bootstrap: tools/datagen.py; edit this source thereafter.
 .286
+; Menu option/string offset table at DGROUP:00DA..00EC.
+; GAME:0652 indexes the option entries and copies the selected DS string.
 extrn ext_013B:far
-extrn ext_0A67:far
-extrn ext_1A38:far
-extrn ext_2BC6:far
 _DATA segment word public 'DATA'
 public ext_5C09
 ext_5C09 label far
@@ -25,8 +24,18 @@ ext_5C09 label far
     dw seg ext_5C09 ; image 05C149
     db 000h, 000h, 00Ah, 064h, 0E8h, 003h, 010h, 027h, 060h, 000h, 0BCh, 002h, 015h
     db 14 dup (000h)
-    db 0FFh, 0FFh, 0FFh, 0FFh, 0CBh, 00Bh, 0D2h, 00Bh, 0D9h, 00Bh, 0E0h, 00Bh, 0EBh, 00Bh, 0AAh, 00Bh
-    db 0B5h, 00Bh, 0C0h, 00Bh, 0EEh, 000h, 092h, 004h
+    db 0FFh, 0FFh, 0FFh, 0FFh
+    dw offset dg_text_0BCB
+    dw offset dg_text_0BD2
+    dw offset dg_text_0BD9
+    dw offset dg_text_0BE0
+    dw offset dg_text_0BEB
+    dw offset dg_text_0BAA
+    dw offset dg_text_0BB5
+    dw offset dg_text_0BC0
+    dw offset dg_text_00EE
+    dw offset dg_text_0492
+dg_text_00EE label byte
     db 'CAVITY'
     db 000h
     db 'FIRSTCOMMUNION'
@@ -165,6 +174,7 @@ ext_5C09 label far
     db 000h
     db 'THISISHERESY'
     db 000h, 0FFh
+dg_text_0492 label byte
     db 'ALONEINTOTHEALONE'
     db 000h
     db 'ONLYSHADOWSOFHOOKS'
@@ -411,20 +421,28 @@ ext_5C09 label far
     db 00Dh, 00Dh, 00Dh
     db 'ESC: MAIN MENU'
     db 000h, 0FFh
+dg_text_0BAA label byte
     db 'KEYBOARD  '
     db 000h
+dg_text_0BB5 label byte
     db 'JOYSTICK A'
     db 000h
+dg_text_0BC0 label byte
     db 'JOYSTICK B'
     db 000h
+dg_text_0BCB label byte
     db 'EASY  '
     db 000h
+dg_text_0BD2 label byte
     db 'MEDIUM'
     db 000h
+dg_text_0BD9 label byte
     db 'HARD  '
     db 000h
+dg_text_0BE0 label byte
     db 'ONE PLAYER'
     db 000h
+dg_text_0BEB label byte
     db 'TEAM MODE '
     db 000h, 0FEh
     db 'LEVEL 00'
@@ -2225,4 +2243,7 @@ ext_5C09 label far
     db 305 dup (000h)
 _DATA ends
 DGROUP group _DATA
+extrn ext_0A67:far
+extrn ext_1A38:far
+extrn ext_2BC6:far
 end

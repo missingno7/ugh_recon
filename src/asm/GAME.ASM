@@ -1,8 +1,9 @@
-; Maintained reconstruction; asmgen.py is the bootstrap, asmverify.py is the gate.
+; Maintained grouped reconstruction. Physical layout: src/data/LAYOUT.ASM.
+; Fragment declaration order reproduces the relocation stream; see docs/link.md.
 ; Image contribution 013B8..0664C (end exclusive).
 .286
 JUMPS
-; This frame is known before CODE; other far-bank declarations follow CODE.
+; Real external selectors are declared before the grouped code fragments.
 extrn ext_3629:far
 extrn _fn_0003:far
 extrn _fn_008A:far
@@ -11,8 +12,95 @@ extrn _fn_1059:far
 extrn _fn_1768:far
 extrn _fn_1852:far
 extrn ext_5C09:far
+
+
+extrn ext_0A67:far
+extrn ext_1E1F:far
+extrn ext_2BF6:far
+extrn ext_2D9A:far
+extrn ext_2F9E:far
+extrn ext_2FB7:far
+extrn ext_325B:far
+extrn ext_3260:far
+extrn ext_3265:far
+extrn ext_326B:far
+extrn ext_3274:far
+extrn ext_3279:far
+extrn ext_3444:far
+extrn ext_3632:far
+extrn ext_3637:far
+extrn ext_37A7:far
+extrn ext_438A:far
+extrn ext_4E83:far
+extrn ext_5B63:far
 GAMESEG segment word public 'CODE'
-assume cs:GAMESEG
+GAMESEG ends
+GCODE02 segment byte public 'CODE'
+GCODE02 ends
+GCODE04 segment byte public 'CODE'
+GCODE04 ends
+GCODE01 segment byte public 'CODE'
+GCODE01 ends
+GCODE03 segment byte public 'CODE'
+GCODE03 ends
+GCODE05 segment byte public 'CODE'
+GCODE05 ends
+GCODE07 segment byte public 'CODE'
+GCODE07 ends
+GCODE06 segment byte public 'CODE'
+GCODE06 ends
+GCODE09 segment byte public 'CODE'
+GCODE09 ends
+GCODE08 segment byte public 'CODE'
+GCODE08 ends
+GCODE10 segment byte public 'CODE'
+GCODE10 ends
+GCODE12 segment byte public 'CODE'
+GCODE12 ends
+GCODE11 segment byte public 'CODE'
+GCODE11 ends
+GCODE14 segment byte public 'CODE'
+GCODE14 ends
+GCODE16 segment byte public 'CODE'
+GCODE16 ends
+GCODE13 segment byte public 'CODE'
+GCODE13 ends
+GCODE15 segment byte public 'CODE'
+GCODE15 ends
+GCODE17 segment byte public 'CODE'
+GCODE17 ends
+GCODE19 segment byte public 'CODE'
+GCODE19 ends
+GCODE18 segment byte public 'CODE'
+GCODE18 ends
+GCODE21 segment byte public 'CODE'
+GCODE21 ends
+GCODE20 segment byte public 'CODE'
+GCODE20 ends
+GCODE23 segment byte public 'CODE'
+GCODE23 ends
+GCODE25 segment byte public 'CODE'
+GCODE25 ends
+GCODE22 segment byte public 'CODE'
+GCODE22 ends
+GCODE24 segment byte public 'CODE'
+GCODE24 ends
+GCODE26 segment byte public 'CODE'
+GCODE26 ends
+GCODE28 segment byte public 'CODE'
+GCODE28 ends
+GCODE27 segment byte public 'CODE'
+GCODE27 ends
+GCODE30 segment byte public 'CODE'
+GCODE30 ends
+GCODE29 segment byte public 'CODE'
+GCODE29 ends
+GCODE31 segment byte public 'CODE'
+GCODE31 ends
+GAME_GROUP group GAMESEG,GCODE01,GCODE02,GCODE03,GCODE04,GCODE05,GCODE06,GCODE07,GCODE08,GCODE09,GCODE10,GCODE11,GCODE12,GCODE13,GCODE14,GCODE15,GCODE16,GCODE17,GCODE18,GCODE19,GCODE20,GCODE21,GCODE22,GCODE23,GCODE24,GCODE25,GCODE26,GCODE27,GCODE28,GCODE29,GCODE30,GCODE31
+GAMESEG segment word public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 0008..0072; ordinary source emission order.
 public ext_013B
 ext_013B label far
 GAME_BASE label byte
@@ -303,11 +391,11 @@ byte_4EFD equ GAME_BASE+04EF5h
 loc_0008:
     mov dx, seg ext_5C09 ; @0008
     mov ds, dx ; @000B
-    call loc_4F5E ; @000D
-    call loc_0BB8 ; @0010
-    call loc_503B ; @0013
+    call near ptr loc_4F5E
+    call near ptr loc_0BB8
+    call near ptr loc_503B
     call loc_0063 ; @0016
-    jmp near ptr loc_4EE6 ; @0019
+    jmp near ptr loc_4EE6
 loc_001C:
     ret ; @001C
 loc_001D:
@@ -327,84 +415,85 @@ loc_0020 proc C far uses ds es si di
     ret ; @0033 automatic USES restore, LEAVE and far return
 loc_0020 endp
 loc_0039:
-    call loc_43A5 ; @0039
+    call near ptr loc_43A5
     mov bx, word ptr ds:[ds_2638] ; @003C
     mov si, 0DAh ; @0040
     mov di, 0B0Dh ; @0043
-    call loc_0652 ; @0046
+    call near ptr loc_0652
     mov bx, word ptr ds:[ds_2634] ; @0049
     dec bx ; @004D
     mov si, 0E0h ; @004E
     mov di, 0B19h ; @0051
-    call loc_0652 ; @0054
+    call near ptr loc_0652
     mov si, 0AE4h ; @0057
     mov cx, 048h ; @005A
-    call loc_0776 ; @005D
-    jmp near ptr loc_4EBB ; @0060
+    call near ptr loc_0776
+    jmp near ptr loc_4EBB
 loc_0063:
     push 011h ; @0063
     call far ptr _fn_1059 ; @0065
     add sp, 2 ; @006A
     push word ptr 0A5h ; @006D
     push 0 ; @0070
-    push seg ext_3637 ; @0072
-    nop ; @0075
-    push 0 ; @0076
+GAMESEG ends
+GCODE02 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 0078..018C; ordinary source emission order.
     call far ptr _fn_0F88 ; @0078
     add sp, 8 ; @007D
 loc_0080:
-    call loc_088D ; @0080
+    call near ptr loc_088D
     js loc_00FE ; @0083
     jne loc_00AF ; @0088
-    call loc_07F6 ; @008D
+    call near ptr loc_07F6
     js loc_00FE ; @0090
     jne loc_00AF ; @0095
-    call loc_08CF ; @009A
+    call near ptr loc_08CF
     js loc_00FE ; @009D
     jne loc_00AF ; @00A2
-    call loc_01B1 ; @00A7
+    call near ptr loc_01B1
     js loc_00FE ; @00AA
 loc_00AF:
-    call loc_466A ; @00AF
+    call near ptr loc_466A
 loc_00B2:
     mov word ptr ds:[ds_2903], 0AFh ; @00B2
     mov cx, 028h ; @00B8
-    call loc_44BB ; @00BB
-    call loc_4F96 ; @00BE
-    call loc_06F7 ; @00C1
-    call loc_446F ; @00C4
-    call loc_4EBB ; @00C7
-    call loc_43A5 ; @00CA
-    call loc_0039 ; @00CD
-    call loc_4E19 ; @00D0
+    call near ptr loc_44BB
+    call near ptr loc_4F96
+    call near ptr loc_06F7
+    call near ptr loc_446F
+    call near ptr loc_4EBB
+    call near ptr loc_43A5
+    call near ptr loc_0039
+    call near ptr loc_4E19
     jmp short loc_00D8 ; @00D3
 loc_00D5:
-    call loc_0039 ; @00D5
+    call near ptr loc_0039
 loc_00D8:
     mov cx, 0834h ; @00D8
 loc_00DB:
-    call loc_44C3 ; @00DB
+    call near ptr loc_44C3
     dec cx ; @00DE
     jne loc_00E9 ; @00DF
 loc_00E4:
-    call loc_4E28 ; @00E4
+    call near ptr loc_4E28
     jmp short loc_0080 ; @00E7
 loc_00E9:
-    call loc_44F1 ; @00E9
+    call near ptr loc_44F1
     and ah, ah ; @00EC
     je short loc_00DB ; @00EE
     cmp al, 02Eh ; @00F0
     je short loc_00E4 ; @00F2
     cmp al, 010h ; @00F4
     jne loc_00FF ; @00F6
-    jmp near ptr loc_4E28 ; @00FB
+    jmp near ptr loc_4E28
 loc_00FE:
     ret ; @00FE
 loc_00FF:
     cmp al, 03Fh ; @00FF
     jne loc_010E ; @0101
-    call loc_4E28 ; @0106
-    call loc_05E6 ; @0109
+    call near ptr loc_4E28
+    call near ptr loc_05E6
     jmp short loc_00B2 ; @010C
 loc_010E:
     cmp al, 03Eh ; @010E
@@ -429,59 +518,63 @@ loc_013A:
 loc_013F:
     cmp al, 03Ch ; @013F
     jne loc_014B ; @0141
-    call loc_04CA ; @0146
+    call near ptr loc_04CA
     jmp short loc_00D5 ; @0149
 loc_014B:
     cmp al, 03Bh ; @014B
     jne short loc_00D8 ; @014D
-    call loc_4E28 ; @014F
-    call loc_0C07 ; @0152
-    call loc_4F96 ; @0155
+    call near ptr loc_4E28
+    call near ptr loc_0C07
+    call near ptr loc_4F96
     mov bx, word ptr ds:[ds_2636] ; @0158
     sub bx, 2 ; @015C
     mov ax, word ptr ds:[ds_261C] ; @015F
     cmp ax, word ptr [bx + ds_2624] ; @0162
-    jae loc_01AC ; @0166
+    jae short loc_01AC+1
+    nop
+    nop
+    nop
     mov word ptr ds:[ds_2903], 0C8h ; @016B
     mov si, 0C0Ch ; @0171
     mov cx, 048h ; @0174
-    call loc_0776 ; @0177
-    call loc_4EBB ; @017A
+    call near ptr loc_0776
+    call near ptr loc_4EBB
     push 011h ; @017D
     call far ptr _fn_1059 ; @017F
     add sp, 2 ; @0184
     push 1 ; @0187
     push word ptr 0E1h ; @0189
-    push seg ext_326B ; @018C
-    nop ; @018F
-    push 0 ; @0190
+GCODE02 ends
+GCODE04 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 0192..0284; ordinary source emission order.
     call far ptr _fn_1852 ; @0192
     add sp, 8 ; @0197
-    call loc_4E19 ; @019A
+    call near ptr loc_4E19
     mov cx, 02BCh ; @019D
-    call loc_4497 ; @01A0
-    call loc_4E28 ; @01A3
+    call near ptr loc_4497
+    call near ptr loc_4E28
 loc_01A6:
     call loc_0210 ; @01A6
-    jmp near ptr loc_0063 ; @01A9
+    jmp near ptr loc_0063
 loc_01AC:
-    call loc_08A2 ; @01AC
+    call near ptr loc_08A2
     jmp short loc_01A6 ; @01AF
 loc_01B1:
     mov word ptr ds:[ds_2903], 0C8h ; @01B1
     mov cx, 028h ; @01B7
-    call loc_44BB ; @01BA
-    call loc_4F96 ; @01BD
-    call loc_06F7 ; @01C0
+    call near ptr loc_44BB
+    call near ptr loc_4F96
+    call near ptr loc_06F7
     mov si, 0C7Bh ; @01C3
     mov cx, 050h ; @01C6
-    call loc_0776 ; @01C9
-    call loc_4EBB ; @01CC
-    call loc_4E19 ; @01CF
+    call near ptr loc_0776
+    call near ptr loc_4EBB
+    call near ptr loc_4E19
     mov cx, 0578h ; @01D2
-    call loc_4497 ; @01D5
+    call near ptr loc_4497
     push ax ; @01D8
-    call loc_4E28 ; @01D9
+    call near ptr loc_4E28
     pop ax ; @01DC
     and al, 07Fh ; @01DD
     cmp al, 010h ; @01DF
@@ -500,11 +593,11 @@ loc_01F1:
     mov bx, 0A0h ; @01F5
     mov cx, 0140h ; @01F8
     mov dx, 010h ; @01FB
-    call loc_43EA ; @01FE
+    call near ptr loc_43EA
     mov si, 0C6Dh ; @0201
     mov cx, 0A0h ; @0204
-    call loc_077C ; @0207
-    call loc_4EBB ; @020A
+    call near ptr loc_077C
+    call near ptr loc_4EBB
     pop si ; @020D
     pop bx ; @020E
     ret ; @020F
@@ -512,7 +605,7 @@ loc_0210:
     mov si, 0C8h ; @0210
     mov ax, word ptr ds:[ds_261E] ; @0213
     mov dx, word ptr ds:[ds_2620] ; @0216
-    call loc_3F0F ; @021A
+    call near ptr loc_3F0F
     xor ah, ah ; @021D
     xor si, si ; @021F
 loc_0221:
@@ -534,13 +627,13 @@ loc_0241:
     jne short loc_0221 ; @0249
     xor cl, cl ; @024B
 loc_024D:
-    call loc_0452 ; @024D
+    call near ptr loc_0452
     jb loc_0260 ; @0250
     inc cl ; @0255
     cmp cl, 5 ; @0257
     nop ; @025A
     jne short loc_024D ; @025B
-    jmp near ptr loc_03C9 ; @025D
+    jmp near ptr loc_03C9
 loc_0260:
     xor ch, ch ; @0260
     push cx ; @0262
@@ -549,12 +642,12 @@ loc_0260:
     nop ; @0267
     nop ; @0268
 loc_0269:
-    call loc_04B3 ; @0269
+    call near ptr loc_04B3
     dec cx ; @026C
     cmp cx, bp ; @026D
     jge short loc_0269 ; @026F
     mov cx, bp ; @0271
-    call loc_0446 ; @0273
+    call near ptr loc_0446
     mov si, 5 ; @0276
 loc_0279:
     mov al, byte ptr [si + 0C8h] ; @0279
@@ -562,16 +655,35 @@ loc_0279:
     dec si ; @027F
     jns short loc_0279 ; @0280
     push 011h ; @0282
+GCODE04 ends
+GCODE01 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 0072..0078; ordinary source emission order.
+    push seg ext_3637 ; @0072
+    nop ; @0075
+    push 0 ; @0076
+GCODE01 ends
+GCODE03 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 018C..0192; ordinary source emission order.
+    push seg ext_326B ; @018C
+    nop ; @018F
+    push 0 ; @0190
+GCODE03 ends
+GCODE05 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 0284..0291; ordinary source emission order.
     call far ptr _fn_1059 ; @0284
     add sp, 2 ; @0289
     push word ptr 0A5h ; @028C
     push 0 ; @028F
-    push seg ext_3279 ; @0291
-    nop ; @0294
-    push 0 ; @0295
+GCODE05 ends
+GCODE07 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 0297..06CF; ordinary source emission order.
     call far ptr _fn_0F88 ; @0297
     add sp, 8 ; @029C
-    call loc_454C ; @029F
+    call near ptr loc_454C
     mov si, 0Bh ; @02A2
     nop ; @02A5
     mov al, 020h ; @02A6
@@ -581,21 +693,21 @@ loc_02A8:
     jns short loc_02A8 ; @02AD
     mov word ptr ds:[ds_2903], 09Fh ; @02AF
     mov cx, 028h ; @02B5
-    call loc_44BB ; @02B8
-    call loc_4F96 ; @02BB
-    call loc_06F7 ; @02BE
+    call near ptr loc_44BB
+    call near ptr loc_4F96
+    call near ptr loc_06F7
     mov si, 0C23h ; @02C1
     mov cx, 050h ; @02C4
-    call loc_0776 ; @02C7
-    call loc_446F ; @02CA
-    call loc_4EBB ; @02CD
-    call loc_43A5 ; @02D0
-    call loc_4E19 ; @02D3
+    call near ptr loc_0776
+    call near ptr loc_446F
+    call near ptr loc_4EBB
+    call near ptr loc_43A5
+    call near ptr loc_4E19
     xor si, si ; @02D6
 loc_02D8:
     xor bl, bl ; @02D8
 loc_02DA:
-    call loc_44C6 ; @02DA
+    call near ptr loc_44C6
     dec bl ; @02DD
     test bl, 010h ; @02DF
     je loc_02EB ; @02E2
@@ -609,7 +721,7 @@ loc_02ED:
     jae loc_02FA ; @02F1
     mov byte ptr [si + ds_0C6D], al ; @02F6
 loc_02FA:
-    call loc_01F1 ; @02FA
+    call near ptr loc_01F1
     mov ah, 1 ; @02FD
     int 016h ; @02FF
     je short loc_02DA ; @0301
@@ -665,7 +777,7 @@ loc_0375:
     jae loc_03AC ; @0379
     mov byte ptr [si + ds_0C6D], 020h ; @037E
     nop ; @0383
-    call loc_01F1 ; @0384
+    call near ptr loc_01F1
     and si, si ; @0387
     jne loc_03AC ; @0389
     mov word ptr ds:[ds_0C6D], 04E49h ; @038E
@@ -683,12 +795,12 @@ loc_03B4:
     mov byte ptr [bx + si], al ; @03B8
     dec si ; @03BA
     jns short loc_03B4 ; @03BB
-    call loc_450A ; @03BD
-    call loc_4E28 ; @03C0
+    call near ptr loc_450A
+    call near ptr loc_4E28
     call loc_03DA ; @03C3
-    call loc_01B1 ; @03C6
+    call near ptr loc_01B1
 loc_03C9:
-    jmp near ptr loc_396D ; @03C9
+    jmp near ptr loc_396D
 loc_03CC:
     ret ; @03CC
 loc_03CD:
@@ -795,9 +907,9 @@ loc_04C0:
     jns short loc_04C0 ; @04C7
     ret ; @04C9
 loc_04CA:
-    call loc_454C ; @04CA
-    call loc_43A5 ; @04CD
-    call loc_0039 ; @04D0
+    call near ptr loc_454C
+    call near ptr loc_43A5
+    call near ptr loc_0039
     mov si, 013h ; @04D3
     nop ; @04D6
     mov al, 020h ; @04D7
@@ -809,7 +921,7 @@ loc_04D9:
 loc_04E2:
     xor bl, bl ; @04E2
 loc_04E4:
-    call loc_44C6 ; @04E4
+    call near ptr loc_44C6
     dec bl ; @04E7
     test bl, 010h ; @04E9
     je loc_04F5 ; @04EC
@@ -829,11 +941,11 @@ loc_0504:
     mov bx, 0B0h ; @0508
     mov cx, 0140h ; @050B
     mov dx, 010h ; @050E
-    call loc_43EA ; @0511
+    call near ptr loc_43EA
     mov si, 0B4Eh ; @0514
     mov cx, 0B0h ; @0517
-    call loc_077C ; @051A
-    call loc_4EBB ; @051D
+    call near ptr loc_077C
+    call near ptr loc_4EBB
     pop si ; @0520
     pop bx ; @0521
     mov ah, 1 ; @0522
@@ -894,9 +1006,9 @@ loc_0596:
     mov word ptr ds:[ds_0B4E], 04F4Eh ; @05AC
     mov word ptr ds:[ds_0B50], 0454Eh ; @05B2
 loc_05B8:
-    jmp near ptr loc_450A ; @05B8
+    jmp near ptr loc_450A
 loc_05BB:
-    call loc_43A5 ; @05BB
+    call near ptr loc_43A5
     mov bx, word ptr ds:[ds_263F] ; @05BE
     inc bx ; @05C2
     mov si, 0E4h ; @05C3
@@ -909,27 +1021,27 @@ loc_05BB:
     call loc_0652 ; @05D7
     mov si, 0B64h ; @05DA
     mov cx, 050h ; @05DD
-    call loc_0776 ; @05E0
-    jmp near ptr loc_4EBB ; @05E3
+    call near ptr loc_0776
+    jmp near ptr loc_4EBB
 loc_05E6:
     mov word ptr ds:[ds_2903], 0C8h ; @05E6
     mov cx, 028h ; @05EC
-    call loc_44BB ; @05EF
+    call near ptr loc_44BB
     call loc_05BB ; @05F2
-    call loc_4E19 ; @05F5
+    call near ptr loc_4E19
     jmp short loc_05FD ; @05F8
 loc_05FA:
     call loc_05BB ; @05FA
 loc_05FD:
     mov cx, 0834h ; @05FD
 loc_0600:
-    call loc_44C3 ; @0600
+    call near ptr loc_44C3
     dec cx ; @0603
     jne loc_060C ; @0604
 loc_0609:
-    jmp near ptr loc_4E28 ; @0609
+    jmp near ptr loc_4E28
 loc_060C:
-    call loc_44F1 ; @060C
+    call near ptr loc_44F1
     and ah, ah ; @060F
     je short loc_0600 ; @0611
     cmp al, 1 ; @0613
@@ -974,14 +1086,14 @@ loc_0658:
 loc_0663:
     ret ; @0663
 loc_0664:
-    call loc_4F96 ; @0664
+    call near ptr loc_4F96
     mov ax, word ptr ds:[ds_2903] ; @0667
     push ax ; @066A
     mov word ptr ds:[ds_2903], 0AFh ; @066B
     mov al, byte ptr ds:[ds_261C] ; @0671
     inc al ; @0674
     mov si, 0C8h ; @0676
-    call loc_3F43 ; @0679
+    call near ptr loc_3F43
     mov al, byte ptr ds:[ds_00C8] ; @067C
     add al, 030h ; @067F
     mov byte ptr ds:[ds_0BFD], al ; @0681
@@ -990,13 +1102,13 @@ loc_0664:
     mov byte ptr ds:[ds_0BFE], al ; @0689
     mov cx, 020h ; @068C
     mov si, 0BF6h ; @068F
-    call loc_077C ; @0692
+    call near ptr loc_077C
     add cx, 020h ; @0695
     mov si, word ptr ds:[ds_28F3] ; @0698
-    call loc_0776 ; @069C
+    call near ptr loc_0776
     mov cx, 0A0h ; @069F
     mov si, 0C00h ; @06A2
-    call loc_077C ; @06A5
+    call near ptr loc_077C
     mov dl, byte ptr ds:[ds_261C] ; @06A8
     inc dl ; @06AC
     mov bx, word ptr ds:[ds_2636] ; @06AE
@@ -1011,34 +1123,53 @@ loc_06C0:
     jne short loc_06C0 ; @06C3
     je short loc_06B9 ; @06C5
 loc_06C7:
-    call loc_077C ; @06C7
-    call loc_4EBB ; @06CA
+    call near ptr loc_077C
+    call near ptr loc_4EBB
     push 011h ; @06CD
+GCODE07 ends
+GCODE06 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 0291..0297; ordinary source emission order.
+    push seg ext_3279 ; @0291
+    nop ; @0294
+    push 0 ; @0295
+GCODE06 ends
+GCODE09 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 06DC..06E2; ordinary source emission order.
+    push seg ext_3629 ; @06DC
+    nop ; @06DF
+    push 0 ; @06E0
+GCODE09 ends
+GCODE08 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 06CF..06DC; ordinary source emission order.
     call far ptr _fn_1059 ; @06CF
     add sp, 2 ; @06D4
     push 1 ; @06D7
     push word ptr 0E1h ; @06D9
-    push seg ext_3629 ; @06DC
-    nop ; @06DF
-    push 0 ; @06E0
+GCODE08 ends
+GCODE10 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 06E2..08B4; ordinary source emission order.
     call far ptr _fn_1852 ; @06E2
     add sp, 8 ; @06E7
-    call loc_4E19 ; @06EA
-    call loc_44DB ; @06ED
+    call near ptr loc_4E19
+    call near ptr loc_44DB
     pop ax ; @06F0
     mov word ptr ds:[ds_2903], ax ; @06F1
-    jmp near ptr loc_4E28 ; @06F4
+    jmp near ptr loc_4E28
 loc_06F7:
     mov ax, 0D7h ; @06F7
     mov bx, 010h ; @06FA
     xor cx, cx ; @06FD
-    call loc_41FD ; @06FF
+    call near ptr loc_41FD
     inc ax ; @0702
     mov bx, 0E3h ; @0703
-    call loc_41FD ; @0706
+    call near ptr loc_41FD
     mov ax, 0D6h ; @0709
     mov bx, 061h ; @070C
-    jmp near ptr loc_41FD ; @070F
+    jmp near ptr loc_41FD
 loc_0712:
     mov word ptr ds:[ds_2903], 0C0h ; @0712
     mov si, 07080h ; @0718
@@ -1052,11 +1183,11 @@ loc_072A:
     push di ; @072A
     push ds ; @072B
     push si ; @072C
-    call loc_4E9B ; @072D
-    call loc_4F96 ; @0730
-    call loc_466A ; @0733
+    call near ptr loc_4E9B
+    call near ptr loc_4F96
+    call near ptr loc_466A
     lds si, dword ptr ds:[ds_00A3] ; @0736
-    call loc_4CA5 ; @073A
+    call near ptr loc_4CA5
     push es ; @073D
     pop ds ; @073E
     pop si ; @073F
@@ -1066,20 +1197,20 @@ loc_072A:
     mov cx, 0A0h ; @0748
     rep movsw ; @074B
     pop ds ; @074D
-    call loc_4172 ; @074E
+    call near ptr loc_4172
     pop di ; @0751
     and di, di ; @0752
     je loc_075C ; @0754
     call loc_06F7 ; @0759
 loc_075C:
-    call loc_446F ; @075C
-    call loc_4EBB ; @075F
-    call loc_43A5 ; @0762
+    call near ptr loc_446F
+    call near ptr loc_4EBB
+    call near ptr loc_43A5
     cmp word ptr ds:[ds_2903], word ptr 0C0h ; @0765
     jge loc_0773 ; @076B
-    call loc_2DB9 ; @0770
+    call near ptr loc_2DB9
 loc_0773:
-    jmp near ptr loc_4EBB ; @0773
+    jmp near ptr loc_4EBB
 loc_0776:
     call loc_077C ; @0776
     jne short loc_0776 ; @0779
@@ -1131,7 +1262,7 @@ loc_07D7:
 loc_07E0:
     xor ah, ah ; @07E0
     add ax, word ptr 0237h ; @07E2
-    call loc_41FD ; @07E5
+    call near ptr loc_41FD
     add bx, 010h ; @07E8
     jmp short loc_07AB ; @07EB
 loc_07ED:
@@ -1143,17 +1274,17 @@ loc_07F3:
     ret ; @07F5
 loc_07F6:
     mov word ptr ds:[ds_2903], 0C8h ; @07F6
-    call loc_466A ; @07FC
+    call near ptr loc_466A
     mov si, 091Fh ; @07FF
 loc_0802:
     push si ; @0802
     mov cx, 028h ; @0803
-    call loc_44BB ; @0806
-    call loc_4F96 ; @0809
+    call near ptr loc_44BB
+    call near ptr loc_4F96
     call loc_06F7 ; @080C
-    call loc_446F ; @080F
-    call loc_4EBB ; @0812
-    call loc_43A5 ; @0815
+    call near ptr loc_446F
+    call near ptr loc_4EBB
+    call near ptr loc_43A5
     pop si ; @0818
     mov di, si ; @0819
     xor bp, bp ; @081B
@@ -1180,13 +1311,13 @@ loc_0837:
     mov si, di ; @0849
     call loc_0776 ; @084B
     push si ; @084E
-    call loc_4EBB ; @084F
-    call loc_4E19 ; @0852
+    call near ptr loc_4EBB
+    call near ptr loc_4E19
     mov cx, 015Eh ; @0855
-    call loc_4497 ; @0858
+    call near ptr loc_4497
     pushf ; @085B
     push ax ; @085C
-    call loc_4E28 ; @085D
+    call near ptr loc_4E28
     pop ax ; @0860
     popf ; @0861
     pop si ; @0862
@@ -1213,11 +1344,11 @@ loc_088A:
 loc_088D:
     call loc_0720 ; @088D
     mov si, 024DEh ; @0890
-    call loc_08D5 ; @0893
+    call near ptr loc_08D5
     pushf ; @0896
     xor bx, bx ; @0897
     mov word ptr ds:[ds_2AED], bx ; @0899
-    call loc_099F ; @089D
+    call near ptr loc_099F
     popf ; @08A0
     ret ; @08A1
 loc_08A2:
@@ -1227,19 +1358,20 @@ loc_08A2:
     add sp, 2 ; @08AC
     push word ptr 0A5h ; @08AF
     push 0 ; @08B2
-    push seg ext_3279 ; @08B4
-    nop ; @08B7
-    push 0 ; @08B8
+GCODE10 ends
+GCODE12 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 08BA..0BB8; ordinary source emission order.
     call far ptr _fn_0F88 ; @08BA
     add sp, 8 ; @08BF
     mov si, 01020h ; @08C2
     jmp short loc_08D5 ; @08C5
 loc_08C7:
-    call loc_0720 ; @08C7
+    call near ptr loc_0720
     mov si, 01792h ; @08CA
     jmp short loc_08D5 ; @08CD
 loc_08CF:
-    call loc_0712 ; @08CF
+    call near ptr loc_0712
     mov si, 01E40h ; @08D2
 loc_08D5:
     call loc_0AEB ; @08D5
@@ -1247,7 +1379,7 @@ loc_08D5:
     mov word ptr ds:[ds_264A], ax ; @08DA
     mov word ptr ds:[ds_27A8], ax ; @08DD
     mov word ptr ds:[ds_27AA], 4 ; @08E0
-    call loc_44F1 ; @08E6
+    call near ptr loc_44F1
 loc_08E9:
     mov cx, word ptr ds:[ds_27A8] ; @08E9
     cmp cx, 0 ; @08ED
@@ -1256,26 +1388,26 @@ loc_08E9:
 loc_08F8:
     cmp cx, word ptr 0100h ; @08F8
     jg loc_090E ; @08FC
-    call loc_4E36 ; @0901
+    call near ptr loc_4E36
     add cx, word ptr ds:[ds_27AA] ; @0904
     mov word ptr ds:[ds_27A8], cx ; @0908
     jmp short loc_0911 ; @090C
 loc_090E:
-    call loc_44C3 ; @090E
+    call near ptr loc_44C3
 loc_0911:
     call loc_0AB1 ; @0911
     cmp word ptr ds:[ds_2903], word ptr 0C0h ; @0914
     jge loc_0922 ; @091A
-    call loc_2DB9 ; @091F
+    call near ptr loc_2DB9
 loc_0922:
     call loc_09D7 ; @0922
     call loc_0A58 ; @0925
-    call loc_4EBB ; @0928
+    call near ptr loc_4EBB
     call loc_09BC ; @092B
     jb loc_0968 ; @092E
-    call loc_51EC ; @0933
+    call near ptr loc_51EC
     jne loc_0962 ; @0936
-    call loc_44F1 ; @093B
+    call near ptr loc_44F1
     and ah, ah ; @093E
     je short loc_08E9 ; @0940
     and al, 07Fh ; @0942
@@ -1407,7 +1539,7 @@ loc_0A5A:
     jge loc_0AAB ; @0A9A
     cmp cx, word ptr 0C0h ; @0A9F
     jge loc_0AAB ; @0AA3
-    call loc_41FD ; @0AA8
+    call near ptr loc_41FD
 loc_0AAB:
     add si, 2 ; @0AAB
     jmp short loc_0A5A ; @0AAE
@@ -1427,7 +1559,7 @@ loc_0AB3:
     je loc_0AE5 ; @0AD5
     mov ax, word ptr [si + ds_2B4D] ; @0ADA
     mov bx, word ptr [si + ds_2B8D] ; @0ADE
-    call loc_43B9 ; @0AE2
+    call near ptr loc_43B9
 loc_0AE5:
     add si, 2 ; @0AE5
     jmp short loc_0AB3 ; @0AE8
@@ -1490,14 +1622,14 @@ loc_0B75:
     ret ; @0B82
 loc_0B83:
     push cx ; @0B83
-    call loc_4C81 ; @0B84
-    call loc_4634 ; @0B87
-    call loc_4EBB ; @0B8A
-    call loc_4E19 ; @0B8D
+    call near ptr loc_4C81
+    call near ptr loc_4634
+    call near ptr loc_4EBB
+    call near ptr loc_4E19
     pop cx ; @0B90
-    call loc_4497 ; @0B91
+    call near ptr loc_4497
     push ax ; @0B94
-    call loc_4E28 ; @0B95
+    call near ptr loc_4E28
     pop ax ; @0B98
     and al, 07Fh ; @0B99
     cmp al, 1 ; @0B9B
@@ -1514,34 +1646,329 @@ loc_0BB2:
 loc_0BB5:
     and ax, ax ; @0BB5
     ret ; @0BB7
+GCODE12 ends
+GCODE11 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 08B4..08BA; ordinary source emission order.
+    push seg ext_3279 ; @08B4
+    nop ; @08B7
+    push 0 ; @08B8
+GCODE11 ends
+GCODE14 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 0C59..0C6F; ordinary source emission order.
+    call far ptr _fn_1059 ; @0C59
+    add sp, 2 ; @0C5E
+    call near ptr loc_3961
+    call near ptr loc_4E9B
+loc_0C67:
+    call near ptr loc_3D66
+    push word ptr 0A5h ; @0C6A
+    push 0 ; @0C6D
+GCODE14 ends
+GCODE16 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 0C75..0FA9; ordinary source emission order.
+    call far ptr _fn_0F88 ; @0C75
+    add sp, 8 ; @0C7A
+loc_0C7D:
+    mov cx, word ptr ds:[ds_27A8] ; @0C7D
+    cmp cx, 0 ; @0C81
+    jge loc_0C8C ; @0C84
+    jmp near ptr loc_0FA7 ; @0C89
+loc_0C8C:
+    cmp cx, word ptr 0100h ; @0C8C
+    jg loc_0CA2 ; @0C90
+    call near ptr loc_4E36
+    add cx, word ptr ds:[ds_27AA] ; @0C98
+    mov word ptr ds:[ds_27A8], cx ; @0C9C
+    jmp short loc_0CA5 ; @0CA0
+loc_0CA2:
+    call near ptr loc_44C3
+loc_0CA5:
+    call near ptr loc_3F55
+    xor bx, bx ; @0CA8
+loc_0CAA:
+    call near ptr loc_436D
+    add bx, 2 ; @0CAD
+    cmp bx, word ptr ds:[ds_2636] ; @0CB0
+    jne short loc_0CAA ; @0CB4
+    xor si, si ; @0CB6
+loc_0CB8:
+    cmp word ptr [si + ds_29AD], -1 ; @0CB8
+    je loc_0D14 ; @0CBD
+    mov ax, word ptr [si + ds_2BED] ; @0CC2
+    mov cx, word ptr [si + ds_2C0D] ; @0CC6
+    mov word ptr [si + ds_2C0D], ax ; @0CCA
+    cmp cx, -1 ; @0CCE
+    je loc_0D0F ; @0CD1
+    mov ax, word ptr [si + ds_2B4D] ; @0CD6
+    mov bx, word ptr [si + ds_2B8D] ; @0CDA
+    cmp bx, word ptr 0C0h ; @0CDE
+    jge loc_0D0F ; @0CE2
+    call near ptr loc_43B9
+    mov ax, word ptr [si + ds_2C2D] ; @0CEA
+    mov cx, word ptr [si + ds_2C4D] ; @0CEE
+    mov word ptr [si + ds_2C4D], ax ; @0CF2
+    cmp cx, -1 ; @0CF6
+    je loc_0D0F ; @0CF9
+    mov ax, word ptr [si + ds_2B4D] ; @0CFE
+    add ax, word ptr 0Bh ; @0D02
+    mov bx, word ptr [si + ds_2B8D] ; @0D05
+    add bx, -0Dh ; @0D09
+    call near ptr loc_43B9
+loc_0D0F:
+    add si, 2 ; @0D0F
+    jmp short loc_0CB8 ; @0D12
+loc_0D14:
+    xor si, si ; @0D14
+loc_0D16:
+    cmp word ptr [si + ds_2CAD], -1 ; @0D16
+    je loc_0D44 ; @0D1B
+    mov ax, word ptr [si + ds_2D43] ; @0D20
+    mov cx, word ptr [si + ds_2D4D] ; @0D24
+    mov word ptr [si + ds_2D4D], ax ; @0D28
+    cmp cx, -1 ; @0D2C
+    je loc_0D3F ; @0D2F
+    mov ax, word ptr [si + ds_2D11] ; @0D34
+    mov bx, word ptr [si + ds_2D25] ; @0D38
+    call near ptr loc_43B9
+loc_0D3F:
+    add si, 2 ; @0D3F
+    jmp short loc_0D16 ; @0D42
+loc_0D44:
+    mov si, 016h ; @0D44
+loc_0D47:
+    mov ax, word ptr [si + ds_2D9B] ; @0D47
+    mov cx, word ptr [si + ds_2DB3] ; @0D4B
+    mov word ptr [si + ds_2DB3], ax ; @0D4F
+    cmp cx, -1 ; @0D53
+    je loc_0D66 ; @0D56
+    mov ax, word ptr [si + ds_2E13] ; @0D5B
+    mov bx, word ptr [si + ds_2E43] ; @0D5F
+    call near ptr loc_43B9
+loc_0D66:
+    sub si, 2 ; @0D66
+    jns short loc_0D47 ; @0D69
+    cmp byte ptr ds:[ds_28F5], 0 ; @0D6B
+    je loc_0D78 ; @0D70
+    call near ptr loc_3CDE
+loc_0D78:
+    call near ptr loc_2D1C
+    call near ptr loc_0FE8
+    cmp al, 019h ; @0D7E
+    jne loc_0D9A ; @0D80
+loc_0D85:
+    call near ptr loc_44F1
+    cmp al, 099h ; @0D88
+    jne short loc_0D85 ; @0D8A
+loc_0D8C:
+    call near ptr loc_44F1
+    test al, 0FFh ; @0D8F
+    js short loc_0D8C ; @0D91
+loc_0D93:
+    call near ptr loc_44F1
+    test al, 0FFh ; @0D96
+    jns short loc_0D93 ; @0D98
+loc_0D9A:
+    cmp al, 1 ; @0D9A
+    jne loc_0DBB ; @0D9C
+    mov byte ptr ds:[ds_263C], 0 ; @0DA1
+    nop ; @0DA6
+    cmp word ptr ds:[ds_27AA], 0 ; @0DA7
+    jl loc_0DBB ; @0DAC
+    mov ax, 0FFFEh ; @0DB1
+    mov word ptr ds:[ds_27AA], ax ; @0DB4
+    add word ptr ds:[ds_27A8], ax ; @0DB7
+loc_0DBB:
+    cmp word ptr ds:[ds_27A8], word ptr 0C0h ; @0DBB
+    jg loc_0DD0 ; @0DC1
+    cmp word ptr ds:[ds_27AA], 0 ; @0DC6
+    jg loc_0DDE ; @0DCB
+loc_0DD0:
+    xor bx, bx ; @0DD0
+loc_0DD2:
+    call near ptr loc_1095
+    add bx, 2 ; @0DD5
+    cmp bx, word ptr ds:[ds_2634] ; @0DD8
+    je short loc_0DD2 ; @0DDC
+loc_0DDE:
+    call near ptr loc_1486
+    call near ptr loc_2363
+    call near ptr loc_2B7F
+    xor si, si ; @0DE7
+loc_0DE9:
+    cmp word ptr [si + ds_29AD], -1 ; @0DE9
+    je loc_0E3E ; @0DEE
+    mov ax, word ptr [si + ds_2BED] ; @0DF3
+    cmp ax, word ptr 0FFFFh ; @0DF7
+    je loc_0E39 ; @0DFA
+    mov bx, word ptr [si + ds_2B2D] ; @0DFF
+    mov cx, word ptr [si + ds_2B6D] ; @0E03
+    mov word ptr [si + ds_2B4D], bx ; @0E07
+    mov word ptr [si + ds_2B8D], cx ; @0E0B
+    mov bx, word ptr [si + ds_2AED] ; @0E0F
+    sar bx, 5 ; @0E13
+    mov word ptr [si + ds_2B2D], bx ; @0E16
+    mov cx, word ptr [si + ds_2B0D] ; @0E1A
+    sar cx, 5 ; @0E1E
+    mov word ptr [si + ds_2B6D], cx ; @0E21
+    cmp cx, word ptr 0C0h ; @0E25
+    jge loc_0E39 ; @0E29
+    cmp cx, -0Bh ; @0E2E
+    jle loc_0E39 ; @0E31
+    call near ptr loc_41FD
+loc_0E39:
+    add si, 2 ; @0E39
+    jmp short loc_0DE9 ; @0E3C
+loc_0E3E:
+    xor si, si ; @0E3E
+loc_0E40:
+    mov ax, word ptr [si + ds_2CAD] ; @0E40
+    cmp ax, word ptr 0FFFFh ; @0E44
+    je loc_0E9F ; @0E47
+    cmp ax, word ptr 076E4h ; @0E4C
+    je loc_0E5C ; @0E4F
+    cmp ax, word ptr 076A8h ; @0E54
+    jne loc_0E9A ; @0E57
+loc_0E5C:
+    mov ax, word ptr [si + ds_2D43] ; @0E5C
+    cmp ax, word ptr 0FFFFh ; @0E60
+    je loc_0E9A ; @0E63
+    mov bx, word ptr [si + ds_2D07] ; @0E68
+    mov cx, word ptr [si + ds_2D1B] ; @0E6C
+    mov word ptr [si + ds_2D11], bx ; @0E70
+    mov word ptr [si + ds_2D25], cx ; @0E74
+    mov bx, word ptr [si + ds_2CC1] ; @0E78
+    sar bx, 5 ; @0E7C
+    mov word ptr [si + ds_2D07], bx ; @0E7F
+    mov cx, word ptr [si + ds_2CCB] ; @0E83
+    sar cx, 5 ; @0E87
+    mov word ptr [si + ds_2D1B], cx ; @0E8A
+    cmp cx, word ptr 0C0h ; @0E8E
+    jge loc_0E9A ; @0E92
+    call near ptr loc_41FD
+loc_0E9A:
+    add si, 2 ; @0E9A
+    jmp short loc_0E40 ; @0E9D
+loc_0E9F:
+    xor bx, bx ; @0E9F
+loc_0EA1:
+    call near ptr loc_418D
+    add bx, 2 ; @0EA4
+    cmp bx, word ptr ds:[ds_2636] ; @0EA7
+    jne short loc_0EA1 ; @0EAB
+    xor si, si ; @0EAD
+loc_0EAF:
+    mov ax, word ptr [si + ds_2CAD] ; @0EAF
+    cmp ax, word ptr 0FFFFh ; @0EB3
+    je loc_0F0E ; @0EB6
+    cmp ax, word ptr 076E4h ; @0EBB
+    je loc_0F09 ; @0EBE
+    cmp ax, word ptr 076A8h ; @0EC3
+    je loc_0F09 ; @0EC6
+    mov ax, word ptr [si + ds_2D43] ; @0ECB
+    cmp ax, word ptr 0FFFFh ; @0ECF
+    je loc_0F09 ; @0ED2
+    mov bx, word ptr [si + ds_2D07] ; @0ED7
+    mov cx, word ptr [si + ds_2D1B] ; @0EDB
+    mov word ptr [si + ds_2D11], bx ; @0EDF
+    mov word ptr [si + ds_2D25], cx ; @0EE3
+    mov bx, word ptr [si + ds_2CC1] ; @0EE7
+    sar bx, 5 ; @0EEB
+    mov word ptr [si + ds_2D07], bx ; @0EEE
+    mov cx, word ptr [si + ds_2CCB] ; @0EF2
+    sar cx, 5 ; @0EF6
+    mov word ptr [si + ds_2D1B], cx ; @0EF9
+    cmp cx, word ptr 0C0h ; @0EFD
+    jge loc_0F09 ; @0F01
+    call near ptr loc_41FD
+loc_0F09:
+    add si, 2 ; @0F09
+    jmp short loc_0EAF ; @0F0C
+loc_0F0E:
+    mov si, 016h ; @0F0E
+loc_0F11:
+    mov ax, word ptr [si + ds_2D9B] ; @0F11
+    cmp ax, word ptr 0FFFFh ; @0F15
+    je loc_0F4F ; @0F18
+    mov bx, word ptr [si + ds_2DFB] ; @0F1D
+    mov cx, word ptr [si + ds_2E2B] ; @0F21
+    mov word ptr [si + ds_2E13], bx ; @0F25
+    mov word ptr [si + ds_2E43], cx ; @0F29
+    mov bx, word ptr [si + ds_2DCB] ; @0F2D
+    sar bx, 5 ; @0F31
+    mov word ptr [si + ds_2DFB], bx ; @0F34
+    mov cx, word ptr [si + ds_2DE3] ; @0F38
+    sar cx, 5 ; @0F3C
+    mov word ptr [si + ds_2E2B], cx ; @0F3F
+    cmp cx, word ptr 0C0h ; @0F43
+    jge loc_0F4F ; @0F47
+    call near ptr loc_41FD
+loc_0F4F:
+    sub si, 2 ; @0F4F
+    jns short loc_0F11 ; @0F52
+    xor si, si ; @0F54
+loc_0F56:
+    cmp word ptr [si + ds_29AD], -1 ; @0F56
+    je loc_0F8E ; @0F5B
+    mov ax, word ptr [si + ds_2BED] ; @0F60
+    cmp ax, word ptr 0FFFFh ; @0F64
+    je loc_0F89 ; @0F67
+    mov ax, word ptr [si + ds_2C2D] ; @0F6C
+    cmp ax, word ptr 0FFFFh ; @0F70
+    je loc_0F89 ; @0F73
+    mov bx, word ptr [si + ds_2B2D] ; @0F78
+    add bx, 0Bh ; @0F7C
+    mov cx, word ptr [si + ds_2B6D] ; @0F7F
+    add cx, -0Dh ; @0F83
+    call near ptr loc_41FD
+loc_0F89:
+    add si, 2 ; @0F89
+    jmp short loc_0F56 ; @0F8C
+loc_0F8E:
+    cmp byte ptr ds:[ds_28F5], 0 ; @0F8E
+    je loc_0F9E ; @0F93
+    call near ptr loc_3C78
+    call near ptr loc_3D19
+loc_0F9E:
+    call near ptr loc_2DB9
+    call near ptr loc_4EBB
+    jmp near ptr loc_0C7D ; @0FA4
+loc_0FA7:
+    push 011h ; @0FA7
+GCODE16 ends
+GCODE13 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 0BB8..0C59; ordinary source emission order.
 loc_0BB8:
     mov si, seg ext_2D9A ; @0BB8
     nop ; @0BBB
     mov cx, 0118h ; @0BBC
-    call loc_0B83 ; @0BBF
+    call near ptr loc_0B83
     js loc_0C04 ; @0BC2
     jne loc_0C03 ; @0BC7
     mov si, seg ext_2BF6 ; @0BCC
     nop ; @0BCF
     mov cx, 0118h ; @0BD0
-    call loc_0B83 ; @0BD3
+    call near ptr loc_0B83
     js loc_0C04 ; @0BD6
     jne loc_0C03 ; @0BDB
     mov si, seg ext_2F9E ; @0BE0
     nop ; @0BE3
     mov cx, 08Ch ; @0BE4
-    call loc_0B83 ; @0BE7
+    call near ptr loc_0B83
     js loc_0C04 ; @0BEA
     jne loc_0C03 ; @0BEF
     mov si, seg ext_2FB7 ; @0BF4
     nop ; @0BF7
     mov cx, 01A4h ; @0BF8
-    call loc_0B83 ; @0BFB
+    call near ptr loc_0B83
     js loc_0C04 ; @0BFE
 loc_0C03:
     ret ; @0C03
 loc_0C04:
-    jmp near ptr loc_4EE6 ; @0C04
+    jmp near ptr loc_4EE6
 loc_0C07:
     xor cx, cx ; @0C07
     mov bx, word ptr ds:[ds_2636] ; @0C09
@@ -1580,287 +2007,19 @@ loc_0C3C:
     jmp short loc_0C3C ; @0C4E
 loc_0C50:
     mov word ptr ds:[ds_261C], cx ; @0C50
-    call loc_08C7 ; @0C54
+    call near ptr loc_08C7
     push 011h ; @0C57
-    call far ptr _fn_1059 ; @0C59
-    add sp, 2 ; @0C5E
-    call loc_3961 ; @0C61
-    call loc_4E9B ; @0C64
-loc_0C67:
-    call loc_3D66 ; @0C67
-    push word ptr 0A5h ; @0C6A
-    push 0 ; @0C6D
+GCODE13 ends
+GCODE15 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 0C6F..0C75; ordinary source emission order.
     push seg ext_3444 ; @0C6F
     nop ; @0C72
     push 0 ; @0C73
-    call far ptr _fn_0F88 ; @0C75
-    add sp, 8 ; @0C7A
-loc_0C7D:
-    mov cx, word ptr ds:[ds_27A8] ; @0C7D
-    cmp cx, 0 ; @0C81
-    jge loc_0C8C ; @0C84
-    jmp near ptr loc_0FA7 ; @0C89
-loc_0C8C:
-    cmp cx, word ptr 0100h ; @0C8C
-    jg loc_0CA2 ; @0C90
-    call loc_4E36 ; @0C95
-    add cx, word ptr ds:[ds_27AA] ; @0C98
-    mov word ptr ds:[ds_27A8], cx ; @0C9C
-    jmp short loc_0CA5 ; @0CA0
-loc_0CA2:
-    call loc_44C3 ; @0CA2
-loc_0CA5:
-    call loc_3F55 ; @0CA5
-    xor bx, bx ; @0CA8
-loc_0CAA:
-    call loc_436D ; @0CAA
-    add bx, 2 ; @0CAD
-    cmp bx, word ptr ds:[ds_2636] ; @0CB0
-    jne short loc_0CAA ; @0CB4
-    xor si, si ; @0CB6
-loc_0CB8:
-    cmp word ptr [si + ds_29AD], -1 ; @0CB8
-    je loc_0D14 ; @0CBD
-    mov ax, word ptr [si + ds_2BED] ; @0CC2
-    mov cx, word ptr [si + ds_2C0D] ; @0CC6
-    mov word ptr [si + ds_2C0D], ax ; @0CCA
-    cmp cx, -1 ; @0CCE
-    je loc_0D0F ; @0CD1
-    mov ax, word ptr [si + ds_2B4D] ; @0CD6
-    mov bx, word ptr [si + ds_2B8D] ; @0CDA
-    cmp bx, word ptr 0C0h ; @0CDE
-    jge loc_0D0F ; @0CE2
-    call loc_43B9 ; @0CE7
-    mov ax, word ptr [si + ds_2C2D] ; @0CEA
-    mov cx, word ptr [si + ds_2C4D] ; @0CEE
-    mov word ptr [si + ds_2C4D], ax ; @0CF2
-    cmp cx, -1 ; @0CF6
-    je loc_0D0F ; @0CF9
-    mov ax, word ptr [si + ds_2B4D] ; @0CFE
-    add ax, word ptr 0Bh ; @0D02
-    mov bx, word ptr [si + ds_2B8D] ; @0D05
-    add bx, -0Dh ; @0D09
-    call loc_43B9 ; @0D0C
-loc_0D0F:
-    add si, 2 ; @0D0F
-    jmp short loc_0CB8 ; @0D12
-loc_0D14:
-    xor si, si ; @0D14
-loc_0D16:
-    cmp word ptr [si + ds_2CAD], -1 ; @0D16
-    je loc_0D44 ; @0D1B
-    mov ax, word ptr [si + ds_2D43] ; @0D20
-    mov cx, word ptr [si + ds_2D4D] ; @0D24
-    mov word ptr [si + ds_2D4D], ax ; @0D28
-    cmp cx, -1 ; @0D2C
-    je loc_0D3F ; @0D2F
-    mov ax, word ptr [si + ds_2D11] ; @0D34
-    mov bx, word ptr [si + ds_2D25] ; @0D38
-    call loc_43B9 ; @0D3C
-loc_0D3F:
-    add si, 2 ; @0D3F
-    jmp short loc_0D16 ; @0D42
-loc_0D44:
-    mov si, 016h ; @0D44
-loc_0D47:
-    mov ax, word ptr [si + ds_2D9B] ; @0D47
-    mov cx, word ptr [si + ds_2DB3] ; @0D4B
-    mov word ptr [si + ds_2DB3], ax ; @0D4F
-    cmp cx, -1 ; @0D53
-    je loc_0D66 ; @0D56
-    mov ax, word ptr [si + ds_2E13] ; @0D5B
-    mov bx, word ptr [si + ds_2E43] ; @0D5F
-    call loc_43B9 ; @0D63
-loc_0D66:
-    sub si, 2 ; @0D66
-    jns short loc_0D47 ; @0D69
-    cmp byte ptr ds:[ds_28F5], 0 ; @0D6B
-    je loc_0D78 ; @0D70
-    call loc_3CDE ; @0D75
-loc_0D78:
-    call loc_2D1C ; @0D78
-    call loc_0FE8 ; @0D7B
-    cmp al, 019h ; @0D7E
-    jne loc_0D9A ; @0D80
-loc_0D85:
-    call loc_44F1 ; @0D85
-    cmp al, 099h ; @0D88
-    jne short loc_0D85 ; @0D8A
-loc_0D8C:
-    call loc_44F1 ; @0D8C
-    test al, 0FFh ; @0D8F
-    js short loc_0D8C ; @0D91
-loc_0D93:
-    call loc_44F1 ; @0D93
-    test al, 0FFh ; @0D96
-    jns short loc_0D93 ; @0D98
-loc_0D9A:
-    cmp al, 1 ; @0D9A
-    jne loc_0DBB ; @0D9C
-    mov byte ptr ds:[ds_263C], 0 ; @0DA1
-    nop ; @0DA6
-    cmp word ptr ds:[ds_27AA], 0 ; @0DA7
-    jl loc_0DBB ; @0DAC
-    mov ax, 0FFFEh ; @0DB1
-    mov word ptr ds:[ds_27AA], ax ; @0DB4
-    add word ptr ds:[ds_27A8], ax ; @0DB7
-loc_0DBB:
-    cmp word ptr ds:[ds_27A8], word ptr 0C0h ; @0DBB
-    jg loc_0DD0 ; @0DC1
-    cmp word ptr ds:[ds_27AA], 0 ; @0DC6
-    jg loc_0DDE ; @0DCB
-loc_0DD0:
-    xor bx, bx ; @0DD0
-loc_0DD2:
-    call loc_1095 ; @0DD2
-    add bx, 2 ; @0DD5
-    cmp bx, word ptr ds:[ds_2634] ; @0DD8
-    je short loc_0DD2 ; @0DDC
-loc_0DDE:
-    call loc_1486 ; @0DDE
-    call loc_2363 ; @0DE1
-    call loc_2B7F ; @0DE4
-    xor si, si ; @0DE7
-loc_0DE9:
-    cmp word ptr [si + ds_29AD], -1 ; @0DE9
-    je loc_0E3E ; @0DEE
-    mov ax, word ptr [si + ds_2BED] ; @0DF3
-    cmp ax, word ptr 0FFFFh ; @0DF7
-    je loc_0E39 ; @0DFA
-    mov bx, word ptr [si + ds_2B2D] ; @0DFF
-    mov cx, word ptr [si + ds_2B6D] ; @0E03
-    mov word ptr [si + ds_2B4D], bx ; @0E07
-    mov word ptr [si + ds_2B8D], cx ; @0E0B
-    mov bx, word ptr [si + ds_2AED] ; @0E0F
-    sar bx, 5 ; @0E13
-    mov word ptr [si + ds_2B2D], bx ; @0E16
-    mov cx, word ptr [si + ds_2B0D] ; @0E1A
-    sar cx, 5 ; @0E1E
-    mov word ptr [si + ds_2B6D], cx ; @0E21
-    cmp cx, word ptr 0C0h ; @0E25
-    jge loc_0E39 ; @0E29
-    cmp cx, -0Bh ; @0E2E
-    jle loc_0E39 ; @0E31
-    call loc_41FD ; @0E36
-loc_0E39:
-    add si, 2 ; @0E39
-    jmp short loc_0DE9 ; @0E3C
-loc_0E3E:
-    xor si, si ; @0E3E
-loc_0E40:
-    mov ax, word ptr [si + ds_2CAD] ; @0E40
-    cmp ax, word ptr 0FFFFh ; @0E44
-    je loc_0E9F ; @0E47
-    cmp ax, word ptr 076E4h ; @0E4C
-    je loc_0E5C ; @0E4F
-    cmp ax, word ptr 076A8h ; @0E54
-    jne loc_0E9A ; @0E57
-loc_0E5C:
-    mov ax, word ptr [si + ds_2D43] ; @0E5C
-    cmp ax, word ptr 0FFFFh ; @0E60
-    je loc_0E9A ; @0E63
-    mov bx, word ptr [si + ds_2D07] ; @0E68
-    mov cx, word ptr [si + ds_2D1B] ; @0E6C
-    mov word ptr [si + ds_2D11], bx ; @0E70
-    mov word ptr [si + ds_2D25], cx ; @0E74
-    mov bx, word ptr [si + ds_2CC1] ; @0E78
-    sar bx, 5 ; @0E7C
-    mov word ptr [si + ds_2D07], bx ; @0E7F
-    mov cx, word ptr [si + ds_2CCB] ; @0E83
-    sar cx, 5 ; @0E87
-    mov word ptr [si + ds_2D1B], cx ; @0E8A
-    cmp cx, word ptr 0C0h ; @0E8E
-    jge loc_0E9A ; @0E92
-    call loc_41FD ; @0E97
-loc_0E9A:
-    add si, 2 ; @0E9A
-    jmp short loc_0E40 ; @0E9D
-loc_0E9F:
-    xor bx, bx ; @0E9F
-loc_0EA1:
-    call loc_418D ; @0EA1
-    add bx, 2 ; @0EA4
-    cmp bx, word ptr ds:[ds_2636] ; @0EA7
-    jne short loc_0EA1 ; @0EAB
-    xor si, si ; @0EAD
-loc_0EAF:
-    mov ax, word ptr [si + ds_2CAD] ; @0EAF
-    cmp ax, word ptr 0FFFFh ; @0EB3
-    je loc_0F0E ; @0EB6
-    cmp ax, word ptr 076E4h ; @0EBB
-    je loc_0F09 ; @0EBE
-    cmp ax, word ptr 076A8h ; @0EC3
-    je loc_0F09 ; @0EC6
-    mov ax, word ptr [si + ds_2D43] ; @0ECB
-    cmp ax, word ptr 0FFFFh ; @0ECF
-    je loc_0F09 ; @0ED2
-    mov bx, word ptr [si + ds_2D07] ; @0ED7
-    mov cx, word ptr [si + ds_2D1B] ; @0EDB
-    mov word ptr [si + ds_2D11], bx ; @0EDF
-    mov word ptr [si + ds_2D25], cx ; @0EE3
-    mov bx, word ptr [si + ds_2CC1] ; @0EE7
-    sar bx, 5 ; @0EEB
-    mov word ptr [si + ds_2D07], bx ; @0EEE
-    mov cx, word ptr [si + ds_2CCB] ; @0EF2
-    sar cx, 5 ; @0EF6
-    mov word ptr [si + ds_2D1B], cx ; @0EF9
-    cmp cx, word ptr 0C0h ; @0EFD
-    jge loc_0F09 ; @0F01
-    call loc_41FD ; @0F06
-loc_0F09:
-    add si, 2 ; @0F09
-    jmp short loc_0EAF ; @0F0C
-loc_0F0E:
-    mov si, 016h ; @0F0E
-loc_0F11:
-    mov ax, word ptr [si + ds_2D9B] ; @0F11
-    cmp ax, word ptr 0FFFFh ; @0F15
-    je loc_0F4F ; @0F18
-    mov bx, word ptr [si + ds_2DFB] ; @0F1D
-    mov cx, word ptr [si + ds_2E2B] ; @0F21
-    mov word ptr [si + ds_2E13], bx ; @0F25
-    mov word ptr [si + ds_2E43], cx ; @0F29
-    mov bx, word ptr [si + ds_2DCB] ; @0F2D
-    sar bx, 5 ; @0F31
-    mov word ptr [si + ds_2DFB], bx ; @0F34
-    mov cx, word ptr [si + ds_2DE3] ; @0F38
-    sar cx, 5 ; @0F3C
-    mov word ptr [si + ds_2E2B], cx ; @0F3F
-    cmp cx, word ptr 0C0h ; @0F43
-    jge loc_0F4F ; @0F47
-    call loc_41FD ; @0F4C
-loc_0F4F:
-    sub si, 2 ; @0F4F
-    jns short loc_0F11 ; @0F52
-    xor si, si ; @0F54
-loc_0F56:
-    cmp word ptr [si + ds_29AD], -1 ; @0F56
-    je loc_0F8E ; @0F5B
-    mov ax, word ptr [si + ds_2BED] ; @0F60
-    cmp ax, word ptr 0FFFFh ; @0F64
-    je loc_0F89 ; @0F67
-    mov ax, word ptr [si + ds_2C2D] ; @0F6C
-    cmp ax, word ptr 0FFFFh ; @0F70
-    je loc_0F89 ; @0F73
-    mov bx, word ptr [si + ds_2B2D] ; @0F78
-    add bx, 0Bh ; @0F7C
-    mov cx, word ptr [si + ds_2B6D] ; @0F7F
-    add cx, -0Dh ; @0F83
-    call loc_41FD ; @0F86
-loc_0F89:
-    add si, 2 ; @0F89
-    jmp short loc_0F56 ; @0F8C
-loc_0F8E:
-    cmp byte ptr ds:[ds_28F5], 0 ; @0F8E
-    je loc_0F9E ; @0F93
-    call loc_3C78 ; @0F98
-    call loc_3D19 ; @0F9B
-loc_0F9E:
-    call loc_2DB9 ; @0F9E
-    call loc_4EBB ; @0FA1
-    jmp near ptr loc_0C7D ; @0FA4
-loc_0FA7:
-    push 011h ; @0FA7
+GCODE15 ends
+GCODE17 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 0FA9..1AF4; ordinary source emission order.
     call far ptr _fn_1059 ; @0FA9
     add sp, 2 ; @0FAE
     test byte ptr ds:[ds_27CF], 0FFh ; @0FB1
@@ -1872,7 +2031,7 @@ loc_0FA7:
     mov byte ptr ds:[ds_263D], 1 ; @0FCA
     nop ; @0FCF
 loc_0FD0:
-    jmp near ptr loc_0C67 ; @0FD0
+    jmp near ptr loc_0C67
 loc_0FD3:
     mov ax, word ptr ds:[ds_261C] ; @0FD3
     inc ax ; @0FD6
@@ -1884,7 +2043,7 @@ loc_0FD3:
 loc_0FE7:
     ret ; @0FE7
 loc_0FE8:
-    call loc_44F1 ; @0FE8
+    call near ptr loc_44F1
     test word ptr ds:[ds_263F], 0FFFFh ; @0FEB
     jns loc_100B ; @0FF1
     test word ptr ds:[ds_2641], 0FFFFh ; @0FF6
@@ -1892,7 +2051,7 @@ loc_0FE8:
     cmp word ptr ds:[ds_2634], 2 ; @1001
     jne loc_100E ; @1006
 loc_100B:
-    call loc_51EC ; @100B
+    call near ptr loc_51EC
 loc_100E:
     xor bx, bx ; @100E
 loc_1010:
@@ -2322,7 +2481,7 @@ loc_14DD:
     shl ax, 1 ; @14ED
     mov word ptr [bx + ds_2A8D], ax ; @14EF
     mov ax, word ptr [di + 2] ; @14F3
-    call loc_3D5A ; @14F6
+    call near ptr loc_3D5A
     mov word ptr [bx + ds_2ACD], ax ; @14F9
     mov si, word ptr [bx + ds_29AD] ; @14FD
     mov ax, word ptr [si + 0Ah] ; @1501
@@ -2462,7 +2621,7 @@ loc_169E:
     mov word ptr [bx + ds_2BED], ax ; @16AC
     mov word ptr [bx + ds_2A2D], 1 ; @16B0
 loc_16B6:
-    call loc_2276 ; @16B6
+    call near ptr loc_2276
     js loc_16D0 ; @16B9
     cmp ax, word ptr 0FFFFh ; @16BE
     jne loc_16D0 ; @16C1
@@ -2517,7 +2676,7 @@ loc_172A:
     mov word ptr [bx + ds_29AD], si ; @175F
     jmp word ptr [si + 8] ; @1763
 loc_1766:
-    call loc_2276 ; @1766
+    call near ptr loc_2276
     js loc_1780 ; @1769
     cmp ax, word ptr 0FFFFh ; @176E
     jne loc_1780 ; @1771
@@ -2589,7 +2748,7 @@ loc_180A:
     mov word ptr [bx + ds_29AD], si ; @183F
     jmp word ptr [si + 8] ; @1843
 loc_1846:
-    call loc_2276 ; @1846
+    call near ptr loc_2276
     js loc_1860 ; @1849
     cmp ax, word ptr 0FFFFh ; @184E
     jne loc_1860 ; @1851
@@ -2658,7 +2817,7 @@ loc_18E6:
     mov word ptr [bx + ds_29AD], si ; @191B
     jmp word ptr [si + 8] ; @191F
 loc_1922:
-    call loc_2276 ; @1922
+    call near ptr loc_2276
     js loc_193C ; @1925
     cmp ax, word ptr 0FFFFh ; @192A
     jne loc_193C ; @192D
@@ -2788,13 +2947,19 @@ loc_1A7E:
     add word ptr ds:[ds_261E], ax ; @1AAF
     adc word ptr ds:[ds_2620], dx ; @1AB3
     test word ptr [bx + ds_2C8D], 0FFFFh ; @1AB7
-    je loc_1B04 ; @1ABD
+    je short loc_1B04+1
+    nop
+    nop
+    nop
     push si ; @1AC2
     mov ax, word ptr ds:[ds_263D] ; @1AC3
     mov si, word ptr ds:[ds_2638] ; @1AC6
     shl si, 1 ; @1ACA
     cmp ax, word ptr [si + ds_2628] ; @1ACC
-    jae loc_1B03 ; @1AD0
+    jae short loc_1B03+1
+    nop
+    nop
+    nop
     mov ax, word ptr [di + ds_27D0] ; @1AD5
     add ax, word ptr 0200h ; @1AD9
     mov bp, word ptr [di + ds_27D4] ; @1ADC
@@ -2806,9 +2971,10 @@ loc_1A7E:
     push bx ; @1AEE
     push 1 ; @1AEF
     push word ptr 0FFh ; @1AF1
-    push seg ext_3274 ; @1AF4
-    nop ; @1AF7
-    push 0 ; @1AF8
+GCODE17 ends
+GCODE19 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 1AFA..1CDE; ordinary source emission order.
     call far ptr _fn_1852 ; @1AFA
     add sp, 8 ; @1AFF
     pop bx ; @1B02
@@ -2911,7 +3077,7 @@ loc_1C0F:
     ret ; @1C26
 loc_1C27:
     mov si, word ptr [bx + ds_29AD] ; @1C27
-    call loc_2276 ; @1C2B
+    call near ptr loc_2276
     js loc_1C41 ; @1C2E
     test word ptr [di + ds_27FC], 0FFFFh ; @1C33
     jne loc_1C41 ; @1C39
@@ -2966,9 +3132,17 @@ loc_1C81:
     push bx ; @1CD8
     push 1 ; @1CD9
     push word ptr 0FFh ; @1CDB
-    push seg ext_3632 ; @1CDE
-    nop ; @1CE1
-    push 0 ; @1CE2
+GCODE19 ends
+GCODE18 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 1AF4..1AFA; ordinary source emission order.
+    push seg ext_3274 ; @1AF4
+    nop ; @1AF7
+    push 0 ; @1AF8
+GCODE18 ends
+GCODE21 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 1CE4..23C8; ordinary source emission order.
     call far ptr _fn_1852 ; @1CE4
     add sp, 8 ; @1CE9
     pop bx ; @1CEC
@@ -3539,9 +3713,17 @@ loc_23B0:
     push es ; @23C2
     push 1 ; @23C3
     push word ptr 0FFh ; @23C5
-    push seg ext_325B ; @23C8
-    nop ; @23CB
-    push 0 ; @23CC
+GCODE21 ends
+GCODE20 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 1CDE..1CE4; ordinary source emission order.
+    push seg ext_3632 ; @1CDE
+    nop ; @1CE1
+    push 0 ; @1CE2
+GCODE20 ends
+GCODE23 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 23CE..247E; ordinary source emission order.
     call far ptr _fn_1852 ; @23CE
     add sp, 8 ; @23D3
     pop es ; @23D6
@@ -3605,9 +3787,10 @@ loc_246C:
     push bx ; @2478
     push 0 ; @2479
     push word ptr 0FFh ; @247B
-    push seg ext_3260 ; @247E
-    nop ; @2481
-    push 0 ; @2482
+GCODE23 ends
+GCODE25 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 2484..25A6; ordinary source emission order.
     call far ptr _fn_1852 ; @2484
     add sp, 8 ; @2489
     pop bx ; @248C
@@ -3641,14 +3824,14 @@ loc_24CD:
     jmp short loc_24CD ; @24E5
 loc_24E7:
     mov word ptr [bx + ds_2D43], ax ; @24E7
-    call loc_2196 ; @24EB
+    call near ptr loc_2196
     js loc_2503 ; @24EE
     call loc_25A0 ; @24F3
     neg word ptr [di + ds_2C6D] ; @24F6
     mov word ptr [di + ds_2BED], 0222h ; @24FA
     jmp word ptr [si + 01Ch] ; @2500
 loc_2503:
-    call loc_22F1 ; @2503
+    call near ptr loc_22F1
     js loc_252A ; @2506
     shr di, 1 ; @250B
     cmp di, word ptr [bx + ds_2D57] ; @250D
@@ -3704,6 +3887,24 @@ loc_25A0:
     push bx ; @25A0
     push si ; @25A1
     push word ptr [bx + ds_2D61] ; @25A2
+GCODE25 ends
+GCODE22 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 23C8..23CE; ordinary source emission order.
+    push seg ext_325B ; @23C8
+    nop ; @23CB
+    push 0 ; @23CC
+GCODE22 ends
+GCODE24 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 247E..2484; ordinary source emission order.
+    push seg ext_3260 ; @247E
+    nop ; @2481
+    push 0 ; @2482
+GCODE24 ends
+GCODE26 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 25A6..299C; ordinary source emission order.
     call far ptr _fn_1768 ; @25A6
     add sp, 2 ; @25AB
     pop si ; @25AE
@@ -3759,7 +3960,7 @@ loc_2648:
     add di, 2 ; @2648
     cmp di, word ptr ds:[ds_2636] ; @264B
     jne short loc_263C ; @264F
-    call loc_2196 ; @2651
+    call near ptr loc_2196
     js loc_2666 ; @2654
     neg word ptr [di + ds_2C6D] ; @2659
     mov word ptr [di + ds_2BED], 0222h ; @265D
@@ -3795,7 +3996,7 @@ loc_26A5:
 loc_26C3:
     mov word ptr [bx + ds_2D43], ax ; @26C3
 loc_26C7:
-    call loc_2196 ; @26C7
+    call near ptr loc_2196
     js loc_26DC ; @26CA
     neg word ptr [di + ds_2C6D] ; @26CF
     mov word ptr [di + ds_2BED], 0222h ; @26D3
@@ -3854,7 +4055,7 @@ loc_2760:
 loc_277E:
     mov word ptr [bx + ds_2D43], ax ; @277E
 loc_2782:
-    call loc_2196 ; @2782
+    call near ptr loc_2196
     js loc_2797 ; @2785
     neg word ptr [di + ds_2C6D] ; @278A
     mov word ptr [di + ds_2BED], 0222h ; @278E
@@ -3894,7 +4095,7 @@ loc_27E0:
     add ax, word ptr [bx + ds_2CE9] ; @27F5
     add ax, word ptr [bx + ds_2CC1] ; @27F9
     mov word ptr [bx + ds_2CC1], ax ; @27FD
-    call loc_22F1 ; @2801
+    call near ptr loc_22F1
     js loc_282F ; @2804
     sub word ptr [di + ds_27D4], 020h ; @2809
     mov ax, word ptr [bx + ds_2CE9] ; @280E
@@ -3931,7 +4132,7 @@ loc_2844:
 loc_2875:
     mov word ptr [bx + ds_2D43], ax ; @2875
 loc_2879:
-    call loc_2196 ; @2879
+    call near ptr loc_2196
     js loc_288E ; @287C
     neg word ptr [di + ds_2C6D] ; @2881
     mov word ptr [di + ds_2BED], 0222h ; @2885
@@ -3960,7 +4161,7 @@ loc_28A3:
 loc_28D4:
     mov word ptr [bx + ds_2D43], ax ; @28D4
 loc_28D8:
-    call loc_2196 ; @28D8
+    call near ptr loc_2196
     js loc_28ED ; @28DB
     neg word ptr [di + ds_2C6D] ; @28E0
     mov word ptr [di + ds_2BED], 0222h ; @28E4
@@ -4010,18 +4211,25 @@ loc_295B:
 loc_2973:
     mov si, word ptr [bx + ds_2CAD] ; @2973
     dec word ptr [bx + ds_2D39] ; @2977
-    jne loc_29C9 ; @297B
+    jne short loc_29C9+1
+    nop
+    nop
+    nop
     mov word ptr [bx + ds_2D39], 0Fh ; @2980
     add word ptr [bx + ds_2D2F], 2 ; @2986
     cmp word ptr [bx + ds_2D2F], 6 ; @298B
-    jne loc_29AC ; @2990
+    jne short loc_29AC+1
+    nop
+    nop
+    nop
     push bx ; @2995
     push si ; @2996
     push 1 ; @2997
     push word ptr 0FFh ; @2999
-    push seg ext_3265 ; @299C
-    nop ; @299F
-    push 0 ; @29A0
+GCODE26 ends
+GCODE28 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 29A2..2B48; ordinary source emission order.
     call far ptr _fn_1852 ; @29A2
     add sp, 8 ; @29A7
     pop si ; @29AA
@@ -4076,7 +4284,7 @@ loc_2A3A:
     add di, 2 ; @2A3A
     cmp di, word ptr ds:[ds_2634] ; @2A3D
     je short loc_29CB ; @2A41
-    call loc_2196 ; @2A43
+    call near ptr loc_2196
     js loc_2A52 ; @2A46
     neg word ptr [di + ds_2C6D] ; @2A4B
     jmp word ptr [si + 01Ch] ; @2A4F
@@ -4129,7 +4337,7 @@ loc_2ACD:
     jmp short loc_2ACD ; @2AE4
 loc_2AE6:
     mov word ptr [bx + ds_2D43], ax ; @2AE6
-    call loc_2196 ; @2AEA
+    call near ptr loc_2196
     js loc_2B0B ; @2AED
     mov ax, word ptr [di + ds_2C6D] ; @2AF2
     neg ax ; @2AF6
@@ -4158,9 +4366,17 @@ loc_2B0C:
     push bx ; @2B42
     push 1 ; @2B43
     push word ptr 0FFh ; @2B45
-    push seg ext_3274 ; @2B48
-    nop ; @2B4B
-    push 0 ; @2B4C
+GCODE28 ends
+GCODE27 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 299C..29A2; ordinary source emission order.
+    push seg ext_3265 ; @299C
+    nop ; @299F
+    push 0 ; @29A0
+GCODE27 ends
+GCODE30 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 2B4E..39AB; ordinary source emission order.
     call far ptr _fn_1852 ; @2B4E
     add sp, 8 ; @2B53
     pop bx ; @2B56
@@ -4292,7 +4508,7 @@ loc_2CB2:
     jmp short loc_2D1B ; @2CB8
 loc_2CBA:
     mov si, word ptr [bx + ds_2D6B] ; @2CBA
-    call loc_2207 ; @2CBE
+    call near ptr loc_2207
     js loc_2D1B ; @2CC1
     mov ax, word ptr [si + 012h] ; @2CC6
     cmp ax, word ptr 00h ; @2CC9
@@ -4392,13 +4608,13 @@ loc_2DA3:
     mov bx, word ptr ds:[ds_2905] ; @2DA5
     mov cx, 0140h ; @2DA9
     mov dx, 1 ; @2DAC
-    jmp near ptr loc_43EA ; @2DAF
+    jmp near ptr loc_43EA
 loc_2DB2:
     ret ; @2DB2
 byte_data_2DB3:
-    dw offset loc_2E03
-    dw offset loc_31CD
-    dw offset loc_3597
+    dw offset GAME_GROUP:loc_2E03
+    dw offset GAME_GROUP:loc_31CD
+    dw offset GAME_GROUP:loc_3597
 loc_2DB9:
     push ds ; @2DB9
     mov si, word ptr ds:[ds_27A4] ; @2DBA
@@ -5448,10 +5664,21 @@ loc_398D:
     mov word ptr cs:[byte_45FE], ax ; @3998
     push ds ; @399C
     lds si, dword ptr ds:[ds_00A3] ; @399D
-    call loc_4CA5 ; @39A1
+    call near ptr loc_4CA5
     push es ; @39A4
     pop ds ; @39A5
     mov si, word ptr cs:[byte_45FE] ; @39A6
+GCODE30 ends
+GCODE29 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 2B48..2B4E; ordinary source emission order.
+    push seg ext_3274 ; @2B48
+    nop ; @2B4B
+    push 0 ; @2B4C
+GCODE29 ends
+GCODE31 segment byte public 'CODE'
+assume cs:GAME_GROUP
+; Physical range 39AB..529C; ordinary source emission order.
     mov dx, seg ext_5C09 ; @39AB
     mov es, dx ; @39AE
     mov di, 0264Ch ; @39B0
@@ -5604,7 +5831,7 @@ loc_3B31:
     mov word ptr [di + ds_2CCB], ax ; @3B5A
     lodsw ; @3B5E
     mov word ptr [di + ds_2CD5], ax ; @3B5F
-    mov word ptr [di + ds_2CF3], offset loc_2A87 ; @3B63
+    mov word ptr [di + ds_2CF3], offset GAME_GROUP:loc_2A87 ; @3B63
     jmp near ptr loc_3BFE ; @3B69
 loc_3B6C:
     cmp ax, word ptr 07630h ; @3B6C
@@ -5616,7 +5843,7 @@ loc_3B6C:
     lodsw ; @3B7F
     mov word ptr [di + ds_2CE9], ax ; @3B80
     mov word ptr [di + ds_2D57], 1 ; @3B84
-    mov word ptr [di + ds_2CF3], offset loc_2379 ; @3B8A
+    mov word ptr [di + ds_2CF3], offset GAME_GROUP:loc_2379 ; @3B8A
     jmp short loc_3BFE ; @3B90
 loc_3B92:
     cmp ax, word ptr 076A8h ; @3B92
@@ -5630,7 +5857,7 @@ loc_3B92:
     sub ax, word ptr 02C0h ; @3BA9
     mov word ptr [di + ds_2CCB], ax ; @3BAC
     add si, 4 ; @3BB0
-    mov word ptr [di + ds_2CF3], offset loc_295B ; @3BB3
+    mov word ptr [di + ds_2CF3], offset GAME_GROUP:loc_295B ; @3BB3
     jmp short loc_3BFE ; @3BB9
 loc_3BBB:
     lodsw ; @3BBB
@@ -5653,7 +5880,7 @@ loc_3BBB:
     neg ax ; @3BEC
     mov word ptr [di + ds_2CE9], ax ; @3BEE
     mov word ptr [di + ds_2D57], 0 ; @3BF2
-    mov word ptr [di + ds_2CF3], offset loc_25B1 ; @3BF8
+    mov word ptr [di + ds_2CF3], offset GAME_GROUP:loc_25B1 ; @3BF8
 loc_3BFE:
     add di, 2 ; @3BFE
     jmp near ptr loc_3B21 ; @3C01
@@ -5873,8 +6100,8 @@ loc_3E1C:
     mov word ptr ds:[ds_27BE], 0102h ; @3E46
     mov word ptr ds:[ds_27C0], 0112h ; @3E4C
 loc_3E52:
-    call loc_3976 ; @3E52
-    call loc_0664 ; @3E55
+    call near ptr loc_3976
+    call near ptr loc_0664
     call loc_4F96 ; @3E58
     call loc_4E9B ; @3E5B
     call loc_466A ; @3E5E
@@ -5883,9 +6110,9 @@ loc_3E52:
     call loc_4EBB ; @3E67
     call loc_43A5 ; @3E6A
     call loc_3E79 ; @3E6D
-    call loc_2363 ; @3E70
-    call loc_1486 ; @3E73
-    jmp near ptr loc_0B4F ; @3E76
+    call near ptr loc_2363
+    call near ptr loc_1486
+    jmp near ptr loc_0B4F
 loc_3E79:
     cmp word ptr ds:[ds_2634], 2 ; @3E79
     je loc_3E8B ; @3E7E
@@ -6722,11 +6949,11 @@ loc_45F2:
     pop ax ; @45F9
     iret ; @45FA
 byte_data_45FB:
-    even ; assembler alignment before CS data
+    nop ; group-relative EVEN padding at 45FB
 byte_data_45FC:
     db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 0A0h, 00h, 00h, 00h, 0A0h ; data 45FC..460C
     db 00h, 00h, 00h, 0A0h, 00h, 00h, 00h, 0A0h ; data 460C..4614
-    dw offset loc_4681
+    dw offset GAME_GROUP:loc_4681
     dw seg GAMESEG
     dw 00h
     dw seg ext_1E1F
@@ -7776,7 +8003,7 @@ loc_4E5B:
     push cs ; @4E5C
     pop ds ; @4E5D
     mov ax, 02524h ; @4E5E
-    mov dx, offset loc_4E57 ; @4E61
+    mov dx, offset GAME_GROUP:loc_4E57 ; @4E61
     int 021h ; @4E64
     pop ds ; @4E66
     ret ; @4E67
@@ -7927,7 +8154,7 @@ loc_4F5E:
     jmp near ptr loc_4EE6 ; @4F78
 loc_4F7B:
     call loc_4E5B ; @4F7B
-    call loc_0405 ; @4F7E
+    call near ptr loc_0405
     call loc_4EFF ; @4F81
     cld ; @4F84
     mov ax, 013h ; @4F85
@@ -8283,24 +8510,5 @@ loc_5294:
     mov ax, word ptr ds:[ds_331D] ; @5294
     or ax, word ptr ds:[ds_331F] ; @5297
     ret ; @529B
-GAMESEG ends
-extrn ext_0A67:far
-extrn ext_1E1F:far
-extrn ext_2BF6:far
-extrn ext_2D9A:far
-extrn ext_2F9E:far
-extrn ext_2FB7:far
-extrn ext_325B:far
-extrn ext_3260:far
-extrn ext_3265:far
-extrn ext_326B:far
-extrn ext_3274:far
-extrn ext_3279:far
-extrn ext_3444:far
-extrn ext_3632:far
-extrn ext_3637:far
-extrn ext_37A7:far
-extrn ext_438A:far
-extrn ext_4E83:far
-extrn ext_5B63:far
+GCODE31 ends
 end

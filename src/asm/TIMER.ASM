@@ -11,100 +11,105 @@ public _InstallTimerInterrupt
 _InstallTimerInterrupt equ TIMER_BASE+02h
 public _RestoreTimerInterrupt
 _RestoreTimerInterrupt equ TIMER_BASE+09Ah
-public _fn_0A32_01AA
-_fn_0A32_01AA equ TIMER_BASE+01A4h
-public _fn_0A32_021B
-_fn_0A32_021B equ TIMER_BASE+0215h
-public _fn_0A32_02C1
-_fn_0A32_02C1 equ TIMER_BASE+02BBh
-ds_7A4C equ 07A4Ch
-ds_7A4E equ 07A4Eh
-ds_7A6E equ 07A6Eh
-ds_7A8E equ 07A8Eh
-ds_7AAE equ 07AAEh
-ds_7ACE equ 07ACEh
-ds_7AEE equ 07AEEh
-ds_7B0E equ 07B0Eh
-ds_7B2E equ 07B2Eh
-ds_7B30 equ 07B30h
-ds_7B6E equ 07B6Eh
-ds_7B70 equ 07B70h
-ds_7B72 equ 07B72h
-ds_7B74 equ 07B74h
-ds_7B76 equ 07B76h
-ds_7B78 equ 07B78h
-ds_7B7A equ 07B7Ah
-byte_0006 equ TIMER_BASE+00h
+public _RegisterTimerCallback
+_RegisterTimerCallback equ TIMER_BASE+01A4h
+public _RemoveTimerCallback
+_RemoveTimerCallback equ TIMER_BASE+0215h
+public _SetTimerCallbackInterval
+_SetTimerCallbackInterval equ TIMER_BASE+02BBh
+LastActiveTimerSlotOffset equ 07A4Ch
+TimerIntervalLowBySlot equ 07A4Eh
+TimerIntervalHighBySlot equ 07A6Eh
+TimerRemainingLowBySlot equ 07A8Eh
+TimerRemainingHighBySlot equ 07AAEh
+TimerCallbackDueBySlot equ 07ACEh
+TimerSlotOffsetByHandle equ 07AEEh
+TimerHandleBySlot equ 07B0Eh
+TimerCallbackOffsetBySlot equ 07B2Eh
+TimerCallbackSegmentBySlot equ 07B30h
+NextPitQuantumLow equ 07B6Eh
+NextPitQuantumHigh equ 07B70h
+PreviousInt08Offset equ 07B72h
+PreviousInt08Segment equ 07B74h
+EarliestTimerIntervalLow equ 07B76h
+EarliestTimerIntervalHigh equ 07B78h
+ProgrammedPitDivisor equ 07B7Ah
+TimerInterruptInstalled equ TIMER_BASE+00h
 byte_data_0006:
     db 00h, 00h ; data 0006..0008
 ; CONTRACT (tools/apply.py)
-; Install the INT 08h callback dispatcher once, saving the preceding DOS vector.
-; In: no arguments; CS flag at 0006h determines whether installation is skipped.
-; Out: dispatcher state in DGROUP initialized; INT 08h points to TIMER:00D2.
-; Effects: DOS INT 21h/AH=35h and AH=25h; preserves DS, changes ES, AX, BX, DX, SI.
-; Quirk: initializes 16 slots; the saved-vector callback enables interrupts before chaining.
+; Install the INT 08h dispatcher once and initialize the timer-slot tables.
+; In: no arguments; CS:0006 word suppresses repeat installation.
+; Out: saves the old INT 08h vector, installs TIMER:00D2, clears slot state.
+; Effects: DOS INT 21h/AH=35h and AH=25h; changes ES and working registers.
+; Quirk: saved-vector chaining executes STI before calling the prior handler.
 ; END CONTRACT
 InstallTimerInterrupt:
-    test word ptr cs:[byte_0006], 0FFFFh ; @0008
+    test word ptr cs:[TimerInterruptInstalled], 0FFFFh ; @0008
     jne loc_0098 ; @000F JUMPS expansion
 loc_0014:
-    mov word ptr cs:[byte_0006], 1 ; @0014
+    mov word ptr cs:[TimerInterruptInstalled], 1 ; @0014
     push ds ; @001B
     mov ax, seg ext_5C09 ; @001C
     mov ds, ax ; @001F
     mov ax, 03508h ; @0021
     int 021h ; @0024
-    mov word ptr ds:[ds_7B72], bx ; @0026
-    mov word ptr ds:[ds_7B74], es ; @002A
-    mov ax, offset loc_0099 ; @002E
-    mov word ptr ds:[ds_7B2E], ax ; @0031
+    mov word ptr ds:[PreviousInt08Offset], bx ; @0026
+    mov word ptr ds:[PreviousInt08Segment], es ; @002A
+    mov ax, offset ChainSavedTimerInterrupt ; @002E
+    mov word ptr ds:[TimerCallbackOffsetBySlot], ax ; @0031
     mov ax, seg TIMERSEG ; @0034
-    mov word ptr ds:[ds_7B30], ax ; @0037
-    mov word ptr ds:[ds_7B6E], 0 ; @003A
-    mov word ptr ds:[ds_7B70], 1 ; @0040
-    mov word ptr ds:[ds_7B76], 0 ; @0046
-    mov word ptr ds:[ds_7B78], 1 ; @004C
-    mov word ptr ds:[ds_7A4E], 0 ; @0052
-    mov word ptr ds:[ds_7A6E], 1 ; @0058
-    mov word ptr ds:[ds_7A8E], 0 ; @005E
-    mov word ptr ds:[ds_7AAE], 1 ; @0064
+    mov word ptr ds:[TimerCallbackSegmentBySlot], ax ; @0037
+    mov word ptr ds:[NextPitQuantumLow], 0 ; @003A
+    mov word ptr ds:[NextPitQuantumHigh], 1 ; @0040
+    mov word ptr ds:[EarliestTimerIntervalLow], 0 ; @0046
+    mov word ptr ds:[EarliestTimerIntervalHigh], 1 ; @004C
+    mov word ptr ds:[TimerIntervalLowBySlot], 0 ; @0052
+    mov word ptr ds:[TimerIntervalHighBySlot], 1 ; @0058
+    mov word ptr ds:[TimerRemainingLowBySlot], 0 ; @005E
+    mov word ptr ds:[TimerRemainingHighBySlot], 1 ; @0064
     mov si, 01Eh ; @006A
 loc_006D:
-    mov word ptr [si + ds_7AEE], 08000h ; @006D
+    mov word ptr [si + TimerSlotOffsetByHandle], 08000h ; @006D
     sub si, 2 ; @0073
     jns short loc_006D ; @0076
-    mov word ptr ds:[ds_7AEE], 0 ; @0078
-    mov word ptr ds:[ds_7B0E], 0 ; @007E
-    mov word ptr ds:[ds_7A4C], 0 ; @0084
+    mov word ptr ds:[TimerSlotOffsetByHandle], 0 ; @0078
+    mov word ptr ds:[TimerHandleBySlot], 0 ; @007E
+    mov word ptr ds:[LastActiveTimerSlotOffset], 0 ; @0084
     mov ax, seg TIMERSEG ; @008A
     mov ds, ax ; @008D
-    mov dx, offset loc_00D2 ; @008F
+    mov dx, offset HandleTimerInterrupt ; @008F
     mov ax, 02508h ; @0092
     int 021h ; @0095
     pop ds ; @0097
 loc_0098:
     retf ; @0098
-loc_0099:
+; CONTRACT (tools/apply.py)
+; Chain to the saved INT 08h vector through a far call, then return to the dispatcher.
+; In: DS addresses the saved offset and segment at DGROUP:7B72/7B74.
+; Effects: STI enables interrupts before PUSHF and the far call to the prior handler.
+; END CONTRACT
+ChainSavedTimerInterrupt:
     sti ; @0099
     pushf ; @009A
-    call dword ptr ds:[ds_7B72] ; @009B
+    call dword ptr ds:[PreviousInt08Offset] ; @009B
     retf ; @009F
 ; CONTRACT (tools/apply.py)
-; Restore the saved INT 08h vector and the PIT channel 0 mode/divisor after installation.
-; In: no arguments; CS flag at 0006h gates all work.
-; Out: installation flag cleared; DS preserved; AX and DX changed on the active path.
-; Effects: DOS INT 21h/AH=25h; sends 36h to port 43h and two zero bytes to port 40h.
-; Quirk: a zero divisor means 65536 PIT clocks; an inactive call performs no I/O.
+; Restore the saved INT 08h vector and reset PIT channel 0 to divisor zero.
+; In: no arguments; CS:0006 word gates all work.
+; Out: clears the installation flag; restores DS on the active path.
+; Effects: DOS INT 21h/AH=25h; writes command 36h and two zero bytes to ports 43h/40h.
+; Quirk: divisor zero represents 65536 PIT clocks; inactive calls perform no I/O.
 ; END CONTRACT
 RestoreTimerInterrupt:
-    test word ptr cs:[byte_0006], 0FFFFh ; @00A0
+    test word ptr cs:[TimerInterruptInstalled], 0FFFFh ; @00A0
     je loc_00D1 ; @00A7
-    mov word ptr cs:[byte_0006], 0 ; @00AC
+    mov word ptr cs:[TimerInterruptInstalled], 0 ; @00AC
     push ds ; @00B3
     mov ax, seg ext_5C09 ; @00B4
     mov ds, ax ; @00B7
-    mov dx, word ptr ds:[ds_7B72] ; @00B9
-    mov ds, word ptr ds:[ds_7B74] ; @00BD
+    mov dx, word ptr ds:[PreviousInt08Offset] ; @00B9
+    mov ds, word ptr ds:[PreviousInt08Segment] ; @00BD
     mov ax, 02508h ; @00C1
     int 021h ; @00C4
     mov al, 036h ; @00C6
@@ -115,7 +120,15 @@ RestoreTimerInterrupt:
     pop ds ; @00D0
 loc_00D1:
     retf ; @00D1
-loc_00D2:
+; CONTRACT (tools/apply.py)
+; Advance timer-slot countdowns, call due handlers, acknowledge IRQ0, and update PIT channel 0.
+; In: hardware INT 08h context; DGROUP state contains slot times and callbacks.
+; Out: expired flags are cleared before their far callbacks are invoked; returns with IRET.
+; Effects: writes EOI to port 20h and may program PIT ports 43h/40h.
+; Quirk: callbacks run in interrupt context; the service period is a 32-bit value,
+; but only its low word is sent to the PIT (zero encodes 65536 clocks).
+; END CONTRACT
+HandleTimerInterrupt:
     push ax ; @00D2
     push bx ; @00D3
     push cx ; @00D4
@@ -127,38 +140,38 @@ loc_00D2:
     push bp ; @00DA
     mov ax, seg ext_5C09 ; @00DB
     mov ds, ax ; @00DE
-    mov si, word ptr ds:[ds_7A4C] ; @00E0
+    mov si, word ptr ds:[LastActiveTimerSlotOffset] ; @00E0
 loc_00E4:
-    mov ax, word ptr ds:[ds_7B6E] ; @00E4
-    mov dx, word ptr ds:[ds_7B70] ; @00E7
-    sub word ptr [si + ds_7A8E], ax ; @00EB
-    sbb word ptr [si + ds_7AAE], dx ; @00EF
+    mov ax, word ptr ds:[NextPitQuantumLow] ; @00E4
+    mov dx, word ptr ds:[NextPitQuantumHigh] ; @00E7
+    sub word ptr [si + TimerRemainingLowBySlot], ax ; @00EB
+    sbb word ptr [si + TimerRemainingHighBySlot], dx ; @00EF
     js loc_0105 ; @00F3
-    mov ax, word ptr [si + ds_7A8E] ; @00F8
-    or ax, word ptr [si + ds_7AAE] ; @00FC
+    mov ax, word ptr [si + TimerRemainingLowBySlot] ; @00F8
+    or ax, word ptr [si + TimerRemainingHighBySlot] ; @00FC
     jne loc_011B ; @0100
 loc_0105:
-    mov word ptr [si + ds_7ACE], 08000h ; @0105
-    mov ax, word ptr [si + ds_7A4E] ; @010B
-    mov dx, word ptr [si + ds_7A6E] ; @010F
-    add word ptr [si + ds_7A8E], ax ; @0113
-    adc word ptr [si + ds_7AAE], dx ; @0117
+    mov word ptr [si + TimerCallbackDueBySlot], 08000h ; @0105
+    mov ax, word ptr [si + TimerIntervalLowBySlot] ; @010B
+    mov dx, word ptr [si + TimerIntervalHighBySlot] ; @010F
+    add word ptr [si + TimerRemainingLowBySlot], ax ; @0113
+    adc word ptr [si + TimerRemainingHighBySlot], dx ; @0117
 loc_011B:
     sub si, 2 ; @011B
     jns short loc_00E4 ; @011E
-    mov ax, word ptr ds:[ds_7B76] ; @0120
-    mov word ptr ds:[ds_7B6E], ax ; @0123
-    mov ax, word ptr ds:[ds_7B78] ; @0126
-    mov word ptr ds:[ds_7B70], ax ; @0129
-    mov si, word ptr ds:[ds_7A4C] ; @012C
+    mov ax, word ptr ds:[EarliestTimerIntervalLow] ; @0120
+    mov word ptr ds:[NextPitQuantumLow], ax ; @0123
+    mov ax, word ptr ds:[EarliestTimerIntervalHigh] ; @0126
+    mov word ptr ds:[NextPitQuantumHigh], ax ; @0129
+    mov si, word ptr ds:[LastActiveTimerSlotOffset] ; @012C
 loc_0130:
-    test word ptr [si + ds_7ACE], 08000h ; @0130
+    test word ptr [si + TimerCallbackDueBySlot], 08000h ; @0130
     je loc_014B ; @0136
-    mov word ptr [si + ds_7ACE], 0 ; @013B
+    mov word ptr [si + TimerCallbackDueBySlot], 0 ; @013B
     push ds ; @0141
     push si ; @0142
     shl si, 1 ; @0143
-    call dword ptr [si + ds_7B2E] ; @0145
+    call dword ptr [si + TimerCallbackOffsetBySlot] ; @0145
     pop si ; @0149
     pop ds ; @014A
 loc_014B:
@@ -166,8 +179,8 @@ loc_014B:
     jns short loc_0130 ; @014E
     mov al, 020h ; @0150
     out 020h, al ; @0152
-    mov ax, word ptr ds:[ds_7B7A] ; @0154
-    cmp ax, word ptr ds:[ds_7B76] ; @0157
+    mov ax, word ptr ds:[ProgrammedPitDivisor] ; @0154
+    cmp ax, word ptr ds:[EarliestTimerIntervalLow] ; @0157
     je loc_019A ; @015B
     jmp loc_0165 ; @0160
     nop ; @0163
@@ -195,7 +208,7 @@ loc_017D:
     nop ; @0180
     nop ; @0181
 loc_0182:
-    mov ax, word ptr ds:[ds_7B76] ; @0182
+    mov ax, word ptr ds:[EarliestTimerIntervalLow] ; @0182
     out 040h, al ; @0185
     jmp loc_018C ; @0187
     nop ; @018A
@@ -212,8 +225,8 @@ loc_0196:
     mov al, ah ; @0196
     out 040h, al ; @0198
 loc_019A:
-    mov ax, word ptr ds:[ds_7B76] ; @019A
-    mov word ptr ds:[ds_7B7A], ax ; @019D
+    mov ax, word ptr ds:[EarliestTimerIntervalLow] ; @019A
+    mov word ptr ds:[ProgrammedPitDivisor], ax ; @019D
     pop bp ; @01A0
     pop es ; @01A1
     pop ds ; @01A2
@@ -224,50 +237,65 @@ loc_019A:
     pop bx ; @01A7
     pop ax ; @01A8
     iret ; @01A9
-loc_01AA:
+; CONTRACT (tools/apply.py)
+; Allocate a callback slot and add its interval to the active timer set.
+; In: AX:DX callback offset:segment; CX:BX is the interval high:low pair.
+;     BX is low and CX is high. Existing callers pass PIT-clock counts.
+; Out: AX is the allocated handle; updates the earliest active interval when smaller.
+; Clobbers/preserves: saves DI, DS, SI and restores FLAGS; AX returns the handle.
+; END CONTRACT
+RegisterTimerCallback:
     push di ; @01AA
     push ds ; @01AB
     push si ; @01AC
     mov di, seg ext_5C09 ; @01AD
     mov ds, di ; @01B0
     pushf ; @01B2
-    mov si, word ptr ds:[ds_7A4C] ; @01B3
+    mov si, word ptr ds:[LastActiveTimerSlotOffset] ; @01B3
     add si, 2 ; @01B7
-    mov word ptr [si + ds_7A4E], bx ; @01BA
-    mov word ptr [si + ds_7A6E], cx ; @01BE
-    mov word ptr [si + ds_7A8E], bx ; @01C2
-    mov word ptr [si + ds_7AAE], cx ; @01C6
+    mov word ptr [si + TimerIntervalLowBySlot], bx ; @01BA
+    mov word ptr [si + TimerIntervalHighBySlot], cx ; @01BE
+    mov word ptr [si + TimerRemainingLowBySlot], bx ; @01C2
+    mov word ptr [si + TimerRemainingHighBySlot], cx ; @01C6
     shl si, 1 ; @01CA
-    mov word ptr [si + ds_7B2E], ax ; @01CC
-    mov word ptr [si + ds_7B30], dx ; @01D0
+    mov word ptr [si + TimerCallbackOffsetBySlot], ax ; @01CC
+    mov word ptr [si + TimerCallbackSegmentBySlot], dx ; @01D0
     shr si, 1 ; @01D4
-    cmp cx, word ptr ds:[ds_7B78] ; @01D6
+    cmp cx, word ptr ds:[EarliestTimerIntervalHigh] ; @01D6
     ja loc_01F6 ; @01DA
     jb loc_01ED ; @01DF
-    cmp bx, word ptr ds:[ds_7B76] ; @01E4
+    cmp bx, word ptr ds:[EarliestTimerIntervalLow] ; @01E4
     jae loc_01F6 ; @01E8
 loc_01ED:
     cli ; @01ED
-    mov word ptr ds:[ds_7B76], bx ; @01EE
-    mov word ptr ds:[ds_7B78], cx ; @01F2
+    mov word ptr ds:[EarliestTimerIntervalLow], bx ; @01EE
+    mov word ptr ds:[EarliestTimerIntervalHigh], cx ; @01F2
 loc_01F6:
     mov di, si ; @01F6
 loc_01F8:
-    test word ptr [di + ds_7AEE], 08000h ; @01F8
+    test word ptr [di + TimerSlotOffsetByHandle], 08000h ; @01F8
     jne loc_0208 ; @01FE
     sub di, 2 ; @0203
     jmp short loc_01F8 ; @0206
 loc_0208:
-    mov word ptr [si + ds_7B0E], di ; @0208
-    mov word ptr [di + ds_7AEE], si ; @020C
+    mov word ptr [si + TimerHandleBySlot], di ; @0208
+    mov word ptr [di + TimerSlotOffsetByHandle], si ; @020C
     mov ax, di ; @0210
-    mov word ptr ds:[ds_7A4C], si ; @0212
+    mov word ptr ds:[LastActiveTimerSlotOffset], si ; @0212
     popf ; @0216
     pop si ; @0217
     pop ds ; @0218
     pop di ; @0219
     retf ; @021A
-loc_021B:
+; CONTRACT (tools/apply.py)
+; Remove the timer identified by AX, compact the active slot prefix, and rescan its minimum.
+; In: AX is a timer handle returned by RegisterTimerCallback.
+; Out: marks the handle free and updates the earliest interval from remaining slots.
+; Effects: CLI protects the table update; POPF restores the caller's interrupt flags.
+; Quirk: the moved-slot path stores through the fixed TimerSlotOffsetByHandle base;
+; it also self-stores TimerHandleBySlot at the old tail. Preserve these literal writes.
+; END CONTRACT
+RemoveTimerCallback:
     push si ; @021B
     push di ; @021C
     pushf ; @021D
@@ -275,53 +303,58 @@ loc_021B:
     mov ds, si ; @0221
     cli ; @0223
     mov di, ax ; @0224
-    mov si, word ptr ds:[ds_7A4C] ; @0226
-    sub word ptr ds:[ds_7A4C], 2 ; @022A
-    cmp si, word ptr [di + ds_7AEE] ; @022F
+    mov si, word ptr ds:[LastActiveTimerSlotOffset] ; @0226
+    sub word ptr ds:[LastActiveTimerSlotOffset], 2 ; @022A
+    cmp si, word ptr [di + TimerSlotOffsetByHandle] ; @022F
     je loc_0282 ; @0233
-    mov bx, word ptr [di + ds_7AEE] ; @0238
-    mov ax, word ptr [si + ds_7A4E] ; @023C
-    mov word ptr [bx + ds_7A4E], ax ; @0240
-    mov ax, word ptr [si + ds_7A6E] ; @0244
-    mov word ptr [bx + ds_7A6E], ax ; @0248
-    mov ax, word ptr [si + ds_7A8E] ; @024C
-    mov word ptr [bx + ds_7A8E], ax ; @0250
-    mov ax, word ptr [si + ds_7AAE] ; @0254
-    mov word ptr [bx + ds_7AAE], ax ; @0258
-    mov ax, word ptr [si + ds_7B2E] ; @025C
-    mov word ptr [bx + ds_7B2E], ax ; @0260
-    mov ax, word ptr [si + ds_7B30] ; @0264
-    mov word ptr [bx + ds_7B30], ax ; @0268
-    mov ax, word ptr [si + ds_7ACE] ; @026C
-    mov word ptr [bx + ds_7ACE], ax ; @0270
-    mov ax, word ptr [si + ds_7B0E] ; @0274
-    mov word ptr [si + ds_7B0E], ax ; @0278
+    mov bx, word ptr [di + TimerSlotOffsetByHandle] ; @0238
+    mov ax, word ptr [si + TimerIntervalLowBySlot] ; @023C
+    mov word ptr [bx + TimerIntervalLowBySlot], ax ; @0240
+    mov ax, word ptr [si + TimerIntervalHighBySlot] ; @0244
+    mov word ptr [bx + TimerIntervalHighBySlot], ax ; @0248
+    mov ax, word ptr [si + TimerRemainingLowBySlot] ; @024C
+    mov word ptr [bx + TimerRemainingLowBySlot], ax ; @0250
+    mov ax, word ptr [si + TimerRemainingHighBySlot] ; @0254
+    mov word ptr [bx + TimerRemainingHighBySlot], ax ; @0258
+    mov ax, word ptr [si + TimerCallbackOffsetBySlot] ; @025C
+    mov word ptr [bx + TimerCallbackOffsetBySlot], ax ; @0260
+    mov ax, word ptr [si + TimerCallbackSegmentBySlot] ; @0264
+    mov word ptr [bx + TimerCallbackSegmentBySlot], ax ; @0268
+    mov ax, word ptr [si + TimerCallbackDueBySlot] ; @026C
+    mov word ptr [bx + TimerCallbackDueBySlot], ax ; @0270
+    mov ax, word ptr [si + TimerHandleBySlot] ; @0274
+    mov word ptr [si + TimerHandleBySlot], ax ; @0278
     mov si, ax ; @027C
-    mov word ptr ds:[ds_7AEE], si ; @027E
+    mov word ptr ds:[TimerSlotOffsetByHandle], si ; @027E
 loc_0282:
-    mov word ptr [di + ds_7AEE], 08000h ; @0282
+    mov word ptr [di + TimerSlotOffsetByHandle], 08000h ; @0282
     mov cx, 1 ; @0288
     xor bx, bx ; @028B
-    mov si, word ptr ds:[ds_7A4C] ; @028D
+    mov si, word ptr ds:[LastActiveTimerSlotOffset] ; @028D
 loc_0291:
-    cmp cx, word ptr [si + ds_7A6E] ; @0291
+    cmp cx, word ptr [si + TimerIntervalHighBySlot] ; @0291
     ja loc_02A8 ; @0295
     jb loc_02B0 ; @029A
-    cmp bx, word ptr [si + ds_7A4E] ; @029F
+    cmp bx, word ptr [si + TimerIntervalLowBySlot] ; @029F
     jb loc_02B0 ; @02A3
 loc_02A8:
-    mov bx, word ptr [si + ds_7A4E] ; @02A8
-    mov cx, word ptr [si + ds_7A6E] ; @02AC
+    mov bx, word ptr [si + TimerIntervalLowBySlot] ; @02A8
+    mov cx, word ptr [si + TimerIntervalHighBySlot] ; @02AC
 loc_02B0:
     sub si, 2 ; @02B0
     jns short loc_0291 ; @02B3
-    mov word ptr ds:[ds_7B76], bx ; @02B5
-    mov word ptr ds:[ds_7B78], cx ; @02B9
+    mov word ptr ds:[EarliestTimerIntervalLow], bx ; @02B5
+    mov word ptr ds:[EarliestTimerIntervalHigh], cx ; @02B9
     popf ; @02BD
     pop di ; @02BE
     pop si ; @02BF
     retf ; @02C0
-loc_02C1:
+; CONTRACT (tools/apply.py)
+; Replace a timer's interval and recompute the earliest active interval.
+; In: AX is a timer handle; BX is the new low interval word and CX the high word.
+; Effects: CLI protects the table update; POPF restores the caller's interrupt flags.
+; END CONTRACT
+SetTimerCallbackInterval:
     push di ; @02C1
     push ds ; @02C2
     push si ; @02C3
@@ -329,54 +362,70 @@ loc_02C1:
     mov di, seg ext_5C09 ; @02C5
     mov ds, di ; @02C8
     mov si, ax ; @02CA
-    mov si, word ptr [si + ds_7AEE] ; @02CC
+    mov si, word ptr [si + TimerSlotOffsetByHandle] ; @02CC
     cli ; @02D0
-    mov word ptr [si + ds_7A4E], bx ; @02D1
-    mov word ptr [si + ds_7A6E], cx ; @02D5
-    mov si, word ptr ds:[ds_7A4C] ; @02D9
+    mov word ptr [si + TimerIntervalLowBySlot], bx ; @02D1
+    mov word ptr [si + TimerIntervalHighBySlot], cx ; @02D5
+    mov si, word ptr ds:[LastActiveTimerSlotOffset] ; @02D9
 loc_02DD:
-    cmp cx, word ptr [si + ds_7A6E] ; @02DD
+    cmp cx, word ptr [si + TimerIntervalHighBySlot] ; @02DD
     ja loc_02F4 ; @02E1
     jb loc_02FC ; @02E6
-    cmp bx, word ptr [si + ds_7A4E] ; @02EB
+    cmp bx, word ptr [si + TimerIntervalLowBySlot] ; @02EB
     jb loc_02FC ; @02EF
 loc_02F4:
-    mov bx, word ptr [si + ds_7A4E] ; @02F4
-    mov cx, word ptr [si + ds_7A6E] ; @02F8
+    mov bx, word ptr [si + TimerIntervalLowBySlot] ; @02F4
+    mov cx, word ptr [si + TimerIntervalHighBySlot] ; @02F8
 loc_02FC:
     sub si, 2 ; @02FC
     jns short loc_02DD ; @02FF
-    mov word ptr ds:[ds_7B76], bx ; @0301
-    mov word ptr ds:[ds_7B78], cx ; @0305
+    mov word ptr ds:[EarliestTimerIntervalLow], bx ; @0301
+    mov word ptr ds:[EarliestTimerIntervalHigh], cx ; @0305
     popf ; @0309
     pop si ; @030A
     pop ds ; @030B
     pop di ; @030C
     retf ; @030D
-loc_030E:
+; CONTRACT (tools/apply.py)
+; Adapt four far-stack words to RegisterTimerCallback's register interface.
+; In: caller stack has callback offset, callback segment, interval low, interval high.
+; Out: AX is the allocated timer handle; caller removes arguments after RETF.
+; END CONTRACT
+RegisterTimerCallbackFromStack:
     push bp ; @030E
     mov bp, sp ; @030F
     mov ax, word ptr [bp + 6] ; @0311
     mov dx, word ptr [bp + 8] ; @0314
     mov bx, word ptr [bp + 0Ah] ; @0317
     mov cx, word ptr [bp + 0Ch] ; @031A
-    call far ptr loc_01AA ; @031D same-segment far call
+    call far ptr RegisterTimerCallback ; @031D same-segment far call
     pop bp ; @0321
     retf ; @0322
-loc_0323:
+; CONTRACT (tools/apply.py)
+; Adapt one far-stack handle word to RemoveTimerCallback's register interface.
+; In: caller stack word at BP+6 is the handle; caller removes it after RETF.
+; END CONTRACT
+RemoveTimerCallbackFromStack:
     push bp ; @0323
     mov bp, sp ; @0324
     mov ax, word ptr [bp + 6] ; @0326
-    call far ptr loc_021B ; @0329 same-segment far call
+    call far ptr RemoveTimerCallback ; @0329 same-segment far call
     pop bp ; @032D
     retf ; @032E
+; CONTRACT (tools/apply.py)
+; Load a handle and two additional words, then call RemoveTimerCallback with AX only.
+; In: far-stack words at BP+6, BP+8, BP+0Ah; only the first is consumed by the callee.
+; Effects: BX and CX receive the trailing words but RemoveTimerCallback ignores them.
+; Quirk: retained mechanically because this unreferenced entry resembles an interval setter,
+; but its actual target is the removal routine and its trailing arguments have no effect.
+; END CONTRACT
 loc_032F:
     push bp ; @032F
     mov bp, sp ; @0330
     mov ax, word ptr [bp + 6] ; @0332
     mov bx, word ptr [bp + 8] ; @0335
     mov cx, word ptr [bp + 0Ah] ; @0338
-    call far ptr loc_021B ; @033B same-segment far call
+    call far ptr RemoveTimerCallback ; @033B same-segment far call
     pop bp ; @033F
     retf ; @0340
 TIMERSEG ends

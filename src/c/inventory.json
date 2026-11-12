@@ -2,7 +2,7 @@
   "frame": "0878",
   "functions": [
     {
-      "name": "fn_0003",
+      "name": "InitializeSoundSystem",
       "address": "0878:0003",
       "length": 135,
       "instruction_length": 135,
@@ -60,12 +60,12 @@
       ],
       "status": "exact (fresh cjudge required)",
       "far_globals": [
-        "g_026A"
+        "SoundDeviceBits"
       ],
       "dgroup_offsets": []
     },
     {
-      "name": "fn_008A",
+      "name": "ShutdownSoundSystem",
       "address": "0878:008A",
       "length": 107,
       "instruction_length": 107,
@@ -103,13 +103,13 @@
       ],
       "status": "exact (fresh cjudge required)",
       "far_globals": [
-        "g_0236",
-        "g_026A"
+        "AdlxPlaybackGuard",
+        "SoundDeviceBits"
       ],
       "dgroup_offsets": []
     },
     {
-      "name": "fn_00F5",
+      "name": "LoadSoundBankResource",
       "address": "0878:00F5",
       "length": 129,
       "instruction_length": 129,
@@ -143,13 +143,13 @@
       ],
       "status": "exact (fresh cjudge required)",
       "far_globals": [
-        "g_024E",
-        "g_0252"
+        "SoundBankBase",
+        "SoundBankLength"
       ],
       "dgroup_offsets": []
     },
     {
-      "name": "fn_0176",
+      "name": "LoadIffSample",
       "address": "0878:0176",
       "length": 1307,
       "instruction_length": 1307,
@@ -383,16 +383,16 @@
       ],
       "status": "exact (fresh cjudge required)",
       "far_globals": [
-        "g_000E",
-        "g_0014",
-        "g_026A",
-        "g_026E",
-        "g_0270"
+        "SampleMixerBusy",
+        "AudioChannelStates",
+        "SoundDeviceBits",
+        "ActiveSampleVoiceCount",
+        "ActiveSampleVoiceMask"
       ],
       "dgroup_offsets": []
     },
     {
-      "name": "fn_0691",
+      "name": "LoadAdlibChannel",
       "address": "0878:0691",
       "length": 83,
       "instruction_length": 83,
@@ -416,12 +416,12 @@
       ],
       "status": "exact (fresh cjudge required)",
       "far_globals": [
-        "g_0014"
+        "AudioChannelStates"
       ],
       "dgroup_offsets": []
     },
     {
-      "name": "fn_06E4",
+      "name": "LoadBankSoundByIndex",
       "address": "0878:06E4",
       "length": 647,
       "instruction_length": 647,
@@ -569,13 +569,13 @@
       ],
       "status": "exact (fresh cjudge required)",
       "far_globals": [
-        "g_024E",
-        "g_0252"
+        "SoundBankBase",
+        "SoundBankLength"
       ],
       "dgroup_offsets": []
     },
     {
-      "name": "fn_096B",
+      "name": "StopActiveSoundOutputs",
       "address": "0878:096B",
       "length": 95,
       "instruction_length": 95,
@@ -603,14 +603,14 @@
       ],
       "status": "exact (fresh cjudge required)",
       "far_globals": [
-        "g_0014",
-        "g_026A",
-        "g_026E"
+        "AudioChannelStates",
+        "SoundDeviceBits",
+        "ActiveSampleVoiceCount"
       ],
       "dgroup_offsets": []
     },
     {
-      "name": "fn_09CA",
+      "name": "StopSampleChannel",
       "address": "0878:09CA",
       "length": 166,
       "instruction_length": 166,
@@ -635,16 +635,16 @@
       ],
       "status": "exact (fresh cjudge required)",
       "far_globals": [
-        "g_000E",
-        "g_0014",
-        "g_026A",
-        "g_026E",
-        "g_0270"
+        "SampleMixerBusy",
+        "AudioChannelStates",
+        "SoundDeviceBits",
+        "ActiveSampleVoiceCount",
+        "ActiveSampleVoiceMask"
       ],
       "dgroup_offsets": []
     },
     {
-      "name": "fn_0A70",
+      "name": "SwapDwordByteOrder",
       "address": "0878:0A70",
       "length": 57,
       "instruction_length": 57,
@@ -659,7 +659,7 @@
       "dgroup_offsets": []
     },
     {
-      "name": "fn_0AA9",
+      "name": "LoadAdlibTrackData",
       "address": "0878:0AA9",
       "length": 595,
       "instruction_length": 595,
@@ -699,16 +699,16 @@
       ],
       "status": "exact (fresh cjudge required)",
       "far_globals": [
-        "g_0014",
-        "g_0238",
-        "g_0266",
-        "g_026A",
-        "g_026C"
+        "AudioChannelStates",
+        "MusicTicksPerUnit",
+        "AdlibInstrumentMap",
+        "SoundDeviceBits",
+        "ReservedAdlibChannelCount"
       ],
       "dgroup_offsets": []
     },
     {
-      "name": "fn_0CFC",
+      "name": "StartAdlibTrackChannel",
       "address": "0878:0CFC",
       "length": 561,
       "instruction_length": 561,
@@ -775,21 +775,21 @@
       ],
       "status": "exact (fresh cjudge required)",
       "far_globals": [
-        "g_0014",
-        "g_022E",
-        "g_0236",
-        "g_023A",
-        "g_025A",
-        "g_026A",
-        "g_026C",
-        "g_0274",
-        "g_0278",
-        "g_032C"
+        "AudioChannelStates",
+        "MusicVoiceCount",
+        "AdlxPlaybackGuard",
+        "AdlxTickCount",
+        "MusicTrackVolume",
+        "SoundDeviceBits",
+        "ReservedAdlibChannelCount",
+        "CurrentAdlxSlot",
+        "AdlibVoiceStates",
+        "SavedAdlibVoiceStates"
       ],
       "dgroup_offsets": []
     },
     {
-      "name": "fn_0F2D",
+      "name": "ResetAdlibTrackChannelCursor",
       "address": "0878:0F2D",
       "length": 91,
       "instruction_length": 91,
@@ -804,12 +804,12 @@
       ],
       "status": "exact (fresh cjudge required)",
       "far_globals": [
-        "g_0014"
+        "AudioChannelStates"
       ],
       "dgroup_offsets": []
     },
     {
-      "name": "fn_0F88",
+      "name": "StartMusicTrack",
       "address": "0878:0F88",
       "length": 209,
       "instruction_length": 209,
@@ -863,20 +863,20 @@
       ],
       "status": "exact (fresh cjudge required)",
       "far_globals": [
-        "g_023A",
-        "g_023E",
-        "g_0246",
-        "g_0248",
-        "g_024A",
-        "g_024C",
-        "g_0256",
-        "g_025A",
-        "g_026A"
+        "AdlxTickCount",
+        "MainAdlxTimeOrigin",
+        "MusicFadeStep",
+        "MusicFadeDuration",
+        "MusicFadeStartVolume",
+        "MusicFadeTargetVolume",
+        "MainAdlxPlaying",
+        "MusicTrackVolume",
+        "SoundDeviceBits"
       ],
       "dgroup_offsets": []
     },
     {
-      "name": "fn_1059",
+      "name": "StopMusicTrack",
       "address": "0878:1059",
       "length": 207,
       "instruction_length": 207,
@@ -929,20 +929,20 @@
       ],
       "status": "exact (fresh cjudge required)",
       "far_globals": [
-        "g_0246",
-        "g_0248",
-        "g_024A",
-        "g_024C",
-        "g_0256",
-        "g_0258",
-        "g_025A",
-        "g_026A",
-        "g_0274"
+        "MusicFadeStep",
+        "MusicFadeDuration",
+        "MusicFadeStartVolume",
+        "MusicFadeTargetVolume",
+        "MainAdlxPlaying",
+        "MusicFadeScheduled",
+        "MusicTrackVolume",
+        "SoundDeviceBits",
+        "CurrentAdlxSlot"
       ],
       "dgroup_offsets": []
     },
     {
-      "name": "fn_1128",
+      "name": "SetMusicTrackVolume",
       "address": "0878:1128",
       "length": 133,
       "instruction_length": 133,
@@ -968,16 +968,16 @@
       ],
       "status": "exact (fresh cjudge required)",
       "far_globals": [
-        "g_022E",
-        "g_0256",
-        "g_025A",
-        "g_026A",
-        "g_0274"
+        "MusicVoiceCount",
+        "MainAdlxPlaying",
+        "MusicTrackVolume",
+        "SoundDeviceBits",
+        "CurrentAdlxSlot"
       ],
       "dgroup_offsets": []
     },
     {
-      "name": "fn_11AD",
+      "name": "ScanMusicEvents",
       "address": "0878:11AD",
       "length": 740,
       "instruction_length": 712,
@@ -1048,23 +1048,23 @@
       ],
       "status": "exact (fresh cjudge required)",
       "far_globals": [
-        "g_0212",
-        "g_0216",
-        "g_022E",
-        "g_0238",
-        "g_0242",
-        "g_0256",
-        "g_025A",
-        "g_025C",
-        "g_025E",
-        "g_0262",
-        "g_026A",
-        "g_03E0"
+        "MainAdlxStartPointer",
+        "MusicEventStreamLength",
+        "MusicVoiceCount",
+        "MusicTicksPerUnit",
+        "ScannedMusicClockTicks",
+        "MainAdlxPlaying",
+        "MusicTrackVolume",
+        "MainAdlxSectionLoopEnabled",
+        "FirstScannedEvent",
+        "MainAdlxSectionEnd",
+        "SoundDeviceBits",
+        "ScannedAdlibVoiceStates"
       ],
       "dgroup_offsets": []
     },
     {
-      "name": "fn_1491",
+      "name": "ClearMusicEventPendingFlag",
       "address": "0878:1491",
       "length": 42,
       "instruction_length": 42,
@@ -1078,13 +1078,13 @@
       ],
       "status": "exact (fresh cjudge required)",
       "far_globals": [
-        "g_0256",
-        "g_025C"
+        "MainAdlxPlaying",
+        "MainAdlxSectionLoopEnabled"
       ],
       "dgroup_offsets": []
     },
     {
-      "name": "fn_14BB",
+      "name": "RestoreAdlibVoiceAllocation",
       "address": "0878:14BB",
       "length": 685,
       "instruction_length": 685,
@@ -1185,18 +1185,18 @@
       ],
       "status": "exact (fresh cjudge required)",
       "far_globals": [
-        "g_0014",
-        "g_022E",
-        "g_025A",
-        "g_026C",
-        "g_0274",
-        "g_0278",
-        "g_032C"
+        "AudioChannelStates",
+        "MusicVoiceCount",
+        "MusicTrackVolume",
+        "ReservedAdlibChannelCount",
+        "CurrentAdlxSlot",
+        "AdlibVoiceStates",
+        "SavedAdlibVoiceStates"
       ],
       "dgroup_offsets": []
     },
     {
-      "name": "fn_1768",
+      "name": "StopAdlibTrackChannel",
       "address": "0878:1768",
       "length": 234,
       "instruction_length": 234,
@@ -1231,14 +1231,14 @@
       ],
       "status": "exact (fresh cjudge required)",
       "far_globals": [
-        "g_0014",
-        "g_0236",
-        "g_026A"
+        "AudioChannelStates",
+        "AdlxPlaybackGuard",
+        "SoundDeviceBits"
       ],
       "dgroup_offsets": []
     },
     {
-      "name": "fn_1852",
+      "name": "PlayAdlibEffect",
       "address": "0878:1852",
       "length": 241,
       "instruction_length": 241,
@@ -1281,13 +1281,13 @@
       ],
       "status": "exact (fresh cjudge required)",
       "far_globals": [
-        "g_0014",
-        "g_026A"
+        "AudioChannelStates",
+        "SoundDeviceBits"
       ],
       "dgroup_offsets": []
     },
     {
-      "name": "fn_1943",
+      "name": "ApplyScannedMusicEvents",
       "address": "0878:1943",
       "length": 269,
       "instruction_length": 269,
@@ -1344,21 +1344,21 @@
       ],
       "status": "exact (fresh cjudge required)",
       "far_globals": [
-        "g_021C",
-        "g_022E",
-        "g_023E",
-        "g_0242",
-        "g_025E",
-        "g_026A",
-        "g_026C",
-        "g_0278",
-        "g_032C",
-        "g_03E0"
+        "MainAdlxCursor",
+        "MusicVoiceCount",
+        "MainAdlxTimeOrigin",
+        "ScannedMusicClockTicks",
+        "FirstScannedEvent",
+        "SoundDeviceBits",
+        "ReservedAdlibChannelCount",
+        "AdlibVoiceStates",
+        "SavedAdlibVoiceStates",
+        "ScannedAdlibVoiceStates"
       ],
       "dgroup_offsets": []
     },
     {
-      "name": "fn_1A50",
+      "name": "GetElapsedMusicTime",
       "address": "0878:1A50",
       "length": 62,
       "instruction_length": 62,
@@ -1380,14 +1380,14 @@
       ],
       "status": "exact (fresh cjudge required)",
       "far_globals": [
-        "g_0238",
-        "g_023A",
-        "g_023E"
+        "MusicTicksPerUnit",
+        "AdlxTickCount",
+        "MainAdlxTimeOrigin"
       ],
       "dgroup_offsets": []
     },
     {
-      "name": "fn_1A8E",
+      "name": "GetMusicTrackDuration",
       "address": "0878:1A8E",
       "length": 279,
       "instruction_length": 263,
@@ -1412,11 +1412,11 @@
       ],
       "status": "exact (fresh cjudge required)",
       "far_globals": [
-        "g_0212",
-        "g_0216",
-        "g_0238",
-        "g_0256",
-        "g_026A"
+        "MainAdlxStartPointer",
+        "MusicEventStreamLength",
+        "MusicTicksPerUnit",
+        "MainAdlxPlaying",
+        "SoundDeviceBits"
       ],
       "dgroup_offsets": []
     }
@@ -1432,13 +1432,13 @@
       "start": "1475",
       "end": "1491",
       "class": "DATA",
-      "note": "switch values and targets for fn_11AD"
+      "note": "switch values and targets for ScanMusicEvents"
     },
     {
       "start": "1B95",
       "end": "1BA5",
       "class": "DATA",
-      "note": "8 switch targets for fn_1A8E; crosses old census boundary by 5 bytes"
+      "note": "8 switch targets for GetMusicTrackDuration; crosses old census boundary by 5 bytes"
     }
   ],
   "note": "C source covers 0878:0003..1BA4 inclusive: 7030 instruction bytes and 44 switch-table bytes. The prior frame-based census boundary at 1BA0 truncates the last table.",

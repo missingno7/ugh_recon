@@ -5,187 +5,418 @@ JUMPS
 extrn _fn_013B_001F:far
 extrn _InstallTimerInterrupt:far
 extrn _RestoreTimerInterrupt:far
-extrn _fn_0A32_01AA:far
-extrn _fn_0A32_021B:far
-extrn _fn_0A32_02C1:far
-extrn _fn_0003:far
-extrn _fn_1128:far
-extrn _fn_1768:far
-extrn _fn_1943:far
+extrn _RegisterTimerCallback:far
+extrn _RemoveTimerCallback:far
+extrn _SetTimerCallbackInterval:far
+extrn _InitializeSoundSystem:far
+extrn _SetMusicTrackVolume:far
+extrn _StopAdlibTrackChannel:far
+extrn _ApplyScannedMusicEvents:far
 SOUNDSEG segment word public 'CODE'
 assume cs:SOUNDSEG
 public ext_0664
 ext_0664 label far
 SOUND_BASE label byte
-public _g_0236
-_g_0236 equ SOUND_BASE+022Ah
-public _g_0256
-_g_0256 equ SOUND_BASE+024Ah
-public _g_025C
-_g_025C equ SOUND_BASE+0250h
-public _g_026A
-_g_026A equ SOUND_BASE+025Eh
-public _fn_0664_1331
-_fn_0664_1331 equ SOUND_BASE+01325h
-public _fn_0664_20B9
-_fn_0664_20B9 equ SOUND_BASE+020ADh
-public _fn_0664_1A65
-_fn_0664_1A65 equ SOUND_BASE+01A59h
-public _g_0014
-_g_0014 equ SOUND_BASE+08h
-public _g_0238
-_g_0238 equ SOUND_BASE+022Ch
-public _g_023A
-_g_023A equ SOUND_BASE+022Eh
-public _g_023E
-_g_023E equ SOUND_BASE+0232h
-public _g_000E
-_g_000E equ SOUND_BASE+02h
-public _g_024E
-_g_024E equ SOUND_BASE+0242h
-public _g_0252
-_g_0252 equ SOUND_BASE+0246h
-public _g_026E
-_g_026E equ SOUND_BASE+0262h
-public _g_0270
-_g_0270 equ SOUND_BASE+0264h
+public _AdlxPlaybackGuard
+_AdlxPlaybackGuard equ SOUND_BASE+022Ah
+public _MainAdlxPlaying
+_MainAdlxPlaying equ SOUND_BASE+024Ah
+public _MainAdlxSectionLoopEnabled
+_MainAdlxSectionLoopEnabled equ SOUND_BASE+0250h
+public _SoundDeviceBits
+_SoundDeviceBits equ SOUND_BASE+025Eh
+public _CancelMusicFade
+_CancelMusicFade equ SOUND_BASE+01325h
+public _ShutdownDspPlayback
+_ShutdownDspPlayback equ SOUND_BASE+020ADh
+public _ShutdownAdlibPlayback
+_ShutdownAdlibPlayback equ SOUND_BASE+01A59h
+public _AudioChannelStates
+_AudioChannelStates equ SOUND_BASE+08h
+public _MusicTicksPerUnit
+_MusicTicksPerUnit equ SOUND_BASE+022Ch
+public _AdlxTickCount
+_AdlxTickCount equ SOUND_BASE+022Eh
+public _MainAdlxTimeOrigin
+_MainAdlxTimeOrigin equ SOUND_BASE+0232h
+public _SampleMixerBusy
+_SampleMixerBusy equ SOUND_BASE+02h
+public _SoundBankBase
+_SoundBankBase equ SOUND_BASE+0242h
+public _SoundBankLength
+_SoundBankLength equ SOUND_BASE+0246h
+public _ActiveSampleVoiceCount
+_ActiveSampleVoiceCount equ SOUND_BASE+0262h
+public _ActiveSampleVoiceMask
+_ActiveSampleVoiceMask equ SOUND_BASE+0264h
 public _ClearSoundState
 _ClearSoundState equ SOUND_BASE+0111Fh
-public _fn_0664_205C
-_fn_0664_205C equ SOUND_BASE+02050h
-public _fn_0664_1C39
-_fn_0664_1C39 equ SOUND_BASE+01C2Dh
-public _fn_0664_1A89
-_fn_0664_1A89 equ SOUND_BASE+01A7Dh
-public _fn_0664_1E97
-_fn_0664_1E97 equ SOUND_BASE+01E8Bh
-public _g_0212
-_g_0212 equ SOUND_BASE+0206h
-public _g_0216
-_g_0216 equ SOUND_BASE+020Ah
-public _g_022E
-_g_022E equ SOUND_BASE+0222h
-public _g_0242
-_g_0242 equ SOUND_BASE+0236h
-public _g_0246
-_g_0246 equ SOUND_BASE+023Ah
-public _g_0248
-_g_0248 equ SOUND_BASE+023Ch
-public _g_024A
-_g_024A equ SOUND_BASE+023Eh
-public _g_024C
-_g_024C equ SOUND_BASE+0240h
-public _g_0258
-_g_0258 equ SOUND_BASE+024Ch
-public _g_025A
-_g_025A equ SOUND_BASE+024Eh
-public _g_0266
-_g_0266 equ SOUND_BASE+025Ah
-public _g_026C
-_g_026C equ SOUND_BASE+0260h
-public _g_0274
-_g_0274 equ SOUND_BASE+0268h
-public _g_0278
-_g_0278 equ SOUND_BASE+026Ch
-public _g_032C
-_g_032C equ SOUND_BASE+0320h
-public _g_03E0
-_g_03E0 equ SOUND_BASE+03D4h
-public _fn_0664_134E
-_fn_0664_134E equ SOUND_BASE+01342h
-public _fn_0664_1A37
-_fn_0664_1A37 equ SOUND_BASE+01A2Bh
-public _fn_0664_1211
-_fn_0664_1211 equ SOUND_BASE+01205h
-public _fn_0664_14B1
-_fn_0664_14B1 equ SOUND_BASE+014A5h
-public _fn_0664_1377
-_fn_0664_1377 equ SOUND_BASE+0136Bh
-public _fn_0664_1503
-_fn_0664_1503 equ SOUND_BASE+014F7h
-public _g_021C
-_g_021C equ SOUND_BASE+0210h
-public _g_025E
-_g_025E equ SOUND_BASE+0252h
-public _g_0262
-_g_0262 equ SOUND_BASE+0256h
-byte_000C equ SOUND_BASE+00h
-byte_000E equ SOUND_BASE+02h
-byte_0010 equ SOUND_BASE+04h
-byte_0012 equ SOUND_BASE+06h
-byte_0018 equ SOUND_BASE+0Ch
-byte_001A equ SOUND_BASE+0Eh
-byte_001E equ SOUND_BASE+012h
-byte_0024 equ SOUND_BASE+018h
-byte_0030 equ SOUND_BASE+024h
-byte_003A equ SOUND_BASE+02Eh
-byte_003C equ SOUND_BASE+030h
-byte_0210 equ SOUND_BASE+0204h
-byte_0212 equ SOUND_BASE+0206h
-byte_0214 equ SOUND_BASE+0208h
-byte_021C equ SOUND_BASE+0210h
-byte_021E equ SOUND_BASE+0212h
-byte_022A equ SOUND_BASE+021Eh
-byte_022C equ SOUND_BASE+0220h
-byte_0234 equ SOUND_BASE+0228h
-byte_0236 equ SOUND_BASE+022Ah
-byte_023A equ SOUND_BASE+022Eh
-byte_023C equ SOUND_BASE+0230h
-byte_023E equ SOUND_BASE+0232h
-byte_0240 equ SOUND_BASE+0234h
-byte_0246 equ SOUND_BASE+023Ah
-byte_0248 equ SOUND_BASE+023Ch
-byte_024A equ SOUND_BASE+023Eh
-byte_024C equ SOUND_BASE+0240h
-byte_0256 equ SOUND_BASE+024Ah
-byte_0258 equ SOUND_BASE+024Ch
-byte_025C equ SOUND_BASE+0250h
-byte_0262 equ SOUND_BASE+0256h
-byte_026A equ SOUND_BASE+025Eh
-byte_026C equ SOUND_BASE+0260h
-byte_026E equ SOUND_BASE+0262h
-byte_0270 equ SOUND_BASE+0264h
-byte_0274 equ SOUND_BASE+0268h
-byte_0279 equ SOUND_BASE+026Dh
-byte_027E equ SOUND_BASE+0272h
-byte_0282 equ SOUND_BASE+0276h
-byte_0284 equ SOUND_BASE+0278h
-byte_0286 equ SOUND_BASE+027Ah
-byte_0288 equ SOUND_BASE+027Ch
-byte_028A equ SOUND_BASE+027Eh
-byte_028B equ SOUND_BASE+027Fh
-byte_0338 equ SOUND_BASE+032Ch
-byte_033A equ SOUND_BASE+032Eh
-byte_033E equ SOUND_BASE+0332h
-byte_0494 equ SOUND_BASE+0488h
-byte_0495 equ SOUND_BASE+0489h
-byte_0497 equ SOUND_BASE+048Bh
-byte_04A1 equ SOUND_BASE+0495h
-byte_04A2 equ SOUND_BASE+0496h
-byte_04A5 equ SOUND_BASE+0499h
-byte_04A7 equ SOUND_BASE+049Bh
-byte_04A9 equ SOUND_BASE+049Dh
-byte_04AB equ SOUND_BASE+049Fh
-byte_04AD equ SOUND_BASE+04A1h
-byte_08B1 equ SOUND_BASE+08A5h
-byte_08B3 equ SOUND_BASE+08A7h
-byte_08B5 equ SOUND_BASE+08A9h
-byte_08B7 equ SOUND_BASE+08ABh
-byte_10C7 equ SOUND_BASE+010BBh
-byte_10CB equ SOUND_BASE+010BFh
-byte_10CD equ SOUND_BASE+010C1h
-byte_10CF equ SOUND_BASE+010C3h
-byte_10D1 equ SOUND_BASE+010C5h
-byte_10EF equ SOUND_BASE+010E3h
-byte_10F5 equ SOUND_BASE+010E9h
-byte_1122 equ SOUND_BASE+01116h
-byte_1124 equ SOUND_BASE+01118h
-byte_1126 equ SOUND_BASE+0111Ah
-byte_1127 equ SOUND_BASE+0111Bh
-byte_1129 equ SOUND_BASE+0111Dh
-byte_174B equ SOUND_BASE+0173Fh
-byte_1919 equ SOUND_BASE+0190Dh
-byte_2058 equ SOUND_BASE+0204Ch
+public _InitializeDspPlayback
+_InitializeDspPlayback equ SOUND_BASE+02050h
+public _SetDspSampleRate
+_SetDspSampleRate equ SOUND_BASE+01C2Dh
+public _InitializeAdlibPlayback
+_InitializeAdlibPlayback equ SOUND_BASE+01A7Dh
+public _PrimeSampleDmaPlayback
+_PrimeSampleDmaPlayback equ SOUND_BASE+01E8Bh
+public _MainAdlxStartPointer
+_MainAdlxStartPointer equ SOUND_BASE+0206h
+public _MusicEventStreamLength
+_MusicEventStreamLength equ SOUND_BASE+020Ah
+public _MusicVoiceCount
+_MusicVoiceCount equ SOUND_BASE+0222h
+public _ScannedMusicClockTicks
+_ScannedMusicClockTicks equ SOUND_BASE+0236h
+public _MusicFadeStep
+_MusicFadeStep equ SOUND_BASE+023Ah
+public _MusicFadeDuration
+_MusicFadeDuration equ SOUND_BASE+023Ch
+public _MusicFadeStartVolume
+_MusicFadeStartVolume equ SOUND_BASE+023Eh
+public _MusicFadeTargetVolume
+_MusicFadeTargetVolume equ SOUND_BASE+0240h
+public _MusicFadeScheduled
+_MusicFadeScheduled equ SOUND_BASE+024Ch
+public _MusicTrackVolume
+_MusicTrackVolume equ SOUND_BASE+024Eh
+public _AdlibInstrumentMap
+_AdlibInstrumentMap equ SOUND_BASE+025Ah
+public _ReservedAdlibChannelCount
+_ReservedAdlibChannelCount equ SOUND_BASE+0260h
+public _CurrentAdlxSlot
+_CurrentAdlxSlot equ SOUND_BASE+0268h
+public _AdlibVoiceStates
+_AdlibVoiceStates equ SOUND_BASE+026Ch
+public _SavedAdlibVoiceStates
+_SavedAdlibVoiceStates equ SOUND_BASE+0320h
+public _ScannedAdlibVoiceStates
+_ScannedAdlibVoiceStates equ SOUND_BASE+03D4h
+public _ScheduleMusicFade
+_ScheduleMusicFade equ SOUND_BASE+01342h
+public _SilenceAdlibOperators
+_SilenceAdlibOperators equ SOUND_BASE+01A2Bh
+public _SetAdlibChannelVolume
+_SetAdlibChannelVolume equ SOUND_BASE+01205h
+public _KeyOffAdlibChannel
+_KeyOffAdlibChannel equ SOUND_BASE+014A5h
+public _LoadAdlibInstrument
+_LoadAdlibInstrument equ SOUND_BASE+0136Bh
+public _SetAdlibFrequency
+_SetAdlibFrequency equ SOUND_BASE+014F7h
+public _MainAdlxCursor
+_MainAdlxCursor equ SOUND_BASE+0210h
+public _FirstScannedEvent
+_FirstScannedEvent equ SOUND_BASE+0252h
+public _MainAdlxSectionEnd
+_MainAdlxSectionEnd equ SOUND_BASE+0256h
+; CONTRACT (tools/apply.py)
+; Word period set from BE16 ADLX 6n events and used for effect timing ratios.
+; END CONTRACT
+AdlxTimerPeriod equ SOUND_BASE+00h
+; CONTRACT (tools/apply.py)
+; Word set during sample mixing; polled before foreground voice changes and DMA priming.
+; END CONTRACT
+SampleMixerBusy equ SOUND_BASE+02h
+; CONTRACT (tools/apply.py)
+; Word base for DSP reset/status/command ports; probe tests 210h through 260h.
+; END CONTRACT
+DspBasePort equ SOUND_BASE+04h
+; CONTRACT (tools/apply.py)
+; Word containing selected IRQ+8 vector number in low byte; used by DOS AH=25h/35h.
+; END CONTRACT
+DspInterruptVector equ SOUND_BASE+06h
+; CONTRACT (tools/apply.py)
+; Word field +04h of voice 0; indexed by 2Ah; decremented at sample end unless flags&2.
+; END CONTRACT
+SampleVoiceRepeatCount equ SOUND_BASE+0Ch
+; CONTRACT (tools/apply.py)
+; Far pointer field +06h of voice 0; indexed by 2Ah and loaded with LDS by mixer.
+; END CONTRACT
+SampleVoiceDataPointer equ SOUND_BASE+0Eh
+; CONTRACT (tools/apply.py)
+; Word field +0Ah of voice 0; indexed by 2Ah; compared to scaled sample byte offset.
+; END CONTRACT
+SampleVoiceByteLength equ SOUND_BASE+012h
+; CONTRACT (tools/apply.py)
+; Word at field +10h of voice 0, indexed by 2Ah; mixer increments once per byte pair.
+; END CONTRACT
+SampleVoicePairCursor equ SOUND_BASE+018h
+; CONTRACT (tools/apply.py)
+; Word field +1Ch of voice 0; mixer uses low byte>>1 as signed IMUL factor.
+; END CONTRACT
+SampleVoiceVolume equ SOUND_BASE+024h
+; CONTRACT (tools/apply.py)
+; Word field +26h of voice 0; mixer uses low16((cursor*step)>>8) for sample offset.
+; END CONTRACT
+SampleVoiceStepQ8 equ SOUND_BASE+02Eh
+; CONTRACT (tools/apply.py)
+; Word field +28h of voice 0, indexed by 2Ah; bit 1 suppresses repeat decrement.
+; END CONTRACT
+SampleVoiceFlags equ SOUND_BASE+030h
+; CONTRACT (tools/apply.py)
+; Word field +04h of main record at 020Ch; 77h decrements unless flags&2.
+; END CONTRACT
+MainAdlxRepeatCount equ SOUND_BASE+0204h
+; CONTRACT (tools/apply.py)
+; Far origin pointer of main stream; 77h restores cursor from words 0212h/0214h.
+; END CONTRACT
+MainAdlxStartPointer equ SOUND_BASE+0206h
+; CONTRACT (tools/apply.py)
+; High word of main stream origin pointer, copied into cursor segment by 77h.
+; END CONTRACT
+MainAdlxStartSegment equ SOUND_BASE+0208h
+; CONTRACT (tools/apply.py)
+; Far main stream cursor; LES loads it and wait handlers update low word DI.
+; END CONTRACT
+MainAdlxCursor equ SOUND_BASE+0210h
+; CONTRACT (tools/apply.py)
+; High word of main stream cursor, restored from origin segment on repeat.
+; END CONTRACT
+MainAdlxCursorSegment equ SOUND_BASE+0212h
+; CONTRACT (tools/apply.py)
+; Low word of main-event deadline; wait handlers add deltas and propagate carry.
+; END CONTRACT
+MainAdlxDeadlineLow equ SOUND_BASE+021Eh
+; CONTRACT (tools/apply.py)
+; High word of main-event deadline, compared unsigned before low word in dispatcher.
+; END CONTRACT
+MainAdlxDeadlineHigh equ SOUND_BASE+0220h
+; CONTRACT (tools/apply.py)
+; Word main record +28h: 77h tests repeat bit 1 and clears active bit 0 on expiration.
+; END CONTRACT
+MainAdlxFlags equ SOUND_BASE+0228h
+; CONTRACT (tools/apply.py)
+; Word guard: dispatcher increments time then skips playback while bit 0 is set.
+; END CONTRACT
+AdlxPlaybackGuard equ SOUND_BASE+022Ah
+; CONTRACT (tools/apply.py)
+; 32-bit clock view; ASM increments low word here and carries to CS:023Ch.
+; END CONTRACT
+AdlxTickCount equ SOUND_BASE+022Eh
+; CONTRACT (tools/apply.py)
+; High word of clock incremented on CS:023Ah wrap, used in unsigned deadline checks.
+; END CONTRACT
+AdlxTickHighWord equ SOUND_BASE+0230h
+; CONTRACT (tools/apply.py)
+; 32-bit elapsed origin; repeat copies current clock, C elapsed query subtracts it.
+; END CONTRACT
+MainAdlxTimeOrigin equ SOUND_BASE+0232h
+; CONTRACT (tools/apply.py)
+; High word of elapsed origin copied from sound clock by main-track 77h repeat.
+; END CONTRACT
+MainAdlxTimeOriginHigh equ SOUND_BASE+0234h
+; CONTRACT (tools/apply.py)
+; Word callback counter incremented before interpolation; unsigned comparison controls completion.
+; END CONTRACT
+MusicFadeStep equ SOUND_BASE+023Ah
+; CONTRACT (tools/apply.py)
+; Word interpolation divisor and unsigned final step; zero is not checked in callback.
+; END CONTRACT
+MusicFadeDuration equ SOUND_BASE+023Ch
+; CONTRACT (tools/apply.py)
+; Word interpolation starting volume in signed IMUL/IDIV expression at 12E5h.
+; END CONTRACT
+MusicFadeStartVolume equ SOUND_BASE+023Eh
+; CONTRACT (tools/apply.py)
+; Word interpolation target volume; final step exactly reaches this value before cancellation.
+; END CONTRACT
+MusicFadeTargetVolume equ SOUND_BASE+0240h
+; CONTRACT (tools/apply.py)
+; Word tested by dispatcher and volume routing to decide whether main music is active.
+; END CONTRACT
+MainAdlxPlaying equ SOUND_BASE+024Ah
+; CONTRACT (tools/apply.py)
+; Word set to 1 when fade callback is registered, cleared after cancellation.
+; END CONTRACT
+MusicFadeScheduled equ SOUND_BASE+024Ch
+; CONTRACT (tools/apply.py)
+; Word bit 0 enables cursor-offset threshold check and C:1943h section-state restoration.
+; END CONTRACT
+MainAdlxSectionLoopEnabled equ SOUND_BASE+0250h
+; CONTRACT (tools/apply.py)
+; Far pointer from C scanner; ASM loop test compares only its offset against cursor DI.
+; END CONTRACT
+MainAdlxSectionEnd equ SOUND_BASE+0256h
+; CONTRACT (tools/apply.py)
+; Word bits: 0 AdLib, 1 DSP/sample output; consumed by hardware lifecycle calls.
+; END CONTRACT
+SoundDeviceBits equ SOUND_BASE+025Eh
+; CONTRACT (tools/apply.py)
+; Word count of physical channels taken by effects; main routing uses 9 minus low byte.
+; END CONTRACT
+ReservedAdlibChannelCount equ SOUND_BASE+0260h
+; CONTRACT (tools/apply.py)
+; Word number of active sample voices; mixer divides signed sums by its current value.
+; END CONTRACT
+ActiveSampleVoiceCount equ SOUND_BASE+0262h
+; CONTRACT (tools/apply.py)
+; Low-byte voice bitset; mixer shifts CL over 8 voices, clears finished bits with XOR.
+; END CONTRACT
+ActiveSampleVoiceMask equ SOUND_BASE+0264h
+; CONTRACT (tools/apply.py)
+; Word slot context: 12 for main track, 8..11 for effects; consulted by routing and end handler.
+; END CONTRACT
+CurrentAdlxSlot equ SOUND_BASE+0268h
+; CONTRACT (tools/apply.py)
+; Byte +01h in first 20-byte live instrument record; total-level low 6 bits and high KSL bits.
+; END CONTRACT
+AdlibModulatorLevel equ SOUND_BASE+026Dh
+; CONTRACT (tools/apply.py)
+; Byte +06h in first live instrument record; scaled into OPL carrier total-level register.
+; END CONTRACT
+AdlibCarrierLevel equ SOUND_BASE+0272h
+; CONTRACT (tools/apply.py)
+; Byte +0Ah of first live instrument record; bit 0 selects whether modulator level is scaled.
+; END CONTRACT
+AdlibConnectionFlags equ SOUND_BASE+0276h
+; CONTRACT (tools/apply.py)
+; Byte +0Ch in live 20-byte record, indexed by 14h; saved requested volume for gain reapply.
+; END CONTRACT
+AdlibChannelVolume equ SOUND_BASE+0278h
+; CONTRACT (tools/apply.py)
+; Byte +0Eh in live 20-byte record, indexed by 14h; multiplied into requested channel volume.
+; END CONTRACT
+AdlibChannelGain equ SOUND_BASE+027Ah
+; CONTRACT (tools/apply.py)
+; Word +10h in live 20-byte record, indexed by 14h; instrument load stamps current slot.
+; END CONTRACT
+AdlibChannelOwnerSlot equ SOUND_BASE+027Ch
+; CONTRACT (tools/apply.py)
+; Word +12h in live 20-byte record; low A0 frequency byte, high B0 block/key control.
+; END CONTRACT
+AdlibPackedFrequency equ SOUND_BASE+027Eh
+; CONTRACT (tools/apply.py)
+; High byte of packed frequency; key-off clears bit 5 here before writing B0 register.
+; END CONTRACT
+AdlibKeyControlByte equ SOUND_BASE+027Fh
+; CONTRACT (tools/apply.py)
+; Byte +0Ch in displaced 20-byte record bank at 032Ch; updated for channels reserved by effects.
+; END CONTRACT
+DisplacedAdlibVolume equ SOUND_BASE+032Ch
+; CONTRACT (tools/apply.py)
+; Byte +0Eh in displaced record bank; updated instead of live gain for reserved main channels.
+; END CONTRACT
+DisplacedAdlibGain equ SOUND_BASE+032Eh
+; CONTRACT (tools/apply.py)
+; Word +12h in displaced record bank; main events save frequency/key-off for reserved channels.
+; END CONTRACT
+DisplacedAdlibFrequency equ SOUND_BASE+0332h
+; CONTRACT (tools/apply.py)
+; Byte 1<<IRQ selected during probe; used to mask/unmask master PIC port 21h.
+; END CONTRACT
+DspPicIrqMask equ SOUND_BASE+0488h
+; CONTRACT (tools/apply.py)
+; Offset word of saved DOS IRQ vector; LDS at shutdown uses it with following segment word.
+; END CONTRACT
+PreviousDspVectorOffset equ SOUND_BASE+0489h
+; CONTRACT (tools/apply.py)
+; Segment word of saved DOS IRQ vector returned by INT 21h AH=35h.
+; END CONTRACT
+PreviousDspVectorSegment equ SOUND_BASE+048Bh
+; CONTRACT (tools/apply.py)
+; Byte set to 1 by temporary IRQ probe handler; polled with LOOP(E) during DMA probe.
+; END CONTRACT
+DspProbeIrqSeen equ SOUND_BASE+0495h
+; CONTRACT (tools/apply.py)
+; Byte bit 0 prevents reentry into the DMA interrupt mixer; set and cleared around handler work.
+; END CONTRACT
+DspIrqBusy equ SOUND_BASE+0496h
+; CONTRACT (tools/apply.py)
+; Byte toggled with XOR 1 when a queued block is started; selects alternate 040Ah-stride header.
+; END CONTRACT
+DmaMixBufferSelect equ SOUND_BASE+0499h
+; CONTRACT (tools/apply.py)
+; Word queued count for first buffer header; values below 28h mask IRQ instead of playing.
+; END CONTRACT
+DmaMixBufferOneCount equ SOUND_BASE+049Bh
+; CONTRACT (tools/apply.py)
+; Physical address page byte for first DMA buffer, derived from loaded CS and selected offset.
+; END CONTRACT
+DmaMixBufferOnePage equ SOUND_BASE+049Dh
+; CONTRACT (tools/apply.py)
+; Word physical offset within DMA page for first mix buffer.
+; END CONTRACT
+DmaMixBufferOneAddress equ SOUND_BASE+049Fh
+; CONTRACT (tools/apply.py)
+; Word CS-relative offset for first mix buffer; normally 04AFh, fallback 0CC3h.
+; END CONTRACT
+DmaMixBufferOneOffset equ SOUND_BASE+04A1h
+; CONTRACT (tools/apply.py)
+; Word queued count for second buffer header, 040Ah after first header.
+; END CONTRACT
+DmaMixBufferTwoCount equ SOUND_BASE+08A5h
+; CONTRACT (tools/apply.py)
+; Physical address page byte for second DMA buffer, computed by 1C74h.
+; END CONTRACT
+DmaMixBufferTwoPage equ SOUND_BASE+08A7h
+; CONTRACT (tools/apply.py)
+; Word physical offset within DMA page for second mix buffer.
+; END CONTRACT
+DmaMixBufferTwoAddress equ SOUND_BASE+08A9h
+; CONTRACT (tools/apply.py)
+; Word CS-relative offset for second mix buffer; normally 08B9h, fallback 0CC3h.
+; END CONTRACT
+DmaMixBufferTwoOffset equ SOUND_BASE+08ABh
+; CONTRACT (tools/apply.py)
+; Word remaining pair count initialized to BX>>1; signed JLE tests after decrement.
+; END CONTRACT
+SampleMixPairsRemaining equ SOUND_BASE+010BBh
+; CONTRACT (tools/apply.py)
+; Far old INT 08h vector saved before temporary calibration handlers are installed.
+; END CONTRACT
+PreviousCalibrationTimerVector equ SOUND_BASE+010BFh
+; CONTRACT (tools/apply.py)
+; High word of old INT 08h vector restored by calibration completion handler.
+; END CONTRACT
+PreviousCalibrationTimerSegment equ SOUND_BASE+010C1h
+; CONTRACT (tools/apply.py)
+; Word signed scaled sum for first output byte of each pair; divided by active voice count.
+; END CONTRACT
+SampleMixFirstSum equ SOUND_BASE+010C3h
+; CONTRACT (tools/apply.py)
+; Word signed scaled sum for second output byte of each pair; divided by active voice count.
+; END CONTRACT
+SampleMixSecondSum equ SOUND_BASE+010C5h
+; CONTRACT (tools/apply.py)
+; Word CS offset of current 42-byte record: 020Ch main or 0164h..01E2h effects.
+; END CONTRACT
+CurrentAdlxRecordOffset equ SOUND_BASE+010E3h
+; CONTRACT (tools/apply.py)
+; Nine byte operator-index offsets: 0,1,2,8,9,0Ah,10h,11h,12h for OPL melodic channels.
+; END CONTRACT
+AdlibOperatorOffsets equ SOUND_BASE+010E9h
+; CONTRACT (tools/apply.py)
+; Word slot handle returned by TIMER:01AAh; used by 6n period events and shutdown.
+; END CONTRACT
+AdlxPlaybackTimerHandle equ SOUND_BASE+01116h
+; CONTRACT (tools/apply.py)
+; Word timer slot handle for 12E5h fade callback; read when canceling scheduled fade.
+; END CONTRACT
+MusicFadeTimerHandle equ SOUND_BASE+01118h
+; CONTRACT (tools/apply.py)
+; Byte set before OPL probe; not cleared on failure, so subsequent init returns success.
+; END CONTRACT
+AdlibInitAttempted equ SOUND_BASE+0111Ah
+; CONTRACT (tools/apply.py)
+; Word interrupted CX saved by second calibration IRQ0 handler; no resolved consumer.
+; END CONTRACT
+CalibrationLoopRemainder equ SOUND_BASE+0111Bh
+; CONTRACT (tools/apply.py)
+; Word interrupted DX from calibration; delay helper multiplies only its low byte by AL.
+; END CONTRACT
+SoundIoDelayMultiplier equ SOUND_BASE+0111Dh
+; CONTRACT (tools/apply.py)
+; EQU address view of 16 near handler offsets indexed by opcode high nibble.
+; END CONTRACT
+MainAdlxDispatchTable equ SOUND_BASE+0173Fh
+; CONTRACT (tools/apply.py)
+; EQU address view of 16 near handler offsets for effect ADLX bytecode.
+; END CONTRACT
+EffectAdlxDispatchTable equ SOUND_BASE+0190Dh
+; CONTRACT (tools/apply.py)
+; EQU view of four candidate IRQ bytes 7,5,3,2, indexed by DSP base/IRQ probe.
+; END CONTRACT
+DspProbeIrqOrder equ SOUND_BASE+0204Ch
 byte_data_000C:
     db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 000C..001C
     db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 001C..002C
@@ -462,10 +693,8 @@ byte_data_000C:
     db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 110C..111C
     db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 111C..112B
 ; CONTRACT (tools/apply.py)
-; Zero the 0488h-byte sound-state interval at CS:000Ch through CS:0493h inclusive.
-; In: no arguments.
-; Out: AX=0, CX=0, DF=0; ES and DI preserved. No hardware or DOS calls.
-; Quirk: REP STOSB clears exactly this interval; the remaining resident buffers survive.
+; Zero the 0488h-byte sound-state interval CS:000Ch..0493h inclusive.
+; Out: AX=CX=0, DF=0; ES and DI preserved; resident buffers after 0493h survive.
 ; END CONTRACT
 ClearSoundState:
     push es ; @112B
@@ -480,7 +709,13 @@ ClearSoundState:
     pop di ; @113C
     pop es ; @113D
     retf ; @113E
-loc_113F:
+; CONTRACT (tools/apply.py)
+; Measure busy-loop progress between two IRQ0 ticks using temporary INT 08h handlers.
+; Out: saves CX and DX measurements at CS:1127h/1129h; restores the old vector.
+; Preserves AX/BX/CX/DX/DS/ES on normal return; requires timer interrupts to arrive.
+; Quirk: both handlers call DOS AH=25h in interrupt context and change live AX/CX.
+; END CONTRACT
+CalibrateSoundDelay:
     push ax ; @113F
     push bx ; @1140
     push cx ; @1141
@@ -489,11 +724,11 @@ loc_113F:
     push es ; @1144
     mov ax, 03508h ; @1145
     int 021h ; @1148
-    mov word ptr cs:[byte_10CB], bx ; @114A
-    mov word ptr cs:[byte_10CD], es ; @114F
+    mov word ptr cs:[PreviousCalibrationTimerVector], bx ; @114A
+    mov word ptr cs:[PreviousCalibrationTimerSegment], es ; @114F
     mov ax, seg SOUNDSEG ; @1154
     mov ds, ax ; @1157
-    mov dx, offset loc_1179 ; @1159
+    mov dx, offset BeginSoundDelayMeasurement ; @1159
     mov ax, 02508h ; @115C
     int 021h ; @115F
     xor ax, ax ; @1161
@@ -514,14 +749,19 @@ loc_116B:
     pop bx ; @1176
     pop ax ; @1177
     retf ; @1178
-loc_1179:
+; CONTRACT (tools/apply.py)
+; First temporary IRQ0 handler: acknowledge PIC and install the second handler.
+; Out: live AH=1, AL=0 starts the waiting calibration loop; returns with IRET.
+; Preserves DS/DX; does not chain the old handler; invokes DOS AH=25h inside IRQ0.
+; END CONTRACT
+BeginSoundDelayMeasurement:
     push dx ; @1179
     push ds ; @117A
     mov al, 020h ; @117B
     out 020h, al ; @117D
     mov ax, seg SOUNDSEG ; @117F
     mov ds, ax ; @1182
-    mov dx, offset loc_1193 ; @1184
+    mov dx, offset FinishSoundDelayMeasurement ; @1184
     mov ax, 02508h ; @1187
     int 021h ; @118A
     pop ds ; @118C
@@ -529,60 +769,85 @@ loc_1179:
     mov ah, 1 ; @118E
     xor al, al ; @1190
     iret ; @1192
-loc_1193:
+; CONTRACT (tools/apply.py)
+; Second temporary IRQ0 handler: acknowledge PIC, restore the saved INT 08h vector.
+; Out: CS:1127h=CX, CS:1129h=interrupted DX; live CX=1, AL=1; IRET.
+; Preserves DS/DX; DOS AH=25h runs in interrupt context; the calibration loop resumes.
+; END CONTRACT
+FinishSoundDelayMeasurement:
     push ds ; @1193
     push dx ; @1194
     mov al, 020h ; @1195
     out 020h, al ; @1197
-    lds dx, dword ptr cs:[byte_10CB] ; @1199
+    lds dx, dword ptr cs:[PreviousCalibrationTimerVector] ; @1199
     mov ax, 02508h ; @119E
     int 021h ; @11A1
-    mov word ptr cs:[byte_1127], cx ; @11A3
+    mov word ptr cs:[CalibrationLoopRemainder], cx ; @11A3
     pop dx ; @11A8
-    mov word ptr cs:[byte_1129], dx ; @11A9
+    mov word ptr cs:[SoundIoDelayMultiplier], dx ; @11A9
     mov cx, 1 ; @11AE
     mov al, 1 ; @11B1
     pop ds ; @11B3
     iret ; @11B4
-loc_11B5:
+; CONTRACT (tools/apply.py)
+; Busy-wait using AL times the low byte of the measured calibration word at CS:1129h.
+; Preserves AX/CX. LOOP executes at least once; a zero product means 65536 iterations.
+; END CONTRACT
+DelaySoundIo:
     push ax ; @11B5
     push cx ; @11B6
-    mul byte ptr cs:[byte_1129] ; @11B7
+    mul byte ptr cs:[SoundIoDelayMultiplier] ; @11B7
     mov cx, ax ; @11BC
 loc_11BE:
     loop loc_11BE ; @11BE
     pop cx ; @11C0
     pop ax ; @11C1
     retf ; @11C2
-loc_11C3:
-    inc word ptr cs:[byte_023A] ; @11C3
+; CONTRACT (tools/apply.py)
+; Advance the 32-bit sound clock, then attempt dispatch under the already-set guard.
+; Quirk: if initially unguarded, 1939h increments the clock a second time but skips
+; playback because this routine sets CS:0236h first. No identified caller (pattern seed).
+; END CONTRACT
+AdvanceGuardedSoundClock:
+    inc word ptr cs:[AdlxTickCount] ; @11C3
     jne loc_11D2 ; @11C8
-    inc word ptr cs:[byte_023C] ; @11CD
+    inc word ptr cs:[AdlxTickHighWord] ; @11CD
 loc_11D2:
-    test word ptr cs:[byte_0236], 1 ; @11D2
+    test word ptr cs:[AdlxPlaybackGuard], 1 ; @11D2
     jne loc_11F1 ; @11D9
-    mov word ptr cs:[byte_0236], 1 ; @11DE
-    call far ptr loc_1939 ; @11E5 same-segment far call
-    mov word ptr cs:[byte_0236], 0 ; @11EA
+    mov word ptr cs:[AdlxPlaybackGuard], 1 ; @11DE
+    call far ptr TickAdlxPlayback ; @11E5 same-segment far call
+    mov word ptr cs:[AdlxPlaybackGuard], 0 ; @11EA
 loc_11F1:
     retf ; @11F1
-loc_11F2:
+; CONTRACT (tools/apply.py)
+; Write OPL register BH with BL through ports 0388h/0389h, with calibrated delays.
+; Preserves AX/DX and delay helper CX; reads the calibration byte at CS:1129h.
+; END CONTRACT
+WriteAdlibRegister:
     push dx ; @11F2
     push ax ; @11F3
     mov dx, 0388h ; @11F4
     mov al, bh ; @11F7
     out dx, al ; @11F9
     mov ax, 1 ; @11FA
-    call far ptr loc_11B5 ; @11FD same-segment far call
+    call far ptr DelaySoundIo ; @11FD same-segment far call
     mov dx, 0389h ; @1201
     mov al, bl ; @1204
     out dx, al ; @1206
     mov ax, 4 ; @1207
-    call far ptr loc_11B5 ; @120A same-segment far call
+    call far ptr DelaySoundIo ; @120A same-segment far call
     pop ax ; @120E
     pop dx ; @120F
     retf ; @1210
-loc_1211:
+; CONTRACT (tools/apply.py)
+; Scale saved OPL total levels by channel and requested volume; write operator levels.
+; In: far cdecl words channel [BP+6] (low byte), volume [BP+8] (low byte); channel<9.
+; Out: updates the live or displaced 20-byte channel record; preserves AX/BX/CX/DX/SI.
+; Quirk: displaced routing requires active music, current channel>=12 and reservations;
+; live arithmetic keeps high bytes of successive unsigned 8-bit products, without clipping.
+; END CONTRACT
+SetAdlibChannelVolume:
     enter 0, 0 ; @1211
     push si ; @1215
     push ax ; @1216
@@ -597,17 +862,17 @@ loc_1228:
     mov ax, 014h ; @1228
     mul bl ; @122B
     mov si, ax ; @122D
-    test word ptr cs:[byte_0256], 1 ; @122F
+    test word ptr cs:[MainAdlxPlaying], 1 ; @122F
     je loc_126D ; @1236
-    cmp word ptr cs:[byte_0274], 0Ch ; @123B
+    cmp word ptr cs:[CurrentAdlxSlot], 0Ch ; @123B
     jb loc_126D ; @1241
-    test word ptr cs:[byte_026C], 0Fh ; @1246
+    test word ptr cs:[ReservedAdlibChannelCount], 0Fh ; @1246
     je loc_126D ; @124D
     mov ax, 9 ; @1252
-    sub al, byte ptr cs:[byte_026C] ; @1255
+    sub al, byte ptr cs:[ReservedAdlibChannelCount] ; @1255
     cmp bl, al ; @125A
     jb loc_126D ; @125C
-    mov byte ptr cs:[si + byte_0338], dl ; @1261
+    mov byte ptr cs:[si + DisplacedAdlibVolume], dl ; @1261
     pop dx ; @1266
     pop cx ; @1267
     pop bx ; @1268
@@ -616,11 +881,11 @@ loc_1228:
     leave ; @126B
     retf ; @126C
 loc_126D:
-    mov byte ptr cs:[si + byte_0284], dl ; @126D
-    mov cl, byte ptr cs:[si + byte_0286] ; @1272
+    mov byte ptr cs:[si + AdlibChannelVolume], dl ; @126D
+    mov cl, byte ptr cs:[si + AdlibChannelGain] ; @1272
     xor bh, bh ; @1277
-    mov ch, byte ptr cs:[bx + byte_10F5] ; @1279
-    mov al, byte ptr cs:[si + byte_027E] ; @127E
+    mov ch, byte ptr cs:[bx + AdlibOperatorOffsets] ; @1279
+    mov al, byte ptr cs:[si + AdlibCarrierLevel] ; @127E
     mov dh, al ; @1283
     and dh, 0C0h ; @1285
     and al, 03Fh ; @1288
@@ -636,10 +901,10 @@ loc_126D:
     mov bh, ch ; @129D
     add bh, 043h ; @129F
     mov bl, al ; @12A2
-    call far ptr loc_11F2 ; @12A4 same-segment far call
-    test word ptr cs:[si + byte_0282], 1 ; @12A8
+    call far ptr WriteAdlibRegister ; @12A4 same-segment far call
+    test word ptr cs:[si + AdlibConnectionFlags], 1 ; @12A8
     je loc_12DE ; @12AF
-    mov al, byte ptr cs:[si + byte_0279] ; @12B4
+    mov al, byte ptr cs:[si + AdlibModulatorLevel] ; @12B4
     mov dh, al ; @12B9
     and dh, 0C0h ; @12BB
     and al, 03Fh ; @12BE
@@ -655,7 +920,7 @@ loc_126D:
     mov bh, ch ; @12D3
     add bh, 040h ; @12D5
     mov bl, al ; @12D8
-    call far ptr loc_11F2 ; @12DA same-segment far call
+    call far ptr WriteAdlibRegister ; @12DA same-segment far call
 loc_12DE:
     pop dx ; @12DE
     pop cx ; @12DF
@@ -664,27 +929,33 @@ loc_12DE:
     pop si ; @12E2
     leave ; @12E3
     retf ; @12E4
-loc_12E5:
+; CONTRACT (tools/apply.py)
+; Timer callback: advance fade step and apply signed linear interpolation via C:1128h.
+; In: CS:0246h step, 0248h duration, 024Ah start, 024Ch target; duration must be nonzero.
+; Out: cancels its callback only when incremented step is unsigned-above duration.
+; Preserves AX/BX/CX/DX; cancellation changes DS through TIMER:021Bh.
+; END CONTRACT
+AdvanceMusicFade:
     push ax ; @12E5
     push bx ; @12E6
     push cx ; @12E7
     push dx ; @12E8
-    mov dx, word ptr cs:[byte_0246] ; @12E9
+    mov dx, word ptr cs:[MusicFadeStep] ; @12E9
     inc dx ; @12EE
-    mov word ptr cs:[byte_0246], dx ; @12EF
-    mov bx, word ptr cs:[byte_0248] ; @12F4
+    mov word ptr cs:[MusicFadeStep], dx ; @12EF
+    mov bx, word ptr cs:[MusicFadeDuration] ; @12F4
     cmp dx, bx ; @12F9
 loc_12FB:
     ja loc_131F ; @12FB
-    mov cx, word ptr cs:[byte_024A] ; @1300
-    mov ax, word ptr cs:[byte_024C] ; @1305
+    mov cx, word ptr cs:[MusicFadeStartVolume] ; @1300
+    mov ax, word ptr cs:[MusicFadeTargetVolume] ; @1305
     sub ax, cx ; @1309
     imul dx ; @130B
     idiv bx ; @130D
     add ax, cx ; @130F
     push ax ; @1311
 loc_1312:
-    call far ptr _fn_1128 ; @1312
+    call far ptr _SetMusicTrackVolume ; @1312
     add sp, 2 ; @1317
 loc_131A:
     pop dx ; @131A
@@ -693,34 +964,49 @@ loc_131A:
     pop ax ; @131D
     retf ; @131E
 loc_131F:
-    mov ax, word ptr cs:[byte_1124] ; @131F
-    call far ptr _fn_0A32_021B ; @1323
-    mov word ptr cs:[byte_0258], 0 ; @1328
+    mov ax, word ptr cs:[MusicFadeTimerHandle] ; @131F
+    call far ptr _RemoveTimerCallback ; @1323
+    mov word ptr cs:[MusicFadeScheduled], 0 ; @1328
     jmp short loc_131A ; @132F
-loc_1331:
-    test word ptr cs:[byte_0258], 1 ; @1331
+; CONTRACT (tools/apply.py)
+; Cancel the fade timer slot if CS:0258h bit 0 is set, then clear that word.
+; In: callback handle CS:1124h; TIMER:021Bh changes DS and other registers.
+; END CONTRACT
+CancelMusicFade:
+    test word ptr cs:[MusicFadeScheduled], 1 ; @1331
     je loc_134D ; @1338
-    mov ax, word ptr cs:[byte_1124] ; @133D
-    call far ptr _fn_0A32_021B ; @1341
-    mov word ptr cs:[byte_0258], 0 ; @1346
+    mov ax, word ptr cs:[MusicFadeTimerHandle] ; @133D
+    call far ptr _RemoveTimerCallback ; @1341
+    mov word ptr cs:[MusicFadeScheduled], 0 ; @1346
 loc_134D:
     retf ; @134D
-loc_134E:
-    test word ptr cs:[byte_0258], 1 ; @134E
+; CONTRACT (tools/apply.py)
+; Register 12E5h at timer period CX:BX=0001:D1EBh unless fade bit 0 is already set.
+; Out: saves returned timer handle in CS:1124h and sets CS:0258h=1.
+; END CONTRACT
+ScheduleMusicFade:
+    test word ptr cs:[MusicFadeScheduled], 1 ; @134E
 loc_1355:
     jne loc_1376 ; @1355
     mov bx, 0D1EBh ; @135A
     mov cx, 1 ; @135D
-    mov ax, offset loc_12E5 ; @1360
+    mov ax, offset AdvanceMusicFade ; @1360
 loc_1363:
     mov dx, seg SOUNDSEG ; @1363
 loc_1366:
-    call far ptr _fn_0A32_01AA ; @1366
-    mov word ptr cs:[byte_1124], ax ; @136B
-    mov word ptr cs:[byte_0258], 1 ; @136F
+    call far ptr _RegisterTimerCallback ; @1366
+    mov word ptr cs:[MusicFadeTimerHandle], ax ; @136B
+    mov word ptr cs:[MusicFadeScheduled], 1 ; @136F
 loc_1376:
     retf ; @1376
-loc_1377:
+; CONTRACT (tools/apply.py)
+; Copy instrument state and write modulator/carrier and feedback OPL registers.
+; In: far cdecl channel word [BP+6] low byte, far pointer [BP+8]; channel<9.
+; Out: copies 12 bytes into the live/displaced 20-byte record; leaves DF clear.
+; Quirk: event payloads are 11 bytes but this routine copies 12; displaced routing
+; requires current channel exactly 12. Hardware path reapplies saved channel volume.
+; END CONTRACT
+LoadAdlibInstrument:
     enter 0, 0 ; @1377
     push es ; @137B
     push ds ; @137C
@@ -739,12 +1025,12 @@ loc_138E:
     mov ax, 014h ; @1395
     mul cl ; @1398
     mov di, ax ; @139A
-    cmp word ptr cs:[byte_0274], 0Ch ; @139C
+    cmp word ptr cs:[CurrentAdlxSlot], 0Ch ; @139C
     jne loc_13D3 ; @13A2
-    test word ptr cs:[byte_026C], 0Fh ; @13A7
+    test word ptr cs:[ReservedAdlibChannelCount], 0Fh ; @13A7
     je loc_13D3 ; @13AE
     mov al, 9 ; @13B3
-    sub al, byte ptr cs:[byte_026C] ; @13B5
+    sub al, byte ptr cs:[ReservedAdlibChannelCount] ; @13B5
     cmp cl, al ; @13BA
     jb loc_13D3 ; @13BC
     add di, word ptr 032Ch ; @13C1
@@ -769,12 +1055,12 @@ loc_13D3:
     mov cl, al ; @13E2
     xor ah, ah ; @13E4
     mov bx, ax ; @13E6
-    mov ch, byte ptr cs:[bx + byte_10F5] ; @13E8
+    mov ch, byte ptr cs:[bx + AdlibOperatorOffsets] ; @13E8
     mov bl, byte ptr [si] ; @13ED
     inc si ; @13EF
     mov bh, ch ; @13F0
     add bh, 020h ; @13F2
-    call far ptr loc_11F2 ; @13F5 same-segment far call
+    call far ptr WriteAdlibRegister ; @13F5 same-segment far call
     mov bl, byte ptr [si] ; @13F9
     inc si ; @13FB
     mov bh, ch ; @13FC
@@ -783,64 +1069,64 @@ loc_13D3:
     je loc_140D ; @1405
     or bl, 03Fh ; @140A
 loc_140D:
-    call far ptr loc_11F2 ; @140D same-segment far call
+    call far ptr WriteAdlibRegister ; @140D same-segment far call
     mov bl, byte ptr [si] ; @1411
     inc si ; @1413
     mov bh, ch ; @1414
     add bh, 060h ; @1416
-    call far ptr loc_11F2 ; @1419 same-segment far call
+    call far ptr WriteAdlibRegister ; @1419 same-segment far call
     mov bl, byte ptr [si] ; @141D
     inc si ; @141F
     mov bh, ch ; @1420
     add bh, 080h ; @1422
-    call far ptr loc_11F2 ; @1425 same-segment far call
+    call far ptr WriteAdlibRegister ; @1425 same-segment far call
     mov bl, byte ptr [si] ; @1429
     inc si ; @142B
     mov bh, ch ; @142C
     add bh, 0E0h ; @142E
-    call far ptr loc_11F2 ; @1431 same-segment far call
+    call far ptr WriteAdlibRegister ; @1431 same-segment far call
     add ch, 3 ; @1435
     mov bl, byte ptr [si] ; @1438
     inc si ; @143A
     mov bh, ch ; @143B
     add bh, 020h ; @143D
-    call far ptr loc_11F2 ; @1440 same-segment far call
+    call far ptr WriteAdlibRegister ; @1440 same-segment far call
     mov bl, byte ptr [si] ; @1444
     inc si ; @1446
     mov bh, ch ; @1447
     add bh, 040h ; @1449
     or bl, 03Fh ; @144C
-    call far ptr loc_11F2 ; @144F same-segment far call
+    call far ptr WriteAdlibRegister ; @144F same-segment far call
     mov bl, byte ptr [si] ; @1453
     inc si ; @1455
     mov bh, ch ; @1456
     add bh, 060h ; @1458
-    call far ptr loc_11F2 ; @145B same-segment far call
+    call far ptr WriteAdlibRegister ; @145B same-segment far call
     mov bl, byte ptr [si] ; @145F
     inc si ; @1461
     mov bh, ch ; @1462
     add bh, 080h ; @1464
-    call far ptr loc_11F2 ; @1467 same-segment far call
+    call far ptr WriteAdlibRegister ; @1467 same-segment far call
     mov bx, 0120h ; @146B
-    call far ptr loc_11F2 ; @146E same-segment far call
+    call far ptr WriteAdlibRegister ; @146E same-segment far call
     mov bl, byte ptr [si] ; @1472
     inc si ; @1474
     mov bh, ch ; @1475
     add bh, 0E0h ; @1477
-    call far ptr loc_11F2 ; @147A same-segment far call
+    call far ptr WriteAdlibRegister ; @147A same-segment far call
     mov bl, byte ptr [si] ; @147E
     inc si ; @1480
     mov bh, cl ; @1481
     add bh, 0C0h ; @1483
-    call far ptr loc_11F2 ; @1486 same-segment far call
+    call far ptr WriteAdlibRegister ; @1486 same-segment far call
     mov ax, 014h ; @148A
     mul cl ; @148D
     mov bx, ax ; @148F
-    mov ax, word ptr cs:[byte_0274] ; @1491
-    mov word ptr cs:[bx + byte_0288], ax ; @1495
-    push word ptr cs:[bx + byte_0284] ; @149A
+    mov ax, word ptr cs:[CurrentAdlxSlot] ; @1491
+    mov word ptr cs:[bx + AdlibChannelOwnerSlot], ax ; @1495
+    push word ptr cs:[bx + AdlibChannelVolume] ; @149A
     push word ptr [bp + 6] ; @149F
-    call far ptr loc_1211 ; @14A2 same-segment far call
+    call far ptr SetAdlibChannelVolume ; @14A2 same-segment far call
     add sp, 4 ; @14A6
 loc_14A9:
     pop dx ; @14A9
@@ -851,7 +1137,11 @@ loc_14A9:
     pop es ; @14AE
     leave ; @14AF
     retf ; @14B0
-loc_14B1:
+; CONTRACT (tools/apply.py)
+; Clear bit 5 of saved OPL B0 control byte and write it through ports 0388h/0389h.
+; In: far cdecl word channel [BP+6], low byte<9; preserves AX/BX/DX.
+; END CONTRACT
+KeyOffAdlibChannel:
     enter 0, 0 ; @14B1
     push ax ; @14B5
     push bx ; @14B6
@@ -864,9 +1154,9 @@ loc_14B1:
     mov ax, 014h ; @14C6
     mul bl ; @14C9
     mov bx, ax ; @14CB
-    mov dl, byte ptr cs:[bx + byte_028B] ; @14CD
+    mov dl, byte ptr cs:[bx + AdlibKeyControlByte] ; @14CD
     and dl, 0DFh ; @14D2
-    mov byte ptr cs:[bx + byte_028B], dl ; @14D5
+    mov byte ptr cs:[bx + AdlibKeyControlByte], dl ; @14D5
     pop ax ; @14DA
     mov bh, ah ; @14DB
     add bh, 0B0h ; @14DD
@@ -876,19 +1166,25 @@ loc_14B1:
     out dx, al ; @14E7
     mov bh, ah ; @14E8
     mov ax, 1 ; @14EA
-    call far ptr loc_11B5 ; @14ED same-segment far call
+    call far ptr DelaySoundIo ; @14ED same-segment far call
     mov dx, 0389h ; @14F1
     mov al, bh ; @14F4
     out dx, al ; @14F6
     mov ax, 2 ; @14F7
-    call far ptr loc_11B5 ; @14FA same-segment far call
+    call far ptr DelaySoundIo ; @14FA same-segment far call
 loc_14FE:
     pop dx ; @14FE
     pop bx ; @14FF
     pop ax ; @1500
     leave ; @1501
     retf ; @1502
-loc_1503:
+; CONTRACT (tools/apply.py)
+; Save and write packed OPL A0/B0 frequency, block and key-on bits for a channel.
+; In: far cdecl words channel [BP+6] low byte<9, packed value [BP+8].
+; Preserves AX/BX/CX/DX; valid-channel path executes CLI then unconditional STI,
+; so callers entering with IF=0 leave with interrupts enabled.
+; END CONTRACT
+SetAdlibFrequency:
     enter 0, 0 ; @1503
     push ax ; @1507
     push bx ; @1508
@@ -901,7 +1197,7 @@ loc_1503:
     mul cl ; @1519
     mov bx, ax ; @151B
     mov ax, word ptr [bp + 8] ; @151D
-    mov word ptr cs:[bx + byte_028A], ax ; @1520
+    mov word ptr cs:[bx + AdlibPackedFrequency], ax ; @1520
     cli ; @1525
     mov bh, cl ; @1526
     add bh, 0A0h ; @1528
@@ -911,12 +1207,12 @@ loc_1503:
     mov al, bh ; @1531
     out dx, al ; @1533
     mov ax, 1 ; @1534
-    call far ptr loc_11B5 ; @1537 same-segment far call
+    call far ptr DelaySoundIo ; @1537 same-segment far call
     mov dx, 0389h ; @153B
     mov al, bl ; @153E
     out dx, al ; @1540
     mov ax, 3 ; @1541
-    call far ptr loc_11B5 ; @1544 same-segment far call
+    call far ptr DelaySoundIo ; @1544 same-segment far call
     pop ax ; @1548
     mov bl, ah ; @1549
     mov bh, cl ; @154B
@@ -925,13 +1221,13 @@ loc_1503:
     mov al, bh ; @1553
     out dx, al ; @1555
     mov ax, 1 ; @1556
-    call far ptr loc_11B5 ; @1559 same-segment far call
+    call far ptr DelaySoundIo ; @1559 same-segment far call
     mov dx, 0389h ; @155D
     mov al, bl ; @1560
     out dx, al ; @1562
     sti ; @1563
     mov ax, 2 ; @1564
-    call far ptr loc_11B5 ; @1567 same-segment far call
+    call far ptr DelaySoundIo ; @1567 same-segment far call
 loc_156B:
     pop dx ; @156B
     pop cx ; @156C
@@ -939,7 +1235,12 @@ loc_156B:
     pop ax ; @156E
     leave ; @156F
     retf ; @1570
-loc_1571:
+; CONTRACT (tools/apply.py)
+; Set the per-channel gain byte and reapply saved volume, or update displaced gain.
+; In: far cdecl words channel [BP+6] low byte<9, gain [BP+8] low byte.
+; Preserves CX/DX/SI; AX/BX may change. No identified caller except event handlers.
+; END CONTRACT
+SetAdlibChannelGain:
     enter 0, 0 ; @1571
     push cx ; @1575
     push dx ; @1576
@@ -951,15 +1252,15 @@ loc_1571:
     mov ax, 014h ; @1586
     mul cl ; @1589
     mov si, ax ; @158B
-    cmp word ptr cs:[byte_0274], 0Ch ; @158D
+    cmp word ptr cs:[CurrentAdlxSlot], 0Ch ; @158D
     jb loc_15BC ; @1593
-    test word ptr cs:[byte_026C], 0Fh ; @1598
+    test word ptr cs:[ReservedAdlibChannelCount], 0Fh ; @1598
     je loc_15BC ; @159F
     mov bl, 9 ; @15A4
-    sub bl, byte ptr cs:[byte_026C] ; @15A6
+    sub bl, byte ptr cs:[ReservedAdlibChannelCount] ; @15A6
     cmp cl, bl ; @15AB
     jb loc_15BC ; @15AD
-    mov byte ptr cs:[si + byte_033A], dl ; @15B2
+    mov byte ptr cs:[si + DisplacedAdlibGain], dl ; @15B2
 loc_15B7:
     pop si ; @15B7
     pop dx ; @15B8
@@ -967,38 +1268,52 @@ loc_15B7:
     leave ; @15BA
     retf ; @15BB
 loc_15BC:
-    mov byte ptr cs:[si + byte_0286], dl ; @15BC
-    push word ptr cs:[si + byte_0284] ; @15C1
+    mov byte ptr cs:[si + AdlibChannelGain], dl ; @15BC
+    push word ptr cs:[si + AdlibChannelVolume] ; @15C1
     push cx ; @15C6
-    call far ptr loc_1211 ; @15C7 same-segment far call
+    call far ptr SetAdlibChannelVolume ; @15C7 same-segment far call
     add sp, 4 ; @15CB
     pop si ; @15CE
     pop dx ; @15CF
     pop cx ; @15D0
     leave ; @15D1
     retf ; @15D2
-loc_15D3:
+; CONTRACT (tools/apply.py)
+; Fetch ADLX bytes at ES:DI and tail-dispatch on the high nibble through CS:174Bh.
+; In: main-track state and reserved AdLib channels; no bounds checks.
+; Out: wait/end handlers RETF to this interpreter caller; other handlers tail-loop.
+; END CONTRACT
+RunMainAdlxEvents:
     mov al, byte ptr es:[di] ; @15D3
     inc di ; @15D6
     xor ah, ah ; @15D7
     mov bx, ax ; @15D9
     shr bx, 3 ; @15DB
     and bx, 0FFFEh ; @15DE
-    add bx, offset byte_174B ; @15E1
+    add bx, offset MainAdlxDispatchTable ; @15E1
     jmp word ptr cs:[bx] ; @15E5
-loc_15E8:
+; CONTRACT (tools/apply.py)
+; Main ADLX 0n: consume one byte, add (((n<<8)|byte)<<7) modulo 65536 to deadline.
+; Out: carry extends the wrapped delta into CS:022Ch; saves DI at CS:021Ch; RETF.
+; Preserves DX; uses the dispatch caller far return frame, not a new handler frame.
+; END CONTRACT
+HandleMainAdlxLongWait:
     push dx ; @15E8
     mov dl, byte ptr es:[di] ; @15E9
     inc di ; @15EC
     mov dh, al ; @15ED
     and dh, 0Fh ; @15EF
     shl dx, 7 ; @15F2
-    add word ptr cs:[byte_022A], dx ; @15F5
-    adc word ptr cs:[byte_022C], 0 ; @15FA
-    mov word ptr cs:[byte_021C], di ; @1600
+    add word ptr cs:[MainAdlxDeadlineLow], dx ; @15F5
+    adc word ptr cs:[MainAdlxDeadlineHigh], 0 ; @15FA
+    mov word ptr cs:[MainAdlxCursor], di ; @1600
     pop dx ; @1605
     retf ; @1606
-loc_1607:
+; CONTRACT (tools/apply.py)
+; Main ADLX 1n: consume LE16 frequency only for n<9; apply or save displaced value.
+; Out: tail-dispatch next event; invalid n consumes no payload (original behavior).
+; END CONTRACT
+HandleMainAdlxFrequency:
     and al, 0Fh ; @1607
     cmp al, 9 ; @1609
     jae loc_1639 ; @160B
@@ -1009,87 +1324,112 @@ loc_1607:
     mov ax, word ptr es:[di] ; @1615
     add di, 2 ; @1618
     mov bl, 9 ; @161B
-    sub bl, byte ptr cs:[byte_026C] ; @161D
+    sub bl, byte ptr cs:[ReservedAdlibChannelCount] ; @161D
     cmp cl, bl ; @1622
     jb loc_163B ; @1624
     push ax ; @1629
     mov ax, 014h ; @162A
     mul cl ; @162D
     mov bx, ax ; @162F
-    pop word ptr cs:[bx + byte_033E] ; @1631
+    pop word ptr cs:[bx + DisplacedAdlibFrequency] ; @1631
     pop si ; @1636
     pop cx ; @1637
     pop dx ; @1638
 loc_1639:
-    jmp short loc_15D3 ; @1639
+    jmp short RunMainAdlxEvents ; @1639
 loc_163B:
     push ax ; @163B
     push cx ; @163C
-    call far ptr loc_1503 ; @163D same-segment far call
+    call far ptr SetAdlibFrequency ; @163D same-segment far call
     add sp, 4 ; @1641
     pop si ; @1644
     pop cx ; @1645
     pop dx ; @1646
-    jmp short loc_15D3 ; @1647
-loc_1649:
+    jmp short RunMainAdlxEvents ; @1647
+; CONTRACT (tools/apply.py)
+; Main ADLX 2n: key off n<9, or clear bit 5 in its displaced saved frequency.
+; Out: tail-dispatch next event; invalid n has no channel effect.
+; END CONTRACT
+HandleMainAdlxKeyOff:
     and al, 0Fh ; @1649
     cmp al, 9 ; @164B
     jae loc_166F ; @164D
     mov bl, 9 ; @1652
-    sub bl, byte ptr cs:[byte_026C] ; @1654
+    sub bl, byte ptr cs:[ReservedAdlibChannelCount] ; @1654
     cmp al, bl ; @1659
     jb loc_1672 ; @165B
     mov bl, al ; @1660
     mov ax, 014h ; @1662
     mul bl ; @1665
     mov bx, ax ; @1667
-    and word ptr cs:[bx + byte_033E], 0FFDFh ; @1669
+    and word ptr cs:[bx + DisplacedAdlibFrequency], 0FFDFh ; @1669
 loc_166F:
-    jmp near ptr loc_15D3 ; @166F
+    jmp near ptr RunMainAdlxEvents ; @166F
 loc_1672:
     push ax ; @1672
-    call far ptr loc_14B1 ; @1673 same-segment far call
+    call far ptr KeyOffAdlibChannel ; @1673 same-segment far call
     add sp, 2 ; @1677
-    jmp near ptr loc_15D3 ; @167A
-loc_167D:
+    jmp near ptr RunMainAdlxEvents ; @167A
+; CONTRACT (tools/apply.py)
+; Main ADLX 3n: apply one-byte channel gain through 1571h when n<9.
+; Out: always advances DI by one payload byte, then tail-dispatches.
+; END CONTRACT
+HandleMainAdlxGain:
     and al, 0Fh ; @167D
     cmp al, 9 ; @167F
     jae loc_1692 ; @1681
     mov bl, byte ptr es:[di] ; @1686
     push bx ; @1689
     push ax ; @168A
-    call far ptr loc_1571 ; @168B same-segment far call
+    call far ptr SetAdlibChannelGain ; @168B same-segment far call
     add sp, 4 ; @168F
 loc_1692:
     inc di ; @1692
-    jmp near ptr loc_15D3 ; @1693
-loc_1696:
+    jmp near ptr RunMainAdlxEvents ; @1693
+; CONTRACT (tools/apply.py)
+; Main ADLX 4n: load instrument at ES:DI for n<9, then advance DI by 11 bytes.
+; Quirk: invalid n consumes no payload; 1377h copies 12 bytes; tail-dispatches.
+; END CONTRACT
+HandleMainAdlxInstrument:
     and al, 0Fh ; @1696
     cmp al, 9 ; @1698
     jae loc_16AC ; @169A
     push es ; @169F
     push di ; @16A0
     push ax ; @16A1
-    call far ptr loc_1377 ; @16A2 same-segment far call
+    call far ptr LoadAdlibInstrument ; @16A2 same-segment far call
     add sp, 6 ; @16A6
     add di, 0Bh ; @16A9
 loc_16AC:
-    jmp near ptr loc_15D3 ; @16AC
-loc_16AF:
-    jmp near ptr loc_15D3 ; @16AF
-loc_16B2:
+    jmp near ptr RunMainAdlxEvents ; @16AC
+; CONTRACT (tools/apply.py)
+; Main ADLX 5n: ignore the opcode and tail-dispatch without consuming payload.
+; END CONTRACT
+HandleMainAdlxNoOp:
+    jmp near ptr RunMainAdlxEvents ; @16AF
+; CONTRACT (tools/apply.py)
+; Main ADLX 6n: consume BE16 period into CS:000Ch; change timer slot CS:1122h.
+; Out: requests CX:BX=0:period through TIMER:02C1h, then tail-dispatches; preserves CX.
+; END CONTRACT
+HandleMainAdlxTimerPeriod:
     push cx ; @16B2
     mov bx, word ptr es:[di] ; @16B3
     xchg bl, bh ; @16B6
-    mov word ptr cs:[byte_000C], bx ; @16B8
-    mov ax, word ptr cs:[byte_1122] ; @16BD
+    mov word ptr cs:[AdlxTimerPeriod], bx ; @16B8
+    mov ax, word ptr cs:[AdlxPlaybackTimerHandle] ; @16BD
     xor cx, cx ; @16C1
-    call far ptr _fn_0A32_02C1 ; @16C3
+    call far ptr _SetTimerCallbackInterval ; @16C3
     inc di ; @16C8
     inc di ; @16C9
     pop cx ; @16CA
-    jmp near ptr loc_15D3 ; @16CB
-loc_16CE:
+    jmp near ptr RunMainAdlxEvents ; @16CB
+; CONTRACT (tools/apply.py)
+; Main ADLX 7n: 77h ends/repeats; 70h consumes 3 bytes; others skip length+payload.
+; Out: 77h decrements repeats unless flag bit 1; expiration clears active bit only.
+; Repeat restores track pointer and rebases deadline/elapsed origin to sound clock;
+; 77h RETF returns to interpreter caller; extension skips tail-dispatch.
+; END CONTRACT
+HandleMainAdlxControl:
     cmp al, 077h ; @16CE
     je loc_16F1 ; @16D0
     mov ah, byte ptr es:[di] ; @16D5
@@ -1100,69 +1440,85 @@ loc_16CE:
     mov al, ah ; @16E2
     xor ah, ah ; @16E4
     add di, ax ; @16E6
-    jmp near ptr loc_15D3 ; @16E8
+    jmp near ptr RunMainAdlxEvents ; @16E8
 loc_16EB:
     add di, 2 ; @16EB
-    jmp near ptr loc_15D3 ; @16EE
+    jmp near ptr RunMainAdlxEvents ; @16EE
 loc_16F1:
-    test word ptr cs:[byte_0234], 2 ; @16F1
+    test word ptr cs:[MainAdlxFlags], 2 ; @16F1
     jne loc_170E ; @16F8
-    dec word ptr cs:[byte_0210] ; @16FD
+    dec word ptr cs:[MainAdlxRepeatCount] ; @16FD
     jg loc_170E ; @1702
-    and word ptr cs:[byte_0234], 0FFFEh ; @1707
+    and word ptr cs:[MainAdlxFlags], 0FFFEh ; @1707
     retf ; @170D
 loc_170E:
-    mov ax, word ptr cs:[byte_0214] ; @170E
-    mov word ptr cs:[byte_021E], ax ; @1712
-    mov ax, word ptr cs:[byte_0212] ; @1716
-    mov word ptr cs:[byte_021C], ax ; @171A
-    mov ax, word ptr cs:[byte_023A] ; @171E
-    mov word ptr cs:[byte_022A], ax ; @1722
-    mov word ptr cs:[byte_023E], ax ; @1726
-    mov ax, word ptr cs:[byte_023C] ; @172A
-    mov word ptr cs:[byte_022C], ax ; @172E
-    mov word ptr cs:[byte_0240], ax ; @1732
+    mov ax, word ptr cs:[MainAdlxStartSegment] ; @170E
+    mov word ptr cs:[MainAdlxCursorSegment], ax ; @1712
+    mov ax, word ptr cs:[MainAdlxStartPointer] ; @1716
+    mov word ptr cs:[MainAdlxCursor], ax ; @171A
+    mov ax, word ptr cs:[AdlxTickCount] ; @171E
+    mov word ptr cs:[MainAdlxDeadlineLow], ax ; @1722
+    mov word ptr cs:[MainAdlxTimeOrigin], ax ; @1726
+    mov ax, word ptr cs:[AdlxTickHighWord] ; @172A
+    mov word ptr cs:[MainAdlxDeadlineHigh], ax ; @172E
+    mov word ptr cs:[MainAdlxTimeOriginHigh], ax ; @1732
     retf ; @1736
-loc_1737:
+; CONTRACT (tools/apply.py)
+; Main ADLX 80h..FFh: add opcode&7Fh to the 32-bit deadline and save cursor DI.
+; Out: RETF to interpreter caller; uses the existing far return frame.
+; END CONTRACT
+HandleMainAdlxShortWait:
     and ax, word ptr 07Fh ; @1737
-    add word ptr cs:[byte_022A], ax ; @173A
-    adc word ptr cs:[byte_022C], 0 ; @173F
-    mov word ptr cs:[byte_021C], di ; @1745
+    add word ptr cs:[MainAdlxDeadlineLow], ax ; @173A
+    adc word ptr cs:[MainAdlxDeadlineHigh], 0 ; @173F
+    mov word ptr cs:[MainAdlxCursor], di ; @1745
     retf ; @174A
-byte_data_174B:
-    dw offset loc_15E8
-    dw offset loc_1607
-    dw offset loc_1649
-    dw offset loc_167D
-    dw offset loc_1696
-    dw offset loc_16AF
-    dw offset loc_16B2
-    dw offset loc_16CE
-    dw offset loc_1737
-    dw offset loc_1737
-    dw offset loc_1737
-    dw offset loc_1737
-    dw offset loc_1737
-    dw offset loc_1737
-    dw offset loc_1737
-    dw offset loc_1737
-loc_176B:
+; CONTRACT (tools/apply.py)
+; Physical 16-word relocated handler table; MainAdlxDispatchTable is the indexed address view.
+; END CONTRACT
+MainAdlxDispatchStorage:
+    dw offset HandleMainAdlxLongWait
+    dw offset HandleMainAdlxFrequency
+    dw offset HandleMainAdlxKeyOff
+    dw offset HandleMainAdlxGain
+    dw offset HandleMainAdlxInstrument
+    dw offset HandleMainAdlxNoOp
+    dw offset HandleMainAdlxTimerPeriod
+    dw offset HandleMainAdlxControl
+    dw offset HandleMainAdlxShortWait
+    dw offset HandleMainAdlxShortWait
+    dw offset HandleMainAdlxShortWait
+    dw offset HandleMainAdlxShortWait
+    dw offset HandleMainAdlxShortWait
+    dw offset HandleMainAdlxShortWait
+    dw offset HandleMainAdlxShortWait
+    dw offset HandleMainAdlxShortWait
+; CONTRACT (tools/apply.py)
+; Fetch effect ADLX bytes at ES:DI and tail-dispatch through CS:1919h.
+; In: CS:10EFh points to the selected 42-byte effect record; no bounds checks.
+; Out: wait/end handlers RETF to interpreter caller; other handlers tail-loop.
+; END CONTRACT
+RunEffectAdlxEvents:
     mov al, byte ptr es:[di] ; @176B
     inc di ; @176E
     xor ah, ah ; @176F
     mov bx, ax ; @1771
     shr bx, 3 ; @1773
     and bx, 0FFFEh ; @1776
-    add bx, offset byte_1919 ; @1779
+    add bx, offset EffectAdlxDispatchTable ; @1779
     jmp word ptr cs:[bx] ; @177D
-loc_1780:
+; CONTRACT (tools/apply.py)
+; Effect ADLX 0n: consume byte, wrap long-wait delta to 16 bits, multiply by Q8 scale.
+; Out: add product>>8 (24 bits) to record deadline, save DI cursor, RETF; preserves DX.
+; END CONTRACT
+HandleEffectAdlxLongWait:
     push dx ; @1780
     mov dl, byte ptr es:[di] ; @1781
     inc di ; @1784
     mov dh, al ; @1785
     and dh, 0Fh ; @1787
     shl dx, 7 ; @178A
-    mov bx, word ptr cs:[byte_10EF] ; @178D
+    mov bx, word ptr cs:[CurrentAdlxRecordOffset] ; @178D
     mov ax, dx ; @1792
     xor dx, dx ; @1794
     mul word ptr cs:[bx + 026h] ; @1796
@@ -1175,97 +1531,127 @@ loc_1780:
     mov word ptr cs:[bx + 010h], di ; @17AA
     pop dx ; @17AE
     retf ; @17AF
-loc_17B0:
+; CONTRACT (tools/apply.py)
+; Effect ADLX 1n: add record channel base to n with 8-bit wrap; apply LE16 if result<9.
+; Out: advances DI by 2 only on valid channel; tail-dispatches.
+; END CONTRACT
+HandleEffectAdlxFrequency:
     and al, 0Fh ; @17B0
-    mov bx, word ptr cs:[byte_10EF] ; @17B2
+    mov bx, word ptr cs:[CurrentAdlxRecordOffset] ; @17B2
     add al, byte ptr cs:[bx + 024h] ; @17B7
     cmp al, 9 ; @17BB
     jae loc_17D0 ; @17BD
     push word ptr es:[di] ; @17C2
     push ax ; @17C5
-    call far ptr loc_1503 ; @17C6 same-segment far call
+    call far ptr SetAdlibFrequency ; @17C6 same-segment far call
     add sp, 4 ; @17CA
     add di, 2 ; @17CD
 loc_17D0:
-    jmp short loc_176B ; @17D0
-loc_17D2:
+    jmp short RunEffectAdlxEvents ; @17D0
+; CONTRACT (tools/apply.py)
+; Effect ADLX 2n: add record channel base to n with 8-bit wrap; key off if result<9.
+; Out: tail-dispatch next event.
+; END CONTRACT
+HandleEffectAdlxKeyOff:
     and al, 0Fh ; @17D2
-    mov bx, word ptr cs:[byte_10EF] ; @17D4
+    mov bx, word ptr cs:[CurrentAdlxRecordOffset] ; @17D4
     add al, byte ptr cs:[bx + 024h] ; @17D9
     cmp al, 9 ; @17DD
     jae loc_17EC ; @17DF
     push ax ; @17E4
-    call far ptr loc_14B1 ; @17E5 same-segment far call
+    call far ptr KeyOffAdlibChannel ; @17E5 same-segment far call
     add sp, 2 ; @17E9
 loc_17EC:
-    jmp near ptr loc_176B ; @17EC
-loc_17EF:
+    jmp near ptr RunEffectAdlxEvents ; @17EC
+; CONTRACT (tools/apply.py)
+; Effect ADLX 3n: apply gain byte for wrapped base+n<9, then always advance DI by one.
+; Quirk: pushes a word from ES:DI although gain helper uses its low byte; tail-dispatches.
+; END CONTRACT
+HandleEffectAdlxGain:
     and al, 0Fh ; @17EF
-    mov bx, word ptr cs:[byte_10EF] ; @17F1
+    mov bx, word ptr cs:[CurrentAdlxRecordOffset] ; @17F1
     add al, byte ptr cs:[bx + 024h] ; @17F6
     cmp al, 9 ; @17FA
     jae loc_180C ; @17FC
     push word ptr es:[di] ; @1801
     push ax ; @1804
-    call far ptr loc_1571 ; @1805 same-segment far call
+    call far ptr SetAdlibChannelGain ; @1805 same-segment far call
     add sp, 4 ; @1809
 loc_180C:
     inc di ; @180C
-    jmp near ptr loc_176B ; @180D
-loc_1810:
+    jmp near ptr RunEffectAdlxEvents ; @180D
+; CONTRACT (tools/apply.py)
+; Effect ADLX 4n: accept wrapped base+n<=9, stamp owner and call instrument loader.
+; Quirk: channel 9 writes CS:033Ch although loader rejects it; DI still advances 11.
+; Values above 9 skip no payload. Loader copies 12 bytes; tail-dispatches.
+; END CONTRACT
+HandleEffectAdlxInstrument:
     and al, 0Fh ; @1810
-    mov bx, word ptr cs:[byte_10EF] ; @1812
+    mov bx, word ptr cs:[CurrentAdlxRecordOffset] ; @1812
     add al, byte ptr cs:[bx + 024h] ; @1817
     cmp al, 9 ; @181B
     ja loc_1844 ; @181D
     push ax ; @1822
-    push word ptr cs:[byte_0274] ; @1823
+    push word ptr cs:[CurrentAdlxSlot] ; @1823
     mov bl, al ; @1828
     mov ax, 014h ; @182A
     mul bl ; @182D
     mov bx, ax ; @182F
-    pop word ptr cs:[bx + byte_0288] ; @1831
+    pop word ptr cs:[bx + AdlibChannelOwnerSlot] ; @1831
     pop ax ; @1836
     push es ; @1837
     push di ; @1838
     push ax ; @1839
-    call far ptr loc_1377 ; @183A same-segment far call
+    call far ptr LoadAdlibInstrument ; @183A same-segment far call
     add sp, 6 ; @183E
     add di, 0Bh ; @1841
 loc_1844:
-    jmp near ptr loc_176B ; @1844
-loc_1847:
-    jmp near ptr loc_176B ; @1847
-loc_184A:
+    jmp near ptr RunEffectAdlxEvents ; @1844
+; CONTRACT (tools/apply.py)
+; Effect ADLX 5n: ignore opcode and tail-dispatch without consuming payload.
+; END CONTRACT
+HandleEffectAdlxNoOp:
+    jmp near ptr RunEffectAdlxEvents ; @1847
+; CONTRACT (tools/apply.py)
+; Effect ADLX 6n: consume BE16 period. If music inactive and global period zero,
+; set global period and timer slot; otherwise set effect Q8 scale=request/global.
+; Quirk: music active with global period zero divides by zero; preserves CX/DX.
+; END CONTRACT
+HandleEffectAdlxTimerPeriod:
     push cx ; @184A
     push dx ; @184B
-    test word ptr cs:[byte_0256], 1 ; @184C
+    test word ptr cs:[MainAdlxPlaying], 1 ; @184C
     jne loc_187C ; @1853
-    test word ptr cs:[byte_000C], 0FFFFh ; @1858
+    test word ptr cs:[AdlxTimerPeriod], 0FFFFh ; @1858
     jne loc_187C ; @185F
     mov bx, word ptr es:[di] ; @1864
     xchg bl, bh ; @1867
-    mov word ptr cs:[byte_000C], bx ; @1869
-    mov ax, word ptr cs:[byte_1122] ; @186E
+    mov word ptr cs:[AdlxTimerPeriod], bx ; @1869
+    mov ax, word ptr cs:[AdlxPlaybackTimerHandle] ; @186E
     xor cx, cx ; @1872
-    call far ptr _fn_0A32_02C1 ; @1874
+    call far ptr _SetTimerCallbackInterval ; @1874
     jmp loc_1895 ; @1879
 loc_187C:
     xor dx, dx ; @187C
-    mov bx, word ptr cs:[byte_000C] ; @187E
+    mov bx, word ptr cs:[AdlxTimerPeriod] ; @187E
     mov ax, word ptr es:[di] ; @1883
     mov dl, al ; @1886
     xor al, al ; @1888
     div bx ; @188A
-    mov bx, word ptr cs:[byte_10EF] ; @188C
+    mov bx, word ptr cs:[CurrentAdlxRecordOffset] ; @188C
     mov word ptr cs:[bx + 026h], ax ; @1891
 loc_1895:
     inc di ; @1895
     inc di ; @1896
     pop dx ; @1897
     pop cx ; @1898
-    jmp near ptr loc_176B ; @1899
-loc_189C:
+    jmp near ptr RunEffectAdlxEvents ; @1899
+; CONTRACT (tools/apply.py)
+; Effect ADLX 7n: skip extension payloads or handle 77h end/repeat using record flags.
+; Out: expiration calls C:1768h with CS:0274h; repeat resets record far cursor only.
+; 77h RETF returns to interpreter caller; extension skips tail-dispatch.
+; END CONTRACT
+HandleEffectAdlxControl:
     cmp al, 077h ; @189C
     je loc_18BF ; @189E
     mov ah, byte ptr es:[di] ; @18A3
@@ -1276,18 +1662,18 @@ loc_189C:
     mov al, ah ; @18B0
     xor ah, ah ; @18B2
     add di, ax ; @18B4
-    jmp near ptr loc_176B ; @18B6
+    jmp near ptr RunEffectAdlxEvents ; @18B6
 loc_18B9:
     add di, 2 ; @18B9
-    jmp near ptr loc_176B ; @18BC
+    jmp near ptr RunEffectAdlxEvents ; @18BC
 loc_18BF:
-    mov bx, word ptr cs:[byte_10EF] ; @18BF
+    mov bx, word ptr cs:[CurrentAdlxRecordOffset] ; @18BF
     test word ptr cs:[bx + 028h], 2 ; @18C4
     jne loc_18E6 ; @18CA
     dec word ptr cs:[bx + 4] ; @18CF
     jg loc_18E6 ; @18D3
-    push word ptr cs:[byte_0274] ; @18D8
-    call far ptr _fn_1768 ; @18DD
+    push word ptr cs:[CurrentAdlxSlot] ; @18D8
+    call far ptr _StopAdlibTrackChannel ; @18DD
     add sp, 2 ; @18E2
     retf ; @18E5
 loc_18E6:
@@ -1296,11 +1682,15 @@ loc_18E6:
     mov ax, word ptr cs:[bx + 6] ; @18EE
     mov word ptr cs:[bx + 010h], ax ; @18F2
     retf ; @18F6
-loc_18F7:
+; CONTRACT (tools/apply.py)
+; Effect ADLX 80h..FFh: add low 16 bits of ((opcode&7Fh)*Q8scale)>>8 to deadline.
+; Out: saves DI cursor, RETF to interpreter caller; preserves DX; no stream bounds check.
+; END CONTRACT
+HandleEffectAdlxShortWait:
     push dx ; @18F7
     and ax, word ptr 07Fh ; @18F8
     xor dx, dx ; @18FB
-    mov bx, word ptr cs:[byte_10EF] ; @18FD
+    mov bx, word ptr cs:[CurrentAdlxRecordOffset] ; @18FD
     mul word ptr cs:[bx + 026h] ; @1902
     mov al, ah ; @1906
     mov ah, dl ; @1908
@@ -1309,150 +1699,175 @@ loc_18F7:
     mov word ptr cs:[bx + 010h], di ; @1913
     pop dx ; @1917
     retf ; @1918
-byte_data_1919:
-    dw offset loc_1780
-    dw offset loc_17B0
-    dw offset loc_17D2
-    dw offset loc_17EF
-    dw offset loc_1810
-    dw offset loc_1847
-    dw offset loc_184A
-    dw offset loc_189C
-    dw offset loc_18F7
-    dw offset loc_18F7
-    dw offset loc_18F7
-    dw offset loc_18F7
-    dw offset loc_18F7
-    dw offset loc_18F7
-    dw offset loc_18F7
-    dw offset loc_18F7
-loc_1939:
-    inc word ptr cs:[byte_023A] ; @1939
+; CONTRACT (tools/apply.py)
+; Physical 16-word relocated handler table; EffectAdlxDispatchTable is the indexed address view.
+; END CONTRACT
+EffectAdlxDispatchStorage:
+    dw offset HandleEffectAdlxLongWait
+    dw offset HandleEffectAdlxFrequency
+    dw offset HandleEffectAdlxKeyOff
+    dw offset HandleEffectAdlxGain
+    dw offset HandleEffectAdlxInstrument
+    dw offset HandleEffectAdlxNoOp
+    dw offset HandleEffectAdlxTimerPeriod
+    dw offset HandleEffectAdlxControl
+    dw offset HandleEffectAdlxShortWait
+    dw offset HandleEffectAdlxShortWait
+    dw offset HandleEffectAdlxShortWait
+    dw offset HandleEffectAdlxShortWait
+    dw offset HandleEffectAdlxShortWait
+    dw offset HandleEffectAdlxShortWait
+    dw offset HandleEffectAdlxShortWait
+    dw offset HandleEffectAdlxShortWait
+; CONTRACT (tools/apply.py)
+; Timer callback: increment 32-bit clock even while playback guard bit 0 is set.
+; If unguarded, run due main events, then effect slots 8..11 with flags&5==5.
+; Preserves AX/BX/DX and ES/DI around interpreters; other registers follow callees.
+; Quirk: main dispatch tests CS:0256h, not main record active bit; loop threshold
+; compares cursor offset only. Guard set/cleared without restoring a prior word value.
+; END CONTRACT
+TickAdlxPlayback:
+    inc word ptr cs:[AdlxTickCount] ; @1939
     jne loc_1948 ; @193E
-    inc word ptr cs:[byte_023C] ; @1943
+    inc word ptr cs:[AdlxTickHighWord] ; @1943
 loc_1948:
-    test word ptr cs:[byte_0236], 1 ; @1948
+    test word ptr cs:[AdlxPlaybackGuard], 1 ; @1948
     jne loc_1A36 ; @194F JUMPS expansion
 loc_1954:
-    mov word ptr cs:[byte_0236], 1 ; @1954
+    mov word ptr cs:[AdlxPlaybackGuard], 1 ; @1954
     push ax ; @195B
     push bx ; @195C
     push dx ; @195D
-    test word ptr cs:[byte_0256], 1 ; @195E
+    test word ptr cs:[MainAdlxPlaying], 1 ; @195E
     je loc_19C9 ; @1965
-    mov dx, word ptr cs:[byte_023C] ; @196A
-    cmp dx, word ptr cs:[byte_022C] ; @196F
+    mov dx, word ptr cs:[AdlxTickHighWord] ; @196A
+    cmp dx, word ptr cs:[MainAdlxDeadlineHigh] ; @196F
     jb loc_19C9 ; @1974
     ja loc_198C ; @1979
-    mov ax, word ptr cs:[byte_023A] ; @197E
-    cmp ax, word ptr cs:[byte_022A] ; @1982
+    mov ax, word ptr cs:[AdlxTickCount] ; @197E
+    cmp ax, word ptr cs:[MainAdlxDeadlineLow] ; @1982
     jb loc_19C9 ; @1987
 loc_198C:
-    mov word ptr cs:[byte_10EF], 020Ch ; @198C
-    mov word ptr cs:[byte_0274], 0Ch ; @1993
+    mov word ptr cs:[CurrentAdlxRecordOffset], 020Ch ; @198C
+    mov word ptr cs:[CurrentAdlxSlot], 0Ch ; @1993
     push es ; @199A
     push di ; @199B
     push bx ; @199C
-    les di, dword ptr cs:[byte_021C] ; @199D
-    test word ptr cs:[byte_025C], 1 ; @19A2
+    les di, dword ptr cs:[MainAdlxCursor] ; @199D
+    test word ptr cs:[MainAdlxSectionLoopEnabled], 1 ; @19A2
     je loc_19C2 ; @19A9
-    cmp di, word ptr cs:[byte_0262] ; @19AE
+    cmp di, word ptr cs:[MainAdlxSectionEnd] ; @19AE
     jb loc_19C2 ; @19B3
-    call far ptr _fn_1943 ; @19B8
-    les di, dword ptr cs:[byte_021C] ; @19BD
+    call far ptr _ApplyScannedMusicEvents ; @19B8
+    les di, dword ptr cs:[MainAdlxCursor] ; @19BD
 loc_19C2:
-    call far ptr loc_15D3 ; @19C2 same-segment far call
+    call far ptr RunMainAdlxEvents ; @19C2 same-segment far call
     pop bx ; @19C6
     pop di ; @19C7
     pop es ; @19C8
 loc_19C9:
-    test word ptr cs:[byte_026C], 0Fh ; @19C9
+    test word ptr cs:[ReservedAdlibChannelCount], 0Fh ; @19C9
     je loc_1A2C ; @19D0
     mov bx, 0164h ; @19D5
-    mov word ptr cs:[byte_0274], 8 ; @19D8
+    mov word ptr cs:[CurrentAdlxSlot], 8 ; @19D8
 loc_19DF:
     mov al, byte ptr cs:[bx + 028h] ; @19DF
     and al, 5 ; @19E3
     cmp al, 5 ; @19E5
     jne loc_1A1E ; @19E7
-    mov ax, word ptr cs:[byte_023C] ; @19EC
+    mov ax, word ptr cs:[AdlxTickHighWord] ; @19EC
     cmp ax, word ptr cs:[bx + 020h] ; @19F0
     jb loc_1A1E ; @19F4
     ja loc_1A0B ; @19F9
-    mov ax, word ptr cs:[byte_023A] ; @19FE
+    mov ax, word ptr cs:[AdlxTickCount] ; @19FE
     cmp ax, word ptr cs:[bx + 01Eh] ; @1A02
     jb loc_1A1E ; @1A06
 loc_1A0B:
-    mov word ptr cs:[byte_10EF], bx ; @1A0B
+    mov word ptr cs:[CurrentAdlxRecordOffset], bx ; @1A0B
     push es ; @1A10
     push di ; @1A11
     push bx ; @1A12
     les di, dword ptr cs:[bx + 010h] ; @1A13
-    call far ptr loc_176B ; @1A17 same-segment far call
+    call far ptr RunEffectAdlxEvents ; @1A17 same-segment far call
     pop bx ; @1A1B
     pop di ; @1A1C
     pop es ; @1A1D
 loc_1A1E:
-    inc word ptr cs:[byte_0274] ; @1A1E
+    inc word ptr cs:[CurrentAdlxSlot] ; @1A1E
     add bx, 02Ah ; @1A23
     cmp bx, word ptr 020Ch ; @1A26
     jb short loc_19DF ; @1A2A
 loc_1A2C:
-    mov word ptr cs:[byte_0236], 0 ; @1A2C
+    mov word ptr cs:[AdlxPlaybackGuard], 0 ; @1A2C
     pop dx ; @1A33
     pop bx ; @1A34
     pop ax ; @1A35
 loc_1A36:
     retf ; @1A36
-loc_1A37:
+; CONTRACT (tools/apply.py)
+; Write OPL register 01h=0 then 01h=20h; set both operators of all 9 channels to 3Fh.
+; Preserves SI; clobbers BX/CX; does not clear channel key-on state in saved records.
+; END CONTRACT
+SilenceAdlibOperators:
     push si ; @1A37
     mov bx, 0100h ; @1A38
-    call far ptr loc_11F2 ; @1A3B same-segment far call
+    call far ptr WriteAdlibRegister ; @1A3B same-segment far call
     mov bx, 0120h ; @1A3F
-    call far ptr loc_11F2 ; @1A42 same-segment far call
+    call far ptr WriteAdlibRegister ; @1A42 same-segment far call
     mov cx, 9 ; @1A46
     xor si, si ; @1A49
 loc_1A4B:
-    mov bh, byte ptr cs:[si + byte_10F5] ; @1A4B
+    mov bh, byte ptr cs:[si + AdlibOperatorOffsets] ; @1A4B
     add bh, 040h ; @1A50
     mov bl, 03Fh ; @1A53
-    call far ptr loc_11F2 ; @1A55 same-segment far call
+    call far ptr WriteAdlibRegister ; @1A55 same-segment far call
     add bh, 3 ; @1A59
-    call far ptr loc_11F2 ; @1A5C same-segment far call
+    call far ptr WriteAdlibRegister ; @1A5C same-segment far call
     inc si ; @1A60
     loop loc_1A4B ; @1A61
     pop si ; @1A63
     retf ; @1A64
-loc_1A65:
-    cmp byte ptr cs:[byte_1126], 0 ; @1A65
+; CONTRACT (tools/apply.py)
+; Cancel playback timer slot if attempted-init byte CS:1126h is nonzero.
+; Restore timer interrupt, clear attempted-init byte, and silence AdLib operators.
+; Quirk: init failures also leave that byte set, so the stored handle may be stale.
+; END CONTRACT
+ShutdownAdlibPlayback:
+    cmp byte ptr cs:[AdlibInitAttempted], 0 ; @1A65
     je loc_1A79 ; @1A6B
-    mov ax, word ptr cs:[byte_1122] ; @1A70
-    call far ptr _fn_0A32_021B ; @1A74
+    mov ax, word ptr cs:[AdlxPlaybackTimerHandle] ; @1A70
+    call far ptr _RemoveTimerCallback ; @1A74
 loc_1A79:
     call far ptr _RestoreTimerInterrupt ; @1A79
-    mov byte ptr cs:[byte_1126], 0 ; @1A7E
-    call far ptr loc_1A37 ; @1A84 same-segment far call
+    mov byte ptr cs:[AdlibInitAttempted], 0 ; @1A7E
+    call far ptr SilenceAdlibOperators ; @1A84 same-segment far call
     retf ; @1A88
-loc_1A89:
+; CONTRACT (tools/apply.py)
+; Calibrate delays, probe OPL timer status at 0388h, silence operators, install timer.
+; Out: AX=1 success/already attempted, AX=0 failed probe; period initially 0000:1843h.
+; Preserves ES/DI/SI. Sets CS:1126h before probing and leaves it set on failure;
+; a second call therefore reports success without retrying or registering a slot.
+; END CONTRACT
+InitializeAdlibPlayback:
     push es ; @1A89
     push di ; @1A8A
     push si ; @1A8B
-    cmp byte ptr cs:[byte_1126], 0 ; @1A8C
+    cmp byte ptr cs:[AdlibInitAttempted], 0 ; @1A8C
 loc_1A92:
     jne loc_1B2D ; @1A92 JUMPS expansion
 loc_1A97:
-    mov byte ptr cs:[byte_1126], 1 ; @1A97
-    call far ptr loc_113F ; @1A9D same-segment far call
+    mov byte ptr cs:[AdlibInitAttempted], 1 ; @1A97
+    call far ptr CalibrateSoundDelay ; @1A9D same-segment far call
     mov bx, 0100h ; @1AA1
-    call far ptr loc_11F2 ; @1AA4 same-segment far call
+    call far ptr WriteAdlibRegister ; @1AA4 same-segment far call
     mov bx, 0460h ; @1AA8
-    call far ptr loc_11F2 ; @1AAB same-segment far call
+    call far ptr WriteAdlibRegister ; @1AAB same-segment far call
     mov al, 014h ; @1AAF
-    call far ptr loc_11B5 ; @1AB1 same-segment far call
+    call far ptr DelaySoundIo ; @1AB1 same-segment far call
     mov bx, 0480h ; @1AB5
-    call far ptr loc_11F2 ; @1AB8 same-segment far call
+    call far ptr WriteAdlibRegister ; @1AB8 same-segment far call
     mov al, 014h ; @1ABC
-    call far ptr loc_11B5 ; @1ABE same-segment far call
+    call far ptr DelaySoundIo ; @1ABE same-segment far call
     mov dx, 0388h ; @1AC2
     in al, dx ; @1AC5
     test al, 0E0h ; @1AC6
@@ -1460,38 +1875,38 @@ loc_1AC8:
     jne loc_1B34 ; @1AC8
     mov bx, 02FFh ; @1ACD
 loc_1AD0:
-    call far ptr loc_11F2 ; @1AD0 same-segment far call
+    call far ptr WriteAdlibRegister ; @1AD0 same-segment far call
     mov al, 014h ; @1AD4
-    call far ptr loc_11B5 ; @1AD6 same-segment far call
+    call far ptr DelaySoundIo ; @1AD6 same-segment far call
     mov bx, 0421h ; @1ADA
-    call far ptr loc_11F2 ; @1ADD same-segment far call
+    call far ptr WriteAdlibRegister ; @1ADD same-segment far call
     mov al, 0FFh ; @1AE1
-    call far ptr loc_11B5 ; @1AE3 same-segment far call
+    call far ptr DelaySoundIo ; @1AE3 same-segment far call
     in al, dx ; @1AE7
     test al, 0E0h ; @1AE8
 loc_1AEA:
     je loc_1B34 ; @1AEA
     mov bx, 0460h ; @1AEF
-    call far ptr loc_11F2 ; @1AF2 same-segment far call
+    call far ptr WriteAdlibRegister ; @1AF2 same-segment far call
     mov al, 014h ; @1AF6
-    call far ptr loc_11B5 ; @1AF8 same-segment far call
+    call far ptr DelaySoundIo ; @1AF8 same-segment far call
     mov bx, 0480h ; @1AFC
-    call far ptr loc_11F2 ; @1AFF same-segment far call
+    call far ptr WriteAdlibRegister ; @1AFF same-segment far call
     mov al, 014h ; @1B03
-    call far ptr loc_11B5 ; @1B05 same-segment far call
-    call far ptr loc_1A37 ; @1B09 same-segment far call
+    call far ptr DelaySoundIo ; @1B05 same-segment far call
+    call far ptr SilenceAdlibOperators ; @1B09 same-segment far call
     mov bx, 0120h ; @1B0D
-    call far ptr loc_11F2 ; @1B10 same-segment far call
+    call far ptr WriteAdlibRegister ; @1B10 same-segment far call
 loc_1B14:
     call far ptr _InstallTimerInterrupt ; @1B14
     mov bx, 01843h ; @1B19
     xor cx, cx ; @1B1C
-    mov ax, offset loc_1939 ; @1B1E
+    mov ax, offset TickAdlxPlayback ; @1B1E
 loc_1B21:
     mov dx, seg SOUNDSEG ; @1B21
 loc_1B24:
-    call far ptr _fn_0A32_01AA ; @1B24
-    mov word ptr cs:[byte_1122], ax ; @1B29
+    call far ptr _RegisterTimerCallback ; @1B24
+    mov word ptr cs:[AdlxPlaybackTimerHandle], ax ; @1B29
 loc_1B2D:
     mov ax, 1 ; @1B2D
     pop si ; @1B30
@@ -1504,22 +1919,31 @@ loc_1B34:
     pop di ; @1B37
     pop es ; @1B38
     retf ; @1B39
-loc_1B3A:
+; CONTRACT (tools/apply.py)
+; Reset the word cursor at CS:0024h+AX*2Ah with 16-bit wrapping and no range check.
+; Preserves BX/DX; AX becomes low product. Unreferenced pattern seed, reachability unproved.
+; END CONTRACT
+ResetSampleVoiceCursor:
     push dx ; @1B3A
     push bx ; @1B3B
     mov bx, 02Ah ; @1B3C
     mul bx ; @1B3F
     mov bx, ax ; @1B41
-    mov word ptr cs:[bx + byte_0024], 0 ; @1B43
+    mov word ptr cs:[bx + SampleVoicePairCursor], 0 ; @1B43
     pop bx ; @1B4A
     pop dx ; @1B4B
     retf ; @1B4C
-loc_1B4D:
+; CONTRACT (tools/apply.py)
+; Poll DSP write-status bit 7 at base+0Ch, then write command byte AL.
+; Preserves AX/CX/DX; zero-initialized CX permits 65536 polls and still writes on timeout.
+; Delay jumps are intentional instruction-time waits, not removable empty control flow.
+; END CONTRACT
+WriteSoundBlasterDsp:
     push dx ; @1B4D
     push ax ; @1B4E
     push cx ; @1B4F
     mov ah, al ; @1B50
-    mov dx, word ptr cs:[byte_0010] ; @1B52
+    mov dx, word ptr cs:[DspBasePort] ; @1B52
     add dx, 0Ch ; @1B57
     xor cx, cx ; @1B5A
 loc_1B5C:
@@ -1544,7 +1968,13 @@ loc_1B6B:
     pop ax ; @1B74
     pop dx ; @1B75
     retf ; @1B76
-loc_1B77:
+; CONTRACT (tools/apply.py)
+; Program DMA channel 1 and DSP single-cycle 8-bit output command 14h.
+; In: CH=physical page, DX=physical offset, BX=byte count (decremented for hardware).
+; Out: unmasks DMA1; writes count-1 to DMA and DSP; restores BX/CX, clobbers AL.
+; No zero-count or boundary validation; hardware I/O delay jumps must be retained.
+; END CONTRACT
+StartDmaSampleBlock:
     push cx ; @1B77
     dec bx ; @1B78
     mov al, 5 ; @1B79
@@ -1674,20 +2104,25 @@ loc_1C1F:
     nop ; @1C23
 loc_1C24:
     mov al, 014h ; @1C24
-    call far ptr loc_1B4D ; @1C26 same-segment far call
+    call far ptr WriteSoundBlasterDsp ; @1C26 same-segment far call
     mov al, bl ; @1C2A
-    call far ptr loc_1B4D ; @1C2C same-segment far call
+    call far ptr WriteSoundBlasterDsp ; @1C2C same-segment far call
     mov al, bh ; @1C30
-    call far ptr loc_1B4D ; @1C32 same-segment far call
+    call far ptr WriteSoundBlasterDsp ; @1C32 same-segment far call
     inc bx ; @1C36
     pop cx ; @1C37
     retf ; @1C38
-loc_1C39:
+; CONTRACT (tools/apply.py)
+; Set DSP time constant to low byte of -(1000000/rate) using command 40h.
+; In: far cdecl unsigned rate [BP+6]; only acts for device bit 1 and rate>=1000.
+; Preserves AX/BX/DX; integer division and low-byte truncation are observable.
+; END CONTRACT
+SetDspSampleRate:
     enter 0, 0 ; @1C39
     push ax ; @1C3D
     push bx ; @1C3E
     push dx ; @1C3F
-    test word ptr cs:[byte_026A], 2 ; @1C40
+    test word ptr cs:[SoundDeviceBits], 2 ; @1C40
     je loc_1C6F ; @1C47
     cmp word ptr [bp + 6], word ptr 03E8h ; @1C4C
     jb loc_1C6F ; @1C51
@@ -1697,16 +2132,21 @@ loc_1C39:
     neg ax ; @1C5F
     mov bx, ax ; @1C61
     mov al, 040h ; @1C63
-    call far ptr loc_1B4D ; @1C65 same-segment far call
+    call far ptr WriteSoundBlasterDsp ; @1C65 same-segment far call
     mov al, bl ; @1C69
-    call far ptr loc_1B4D ; @1C6B same-segment far call
+    call far ptr WriteSoundBlasterDsp ; @1C6B same-segment far call
 loc_1C6F:
     pop dx ; @1C6F
     pop bx ; @1C70
     pop ax ; @1C71
     leave ; @1C72
     retf ; @1C73
-loc_1C74:
+; CONTRACT (tools/apply.py)
+; Compute physical page/offset and CS offsets for two 0400h-byte mix buffers.
+; Out: use CS:04AFh and 08B9h normally, substitute CS:0CC3h on 64K crossing.
+; Quirk: the end comparison treats an exactly-64K end as crossing; AX/CX clobbered.
+; END CONTRACT
+LocateDmaMixBuffers:
     mov ax, seg SOUNDSEG ; @1C74
 loc_1C77:
     mov cx, ax ; @1C77
@@ -1714,17 +2154,17 @@ loc_1C77:
     shl ax, 4 ; @1C7C
     add ax, word ptr 04AFh ; @1C7F
     adc ch, 0 ; @1C82
-    mov word ptr cs:[byte_04AB], ax ; @1C85
-    mov word ptr cs:[byte_04AD], 04AFh ; @1C89
-    mov byte ptr cs:[byte_04A9], ch ; @1C90
+    mov word ptr cs:[DmaMixBufferOneAddress], ax ; @1C85
+    mov word ptr cs:[DmaMixBufferOneOffset], 04AFh ; @1C89
+    mov byte ptr cs:[DmaMixBufferOnePage], ch ; @1C90
     add ax, word ptr 0400h ; @1C95
     jae loc_1CB6 ; @1C98
     sub ax, word ptr 0400h ; @1C9D
     add ax, word ptr 0814h ; @1CA0
     adc ch, 0 ; @1CA3
-    mov byte ptr cs:[byte_04A9], ch ; @1CA6
-    mov word ptr cs:[byte_04AB], ax ; @1CAB
-    mov word ptr cs:[byte_04AD], 0CC3h ; @1CAF
+    mov byte ptr cs:[DmaMixBufferOnePage], ch ; @1CA6
+    mov word ptr cs:[DmaMixBufferOneAddress], ax ; @1CAB
+    mov word ptr cs:[DmaMixBufferOneOffset], 0CC3h ; @1CAF
 loc_1CB6:
     mov ax, seg SOUNDSEG ; @1CB6
     mov cx, ax ; @1CB9
@@ -1732,149 +2172,165 @@ loc_1CB6:
     shl ax, 4 ; @1CBE
     add ax, word ptr 08B9h ; @1CC1
     adc ch, 0 ; @1CC4
-    mov word ptr cs:[byte_08B5], ax ; @1CC7
-    mov word ptr cs:[byte_08B7], 08B9h ; @1CCB
-    mov byte ptr cs:[byte_08B3], ch ; @1CD2
+    mov word ptr cs:[DmaMixBufferTwoAddress], ax ; @1CC7
+    mov word ptr cs:[DmaMixBufferTwoOffset], 08B9h ; @1CCB
+    mov byte ptr cs:[DmaMixBufferTwoPage], ch ; @1CD2
     add ax, word ptr 0400h ; @1CD7
     jae loc_1CF8 ; @1CDA
     sub ax, word ptr 0400h ; @1CDF
     add ax, word ptr 040Ah ; @1CE2
     adc ch, 0 ; @1CE5
-    mov byte ptr cs:[byte_08B3], ch ; @1CE8
-    mov word ptr cs:[byte_08B5], ax ; @1CED
-    mov word ptr cs:[byte_08B7], 0CC3h ; @1CF1
+    mov byte ptr cs:[DmaMixBufferTwoPage], ch ; @1CE8
+    mov word ptr cs:[DmaMixBufferTwoAddress], ax ; @1CED
+    mov word ptr cs:[DmaMixBufferTwoOffset], 0CC3h ; @1CF1
 loc_1CF8:
     retf ; @1CF8
-loc_1CF9:
+; CONTRACT (tools/apply.py)
+; Mix up to 8 signed-byte voices into unsigned byte pairs at CS:DX; BX=request bytes.
+; Each voice reads DS:base+low16((cursor*step)>>8), scales by signed (volume>>1),
+; and increments cursor once per pair; divide sums by current active count, add 7Fh.
+; Preserves registers/DS via PUSHA except returned AX; CS:000Eh marks mixing busy.
+; Quirks: effective offsets wrap at 16 bits; repeat resets cursor but skips this pair;
+; early exit returns original BX minus remaining PAIRS, not produced byte count;
+; odd/zero requests still enter the pair loop when any voice is active.
+; END CONTRACT
+MixSampleVoicePairs:
     xor ax, ax ; @1CF9
-    cmp word ptr cs:[byte_026E], 0 ; @1CFB
+    cmp word ptr cs:[ActiveSampleVoiceCount], 0 ; @1CFB
     je loc_1DD5 ; @1D01 JUMPS expansion
 loc_1D06:
-    mov word ptr cs:[byte_000E], 1 ; @1D06
+    mov word ptr cs:[SampleMixerBusy], 1 ; @1D06
     pusha ; @1D0D
     push ds ; @1D0E
     shr bx, 1 ; @1D0F
-    mov word ptr cs:[byte_10C7], bx ; @1D11
+    mov word ptr cs:[SampleMixPairsRemaining], bx ; @1D11
     mov di, dx ; @1D16
     xor bp, bp ; @1D18
-    mov word ptr cs:[byte_10CF], 0 ; @1D1A
-    mov word ptr cs:[byte_10D1], 0 ; @1D21
+    mov word ptr cs:[SampleMixFirstSum], 0 ; @1D1A
+    mov word ptr cs:[SampleMixSecondSum], 0 ; @1D21
     mov cl, 1 ; @1D28
 loc_1D2A:
-    test byte ptr cs:[byte_0270], cl ; @1D2A
+    test byte ptr cs:[ActiveSampleVoiceMask], cl ; @1D2A
     je loc_1D7D ; @1D2F
-    lds bx, dword ptr cs:[bp + byte_001A] ; @1D34
-    mov ax, word ptr cs:[bp + byte_0024] ; @1D39
-    mul word ptr cs:[bp + byte_003A] ; @1D3E
+    lds bx, dword ptr cs:[bp + SampleVoiceDataPointer] ; @1D34
+    mov ax, word ptr cs:[bp + SampleVoicePairCursor] ; @1D39
+    mul word ptr cs:[bp + SampleVoiceStepQ8] ; @1D3E
     mov al, ah ; @1D43
     mov ah, dl ; @1D45
-    cmp ax, word ptr cs:[bp + byte_001E] ; @1D47
+    cmp ax, word ptr cs:[bp + SampleVoiceByteLength] ; @1D47
     jae loc_1DD6 ; @1D4C JUMPS expansion
 loc_1D51:
     add ax, bx ; @1D51
     mov si, ax ; @1D53
-    mov ch, byte ptr cs:[bp + byte_0030] ; @1D55
+    mov ch, byte ptr cs:[bp + SampleVoiceVolume] ; @1D55
     shr ch, 1 ; @1D5A
     mov dx, word ptr [si] ; @1D5C
     mov al, dl ; @1D5E
     imul ch ; @1D60
     mov al, ah ; @1D62
     cbw ; @1D64
-    add word ptr cs:[byte_10CF], ax ; @1D65
+    add word ptr cs:[SampleMixFirstSum], ax ; @1D65
     mov al, dh ; @1D6A
     imul ch ; @1D6C
     mov al, ah ; @1D6E
     cbw ; @1D70
-    add word ptr cs:[byte_10D1], ax ; @1D71
-    inc word ptr cs:[bp + byte_0024] ; @1D76
+    add word ptr cs:[SampleMixSecondSum], ax ; @1D71
+    inc word ptr cs:[bp + SampleVoicePairCursor] ; @1D76
     sub si, bx ; @1D7B
 loc_1D7D:
     add bp, 02Ah ; @1D7D
     shl cl, 1 ; @1D80
     jae short loc_1D2A ; @1D82
-    mov ax, word ptr cs:[byte_10CF] ; @1D84
+    mov ax, word ptr cs:[SampleMixFirstSum] ; @1D84
     cwd ; @1D88
-    idiv word ptr cs:[byte_026E] ; @1D89
+    idiv word ptr cs:[ActiveSampleVoiceCount] ; @1D89
     add ax, word ptr 07Fh ; @1D8E
     mov byte ptr cs:[di], al ; @1D91
     inc di ; @1D94
-    mov ax, word ptr cs:[byte_10D1] ; @1D95
+    mov ax, word ptr cs:[SampleMixSecondSum] ; @1D95
     cwd ; @1D99
-    idiv word ptr cs:[byte_026E] ; @1D9A
+    idiv word ptr cs:[ActiveSampleVoiceCount] ; @1D9A
     add ax, word ptr 07Fh ; @1D9F
     mov byte ptr cs:[di], al ; @1DA2
     inc di ; @1DA5
-    dec word ptr cs:[byte_10C7] ; @1DA6
+    dec word ptr cs:[SampleMixPairsRemaining] ; @1DA6
     jle loc_1DC5 ; @1DAB
-    mov word ptr cs:[byte_10CF], 0 ; @1DB0
-    mov word ptr cs:[byte_10D1], 0 ; @1DB7
+    mov word ptr cs:[SampleMixFirstSum], 0 ; @1DB0
+    mov word ptr cs:[SampleMixSecondSum], 0 ; @1DB7
     mov cl, 1 ; @1DBE
     xor bp, bp ; @1DC0
     jmp near ptr loc_1D2A ; @1DC2
 loc_1DC5:
-    mov word ptr cs:[byte_000E], 0 ; @1DC5
+    mov word ptr cs:[SampleMixerBusy], 0 ; @1DC5
     pop ds ; @1DCC
     popa ; @1DCD
     mov ax, bx ; @1DCE
-    sub ax, word ptr cs:[byte_10C7] ; @1DD0
+    sub ax, word ptr cs:[SampleMixPairsRemaining] ; @1DD0
 loc_1DD5:
     retf ; @1DD5
 loc_1DD6:
-    test word ptr cs:[bp + byte_003C], 2 ; @1DD6
+    test word ptr cs:[bp + SampleVoiceFlags], 2 ; @1DD6
     jne loc_1DEC ; @1DDD
-    dec word ptr cs:[bp + byte_0018] ; @1DE2
+    dec word ptr cs:[bp + SampleVoiceRepeatCount] ; @1DE2
     jle loc_1DF5 ; @1DE7
 loc_1DEC:
-    mov word ptr cs:[bp + byte_0024], 0 ; @1DEC
+    mov word ptr cs:[bp + SampleVoicePairCursor], 0 ; @1DEC
     jmp short loc_1D7D ; @1DF3
 loc_1DF5:
-    xor byte ptr cs:[byte_0270], cl ; @1DF5
-    dec word ptr cs:[byte_026E] ; @1DFA
+    xor byte ptr cs:[ActiveSampleVoiceMask], cl ; @1DF5
+    dec word ptr cs:[ActiveSampleVoiceCount] ; @1DFA
     jle short loc_1DC5 ; @1DFF
     jmp near ptr loc_1D7D ; @1E01
-loc_1E04:
+; CONTRACT (tools/apply.py)
+; Acknowledge PIC, guard reentry, acknowledge DSP at base+0Eh and ping-pong mix buffers.
+; Start queued block if count>=28h; refill the other buffer through 1CF9h.
+; Out: IRET; normal path preserves general/segment registers, but flags follow IRET.
+; Quirk: reentry returns after PIC EOI without DSP acknowledgement; short queued count
+; masks the selected IRQ. No old-handler chaining; mixing occurs in interrupt context.
+; END CONTRACT
+HandleSampleDmaInterrupt:
     push ax ; @1E04
     mov al, 020h ; @1E05
     out 020h, al ; @1E07
     pop ax ; @1E09
-    test byte ptr cs:[byte_04A2], 1 ; @1E0A
+    test byte ptr cs:[DspIrqBusy], 1 ; @1E0A
     je loc_1E16 ; @1E10
     iret ; @1E15
 loc_1E16:
-    mov byte ptr cs:[byte_04A2], 1 ; @1E16
+    mov byte ptr cs:[DspIrqBusy], 1 ; @1E16
     pusha ; @1E1C
     push es ; @1E1D
     push ds ; @1E1E
-    mov dx, word ptr cs:[byte_0010] ; @1E1F
+    mov dx, word ptr cs:[DspBasePort] ; @1E1F
     add dx, 0Eh ; @1E24
     in al, dx ; @1E27
     xor si, si ; @1E28
-    test byte ptr cs:[byte_04A5], 1 ; @1E2A
+    test byte ptr cs:[DmaMixBufferSelect], 1 ; @1E2A
     jne loc_1E38 ; @1E30
     mov si, 040Ah ; @1E35
 loc_1E38:
-    mov bx, word ptr cs:[si + byte_04A7] ; @1E38
+    mov bx, word ptr cs:[si + DmaMixBufferOneCount] ; @1E38
     cmp bx, 028h ; @1E3D
     jb loc_1E7D ; @1E40
-    xor byte ptr cs:[byte_04A5], 1 ; @1E45
-    mov dx, word ptr cs:[si + byte_04AB] ; @1E4B
-    mov ch, byte ptr cs:[si + byte_04A9] ; @1E50
-    call far ptr loc_1B77 ; @1E55 same-segment far call
-    mov word ptr cs:[si + byte_04A7], 0 ; @1E59
+    xor byte ptr cs:[DmaMixBufferSelect], 1 ; @1E45
+    mov dx, word ptr cs:[si + DmaMixBufferOneAddress] ; @1E4B
+    mov ch, byte ptr cs:[si + DmaMixBufferOnePage] ; @1E50
+    call far ptr StartDmaSampleBlock ; @1E55 same-segment far call
+    mov word ptr cs:[si + DmaMixBufferOneCount], 0 ; @1E59
     neg si ; @1E60
-    mov dx, word ptr cs:[si + byte_08B7] ; @1E62
+    mov dx, word ptr cs:[si + DmaMixBufferTwoOffset] ; @1E62
     mov bx, 0400h ; @1E67
-    call far ptr loc_1CF9 ; @1E6A same-segment far call
-    mov word ptr cs:[si + byte_08B1], ax ; @1E6E
+    call far ptr MixSampleVoicePairs ; @1E6A same-segment far call
+    mov word ptr cs:[si + DmaMixBufferTwoCount], ax ; @1E6E
 loc_1E73:
     pop ds ; @1E73
     pop es ; @1E74
     popa ; @1E75
-    mov byte ptr cs:[byte_04A2], 0 ; @1E76
+    mov byte ptr cs:[DspIrqBusy], 0 ; @1E76
     iret ; @1E7C
 loc_1E7D:
     in al, 021h ; @1E7D
-    or al, byte ptr cs:[byte_0494] ; @1E7F
+    or al, byte ptr cs:[DspPicIrqMask] ; @1E7F
     jmp loc_1E89 ; @1E84
     nop ; @1E87
     nop ; @1E88
@@ -1889,23 +2345,28 @@ loc_1E8E:
 loc_1E93:
     out 021h, al ; @1E93
     jmp short loc_1E73 ; @1E95
-loc_1E97:
-    test word ptr cs:[byte_026A], 2 ; @1E97
+; CONTRACT (tools/apply.py)
+; If device bit 1 and active voice count>0, wait for mixer idle, halt DSP DMA (D0h),
+; fill first buffer, unmask IRQ and enter 1E04h via PUSHF/far CALL (IRET-compatible).
+; Out: sets first-buffer selection; same mixer and IRQ side effects as hardware entry.
+; END CONTRACT
+PrimeSampleDmaPlayback:
+    test word ptr cs:[SoundDeviceBits], 2 ; @1E97
     je loc_1EF4 ; @1E9E
 loc_1EA3:
-    test word ptr cs:[byte_000E], 1 ; @1EA3
+    test word ptr cs:[SampleMixerBusy], 1 ; @1EA3
     jne short loc_1EA3 ; @1EAA
-    cmp word ptr cs:[byte_026E], 0 ; @1EAC
+    cmp word ptr cs:[ActiveSampleVoiceCount], 0 ; @1EAC
     jle loc_1EF4 ; @1EB2
     mov al, 0D0h ; @1EB7
-    call far ptr loc_1B4D ; @1EB9 same-segment far call
-    mov dx, word ptr cs:[byte_04AD] ; @1EBD
+    call far ptr WriteSoundBlasterDsp ; @1EB9 same-segment far call
+    mov dx, word ptr cs:[DmaMixBufferOneOffset] ; @1EBD
     mov bx, 0400h ; @1EC2
-    call far ptr loc_1CF9 ; @1EC5 same-segment far call
-    mov word ptr cs:[byte_04A7], ax ; @1EC9
-    mov byte ptr cs:[byte_04A5], 1 ; @1ECD
+    call far ptr MixSampleVoicePairs ; @1EC5 same-segment far call
+    mov word ptr cs:[DmaMixBufferOneCount], ax ; @1EC9
+    mov byte ptr cs:[DmaMixBufferSelect], 1 ; @1ECD
     in al, 021h ; @1ED3
-    mov ah, byte ptr cs:[byte_0494] ; @1ED5
+    mov ah, byte ptr cs:[DspPicIrqMask] ; @1ED5
     not ah ; @1EDA
     and al, ah ; @1EDC
     jmp loc_1EE3 ; @1EDE
@@ -1922,55 +2383,66 @@ loc_1EE8:
 loc_1EED:
     out 021h, al ; @1EED
     pushf ; @1EEF
-    call far ptr loc_1E04 ; @1EF0 same-segment far call
+    call far ptr HandleSampleDmaInterrupt ; @1EF0 same-segment far call
 loc_1EF4:
     retf ; @1EF4
-loc_1EF5:
+; CONTRACT (tools/apply.py)
+; Temporary IRQ probe handler: send master PIC EOI, set CS:04A1h byte=1, IRET.
+; Quirk: AL is clobbered and DSP status is not read.
+; END CONTRACT
+HandleDspProbeInterrupt:
     mov al, 020h ; @1EF5
     out 020h, al ; @1EF7
-    mov byte ptr cs:[byte_04A1], 1 ; @1EF9
+    mov byte ptr cs:[DspProbeIrqSeen], 1 ; @1EF9
     iret ; @1EFF
-loc_1F00:
+; CONTRACT (tools/apply.py)
+; Locate mix buffers; scan bases 210h..260h and IRQ candidates 7,5,3,2.
+; For each candidate replace its DOS vector, trigger 3-byte DMA, poll 1000h iterations,
+; mask the candidate IRQ and restore its vector; success AX=1 leaves base/vector/mask.
+; Out: failure AX=0, base=0 (vector=0 after candidate exhaustion); preserves DS/ES.
+; Quirks: CX!=0 defines success, not probe flag; original PIC mask is not restored.
+; END CONTRACT
+ProbeSoundBlasterDmaIrq:
     push es ; @1F00
     push ds ; @1F01
-    call far ptr loc_1C74 ; @1F02 same-segment far call
-    mov word ptr cs:[byte_0012], 1 ; @1F06
-    mov word ptr cs:[byte_0010], 0200h ; @1F0D
+    call far ptr LocateDmaMixBuffers ; @1F02 same-segment far call
+    mov word ptr cs:[DspInterruptVector], 1 ; @1F06
+    mov word ptr cs:[DspBasePort], 0200h ; @1F0D
 loc_1F14:
     call far ptr _fn_013B_001F ; @1F14
     call far ptr _fn_013B_001F ; @1F19
-    cmp word ptr cs:[byte_0010], word ptr 0260h ; @1F1E
+    cmp word ptr cs:[DspBasePort], word ptr 0260h ; @1F1E
 loc_1F25:
     jae loc_2044 ; @1F25 JUMPS expansion
 loc_1F2A:
-    add word ptr cs:[byte_0010], 010h ; @1F2A
-    call far ptr loc_2114 ; @1F30 same-segment far call
+    add word ptr cs:[DspBasePort], 010h ; @1F2A
+    call far ptr ResetSoundBlasterDsp ; @1F30 same-segment far call
     jb short loc_1F14 ; @1F35
-    mov byte ptr cs:[byte_04A1], 0 ; @1F37
+    mov byte ptr cs:[DspProbeIrqSeen], 0 ; @1F37
     mov al, 0D3h ; @1F3D
-    call far ptr loc_1B4D ; @1F3F same-segment far call
+    call far ptr WriteSoundBlasterDsp ; @1F3F same-segment far call
     call far ptr _fn_013B_001F ; @1F43
     call far ptr _fn_013B_001F ; @1F48
     xor bx, bx ; @1F4D
 loc_1F4F:
-    mov cl, byte ptr cs:[bx + byte_2058] ; @1F4F
+    mov cl, byte ptr cs:[bx + DspProbeIrqOrder] ; @1F4F
     push bx ; @1F54
     mov al, cl ; @1F55
     add al, 8 ; @1F57
-    mov byte ptr cs:[byte_0012], al ; @1F59
+    mov byte ptr cs:[DspInterruptVector], al ; @1F59
     mov al, 1 ; @1F5D
     shl al, cl ; @1F5F
-    mov byte ptr cs:[byte_0494], al ; @1F61
+    mov byte ptr cs:[DspPicIrqMask], al ; @1F61
     mov ah, 035h ; @1F65
-    mov al, byte ptr cs:[byte_0012] ; @1F67
+    mov al, byte ptr cs:[DspInterruptVector] ; @1F67
     int 021h ; @1F6B
     mov ax, es ; @1F6D
-    mov word ptr cs:[byte_0497], ax ; @1F6F
-    mov word ptr cs:[byte_0495], bx ; @1F73
+    mov word ptr cs:[PreviousDspVectorSegment], ax ; @1F6F
+    mov word ptr cs:[PreviousDspVectorOffset], bx ; @1F73
     call far ptr _fn_013B_001F ; @1F78
     call far ptr _fn_013B_001F ; @1F7D
     in al, 021h ; @1F82
-    or al, byte ptr cs:[byte_0494] ; @1F84
+    or al, byte ptr cs:[DspPicIrqMask] ; @1F84
     jmp loc_1F8E ; @1F89
     nop ; @1F8C
     nop ; @1F8D
@@ -1989,15 +2461,15 @@ loc_1F98:
 loc_1FA4:
     mov bx, seg SOUNDSEG ; @1FA4
 loc_1FA7:
-    mov dx, offset loc_1EF5 ; @1FA7
+    mov dx, offset HandleDspProbeInterrupt ; @1FA7
     mov ah, 025h ; @1FAA
-    mov al, byte ptr cs:[byte_0012] ; @1FAC
+    mov al, byte ptr cs:[DspInterruptVector] ; @1FAC
     mov ds, bx ; @1FB0
     int 021h ; @1FB2
     call far ptr _fn_013B_001F ; @1FB4
     call far ptr _fn_013B_001F ; @1FB9
     in al, 021h ; @1FBE
-    xor al, byte ptr cs:[byte_0494] ; @1FC0
+    xor al, byte ptr cs:[DspPicIrqMask] ; @1FC0
     jmp loc_1FCA ; @1FC5
     nop ; @1FC8
     nop ; @1FC9
@@ -2011,16 +2483,16 @@ loc_1FCF:
     nop ; @1FD3
 loc_1FD4:
     out 021h, al ; @1FD4
-    mov ch, byte ptr cs:[byte_04A9] ; @1FD6
-    mov dx, word ptr cs:[byte_04AB] ; @1FDB
+    mov ch, byte ptr cs:[DmaMixBufferOnePage] ; @1FD6
+    mov dx, word ptr cs:[DmaMixBufferOneAddress] ; @1FDB
     mov bx, 3 ; @1FE0
-    call far ptr loc_1B77 ; @1FE3 same-segment far call
+    call far ptr StartDmaSampleBlock ; @1FE3 same-segment far call
     mov cx, 01000h ; @1FE7
 loc_1FEA:
-    test byte ptr cs:[byte_04A1], 1 ; @1FEA
+    test byte ptr cs:[DspProbeIrqSeen], 1 ; @1FEA
     loope loc_1FEA ; @1FF0
     in al, 021h ; @1FF2
-    or al, byte ptr cs:[byte_0494] ; @1FF4
+    or al, byte ptr cs:[DspPicIrqMask] ; @1FF4
     jmp loc_1FFE ; @1FF9
     nop ; @1FFC
     nop ; @1FFD
@@ -2037,8 +2509,8 @@ loc_2008:
     call far ptr _fn_013B_001F ; @200A
     call far ptr _fn_013B_001F ; @200F
     mov ah, 025h ; @2014
-    mov al, byte ptr cs:[byte_0012] ; @2016
-    lds dx, dword ptr cs:[byte_0495] ; @201A
+    mov al, byte ptr cs:[DspInterruptVector] ; @2016
+    lds dx, dword ptr cs:[PreviousDspVectorOffset] ; @201A
     int 021h ; @201F
     call far ptr _fn_013B_001F ; @2021
     call far ptr _fn_013B_001F ; @2026
@@ -2050,9 +2522,9 @@ loc_2008:
 loc_2038:
     jbe loc_1F4F ; @2038 JUMPS expansion
 loc_203D:
-    mov word ptr cs:[byte_0012], 0 ; @203D
+    mov word ptr cs:[DspInterruptVector], 0 ; @203D
 loc_2044:
-    mov word ptr cs:[byte_0010], 0 ; @2044
+    mov word ptr cs:[DspBasePort], 0 ; @2044
     mov ax, 0 ; @204B
     pop ds ; @204E
     pop es ; @204F
@@ -2063,32 +2535,40 @@ loc_2051:
     pop ds ; @2055
     pop es ; @2056
     retf ; @2057
-byte_data_2058:
+; CONTRACT (tools/apply.py)
+; Physical 4-byte candidate IRQ table: 7,5,3,2.
+; END CONTRACT
+DspProbeIrqOrderStorage:
     db 07h, 05h, 03h, 02h ; data 2058..205C
-loc_205C:
+; CONTRACT (tools/apply.py)
+; Calibrate delays and probe DSP/DMA IRQ; if found, save vector and install 1E04h.
+; Out: AX=1 success or AX=0 failure; success unmasks IRQ and enables speaker (D1h).
+; Preserves DS/ES; no repeat-install guard; DOS vectors and PIC mask are modified.
+; END CONTRACT
+InitializeDspPlayback:
     push ds ; @205C
     push es ; @205D
-    call far ptr loc_113F ; @205E same-segment far call
-    call far ptr loc_1F00 ; @2062 same-segment far call
+    call far ptr CalibrateSoundDelay ; @205E same-segment far call
+    call far ptr ProbeSoundBlasterDmaIrq ; @2062 same-segment far call
     test ax, 1 ; @2066
 loc_2069:
     je loc_20B6 ; @2069
     mov ah, 035h ; @206E
-    mov al, byte ptr cs:[byte_0012] ; @2070
+    mov al, byte ptr cs:[DspInterruptVector] ; @2070
     int 021h ; @2074
     mov ax, es ; @2076
-    mov word ptr cs:[byte_0497], ax ; @2078
-    mov word ptr cs:[byte_0495], bx ; @207C
+    mov word ptr cs:[PreviousDspVectorSegment], ax ; @2078
+    mov word ptr cs:[PreviousDspVectorOffset], bx ; @207C
 loc_2081:
     mov ax, seg SOUNDSEG ; @2081
 loc_2084:
     mov ds, ax ; @2084
-    mov dx, offset loc_1E04 ; @2086
+    mov dx, offset HandleSampleDmaInterrupt ; @2086
     mov ah, 025h ; @2089
-    mov al, byte ptr cs:[byte_0012] ; @208B
+    mov al, byte ptr cs:[DspInterruptVector] ; @208B
     int 021h ; @208F
     in al, 021h ; @2091
-    mov ah, byte ptr cs:[byte_0494] ; @2093
+    mov ah, byte ptr cs:[DspPicIrqMask] ; @2093
     not ah ; @2098
     and al, ah ; @209A
     jmp loc_20A1 ; @209C
@@ -2105,20 +2585,24 @@ loc_20A6:
 loc_20AB:
     out 021h, al ; @20AB
     mov al, 0D1h ; @20AD
-    call far ptr loc_1B4D ; @20AF same-segment far call
+    call far ptr WriteSoundBlasterDsp ; @20AF same-segment far call
     mov ax, 1 ; @20B3
 loc_20B6:
     pop es ; @20B6
     pop ds ; @20B7
     retf ; @20B8
-loc_20B9:
+; CONTRACT (tools/apply.py)
+; Disable DSP speaker (D3h), mask selected IRQ, restore its saved DOS vector, reset DSP.
+; Preserves DS; reset helper returns CF status. No installed-state check or PIC-mask restore.
+; END CONTRACT
+ShutdownDspPlayback:
     push ds ; @20B9
     mov al, 0D3h ; @20BA
-    call far ptr loc_1B4D ; @20BC same-segment far call
+    call far ptr WriteSoundBlasterDsp ; @20BC same-segment far call
     call far ptr _fn_013B_001F ; @20C0
     call far ptr _fn_013B_001F ; @20C5
     in al, 021h ; @20CA
-    or al, byte ptr cs:[byte_0494] ; @20CC
+    or al, byte ptr cs:[DspPicIrqMask] ; @20CC
     jmp loc_20D6 ; @20D1
     nop ; @20D4
     nop ; @20D5
@@ -2135,23 +2619,28 @@ loc_20E0:
     call far ptr _fn_013B_001F ; @20E2
     call far ptr _fn_013B_001F ; @20E7
     mov ah, 025h ; @20EC
-    mov al, byte ptr cs:[byte_0012] ; @20EE
-    lds dx, dword ptr cs:[byte_0495] ; @20F2
+    mov al, byte ptr cs:[DspInterruptVector] ; @20EE
+    lds dx, dword ptr cs:[PreviousDspVectorOffset] ; @20F2
     int 021h ; @20F7
     call far ptr _fn_013B_001F ; @20F9
     call far ptr _fn_013B_001F ; @20FE
-    call far ptr loc_2114 ; @2103 same-segment far call
+    call far ptr ResetSoundBlasterDsp ; @2103 same-segment far call
     call far ptr _fn_013B_001F ; @2108
     call far ptr _fn_013B_001F ; @210D
     pop ds ; @2112
     retf ; @2113
-loc_2114:
-    mov dx, word ptr cs:[byte_0010] ; @2114
+; CONTRACT (tools/apply.py)
+; Pulse DSP reset at base+6; delay with AL=3; poll bit 7 at base+0Eh up to 100 times.
+; Out: CF clear iff the byte read at base+0Ah equals AAh, otherwise CF set.
+; Quirk: reads and compares response even after timeout; AX/CX/DX and flags change.
+; END CONTRACT
+ResetSoundBlasterDsp:
+    mov dx, word ptr cs:[DspBasePort] ; @2114
     add dx, 6 ; @2119
     mov al, 1 ; @211C
     out dx, al ; @211E
     mov ax, 3 ; @211F
-    call far ptr loc_11B5 ; @2122 same-segment far call
+    call far ptr DelaySoundIo ; @2122 same-segment far call
     xor al, al ; @2126
     out dx, al ; @2128
     add dx, 8 ; @2129

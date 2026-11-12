@@ -5849,27 +5849,27 @@
           13865,
           0
         ],
-        "_FN_0003": [
+        "_INITIALIZESOUNDSYSTEM": [
           2168,
           3
         ],
-        "_FN_008A": [
+        "_SHUTDOWNSOUNDSYSTEM": [
           2168,
           138
         ],
-        "_FN_0F88": [
+        "_STARTMUSICTRACK": [
           2168,
           3976
         ],
-        "_FN_1059": [
+        "_STOPMUSICTRACK": [
           2168,
           4185
         ],
-        "_FN_1768": [
+        "_STOPADLIBTRACKCHANNEL": [
           2168,
           5992
         ],
-        "_FN_1852": [
+        "_PLAYADLIBEFFECT": [
           2168,
           6226
         ],
@@ -7351,31 +7351,31 @@
           2610,
           160
         ],
-        "_FN_0A32_01AA": [
+        "_REGISTERTIMERCALLBACK": [
           2610,
           426
         ],
-        "_FN_0A32_021B": [
+        "_REMOVETIMERCALLBACK": [
           2610,
           539
         ],
-        "_FN_0A32_02C1": [
+        "_SETTIMERCALLBACKINTERVAL": [
           2610,
           705
         ],
-        "_FN_0003": [
+        "_INITIALIZESOUNDSYSTEM": [
           2168,
           3
         ],
-        "_FN_1128": [
+        "_SETMUSICTRACKVOLUME": [
           2168,
           4392
         ],
-        "_FN_1768": [
+        "_STOPADLIBTRACKCHANNEL": [
           2168,
           5992
         ],
-        "_FN_1943": [
+        "_APPLYSCANNEDMUSICEVENTS": [
           2168,
           6467
         ]

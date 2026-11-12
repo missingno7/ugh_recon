@@ -1,72 +1,72 @@
 /* JUDGE: -mh -2
- * BIND: g_0236 0664:0236
- * BIND: g_0256 0664:0256
- * BIND: g_025C 0664:025C
- * BIND: g_026A 0664:026A
- * BIND: fn_0664_1331 0664:1331
- * BIND: fn_0664_20B9 0664:20B9
- * BIND: fn_0664_1A65 0664:1A65
- * BIND: g_0014 0664:0014
- * BIND: g_0238 0664:0238
- * BIND: g_023A 0664:023A
- * BIND: g_023E 0664:023E
+ * BIND: AdlxPlaybackGuard 0664:0236
+ * BIND: MainAdlxPlaying 0664:0256
+ * BIND: MainAdlxSectionLoopEnabled 0664:025C
+ * BIND: SoundDeviceBits 0664:026A
+ * BIND: CancelMusicFade 0664:1331
+ * BIND: ShutdownDspPlayback 0664:20B9
+ * BIND: ShutdownAdlibPlayback 0664:1A65
+ * BIND: AudioChannelStates 0664:0014
+ * BIND: MusicTicksPerUnit 0664:0238
+ * BIND: AdlxTickCount 0664:023A
+ * BIND: MainAdlxTimeOrigin 0664:023E
  * OMF: F_LUDIV@ 0000:039D
- * BIND: g_000E 0664:000E
- * BIND: g_024E 0664:024E
- * BIND: g_0252 0664:0252
- * BIND: g_026E 0664:026E
- * BIND: g_0270 0664:0270
+ * BIND: SampleMixerBusy 0664:000E
+ * BIND: SoundBankBase 0664:024E
+ * BIND: SoundBankLength 0664:0252
+ * BIND: ActiveSampleVoiceCount 0664:026E
+ * BIND: ActiveSampleVoiceMask 0664:0270
  * BIND: ClearSoundState 0664:112B
- * BIND: fn_0664_205C 0664:205C
- * BIND: fn_0664_1C39 0664:1C39
- * BIND: fn_0664_1A89 0664:1A89
- * BIND: fn_0664_1E97 0664:1E97
+ * BIND: InitializeDspPlayback 0664:205C
+ * BIND: SetDspSampleRate 0664:1C39
+ * BIND: InitializeAdlibPlayback 0664:1A89
+ * BIND: PrimeSampleDmaPlayback 0664:1E97
  * BIND: fn_013B_001E 013B:001E
  * BIND: fn_013B_001F 013B:001F
  * BIND: fn_013B_001D 013B:001D
  * BIND: fn_013B_001C 013B:001C
  * OMF: F_PCMP@ 0000:0372
- * BIND: g_0212 0664:0212
- * BIND: g_0216 0664:0216
- * BIND: g_022E 0664:022E
- * BIND: g_0242 0664:0242
- * BIND: g_0246 0664:0246
- * BIND: g_0248 0664:0248
- * BIND: g_024A 0664:024A
- * BIND: g_024C 0664:024C
- * BIND: g_0258 0664:0258
- * BIND: g_025A 0664:025A
- * BIND: g_0266 0664:0266
- * BIND: g_026C 0664:026C
- * BIND: g_0274 0664:0274
- * BIND: g_0278 0664:0278
- * BIND: g_032C 0664:032C
- * BIND: g_03E0 0664:03E0
- * BIND: fn_0664_134E 0664:134E
- * BIND: fn_0664_1A37 0664:1A37
- * BIND: fn_0664_1211 0664:1211
- * BIND: fn_0664_14B1 0664:14B1
- * BIND: fn_013B_0020 013B:0020
- * BIND: fn_0664_1377 0664:1377
- * BIND: fn_0664_1503 0664:1503
- * BIND: g_021C 0664:021C
- * BIND: g_025E 0664:025E
+ * BIND: MainAdlxStartPointer 0664:0212
+ * BIND: MusicEventStreamLength 0664:0216
+ * BIND: MusicVoiceCount 0664:022E
+ * BIND: ScannedMusicClockTicks 0664:0242
+ * BIND: MusicFadeStep 0664:0246
+ * BIND: MusicFadeDuration 0664:0248
+ * BIND: MusicFadeStartVolume 0664:024A
+ * BIND: MusicFadeTargetVolume 0664:024C
+ * BIND: MusicFadeScheduled 0664:0258
+ * BIND: MusicTrackVolume 0664:025A
+ * BIND: AdlibInstrumentMap 0664:0266
+ * BIND: ReservedAdlibChannelCount 0664:026C
+ * BIND: CurrentAdlxSlot 0664:0274
+ * BIND: AdlibVoiceStates 0664:0278
+ * BIND: SavedAdlibVoiceStates 0664:032C
+ * BIND: ScannedAdlibVoiceStates 0664:03E0
+ * BIND: ScheduleMusicFade 0664:134E
+ * BIND: SilenceAdlibOperators 0664:1A37
+ * BIND: SetAdlibChannelVolume 0664:1211
+ * BIND: KeyOffAdlibChannel 0664:14B1
+ * BIND: CopyFarBytes 013B:0020
+ * BIND: LoadAdlibInstrument 0664:1377
+ * BIND: SetAdlibFrequency 0664:1503
+ * BIND: MainAdlxCursor 0664:021C
+ * BIND: FirstScannedEvent 0664:025E
  * OMF: F_PADD@ 0000:04ED
  * OMF: F_PINA@ 0000:054D
  * OMF: F_PADA@ 0000:0465
  * OMF: F_LXLSH@ 0000:0444
  * BIND: memset 0000:106B
- * BIND: g_0262 0664:0262
+ * BIND: MainAdlxSectionEnd 0664:0262
  * OMF: F_LXMUL@ 0000:035B
  * DATA: 1A37
  * All 23 C functions in one translation unit. See inventory.json for stubs and tables.
  */
-int g_0000 = 0;
-int g_0002 = 0;
-extern int far g_0236, g_0256, g_025C, g_026A;
-extern void far fn_0664_1331(void);
-extern void far fn_0664_20B9(void);
-extern void far fn_0664_1A65(void);
+int SoundSystemInitialized = 0;
+int SoundSystemShutdown = 0;
+extern int far AdlxPlaybackGuard, MainAdlxPlaying, MainAdlxSectionLoopEnabled, SoundDeviceBits;
+extern void far CancelMusicFade(void);
+extern void far ShutdownDspPlayback(void);
+extern void far ShutdownAdlibPlayback(void);
 
 struct s_0014 {
     unsigned long f00;
@@ -80,41 +80,41 @@ struct s_0014 {
     unsigned long f1E;
     unsigned f22, f24, f26, f28;
 };
-extern struct s_0014 far g_0014[];
-extern unsigned far g_0238;
-extern unsigned long far g_023A, g_023E;
+extern struct s_0014 far AudioChannelStates[];
+extern unsigned far MusicTicksPerUnit;
+extern unsigned long far AdlxTickCount, MainAdlxTimeOrigin;
 /* Borland long-division helper is compiler emitted, not called in C. */
 
-extern int far g_000E, g_026E, g_0270;
-extern unsigned char huge * far g_024E;
-extern unsigned long far g_0252;
+extern int far SampleMixerBusy, ActiveSampleVoiceCount, ActiveSampleVoiceMask;
+extern unsigned char huge * far SoundBankBase;
+extern unsigned long far SoundBankLength;
 extern void far ClearSoundState(void);
-extern int far fn_0664_205C(void);
-extern void far fn_0664_1C39(unsigned);
-extern int far fn_0664_1A89(void);
-extern void far fn_0664_1E97(void);
+extern int far InitializeDspPlayback(void);
+extern void far SetDspSampleRate(unsigned);
+extern int far InitializeAdlibPlayback(void);
+extern void far PrimeSampleDmaPlayback(void);
 extern void far fn_013B_001E(void), far fn_013B_001F(void);
 extern unsigned char huge *far fn_013B_001D(unsigned long,unsigned long,unsigned long);
 extern unsigned long far fn_013B_001C(unsigned long);
-void fn_008A(void);
-void fn_1768(int);
-void fn_14BB(int);
-int fn_0AA9(int, unsigned char far *, int);
-int fn_0CFC(int,int);
-int fn_1128(int);
+void ShutdownSoundSystem(void);
+void StopAdlibTrackChannel(int);
+void RestoreAdlibVoiceAllocation(int);
+int LoadAdlibTrackData(int, unsigned char far *, int);
+int StartAdlibTrackChannel(int,int);
+int SetMusicTrackVolume(int);
 
-extern unsigned far g_0216, g_022E, g_0258, g_025A, g_026C, g_0274;
-extern unsigned far g_0246, g_0248, g_024A, g_024C;
-extern unsigned long far g_0242;
-extern unsigned char far * far g_0212, * far g_0266;
-extern void far fn_0664_134E(void), far fn_0664_1A37(void);
-extern void far fn_0664_1211(int,unsigned), far fn_0664_14B1(int);
-extern void far fn_013B_0020(unsigned long, void far *, void far *);
+extern unsigned far MusicEventStreamLength, MusicVoiceCount, MusicFadeScheduled, MusicTrackVolume, ReservedAdlibChannelCount, CurrentAdlxSlot;
+extern unsigned far MusicFadeStep, MusicFadeDuration, MusicFadeStartVolume, MusicFadeTargetVolume;
+extern unsigned long far ScannedMusicClockTicks;
+extern unsigned char far * far MainAdlxStartPointer, * far AdlibInstrumentMap;
+extern void far ScheduleMusicFade(void), far SilenceAdlibOperators(void);
+extern void far SetAdlibChannelVolume(int,unsigned), far KeyOffAdlibChannel(int);
+extern void far CopyFarBytes(unsigned long, void far *, void far *);
 struct s_0278 {
     unsigned char f00[12];
     unsigned f0C, f0E, f10, f12;
 };
-extern struct s_0278 far g_0278[], far g_032C[], far g_03E0[];
+extern struct s_0278 far AdlibVoiceStates[], far SavedAdlibVoiceStates[], far ScannedAdlibVoiceStates[];
 struct s_chunk {
     unsigned char tag[4];
     unsigned long size;
@@ -123,72 +123,96 @@ struct s_chunk {
     unsigned f0C, f0E;
 };
 
-extern void far fn_0664_1377(int,void far *), far fn_0664_1503(int,unsigned);
-extern unsigned char far * far g_021C, * far g_025E;
+extern void far LoadAdlibInstrument(int,void far *), far SetAdlibFrequency(int,unsigned);
+extern unsigned char far * far MainAdlxCursor, * far FirstScannedEvent;
 
-int fn_09CA(unsigned);
-int fn_0176(unsigned, unsigned char huge *, unsigned, unsigned, unsigned);
+int StopSampleChannel(unsigned);
+int LoadIffSample(unsigned, unsigned char huge *, unsigned, unsigned, unsigned);
 
 extern void far *far memset(void far *,int,unsigned);
-extern unsigned char far * far g_0262;
+extern unsigned char far * far MainAdlxSectionEnd;
 
+/* CONTRACT (tools/apply.py)
+ * Initializes requested sound devices and clears shared sound state.
+ * In: device mask, bit 1 requests digital playback and bit 0 requests AdLib.
+ * Out: returns/stores the subset of requested devices that initialized successfully.
+ * Effects: clears prior device state; failed device initialization leaves its bit clear.
+ * END CONTRACT */
 /* @0878:0003 */
-int fn_0003(unsigned bits)
+int InitializeSoundSystem(unsigned bits)
 {
     int result = 0;
     int i;
-    if (g_0000 && g_026A)
-        fn_008A();
+    if (SoundSystemInitialized && SoundDeviceBits)
+        ShutdownSoundSystem();
     ClearSoundState();
-    if ((bits & 2) && fn_0664_205C()) {
+    if ((bits & 2) && InitializeDspPlayback()) {
         result |= 2;
         for (i = 0; i < 9; i++) {
             fn_013B_001F();
             fn_013B_001E();
         }
-        fn_0664_1C39(8000);
+        SetDspSampleRate(8000);
     }
-    if ((bits & 1) && fn_0664_1A89())
+    if ((bits & 1) && InitializeAdlibPlayback())
         result |= 1;
-    g_026A = result;
-    g_0000 = 1;
+    SoundDeviceBits = result;
+    SoundSystemInitialized = 1;
     return result;
 }
 
+/* CONTRACT (tools/apply.py)
+ * Shuts down active devices and makes shutdown idempotent after the first call.
+ * In: shared initialized-device bits and shutdown state.
+ * Out: clears active-device bits and marks shutdown complete.
+ * Effects: stops digital playback and invokes each active device's sound teardown.
+ * END CONTRACT */
 /* @0878:008A */
-void fn_008A(void)
+void ShutdownSoundSystem(void)
 {
-    if (g_0002 && !g_026A)
+    if (SoundSystemShutdown && !SoundDeviceBits)
         return;
-    g_0236 = 1;
-    fn_0664_1331();
-    if (g_026A & 2)
-        fn_0664_20B9();
-    if (g_026A & 1)
-        fn_0664_1A65();
-    g_026A = 0;
-    g_0002 = 1;
+    AdlxPlaybackGuard = 1;
+    CancelMusicFade();
+    if (SoundDeviceBits & 2)
+        ShutdownDspPlayback();
+    if (SoundDeviceBits & 1)
+        ShutdownAdlibPlayback();
+    SoundDeviceBits = 0;
+    SoundSystemShutdown = 1;
 }
 
+/* CONTRACT (tools/apply.py)
+ * Loads the bank resource through the game module's resource callback.
+ * In: three callback arguments forwarded to the game resource loader.
+ * Out: returns -1 on loader failure; otherwise stores bank base and length and returns length.
+ * Effects: updates the shared huge-pointer bank view used by indexed sound loading.
+ * END CONTRACT */
 /* @0878:00F5 */
-unsigned long fn_00F5(unsigned long a, unsigned long b, unsigned long c)
+unsigned long LoadSoundBankResource(unsigned long a, unsigned long b, unsigned long c)
 {
     unsigned char huge *p;
     if ((p = fn_013B_001D(a,b,c)) == 0)
         return -1L;
-    g_024E = p;
-    g_0252 = fn_013B_001C(b);
-    return g_0252;
+    SoundBankBase = p;
+    SoundBankLength = fn_013B_001C(b);
+    return SoundBankLength;
 }
 
+/* CONTRACT (tools/apply.py)
+ * Parses a FORM/8SVX sample and initializes one digital playback channel.
+ * In: channel < 8, huge pointer to file bytes, volume, repeat count and step.
+ * Out: returns 1 on setup or -1 on rejection; updates the channel descriptor and active mask.
+ * Effects: waits on SoundBusyFlag; clamps volume to 255 and rounds sample byte length down even.
+ * END CONTRACT */
 /* @0878:0176 */
-int fn_0176(unsigned x, unsigned char huge *p, unsigned volume, unsigned count, unsigned step)
+int LoadIffSample(unsigned x, unsigned char huge *p, unsigned volume, unsigned count, unsigned step)
 {
     unsigned long length;
     unsigned rate;
     unsigned mode;
     unsigned char huge *start = p;
-    if (!(g_026A & 2))
+    if (!(SoundDeviceBits & 2))
         return -1;
     if (x >= 8)
         return -1;
@@ -223,103 +247,130 @@ int fn_0176(unsigned x, unsigned char huge *p, unsigned volume, unsigned count, 
     p++;
     if (length > 64000UL)
         return -1;
-    fn_09CA(x);
+    StopSampleChannel(x);
     if (volume > 255)
         volume = 255;
     length &= 0xfffe;
-    g_0014[x].f28 = 0;
+    AudioChannelStates[x].f28 = 0;
     if (!count)
-        g_0014[x].f28 |= 2;
+        AudioChannelStates[x].f28 |= 2;
     else
-        g_0014[x].f04 = count;
-    g_0014[x].f1C = volume;
-    g_0014[x].f06 = (unsigned char far *)p;
-    g_0014[x].f10 = (unsigned char far *)((unsigned long)p & 0xffff0000UL);
-    g_0014[x].f0A = length;
-    g_0014[x].f0C = mode;
-    g_0014[x].f18 = mode & 1;
-    g_0014[x].f26 = step;
-    g_0014[x].f14 = length >> 1;
+        AudioChannelStates[x].f04 = count;
+    AudioChannelStates[x].f1C = volume;
+    AudioChannelStates[x].f06 = (unsigned char far *)p;
+    AudioChannelStates[x].f10 = (unsigned char far *)((unsigned long)p & 0xffff0000UL);
+    AudioChannelStates[x].f0A = length;
+    AudioChannelStates[x].f0C = mode;
+    AudioChannelStates[x].f18 = mode & 1;
+    AudioChannelStates[x].f26 = step;
+    AudioChannelStates[x].f14 = length >> 1;
     if (mode & 2)
-        g_0014[x].f1A = 127;
+        AudioChannelStates[x].f1A = 127;
     else
-        g_0014[x].f1A = 0;
-    g_0014[x].f0E = rate;
-    while (g_000E)
+        AudioChannelStates[x].f1A = 0;
+    AudioChannelStates[x].f0E = rate;
+    while (SampleMixerBusy)
         ;
-    g_026E++;
-    g_0270 |= 1 << x;
+    ActiveSampleVoiceCount++;
+    ActiveSampleVoiceMask |= 1 << x;
     return 1;
 }
 
+/* CONTRACT (tools/apply.py)
+ * Loads ADLX track data into one AdLib channel slot and sets its requested volume.
+ * In: channel >= 8, far data pointer, volume and playback count/control.
+ * Out: returns 1 on parse success or -1; delegates slot setup to LoadAdlibTrackData.
+ * END CONTRACT */
 /* @0878:0691 */
-int fn_0691(unsigned x, unsigned char far *p, unsigned a, unsigned b)
+int LoadAdlibChannel(unsigned x, unsigned char far *p, unsigned a, unsigned b)
 {
     if (x < 8)
         return -1;
-    fn_1768(x);
-    if (fn_0AA9(x,p,b)) {
-        g_0014[x].f1C = a;
+    StopAdlibTrackChannel(x);
+    if (LoadAdlibTrackData(x,p,b)) {
+        AudioChannelStates[x].f1C = a;
         return 1;
     } else
         return -1;
 }
 
+/* CONTRACT (tools/apply.py)
+ * Resolves a bank entry and dispatches 8SVX or ADLX data to its format loader.
+ * In: channel index, bank-entry index, volume, count and step.
+ * Out: returns the selected loader result, or -1 for invalid index, bounds or tag.
+ * Effects: follows huge bank pointers and preserves the original format-specific loader behavior.
+ * END CONTRACT */
 /* @0878:06E4 */
-int fn_06E4(unsigned x, unsigned index, unsigned a, unsigned b, unsigned c)
+int LoadBankSoundByIndex(unsigned x, unsigned index, unsigned a, unsigned b, unsigned c)
 {
     unsigned char huge *p;
     if (x >= 12)
         return -1;
-    p = g_024E + *(unsigned long huge *)g_024E + index * 12 + 8;
-    if (p > g_024E + g_0252)
+    p = SoundBankBase + *(unsigned long huge *)SoundBankBase + index * 12 + 8;
+    if (p > SoundBankBase + SoundBankLength)
         return -1;
-    p = g_024E + *(unsigned long huge *)p;
+    p = SoundBankBase + *(unsigned long huge *)p;
     if (p[0] == 'F' && p[1] == 'O' && p[2] == 'R' && p[3] == 'M' &&
         p[8] == '8' && p[9] == 'S' && p[10] == 'V' && p[11] == 'X')
-        return fn_0176(x,p,a,b,c);
+        return LoadIffSample(x,p,a,b,c);
     else if (p[0] == 'A' && p[1] == 'D' && p[2] == 'L' && p[3] == 'X' &&
         p[8] == 'A' && p[9] == 'H' && p[10] == 'D' && p[11] == 'R')
-        return fn_0691(x,(unsigned char far *)p,a,b);
+        return LoadAdlibChannel(x,(unsigned char far *)p,a,b);
     else
         return -1;
 }
 
+/* CONTRACT (tools/apply.py)
+ * Stops active digital output and reapplies current volume to the music voices.
+ * In: active device bits, active sample count and music voice count.
+ * Out: no return value; requests digital stop and silences/reapplies AdLib voice levels.
+ * END CONTRACT */
 /* @0878:096B */
-void fn_096B(void)
+void StopActiveSoundOutputs(void)
 {
     int i;
-    if ((g_026A & 2) && g_026E)
-        fn_0664_1E97();
-    if (g_026A & 1)
+    if ((SoundDeviceBits & 2) && ActiveSampleVoiceCount)
+        PrimeSampleDmaPlayback();
+    if (SoundDeviceBits & 1)
         for (i = 8; i < 12; i++)
-            fn_0CFC(i,g_0014[i].f1C);
+            StartAdlibTrackChannel(i,AudioChannelStates[i].f1C);
 }
 
+/* CONTRACT (tools/apply.py)
+ * Stops a digital channel, if active, and clears its active-mask bit.
+ * In: channel index; shared device bits and active-channel mask.
+ * Out: returns 1 on accepted request or -1 when rejected/not active.
+ * Effects: waits for SoundBusyFlag before clearing an active digital channel.
+ * END CONTRACT */
 /* @0878:09CA */
-int fn_09CA(unsigned x)
+int StopSampleChannel(unsigned x)
 {
     if (x > 12)
         return -1;
-    if (g_026A & 2) {
+    if (SoundDeviceBits & 2) {
         if (x < 8) {
-            if (!(g_0270 & (1 << x)))
+            if (!(ActiveSampleVoiceMask & (1 << x)))
                 return -1;
-            g_0014[x].f04 = 0;
-            while (g_000E)
+            AudioChannelStates[x].f04 = 0;
+            while (SampleMixerBusy)
                 ;
-            if (g_0270 & (1 << x)) {
-                g_0270 &= ~(1 << x);
-                --g_026E;
+            if (ActiveSampleVoiceMask & (1 << x)) {
+                ActiveSampleVoiceMask &= ~(1 << x);
+                --ActiveSampleVoiceCount;
             }
         } else
-            fn_1768(x);
+            StopAdlibTrackChannel(x);
     }
     return 1;
 }
 
+/* CONTRACT (tools/apply.py)
+ * Reverses the four bytes of a 32-bit value.
+ * In: one unsigned long.
+ * Out: returns the byte-reversed value; no shared state changes.
+ * END CONTRACT */
 /* @0878:0A70 */
-unsigned long fn_0A70(unsigned long x)
+unsigned long SwapDwordByteOrder(unsigned long x)
 {
     unsigned long y = x;
     ((unsigned char *)&y)[0] = ((unsigned char *)&x)[3];
@@ -329,11 +380,17 @@ unsigned long fn_0A70(unsigned long x)
     return y;
 }
 
+/* CONTRACT (tools/apply.py)
+ * Parses ADLX, AHDR, IMAP and TRCK chunks into an AdLib channel descriptor.
+ * In: channel 8..12, far pointer to chunk data, playback count.
+ * Out: returns 1 on success or -1 on device, channel, tag or voice-capacity rejection.
+ * Effects: channel 12 stores the instrument-map pointer and track tick rate.
+ * END CONTRACT */
 /* @0878:0AA9 */
-int fn_0AA9(int x, unsigned char far *p, int n)
+int LoadAdlibTrackData(int x, unsigned char far *p, int n)
 {
     struct s_chunk far *a, far *b, far *c, far *d;
-    if (!(g_026A & 1))
+    if (!(SoundDeviceBits & 1))
         return -1;
     if (x > 12 || x < 8)
         return -1;
@@ -345,179 +402,214 @@ int fn_0AA9(int x, unsigned char far *p, int n)
     p += 8;
     if (b->tag[0] != 'A' || b->tag[1] != 'H' || b->tag[2] != 'D' || b->tag[3] != 'R')
         return -1;
-    p += (unsigned)fn_0A70(b->size);
+    p += (unsigned)SwapDwordByteOrder(b->size);
     c = (struct s_chunk far *)p;
     p += 8;
     if (c->tag[0] != 'I' || c->tag[1] != 'M' || c->tag[2] != 'A' || c->tag[3] != 'P')
         return -1;
-    p += (unsigned)fn_0A70(c->size);
+    p += (unsigned)SwapDwordByteOrder(c->size);
     d = (struct s_chunk far *)p;
     p += 8;
     if (d->tag[0] != 'T' || d->tag[1] != 'R' || d->tag[2] != 'C' || d->tag[3] != 'K')
         return -1;
-    if (x != 12 && b->f0A > 9 - g_026C)
+    if (x != 12 && b->f0A > 9 - ReservedAdlibChannelCount)
         return -1;
     if (x == 12) {
-        g_0266 = (unsigned char far *)c + 8;
-        g_0238 = b->f0E;
+        AdlibInstrumentMap = (unsigned char far *)c + 8;
+        MusicTicksPerUnit = b->f0E;
     }
-    g_0014[x].f26 = 0x100;
-    g_0014[x].f0A = fn_0A70(a->size) + (-34);
-    g_0014[x].f22 = b->f0A;
-    g_0014[x].f10 = p;
-    g_0014[x].f06 = p;
-    g_0014[x].f28 = 4;
+    AudioChannelStates[x].f26 = 0x100;
+    AudioChannelStates[x].f0A = SwapDwordByteOrder(a->size) + (-34);
+    AudioChannelStates[x].f22 = b->f0A;
+    AudioChannelStates[x].f10 = p;
+    AudioChannelStates[x].f06 = p;
+    AudioChannelStates[x].f28 = 4;
     if (!n)
-        g_0014[x].f28 |= 2;
+        AudioChannelStates[x].f28 |= 2;
     else
-        g_0014[x].f04 = n;
+        AudioChannelStates[x].f04 = n;
     return 1;
 }
 
+/* CONTRACT (tools/apply.py)
+ * Allocates AdLib voices and starts a previously loaded ADLX channel.
+ * In: channel, volume; descriptor must contain loaded ADLX track data.
+ * Out: returns 1 when started or -1 when rejected; restores the guard on success.
+ * Effects: may move current voices; failure after allocation-count growth leaves that growth intact.
+ * END CONTRACT */
 /* @0878:0CFC */
-int fn_0CFC(int x, int n)
+int StartAdlibTrackChannel(int x, int n)
 {
     int i;
-    unsigned old = g_0236;
-    if (!(g_026A & 1))
+    unsigned old = AdlxPlaybackGuard;
+    if (!(SoundDeviceBits & 1))
         return -1;
-    g_0274 = x;
+    CurrentAdlxSlot = x;
     if (n & 0xff00)
         n = 255;
-    if (x > 12 || x < 8 || !(g_0014[x].f28 & 4) || (g_0014[x].f28 & 1))
+    if (x > 12 || x < 8 || !(AudioChannelStates[x].f28 & 4) || (AudioChannelStates[x].f28 & 1))
         return -1;
-    g_0236 = 1;
-    g_0014[x].f1C = n;
+    AdlxPlaybackGuard = 1;
+    AudioChannelStates[x].f1C = n;
     if (x < 12) {
-        fn_1768(x);
-        g_026C += g_0014[x].f22;
-        if (g_026C > 9) {
-            g_026C -= g_0014[x].f22;
+        StopAdlibTrackChannel(x);
+        ReservedAdlibChannelCount += AudioChannelStates[x].f22;
+        if (ReservedAdlibChannelCount > 9) {
+            ReservedAdlibChannelCount -= AudioChannelStates[x].f22;
             return -1;
         }
-        g_0014[x].f24 = 9 - g_026C;
+        AudioChannelStates[x].f24 = 9 - ReservedAdlibChannelCount;
     }
-    for (i = g_0014[x].f24; i < g_0014[x].f24 + g_0014[x].f22; i++) {
-        if (i < g_022E) {
-            g_032C[i].f12 = g_0278[i].f12;
-            fn_013B_0020(12, &g_0278[i], &g_032C[i]);
-            g_032C[i].f0C = g_025A;
-            g_032C[i].f0E = g_0278[i].f0E;
+    for (i = AudioChannelStates[x].f24; i < AudioChannelStates[x].f24 + AudioChannelStates[x].f22; i++) {
+        if (i < MusicVoiceCount) {
+            SavedAdlibVoiceStates[i].f12 = AdlibVoiceStates[i].f12;
+            CopyFarBytes(12, &AdlibVoiceStates[i], &SavedAdlibVoiceStates[i]);
+            SavedAdlibVoiceStates[i].f0C = MusicTrackVolume;
+            SavedAdlibVoiceStates[i].f0E = AdlibVoiceStates[i].f0E;
         }
-        fn_0664_1211(i,0);
-        fn_0664_14B1(i);
-        g_0278[i].f0C = n;
+        SetAdlibChannelVolume(i,0);
+        KeyOffAdlibChannel(i);
+        AdlibVoiceStates[i].f0C = n;
     }
-    g_0014[x].f28 |= 1;
-    g_0014[x].f1E = g_023A + 3;
-    g_0236 = old;
+    AudioChannelStates[x].f28 |= 1;
+    AudioChannelStates[x].f1E = AdlxTickCount + 3;
+    AdlxPlaybackGuard = old;
     return 1;
 }
 
+/* CONTRACT (tools/apply.py)
+ * Resets a loaded ADLX channel's current data pointer to its start pointer.
+ * In: channel index and loaded-track descriptor.
+ * Out: returns 1 when accepted or -1 when out of range or not an ADLX descriptor.
+ * END CONTRACT */
 /* @0878:0F2D */
-int fn_0F2D(int x)
+int ResetAdlibTrackChannelCursor(int x)
 {
-    if (x > 12 || !(g_0014[x].f28 & 4))
+    if (x > 12 || !(AudioChannelStates[x].f28 & 4))
         return -1;
-    g_0014[x].f10 = g_0014[x].f06;
+    AudioChannelStates[x].f10 = AudioChannelStates[x].f06;
     return 1;
 }
 
+/* CONTRACT (tools/apply.py)
+ * Loads the main ADLX music track and starts it immediately or with a timed fade.
+ * In: far track-data pointer, fade/control word and target volume.
+ * Out: returns 1 after initialization or -1 if AdLib is unavailable or parsing fails.
+ * Effects: starts the music timer; fade mode advances through the assembly sound handler.
+ * END CONTRACT */
 /* @0878:0F88 */
-int fn_0F88(unsigned char far *p, int n, int a)
+int StartMusicTrack(unsigned char far *p, int n, int a)
 {
-    if (!(g_026A & 1))
+    if (!(SoundDeviceBits & 1))
         return -1;
-    fn_0664_1331();
-    if (fn_0AA9(12,p,0) < 0)
+    CancelMusicFade();
+    if (LoadAdlibTrackData(12,p,0) < 0)
         return -1;
-    g_0256 = 1;
+    MainAdlxPlaying = 1;
     if (!n) {
-        fn_0CFC(12,a);
-        fn_1128(a);
+        StartAdlibTrackChannel(12,a);
+        SetMusicTrackVolume(a);
     } else {
-        fn_0CFC(12,0);
-        g_024A = 0;
-        g_024C = a;
-        g_0246 = 0;
-        g_0248 = n;
-        fn_0664_134E();
+        StartAdlibTrackChannel(12,0);
+        MusicFadeStartVolume = 0;
+        MusicFadeTargetVolume = a;
+        MusicFadeStep = 0;
+        MusicFadeDuration = n;
+        ScheduleMusicFade();
     }
-    g_025A = a;
-    g_023E = g_023A;
+    MusicTrackVolume = a;
+    MainAdlxTimeOrigin = AdlxTickCount;
     return 1;
 }
 
+/* CONTRACT (tools/apply.py)
+ * Stops the main music track immediately or fades its volume before teardown.
+ * In: zero stops immediately; nonzero is the fade duration in music timer units.
+ * Out: returns 1 when a track is active and teardown completes, otherwise -1.
+ * Effects: fade mode busy-waits for MusicFadeBusyFlag, then stops and restores voice state.
+ * END CONTRACT */
 /* @0878:1059 */
-int fn_1059(int n)
+int StopMusicTrack(int n)
 {
     int i;
-    if (!(g_026A & 1))
+    if (!(SoundDeviceBits & 1))
         return -1;
     for (i = 8; i < 12; i++)
-        fn_1768(i);
-    if (!g_0256)
+        StopAdlibTrackChannel(i);
+    if (!MainAdlxPlaying)
         return -1;
-    fn_0664_1331();
+    CancelMusicFade();
     if (!n)
-        g_0256 = 0;
+        MainAdlxPlaying = 0;
     else {
-        g_024C = 0;
-        g_024A = g_025A;
-        g_0246 = 0;
-        g_0248 = n;
-        fn_0664_134E();
-        while (g_0258)
+        MusicFadeTargetVolume = 0;
+        MusicFadeStartVolume = MusicTrackVolume;
+        MusicFadeStep = 0;
+        MusicFadeDuration = n;
+        ScheduleMusicFade();
+        while (MusicFadeScheduled)
             ;
-        g_0256 = 0;
-        fn_0664_1331();
-        g_0274 = 0;
-        fn_0664_1A37();
+        MainAdlxPlaying = 0;
+        CancelMusicFade();
+        CurrentAdlxSlot = 0;
+        SilenceAdlibOperators();
     }
     return 1;
 }
 
+/* CONTRACT (tools/apply.py)
+ * Applies a music volume to each currently indexed music voice.
+ * In: requested volume; active AdLib device, track state and prior voice selection.
+ * Out: stores the volume and returns 1, or -1 when AdLib/track is unavailable.
+ * Clobbers/preserves: saves and restores CurrentMusicVoice around the voice loop.
+ * END CONTRACT */
 /* @0878:1128 */
-int fn_1128(int n)
+int SetMusicTrackVolume(int n)
 {
     int i;
-    unsigned old = g_0274;
-    if (!(g_026A & 1))
+    unsigned old = CurrentAdlxSlot;
+    if (!(SoundDeviceBits & 1))
         return -1;
-    if (!g_0256)
+    if (!MainAdlxPlaying)
         return -1;
-    g_025A = n;
-    g_0274 = 12;
-    for (i = 0; i < g_022E; i++)
-        fn_0664_1211(i,n);
-    g_0274 = old;
+    MusicTrackVolume = n;
+    CurrentAdlxSlot = 12;
+    for (i = 0; i < MusicVoiceCount; i++)
+        SetAdlibChannelVolume(i,n);
+    CurrentAdlxSlot = old;
     return 1;
 }
 
+/* CONTRACT (tools/apply.py)
+ * Scans the music event stream over two successive time windows into voice snapshots.
+ * In: start and end time units, multiplied by MusicTicksPerUnit.
+ * Out: stores two scan pointers and elapsed tick delta; returns 1 and sets pending, or -1.
+ * Effects: parses event opcodes; first pass updates ScannedAdlibVoiceStates, second advances only.
+ * END CONTRACT */
 /* @0878:11AD */
-int fn_11AD(unsigned a, unsigned b)
+int ScanMusicEvents(unsigned a, unsigned b)
 {
-    unsigned char far *p = g_0212;
+    unsigned char far *p = MainAdlxStartPointer;
     unsigned long total = 0;
     unsigned long threshold;
     unsigned char code, op;
-    unsigned char far * far *out = &g_025E;
+    unsigned char far * far *out = &FirstScannedEvent;
     unsigned long delta;
     int i, j;
-    if (!(g_026A & 1))
+    if (!(SoundDeviceBits & 1))
         return -1;
-    if (!g_0256)
+    if (!MainAdlxPlaying)
         return -1;
-    memset(g_03E0,0,180);
-    for (j = 0; j < g_022E; j++)
-        g_03E0[j].f0C = g_025A;
-    threshold = (unsigned long)a * g_0238;
+    memset(ScannedAdlibVoiceStates,0,180);
+    for (j = 0; j < MusicVoiceCount; j++)
+        ScannedAdlibVoiceStates[j].f0C = MusicTrackVolume;
+    threshold = (unsigned long)a * MusicTicksPerUnit;
     for (i = 0; i < 2; i++) {
-        g_0242 = total;
+        ScannedMusicClockTicks = total;
         while (total < threshold) {
             code = *p++;
             op = code & 0xf0;
-            if (p >= g_0212 + g_0216)
+            if (p >= MainAdlxStartPointer + MusicEventStreamLength)
                 return -1;
             switch (op) {
             case 0:
@@ -527,22 +619,22 @@ int fn_11AD(unsigned a, unsigned b)
                 break;
             case 0x10:
                 if (!i)
-                    g_03E0[code & 15].f12 = *(unsigned far *)p;
+                    ScannedAdlibVoiceStates[code & 15].f12 = *(unsigned far *)p;
                 p += 2;
                 break;
             case 0x20:
                 if (!i)
-                    g_03E0[code & 15].f12 &= 0xdfff;
+                    ScannedAdlibVoiceStates[code & 15].f12 &= 0xdfff;
                 break;
             case 0x30:
                 if (!i)
-                    g_03E0[code & 15].f0E = *p;
+                    ScannedAdlibVoiceStates[code & 15].f0E = *p;
                 p++;
                 break;
             case 0x40:
                 if (!i) {
-                    fn_013B_0020(12,p,&g_03E0[code & 15]);
-                    g_03E0[code & 15].f10 = 12;
+                    CopyFarBytes(12,p,&ScannedAdlibVoiceStates[code & 15]);
+                    ScannedAdlibVoiceStates[code & 15].f10 = 12;
                 }
                 p += 11;
                 break;
@@ -559,148 +651,189 @@ int fn_11AD(unsigned a, unsigned b)
             }
         }
         *out = p;
-        out = &g_0262;
-        g_0242 = total - g_0242;
-        threshold = (unsigned long)b * g_0238;
+        out = &MainAdlxSectionEnd;
+        ScannedMusicClockTicks = total - ScannedMusicClockTicks;
+        threshold = (unsigned long)b * MusicTicksPerUnit;
     }
-    g_025C = 1;
+    MainAdlxSectionLoopEnabled = 1;
     return 1;
 }
 
+/* CONTRACT (tools/apply.py)
+ * Clears the pending music-event flag when a main track is active.
+ * In: shared MusicTrackActive state.
+ * Out: clears MusicEventsPending if active; always returns 1.
+ * END CONTRACT */
 /* @0878:1491 */
-int fn_1491(void)
+int ClearMusicEventPendingFlag(void)
 {
-    if (g_0256)
-        g_025C = 0;
+    if (MainAdlxPlaying)
+        MainAdlxSectionLoopEnabled = 0;
     return 1;
 }
 
+/* CONTRACT (tools/apply.py)
+ * Removes an AdLib channel's allocated voices and fills the vacated slots.
+ * In: channel descriptor, current voice allocation and shared voice snapshots.
+ * Out: updates channel allocation and hardware voice state; no return value.
+ * Effects: copies/reprograms voices through ASM helpers and preserves source loop order.
+ * END CONTRACT */
 /* @0878:14BB */
-void fn_14BB(int x)
+void RestoreAdlibVoiceAllocation(int x)
 {
     int i, n, begin, end, k, tmp;
-    n = g_0014[x].f22;
-    begin = 9 - g_026C;
+    n = AudioChannelStates[x].f22;
+    begin = 9 - ReservedAdlibChannelCount;
     end = begin + n;
-    g_0014[x].f28 = 0;
-    g_026C -= n;
+    AudioChannelStates[x].f28 = 0;
+    ReservedAdlibChannelCount -= n;
     for (k = 8; k < 12; k++)
-        if (k != x && (g_0014[k].f28 & 4) && g_0014[k].f24 < g_0014[x].f24)
-            g_0014[k].f24 += n;
-    if (g_0014[x].f24 > begin)
-        for (i = g_0014[x].f24 + n - 1; i >= end; i--) {
-            fn_013B_0020(12,&g_0278[i-n],&g_0278[i]);
-            g_0278[i].f0C = g_0278[i-n].f0C;
-            g_0278[i].f0E = g_0278[i-n].f0E;
-            g_0278[i].f12 = g_0278[i-n].f12;
-            g_0278[i].f10 = g_0278[i-n].f10;
-            g_0274 = g_0278[i].f10;
-            tmp = g_0278[i].f12;
-            fn_0664_14B1(i);
-            fn_0664_1377(i,&g_0278[i]);
-            fn_0664_1503(i,tmp);
+        if (k != x && (AudioChannelStates[k].f28 & 4) && AudioChannelStates[k].f24 < AudioChannelStates[x].f24)
+            AudioChannelStates[k].f24 += n;
+    if (AudioChannelStates[x].f24 > begin)
+        for (i = AudioChannelStates[x].f24 + n - 1; i >= end; i--) {
+            CopyFarBytes(12,&AdlibVoiceStates[i-n],&AdlibVoiceStates[i]);
+            AdlibVoiceStates[i].f0C = AdlibVoiceStates[i-n].f0C;
+            AdlibVoiceStates[i].f0E = AdlibVoiceStates[i-n].f0E;
+            AdlibVoiceStates[i].f12 = AdlibVoiceStates[i-n].f12;
+            AdlibVoiceStates[i].f10 = AdlibVoiceStates[i-n].f10;
+            CurrentAdlxSlot = AdlibVoiceStates[i].f10;
+            tmp = AdlibVoiceStates[i].f12;
+            KeyOffAdlibChannel(i);
+            LoadAdlibInstrument(i,&AdlibVoiceStates[i]);
+            SetAdlibFrequency(i,tmp);
         }
     for (i = begin; i < end; i++) {
-        if (i < g_022E) {
-            g_0278[i].f0C = g_025A;
-            g_0278[i].f0E = g_032C[i].f0E;
-            g_0274 = 12;
-            g_0278[i].f10 = 12;
-            tmp = g_032C[i].f12;
-            fn_0664_14B1(i);
-            fn_0664_1377(i,&g_032C[i]);
-            fn_0664_1503(i,g_032C[i].f12);
+        if (i < MusicVoiceCount) {
+            AdlibVoiceStates[i].f0C = MusicTrackVolume;
+            AdlibVoiceStates[i].f0E = SavedAdlibVoiceStates[i].f0E;
+            CurrentAdlxSlot = 12;
+            AdlibVoiceStates[i].f10 = 12;
+            tmp = SavedAdlibVoiceStates[i].f12;
+            KeyOffAdlibChannel(i);
+            LoadAdlibInstrument(i,&SavedAdlibVoiceStates[i]);
+            SetAdlibFrequency(i,SavedAdlibVoiceStates[i].f12);
         } else {
-            fn_0664_14B1(i);
-            fn_0664_1211(i,0);
+            KeyOffAdlibChannel(i);
+            SetAdlibChannelVolume(i,0);
         }
     }
 }
 
+/* CONTRACT (tools/apply.py)
+ * Stops one allocated ADLX channel and restores its displaced voice state.
+ * In: channel index and prior SoundStateGuard value.
+ * Out: clears its descriptor and restores the saved guard on the accepted path.
+ * Effects: releases voices, resets its sample cursor, and reassigns affected voices.
+ * END CONTRACT */
 /* @0878:1768 */
-void fn_1768(int x)
+void StopAdlibTrackChannel(int x)
 {
     int i;
-    unsigned old = g_0236;
-    if (!(g_026A & 1))
+    unsigned old = AdlxPlaybackGuard;
+    if (!(SoundDeviceBits & 1))
         return;
-    if (x < 8 || x >= 12 || !(g_0014[x].f28 & 4) || !(g_0014[x].f28 & 1))
+    if (x < 8 || x >= 12 || !(AudioChannelStates[x].f28 & 4) || !(AudioChannelStates[x].f28 & 1))
         return;
     {
-        g_0236 = 1;
-        g_0014[x].f28 = 0;
-        g_0014[x].f10 = g_0014[x].f06;
-        for (i = 0; i < g_0014[x].f22; i++)
-            fn_0664_14B1(g_0014[x].f24 + i);
-        fn_14BB(x);
-        g_0236 = old;
+        AdlxPlaybackGuard = 1;
+        AudioChannelStates[x].f28 = 0;
+        AudioChannelStates[x].f10 = AudioChannelStates[x].f06;
+        for (i = 0; i < AudioChannelStates[x].f22; i++)
+            KeyOffAdlibChannel(AudioChannelStates[x].f24 + i);
+        RestoreAdlibVoiceAllocation(x);
+        AdlxPlaybackGuard = old;
     }
 }
 
+/* CONTRACT (tools/apply.py)
+ * Loads an ADLX effect into a free AdLib channel, or replaces the oldest channel.
+ * In: far effect data, volume and playback control/count.
+ * Out: returns selected channel 8..11 on success or -1 when loading/starting fails.
+ * Effects: channel age is compared as an unsigned-looking C field with ordinary C int semantics.
+ * END CONTRACT */
 /* @0878:1852 */
-int fn_1852(unsigned char far *p, int n, int a)
+int PlayAdlibEffect(unsigned char far *p, int n, int a)
 {
     int x = 8;
     int oldest = 8;
-    if (!(g_026A & 1))
+    if (!(SoundDeviceBits & 1))
         return -1;
     for (; x < 12; x++)
-        if (!(g_0014[x].f28 & 1)) {
-            if (fn_0691(x,p,n,a) >= 0)
-                fn_0CFC(x,n);
+        if (!(AudioChannelStates[x].f28 & 1)) {
+            if (LoadAdlibChannel(x,p,n,a) >= 0)
+                StartAdlibTrackChannel(x,n);
             return x;
         }
     for (x = 8; x < 12; x++)
-        if (g_0014[x].f00 < g_0014[oldest].f00)
+        if (AudioChannelStates[x].f00 < AudioChannelStates[oldest].f00)
             oldest = x;
     x = oldest;
-    fn_1768(x);
-    if (!(g_0014[x].f28 & 1))
-        if (fn_0691(x,p,n,a) >= 0)
-            if (fn_0CFC(x,n) >= 0)
+    StopAdlibTrackChannel(x);
+    if (!(AudioChannelStates[x].f28 & 1))
+        if (LoadAdlibChannel(x,p,n,a) >= 0)
+            if (StartAdlibTrackChannel(x,n) >= 0)
                 return x;
     return -1;
 }
 
+/* CONTRACT (tools/apply.py)
+ * Applies scanned music state, updates the event cursor and advances the music clock.
+ * In: pending scan pointers, elapsed tick delta, current voice and hardware snapshots.
+ * Out: writes changed hardware voice state and updates applied clock ticks.
+ * Effects: uses the current allocation boundary to choose active versus saved voice state.
+ * END CONTRACT */
 /* @0878:1943 */
-void fn_1943(void)
+void ApplyScannedMusicEvents(void)
 {
     int i;
-    if (!(g_026A & 1))
+    if (!(SoundDeviceBits & 1))
         return;
-    g_021C = g_025E;
-    g_023E += g_0242;
-    for (i = 0; i < g_022E; i++) {
-        if (i < 9 - g_026C) {
-            fn_013B_0020(20,&g_03E0[i],&g_0278[i]);
-            fn_0664_1377(i,&g_0278[i]);
-            fn_0664_1503(i,g_0278[i].f12);
+    MainAdlxCursor = FirstScannedEvent;
+    MainAdlxTimeOrigin += ScannedMusicClockTicks;
+    for (i = 0; i < MusicVoiceCount; i++) {
+        if (i < 9 - ReservedAdlibChannelCount) {
+            CopyFarBytes(20,&ScannedAdlibVoiceStates[i],&AdlibVoiceStates[i]);
+            LoadAdlibInstrument(i,&AdlibVoiceStates[i]);
+            SetAdlibFrequency(i,AdlibVoiceStates[i].f12);
         } else
-            fn_013B_0020(20,&g_03E0[i],&g_032C[i]);
-        fn_0664_1211(i,g_0278[i].f0C);
+            CopyFarBytes(20,&ScannedAdlibVoiceStates[i],&SavedAdlibVoiceStates[i]);
+        SetAdlibChannelVolume(i,AdlibVoiceStates[i].f0C);
     }
 }
 
+/* CONTRACT (tools/apply.py)
+ * Converts accumulated music-clock ticks since the last applied position to time units.
+ * In: MusicClockTicks, AppliedMusicClockTicks and nonzero MusicTicksPerUnit.
+ * Out: returns their unsigned difference divided by the tick rate.
+ * Effects: unsigned long subtraction retains 32-bit wrap semantics.
+ * END CONTRACT */
 /* @0878:1A50 */
-unsigned long fn_1A50(void)
+unsigned long GetElapsedMusicTime(void)
 {
-    return (g_023A - g_023E) / g_0238;
+    return (AdlxTickCount - MainAdlxTimeOrigin) / MusicTicksPerUnit;
 }
 
 
+/* CONTRACT (tools/apply.py)
+ * Scans the encoded music event stream and totals its time deltas.
+ * In: active AdLib device, track-active flag, event pointer/length and nonzero tick rate.
+ * Out: returns total duration in time units, or zero when prerequisites are absent.
+ * Effects: opcodes advance by payload lengths; malformed streams lack per-opcode bounds.
+ * END CONTRACT */
 /* @0878:1A8E */
-unsigned fn_1A8E(void)
+unsigned GetMusicTrackDuration(void)
 {
     unsigned long total = 0;
     unsigned char code;
     unsigned char far *p, far *end;
     unsigned amount;
-    if (!(g_026A & 1))
+    if (!(SoundDeviceBits & 1))
         return 0;
-    if (!g_0256 || !g_0238)
+    if (!MainAdlxPlaying || !MusicTicksPerUnit)
         return 0;
-    p = g_0212;
-    end = p + g_0216;
+    p = MainAdlxStartPointer;
+    end = p + MusicEventStreamLength;
     while (p < end) {
         code = *p++;
         switch (code >> 4) {
@@ -732,7 +865,7 @@ unsigned fn_1A8E(void)
             total += amount;
         }
     }
-    return total / g_0238;
+    return total / MusicTicksPerUnit;
 }
 
 

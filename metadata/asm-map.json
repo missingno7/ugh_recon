@@ -1,0 +1,7536 @@
+{
+  "schema": 1,
+  "oracle_sha256": "ef93d2cd5eb558f6a7d0007e0109f2e9ee952dc125389d7a6256646087636d7c",
+  "modules": [
+    {
+      "name": "GAME",
+      "frame": 315,
+      "start": 8,
+      "end": 21148,
+      "entries": [
+        {
+          "offset": 8,
+          "evidence": [
+            "startup far call at image 0137",
+            "far transfer at image 00137"
+          ]
+        },
+        {
+          "offset": 28,
+          "evidence": [
+            "far transfer at image 088CD"
+          ]
+        },
+        {
+          "offset": 29,
+          "evidence": [
+            "far transfer at image 08891"
+          ]
+        },
+        {
+          "offset": 30,
+          "evidence": [
+            "far transfer at image 087CA"
+          ]
+        },
+        {
+          "offset": 31,
+          "evidence": [
+            "far transfer at image 08554",
+            "far transfer at image 08559",
+            "far transfer at image 08583",
+            "far transfer at image 08588",
+            "far transfer at image 085B8",
+            "far transfer at image 085BD",
+            "far transfer at image 085DA",
+            "far transfer at image 085DF",
+            "far transfer at image 085F4",
+            "far transfer at image 085F9",
+            "far transfer at image 0864A",
+            "far transfer at image 0864F",
+            "far transfer at image 08661",
+            "far transfer at image 08666",
+            "far transfer at image 08700",
+            "far transfer at image 08705",
+            "far transfer at image 08722",
+            "far transfer at image 08727",
+            "far transfer at image 08739",
+            "far transfer at image 0873E",
+            "far transfer at image 08748",
+            "far transfer at image 0874D",
+            "far transfer at image 087C5"
+          ]
+        },
+        {
+          "offset": 32,
+          "evidence": [
+            "far transfer at image 095D3",
+            "far transfer at image 09B0F",
+            "far transfer at image 09D37",
+            "far transfer at image 0A19C",
+            "far transfer at image 0A149"
+          ]
+        },
+        {
+          "offset": 57,
+          "evidence": [
+            "call at 00CD",
+            "call at 00D5",
+            "call at 04D0"
+          ]
+        },
+        {
+          "offset": 99,
+          "evidence": [
+            "call at 0016",
+            "jmp at 01A9"
+          ]
+        },
+        {
+          "offset": 128,
+          "evidence": [
+            "jmp at 00E7"
+          ]
+        },
+        {
+          "offset": 175,
+          "evidence": [
+            "jne at 0088",
+            "jne at 0095",
+            "jne at 00A2"
+          ]
+        },
+        {
+          "offset": 178,
+          "evidence": [
+            "jmp at 010C"
+          ]
+        },
+        {
+          "offset": 213,
+          "evidence": [
+            "jmp at 0123",
+            "jmp at 013D",
+            "jmp at 0149"
+          ]
+        },
+        {
+          "offset": 216,
+          "evidence": [
+            "jmp at 00D3",
+            "jne at 014D"
+          ]
+        },
+        {
+          "offset": 219,
+          "evidence": [
+            "je at 00EE"
+          ]
+        },
+        {
+          "offset": 228,
+          "evidence": [
+            "je at 00F2"
+          ]
+        },
+        {
+          "offset": 233,
+          "evidence": [
+            "jne at 00DF"
+          ]
+        },
+        {
+          "offset": 254,
+          "evidence": [
+            "js at 0083",
+            "js at 0090",
+            "js at 009D",
+            "js at 00AA"
+          ]
+        },
+        {
+          "offset": 255,
+          "evidence": [
+            "jne at 00F6"
+          ]
+        },
+        {
+          "offset": 270,
+          "evidence": [
+            "jne at 0101"
+          ]
+        },
+        {
+          "offset": 293,
+          "evidence": [
+            "jne at 0110"
+          ]
+        },
+        {
+          "offset": 314,
+          "evidence": [
+            "jb at 0133"
+          ]
+        },
+        {
+          "offset": 319,
+          "evidence": [
+            "jne at 0127"
+          ]
+        },
+        {
+          "offset": 331,
+          "evidence": [
+            "jne at 0141"
+          ]
+        },
+        {
+          "offset": 422,
+          "evidence": [
+            "jmp at 01AF"
+          ]
+        },
+        {
+          "offset": 428,
+          "evidence": [
+            "jae at 0166"
+          ]
+        },
+        {
+          "offset": 433,
+          "evidence": [
+            "call at 00A7",
+            "call at 03C6"
+          ]
+        },
+        {
+          "offset": 491,
+          "evidence": [
+            "jne at 01E1"
+          ]
+        },
+        {
+          "offset": 494,
+          "evidence": [
+            "jmp at 01E9"
+          ]
+        },
+        {
+          "offset": 497,
+          "evidence": [
+            "call at 02FA",
+            "call at 0384"
+          ]
+        },
+        {
+          "offset": 528,
+          "evidence": [
+            "call at 01A6"
+          ]
+        },
+        {
+          "offset": 545,
+          "evidence": [
+            "jne at 0249"
+          ]
+        },
+        {
+          "offset": 560,
+          "evidence": [
+            "je at 0229"
+          ]
+        },
+        {
+          "offset": 577,
+          "evidence": [
+            "jne at 0233",
+            "jne at 023A"
+          ]
+        },
+        {
+          "offset": 589,
+          "evidence": [
+            "jne at 025B"
+          ]
+        },
+        {
+          "offset": 608,
+          "evidence": [
+            "jb at 0250"
+          ]
+        },
+        {
+          "offset": 617,
+          "evidence": [
+            "jge at 026F"
+          ]
+        },
+        {
+          "offset": 633,
+          "evidence": [
+            "jns at 0280"
+          ]
+        },
+        {
+          "offset": 680,
+          "evidence": [
+            "jns at 02AD"
+          ]
+        },
+        {
+          "offset": 728,
+          "evidence": [
+            "jmp at 0326",
+            "jmp at 0364"
+          ]
+        },
+        {
+          "offset": 730,
+          "evidence": [
+            "je at 0301",
+            "je at 0310",
+            "jmp at 035C",
+            "jmp at 0372"
+          ]
+        },
+        {
+          "offset": 747,
+          "evidence": [
+            "je at 02E2"
+          ]
+        },
+        {
+          "offset": 749,
+          "evidence": [
+            "jmp at 02E9"
+          ]
+        },
+        {
+          "offset": 762,
+          "evidence": [
+            "jae at 02F1"
+          ]
+        },
+        {
+          "offset": 801,
+          "evidence": [
+            "jae at 0318"
+          ]
+        },
+        {
+          "offset": 808,
+          "evidence": [
+            "jne at 0309"
+          ]
+        },
+        {
+          "offset": 822,
+          "evidence": [
+            "jb at 032A"
+          ]
+        },
+        {
+          "offset": 840,
+          "evidence": [
+            "jb at 0338",
+            "ja at 033F"
+          ]
+        },
+        {
+          "offset": 854,
+          "evidence": [
+            "jbe at 0331",
+            "jmp at 0346",
+            "je at 0369"
+          ]
+        },
+        {
+          "offset": 863,
+          "evidence": [
+            "jb at 035A"
+          ]
+        },
+        {
+          "offset": 871,
+          "evidence": [
+            "jb at 034A",
+            "ja at 0351"
+          ]
+        },
+        {
+          "offset": 885,
+          "evidence": [
+            "je at 036D"
+          ]
+        },
+        {
+          "offset": 940,
+          "evidence": [
+            "jae at 0379",
+            "jne at 0389"
+          ]
+        },
+        {
+          "offset": 948,
+          "evidence": [
+            "jns at 03BB"
+          ]
+        },
+        {
+          "offset": 969,
+          "evidence": [
+            "jmp at 025D"
+          ]
+        },
+        {
+          "offset": 972,
+          "evidence": [
+            "jmp at 0438"
+          ]
+        },
+        {
+          "offset": 973,
+          "evidence": [
+            "jmp at 0436",
+            "call at 03DA",
+            "jmp at 0403"
+          ]
+        },
+        {
+          "offset": 977,
+          "evidence": [
+            "jns at 03D7"
+          ]
+        },
+        {
+          "offset": 986,
+          "evidence": [
+            "call at 03C3"
+          ]
+        },
+        {
+          "offset": 1027,
+          "evidence": [
+            "jb at 03E7",
+            "jb at 03FE"
+          ]
+        },
+        {
+          "offset": 1029,
+          "evidence": [
+            "call at 4F7E"
+          ]
+        },
+        {
+          "offset": 1080,
+          "evidence": [
+            "jb at 040D",
+            "jb at 0424",
+            "jb at 0431"
+          ]
+        },
+        {
+          "offset": 1082,
+          "evidence": [
+            "call at 04B3",
+            "call at 03AD"
+          ]
+        },
+        {
+          "offset": 1094,
+          "evidence": [
+            "call at 0452",
+            "call at 0273"
+          ]
+        },
+        {
+          "offset": 1106,
+          "evidence": [
+            "call at 024D"
+          ]
+        },
+        {
+          "offset": 1199,
+          "evidence": [
+            "jb at 045A",
+            "jb at 046A",
+            "jb at 047A",
+            "jb at 048A",
+            "jb at 049A"
+          ]
+        },
+        {
+          "offset": 1201,
+          "evidence": [
+            "ja at 045F",
+            "ja at 046F",
+            "ja at 047F",
+            "ja at 048F",
+            "ja at 049F",
+            "jae at 04AA"
+          ]
+        },
+        {
+          "offset": 1203,
+          "evidence": [
+            "call at 0269"
+          ]
+        },
+        {
+          "offset": 1216,
+          "evidence": [
+            "jns at 04C7"
+          ]
+        },
+        {
+          "offset": 1226,
+          "evidence": [
+            "call at 0146"
+          ]
+        },
+        {
+          "offset": 1241,
+          "evidence": [
+            "jns at 04DE"
+          ]
+        },
+        {
+          "offset": 1250,
+          "evidence": [
+            "jmp at 054B",
+            "jmp at 0589"
+          ]
+        },
+        {
+          "offset": 1252,
+          "evidence": [
+            "je at 0526",
+            "je at 0535",
+            "jmp at 0581",
+            "jmp at 0593"
+          ]
+        },
+        {
+          "offset": 1269,
+          "evidence": [
+            "je at 04EC"
+          ]
+        },
+        {
+          "offset": 1271,
+          "evidence": [
+            "jmp at 04F3"
+          ]
+        },
+        {
+          "offset": 1284,
+          "evidence": [
+            "jae at 04FB"
+          ]
+        },
+        {
+          "offset": 1350,
+          "evidence": [
+            "jae at 053D"
+          ]
+        },
+        {
+          "offset": 1357,
+          "evidence": [
+            "jne at 052E"
+          ]
+        },
+        {
+          "offset": 1371,
+          "evidence": [
+            "jb at 054F"
+          ]
+        },
+        {
+          "offset": 1389,
+          "evidence": [
+            "jb at 055D",
+            "ja at 0564"
+          ]
+        },
+        {
+          "offset": 1403,
+          "evidence": [
+            "jbe at 0556",
+            "jmp at 056B"
+          ]
+        },
+        {
+          "offset": 1412,
+          "evidence": [
+            "jb at 057F"
+          ]
+        },
+        {
+          "offset": 1420,
+          "evidence": [
+            "jb at 056F",
+            "ja at 0576"
+          ]
+        },
+        {
+          "offset": 1430,
+          "evidence": [
+            "je at 058E"
+          ]
+        },
+        {
+          "offset": 1464,
+          "evidence": [
+            "jae at 059A",
+            "jne at 05A7"
+          ]
+        },
+        {
+          "offset": 1467,
+          "evidence": [
+            "call at 05F2",
+            "call at 05FA"
+          ]
+        },
+        {
+          "offset": 1510,
+          "evidence": [
+            "call at 0109"
+          ]
+        },
+        {
+          "offset": 1530,
+          "evidence": [
+            "jmp at 0642"
+          ]
+        },
+        {
+          "offset": 1533,
+          "evidence": [
+            "jmp at 05F8",
+            "jmp at 0650"
+          ]
+        },
+        {
+          "offset": 1536,
+          "evidence": [
+            "je at 0611"
+          ]
+        },
+        {
+          "offset": 1545,
+          "evidence": [
+            "je at 0615"
+          ]
+        },
+        {
+          "offset": 1548,
+          "evidence": [
+            "jne at 0604"
+          ]
+        },
+        {
+          "offset": 1568,
+          "evidence": [
+            "jmp at 064E"
+          ]
+        },
+        {
+          "offset": 1572,
+          "evidence": [
+            "jns at 0637"
+          ]
+        },
+        {
+          "offset": 1595,
+          "evidence": [
+            "jge at 0628"
+          ]
+        },
+        {
+          "offset": 1598,
+          "evidence": [
+            "jmp at 0639"
+          ]
+        },
+        {
+          "offset": 1604,
+          "evidence": [
+            "jne at 0619"
+          ]
+        },
+        {
+          "offset": 1616,
+          "evidence": [
+            "jne at 0646"
+          ]
+        },
+        {
+          "offset": 1618,
+          "evidence": [
+            "call at 0046",
+            "call at 0054",
+            "call at 05C9",
+            "call at 05D7"
+          ]
+        },
+        {
+          "offset": 1624,
+          "evidence": [
+            "jmp at 0661"
+          ]
+        },
+        {
+          "offset": 1635,
+          "evidence": [
+            "je at 065B"
+          ]
+        },
+        {
+          "offset": 1636,
+          "evidence": [
+            "call at 3E55"
+          ]
+        },
+        {
+          "offset": 1721,
+          "evidence": [
+            "je at 06C5"
+          ]
+        },
+        {
+          "offset": 1728,
+          "evidence": [
+            "jne at 06C3"
+          ]
+        },
+        {
+          "offset": 1735,
+          "evidence": [
+            "je at 06BB"
+          ]
+        },
+        {
+          "offset": 1783,
+          "evidence": [
+            "call at 00C1",
+            "call at 080C",
+            "call at 01C0",
+            "call at 0759",
+            "call at 02BE"
+          ]
+        },
+        {
+          "offset": 1810,
+          "evidence": [
+            "call at 08CF"
+          ]
+        },
+        {
+          "offset": 1824,
+          "evidence": [
+            "call at 088D",
+            "call at 08A2",
+            "call at 08C7"
+          ]
+        },
+        {
+          "offset": 1834,
+          "evidence": [
+            "jmp at 071E"
+          ]
+        },
+        {
+          "offset": 1884,
+          "evidence": [
+            "je at 0754"
+          ]
+        },
+        {
+          "offset": 1907,
+          "evidence": [
+            "jge at 076B"
+          ]
+        },
+        {
+          "offset": 1910,
+          "evidence": [
+            "call at 01C9",
+            "call at 005D",
+            "call at 084B",
+            "jne at 0779",
+            "call at 05E0",
+            "call at 0177",
+            "call at 02C7",
+            "call at 069C"
+          ]
+        },
+        {
+          "offset": 1916,
+          "evidence": [
+            "call at 0776",
+            "call at 051A",
+            "call at 0207",
+            "call at 0692",
+            "call at 06A5",
+            "call at 06C7"
+          ]
+        },
+        {
+          "offset": 1931,
+          "evidence": [
+            "jne at 079D"
+          ]
+        },
+        {
+          "offset": 1951,
+          "evidence": [
+            "je at 078F",
+            "je at 0796"
+          ]
+        },
+        {
+          "offset": 1963,
+          "evidence": [
+            "jmp at 07EB"
+          ]
+        },
+        {
+          "offset": 1964,
+          "evidence": [
+            "jne at 0783"
+          ]
+        },
+        {
+          "offset": 1996,
+          "evidence": [
+            "jne at 07C3"
+          ]
+        },
+        {
+          "offset": 2007,
+          "evidence": [
+            "jne at 07CE"
+          ]
+        },
+        {
+          "offset": 2016,
+          "evidence": [
+            "jmp at 07CA",
+            "jmp at 07D5",
+            "jne at 07D9"
+          ]
+        },
+        {
+          "offset": 2029,
+          "evidence": [
+            "je at 07AE"
+          ]
+        },
+        {
+          "offset": 2032,
+          "evidence": [
+            "je at 07B5"
+          ]
+        },
+        {
+          "offset": 2035,
+          "evidence": [
+            "je at 07BC"
+          ]
+        },
+        {
+          "offset": 2038,
+          "evidence": [
+            "call at 008D"
+          ]
+        },
+        {
+          "offset": 2050,
+          "evidence": [
+            "jmp at 0868"
+          ]
+        },
+        {
+          "offset": 2085,
+          "evidence": [
+            "jmp at 0835",
+            "jne at 0839"
+          ]
+        },
+        {
+          "offset": 2100,
+          "evidence": [
+            "je at 0828"
+          ]
+        },
+        {
+          "offset": 2103,
+          "evidence": [
+            "jne at 082F"
+          ]
+        },
+        {
+          "offset": 2154,
+          "evidence": [
+            "jne at 0863"
+          ]
+        },
+        {
+          "offset": 2175,
+          "evidence": [
+            "je at 086E"
+          ]
+        },
+        {
+          "offset": 2180,
+          "evidence": [
+            "je at 0875"
+          ]
+        },
+        {
+          "offset": 2183,
+          "evidence": [
+            "jmp at 0882"
+          ]
+        },
+        {
+          "offset": 2186,
+          "evidence": [
+            "je at 0820",
+            "jne at 087A"
+          ]
+        },
+        {
+          "offset": 2189,
+          "evidence": [
+            "call at 0080"
+          ]
+        },
+        {
+          "offset": 2210,
+          "evidence": [
+            "call at 01AC"
+          ]
+        },
+        {
+          "offset": 2247,
+          "evidence": [
+            "call at 0C54"
+          ]
+        },
+        {
+          "offset": 2255,
+          "evidence": [
+            "call at 009A"
+          ]
+        },
+        {
+          "offset": 2261,
+          "evidence": [
+            "call at 0893",
+            "jmp at 08C5",
+            "jmp at 08CD"
+          ]
+        },
+        {
+          "offset": 2281,
+          "evidence": [
+            "je at 0940",
+            "jmp at 0972",
+            "jmp at 097F"
+          ]
+        },
+        {
+          "offset": 2296,
+          "evidence": [
+            "jge at 08F0"
+          ]
+        },
+        {
+          "offset": 2318,
+          "evidence": [
+            "jg at 08FC"
+          ]
+        },
+        {
+          "offset": 2321,
+          "evidence": [
+            "jmp at 090C"
+          ]
+        },
+        {
+          "offset": 2338,
+          "evidence": [
+            "jge at 091A"
+          ]
+        },
+        {
+          "offset": 2387,
+          "evidence": [
+            "jne at 0946"
+          ]
+        },
+        {
+          "offset": 2402,
+          "evidence": [
+            "jne at 0936",
+            "jne at 0955"
+          ]
+        },
+        {
+          "offset": 2408,
+          "evidence": [
+            "jb at 092E",
+            "jmp at 0951",
+            "jmp at 0960"
+          ]
+        },
+        {
+          "offset": 2421,
+          "evidence": [
+            "jge at 096D"
+          ]
+        },
+        {
+          "offset": 2434,
+          "evidence": [
+            "jmp at 08F5"
+          ]
+        },
+        {
+          "offset": 2441,
+          "evidence": [
+            "unreferenced routine, matching 0965 variant; bounded by RET at 0988/099E"
+          ]
+        },
+        {
+          "offset": 2462,
+          "evidence": [
+            "jne at 098F"
+          ]
+        },
+        {
+          "offset": 2463,
+          "evidence": [
+            "call at 089D"
+          ]
+        },
+        {
+          "offset": 2485,
+          "evidence": [
+            "jle at 09AE"
+          ]
+        },
+        {
+          "offset": 2492,
+          "evidence": [
+            "call at 092B"
+          ]
+        },
+        {
+          "offset": 2494,
+          "evidence": [
+            "jne at 09D1"
+          ]
+        },
+        {
+          "offset": 2517,
+          "evidence": [
+            "je at 09C3"
+          ]
+        },
+        {
+          "offset": 2519,
+          "evidence": [
+            "jmp at 0B4B",
+            "call at 0922"
+          ]
+        },
+        {
+          "offset": 2521,
+          "evidence": [
+            "jmp at 0A55"
+          ]
+        },
+        {
+          "offset": 2550,
+          "evidence": [
+            "jmp at 0A2B",
+            "je at 0A3D",
+            "jmp at 0A43"
+          ]
+        },
+        {
+          "offset": 2587,
+          "evidence": [
+            "jl at 09FA"
+          ]
+        },
+        {
+          "offset": 2605,
+          "evidence": [
+            "je at 0A1E"
+          ]
+        },
+        {
+          "offset": 2629,
+          "evidence": [
+            "je at 0A33"
+          ]
+        },
+        {
+          "offset": 2638,
+          "evidence": [
+            "jmp at 0A19"
+          ]
+        },
+        {
+          "offset": 2642,
+          "evidence": [
+            "jne at 09E9"
+          ]
+        },
+        {
+          "offset": 2647,
+          "evidence": [
+            "je at 09E0"
+          ]
+        },
+        {
+          "offset": 2648,
+          "evidence": [
+            "call at 0925"
+          ]
+        },
+        {
+          "offset": 2650,
+          "evidence": [
+            "jmp at 0AAE"
+          ]
+        },
+        {
+          "offset": 2731,
+          "evidence": [
+            "je at 0A6B",
+            "jge at 0A9A",
+            "jge at 0AA3"
+          ]
+        },
+        {
+          "offset": 2736,
+          "evidence": [
+            "je at 0A5F"
+          ]
+        },
+        {
+          "offset": 2737,
+          "evidence": [
+            "call at 0911"
+          ]
+        },
+        {
+          "offset": 2739,
+          "evidence": [
+            "jmp at 0AE8"
+          ]
+        },
+        {
+          "offset": 2789,
+          "evidence": [
+            "je at 0ACC",
+            "je at 0AD5"
+          ]
+        },
+        {
+          "offset": 2794,
+          "evidence": [
+            "je at 0AB8"
+          ]
+        },
+        {
+          "offset": 2795,
+          "evidence": [
+            "call at 08D5"
+          ]
+        },
+        {
+          "offset": 2797,
+          "evidence": [
+            "jmp at 0B42"
+          ]
+        },
+        {
+          "offset": 2884,
+          "evidence": [
+            "je at 0AF2"
+          ]
+        },
+        {
+          "offset": 2894,
+          "evidence": [
+            "unreferenced RET between routines"
+          ]
+        },
+        {
+          "offset": 2895,
+          "evidence": [
+            "call at 0B48",
+            "jmp at 3E76"
+          ]
+        },
+        {
+          "offset": 2901,
+          "evidence": [
+            "jns at 0B60"
+          ]
+        },
+        {
+          "offset": 2917,
+          "evidence": [
+            "jns at 0B70"
+          ]
+        },
+        {
+          "offset": 2933,
+          "evidence": [
+            "jns at 0B80"
+          ]
+        },
+        {
+          "offset": 2947,
+          "evidence": [
+            "call at 0BBF",
+            "call at 0BD3",
+            "call at 0BE7",
+            "call at 0BFB"
+          ]
+        },
+        {
+          "offset": 2989,
+          "evidence": [
+            "je at 0BA4"
+          ]
+        },
+        {
+          "offset": 2994,
+          "evidence": [
+            "je at 0B9D"
+          ]
+        },
+        {
+          "offset": 2997,
+          "evidence": [
+            "jmp at 0BAB",
+            "jmp at 0BB0"
+          ]
+        },
+        {
+          "offset": 3000,
+          "evidence": [
+            "call at 0010"
+          ]
+        },
+        {
+          "offset": 3075,
+          "evidence": [
+            "jne at 0BC7",
+            "jne at 0BDB",
+            "jne at 0BEF"
+          ]
+        },
+        {
+          "offset": 3076,
+          "evidence": [
+            "js at 0BC2",
+            "js at 0BD6",
+            "js at 0BEA",
+            "js at 0BFE"
+          ]
+        },
+        {
+          "offset": 3079,
+          "evidence": [
+            "call at 0152"
+          ]
+        },
+        {
+          "offset": 3089,
+          "evidence": [
+            "jmp at 0C36"
+          ]
+        },
+        {
+          "offset": 3093,
+          "evidence": [
+            "je at 0C29",
+            "jmp at 0C2C"
+          ]
+        },
+        {
+          "offset": 3118,
+          "evidence": [
+            "je at 0C18"
+          ]
+        },
+        {
+          "offset": 3125,
+          "evidence": [
+            "jne at 0C4B"
+          ]
+        },
+        {
+          "offset": 3128,
+          "evidence": [
+            "je at 0C1F"
+          ]
+        },
+        {
+          "offset": 3132,
+          "evidence": [
+            "je at 0C30",
+            "jmp at 0C4E"
+          ]
+        },
+        {
+          "offset": 3152,
+          "evidence": [
+            "jmp at 0C3A",
+            "jae at 0C40"
+          ]
+        },
+        {
+          "offset": 3175,
+          "evidence": [
+            "jmp at 0FD0"
+          ]
+        },
+        {
+          "offset": 3197,
+          "evidence": [
+            "jmp at 0FA4"
+          ]
+        },
+        {
+          "offset": 3212,
+          "evidence": [
+            "jge at 0C84"
+          ]
+        },
+        {
+          "offset": 3234,
+          "evidence": [
+            "jg at 0C90"
+          ]
+        },
+        {
+          "offset": 3237,
+          "evidence": [
+            "jmp at 0CA0"
+          ]
+        },
+        {
+          "offset": 3242,
+          "evidence": [
+            "jne at 0CB4"
+          ]
+        },
+        {
+          "offset": 3256,
+          "evidence": [
+            "jmp at 0D12"
+          ]
+        },
+        {
+          "offset": 3343,
+          "evidence": [
+            "je at 0CD1",
+            "jge at 0CE2",
+            "je at 0CF9"
+          ]
+        },
+        {
+          "offset": 3348,
+          "evidence": [
+            "je at 0CBD"
+          ]
+        },
+        {
+          "offset": 3350,
+          "evidence": [
+            "jmp at 0D42"
+          ]
+        },
+        {
+          "offset": 3391,
+          "evidence": [
+            "je at 0D2F"
+          ]
+        },
+        {
+          "offset": 3396,
+          "evidence": [
+            "je at 0D1B"
+          ]
+        },
+        {
+          "offset": 3399,
+          "evidence": [
+            "jns at 0D69"
+          ]
+        },
+        {
+          "offset": 3430,
+          "evidence": [
+            "je at 0D56"
+          ]
+        },
+        {
+          "offset": 3448,
+          "evidence": [
+            "je at 0D70"
+          ]
+        },
+        {
+          "offset": 3461,
+          "evidence": [
+            "jne at 0D8A"
+          ]
+        },
+        {
+          "offset": 3468,
+          "evidence": [
+            "js at 0D91"
+          ]
+        },
+        {
+          "offset": 3475,
+          "evidence": [
+            "jns at 0D98"
+          ]
+        },
+        {
+          "offset": 3482,
+          "evidence": [
+            "jne at 0D80"
+          ]
+        },
+        {
+          "offset": 3515,
+          "evidence": [
+            "jne at 0D9C",
+            "jl at 0DAC"
+          ]
+        },
+        {
+          "offset": 3536,
+          "evidence": [
+            "jg at 0DC1"
+          ]
+        },
+        {
+          "offset": 3538,
+          "evidence": [
+            "je at 0DDC"
+          ]
+        },
+        {
+          "offset": 3550,
+          "evidence": [
+            "jg at 0DCB"
+          ]
+        },
+        {
+          "offset": 3561,
+          "evidence": [
+            "jmp at 0E3C"
+          ]
+        },
+        {
+          "offset": 3641,
+          "evidence": [
+            "je at 0DFA",
+            "jge at 0E29",
+            "jle at 0E31"
+          ]
+        },
+        {
+          "offset": 3646,
+          "evidence": [
+            "je at 0DEE"
+          ]
+        },
+        {
+          "offset": 3648,
+          "evidence": [
+            "jmp at 0E9D"
+          ]
+        },
+        {
+          "offset": 3676,
+          "evidence": [
+            "je at 0E4F"
+          ]
+        },
+        {
+          "offset": 3738,
+          "evidence": [
+            "jne at 0E57",
+            "je at 0E63",
+            "jge at 0E92"
+          ]
+        },
+        {
+          "offset": 3743,
+          "evidence": [
+            "je at 0E47"
+          ]
+        },
+        {
+          "offset": 3745,
+          "evidence": [
+            "jne at 0EAB"
+          ]
+        },
+        {
+          "offset": 3759,
+          "evidence": [
+            "jmp at 0F0C"
+          ]
+        },
+        {
+          "offset": 3849,
+          "evidence": [
+            "je at 0EBE",
+            "je at 0EC6",
+            "je at 0ED2",
+            "jge at 0F01"
+          ]
+        },
+        {
+          "offset": 3854,
+          "evidence": [
+            "je at 0EB6"
+          ]
+        },
+        {
+          "offset": 3857,
+          "evidence": [
+            "jns at 0F52"
+          ]
+        },
+        {
+          "offset": 3919,
+          "evidence": [
+            "je at 0F18",
+            "jge at 0F47"
+          ]
+        },
+        {
+          "offset": 3926,
+          "evidence": [
+            "jmp at 0F8C"
+          ]
+        },
+        {
+          "offset": 3977,
+          "evidence": [
+            "je at 0F67",
+            "je at 0F73"
+          ]
+        },
+        {
+          "offset": 3982,
+          "evidence": [
+            "je at 0F5B"
+          ]
+        },
+        {
+          "offset": 3998,
+          "evidence": [
+            "je at 0F93"
+          ]
+        },
+        {
+          "offset": 4007,
+          "evidence": [
+            "jmp at 0C89"
+          ]
+        },
+        {
+          "offset": 4048,
+          "evidence": [
+            "jb at 0FE5"
+          ]
+        },
+        {
+          "offset": 4051,
+          "evidence": [
+            "js at 0FB7"
+          ]
+        },
+        {
+          "offset": 4071,
+          "evidence": [
+            "je at 0FC0",
+            "js at 0FC5"
+          ]
+        },
+        {
+          "offset": 4072,
+          "evidence": [
+            "call at 0D7B"
+          ]
+        },
+        {
+          "offset": 4107,
+          "evidence": [
+            "jns at 0FF1"
+          ]
+        },
+        {
+          "offset": 4110,
+          "evidence": [
+            "js at 0FFC",
+            "jne at 1006"
+          ]
+        },
+        {
+          "offset": 4112,
+          "evidence": [
+            "je at 108B"
+          ]
+        },
+        {
+          "offset": 4166,
+          "evidence": [
+            "jg at 103B"
+          ]
+        },
+        {
+          "offset": 4179,
+          "evidence": [
+            "jmp at 1044",
+            "jl at 104A"
+          ]
+        },
+        {
+          "offset": 4198,
+          "evidence": [
+            "jg at 105B"
+          ]
+        },
+        {
+          "offset": 4211,
+          "evidence": [
+            "jmp at 1064",
+            "jl at 106A"
+          ]
+        },
+        {
+          "offset": 4228,
+          "evidence": [
+            "js at 1018",
+            "je at 1079",
+            "jmp at 1082"
+          ]
+        },
+        {
+          "offset": 4245,
+          "evidence": [
+            "call at 0DD2"
+          ]
+        },
+        {
+          "offset": 4282,
+          "evidence": [
+            "js at 10AE",
+            "je at 10B3"
+          ]
+        },
+        {
+          "offset": 4293,
+          "evidence": [
+            "js at 10C0"
+          ]
+        },
+        {
+          "offset": 4333,
+          "evidence": [
+            "jns at 10E6"
+          ]
+        },
+        {
+          "offset": 4337,
+          "evidence": [
+            "jns at 10C8",
+            "je at 10D2"
+          ]
+        },
+        {
+          "offset": 4362,
+          "evidence": [
+            "je at 10FB"
+          ]
+        },
+        {
+          "offset": 4381,
+          "evidence": [
+            "jmp at 1108",
+            "je at 1110"
+          ]
+        },
+        {
+          "offset": 4402,
+          "evidence": [
+            "jns at 1120"
+          ]
+        },
+        {
+          "offset": 4413,
+          "evidence": [
+            "jge at 1128",
+            "jmp at 1130",
+            "jle at 1135"
+          ]
+        },
+        {
+          "offset": 4437,
+          "evidence": [
+            "jge at 114B"
+          ]
+        },
+        {
+          "offset": 4448,
+          "evidence": [
+            "jmp at 1153"
+          ]
+        },
+        {
+          "offset": 4454,
+          "evidence": [
+            "jle at 1158"
+          ]
+        },
+        {
+          "offset": 4542,
+          "evidence": [
+            "jns at 11B5"
+          ]
+        },
+        {
+          "offset": 4545,
+          "evidence": [
+            "jg at 11D6"
+          ]
+        },
+        {
+          "offset": 4561,
+          "evidence": [
+            "jns at 11C4"
+          ]
+        },
+        {
+          "offset": 4570,
+          "evidence": [
+            "jg at 11AE",
+            "jl at 11FD"
+          ]
+        },
+        {
+          "offset": 4584,
+          "evidence": [
+            "jb at 11DF"
+          ]
+        },
+        {
+          "offset": 4600,
+          "evidence": [
+            "jns at 11EE"
+          ]
+        },
+        {
+          "offset": 4609,
+          "evidence": [
+            "jmp at 11CF",
+            "jmp at 11F6"
+          ]
+        },
+        {
+          "offset": 4630,
+          "evidence": [
+            "jns at 120F"
+          ]
+        },
+        {
+          "offset": 4636,
+          "evidence": [
+            "jmp at 11D8",
+            "jmp at 11FF"
+          ]
+        },
+        {
+          "offset": 4638,
+          "evidence": [
+            "je at 11A3",
+            "jmp at 121A"
+          ]
+        },
+        {
+          "offset": 4650,
+          "evidence": [
+            "jmp at 10C2"
+          ]
+        },
+        {
+          "offset": 4685,
+          "evidence": [
+            "jle at 1243"
+          ]
+        },
+        {
+          "offset": 4696,
+          "evidence": [
+            "js at 1231"
+          ]
+        },
+        {
+          "offset": 4736,
+          "evidence": [
+            "je at 1236",
+            "jns at 125E",
+            "je at 1271"
+          ]
+        },
+        {
+          "offset": 4766,
+          "evidence": [
+            "jmp at 124B",
+            "jmp at 127E",
+            "je at 1286",
+            "jmp at 1256"
+          ]
+        },
+        {
+          "offset": 4787,
+          "evidence": [
+            "jns at 12A1"
+          ]
+        },
+        {
+          "offset": 4798,
+          "evidence": [
+            "jge at 12A9",
+            "jmp at 12B1",
+            "jle at 12B6"
+          ]
+        },
+        {
+          "offset": 4822,
+          "evidence": [
+            "jge at 12CC"
+          ]
+        },
+        {
+          "offset": 4833,
+          "evidence": [
+            "jmp at 12D4"
+          ]
+        },
+        {
+          "offset": 4839,
+          "evidence": [
+            "jle at 12D9"
+          ]
+        },
+        {
+          "offset": 4874,
+          "evidence": [
+            "je at 1300"
+          ]
+        },
+        {
+          "offset": 4889,
+          "evidence": [
+            "js at 12EA",
+            "je at 12EF",
+            "jns at 1305"
+          ]
+        },
+        {
+          "offset": 4952,
+          "evidence": [
+            "jne at 1353"
+          ]
+        },
+        {
+          "offset": 4966,
+          "evidence": [
+            "jg at 137B"
+          ]
+        },
+        {
+          "offset": 4982,
+          "evidence": [
+            "jns at 1369"
+          ]
+        },
+        {
+          "offset": 4992,
+          "evidence": [
+            "jg at 135E",
+            "jl at 1395"
+          ]
+        },
+        {
+          "offset": 5008,
+          "evidence": [
+            "jns at 1386"
+          ]
+        },
+        {
+          "offset": 5018,
+          "evidence": [
+            "jmp at 1374",
+            "jmp at 138E"
+          ]
+        },
+        {
+          "offset": 5039,
+          "evidence": [
+            "jns at 13A8"
+          ]
+        },
+        {
+          "offset": 5052,
+          "evidence": [
+            "jle at 13B3"
+          ]
+        },
+        {
+          "offset": 5092,
+          "evidence": [
+            "jmp at 13FB"
+          ]
+        },
+        {
+          "offset": 5112,
+          "evidence": [
+            "jl at 1408",
+            "jg at 140E"
+          ]
+        },
+        {
+          "offset": 5117,
+          "evidence": [
+            "je at 13F3"
+          ]
+        },
+        {
+          "offset": 5154,
+          "evidence": [
+            "jmp at 137D",
+            "jmp at 1397"
+          ]
+        },
+        {
+          "offset": 5156,
+          "evidence": [
+            "jmp at 1355",
+            "jns at 13C2",
+            "jge at 13D5",
+            "js at 13EA",
+            "jmp at 1420"
+          ]
+        },
+        {
+          "offset": 5206,
+          "evidence": [
+            "jl at 143D",
+            "jl at 1447"
+          ]
+        },
+        {
+          "offset": 5207,
+          "evidence": [
+            "call at 11C1",
+            "call at 11EB",
+            "call at 1366",
+            "call at 1383"
+          ]
+        },
+        {
+          "offset": 5254,
+          "evidence": [
+            "call at 3E73",
+            "call at 0DDE"
+          ]
+        },
+        {
+          "offset": 5256,
+          "evidence": [
+            "jmp at 1499"
+          ]
+        },
+        {
+          "offset": 5275,
+          "evidence": [
+            "je at 148D"
+          ]
+        },
+        {
+          "offset": 5276,
+          "evidence": [
+            "DGROUP descriptor callback word at 7728; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 5322,
+          "evidence": [
+            "js at 14B0",
+            "jne at 14B8"
+          ]
+        },
+        {
+          "offset": 5341,
+          "evidence": [
+            "jne at 14A6"
+          ]
+        },
+        {
+          "offset": 5385,
+          "evidence": [
+            "DGROUP descriptor callback word at 772A; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 5413,
+          "evidence": [
+            "je at 1516"
+          ]
+        },
+        {
+          "offset": 5434,
+          "evidence": [
+            "jne at 1520",
+            "jne at 152E"
+          ]
+        },
+        {
+          "offset": 5435,
+          "evidence": [
+            "DGROUP descriptor callback word at 772C; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 5506,
+          "evidence": [
+            "DGROUP descriptor callback word at 772E; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 5551,
+          "evidence": [
+            "jne at 15A7"
+          ]
+        },
+        {
+          "offset": 5555,
+          "evidence": [
+            "jne at 1586"
+          ]
+        },
+        {
+          "offset": 5556,
+          "evidence": [
+            "DGROUP descriptor callback word at 7730; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 5591,
+          "evidence": [
+            "DGROUP descriptor callback word at 7732; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 5655,
+          "evidence": [
+            "js at 15EC"
+          ]
+        },
+        {
+          "offset": 5664,
+          "evidence": [
+            "je at 161B"
+          ]
+        },
+        {
+          "offset": 5702,
+          "evidence": [
+            "jmp at 165D"
+          ]
+        },
+        {
+          "offset": 5727,
+          "evidence": [
+            "jne at 1652"
+          ]
+        },
+        {
+          "offset": 5738,
+          "evidence": [
+            "jl at 1641",
+            "jmp at 1681"
+          ]
+        },
+        {
+          "offset": 5763,
+          "evidence": [
+            "jne at 1676"
+          ]
+        },
+        {
+          "offset": 5774,
+          "evidence": [
+            "je at 1636"
+          ]
+        },
+        {
+          "offset": 5784,
+          "evidence": [
+            "je at 16AA"
+          ]
+        },
+        {
+          "offset": 5790,
+          "evidence": [
+            "je at 1693"
+          ]
+        },
+        {
+          "offset": 5814,
+          "evidence": [
+            "jmp at 161D",
+            "jmp at 1668",
+            "jmp at 168C"
+          ]
+        },
+        {
+          "offset": 5840,
+          "evidence": [
+            "js at 16B9",
+            "jne at 16C1"
+          ]
+        },
+        {
+          "offset": 5846,
+          "evidence": [
+            "jne at 16F3"
+          ]
+        },
+        {
+          "offset": 5868,
+          "evidence": [
+            "jne at 16DA",
+            "jne at 16E4"
+          ]
+        },
+        {
+          "offset": 5878,
+          "evidence": [
+            "DGROUP descriptor callback word at 7734; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 777E; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 5919,
+          "evidence": [
+            "jb at 1717"
+          ]
+        },
+        {
+          "offset": 5930,
+          "evidence": [
+            "DGROUP descriptor callback word at 7736; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 5990,
+          "evidence": [
+            "js at 173B"
+          ]
+        },
+        {
+          "offset": 6016,
+          "evidence": [
+            "js at 1769",
+            "jne at 1771"
+          ]
+        },
+        {
+          "offset": 6022,
+          "evidence": [
+            "jne at 17A2"
+          ]
+        },
+        {
+          "offset": 6043,
+          "evidence": [
+            "jne at 178A"
+          ]
+        },
+        {
+          "offset": 6052,
+          "evidence": [
+            "jne at 1794"
+          ]
+        },
+        {
+          "offset": 6055,
+          "evidence": [
+            "jmp at 1799"
+          ]
+        },
+        {
+          "offset": 6076,
+          "evidence": [
+            "jmp at 17D3"
+          ]
+        },
+        {
+          "offset": 6101,
+          "evidence": [
+            "jne at 17C8"
+          ]
+        },
+        {
+          "offset": 6105,
+          "evidence": [
+            "jne at 17AB"
+          ]
+        },
+        {
+          "offset": 6117,
+          "evidence": [
+            "jne at 17DD"
+          ]
+        },
+        {
+          "offset": 6118,
+          "evidence": [
+            "DGROUP descriptor callback word at 7738; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 7782; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 6154,
+          "evidence": [
+            "DGROUP descriptor callback word at 773A; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 6214,
+          "evidence": [
+            "js at 181B"
+          ]
+        },
+        {
+          "offset": 6240,
+          "evidence": [
+            "js at 1849",
+            "jne at 1851"
+          ]
+        },
+        {
+          "offset": 6261,
+          "evidence": [
+            "jmp at 188C"
+          ]
+        },
+        {
+          "offset": 6286,
+          "evidence": [
+            "jne at 1881"
+          ]
+        },
+        {
+          "offset": 6290,
+          "evidence": [
+            "jne at 1864"
+          ]
+        },
+        {
+          "offset": 6309,
+          "evidence": [
+            "jne at 18C2"
+          ]
+        },
+        {
+          "offset": 6331,
+          "evidence": [
+            "jne at 18A9",
+            "jne at 18B3"
+          ]
+        },
+        {
+          "offset": 6343,
+          "evidence": [
+            "jne at 1896"
+          ]
+        },
+        {
+          "offset": 6344,
+          "evidence": [
+            "DGROUP descriptor callback word at 773C; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 7786; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 6374,
+          "evidence": [
+            "DGROUP descriptor callback word at 773E; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 6434,
+          "evidence": [
+            "js at 18F7"
+          ]
+        },
+        {
+          "offset": 6460,
+          "evidence": [
+            "js at 1925",
+            "jne at 192D"
+          ]
+        },
+        {
+          "offset": 6466,
+          "evidence": [
+            "jne at 1952"
+          ]
+        },
+        {
+          "offset": 6487,
+          "evidence": [
+            "je at 1946"
+          ]
+        },
+        {
+          "offset": 6511,
+          "evidence": [
+            "jne at 195D"
+          ]
+        },
+        {
+          "offset": 6537,
+          "evidence": [
+            "jg at 197C",
+            "jmp at 19A0"
+          ]
+        },
+        {
+          "offset": 6562,
+          "evidence": [
+            "jne at 1995"
+          ]
+        },
+        {
+          "offset": 6581,
+          "evidence": [
+            "jl at 1981",
+            "jmp at 19CC"
+          ]
+        },
+        {
+          "offset": 6606,
+          "evidence": [
+            "jne at 19C1"
+          ]
+        },
+        {
+          "offset": 6623,
+          "evidence": [
+            "je at 19A9",
+            "jmp at 19B3",
+            "je at 19D5"
+          ]
+        },
+        {
+          "offset": 6624,
+          "evidence": [
+            "DGROUP descriptor callback word at 778A; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 6651,
+          "evidence": [
+            "DGROUP descriptor callback word at 7740; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 6669,
+          "evidence": [
+            "jmp at 19F9"
+          ]
+        },
+        {
+          "offset": 6722,
+          "evidence": [
+            "DGROUP descriptor callback word at 7742; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 6744,
+          "evidence": [
+            "jbe at 1A4E"
+          ]
+        },
+        {
+          "offset": 6761,
+          "evidence": [
+            "jle at 1A5F"
+          ]
+        },
+        {
+          "offset": 6781,
+          "evidence": [
+            "jne at 1A71"
+          ]
+        },
+        {
+          "offset": 6782,
+          "evidence": [
+            "DGROUP descriptor callback word at 7744; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 6915,
+          "evidence": [
+            "jae at 1AD0"
+          ]
+        },
+        {
+          "offset": 6916,
+          "evidence": [
+            "je at 1ABD"
+          ]
+        },
+        {
+          "offset": 6953,
+          "evidence": [
+            "DGROUP descriptor callback word at 7746; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 6970,
+          "evidence": [
+            "je at 1B35"
+          ]
+        },
+        {
+          "offset": 7002,
+          "evidence": [
+            "jmp at 1B71"
+          ]
+        },
+        {
+          "offset": 7027,
+          "evidence": [
+            "jne at 1B66"
+          ]
+        },
+        {
+          "offset": 7038,
+          "evidence": [
+            "jl at 1B55",
+            "jmp at 1B95"
+          ]
+        },
+        {
+          "offset": 7063,
+          "evidence": [
+            "jne at 1B8A"
+          ]
+        },
+        {
+          "offset": 7074,
+          "evidence": [
+            "jmp at 1B7C",
+            "jmp at 1BA0"
+          ]
+        },
+        {
+          "offset": 7098,
+          "evidence": [
+            "je at 1B50"
+          ]
+        },
+        {
+          "offset": 7101,
+          "evidence": [
+            "jmp at 1B37",
+            "jne at 1BB5"
+          ]
+        },
+        {
+          "offset": 7102,
+          "evidence": [
+            "DGROUP descriptor callback word at 7748; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 7126,
+          "evidence": [
+            "DGROUP descriptor callback word at 774A; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 7181,
+          "evidence": [
+            "jne at 1BDA",
+            "jne at 1C00"
+          ]
+        },
+        {
+          "offset": 7182,
+          "evidence": [
+            "DGROUP descriptor callback word at 7650; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 768C; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 76B0; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 76B2; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 76B4; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 76B6; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 76C8; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 774C; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 778C; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 7792; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 7794; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 7796; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 78E4; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 78E6; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 78E8; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 78EA; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 78F0; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 78F2; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 78F4; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 78F6; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 78F8; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 78FA; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 7904; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 7906; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 7908; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 7183,
+          "evidence": [
+            "DGROUP descriptor callback word at 78EC; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 7207,
+          "evidence": [
+            "DGROUP descriptor callback word at 78EE; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 7233,
+          "evidence": [
+            "js at 1C2E",
+            "jne at 1C39"
+          ]
+        },
+        {
+          "offset": 7240,
+          "evidence": [
+            "DGROUP descriptor callback word at 78FC; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 7275,
+          "evidence": [
+            "DGROUP descriptor callback word at 78FE; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 7296,
+          "evidence": [
+            "jns at 1C74"
+          ]
+        },
+        {
+          "offset": 7297,
+          "evidence": [
+            "DGROUP descriptor callback word at 7900; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 7406,
+          "evidence": [
+            "DGROUP descriptor callback word at 7902; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 7464,
+          "evidence": [
+            "jns at 1D1C"
+          ]
+        },
+        {
+          "offset": 7480,
+          "evidence": [
+            "jle at 1CFD",
+            "jge at 1D05"
+          ]
+        },
+        {
+          "offset": 7495,
+          "evidence": [
+            "jl at 1D33"
+          ]
+        },
+        {
+          "offset": 7513,
+          "evidence": [
+            "jmp at 1DA5"
+          ]
+        },
+        {
+          "offset": 7586,
+          "evidence": [
+            "jg at 1D68",
+            "jl at 1D71",
+            "jl at 1D83",
+            "jg at 1D8C"
+          ]
+        },
+        {
+          "offset": 7591,
+          "evidence": [
+            "jmp at 1D25",
+            "jmp at 1D45",
+            "js at 1D5F"
+          ]
+        },
+        {
+          "offset": 7592,
+          "evidence": [
+            "DGROUP descriptor callback word at 7772; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 7637,
+          "evidence": [
+            "DGROUP descriptor callback word at 7774; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 7662,
+          "evidence": [
+            "jne at 1DDD",
+            "jmp at 1E05"
+          ]
+        },
+        {
+          "offset": 7687,
+          "evidence": [
+            "jne at 1DFA"
+          ]
+        },
+        {
+          "offset": 7714,
+          "evidence": [
+            "js at 1E16",
+            "je at 1E1B"
+          ]
+        },
+        {
+          "offset": 7739,
+          "evidence": [
+            "jle at 1E31"
+          ]
+        },
+        {
+          "offset": 7744,
+          "evidence": [
+            "js at 1E29"
+          ]
+        },
+        {
+          "offset": 7747,
+          "evidence": [
+            "jmp at 1E39",
+            "jmp at 1E3E"
+          ]
+        },
+        {
+          "offset": 7768,
+          "evidence": [
+            "jns at 1E46"
+          ]
+        },
+        {
+          "offset": 7779,
+          "evidence": [
+            "jge at 1E4E",
+            "jmp at 1E56",
+            "jle at 1E5B"
+          ]
+        },
+        {
+          "offset": 7835,
+          "evidence": [
+            "jge at 1E77",
+            "jg at 1E86"
+          ]
+        },
+        {
+          "offset": 7836,
+          "evidence": [
+            "DGROUP descriptor callback word at 7776; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 7872,
+          "evidence": [
+            "DGROUP descriptor callback word at 7778; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 7897,
+          "evidence": [
+            "jne at 1EC8",
+            "jmp at 1EF0"
+          ]
+        },
+        {
+          "offset": 7922,
+          "evidence": [
+            "jne at 1EE5"
+          ]
+        },
+        {
+          "offset": 7967,
+          "evidence": [
+            "jb at 1F0B"
+          ]
+        },
+        {
+          "offset": 7971,
+          "evidence": [
+            "jmp at 1F1D"
+          ]
+        },
+        {
+          "offset": 7972,
+          "evidence": [
+            "DGROUP descriptor callback word at 777A; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 8003,
+          "evidence": [
+            "DGROUP descriptor callback word at 777C; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 8028,
+          "evidence": [
+            "jne at 1F4B",
+            "jmp at 1F73"
+          ]
+        },
+        {
+          "offset": 8053,
+          "evidence": [
+            "jne at 1F68"
+          ]
+        },
+        {
+          "offset": 8079,
+          "evidence": [
+            "je at 1F80"
+          ]
+        },
+        {
+          "offset": 8090,
+          "evidence": [
+            "je at 1FCE"
+          ]
+        },
+        {
+          "offset": 8126,
+          "evidence": [
+            "jne at 1F9F",
+            "jne at 1FA9"
+          ]
+        },
+        {
+          "offset": 8146,
+          "evidence": [
+            "je at 1FB9"
+          ]
+        },
+        {
+          "offset": 8149,
+          "evidence": [
+            "je at 1F93",
+            "jae at 1FC4",
+            "jmp at 1FD0"
+          ]
+        },
+        {
+          "offset": 8161,
+          "evidence": [
+            "jne at 1FD9"
+          ]
+        },
+        {
+          "offset": 8162,
+          "evidence": [
+            "DGROUP descriptor callback word at 7780; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 8188,
+          "evidence": [
+            "je at 1FED"
+          ]
+        },
+        {
+          "offset": 8230,
+          "evidence": [
+            "jne at 2011"
+          ]
+        },
+        {
+          "offset": 8233,
+          "evidence": [
+            "je at 2007",
+            "je at 2021"
+          ]
+        },
+        {
+          "offset": 8254,
+          "evidence": [
+            "jmp at 2055"
+          ]
+        },
+        {
+          "offset": 8279,
+          "evidence": [
+            "jne at 204A"
+          ]
+        },
+        {
+          "offset": 8283,
+          "evidence": [
+            "jne at 202D"
+          ]
+        },
+        {
+          "offset": 8295,
+          "evidence": [
+            "jne at 205F"
+          ]
+        },
+        {
+          "offset": 8296,
+          "evidence": [
+            "DGROUP descriptor callback word at 7784; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 8322,
+          "evidence": [
+            "je at 2073"
+          ]
+        },
+        {
+          "offset": 8343,
+          "evidence": [
+            "jmp at 20AE"
+          ]
+        },
+        {
+          "offset": 8368,
+          "evidence": [
+            "jne at 20A3"
+          ]
+        },
+        {
+          "offset": 8372,
+          "evidence": [
+            "jne at 2086"
+          ]
+        },
+        {
+          "offset": 8384,
+          "evidence": [
+            "jne at 20B8"
+          ]
+        },
+        {
+          "offset": 8385,
+          "evidence": [
+            "DGROUP descriptor callback word at 7788; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 8411,
+          "evidence": [
+            "je at 20CC"
+          ]
+        },
+        {
+          "offset": 8413,
+          "evidence": [
+            "je at 2107"
+          ]
+        },
+        {
+          "offset": 8439,
+          "evidence": [
+            "jne at 20E2"
+          ]
+        },
+        {
+          "offset": 8457,
+          "evidence": [
+            "jae at 20FD"
+          ]
+        },
+        {
+          "offset": 8460,
+          "evidence": [
+            "je at 20F2"
+          ]
+        },
+        {
+          "offset": 8484,
+          "evidence": [
+            "jne at 2112"
+          ]
+        },
+        {
+          "offset": 8510,
+          "evidence": [
+            "jg at 2131",
+            "jmp at 2155"
+          ]
+        },
+        {
+          "offset": 8535,
+          "evidence": [
+            "jne at 214A"
+          ]
+        },
+        {
+          "offset": 8554,
+          "evidence": [
+            "jl at 2136",
+            "jmp at 2181"
+          ]
+        },
+        {
+          "offset": 8579,
+          "evidence": [
+            "jne at 2176"
+          ]
+        },
+        {
+          "offset": 8596,
+          "evidence": [
+            "je at 215E",
+            "jmp at 2168",
+            "je at 218A"
+          ]
+        },
+        {
+          "offset": 8597,
+          "evidence": [
+            "DGROUP descriptor callback word at 778E; dispatch 1492/236F/2B8C",
+            "DGROUP descriptor callback word at 7790; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 8598,
+          "evidence": [
+            "call at 2782",
+            "call at 2879",
+            "call at 28D8",
+            "call at 2AEA",
+            "call at 24EB",
+            "call at 2651",
+            "call at 26C7",
+            "call at 2A43"
+          ]
+        },
+        {
+          "offset": 8600,
+          "evidence": [
+            "jmp at 21FD"
+          ]
+        },
+        {
+          "offset": 8698,
+          "evidence": [
+            "jne at 21A7",
+            "jne at 21B2",
+            "js at 21BD",
+            "jl at 21CD",
+            "jg at 21D9",
+            "jl at 21E9"
+          ]
+        },
+        {
+          "offset": 8703,
+          "evidence": [
+            "je at 219F"
+          ]
+        },
+        {
+          "offset": 8706,
+          "evidence": [
+            "jle at 21F5"
+          ]
+        },
+        {
+          "offset": 8711,
+          "evidence": [
+            "call at 2CBE"
+          ]
+        },
+        {
+          "offset": 8713,
+          "evidence": [
+            "je at 226C"
+          ]
+        },
+        {
+          "offset": 8805,
+          "evidence": [
+            "jl at 2217",
+            "jg at 2230",
+            "jl at 2248"
+          ]
+        },
+        {
+          "offset": 8817,
+          "evidence": [
+            "jle at 2260"
+          ]
+        },
+        {
+          "offset": 8822,
+          "evidence": [
+            "call at 1C2B",
+            "call at 1766",
+            "call at 1846",
+            "call at 1922",
+            "call at 16B6"
+          ]
+        },
+        {
+          "offset": 8824,
+          "evidence": [
+            "je at 22DE"
+          ]
+        },
+        {
+          "offset": 8919,
+          "evidence": [
+            "jl at 2286",
+            "jg at 22A2",
+            "jl at 22BA"
+          ]
+        },
+        {
+          "offset": 8931,
+          "evidence": [
+            "jle at 22D2"
+          ]
+        },
+        {
+          "offset": 8944,
+          "evidence": [
+            "js at 22E7"
+          ]
+        },
+        {
+          "offset": 8945,
+          "evidence": [
+            "call at 2503",
+            "call at 2801"
+          ]
+        },
+        {
+          "offset": 8947,
+          "evidence": [
+            "je at 2359"
+          ]
+        },
+        {
+          "offset": 9042,
+          "evidence": [
+            "jl at 2301",
+            "jg at 231D",
+            "jl at 2335"
+          ]
+        },
+        {
+          "offset": 9054,
+          "evidence": [
+            "jle at 234D"
+          ]
+        },
+        {
+          "offset": 9059,
+          "evidence": [
+            "call at 3E70",
+            "call at 0DE1"
+          ]
+        },
+        {
+          "offset": 9061,
+          "evidence": [
+            "jmp at 2376"
+          ]
+        },
+        {
+          "offset": 9080,
+          "evidence": [
+            "je at 236A"
+          ]
+        },
+        {
+          "offset": 9081,
+          "evidence": [
+            "DGROUP descriptor callback word at 7638; dispatch 1492/236F/2B8C",
+            "function pointer stored by 3B8A"
+          ]
+        },
+        {
+          "offset": 9119,
+          "evidence": [
+            "DGROUP descriptor callback word at 763A; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 9135,
+          "evidence": [
+            "jne at 23A3"
+          ]
+        },
+        {
+          "offset": 9136,
+          "evidence": [
+            "DGROUP descriptor callback word at 763C; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 9177,
+          "evidence": [
+            "DGROUP descriptor callback word at 763E; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 9193,
+          "evidence": [
+            "jne at 23DD"
+          ]
+        },
+        {
+          "offset": 9194,
+          "evidence": [
+            "DGROUP descriptor callback word at 7640; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 9216,
+          "evidence": [
+            "jl at 23F9"
+          ]
+        },
+        {
+          "offset": 9251,
+          "evidence": [
+            "js at 2418"
+          ]
+        },
+        {
+          "offset": 9259,
+          "evidence": [
+            "jge at 240C"
+          ]
+        },
+        {
+          "offset": 9277,
+          "evidence": [
+            "jns at 2432"
+          ]
+        },
+        {
+          "offset": 9283,
+          "evidence": [
+            "jmp at 2429"
+          ]
+        },
+        {
+          "offset": 9310,
+          "evidence": [
+            "jle at 2456"
+          ]
+        },
+        {
+          "offset": 9324,
+          "evidence": [
+            "jge at 2464"
+          ]
+        },
+        {
+          "offset": 9363,
+          "evidence": [
+            "DGROUP descriptor callback word at 7642; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 9391,
+          "evidence": [
+            "jle at 24A2"
+          ]
+        },
+        {
+          "offset": 9397,
+          "evidence": [
+            "jl at 24AA"
+          ]
+        },
+        {
+          "offset": 9421,
+          "evidence": [
+            "jmp at 24E5"
+          ]
+        },
+        {
+          "offset": 9447,
+          "evidence": [
+            "jne at 24DA"
+          ]
+        },
+        {
+          "offset": 9475,
+          "evidence": [
+            "js at 24EE"
+          ]
+        },
+        {
+          "offset": 9514,
+          "evidence": [
+            "jne at 24BD",
+            "js at 2506",
+            "jne at 2511",
+            "jl at 251B"
+          ]
+        },
+        {
+          "offset": 9515,
+          "evidence": [
+            "DGROUP descriptor callback word at 764C; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 9556,
+          "evidence": [
+            "js at 254A"
+          ]
+        },
+        {
+          "offset": 9559,
+          "evidence": [
+            "jmp at 2552"
+          ]
+        },
+        {
+          "offset": 9566,
+          "evidence": [
+            "DGROUP descriptor callback word at 764E; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 9590,
+          "evidence": [
+            "jle at 2569",
+            "jge at 2599"
+          ]
+        },
+        {
+          "offset": 9597,
+          "evidence": [
+            "jl at 2571"
+          ]
+        },
+        {
+          "offset": 9618,
+          "evidence": [
+            "jge at 2588"
+          ]
+        },
+        {
+          "offset": 9632,
+          "evidence": [
+            "call at 24AF",
+            "call at 24F3"
+          ]
+        },
+        {
+          "offset": 9649,
+          "evidence": [
+            "DGROUP descriptor callback word at 7674; dispatch 1492/236F/2B8C",
+            "function pointer stored by 3BF8"
+          ]
+        },
+        {
+          "offset": 9673,
+          "evidence": [
+            "DGROUP descriptor callback word at 7676; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 9728,
+          "evidence": [
+            "jl at 25EF"
+          ]
+        },
+        {
+          "offset": 9737,
+          "evidence": [
+            "jl at 25FB"
+          ]
+        },
+        {
+          "offset": 9748,
+          "evidence": [
+            "jmp at 2630"
+          ]
+        },
+        {
+          "offset": 9778,
+          "evidence": [
+            "jne at 2625"
+          ]
+        },
+        {
+          "offset": 9782,
+          "evidence": [
+            "jne at 25D1"
+          ]
+        },
+        {
+          "offset": 9788,
+          "evidence": [
+            "jne at 264F"
+          ]
+        },
+        {
+          "offset": 9800,
+          "evidence": [
+            "jne at 2640"
+          ]
+        },
+        {
+          "offset": 9830,
+          "evidence": [
+            "js at 2654"
+          ]
+        },
+        {
+          "offset": 9831,
+          "evidence": [
+            "DGROUP descriptor callback word at 7678; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 9857,
+          "evidence": [
+            "DGROUP descriptor callback word at 767A; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 9873,
+          "evidence": [
+            "jne at 2689"
+          ]
+        },
+        {
+          "offset": 9893,
+          "evidence": [
+            "jmp at 26C1"
+          ]
+        },
+        {
+          "offset": 9923,
+          "evidence": [
+            "jne at 26B6"
+          ]
+        },
+        {
+          "offset": 9927,
+          "evidence": [
+            "jne at 2695"
+          ]
+        },
+        {
+          "offset": 9948,
+          "evidence": [
+            "js at 26CA"
+          ]
+        },
+        {
+          "offset": 9954,
+          "evidence": [
+            "jne at 26F2"
+          ]
+        },
+        {
+          "offset": 9975,
+          "evidence": [
+            "je at 26E6"
+          ]
+        },
+        {
+          "offset": 10007,
+          "evidence": [
+            "jl at 2703"
+          ]
+        },
+        {
+          "offset": 10021,
+          "evidence": [
+            "js at 270E",
+            "jmp at 2715",
+            "jns at 271E"
+          ]
+        },
+        {
+          "offset": 10030,
+          "evidence": [
+            "DGROUP descriptor callback word at 767C; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 10056,
+          "evidence": [
+            "DGROUP descriptor callback word at 767E; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 10080,
+          "evidence": [
+            "jmp at 277C"
+          ]
+        },
+        {
+          "offset": 10110,
+          "evidence": [
+            "jne at 2771"
+          ]
+        },
+        {
+          "offset": 10114,
+          "evidence": [
+            "jne at 2750"
+          ]
+        },
+        {
+          "offset": 10135,
+          "evidence": [
+            "js at 2785"
+          ]
+        },
+        {
+          "offset": 10141,
+          "evidence": [
+            "jne at 27AD"
+          ]
+        },
+        {
+          "offset": 10162,
+          "evidence": [
+            "je at 27A1"
+          ]
+        },
+        {
+          "offset": 10194,
+          "evidence": [
+            "jl at 27BE"
+          ]
+        },
+        {
+          "offset": 10208,
+          "evidence": [
+            "js at 27C9",
+            "jmp at 27D0",
+            "jns at 27D9"
+          ]
+        },
+        {
+          "offset": 10287,
+          "evidence": [
+            "js at 2804"
+          ]
+        },
+        {
+          "offset": 10288,
+          "evidence": [
+            "DGROUP descriptor callback word at 7680; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 10308,
+          "evidence": [
+            "DGROUP descriptor callback word at 7682; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 10357,
+          "evidence": [
+            "jne at 286D"
+          ]
+        },
+        {
+          "offset": 10361,
+          "evidence": [
+            "jne at 284C"
+          ]
+        },
+        {
+          "offset": 10382,
+          "evidence": [
+            "js at 287C"
+          ]
+        },
+        {
+          "offset": 10383,
+          "evidence": [
+            "DGROUP descriptor callback word at 7684; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 10403,
+          "evidence": [
+            "DGROUP descriptor callback word at 7686; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 10452,
+          "evidence": [
+            "jne at 28CC"
+          ]
+        },
+        {
+          "offset": 10456,
+          "evidence": [
+            "jne at 28AB"
+          ]
+        },
+        {
+          "offset": 10477,
+          "evidence": [
+            "js at 28DB"
+          ]
+        },
+        {
+          "offset": 10478,
+          "evidence": [
+            "DGROUP descriptor callback word at 7688; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 10516,
+          "evidence": [
+            "DGROUP descriptor callback word at 768A; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 10532,
+          "evidence": [
+            "jne at 291C"
+          ]
+        },
+        {
+          "offset": 10552,
+          "evidence": [
+            "jmp at 2954"
+          ]
+        },
+        {
+          "offset": 10582,
+          "evidence": [
+            "jne at 2949"
+          ]
+        },
+        {
+          "offset": 10586,
+          "evidence": [
+            "jne at 2928"
+          ]
+        },
+        {
+          "offset": 10587,
+          "evidence": [
+            "DGROUP descriptor callback word at 76B8; dispatch 1492/236F/2B8C",
+            "function pointer stored by 3BB3"
+          ]
+        },
+        {
+          "offset": 10611,
+          "evidence": [
+            "DGROUP descriptor callback word at 76BA; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 10668,
+          "evidence": [
+            "jne at 2990",
+            "jmp at 29C3"
+          ]
+        },
+        {
+          "offset": 10693,
+          "evidence": [
+            "jne at 29B8"
+          ]
+        },
+        {
+          "offset": 10697,
+          "evidence": [
+            "jne at 297B"
+          ]
+        },
+        {
+          "offset": 10699,
+          "evidence": [
+            "je at 2A41"
+          ]
+        },
+        {
+          "offset": 10803,
+          "evidence": [
+            "jl at 2A29"
+          ]
+        },
+        {
+          "offset": 10806,
+          "evidence": [
+            "jmp at 2A31"
+          ]
+        },
+        {
+          "offset": 10810,
+          "evidence": [
+            "jl at 29DC",
+            "jg at 29F2",
+            "jl at 2A07",
+            "jg at 2A1F"
+          ]
+        },
+        {
+          "offset": 10834,
+          "evidence": [
+            "js at 2A46"
+          ]
+        },
+        {
+          "offset": 10835,
+          "evidence": [
+            "DGROUP descriptor callback word at 76C4; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 10870,
+          "evidence": [
+            "DGROUP descriptor callback word at 76C6; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 10886,
+          "evidence": [
+            "jne at 2A7A"
+          ]
+        },
+        {
+          "offset": 10887,
+          "evidence": [
+            "DGROUP descriptor callback word at 76EC; dispatch 1492/236F/2B8C",
+            "function pointer stored by 3B63"
+          ]
+        },
+        {
+          "offset": 10933,
+          "evidence": [
+            "DGROUP descriptor callback word at 76EE; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 10957,
+          "evidence": [
+            "jmp at 2AE4"
+          ]
+        },
+        {
+          "offset": 10982,
+          "evidence": [
+            "jne at 2AD9"
+          ]
+        },
+        {
+          "offset": 11019,
+          "evidence": [
+            "jne at 2AB9",
+            "js at 2AED"
+          ]
+        },
+        {
+          "offset": 11020,
+          "evidence": [
+            "DGROUP descriptor callback word at 7700; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 11096,
+          "evidence": [
+            "DGROUP descriptor callback word at 7702; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 11126,
+          "evidence": [
+            "je at 2B6C"
+          ]
+        },
+        {
+          "offset": 11129,
+          "evidence": [
+            "jmp at 2B74"
+          ]
+        },
+        {
+          "offset": 11133,
+          "evidence": [
+            "jne at 2B60"
+          ]
+        },
+        {
+          "offset": 11134,
+          "evidence": [
+            "DGROUP descriptor callback word at 7704; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 11135,
+          "evidence": [
+            "call at 0DE4"
+          ]
+        },
+        {
+          "offset": 11138,
+          "evidence": [
+            "jns at 2B93"
+          ]
+        },
+        {
+          "offset": 11152,
+          "evidence": [
+            "je at 2B87"
+          ]
+        },
+        {
+          "offset": 11158,
+          "evidence": [
+            "DGROUP descriptor callback word at 7974; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 11162,
+          "evidence": [
+            "jns at 2BA8"
+          ]
+        },
+        {
+          "offset": 11180,
+          "evidence": [
+            "js at 2BA0"
+          ]
+        },
+        {
+          "offset": 11235,
+          "evidence": [
+            "jmp at 2BAA"
+          ]
+        },
+        {
+          "offset": 11236,
+          "evidence": [
+            "DGROUP descriptor callback word at 7976; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 11293,
+          "evidence": [
+            "jns at 2C12"
+          ]
+        },
+        {
+          "offset": 11309,
+          "evidence": [
+            "jle at 2BF3",
+            "jge at 2BFB"
+          ]
+        },
+        {
+          "offset": 11317,
+          "evidence": [
+            "jl at 2C28"
+          ]
+        },
+        {
+          "offset": 11335,
+          "evidence": [
+            "jmp at 2C94"
+          ]
+        },
+        {
+          "offset": 11409,
+          "evidence": [
+            "jge at 2C56",
+            "jl at 2C5F",
+            "jl at 2C71",
+            "jg at 2C7B"
+          ]
+        },
+        {
+          "offset": 11414,
+          "evidence": [
+            "jmp at 2C1B",
+            "jmp at 2C33",
+            "js at 2C4D"
+          ]
+        },
+        {
+          "offset": 11415,
+          "evidence": [
+            "DGROUP descriptor callback word at 7978; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 11433,
+          "evidence": [
+            "DGROUP descriptor callback word at 797A; dispatch 1492/236F/2B8C"
+          ]
+        },
+        {
+          "offset": 11442,
+          "evidence": [
+            "jmp at 2CE6",
+            "jmp at 2D03",
+            "jae at 2D12",
+            "jmp at 2D19"
+          ]
+        },
+        {
+          "offset": 11450,
+          "evidence": [
+            "jne at 2CAD"
+          ]
+        },
+        {
+          "offset": 11491,
+          "evidence": [
+            "jbe at 2CDB"
+          ]
+        },
+        {
+          "offset": 11496,
+          "evidence": [
+            "jne at 2CCC"
+          ]
+        },
+        {
+          "offset": 11520,
+          "evidence": [
+            "jbe at 2CF9"
+          ]
+        },
+        {
+          "offset": 11525,
+          "evidence": [
+            "jne at 2CEB"
+          ]
+        },
+        {
+          "offset": 11547,
+          "evidence": [
+            "jmp at 2CB8",
+            "js at 2CC1"
+          ]
+        },
+        {
+          "offset": 11548,
+          "evidence": [
+            "call at 0D78"
+          ]
+        },
+        {
+          "offset": 11567,
+          "evidence": [
+            "je at 2D22"
+          ]
+        },
+        {
+          "offset": 11597,
+          "evidence": [
+            "jne at 2D3D",
+            "jns at 2D46"
+          ]
+        },
+        {
+          "offset": 11653,
+          "evidence": [
+            "jns at 2D8A"
+          ]
+        },
+        {
+          "offset": 11683,
+          "evidence": [
+            "jmp at 2D2D"
+          ]
+        },
+        {
+          "offset": 11698,
+          "evidence": [
+            "je at 2D5A"
+          ]
+        },
+        {
+          "offset": 11705,
+          "evidence": [
+            "call at 0770",
+            "call at 091F",
+            "call at 0F9E"
+          ]
+        },
+        {
+          "offset": 11734,
+          "evidence": [
+            "jns at 2DCE"
+          ]
+        },
+        {
+          "offset": 11738,
+          "evidence": [
+            "jns at 2DC2"
+          ]
+        },
+        {
+          "offset": 11779,
+          "evidence": [
+            "CS jump table word at 2DB3, indexed at 2DFE"
+          ]
+        },
+        {
+          "offset": 12749,
+          "evidence": [
+            "CS jump table word at 2DB5, indexed at 2DFE"
+          ]
+        },
+        {
+          "offset": 13719,
+          "evidence": [
+            "CS jump table word at 2DB7, indexed at 2DFE"
+          ]
+        },
+        {
+          "offset": 14689,
+          "evidence": [
+            "call at 0C61"
+          ]
+        },
+        {
+          "offset": 14701,
+          "evidence": [
+            "jmp at 03C9"
+          ]
+        },
+        {
+          "offset": 14710,
+          "evidence": [
+            "call at 3E52"
+          ]
+        },
+        {
+          "offset": 14733,
+          "evidence": [
+            "jns at 3996"
+          ]
+        },
+        {
+          "offset": 14939,
+          "evidence": [
+            "jbe at 3A53"
+          ]
+        },
+        {
+          "offset": 14957,
+          "evidence": [
+            "jmp at 3AA7"
+          ]
+        },
+        {
+          "offset": 15017,
+          "evidence": [
+            "js at 3A75"
+          ]
+        },
+        {
+          "offset": 15023,
+          "evidence": [
+            "jmp at 3B19"
+          ]
+        },
+        {
+          "offset": 15085,
+          "evidence": [
+            "je at 3ADF"
+          ]
+        },
+        {
+          "offset": 15126,
+          "evidence": [
+            "jmp at 3AEB"
+          ]
+        },
+        {
+          "offset": 15131,
+          "evidence": [
+            "je at 3AB7"
+          ]
+        },
+        {
+          "offset": 15137,
+          "evidence": [
+            "jmp at 3C01"
+          ]
+        },
+        {
+          "offset": 15153,
+          "evidence": [
+            "jne at 3B29"
+          ]
+        },
+        {
+          "offset": 15212,
+          "evidence": [
+            "jne at 3B34"
+          ]
+        },
+        {
+          "offset": 15250,
+          "evidence": [
+            "jne at 3B6F"
+          ]
+        },
+        {
+          "offset": 15291,
+          "evidence": [
+            "jne at 3B95"
+          ]
+        },
+        {
+          "offset": 15358,
+          "evidence": [
+            "jmp at 3B69",
+            "jmp at 3B90",
+            "jmp at 3BB9"
+          ]
+        },
+        {
+          "offset": 15364,
+          "evidence": [
+            "jmp at 3B2E"
+          ]
+        },
+        {
+          "offset": 15369,
+          "evidence": [
+            "jns at 3C14"
+          ]
+        },
+        {
+          "offset": 15395,
+          "evidence": [
+            "jns at 3C29"
+          ]
+        },
+        {
+          "offset": 15406,
+          "evidence": [
+            "jns at 3C32"
+          ]
+        },
+        {
+          "offset": 15412,
+          "evidence": [
+            "je at 3C1B"
+          ]
+        },
+        {
+          "offset": 15413,
+          "evidence": [
+            "call at 3C23",
+            "call at 3CCB"
+          ]
+        },
+        {
+          "offset": 15437,
+          "evidence": [
+            "jae at 3C42"
+          ]
+        },
+        {
+          "offset": 15455,
+          "evidence": [
+            "jne at 3C55"
+          ]
+        },
+        {
+          "offset": 15457,
+          "evidence": [
+            "jmp at 3C4B",
+            "jmp at 3C5D"
+          ]
+        },
+        {
+          "offset": 15480,
+          "evidence": [
+            "call at 3C2E",
+            "call at 0F98"
+          ]
+        },
+        {
+          "offset": 15498,
+          "evidence": [
+            "jns at 3CDB"
+          ]
+        },
+        {
+          "offset": 15521,
+          "evidence": [
+            "jne at 3C99"
+          ]
+        },
+        {
+          "offset": 15540,
+          "evidence": [
+            "jne at 3CAD"
+          ]
+        },
+        {
+          "offset": 15551,
+          "evidence": [
+            "je at 3CB8"
+          ]
+        },
+        {
+          "offset": 15568,
+          "evidence": [
+            "jb at 3CC6"
+          ]
+        },
+        {
+          "offset": 15576,
+          "evidence": [
+            "jmp at 3CCE"
+          ]
+        },
+        {
+          "offset": 15582,
+          "evidence": [
+            "call at 0D75"
+          ]
+        },
+        {
+          "offset": 15614,
+          "evidence": [
+            "jns at 3D13"
+          ]
+        },
+        {
+          "offset": 15641,
+          "evidence": [
+            "call at 0F9B"
+          ]
+        },
+        {
+          "offset": 15666,
+          "evidence": [
+            "jns at 3D47"
+          ]
+        },
+        {
+          "offset": 15693,
+          "evidence": [
+            "call at 39CE",
+            "call at 39F5",
+            "call at 3A4D",
+            "call at 3A80",
+            "call at 3BA6"
+          ]
+        },
+        {
+          "offset": 15706,
+          "evidence": [
+            "call at 14F6",
+            "call at 3B78"
+          ]
+        },
+        {
+          "offset": 15718,
+          "evidence": [
+            "call at 0C67"
+          ]
+        },
+        {
+          "offset": 15761,
+          "evidence": [
+            "jb at 3D8A"
+          ]
+        },
+        {
+          "offset": 15778,
+          "evidence": [
+            "jb at 3D9B"
+          ]
+        },
+        {
+          "offset": 15827,
+          "evidence": [
+            "ja at 3DC6"
+          ]
+        },
+        {
+          "offset": 15833,
+          "evidence": [
+            "jb at 3DC1",
+            "jbe at 3DCE"
+          ]
+        },
+        {
+          "offset": 15900,
+          "evidence": [
+            "je at 3DEB"
+          ]
+        },
+        {
+          "offset": 15954,
+          "evidence": [
+            "jmp at 3E1A"
+          ]
+        },
+        {
+          "offset": 15993,
+          "evidence": [
+            "call at 3E6D"
+          ]
+        },
+        {
+          "offset": 16011,
+          "evidence": [
+            "je at 3E7E"
+          ]
+        },
+        {
+          "offset": 16017,
+          "evidence": [
+            "jmp at 3E89"
+          ]
+        },
+        {
+          "offset": 16033,
+          "evidence": [
+            "unreferenced CALL/ADD/RET wrapper around 3EAA"
+          ]
+        },
+        {
+          "offset": 16042,
+          "evidence": [
+            "call at 3EA1",
+            "call at 3EF3"
+          ]
+        },
+        {
+          "offset": 16061,
+          "evidence": [
+            "call at 3FC5"
+          ]
+        },
+        {
+          "offset": 16079,
+          "evidence": [
+            "call at 4095"
+          ]
+        },
+        {
+          "offset": 16093,
+          "evidence": [
+            "jmp at 3F0D",
+            "jmp at 3ECD"
+          ]
+        },
+        {
+          "offset": 16095,
+          "evidence": [
+            "jmp at 3EFC"
+          ]
+        },
+        {
+          "offset": 16118,
+          "evidence": [
+            "je at 3EEE"
+          ]
+        },
+        {
+          "offset": 16126,
+          "evidence": [
+            "je at 3EE5"
+          ]
+        },
+        {
+          "offset": 16127,
+          "evidence": [
+            "call at 3F74",
+            "call at 3FE4",
+            "call at 40B7"
+          ]
+        },
+        {
+          "offset": 16143,
+          "evidence": [
+            "call at 021A",
+            "call at 3EC0",
+            "call at 3ECA"
+          ]
+        },
+        {
+          "offset": 16146,
+          "evidence": [
+            "jns at 3F1A"
+          ]
+        },
+        {
+          "offset": 16175,
+          "evidence": [
+            "call at 3ED2",
+            "call at 3EDA"
+          ]
+        },
+        {
+          "offset": 16195,
+          "evidence": [
+            "call at 0679",
+            "call at 3F02",
+            "call at 3F0A"
+          ]
+        },
+        {
+          "offset": 16213,
+          "evidence": [
+            "call at 0CA5"
+          ]
+        },
+        {
+          "offset": 16247,
+          "evidence": [
+            "je at 3F64"
+          ]
+        },
+        {
+          "offset": 16275,
+          "evidence": [
+            "ja at 3F86"
+          ]
+        },
+        {
+          "offset": 16288,
+          "evidence": [
+            "jb at 3F81",
+            "jbe at 3F8E"
+          ]
+        },
+        {
+          "offset": 16310,
+          "evidence": [
+            "jne at 3FAA"
+          ]
+        },
+        {
+          "offset": 16331,
+          "evidence": [
+            "je at 3FB1"
+          ]
+        },
+        {
+          "offset": 16359,
+          "evidence": [
+            "je at 3FD4"
+          ]
+        },
+        {
+          "offset": 16403,
+          "evidence": [
+            "je at 3FEE"
+          ]
+        },
+        {
+          "offset": 16456,
+          "evidence": [
+            "jne at 4018",
+            "je at 4024"
+          ]
+        },
+        {
+          "offset": 16478,
+          "evidence": [
+            "je at 4055"
+          ]
+        },
+        {
+          "offset": 16501,
+          "evidence": [
+            "jmp at 405C"
+          ]
+        },
+        {
+          "offset": 16507,
+          "evidence": [
+            "jne at 4063",
+            "je at 406D"
+          ]
+        },
+        {
+          "offset": 16519,
+          "evidence": [
+            "jmp at 4079"
+          ]
+        },
+        {
+          "offset": 16536,
+          "evidence": [
+            "je at 408D"
+          ]
+        },
+        {
+          "offset": 16542,
+          "evidence": [
+            "je at 4080"
+          ]
+        },
+        {
+          "offset": 16570,
+          "evidence": [
+            "jmp at 3FC8",
+            "jmp at 4010",
+            "jmp at 4046",
+            "je at 40A7"
+          ]
+        },
+        {
+          "offset": 16607,
+          "evidence": [
+            "jl at 40D0"
+          ]
+        },
+        {
+          "offset": 16610,
+          "evidence": [
+            "jge at 40C0"
+          ]
+        },
+        {
+          "offset": 16676,
+          "evidence": [
+            "jg at 40F3"
+          ]
+        },
+        {
+          "offset": 16735,
+          "evidence": [
+            "jne at 416A"
+          ]
+        },
+        {
+          "offset": 16748,
+          "evidence": [
+            "je at 40EE",
+            "jmp at 4122",
+            "je at 4158"
+          ]
+        },
+        {
+          "offset": 16753,
+          "evidence": [
+            "jmp at 40DF"
+          ]
+        },
+        {
+          "offset": 16754,
+          "evidence": [
+            "call at 074E",
+            "call at 3E61"
+          ]
+        },
+        {
+          "offset": 16760,
+          "evidence": [
+            "jne at 418A"
+          ]
+        },
+        {
+          "offset": 16762,
+          "evidence": [
+            "jne at 4183"
+          ]
+        },
+        {
+          "offset": 16781,
+          "evidence": [
+            "call at 0EA1"
+          ]
+        },
+        {
+          "offset": 16796,
+          "evidence": [
+            "jle at 4194"
+          ]
+        },
+        {
+          "offset": 16837,
+          "evidence": [
+            "jl at 41BC"
+          ]
+        },
+        {
+          "offset": 16841,
+          "evidence": [
+            "jge at 41A7"
+          ]
+        },
+        {
+          "offset": 16891,
+          "evidence": [
+            "jle at 41D5",
+            "jge at 41DE",
+            "jle at 41EA",
+            "jge at 41F3"
+          ]
+        },
+        {
+          "offset": 16893,
+          "evidence": [
+            "call at 3EB8",
+            "call at 06FF",
+            "call at 0706",
+            "jmp at 070F",
+            "call at 4468",
+            "call at 0AA8",
+            "call at 07E5",
+            "call at 3E97",
+            "jmp at 3E9E",
+            "call at 4000",
+            "call at 400D",
+            "call at 0E36",
+            "call at 4036",
+            "call at 4043",
+            "call at 0E97",
+            "call at 0F06",
+            "call at 41F8",
+            "call at 0F4C",
+            "call at 0F86"
+          ]
+        },
+        {
+          "offset": 16926,
+          "evidence": [
+            "jl at 4210"
+          ]
+        },
+        {
+          "offset": 17044,
+          "evidence": [
+            "jb at 4270",
+            "jb at 427D",
+            "jb at 428A"
+          ]
+        },
+        {
+          "offset": 17073,
+          "evidence": [
+            "jne at 42E8"
+          ]
+        },
+        {
+          "offset": 17084,
+          "evidence": [
+            "jne at 42D6"
+          ]
+        },
+        {
+          "offset": 17101,
+          "evidence": [
+            "jns at 42C6"
+          ]
+        },
+        {
+          "offset": 17104,
+          "evidence": [
+            "je at 42BF"
+          ]
+        },
+        {
+          "offset": 17126,
+          "evidence": [
+            "jne at 42DE"
+          ]
+        },
+        {
+          "offset": 17133,
+          "evidence": [
+            "js at 42A1",
+            "jne at 4317"
+          ]
+        },
+        {
+          "offset": 17139,
+          "evidence": [
+            "jne at 4305"
+          ]
+        },
+        {
+          "offset": 17152,
+          "evidence": [
+            "je at 42F6"
+          ]
+        },
+        {
+          "offset": 17173,
+          "evidence": [
+            "jne at 430D"
+          ]
+        },
+        {
+          "offset": 17180,
+          "evidence": [
+            "jge at 42AC",
+            "jne at 4344"
+          ]
+        },
+        {
+          "offset": 17186,
+          "evidence": [
+            "jne at 4332"
+          ]
+        },
+        {
+          "offset": 17197,
+          "evidence": [
+            "je at 4325"
+          ]
+        },
+        {
+          "offset": 17218,
+          "evidence": [
+            "jne at 433A"
+          ]
+        },
+        {
+          "offset": 17222,
+          "evidence": [
+            "jmp at 42EA",
+            "jmp at 4319"
+          ]
+        },
+        {
+          "offset": 17234,
+          "evidence": [
+            "call at 43A0"
+          ]
+        },
+        {
+          "offset": 17261,
+          "evidence": [
+            "call at 0CAA"
+          ]
+        },
+        {
+          "offset": 17311,
+          "evidence": [
+            "jle at 437A",
+            "jge at 4382",
+            "jle at 438E",
+            "jge at 4397"
+          ]
+        },
+        {
+          "offset": 17317,
+          "evidence": [
+            "call at 00CA",
+            "call at 0815",
+            "call at 0039",
+            "call at 0762",
+            "call at 05BB",
+            "call at 04CD",
+            "call at 02D0",
+            "call at 3E6A"
+          ]
+        },
+        {
+          "offset": 17337,
+          "evidence": [
+            "call at 0AE2",
+            "call at 0CE7",
+            "call at 0D0C",
+            "call at 439C",
+            "call at 0D3C",
+            "call at 0D63"
+          ]
+        },
+        {
+          "offset": 17367,
+          "evidence": [
+            "unreferenced entry with fallthrough into 43EA"
+          ]
+        },
+        {
+          "offset": 17386,
+          "evidence": [
+            "call at 43B3",
+            "call at 43D0",
+            "call at 0511",
+            "call at 01FE",
+            "jmp at 2DAF"
+          ]
+        },
+        {
+          "offset": 17459,
+          "evidence": [
+            "jne at 4443"
+          ]
+        },
+        {
+          "offset": 17492,
+          "evidence": [
+            "call at 417B"
+          ]
+        },
+        {
+          "offset": 17519,
+          "evidence": [
+            "call at 00C4",
+            "call at 080F",
+            "call at 075C",
+            "call at 02CA",
+            "call at 3E64"
+          ]
+        },
+        {
+          "offset": 17559,
+          "evidence": [
+            "call at 0B91",
+            "call at 01D5",
+            "call at 0858",
+            "call at 01A0"
+          ]
+        },
+        {
+          "offset": 17563,
+          "evidence": [
+            "loop at 44B2"
+          ]
+        },
+        {
+          "offset": 17588,
+          "evidence": [
+            "jne at 44AA"
+          ]
+        },
+        {
+          "offset": 17591,
+          "evidence": [
+            "jne at 44A0"
+          ]
+        },
+        {
+          "offset": 17595,
+          "evidence": [
+            "call at 00BB",
+            "call at 0806",
+            "call at 01BA",
+            "call at 05EF",
+            "call at 02B8"
+          ]
+        },
+        {
+          "offset": 17596,
+          "evidence": [
+            "loop at 44BF"
+          ]
+        },
+        {
+          "offset": 17603,
+          "evidence": [
+            "call at 4E6C",
+            "call at 5093",
+            "call at 4EA5",
+            "call at 44BC",
+            "call at 00DB",
+            "call at 500B",
+            "call at 44AF",
+            "call at 4E51",
+            "call at 090E",
+            "call at 0600",
+            "call at 0CA2",
+            "call at 44DE"
+          ]
+        },
+        {
+          "offset": 17606,
+          "evidence": [
+            "call at 44CF",
+            "call at 04E4",
+            "call at 02DA"
+          ]
+        },
+        {
+          "offset": 17609,
+          "evidence": [
+            "je at 44CC"
+          ]
+        },
+        {
+          "offset": 17615,
+          "evidence": [
+            "unreferenced CALL 44C6 with fallthrough into 44D2"
+          ]
+        },
+        {
+          "offset": 17618,
+          "evidence": [
+            "call at 44C3",
+            "call at 4ECD"
+          ]
+        },
+        {
+          "offset": 17621,
+          "evidence": [
+            "jne at 44D8"
+          ]
+        },
+        {
+          "offset": 17627,
+          "evidence": [
+            "call at 06ED"
+          ]
+        },
+        {
+          "offset": 17630,
+          "evidence": [
+            "je at 44EE"
+          ]
+        },
+        {
+          "offset": 17648,
+          "evidence": [
+            "jne at 44E4"
+          ]
+        },
+        {
+          "offset": 17649,
+          "evidence": [
+            "call at 08E6",
+            "call at 4498",
+            "call at 449B",
+            "call at 00E9",
+            "call at 093B",
+            "call at 060C",
+            "call at 44DB",
+            "call at 44E9",
+            "call at 0D85",
+            "call at 0D8C",
+            "call at 0D93",
+            "call at 0FE8"
+          ]
+        },
+        {
+          "offset": 17674,
+          "evidence": [
+            "call at 4F8D",
+            "jmp at 05B8",
+            "call at 03BD"
+          ]
+        },
+        {
+          "offset": 17681,
+          "evidence": [
+            "jmp at 4522"
+          ]
+        },
+        {
+          "offset": 17700,
+          "evidence": [
+            "je at 4516"
+          ]
+        },
+        {
+          "offset": 17740,
+          "evidence": [
+            "call at 4EF0",
+            "call at 04CA",
+            "call at 029F"
+          ]
+        },
+        {
+          "offset": 17767,
+          "evidence": [
+            "DGROUP far pointer at image 5C127"
+          ]
+        },
+        {
+          "offset": 17792,
+          "evidence": [
+            "jne at 45E7"
+          ]
+        },
+        {
+          "offset": 17819,
+          "evidence": [
+            "je at 458E"
+          ]
+        },
+        {
+          "offset": 17859,
+          "evidence": [
+            "je at 45EC",
+            "jns at 45B2"
+          ]
+        },
+        {
+          "offset": 17866,
+          "evidence": [
+            "jmp at 45DB"
+          ]
+        },
+        {
+          "offset": 17885,
+          "evidence": [
+            "jne at 45A0"
+          ]
+        },
+        {
+          "offset": 17887,
+          "evidence": [
+            "je at 4585",
+            "jmp at 4599"
+          ]
+        },
+        {
+          "offset": 17906,
+          "evidence": [
+            "je at 45CF"
+          ]
+        },
+        {
+          "offset": 17972,
+          "evidence": [
+            "call at 0B87"
+          ]
+        },
+        {
+          "offset": 17994,
+          "evidence": [
+            "loop at 4663"
+          ]
+        },
+        {
+          "offset": 18026,
+          "evidence": [
+            "call at 00AF",
+            "call at 07FC",
+            "call at 0733",
+            "call at 3E5E"
+          ]
+        },
+        {
+          "offset": 18038,
+          "evidence": [
+            "loop at 467D"
+          ]
+        },
+        {
+          "offset": 18049,
+          "evidence": [
+            "DGROUP far pointer at image 5C13B"
+          ]
+        },
+        {
+          "offset": 18817,
+          "evidence": [
+            "DGROUP far pointer at image 5C13F"
+          ]
+        },
+        {
+          "offset": 19585,
+          "evidence": [
+            "call at 0B84"
+          ]
+        },
+        {
+          "offset": 19621,
+          "evidence": [
+            "call at 073A",
+            "call at 39A1"
+          ]
+        },
+        {
+          "offset": 19629,
+          "evidence": [
+            "call at 4C8C"
+          ]
+        },
+        {
+          "offset": 19680,
+          "evidence": [
+            "jne at 4CB9",
+            "jne at 4CC2"
+          ]
+        },
+        {
+          "offset": 19689,
+          "evidence": [
+            "call at 4CDD",
+            "jmp at 4DDA"
+          ]
+        },
+        {
+          "offset": 19712,
+          "evidence": [
+            "jns at 4D17"
+          ]
+        },
+        {
+          "offset": 19737,
+          "evidence": [
+            "jne at 4D10"
+          ]
+        },
+        {
+          "offset": 19741,
+          "evidence": [
+            "jae at 4CF6",
+            "jns at 4D1F"
+          ]
+        },
+        {
+          "offset": 19745,
+          "evidence": [
+            "jae at 4CEC"
+          ]
+        },
+        {
+          "offset": 19754,
+          "evidence": [
+            "call at 4CE9",
+            "call at 4CF3",
+            "call at 4D4E",
+            "call at 4D81",
+            "call at 4DB3"
+          ]
+        },
+        {
+          "offset": 19766,
+          "evidence": [
+            "jne at 4D2C"
+          ]
+        },
+        {
+          "offset": 19767,
+          "evidence": [
+            "call at 4D07",
+            "call at 4D6F",
+            "call at 4D98",
+            "call at 4DC1"
+          ]
+        },
+        {
+          "offset": 19769,
+          "evidence": [
+            "jns at 4D48"
+          ]
+        },
+        {
+          "offset": 19781,
+          "evidence": [
+            "jne at 4D3B"
+          ]
+        },
+        {
+          "offset": 19787,
+          "evidence": [
+            "jne at 4D24"
+          ]
+        },
+        {
+          "offset": 19790,
+          "evidence": [
+            "jns at 4D57"
+          ]
+        },
+        {
+          "offset": 19801,
+          "evidence": [
+            "jae at 4D51"
+          ]
+        },
+        {
+          "offset": 19826,
+          "evidence": [
+            "js at 4D6A"
+          ]
+        },
+        {
+          "offset": 19841,
+          "evidence": [
+            "jns at 4D8A"
+          ]
+        },
+        {
+          "offset": 19852,
+          "evidence": [
+            "jae at 4D84"
+          ]
+        },
+        {
+          "offset": 19883,
+          "evidence": [
+            "je at 4D79"
+          ]
+        },
+        {
+          "offset": 19905,
+          "evidence": [
+            "jae at 4DB6"
+          ]
+        },
+        {
+          "offset": 19910,
+          "evidence": [
+            "jns at 4DA2",
+            "jmp at 4DA9"
+          ]
+        },
+        {
+          "offset": 19921,
+          "evidence": [
+            "jns at 4DD7"
+          ]
+        },
+        {
+          "offset": 19993,
+          "evidence": [
+            "call at 00D0",
+            "call at 0B8D",
+            "call at 01CF",
+            "call at 0852",
+            "call at 05F5",
+            "call at 019A",
+            "call at 02D3",
+            "call at 06EA"
+          ]
+        },
+        {
+          "offset": 19995,
+          "evidence": [
+            "jbe at 4E25"
+          ]
+        },
+        {
+          "offset": 20008,
+          "evidence": [
+            "call at 0B95",
+            "call at 01D9",
+            "call at 00E4",
+            "call at 085D",
+            "jmp at 00FB",
+            "call at 0106",
+            "jmp at 0609",
+            "call at 014F",
+            "call at 01A3",
+            "jmp at 06F4",
+            "call at 03C0"
+          ]
+        },
+        {
+          "offset": 20012,
+          "evidence": [
+            "jns at 4E32"
+          ]
+        },
+        {
+          "offset": 20022,
+          "evidence": [
+            "call at 4E1B",
+            "call at 4E2C",
+            "call at 0901",
+            "call at 0C95"
+          ]
+        },
+        {
+          "offset": 20025,
+          "evidence": [
+            "jns at 4E48"
+          ]
+        },
+        {
+          "offset": 20055,
+          "evidence": [
+            "DOS int 24 vector installed at 4E5E/4E61"
+          ]
+        },
+        {
+          "offset": 20059,
+          "evidence": [
+            "call at 4F7B"
+          ]
+        },
+        {
+          "offset": 20072,
+          "evidence": [
+            "unreferenced LES/CALL/MOV entry with fallthrough into 4E72"
+          ]
+        },
+        {
+          "offset": 20082,
+          "evidence": [
+            "jmp at 4E54"
+          ]
+        },
+        {
+          "offset": 20111,
+          "evidence": [
+            "loop at 4E95"
+          ]
+        },
+        {
+          "offset": 20123,
+          "evidence": [
+            "call at 5049",
+            "call at 4FC1",
+            "call at 072D",
+            "call at 0C64",
+            "call at 3E5B"
+          ]
+        },
+        {
+          "offset": 20132,
+          "evidence": [
+            "jne at 4EB8"
+          ]
+        },
+        {
+          "offset": 20142,
+          "evidence": [
+            "jne at 4EB3"
+          ]
+        },
+        {
+          "offset": 20155,
+          "evidence": [
+            "jmp at 50C3",
+            "call at 00C7",
+            "call at 0B8A",
+            "call at 0812",
+            "call at 01CC",
+            "jmp at 0060",
+            "jmp at 5038",
+            "call at 075F",
+            "jmp at 0773",
+            "call at 084F",
+            "call at 0928",
+            "jmp at 05E3",
+            "call at 017A",
+            "call at 051D",
+            "call at 02CD",
+            "call at 020A",
+            "call at 3E67",
+            "call at 06CA",
+            "call at 0FA1"
+          ]
+        },
+        {
+          "offset": 20198,
+          "evidence": [
+            "jmp at 0019",
+            "jmp at 4F78",
+            "jmp at 0C04"
+          ]
+        },
+        {
+          "offset": 20223,
+          "evidence": [
+            "call target from 4F5E; follows CS variables at 4EF7..4EFE",
+            "call at 4F81"
+          ]
+        },
+        {
+          "offset": 20233,
+          "evidence": [
+            "call at 3C3C"
+          ]
+        },
+        {
+          "offset": 20291,
+          "evidence": [
+            "call at 4F93"
+          ]
+        },
+        {
+          "offset": 20302,
+          "evidence": [
+            "call at 4EE6"
+          ]
+        },
+        {
+          "offset": 20318,
+          "evidence": [
+            "call at 000D"
+          ]
+        },
+        {
+          "offset": 20347,
+          "evidence": [
+            "jne at 4F73"
+          ]
+        },
+        {
+          "offset": 20374,
+          "evidence": [
+            "call at 50C0",
+            "call at 00BE",
+            "call at 0809",
+            "call at 01BD",
+            "call at 5035",
+            "call at 0730",
+            "call at 0155",
+            "call at 02BB",
+            "call at 3E58",
+            "call at 0664"
+          ]
+        },
+        {
+          "offset": 20392,
+          "evidence": [
+            "call at 4F96"
+          ]
+        },
+        {
+          "offset": 20403,
+          "evidence": [
+            "call at 4F8A"
+          ]
+        },
+        {
+          "offset": 20539,
+          "evidence": [
+            "call at 0013"
+          ]
+        },
+        {
+          "offset": 20678,
+          "evidence": [
+            "call at 4F90"
+          ]
+        },
+        {
+          "offset": 20727,
+          "evidence": [
+            "jmp at 50FD"
+          ]
+        },
+        {
+          "offset": 20735,
+          "evidence": [
+            "je at 50F8"
+          ]
+        },
+        {
+          "offset": 20827,
+          "evidence": [
+            "jne at 5106"
+          ]
+        },
+        {
+          "offset": 20855,
+          "evidence": [
+            "jmp at 517D"
+          ]
+        },
+        {
+          "offset": 20863,
+          "evidence": [
+            "je at 5178"
+          ]
+        },
+        {
+          "offset": 20928,
+          "evidence": [
+            "jne at 515E"
+          ]
+        },
+        {
+          "offset": 20943,
+          "evidence": [
+            "jae at 51C7"
+          ]
+        },
+        {
+          "offset": 20955,
+          "evidence": [
+            "jae at 51D3"
+          ]
+        },
+        {
+          "offset": 20967,
+          "evidence": [
+            "jae at 51DF"
+          ]
+        },
+        {
+          "offset": 20972,
+          "evidence": [
+            "call at 44A6",
+            "call at 511C",
+            "call at 0933",
+            "call at 517F",
+            "call at 44E1",
+            "call at 100B"
+          ]
+        },
+        {
+          "offset": 21023,
+          "evidence": [
+            "loop at 5229",
+            "jne at 526C",
+            "jne at 5290",
+            "jne at 5284",
+            "jne at 5278"
+          ]
+        },
+        {
+          "offset": 21035,
+          "evidence": [
+            "je at 5218",
+            "jmp at 526E",
+            "jmp at 5292",
+            "jmp at 5286",
+            "jmp at 527A"
+          ]
+        },
+        {
+          "offset": 21071,
+          "evidence": [
+            "jne at 5224"
+          ]
+        },
+        {
+          "offset": 21104,
+          "evidence": [
+            "jne at 525F"
+          ]
+        },
+        {
+          "offset": 21116,
+          "evidence": [
+            "jne at 5258"
+          ]
+        },
+        {
+          "offset": 21128,
+          "evidence": [
+            "jne at 5251"
+          ]
+        },
+        {
+          "offset": 21140,
+          "evidence": [
+            "jmp at 524C"
+          ]
+        }
+      ],
+      "spans": [
+        {
+          "start": 8,
+          "end": 11699,
+          "kind": "code"
+        },
+        {
+          "start": 11699,
+          "end": 11705,
+          "kind": "data",
+          "evidence": "CS jump table at 2DFE"
+        },
+        {
+          "start": 11705,
+          "end": 17673,
+          "kind": "code"
+        },
+        {
+          "start": 17673,
+          "end": 17674,
+          "kind": "data",
+          "evidence": "byte variable read with CS override at 44F7"
+        },
+        {
+          "start": 17674,
+          "end": 17915,
+          "kind": "code"
+        },
+        {
+          "start": 17915,
+          "end": 17916,
+          "kind": "padding",
+          "evidence": "NOP alignment before CS variables"
+        },
+        {
+          "start": 17916,
+          "end": 17972,
+          "kind": "data",
+          "evidence": "CS variables/far pointers referenced by video helpers and relocation sites"
+        },
+        {
+          "start": 17972,
+          "end": 19933,
+          "kind": "code"
+        },
+        {
+          "start": 19933,
+          "end": 19993,
+          "kind": "data",
+          "evidence": "word tables indexed with CS:BP at 4D03/4D0A/4D19"
+        },
+        {
+          "start": 19993,
+          "end": 20215,
+          "kind": "code"
+        },
+        {
+          "start": 20215,
+          "end": 20223,
+          "kind": "data",
+          "evidence": "CS PRNG state read and written at 4F0C/4F11"
+        },
+        {
+          "start": 20223,
+          "end": 21148,
+          "kind": "code"
+        }
+      ],
+      "indirect": [
+        {
+          "at": 9132,
+          "instruction": "jmp word ptr [si + 0xc]"
+        },
+        {
+          "at": 9190,
+          "instruction": "jmp word ptr [si + 0x10]"
+        },
+        {
+          "at": 9394,
+          "instruction": "jmp word ptr [si + 8]"
+        },
+        {
+          "at": 9594,
+          "instruction": "jmp word ptr [si + 8]"
+        },
+        {
+          "at": 9870,
+          "instruction": "jmp word ptr [si + 0x10]"
+        },
+        {
+          "at": 10354,
+          "instruction": "jmp word ptr [si + 8]"
+        },
+        {
+          "at": 10449,
+          "instruction": "jmp word ptr [si + 8]"
+        },
+        {
+          "at": 10529,
+          "instruction": "jmp word ptr [si + 8]"
+        },
+        {
+          "at": 10883,
+          "instruction": "jmp word ptr [si + 0x10]"
+        },
+        {
+          "at": 11066,
+          "instruction": "call word ptr [si + 4]"
+        },
+        {
+          "at": 5339,
+          "instruction": "jmp ax"
+        },
+        {
+          "at": 5431,
+          "instruction": "jmp word ptr [si + 0xc]"
+        },
+        {
+          "at": 5548,
+          "instruction": "jmp word ptr [si + 0x10]"
+        },
+        {
+          "at": 5652,
+          "instruction": "jmp word ptr [si + 8]"
+        },
+        {
+          "at": 5987,
+          "instruction": "jmp word ptr [si + 8]"
+        },
+        {
+          "at": 6211,
+          "instruction": "jmp word ptr [si + 8]"
+        },
+        {
+          "at": 6431,
+          "instruction": "jmp word ptr [si + 8]"
+        },
+        {
+          "at": 6778,
+          "instruction": "jmp word ptr [si + 0x24]"
+        },
+        {
+          "at": 6891,
+          "instruction": "call word ptr [si + 4]"
+        },
+        {
+          "at": 7178,
+          "instruction": "jmp word ptr [si + 8]"
+        },
+        {
+          "at": 8230,
+          "instruction": "jmp word ptr [si + 0x18]"
+        },
+        {
+          "at": 8457,
+          "instruction": "jmp word ptr [si + 0x18]"
+        },
+        {
+          "at": 7230,
+          "instruction": "jmp word ptr [si + 0x20]"
+        },
+        {
+          "at": 7293,
+          "instruction": "jmp word ptr [si + 0x24]"
+        },
+        {
+          "at": 9797,
+          "instruction": "jmp word ptr [si + 0xc]"
+        },
+        {
+          "at": 10132,
+          "instruction": "jmp word ptr [si + 0x1c]"
+        },
+        {
+          "at": 10379,
+          "instruction": "jmp word ptr [si + 0x1c]"
+        },
+        {
+          "at": 10474,
+          "instruction": "jmp word ptr [si + 0x1c]"
+        },
+        {
+          "at": 11016,
+          "instruction": "jmp word ptr [si + 0x1c]"
+        },
+        {
+          "at": 6013,
+          "instruction": "jmp word ptr [si + 8]"
+        },
+        {
+          "at": 6237,
+          "instruction": "jmp word ptr [si + 8]"
+        },
+        {
+          "at": 6457,
+          "instruction": "jmp word ptr [si + 8]"
+        },
+        {
+          "at": 8381,
+          "instruction": "jmp word ptr [si + 0xc]"
+        },
+        {
+          "at": 8507,
+          "instruction": "jmp word ptr [si + 0x20]"
+        },
+        {
+          "at": 9472,
+          "instruction": "jmp word ptr [si + 0x1c]"
+        },
+        {
+          "at": 9827,
+          "instruction": "jmp word ptr [si + 0x1c]"
+        },
+        {
+          "at": 9945,
+          "instruction": "jmp word ptr [si + 0x1c]"
+        },
+        {
+          "at": 10159,
+          "instruction": "jmp word ptr [si + 0x14]"
+        },
+        {
+          "at": 10831,
+          "instruction": "jmp word ptr [si + 0x1c]"
+        },
+        {
+          "at": 5837,
+          "instruction": "jmp word ptr [si + 8]"
+        },
+        {
+          "at": 6484,
+          "instruction": "jmp word ptr [si + 0x18]"
+        },
+        {
+          "at": 7098,
+          "instruction": "jmp word ptr [si + 0x28]"
+        },
+        {
+          "at": 8158,
+          "instruction": "jmp word ptr [si + 0xc]"
+        },
+        {
+          "at": 8146,
+          "instruction": "jmp word ptr [si + 0x14]"
+        },
+        {
+          "at": 8292,
+          "instruction": "jmp word ptr [si + 0x1c]"
+        },
+        {
+          "at": 7583,
+          "instruction": "jmp word ptr [si + 0x10]"
+        },
+        {
+          "at": 11406,
+          "instruction": "jmp word ptr [si + 8]"
+        },
+        {
+          "at": 9972,
+          "instruction": "jmp word ptr [si + 8]"
+        },
+        {
+          "at": 5865,
+          "instruction": "jmp word ptr [si + 0x14]"
+        },
+        {
+          "at": 6052,
+          "instruction": "jmp word ptr [si + 0x18]"
+        },
+        {
+          "at": 6328,
+          "instruction": "jmp word ptr [si + 0x14]"
+        },
+        {
+          "at": 6534,
+          "instruction": "jmp word ptr [si + 0x20]"
+        },
+        {
+          "at": 7832,
+          "instruction": "jmp word ptr [si + 0x10]"
+        },
+        {
+          "at": 11774,
+          "instruction": "jmp word ptr cs:[si + 0x2db3]"
+        },
+        {
+          "at": 10284,
+          "instruction": "jmp word ptr [si + 0x18]"
+        },
+        {
+          "at": 6114,
+          "instruction": "jmp word ptr [si + 0x1c]"
+        },
+        {
+          "at": 6340,
+          "instruction": "jmp word ptr [si + 0x10]"
+        },
+        {
+          "at": 2581,
+          "instruction": "call word ptr [bx + 0x2c2d]"
+        },
+        {
+          "at": 9071,
+          "instruction": "call word ptr [bx + 0x2cf3]"
+        },
+        {
+          "at": 5266,
+          "instruction": "call word ptr [bx + 0x2a0d]"
+        },
+        {
+          "at": 11148,
+          "instruction": "call word ptr [bx + 0x2d83]"
+        }
+      ],
+      "conflicts": [],
+      "pointer_tables": [
+        [
+          11699,
+          11705
+        ]
+      ],
+      "address_operands": [
+        {
+          "at": 19707,
+          "target": 19943,
+          "kind": "data",
+          "evidence": "CS:BP word table base, used at 4D03/4D0A/4D19"
+        },
+        {
+          "at": 20065,
+          "target": 20055,
+          "kind": "code",
+          "evidence": "DOS vector offset"
+        },
+        {
+          "at": 15242,
+          "target": 9081,
+          "kind": "code",
+          "evidence": "function pointer stored by 3B8A"
+        },
+        {
+          "at": 15352,
+          "target": 9649,
+          "kind": "code",
+          "evidence": "function pointer stored by 3BF8"
+        },
+        {
+          "at": 15283,
+          "target": 10587,
+          "kind": "code",
+          "evidence": "function pointer stored by 3BB3"
+        },
+        {
+          "at": 15203,
+          "target": 10887,
+          "kind": "code",
+          "evidence": "function pointer stored by 3B63"
+        }
+      ],
+      "external_starts": {
+        "013B": 8,
+        "0664": 12,
+        "0878": 3,
+        "0A32": 6
+      },
+      "alignment": "word",
+      "alignment_evidence": "Reproducing choice: all observed contributions start on word boundaries. Timer follows odd C end at image 0A325; zero linker padding at 0A325 supports WORD. BYTE versus WORD is not discriminated for GAME/SOUND."
+    },
+    {
+      "name": "SOUND",
+      "frame": 1636,
+      "start": 12,
+      "end": 8515,
+      "entries": [
+        {
+          "offset": 4395,
+          "evidence": [
+            "far transfer at image 087A9"
+          ]
+        },
+        {
+          "offset": 4415,
+          "evidence": [
+            "call at 205F",
+            "call at 1A9E"
+          ]
+        },
+        {
+          "offset": 4451,
+          "evidence": [
+            "jne at 1166"
+          ]
+        },
+        {
+          "offset": 4456,
+          "evidence": [
+            "jne at 1170"
+          ]
+        },
+        {
+          "offset": 4459,
+          "evidence": [
+            "loop at 116B"
+          ]
+        },
+        {
+          "offset": 4473,
+          "evidence": [
+            "DOS int 08 vector installed at 1159"
+          ]
+        },
+        {
+          "offset": 4499,
+          "evidence": [
+            "DOS int 08 vector installed at 1184"
+          ]
+        },
+        {
+          "offset": 4533,
+          "evidence": [
+            "call at 14EE",
+            "call at 14FB",
+            "call at 1538",
+            "call at 1545",
+            "call at 155A",
+            "call at 1568",
+            "call at 1AB2",
+            "call at 1ABF",
+            "call at 1AD7",
+            "call at 1AE4",
+            "call at 1AF9",
+            "call at 1B06",
+            "call at 11FE",
+            "call at 120B",
+            "call at 2123"
+          ]
+        },
+        {
+          "offset": 4542,
+          "evidence": [
+            "loop at 11BE"
+          ]
+        },
+        {
+          "offset": 4547,
+          "evidence": [
+            "unreferenced callback matching 1939 counter increment and call"
+          ]
+        },
+        {
+          "offset": 4562,
+          "evidence": [
+            "jne at 11C8"
+          ]
+        },
+        {
+          "offset": 4593,
+          "evidence": [
+            "jne at 11D9"
+          ]
+        },
+        {
+          "offset": 4594,
+          "evidence": [
+            "call at 1A3C",
+            "call at 1A43",
+            "call at 1A56",
+            "call at 1A5D",
+            "call at 1AA5",
+            "call at 1AAC",
+            "call at 1AB9",
+            "call at 1AD1",
+            "call at 1ADE",
+            "call at 1AF3",
+            "call at 1B00",
+            "call at 1B11",
+            "call at 12A5",
+            "call at 12DB",
+            "call at 13F6",
+            "call at 140E",
+            "call at 141A",
+            "call at 1426",
+            "call at 1432",
+            "call at 1441",
+            "call at 1450",
+            "call at 145C",
+            "call at 1468",
+            "call at 146F",
+            "call at 147B",
+            "call at 1487"
+          ]
+        },
+        {
+          "offset": 4625,
+          "evidence": [
+            "far transfer at image 09615",
+            "far transfer at image 09901",
+            "far transfer at image 09ED2",
+            "far transfer at image 0A1B4",
+            "call at 15C8",
+            "call at 14A3"
+          ]
+        },
+        {
+          "offset": 4648,
+          "evidence": [
+            "jb at 1223"
+          ]
+        },
+        {
+          "offset": 4717,
+          "evidence": [
+            "je at 1236",
+            "jb at 1241",
+            "je at 124D",
+            "jb at 125C"
+          ]
+        },
+        {
+          "offset": 4830,
+          "evidence": [
+            "jmp at 1225",
+            "je at 12AF"
+          ]
+        },
+        {
+          "offset": 4837,
+          "evidence": [
+            "callback AX:DX passed to TIMER at 1360"
+          ]
+        },
+        {
+          "offset": 4890,
+          "evidence": [
+            "jmp at 132F"
+          ]
+        },
+        {
+          "offset": 4895,
+          "evidence": [
+            "ja at 12FB"
+          ]
+        },
+        {
+          "offset": 4913,
+          "evidence": [
+            "far transfer at image 08835",
+            "far transfer at image 0972D",
+            "far transfer at image 09887",
+            "far transfer at image 0981C"
+          ]
+        },
+        {
+          "offset": 4941,
+          "evidence": [
+            "je at 1338"
+          ]
+        },
+        {
+          "offset": 4942,
+          "evidence": [
+            "far transfer at image 09867",
+            "far transfer at image 097A3"
+          ]
+        },
+        {
+          "offset": 4982,
+          "evidence": [
+            "jne at 1355"
+          ]
+        },
+        {
+          "offset": 4983,
+          "evidence": [
+            "far transfer at image 09EA9",
+            "far transfer at image 09DFD",
+            "far transfer at image 0A15E",
+            "call at 16A3",
+            "call at 183B"
+          ]
+        },
+        {
+          "offset": 5006,
+          "evidence": [
+            "jb at 1389"
+          ]
+        },
+        {
+          "offset": 5075,
+          "evidence": [
+            "jne at 13A2",
+            "je at 13AE",
+            "jb at 13BC"
+          ]
+        },
+        {
+          "offset": 5133,
+          "evidence": [
+            "je at 1405"
+          ]
+        },
+        {
+          "offset": 5289,
+          "evidence": [
+            "jmp at 138B"
+          ]
+        },
+        {
+          "offset": 5297,
+          "evidence": [
+            "far transfer at image 0961E",
+            "far transfer at image 09EC9",
+            "far transfer at image 09E96",
+            "far transfer at image 09DEA",
+            "far transfer at image 09FA2",
+            "call at 17E6",
+            "call at 1674"
+          ]
+        },
+        {
+          "offset": 5374,
+          "evidence": [
+            "jae at 14BE"
+          ]
+        },
+        {
+          "offset": 5379,
+          "evidence": [
+            "far transfer at image 09EC1",
+            "far transfer at image 09E09",
+            "far transfer at image 0A176",
+            "call at 17C7",
+            "call at 163E"
+          ]
+        },
+        {
+          "offset": 5483,
+          "evidence": [
+            "jae at 1511"
+          ]
+        },
+        {
+          "offset": 5489,
+          "evidence": [
+            "unreferenced ENTER/far-return procedure before dispatch at 15D3",
+            "call at 168C",
+            "call at 1806"
+          ]
+        },
+        {
+          "offset": 5559,
+          "evidence": [
+            "jae at 157E"
+          ]
+        },
+        {
+          "offset": 5564,
+          "evidence": [
+            "jb at 1593",
+            "je at 159F",
+            "jb at 15AD"
+          ]
+        },
+        {
+          "offset": 5587,
+          "evidence": [
+            "jmp at 1639",
+            "jmp at 166F",
+            "jmp at 1693",
+            "jmp at 16AC",
+            "jmp at 16AF",
+            "jmp at 16CB",
+            "jmp at 16E8",
+            "call at 19C3",
+            "jmp at 1647",
+            "jmp at 167A",
+            "jmp at 16EE"
+          ]
+        },
+        {
+          "offset": 5608,
+          "evidence": [
+            "CS opcode dispatch table word at 174B, indexed at 15E5"
+          ]
+        },
+        {
+          "offset": 5639,
+          "evidence": [
+            "CS opcode dispatch table word at 174D, indexed at 15E5"
+          ]
+        },
+        {
+          "offset": 5689,
+          "evidence": [
+            "jae at 160B"
+          ]
+        },
+        {
+          "offset": 5691,
+          "evidence": [
+            "jb at 1624"
+          ]
+        },
+        {
+          "offset": 5705,
+          "evidence": [
+            "CS opcode dispatch table word at 174F, indexed at 15E5"
+          ]
+        },
+        {
+          "offset": 5743,
+          "evidence": [
+            "jae at 164D"
+          ]
+        },
+        {
+          "offset": 5746,
+          "evidence": [
+            "jb at 165B"
+          ]
+        },
+        {
+          "offset": 5757,
+          "evidence": [
+            "CS opcode dispatch table word at 1751, indexed at 15E5"
+          ]
+        },
+        {
+          "offset": 5778,
+          "evidence": [
+            "jae at 1681"
+          ]
+        },
+        {
+          "offset": 5782,
+          "evidence": [
+            "CS opcode dispatch table word at 1753, indexed at 15E5"
+          ]
+        },
+        {
+          "offset": 5804,
+          "evidence": [
+            "jae at 169A"
+          ]
+        },
+        {
+          "offset": 5807,
+          "evidence": [
+            "CS opcode dispatch table word at 1755, indexed at 15E5"
+          ]
+        },
+        {
+          "offset": 5810,
+          "evidence": [
+            "CS opcode dispatch table word at 1757, indexed at 15E5"
+          ]
+        },
+        {
+          "offset": 5838,
+          "evidence": [
+            "CS opcode dispatch table word at 1759, indexed at 15E5"
+          ]
+        },
+        {
+          "offset": 5867,
+          "evidence": [
+            "je at 16DD"
+          ]
+        },
+        {
+          "offset": 5873,
+          "evidence": [
+            "je at 16D0"
+          ]
+        },
+        {
+          "offset": 5902,
+          "evidence": [
+            "jne at 16F8",
+            "jg at 1702"
+          ]
+        },
+        {
+          "offset": 5943,
+          "evidence": [
+            "CS opcode dispatch table word at 175B, indexed at 15E5",
+            "CS opcode dispatch table word at 175D, indexed at 15E5",
+            "CS opcode dispatch table word at 175F, indexed at 15E5",
+            "CS opcode dispatch table word at 1761, indexed at 15E5",
+            "CS opcode dispatch table word at 1763, indexed at 15E5",
+            "CS opcode dispatch table word at 1765, indexed at 15E5",
+            "CS opcode dispatch table word at 1767, indexed at 15E5",
+            "CS opcode dispatch table word at 1769, indexed at 15E5"
+          ]
+        },
+        {
+          "offset": 5995,
+          "evidence": [
+            "jmp at 17D0",
+            "jmp at 17EC",
+            "jmp at 180D",
+            "jmp at 1844",
+            "jmp at 1847",
+            "jmp at 18B6",
+            "call at 1A18",
+            "jmp at 1899",
+            "jmp at 18BC"
+          ]
+        },
+        {
+          "offset": 6016,
+          "evidence": [
+            "CS opcode dispatch table word at 1919, indexed at 177D"
+          ]
+        },
+        {
+          "offset": 6064,
+          "evidence": [
+            "CS opcode dispatch table word at 191B, indexed at 177D"
+          ]
+        },
+        {
+          "offset": 6096,
+          "evidence": [
+            "jae at 17BD"
+          ]
+        },
+        {
+          "offset": 6098,
+          "evidence": [
+            "CS opcode dispatch table word at 191D, indexed at 177D"
+          ]
+        },
+        {
+          "offset": 6124,
+          "evidence": [
+            "jae at 17DF"
+          ]
+        },
+        {
+          "offset": 6127,
+          "evidence": [
+            "CS opcode dispatch table word at 191F, indexed at 177D"
+          ]
+        },
+        {
+          "offset": 6156,
+          "evidence": [
+            "jae at 17FC"
+          ]
+        },
+        {
+          "offset": 6160,
+          "evidence": [
+            "CS opcode dispatch table word at 1921, indexed at 177D"
+          ]
+        },
+        {
+          "offset": 6212,
+          "evidence": [
+            "ja at 181D"
+          ]
+        },
+        {
+          "offset": 6215,
+          "evidence": [
+            "CS opcode dispatch table word at 1923, indexed at 177D"
+          ]
+        },
+        {
+          "offset": 6218,
+          "evidence": [
+            "CS opcode dispatch table word at 1925, indexed at 177D"
+          ]
+        },
+        {
+          "offset": 6268,
+          "evidence": [
+            "jne at 1853",
+            "jne at 185F"
+          ]
+        },
+        {
+          "offset": 6293,
+          "evidence": [
+            "jmp at 1879"
+          ]
+        },
+        {
+          "offset": 6300,
+          "evidence": [
+            "CS opcode dispatch table word at 1927, indexed at 177D"
+          ]
+        },
+        {
+          "offset": 6329,
+          "evidence": [
+            "je at 18AB"
+          ]
+        },
+        {
+          "offset": 6335,
+          "evidence": [
+            "je at 189E"
+          ]
+        },
+        {
+          "offset": 6374,
+          "evidence": [
+            "jne at 18CA",
+            "jg at 18D3"
+          ]
+        },
+        {
+          "offset": 6391,
+          "evidence": [
+            "CS opcode dispatch table word at 1929, indexed at 177D",
+            "CS opcode dispatch table word at 192B, indexed at 177D",
+            "CS opcode dispatch table word at 192D, indexed at 177D",
+            "CS opcode dispatch table word at 192F, indexed at 177D",
+            "CS opcode dispatch table word at 1931, indexed at 177D",
+            "CS opcode dispatch table word at 1933, indexed at 177D",
+            "CS opcode dispatch table word at 1935, indexed at 177D",
+            "CS opcode dispatch table word at 1937, indexed at 177D"
+          ]
+        },
+        {
+          "offset": 6457,
+          "evidence": [
+            "callback AX:DX passed to TIMER at 1B1E",
+            "call at 11E6"
+          ]
+        },
+        {
+          "offset": 6472,
+          "evidence": [
+            "jne at 193E"
+          ]
+        },
+        {
+          "offset": 6484,
+          "evidence": [
+            "je at 194F"
+          ]
+        },
+        {
+          "offset": 6540,
+          "evidence": [
+            "ja at 1979"
+          ]
+        },
+        {
+          "offset": 6594,
+          "evidence": [
+            "je at 19A9",
+            "jb at 19B3"
+          ]
+        },
+        {
+          "offset": 6601,
+          "evidence": [
+            "je at 1965",
+            "jb at 1974",
+            "jb at 1987"
+          ]
+        },
+        {
+          "offset": 6623,
+          "evidence": [
+            "jb at 1A2A"
+          ]
+        },
+        {
+          "offset": 6667,
+          "evidence": [
+            "ja at 19F9"
+          ]
+        },
+        {
+          "offset": 6686,
+          "evidence": [
+            "jne at 19E7",
+            "jb at 19F4",
+            "jb at 1A06"
+          ]
+        },
+        {
+          "offset": 6700,
+          "evidence": [
+            "je at 19D0"
+          ]
+        },
+        {
+          "offset": 6710,
+          "evidence": [
+            "jmp at 1951"
+          ]
+        },
+        {
+          "offset": 6711,
+          "evidence": [
+            "far transfer at image 09898",
+            "call at 1A85",
+            "call at 1B0A"
+          ]
+        },
+        {
+          "offset": 6731,
+          "evidence": [
+            "loop at 1A61"
+          ]
+        },
+        {
+          "offset": 6757,
+          "evidence": [
+            "far transfer at image 0885B"
+          ]
+        },
+        {
+          "offset": 6777,
+          "evidence": [
+            "je at 1A6B"
+          ]
+        },
+        {
+          "offset": 6793,
+          "evidence": [
+            "far transfer at image 087E5"
+          ]
+        },
+        {
+          "offset": 6807,
+          "evidence": [
+            "je at 1A92"
+          ]
+        },
+        {
+          "offset": 6957,
+          "evidence": [
+            "jmp at 1A94"
+          ]
+        },
+        {
+          "offset": 6964,
+          "evidence": [
+            "jne at 1AC8",
+            "je at 1AEA"
+          ]
+        },
+        {
+          "offset": 6970,
+          "evidence": [
+            "unreferenced register-save/far-return procedure between 1B39 and 1B4D"
+          ]
+        },
+        {
+          "offset": 6989,
+          "evidence": [
+            "call at 20BD",
+            "call at 1C66",
+            "call at 1C6C",
+            "call at 1EBA",
+            "call at 1F40",
+            "call at 20B0",
+            "call at 1C27",
+            "call at 1C2D",
+            "call at 1C33"
+          ]
+        },
+        {
+          "offset": 7004,
+          "evidence": [
+            "loopne at 1B6E"
+          ]
+        },
+        {
+          "offset": 7009,
+          "evidence": [
+            "jmp at 1B5C"
+          ]
+        },
+        {
+          "offset": 7014,
+          "evidence": [
+            "jmp at 1B61"
+          ]
+        },
+        {
+          "offset": 7019,
+          "evidence": [
+            "jmp at 1B66"
+          ]
+        },
+        {
+          "offset": 7031,
+          "evidence": [
+            "call at 1E56",
+            "call at 1FE4"
+          ]
+        },
+        {
+          "offset": 7042,
+          "evidence": [
+            "jmp at 1B7D"
+          ]
+        },
+        {
+          "offset": 7047,
+          "evidence": [
+            "jmp at 1B82"
+          ]
+        },
+        {
+          "offset": 7052,
+          "evidence": [
+            "jmp at 1B87"
+          ]
+        },
+        {
+          "offset": 7061,
+          "evidence": [
+            "jmp at 1B90"
+          ]
+        },
+        {
+          "offset": 7066,
+          "evidence": [
+            "jmp at 1B95"
+          ]
+        },
+        {
+          "offset": 7071,
+          "evidence": [
+            "jmp at 1B9A"
+          ]
+        },
+        {
+          "offset": 7080,
+          "evidence": [
+            "jmp at 1BA3"
+          ]
+        },
+        {
+          "offset": 7085,
+          "evidence": [
+            "jmp at 1BA8"
+          ]
+        },
+        {
+          "offset": 7090,
+          "evidence": [
+            "jmp at 1BAD"
+          ]
+        },
+        {
+          "offset": 7099,
+          "evidence": [
+            "jmp at 1BB6"
+          ]
+        },
+        {
+          "offset": 7104,
+          "evidence": [
+            "jmp at 1BBB"
+          ]
+        },
+        {
+          "offset": 7109,
+          "evidence": [
+            "jmp at 1BC0"
+          ]
+        },
+        {
+          "offset": 7118,
+          "evidence": [
+            "jmp at 1BC9"
+          ]
+        },
+        {
+          "offset": 7123,
+          "evidence": [
+            "jmp at 1BCE"
+          ]
+        },
+        {
+          "offset": 7128,
+          "evidence": [
+            "jmp at 1BD3"
+          ]
+        },
+        {
+          "offset": 7137,
+          "evidence": [
+            "jmp at 1BDC"
+          ]
+        },
+        {
+          "offset": 7142,
+          "evidence": [
+            "jmp at 1BE1"
+          ]
+        },
+        {
+          "offset": 7147,
+          "evidence": [
+            "jmp at 1BE6"
+          ]
+        },
+        {
+          "offset": 7156,
+          "evidence": [
+            "jmp at 1BEF"
+          ]
+        },
+        {
+          "offset": 7161,
+          "evidence": [
+            "jmp at 1BF4"
+          ]
+        },
+        {
+          "offset": 7166,
+          "evidence": [
+            "jmp at 1BF9"
+          ]
+        },
+        {
+          "offset": 7175,
+          "evidence": [
+            "jmp at 1C02"
+          ]
+        },
+        {
+          "offset": 7180,
+          "evidence": [
+            "jmp at 1C07"
+          ]
+        },
+        {
+          "offset": 7185,
+          "evidence": [
+            "jmp at 1C0C"
+          ]
+        },
+        {
+          "offset": 7194,
+          "evidence": [
+            "jmp at 1C15"
+          ]
+        },
+        {
+          "offset": 7199,
+          "evidence": [
+            "jmp at 1C1A"
+          ]
+        },
+        {
+          "offset": 7204,
+          "evidence": [
+            "jmp at 1C1F"
+          ]
+        },
+        {
+          "offset": 7225,
+          "evidence": [
+            "far transfer at image 087D8"
+          ]
+        },
+        {
+          "offset": 7279,
+          "evidence": [
+            "je at 1C47",
+            "jb at 1C51"
+          ]
+        },
+        {
+          "offset": 7284,
+          "evidence": [
+            "call at 1F03"
+          ]
+        },
+        {
+          "offset": 7350,
+          "evidence": [
+            "jae at 1C98"
+          ]
+        },
+        {
+          "offset": 7416,
+          "evidence": [
+            "jae at 1CDA"
+          ]
+        },
+        {
+          "offset": 7417,
+          "evidence": [
+            "call at 1EC6",
+            "call at 1E6B"
+          ]
+        },
+        {
+          "offset": 7430,
+          "evidence": [
+            "jne at 1D01"
+          ]
+        },
+        {
+          "offset": 7466,
+          "evidence": [
+            "jae at 1D82",
+            "jmp at 1DC2"
+          ]
+        },
+        {
+          "offset": 7505,
+          "evidence": [
+            "jb at 1D4C"
+          ]
+        },
+        {
+          "offset": 7549,
+          "evidence": [
+            "je at 1D2F",
+            "jmp at 1DF3",
+            "jmp at 1E01"
+          ]
+        },
+        {
+          "offset": 7621,
+          "evidence": [
+            "jle at 1DAB",
+            "jle at 1DFF"
+          ]
+        },
+        {
+          "offset": 7637,
+          "evidence": [
+            "jmp at 1D03"
+          ]
+        },
+        {
+          "offset": 7638,
+          "evidence": [
+            "jmp at 1D4E"
+          ]
+        },
+        {
+          "offset": 7660,
+          "evidence": [
+            "jne at 1DDD"
+          ]
+        },
+        {
+          "offset": 7669,
+          "evidence": [
+            "jle at 1DE7"
+          ]
+        },
+        {
+          "offset": 7684,
+          "evidence": [
+            "DOS interrupt vector installed at 2086",
+            "call at 1EF1"
+          ]
+        },
+        {
+          "offset": 7702,
+          "evidence": [
+            "je at 1E10"
+          ]
+        },
+        {
+          "offset": 7736,
+          "evidence": [
+            "jne at 1E30"
+          ]
+        },
+        {
+          "offset": 7795,
+          "evidence": [
+            "jmp at 1E95"
+          ]
+        },
+        {
+          "offset": 7805,
+          "evidence": [
+            "jb at 1E40"
+          ]
+        },
+        {
+          "offset": 7817,
+          "evidence": [
+            "jmp at 1E84"
+          ]
+        },
+        {
+          "offset": 7822,
+          "evidence": [
+            "jmp at 1E89"
+          ]
+        },
+        {
+          "offset": 7827,
+          "evidence": [
+            "jmp at 1E8E"
+          ]
+        },
+        {
+          "offset": 7831,
+          "evidence": [
+            "far transfer at image 09110"
+          ]
+        },
+        {
+          "offset": 7843,
+          "evidence": [
+            "jne at 1EAA"
+          ]
+        },
+        {
+          "offset": 7907,
+          "evidence": [
+            "jmp at 1EDE"
+          ]
+        },
+        {
+          "offset": 7912,
+          "evidence": [
+            "jmp at 1EE3"
+          ]
+        },
+        {
+          "offset": 7917,
+          "evidence": [
+            "jmp at 1EE8"
+          ]
+        },
+        {
+          "offset": 7924,
+          "evidence": [
+            "je at 1E9E",
+            "jle at 1EB2"
+          ]
+        },
+        {
+          "offset": 7925,
+          "evidence": [
+            "DOS interrupt vector installed at 1FA7"
+          ]
+        },
+        {
+          "offset": 7936,
+          "evidence": [
+            "call at 2063"
+          ]
+        },
+        {
+          "offset": 7956,
+          "evidence": [
+            "jb at 1F35"
+          ]
+        },
+        {
+          "offset": 7978,
+          "evidence": [
+            "jb at 1F25"
+          ]
+        },
+        {
+          "offset": 8015,
+          "evidence": [
+            "jmp at 203A"
+          ]
+        },
+        {
+          "offset": 8078,
+          "evidence": [
+            "jmp at 1F89"
+          ]
+        },
+        {
+          "offset": 8083,
+          "evidence": [
+            "jmp at 1F8E"
+          ]
+        },
+        {
+          "offset": 8088,
+          "evidence": [
+            "jmp at 1F93"
+          ]
+        },
+        {
+          "offset": 8138,
+          "evidence": [
+            "jmp at 1FC5"
+          ]
+        },
+        {
+          "offset": 8143,
+          "evidence": [
+            "jmp at 1FCA"
+          ]
+        },
+        {
+          "offset": 8148,
+          "evidence": [
+            "jmp at 1FCF"
+          ]
+        },
+        {
+          "offset": 8170,
+          "evidence": [
+            "loope at 1FF0"
+          ]
+        },
+        {
+          "offset": 8190,
+          "evidence": [
+            "jmp at 1FF9"
+          ]
+        },
+        {
+          "offset": 8195,
+          "evidence": [
+            "jmp at 1FFE"
+          ]
+        },
+        {
+          "offset": 8200,
+          "evidence": [
+            "jmp at 2003"
+          ]
+        },
+        {
+          "offset": 8253,
+          "evidence": [
+            "ja at 2038"
+          ]
+        },
+        {
+          "offset": 8260,
+          "evidence": [
+            "jmp at 1F27"
+          ]
+        },
+        {
+          "offset": 8273,
+          "evidence": [
+            "jne at 202E"
+          ]
+        },
+        {
+          "offset": 8284,
+          "evidence": [
+            "far transfer at image 087B5"
+          ]
+        },
+        {
+          "offset": 8353,
+          "evidence": [
+            "jmp at 209C"
+          ]
+        },
+        {
+          "offset": 8358,
+          "evidence": [
+            "jmp at 20A1"
+          ]
+        },
+        {
+          "offset": 8363,
+          "evidence": [
+            "jmp at 20A6"
+          ]
+        },
+        {
+          "offset": 8374,
+          "evidence": [
+            "je at 2069"
+          ]
+        },
+        {
+          "offset": 8377,
+          "evidence": [
+            "far transfer at image 08848"
+          ]
+        },
+        {
+          "offset": 8406,
+          "evidence": [
+            "jmp at 20D1"
+          ]
+        },
+        {
+          "offset": 8411,
+          "evidence": [
+            "jmp at 20D6"
+          ]
+        },
+        {
+          "offset": 8416,
+          "evidence": [
+            "jmp at 20DB"
+          ]
+        },
+        {
+          "offset": 8468,
+          "evidence": [
+            "call at 1F31",
+            "call at 2104"
+          ]
+        },
+        {
+          "offset": 8495,
+          "evidence": [
+            "loope at 2132"
+          ]
+        },
+        {
+          "offset": 8513,
+          "evidence": [
+            "jne at 213A"
+          ]
+        }
+      ],
+      "spans": [
+        {
+          "start": 12,
+          "end": 4395,
+          "kind": "data",
+          "evidence": "CS variables/tables and initial zero buffers; cleared by 112B"
+        },
+        {
+          "start": 4395,
+          "end": 5963,
+          "kind": "code"
+        },
+        {
+          "start": 5963,
+          "end": 5995,
+          "kind": "data",
+          "evidence": "CS dispatch table indexed at 15E5"
+        },
+        {
+          "start": 5995,
+          "end": 6425,
+          "kind": "code"
+        },
+        {
+          "start": 6425,
+          "end": 6457,
+          "kind": "data",
+          "evidence": "CS dispatch table indexed at 177D"
+        },
+        {
+          "start": 6457,
+          "end": 8280,
+          "kind": "code"
+        },
+        {
+          "start": 8280,
+          "end": 8284,
+          "kind": "data",
+          "evidence": "byte table referenced at 1F5F"
+        },
+        {
+          "start": 8284,
+          "end": 8515,
+          "kind": "code"
+        }
+      ],
+      "indirect": [
+        {
+          "at": 5605,
+          "instruction": "jmp word ptr cs:[bx]"
+        },
+        {
+          "at": 6013,
+          "instruction": "jmp word ptr cs:[bx]"
+        }
+      ],
+      "conflicts": [],
+      "pointer_tables": [
+        [
+          5963,
+          5995
+        ],
+        [
+          6425,
+          6457
+        ]
+      ],
+      "address_operands": [
+        {
+          "at": 4441,
+          "target": 4473,
+          "kind": "code",
+          "evidence": "DOS vector offset"
+        },
+        {
+          "at": 4484,
+          "target": 4499,
+          "kind": "code",
+          "evidence": "DOS vector offset"
+        },
+        {
+          "at": 4960,
+          "target": 4837,
+          "kind": "code",
+          "evidence": "TIMER callback offset in AX"
+        },
+        {
+          "at": 6942,
+          "target": 6457,
+          "kind": "code",
+          "evidence": "TIMER callback offset in AX"
+        },
+        {
+          "at": 8103,
+          "target": 7925,
+          "kind": "code",
+          "evidence": "DOS vector offset"
+        },
+        {
+          "at": 8326,
+          "target": 7684,
+          "kind": "code",
+          "evidence": "DOS vector offset"
+        },
+        {
+          "at": 5601,
+          "target": 5963,
+          "kind": "data",
+          "evidence": "CS dispatch table address"
+        },
+        {
+          "at": 6009,
+          "target": 6425,
+          "kind": "data",
+          "evidence": "CS dispatch table address"
+        }
+      ],
+      "external_starts": {
+        "013B": 8,
+        "0664": 12,
+        "0878": 3,
+        "0A32": 6
+      },
+      "alignment": "word",
+      "alignment_evidence": "Reproducing choice: all observed contributions start on word boundaries. Timer follows odd C end at image 0A325; zero linker padding at 0A325 supports WORD. BYTE versus WORD is not discriminated for GAME/SOUND."
+    },
+    {
+      "name": "TIMER",
+      "frame": 2610,
+      "start": 6,
+      "end": 833,
+      "entries": [
+        {
+          "offset": 8,
+          "evidence": [
+            "far transfer at image 08154"
+          ]
+        },
+        {
+          "offset": 20,
+          "evidence": [
+            "je at 000F"
+          ]
+        },
+        {
+          "offset": 109,
+          "evidence": [
+            "jns at 0076"
+          ]
+        },
+        {
+          "offset": 152,
+          "evidence": [
+            "jmp at 0011"
+          ]
+        },
+        {
+          "offset": 153,
+          "evidence": [
+            "callback saved in DGROUP 7B2E at 002E"
+          ]
+        },
+        {
+          "offset": 160,
+          "evidence": [
+            "far transfer at image 080B9"
+          ]
+        },
+        {
+          "offset": 209,
+          "evidence": [
+            "je at 00A7"
+          ]
+        },
+        {
+          "offset": 210,
+          "evidence": [
+            "DOS int 08 vector installed at 008F"
+          ]
+        },
+        {
+          "offset": 228,
+          "evidence": [
+            "jns at 011E"
+          ]
+        },
+        {
+          "offset": 261,
+          "evidence": [
+            "js at 00F3"
+          ]
+        },
+        {
+          "offset": 283,
+          "evidence": [
+            "jne at 0100"
+          ]
+        },
+        {
+          "offset": 304,
+          "evidence": [
+            "jns at 014E"
+          ]
+        },
+        {
+          "offset": 331,
+          "evidence": [
+            "je at 0136"
+          ]
+        },
+        {
+          "offset": 357,
+          "evidence": [
+            "jmp at 0160"
+          ]
+        },
+        {
+          "offset": 362,
+          "evidence": [
+            "jmp at 0165"
+          ]
+        },
+        {
+          "offset": 367,
+          "evidence": [
+            "jmp at 016A"
+          ]
+        },
+        {
+          "offset": 376,
+          "evidence": [
+            "jmp at 0173"
+          ]
+        },
+        {
+          "offset": 381,
+          "evidence": [
+            "jmp at 0178"
+          ]
+        },
+        {
+          "offset": 386,
+          "evidence": [
+            "jmp at 017D"
+          ]
+        },
+        {
+          "offset": 396,
+          "evidence": [
+            "jmp at 0187"
+          ]
+        },
+        {
+          "offset": 401,
+          "evidence": [
+            "jmp at 018C"
+          ]
+        },
+        {
+          "offset": 406,
+          "evidence": [
+            "jmp at 0191"
+          ]
+        },
+        {
+          "offset": 410,
+          "evidence": [
+            "je at 015B"
+          ]
+        },
+        {
+          "offset": 426,
+          "evidence": [
+            "far transfer at image 079A6",
+            "far transfer at image 08164",
+            "call at 031E"
+          ]
+        },
+        {
+          "offset": 493,
+          "evidence": [
+            "jb at 01DF"
+          ]
+        },
+        {
+          "offset": 502,
+          "evidence": [
+            "ja at 01DA",
+            "jae at 01E8"
+          ]
+        },
+        {
+          "offset": 504,
+          "evidence": [
+            "jmp at 0206"
+          ]
+        },
+        {
+          "offset": 520,
+          "evidence": [
+            "jne at 01FE"
+          ]
+        },
+        {
+          "offset": 539,
+          "evidence": [
+            "far transfer at image 07963",
+            "far transfer at image 07981",
+            "far transfer at image 080B4",
+            "call at 032A",
+            "call at 033C"
+          ]
+        },
+        {
+          "offset": 642,
+          "evidence": [
+            "je at 0233"
+          ]
+        },
+        {
+          "offset": 657,
+          "evidence": [
+            "jns at 02B3"
+          ]
+        },
+        {
+          "offset": 680,
+          "evidence": [
+            "ja at 0295"
+          ]
+        },
+        {
+          "offset": 688,
+          "evidence": [
+            "jb at 029A",
+            "jb at 02A3"
+          ]
+        },
+        {
+          "offset": 705,
+          "evidence": [
+            "far transfer at image 07D03",
+            "far transfer at image 07EB4"
+          ]
+        },
+        {
+          "offset": 733,
+          "evidence": [
+            "jns at 02FF"
+          ]
+        },
+        {
+          "offset": 756,
+          "evidence": [
+            "ja at 02E1"
+          ]
+        },
+        {
+          "offset": 764,
+          "evidence": [
+            "jb at 02E6",
+            "jb at 02EF"
+          ]
+        },
+        {
+          "offset": 782,
+          "evidence": [
+            "unreferenced far wrapper: BP prologue and PUSH CS/CALL 01AA"
+          ]
+        },
+        {
+          "offset": 803,
+          "evidence": [
+            "unreferenced far wrapper: BP prologue and PUSH CS/CALL 021B"
+          ]
+        },
+        {
+          "offset": 815,
+          "evidence": [
+            "unreferenced far wrapper: BP prologue and PUSH CS/CALL 021B"
+          ]
+        }
+      ],
+      "spans": [
+        {
+          "start": 6,
+          "end": 8,
+          "kind": "data",
+          "evidence": "word variable read at 0008 and set at 0014"
+        },
+        {
+          "start": 8,
+          "end": 833,
+          "kind": "code"
+        }
+      ],
+      "indirect": [],
+      "conflicts": [],
+      "pointer_tables": [],
+      "address_operands": [
+        {
+          "at": 46,
+          "target": 153,
+          "kind": "code",
+          "evidence": "callback offset installed in DGROUP"
+        },
+        {
+          "at": 143,
+          "target": 210,
+          "kind": "code",
+          "evidence": "DOS vector offset"
+        }
+      ],
+      "external_starts": {
+        "013B": 8,
+        "0664": 12,
+        "0878": 3,
+        "0A32": 6
+      },
+      "alignment": "word",
+      "alignment_evidence": "Reproducing choice: all observed contributions start on word boundaries. Timer follows odd C end at image 0A325; zero linker padding at 0A325 supports WORD. BYTE versus WORD is not discriminated for GAME/SOUND."
+    }
+  ],
+  "encoding_exceptions": [],
+  "external_starts": {
+    "013B": 8,
+    "0664": 12,
+    "0878": 3,
+    "0A32": 6
+  }
+}

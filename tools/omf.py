@@ -72,16 +72,18 @@ def _number(b, p):
 def _expand_lidata(b, p, width):
     out = bytearray()
     def rawnum(q, n):
+        if q+n>len(b):raise ValueError('truncated LIDATA number')
         return int.from_bytes(b[q:q + n], 'little'), q + n
     def block(q):
         repeat, q = rawnum(q, width)
         count, q = rawnum(q, 2)
-        if count:
-            raw = b[q:q + count]
-            return raw * repeat, q + count
-        children, q = rawnum(q, 2)
+        if not count:
+            length,q=rawnum(q,1)
+            if q+length>len(b):raise ValueError('truncated LIDATA leaf')
+            raw = b[q:q + length]
+            return raw * repeat, q + length
         child = bytearray()
-        for _ in range(children):
+        for _ in range(count):
             v, q = block(q); child.extend(v)
         return child * repeat, q
     while p < len(b):

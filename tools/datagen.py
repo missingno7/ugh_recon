@@ -51,7 +51,9 @@ def main():
     frames=sorted({mz.word(p) for p in mz.sites if a<=p<b}-{0x5c09})
     lines=note+['; Menu option/string offset table at DGROUP:00DA..00EC.',
                 '; GAME:0652 indexes the option entries and copies the selected DS string.',
-                'extrn ext_013B:far',"_DATA segment word public 'DATA'",'public ext_5C09','ext_5C09 label far']
+                'extrn ext_013B:far']
+    lines+=[f'extrn ext_{f:04X}:far' for f in frames if f!=0x13b]
+    lines+=["_DATA segment word public 'DATA'",'public ext_5C09','ext_5C09 label far']
     lines+=emit(mz,a,0x5c090+0xda)
     labels={}
     for off in range(0xda,0xee,2):
@@ -61,7 +63,7 @@ def main():
     for target,symbol in sorted(labels.items()):
         lines+=emit(mz,p,target)+[symbol+' label byte'];p=target
     lines+=emit(mz,p,b)+['_DATA ends','DGROUP group _DATA']
-    lines+=[f'extrn ext_{f:04X}:far' for f in frames if f!=0x13b]+['end']
+    lines+=['end']
     write('DGDATA.ASM',lines)
     print('RAW data sources:',b-a+64768+(FRAMES[-1]-FRAMES[0])*16,'bytes')
 

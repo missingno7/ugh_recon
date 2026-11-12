@@ -3,6 +3,9 @@
 ; Menu option/string offset table at DGROUP:00DA..00EC.
 ; GAME:0652 indexes the option entries and copies the selected DS string.
 extrn ext_013B:far
+extrn ext_0A67:far
+extrn ext_1A38:far
+extrn ext_2BC6:far
 _DATA segment word public 'DATA'
 public ext_5C09
 ext_5C09 label far
@@ -2243,7 +2246,4 @@ dg_text_0BEB label byte
     db 305 dup (000h)
 _DATA ends
 DGROUP group _DATA
-extrn ext_0A67:far
-extrn ext_1A38:far
-extrn ext_2BC6:far
 end

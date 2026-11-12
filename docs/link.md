@@ -1,19 +1,51 @@
-# Natural link and full packed proof
+# Readable source and derived relocation proof
 
-Status: **done**. `python tools/verify.py` returns **0**, `FULL_PACKED_FILE`.
-The fresh natural executable equals the complete expanded oracle: all 411,838
-file bytes, all header bytes, all **525 relocation tuples in order**, and all
-409,278 load-image bytes. Pinned PKLITE 1.15 produces the original 139,685 bytes.
+Status: **done**. `python tools/verify.py` returns **0**, `FULL_PACKED_FILE`,
+with both builds reported. The plain executable has the exact header fields,
+409,278 load-image bytes and relocation set/multiset; **35** relocation table
+positions differ in order. The proof executable equals all 411,838 expanded
+file bytes, including all **525 relocation tuples in order**. Pinned PKLITE 1.15
+produces the original 139,685 packed bytes. Both load images are identical.
 
 Packed SHA-256: `1058cad6771a540f75b109dbe77adda1f6590e7c0309349482c601542e459e7a`.
-Expanded SHA-256: `ef93d2cd5eb558f6a7d0007e0109f2e9ee952dc125389d7a6256646087636d7c`.
+Proof expanded SHA-256: `ef93d2cd5eb558f6a7d0007e0109f2e9ee952dc125389d7a6256646087636d7c`.
 
-This is a reproducing source organization, not a claim that the historical
-objects had these fragment names or boundaries. The instructions are maintained
-TASM source; Borland runtime code remains the original C0H.OBJ/CH.LIB. Copied
-opaque data and the virtual reservation retain their debt classifications.
+## Maintained source and generated files
 
-## Build and proof commands
+GAME, SOUND and TIMER are plain, single-segment sources in image order, restored
+from commit 6776f37. Real cross-module symbols, corrected labels and natural data
+OFFSET/string labels remain. Added ordinary labels provide named cut points;
+they emit no bytes. There are no GCODE/SCODE segments, branch addends, shuffled
+pieces, artificial branch reservations or proof LAYOUT source under src/.
+
+`tools/fragment.py` reads these clean assembly/data sources and
+`metadata/reloc-layout.json` only. It never reads the oracle, asm-map, object
+files, listings, maps or previous build output. Its outputs are restricted to
+build/link/. `build.py` invokes it afresh in build/link/proof/; nobody edits its
+outputs. The plain build copies the maintained sources directly to
+build/link/plain/. Both variants independently assemble all sources, compile C,
+stage hash-checked C0H.OBJ/CH.LIB and link with pinned tools, using fresh objects.
+`datagen.py` remains an explicit data bootstrap, never a build dependency.
+
+The layout header states that its ordering was derived from the original
+relocation table. It is a modern **reproducing device, not recovered source
+structure**. It contains physical cut labels, proof piece names/declaration
+orders, fourteen branch/alignment form decisions, three deferred DGDATA externs,
+and empty layout tail declarations. It contains no instructions or expected
+byte strings. Stable IDs refer into the flat `labels` dictionary; all actual
+label names are values in that dictionary. A rename tool changes source
+label definitions/references and the corresponding dictionary values, leaving
+IDs and their uses intact. No line numbers or comment addresses are consumed.
+The numeric-looking portions of label names are opaque names to the generator.
+
+Missing or repeated labels, changed cut ordering, invalid piece permutations,
+and mechanical adjustments that no longer match their instruction fail loudly.
+For example a source-only rename gives:
+`GAME: cut label loc_0072 (game_001) not found in clean source`.
+Renaming that label in source and layout, with extra comments/blank lines,
+passes the complete verifier and the independent clean ASM gate.
+
+## Build and verification
 
 ```
 python tools/oracle.py
@@ -23,91 +55,64 @@ python tools/census.py
 python tools/verify.py
 ```
 
-The ASM and C contribution gates remain supported. ASM now requires ordered
-relocation equality as well as exact bytes and sites. Its group-aware resolver
-independently resolves segment, group, external and relative fixups at the
-curated piece placements; it does not use linked candidate bytes as expectations.
-Listing auditing maps each segment-local address into the independent code/data
-map, rejects data directives in code, and requires complete mapped data coverage.
+`asmverify.py` certifies clean contribution bytes and relocation site sets and
+targets; emitted order remains a diagnostic. Listing auditing rejects data
+instructions outside independent classified data extents. `cjudge.py` is
+unchanged. The canonical asm-map describes whole clean segments, without
+fragment placement metadata. During the proof build, generated listing data
+extents are audited against that same independent map; generated LAYOUT must
+have no bytes, fixups or publics. Other data-only sources cannot contain CODE.
 
-`build.py` deletes generated objects/executables/listings from build/link/, stages
-hash-locked tools' inputs, assembles sources, compiles the entire C unit and
-links normally. LAYOUT is checked to contain only empty declarations: no bytes,
-fixups or publics. Other data-only sources may not declare CODE. `verify.py`
-checks locked oracle hashes, builds fresh, compares headers, ordered tuples,
-sets/multisets, image, tail and then the complete packed file. Only packed
-equality exits zero. `build/link/verify.json` contains all diagnostics.
+`verify.py` exits zero only if all three gates hold:
 
-No oracle is read by the build. `datagen.py` and the worker fragment generator
-are explicit bootstraps, never build dependencies. There is no cached-object
-dependency, OMF rewriting, original instruction blob, output patch, or trimming.
+- Plain header fields/gap/padding/tail, every image byte and relocation
+  tuple/site sets and multisets match, with exactly 35 order differences.
+- Proof expanded file and complete PKLITE output match the locked originals.
+- Plain and proof load images are identical.
 
-## Ordinary physical order versus relocation emission order
+The plain result is explicitly `IMAGE_AND_RELOCATION_SET_DIAGNOSTIC`; it is not
+called a packed proof. An overall `FULL_PACKED_FILE` also certifies the tie to
+the readable source. Field differences, every changed relocation index, image
+ranges and first differences per region, packed differences, class totals and
+RAW debt are retained in build/link/verify.json. No binary output is patched,
+trimmed or reordered. All linker ordering is ordinary source/object order.
 
-The decisive measured rule is:
+## Mechanical proof transformation
 
-1. TASM writes segment records in segment-declaration order. /a sorts both
-   SEGDEF and associated data/fixup records; later population of an already
-   declared segment does not choose a new emission order.
-2. TLINK places a PUBLIC combined segment where its first ordinary declaration
-   established it. An earlier empty object can establish physical order while
-   later objects emit their fixups in their own declaration order.
-3. A GROUP supplies the common code frame across the byte-aligned fragments.
-   GROUP membership does not itself reorder their physical storage. TASM 3.0
-   writes GRPDEF members in reverse source-list order; the verifier checks that.
+TASM emits each segment's data/fixups in declaration order. TLINK places PUBLIC
+segments where their first ordinary declaration established them. A generated
+empty LAYOUT object establishes physical piece order; generated GAME/SOUND
+objects declare pieces in the separate order recorded by the layout. GROUP
+supplies a common code frame, not physical storage ordering. Pinned TASM writes
+GRPDEF members in reverse source-list order. GAME has 32 pieces in GAME_GROUP;
+SOUND has a resident prefix plus 14 code pieces in SOUND_GROUP.
 
-`src/data/LAYOUT.ASM` is the empty order object. Like the startup's standard empty
-segment declarations, it emits no initialized bytes. It lists the physical
-GAME pieces, SOUND resident prefix and pieces, MODULE_TEXT and TIMERSEG. The
-maintained GAME/SOUND files declare and populate pieces in the observed fixup
-run order. All ordering supplied to TLINK is ordinary static source/object order.
-The build never receives a relocation ordering list or reads one from the oracle.
+The generator moves trailing code EXTRNs before the generated declarations,
+qualifies native local OFFSET references with their group and rewrites only
+cross-piece transfers. Existing SHORT/NEAR forms, near calls and LOOP/JCXZ forms
+come from the source. The few unqualified branches require label-keyed layout
+form decisions: short, reserved short (three NOPs), or inverse-short/near-jump.
+Cross-piece local far calls become PUSH CS / near CALL, with the original
+forward-call NOP reservation when the target is defined later. One EVEN becomes
+a NOP because piece-local parity differs from group parity. Pinned TLINK's
+LOC0 relative fixup subtracts two rather than one, so derived cross-piece short
+branches use target+1; LOC1 near branches need no addend. These mechanics exist
+only in generated sources and use instructions, never code DB directives.
 
-GAME uses **32** physical pieces in GAME_GROUP. SOUND uses its resident data
-prefix plus **14** code pieces in SOUND_GROUP. Both groups remain within 64 KiB.
-Piece extents and alignments are in metadata/asm-map.json; physical declarations
-are in LAYOUT.ASM; every source piece carries a physical-range comment. These
-modern boundaries partition the observed ordered runs and retain normal source
-instructions and normal symbolic fixups throughout.
-
-The object segment emission orders are:
+Piece emission orders (the layout file is authoritative):
 
 ```
-GAME:
 GAMESEG GCODE02 GCODE04 GCODE01 GCODE03 GCODE05 GCODE07 GCODE06 GCODE09 GCODE08 GCODE10
 GCODE12 GCODE11 GCODE14 GCODE16 GCODE13 GCODE15 GCODE17 GCODE19 GCODE18 GCODE21 GCODE20
 GCODE23 GCODE25 GCODE22 GCODE24 GCODE26 GCODE28 GCODE27 GCODE30 GCODE29 GCODE31
 
-SOUND:
 SOUNDSEG SCODE00 SCODE02 SCODE01 SCODE03 SCODE05 SCODE07 SCODE04 SCODE06 SCODE08 SCODE10
 SCODE09 SCODE11 SCODE13 SCODE12
 ```
 
-Within a fragment, known selector/far-call sites retain their normal source
-order. This predicts the complete GAME/SOUND relocation stream without relying
-on the unresolved-expression queue's incidental batching. The C, TIMER and
-runtime streams already matched. The resulting complete stream matches all 525
-original tuples, including DGROUP's eight sites before GAME code sites.
-
-## Cross-fragment instructions
-
-CS assumes the owning GROUP. Code offsets which cross segment pieces use
-`OFFSET group:label`. Conditional branches crossing pieces retain their observed
-short-plus-NOP or inverse-short/near-jump encoding explicitly. Same-segment far
-call sequences crossing pieces are expressed as PUSH CS, near CALL and their
-observed optional NOP. The original one-byte GAME EVEN padding is an explicit
-NOP because fragment-local parity differs from group parity. None is a code DB.
-
-Pinned TASM/TLINK LOC0 cross-segment relative fixups subtract two bytes, including
-for an 8-bit field. In `groupbranch.py`, unadjusted SHORT branches land one byte
-early while the LOC1 near CALL lands correctly. Cross-piece SHORT/LOOP references
-therefore use the measured `label+1` source addend. The independent resolver
-models that linker behavior, and the complete natural image comparison proves
-the final branch bytes/targets. No executable is patched to implement it.
-
 ## Object/library order and commands
 
-Every ASM source is assembled with pinned TASM 3.0:
+Both variants use these pinned commands in their own directory:
 
 ```
 TASM /kh8192 NAME.ASM,NAME.OBJ,NAME.LST
@@ -115,15 +120,19 @@ BCC -c -mh -2 -n. MODULE.C
 TLINK @LINK.RSP
 ```
 
-The complete maintained response line is:
+Plain LINK.RSP:
+
+```
+/m /s C0H.OBJ+DGDATA.OBJ+GAME.OBJ+SOUND.OBJ+ZERO.OBJ+MODULE.OBJ+TIMER.OBJ+B1A38.OBJ+B1E1F.OBJ+B2BC6.OBJ+B2BF6.OBJ+B2D9A.OBJ+B2F9E.OBJ+B2FB7.OBJ+B325B.OBJ+B3260.OBJ+B3265.OBJ+B326B.OBJ+B3274.OBJ+B3279.OBJ+B3444.OBJ+B3629.OBJ+B3632.OBJ+B3637.OBJ+B37A7.OBJ+B438A.OBJ+B4E83.OBJ+B5B63.OBJ+RESERVE.OBJ,UGH.EXE,UGH.MAP,CH.LIB
+```
+
+Proof LINK.RSP differs only by adding LAYOUT.OBJ immediately after C0H.OBJ:
 
 ```
 /m /s C0H.OBJ+LAYOUT.OBJ+DGDATA.OBJ+GAME.OBJ+SOUND.OBJ+ZERO.OBJ+MODULE.OBJ+TIMER.OBJ+B1A38.OBJ+B1E1F.OBJ+B2BC6.OBJ+B2BF6.OBJ+B2D9A.OBJ+B2F9E.OBJ+B2FB7.OBJ+B325B.OBJ+B3260.OBJ+B3265.OBJ+B326B.OBJ+B3274.OBJ+B3279.OBJ+B3444.OBJ+B3629.OBJ+B3632.OBJ+B3637.OBJ+B37A7.OBJ+B438A.OBJ+B4E83.OBJ+B5B63.OBJ+RESERVE.OBJ,UGH.EXE,UGH.MAP,CH.LIB
 ```
 
-C0H comes first, followed by the empty layout object, DGDATA, GAME, SOUND, ZERO,
-the C unit, TIMER and the ordinary data/reservation objects. The natural library
-pull order from unchanged CH.LIB is:
+The naturally pulled CH.LIB members, without an extraction list, are:
 
 ```
 ATEXIT EXIT FILES FILES2 F_LXMUL F_PCMP H_LDIV H_LLSH H_PADA H_PADD
@@ -131,18 +140,16 @@ H_PINA IOERROR ISATTY LSEEK N_PCMP SETUPIO STKLEN TELL FARHEAP FBRK
 SETBLOCK FFLUSH FLUSHALL FSEEK MEMSET SETVBUF WRITE WRITEA XFFLUSH
 ```
 
-No member extraction list is supplied. Startup and real C arithmetic/memset
-references pull them naturally. Complete runtime `_TEXT` is 13B8h (5,048 bytes),
-including the eight bytes beyond the old rounded 13B0h census boundary. Its
-same-segment far-call relaxations are TLINK's ordinary transformations.
+Runtime `_TEXT` totals 13B8h (5,048 bytes); ordinary TLINK same-segment far-call
+relaxations remain unchanged. Runtime code comes from the original library.
 
 ## Physical extents and data ownership
 
 | Contribution | Placement / declaration |
 |---|---|
 | Runtime `_TEXT` | 00000..013B8, original BYTE PUBLIC CODE |
-| GAME_GROUP | 013B8..0664C, first piece WORD PUBLIC CODE, others BYTE PUBLIC CODE |
-| SOUND_GROUP | 0664C..08783, WORD resident prefix, BYTE code pieces, all PUBLIC CODE |
+| GAMESEG (plain) / GAME_GROUP (proof) | 013B8..0664C, plain WORD PUBLIC CODE; proof first piece WORD, others BYTE PUBLIC CODE |
+| SOUNDSEG (plain) / SOUND_GROUP (proof) | 0664C..08783, plain WORD PUBLIC CODE; proof WORD resident prefix, BYTE code pieces, all PUBLIC CODE |
 | MODULE_TEXT | 08783..0A325, BCC BYTE PUBLIC CODE |
 | TIMERSEG | 0A326..0A661, WORD PUBLIC CODE |
 | ZERODATA | 0A670..1A370, PARA PUBLIC FAR_DATA |
@@ -161,11 +168,12 @@ FBRK 7E22..7E24, SETVBUF 7E24..7E28 and SETUPIO 7E28..7E2E.
 The ten string offsets at DGROUP 00DA..00EC are now `DW OFFSET` references to
 actual string labels. GAME:0652 indexes the option entries and copies DS strings;
 the values point to EASY/MEDIUM/HARD, player/control text and the two name lists.
-Together with ordinary late resource EXTRNs these offset fixups reproduce the
-initial selector order 0099,00A1,00AD,00B1,00B9,009D,00A5,00B5. Eight copied
-selector words alone had hidden the offset-fixup context. A separate DGDATA
-object now reproduces that order, so the stream does not uniquely establish a
-historical combined GAME+data object.
+The clean data source declares its external selectors normally at the top.
+The proof generator defers three far-bank EXTRNs to the end, reproducing selector
+order 0099,00A1,00AD,00B1,00B9,009D,00A5,00B5. Those declarations are selected by
+label IDs in the layout file. The plain build retains seven DGROUP order
+positions in its total of 35. A separate DGDATA object suffices for exact proof;
+this stream does not uniquely establish a historical combined GAME+data object.
 
 All exported code hooks, C-visible sound globals and far-bank selectors are real
 PUBLIC/EXTRN labels/relocatable aliases. The module.c BIND/OMF comments are only
@@ -200,6 +208,28 @@ copied data. ASM contributions include 30,470 bytes total: 25,885 instruction
 bytes, 4,584 owned data bytes and one padding byte. The C contribution is 7,074
 bytes, including 44 switch-table bytes; its four initialized globals are separate.
 
+## Link-3 refactor controls
+
+`build/workers/link/clean_refactor/test_renames.py` temporarily renames GAME's
+loc_0072 and its layout value, inserts a comment and blank line, runs
+`python tools/verify.py` and `python tools/asmverify.py`, then restores inputs in
+a finally block. Both exit 0. Restoring only the layout while retaining the
+source rename makes `python tools/fragment.py --output build/link/rename-negative`
+and `python tools/verify.py` both exit 2 with the missing cut label named explicitly. Full logs and the successful
+renamed verification JSON are retained alongside the script.
+
+An initial plain measurement retained the old late DGDATA EXTRNs and therefore
+had 28 differences. Moving those proof-only declarations back to the clean
+source's normal header and deriving their late placement restores the required
+35 (GAME 2, SOUND 26, DGDATA 7). OFFSET/string labels remain unchanged.
+The bootstrap datagen now emits the same natural header. This required no
+source instruction change or additional byte transformation.
+
+The restored canonical inputs were rebuilt and reverified after the controls.
+Historical experiments below describe the reviewed link-2 context; static
+fragment source and independent piece-map requirements in that context have
+been superseded by the generator and two-build gates above.
+
 ## Release axis: no discriminator
 
 The reviewed 35-position baseline is frozen in `build/workers/link/releases/baseline/`.
@@ -208,7 +238,7 @@ paths are retained in releases/inventory.json. The private runner verifies the
 binary and locked MS-DOS Player hashes before invocation. No lock file was changed.
 The 14 runnable 2.x..5.0 binaries preserve exact contribution bytes and the same
 2/26/0/7 GAME/SOUND/TIMER/DGDATA order differences. No toolchain-lock change is
-proposed. The pinned 3.0 tools reproduce the final static sources.
+proposed. The pinned 3.0 tools reproduce the generated proof variant.
 
 | Version | Candidate path | SHA-256 | Unchanged baseline result |
 |---|---|---|---|
@@ -260,11 +290,11 @@ the frozen per-variant inputs identify the exact pre-promotion context.
 | realdatarefs.py | Same tools: DS equates converted to actual exported DGROUP label aliases. Image exact; GAME/both give 32 differences and TIMER gives 28. Not retained. |
 | semantic_sound.py | Same tools: nine code-supported immediate buffer/table pointers converted to OFFSET, compact/explicit resident data and forward frame anchors. Initial WORD PTR OFFSET forms grow code and are rejected; corrected forms retain size but do not solve order. Not retained. |
 | assumeprobe.py | Same tools: CS group, CS:nothing, omitted CS assumption; explicit local far-call instructions. One-member group retains the image but does not solve order; absent CS is rejected for near transfers. |
-| dgnormal.py | Same tools: real menu/string offset fixups plus late asset EXTRNs reproduce all eight DGROUP relocations. Pointer-offset-only variant does not. Menu variant retained in datagen.py/DGDATA.ASM. |
+| dgnormal.py | Same tools: real menu/string offset fixups plus late asset EXTRNs reproduce all eight DGROUP relocations. Pointer-offset-only variant does not. Real OFFSET/string labels are maintained; late EXTRN placement is now derived only. |
 | groupbranch.py | TASM then TLINK: LOC0 cross-segment short branches land one byte early without +1; LOC1 near call lands correctly. This establishes the source addend used in grouped fragments. |
 | segmentorder.py | TASM /s versus /a then TLINK: SEGDEF and LEDATA/FIXUPP order both follow the selected segment ordering. GROUP member order does not determine physical layout. |
-| fragments.py / pack_candidate.py | /kh8192, then original TLINK /m /s and PKLITE: grouped code fragments plus an empty physical-order object reproduce complete expanded and packed files. Earlier GAME trial loses EVEN padding after a fragment-origin change; an explicit padding NOP restores it. These static source files are retained. |
-| gate_controls.py | /kh8192: wrong real callee is rejected despite equal sites/order; reordered empty declarations are rejected despite equal bytes/sites. Synthetic instruction-data and empty listing controls are also rejected. |
+| fragments.py / pack_candidate.py | /kh8192, then original TLINK /m /s and PKLITE: grouped code fragments plus an empty physical-order object reproduce complete expanded and packed files. Earlier GAME trial loses EVEN padding after a fragment-origin change; an explicit padding NOP restores it. The reviewed static files were replaced by the mechanical derivation described above. |
+| gate_controls.py | /kh8192: wrong real callee is rejected despite equal sites/order; the former grouped-object gate rejected reordered declarations despite equal bytes/sites; the current clean gate treats order as diagnostic and the whole-program proof enforces it. Synthetic instruction-data and empty listing controls are also rejected. |
 
 
 The controlled PKLITE reversal experiment from the first phase still applies:

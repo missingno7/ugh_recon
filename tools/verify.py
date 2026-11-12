@@ -1,7 +1,7 @@
 """Fresh build, expanded diagnostics, then the packed-file acceptance gate.
 
-Exit zero means pinned PKLITE produced exactly the locked original. Lesser
-levels are diagnostics, never promoted to byte-exact program proof.
+Exit zero requires the plain header/image/relocation-set and 35-position guard,
+the derived expanded/packed proof, and identical load images between builds.
 """
 import json, shutil, sys
 from collections import Counter
@@ -62,55 +62,76 @@ def byte_classes():
                    'All copied opaque data is RAW debt, including data with an assembly owner. '
                    'The trailing reserve reproduces allocation only; its historical owner/use are unknown.'}
 
+def show(variant,r):
+    print(variant+':',r['proof_level'])
+    print('  header field differences:',r['header_fields'],
+          'gap/padding/tail equal:',r['header_gap_equal'],r['header_padding_equal'],r['tail_equal'])
+    print('  relocations: ordered',r['relocations_in_order_equal'],'set',r['relocation_set_equal'],
+          'multiset',r['relocation_multiset_equal'],'different positions',len(r['relocation_differences']))
+    if r['relocation_differences']:print('  first positions:',r['relocation_differences'][:8])
+    print('  image:',r['image_size'],'different bytes:',r['image_differing_bytes'])
+    for region in r['regions']:
+        if region['differing_bytes']:print(' ',region['frame'],region['name'],region['differing_bytes'],region['first_differences'])
+    if r['missing_relocation_sites'] or r['extra_relocation_sites']:
+        print('  missing/extra relocation sites:',r['missing_relocation_sites'],r['extra_relocation_sites'])
+
+
 def main():
     lock=load_json('oracle.json'); original=PACKED.read_bytes()
     oracle=(BUILD/'oracle/UGH_X.EXE').read_bytes()
     if sha256(original)!=lock['packed']['file_sha256'] or sha256(oracle)!=lock['expanded']['file_sha256']:
         raise ValueError('oracle hash mismatch; run python tools/oracle.py')
-    exe=build();got=MZ(exe.read_bytes());want=MZ(oracle)
-    r=compare(want,got)
-    packed=WORK/'PACKED.EXE';shutil.copyfile(exe,packed)
-    (WORK/'PKLITE.log').write_text(dos('PKLITE',[packed.name],WORK))
-    r['packed_equal']=packed.read_bytes()==original
-    r['packed_sha256']=sha256(packed.read_bytes())
+    executables=build();want=MZ(oracle)
+    images={variant:MZ(exe.read_bytes()) for variant,exe in executables.items()}
+    results={variant:compare(want,got) for variant,got in images.items()}
+    plain=results['plain'];proof=results['proof']
+    plain['expected_order_differences']=load_json('reloc-layout.json')['expected_plain_order_differences']
+    plain['order_difference_count_equal']=len(plain['relocation_differences'])==plain['expected_order_differences']
+    plain['accepted']=all([not plain['header_fields'],plain['header_gap_equal'],plain['header_padding_equal'],
+        plain['tail_equal'],plain['image_equal'],plain['relocation_set_equal'],plain['relocation_tuple_set_equal'],
+        plain['relocation_multiset_equal'],plain['order_difference_count_equal']])
+    plain['proof_level']='IMAGE_AND_RELOCATION_SET_DIAGNOSTIC' if plain['accepted'] else 'PLAIN_BUILD_REGRESSION'
+    directory=executables['proof'].parent
+    packed=directory/'PACKED.EXE';shutil.copyfile(executables['proof'],packed)
+    (directory/'PKLITE.log').write_text(dos('PKLITE',[packed.name],directory))
     candidate=packed.read_bytes()
+    proof['packed_equal']=candidate==original
+    proof['packed_sha256']=sha256(candidate)
     packed_diffs=[i for i,(a,b) in enumerate(zip(original,candidate)) if a!=b]
     packed_diffs+=list(range(min(len(original),len(candidate)),max(len(original),len(candidate))))
-    r['packed_size']={'want':len(original),'got':len(candidate)}
-    r['packed_differing_bytes']=len(packed_diffs)
-    r['packed_difference_ranges']=ranges(packed_diffs)
-    r['byte_accounting']=byte_classes()
+    proof['packed_size']={'want':len(original),'got':len(candidate)}
+    proof['packed_differing_bytes']=len(packed_diffs)
+    proof['packed_difference_ranges']=ranges(packed_diffs)
+    proof['accepted']=proof['expanded_file_equal'] and proof['packed_equal']
+    proof['proof_level']=('FULL_PACKED_FILE' if proof['accepted'] else
+        'EXPANDED_FILE_DIAGNOSTIC' if proof['expanded_file_equal'] else
+        'IMAGE_AND_RELOCATION_SET_DIAGNOSTIC' if proof['image_equal'] and proof['relocation_multiset_equal'] else
+        'NATURAL_LINK_DIAGNOSTIC')
+    identical=images['plain'].image==images['proof'].image
+    accepted=plain['accepted'] and proof['accepted'] and identical
+    r={'proof_level':'FULL_PACKED_FILE' if accepted else 'DUAL_BUILD_DIAGNOSTIC',
+       'accepted':accepted,'plain':plain,'proof':proof,'load_images_identical':identical,'byte_accounting':byte_classes()}
     if r['byte_accounting']['load_image_total']!=len(want.image):raise ValueError('byte accounting incomplete')
-    def contribution(a,b):
+    def contribution(got,a,b):
         return (got.image[a:b]==want.image[a:b] and
                 Counter(s for s in got.sites if a<=s<b)==Counter(s for s in want.sites if a<=s<b))
-    r['contribution_matches']={m['name']:contribution(m['frame']*16+m['start'],m['frame']*16+m['end'])
-                               for m in load_json('asm-map.json')['modules']}
-    r['contribution_matches']['C_TU']=contribution(0x8783,0xa325) and contribution(0x1a370,0x1a374)
-    r['contribution_matches']['runtime']=all(contribution(a,b) for a,b in
-         [(0,0x13b8),(0x5c090,0x5c121),(0x63c0c,0x63ebe)])
-    r['proof_level']=('FULL_PACKED_FILE' if r['packed_equal'] else
-                      'EXPANDED_FILE_DIAGNOSTIC' if r['expanded_file_equal'] else
-                      'IMAGE_AND_RELOCATION_SET_DIAGNOSTIC' if r['image_equal'] and r['relocation_multiset_equal'] else
-                      'NATURAL_LINK_DIAGNOSTIC')
-    print('proof level:',r['proof_level'])
-    print('header field differences:',r['header_fields'])
-    print('header gap/padding equal:',r['header_gap_equal'],r['header_padding_equal'])
-    print('relocations: ordered',r['relocations_in_order_equal'],'set',r['relocation_set_equal'],
-          'multiset',r['relocation_multiset_equal'],'different positions',len(r['relocation_differences']))
-    if r['relocation_differences']:print('  first positions:',r['relocation_differences'][:8])
-    print('image:',len(got.image),'bytes;',r['image_differing_bytes'],'different bytes')
-    for region in r['regions']:
-        if region['differing_bytes']:print(' ',region['frame'],region['name'],region['differing_bytes'],region['first_differences'][:4])
-    print('expanded file equal:',r['expanded_file_equal'],'packed file equal:',r['packed_equal'])
-    print('packed:',r['packed_size'],'different bytes:',len(packed_diffs),
-          'first difference:',f'{packed_diffs[0]:06X}' if packed_diffs else 'none')
+    for variant,got in images.items():
+        matches={m['name']:contribution(got,m['frame']*16+m['start'],m['frame']*16+m['end'])
+                 for m in load_json('asm-map.json')['modules']}
+        matches['C_TU']=contribution(got,0x8783,0xa325) and contribution(got,0x1a370,0x1a374)
+        matches['runtime']=all(contribution(got,a,b) for a,b in [(0,0x13b8),(0x5c090,0x5c121),(0x63c0c,0x63ebe)])
+        results[variant]['contribution_matches']=matches
+        show(variant,results[variant])
+    print('plain order difference guard:',len(plain['relocation_differences']),'expected',plain['expected_order_differences'],plain['order_difference_count_equal'])
+    print('load images identical:',identical)
+    print('proof packed:',proof['packed_size'],'equal:',proof['packed_equal'],
+          'different bytes:',len(packed_diffs),'first difference:',f'{packed_diffs[0]:06X}' if packed_diffs else 'none')
     print('byte classes:',r['byte_accounting']['classes'])
-    print('exact contributions (bytes + relocation multiset):',r['contribution_matches'])
     print('RAW data debt:',r['byte_accounting']['RAW_data_debt'],'file bytes; virtual reserve:',
           r['byte_accounting']['RAW_virtual_reservation_debt'],'bytes (owner/use unknown)')
+    print('proof level:',r['proof_level'])
     (WORK/'verify.json').write_text(json.dumps(r,indent=2)+'\n')
-    return 0 if r['packed_equal'] else 1
+    return 0 if accepted else 1
 
 if __name__=='__main__':
     try:sys.exit(main())

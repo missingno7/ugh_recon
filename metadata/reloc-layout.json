@@ -1,0 +1,316 @@
+{
+  "schema": 1,
+  "note": "Ordering derived from the original relocation table. This is a reproducing proof device, not recovered source structure. Maintained source is the plain assembly; generated proof sources are never edited by hand.",
+  "rename_contract": "A rename tool updates label definitions/references in source and string values in this flat labels dictionary. All cut/adjustment references below are stable IDs into labels. No line numbers, comment addresses or byte offsets are used by the derivation.",
+  "labels": {
+    "game_000": "ext_013B",
+    "game_001": "loc_0072",
+    "game_002": "loc_0078",
+    "game_003": "loc_018C",
+    "game_004": "loc_0192",
+    "game_005": "loc_0284",
+    "game_006": "loc_0291",
+    "game_007": "loc_0297",
+    "game_008": "loc_06CF",
+    "game_009": "loc_06DC",
+    "game_010": "loc_06E2",
+    "game_011": "loc_08B4",
+    "game_012": "loc_08BA",
+    "game_013": "loc_0BB8",
+    "game_014": "loc_0C59",
+    "game_015": "loc_0C6F",
+    "game_016": "loc_0C75",
+    "game_017": "loc_0FA9",
+    "game_018": "loc_1AF4",
+    "game_019": "loc_1AFA",
+    "game_020": "loc_1CDE",
+    "game_021": "loc_1CE4",
+    "game_022": "loc_23C8",
+    "game_023": "loc_23CE",
+    "game_024": "loc_247E",
+    "game_025": "loc_2484",
+    "game_026": "loc_25A6",
+    "game_027": "loc_299C",
+    "game_028": "loc_29A2",
+    "game_029": "loc_2B48",
+    "game_030": "loc_2B4E",
+    "game_031": "loc_39AB",
+    "game_032": "game_code_end",
+    "game_066": "loc_0166",
+    "game_220": "loc_1ABD",
+    "game_221": "loc_1AD0",
+    "game_231": "loc_297B",
+    "game_232": "loc_2990",
+    "game_243": "byte_data_45FB",
+    "sound_000": "loc_112B",
+    "sound_001": "loc_1312",
+    "sound_002": "loc_1363",
+    "sound_003": "loc_1366",
+    "sound_004": "loc_1B14",
+    "sound_005": "loc_1B21",
+    "sound_006": "loc_1B24",
+    "sound_007": "loc_1C74",
+    "sound_008": "loc_1C77",
+    "sound_009": "loc_1F14",
+    "sound_010": "loc_1FA4",
+    "sound_011": "loc_1FA7",
+    "sound_012": "loc_2081",
+    "sound_013": "loc_2084",
+    "sound_014": "sound_code_end",
+    "sound_016": "loc_12FB",
+    "sound_017": "loc_1355",
+    "sound_042": "loc_1A92",
+    "sound_049": "loc_1AC8",
+    "sound_054": "loc_1AEA",
+    "sound_063": "loc_1F25",
+    "sound_067": "loc_2038",
+    "sound_070": "loc_2069",
+    "data_000": "ext_0A67",
+    "data_001": "ext_1A38",
+    "data_002": "ext_2BC6"
+  },
+  "modules": [
+    {
+      "name": "GAME",
+      "segment": "GAMESEG",
+      "group": "GAME_GROUP",
+      "resident_prefix": false,
+      "cut_labels": [
+        "game_000",
+        "game_001",
+        "game_002",
+        "game_003",
+        "game_004",
+        "game_005",
+        "game_006",
+        "game_007",
+        "game_008",
+        "game_009",
+        "game_010",
+        "game_011",
+        "game_012",
+        "game_013",
+        "game_014",
+        "game_015",
+        "game_016",
+        "game_017",
+        "game_018",
+        "game_019",
+        "game_020",
+        "game_021",
+        "game_022",
+        "game_023",
+        "game_024",
+        "game_025",
+        "game_026",
+        "game_027",
+        "game_028",
+        "game_029",
+        "game_030",
+        "game_031",
+        "game_032"
+      ],
+      "piece_names": [
+        "GAMESEG",
+        "GCODE01",
+        "GCODE02",
+        "GCODE03",
+        "GCODE04",
+        "GCODE05",
+        "GCODE06",
+        "GCODE07",
+        "GCODE08",
+        "GCODE09",
+        "GCODE10",
+        "GCODE11",
+        "GCODE12",
+        "GCODE13",
+        "GCODE14",
+        "GCODE15",
+        "GCODE16",
+        "GCODE17",
+        "GCODE18",
+        "GCODE19",
+        "GCODE20",
+        "GCODE21",
+        "GCODE22",
+        "GCODE23",
+        "GCODE24",
+        "GCODE25",
+        "GCODE26",
+        "GCODE27",
+        "GCODE28",
+        "GCODE29",
+        "GCODE30",
+        "GCODE31"
+      ],
+      "declaration_order": [
+        "GAMESEG",
+        "GCODE02",
+        "GCODE04",
+        "GCODE01",
+        "GCODE03",
+        "GCODE05",
+        "GCODE07",
+        "GCODE06",
+        "GCODE09",
+        "GCODE08",
+        "GCODE10",
+        "GCODE12",
+        "GCODE11",
+        "GCODE14",
+        "GCODE16",
+        "GCODE13",
+        "GCODE15",
+        "GCODE17",
+        "GCODE19",
+        "GCODE18",
+        "GCODE21",
+        "GCODE20",
+        "GCODE23",
+        "GCODE25",
+        "GCODE22",
+        "GCODE24",
+        "GCODE26",
+        "GCODE28",
+        "GCODE27",
+        "GCODE30",
+        "GCODE29",
+        "GCODE31"
+      ],
+      "adjustments": [
+        {
+          "site": "game_066",
+          "form": "conditional_reserved"
+        },
+        {
+          "site": "game_220",
+          "form": "conditional_reserved"
+        },
+        {
+          "site": "game_221",
+          "form": "conditional_reserved"
+        },
+        {
+          "site": "game_231",
+          "form": "conditional_reserved"
+        },
+        {
+          "site": "game_232",
+          "form": "conditional_reserved"
+        },
+        {
+          "site": "game_243",
+          "form": "alignment_nop"
+        }
+      ]
+    },
+    {
+      "name": "SOUND",
+      "segment": "SOUNDSEG",
+      "group": "SOUND_GROUP",
+      "resident_prefix": true,
+      "cut_labels": [
+        "sound_000",
+        "sound_001",
+        "sound_002",
+        "sound_003",
+        "sound_004",
+        "sound_005",
+        "sound_006",
+        "sound_007",
+        "sound_008",
+        "sound_009",
+        "sound_010",
+        "sound_011",
+        "sound_012",
+        "sound_013",
+        "sound_014"
+      ],
+      "piece_names": [
+        "SCODE00",
+        "SCODE01",
+        "SCODE02",
+        "SCODE03",
+        "SCODE04",
+        "SCODE05",
+        "SCODE06",
+        "SCODE07",
+        "SCODE08",
+        "SCODE09",
+        "SCODE10",
+        "SCODE11",
+        "SCODE12",
+        "SCODE13"
+      ],
+      "declaration_order": [
+        "SCODE00",
+        "SCODE02",
+        "SCODE01",
+        "SCODE03",
+        "SCODE05",
+        "SCODE07",
+        "SCODE04",
+        "SCODE06",
+        "SCODE08",
+        "SCODE10",
+        "SCODE09",
+        "SCODE11",
+        "SCODE13",
+        "SCODE12"
+      ],
+      "adjustments": [
+        {
+          "site": "sound_016",
+          "form": "conditional_reserved"
+        },
+        {
+          "site": "sound_017",
+          "form": "conditional_reserved"
+        },
+        {
+          "site": "sound_042",
+          "form": "conditional_long"
+        },
+        {
+          "site": "sound_049",
+          "form": "conditional_reserved"
+        },
+        {
+          "site": "sound_054",
+          "form": "conditional_reserved"
+        },
+        {
+          "site": "sound_063",
+          "form": "conditional_long"
+        },
+        {
+          "site": "sound_067",
+          "form": "conditional_long"
+        },
+        {
+          "site": "sound_070",
+          "form": "conditional_reserved"
+        }
+      ]
+    }
+  ],
+  "layout_tail": [
+    {
+      "segment": "MODULE_TEXT",
+      "alignment": "byte"
+    },
+    {
+      "segment": "TIMERSEG",
+      "alignment": "word"
+    }
+  ],
+  "expected_plain_order_differences": 35,
+  "deferred_data_externals": {
+    "DGDATA": [
+      "data_000",
+      "data_001",
+      "data_002"
+    ]
+  }
+}

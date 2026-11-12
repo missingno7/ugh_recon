@@ -3,8 +3,8 @@
 .286
 JUMPS
 extrn _fn_013B_001F:far
-extrn _fn_0A32_0008:far
-extrn _fn_0A32_00A0:far
+extrn _InstallTimerInterrupt:far
+extrn _RestoreTimerInterrupt:far
 extrn _fn_0A32_01AA:far
 extrn _fn_0A32_021B:far
 extrn _fn_0A32_02C1:far
@@ -49,8 +49,8 @@ public _g_026E
 _g_026E equ SOUND_BASE+0262h
 public _g_0270
 _g_0270 equ SOUND_BASE+0264h
-public _fn_0664_112B
-_fn_0664_112B equ SOUND_BASE+0111Fh
+public _ClearSoundState
+_ClearSoundState equ SOUND_BASE+0111Fh
 public _fn_0664_205C
 _fn_0664_205C equ SOUND_BASE+02050h
 public _fn_0664_1C39
@@ -461,7 +461,13 @@ byte_data_000C:
     db 011h, 012h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 10FC..110C
     db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 110C..111C
     db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 111C..112B
-loc_112B:
+; CONTRACT (tools/apply.py)
+; Zero the 0488h-byte sound-state interval at CS:000Ch through CS:0493h inclusive.
+; In: no arguments.
+; Out: AX=0, CX=0, DF=0; ES and DI preserved. No hardware or DOS calls.
+; Quirk: REP STOSB clears exactly this interval; the remaining resident buffers survive.
+; END CONTRACT
+ClearSoundState:
     push es ; @112B
     push di ; @112C
     mov ax, cs ; @112D
@@ -1423,7 +1429,7 @@ loc_1A65:
     mov ax, word ptr cs:[byte_1122] ; @1A70
     call far ptr _fn_0A32_021B ; @1A74
 loc_1A79:
-    call far ptr _fn_0A32_00A0 ; @1A79
+    call far ptr _RestoreTimerInterrupt ; @1A79
     mov byte ptr cs:[byte_1126], 0 ; @1A7E
     call far ptr loc_1A37 ; @1A84 same-segment far call
     retf ; @1A88
@@ -1477,7 +1483,7 @@ loc_1AEA:
     mov bx, 0120h ; @1B0D
     call far ptr loc_11F2 ; @1B10 same-segment far call
 loc_1B14:
-    call far ptr _fn_0A32_0008 ; @1B14
+    call far ptr _InstallTimerInterrupt ; @1B14
     mov bx, 01843h ; @1B19
     xor cx, cx ; @1B1C
     mov ax, offset loc_1939 ; @1B1E

@@ -14,6 +14,19 @@ from omf import parse, records
 MAP=ROOT/'metadata/asm-map.json'
 EXTENTS={'GAME':(0x13b,8,0x529c),'SOUND':(0x664,0xc,0x2143),'TIMER':(0xa32,6,0x341)}
 
+def external_binding(name,mod):
+    # Explicit address bindings survive semantic renames. Initial mechanical
+    # names remain supported for old maps and isolated negative controls.
+    if name.upper() in mod.get('bindings',{}):
+        return tuple(mod['bindings'][name.upper()])
+    match=re.fullmatch('EXT_([0-9A-F]{4})',name)
+    function=re.fullmatch('_FN_(?:([0-9A-F]{4})_)?([0-9A-F]{4})',name)
+    if match:
+        frame=int(match[1],16)
+        return frame,mod.get('external_starts',{}).get(f'{frame:04X}',0)
+    if function:return int(function[1],16) if function[1] else 0x878,int(function[2],16)
+    raise ValueError('unbound external '+name)
+
 def validate_map(doc):
     if doc['encoding_exceptions']:raise ValueError('this gate accepts no instruction-byte exceptions')
     if len(doc['modules'])!=3 or {m['name'] for m in doc['modules']}!=set(EXTENTS):
@@ -118,12 +131,7 @@ def grouped_materialize(obj,mod):
             return groupbase,groupbase
         if method==2:
             name=obj.externals[datum-1]['name']
-            match=re.fullmatch('EXT_([0-9A-F]{4})',name)
-            function=re.fullmatch('_FN_(?:([0-9A-F]{4})_)?([0-9A-F]{4})',name)
-            if match:
-                fr=int(match[1],16);off=mod.get('external_starts',{}).get(f'{fr:04X}',0)
-            elif function:fr=int(function[1],16) if function[1] else 0x878;off=int(function[2],16)
-            else:raise ValueError('unbound external '+name)
+            fr,off=external_binding(name,mod)
             return fr*16+off,fr*16
         raise ValueError('unsupported target method')
     sites=[];details=[]
@@ -181,15 +189,7 @@ def materialize(blob, mod):
             target_frame,target_offset=mod['frame'],mod['start']
         elif f.target_method==2:
             name=obj.externals[f.target_datum-1]['name']
-            match=re.fullmatch('EXT_([0-9A-F]{4})',name)
-            function=re.fullmatch('_FN_(?:([0-9A-F]{4})_)?([0-9A-F]{4})',name)
-            if match:
-                target_frame=int(match[1],16)
-                target_offset=mod.get('external_starts',{}).get(f'{target_frame:04X}',0)
-            elif function:
-                target_frame=int(function[1],16) if function[1] else 0x878
-                target_offset=int(function[2],16)
-            else:raise ValueError(f'unbound external {name}')
+            target_frame,target_offset=external_binding(name,mod)
         else:raise ValueError(f'unsupported fixup target {f}')
         target=target_frame*16+target_offset
         if f.frame_method!=5:raise ValueError(f'unsupported fixup frame {f}')

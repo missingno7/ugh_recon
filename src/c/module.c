@@ -16,7 +16,7 @@
  * BIND: g_0252 0664:0252
  * BIND: g_026E 0664:026E
  * BIND: g_0270 0664:0270
- * BIND: fn_0664_112B 0664:112B
+ * BIND: ClearSoundState 0664:112B
  * BIND: fn_0664_205C 0664:205C
  * BIND: fn_0664_1C39 0664:1C39
  * BIND: fn_0664_1A89 0664:1A89
@@ -88,7 +88,7 @@ extern unsigned long far g_023A, g_023E;
 extern int far g_000E, g_026E, g_0270;
 extern unsigned char huge * far g_024E;
 extern unsigned long far g_0252;
-extern void far fn_0664_112B(void);
+extern void far ClearSoundState(void);
 extern int far fn_0664_205C(void);
 extern void far fn_0664_1C39(unsigned);
 extern int far fn_0664_1A89(void);
@@ -139,7 +139,7 @@ int fn_0003(unsigned bits)
     int i;
     if (g_0000 && g_026A)
         fn_008A();
-    fn_0664_112B();
+    ClearSoundState();
     if ((bits & 2) && fn_0664_205C()) {
         result |= 2;
         for (i = 0; i < 9; i++) {

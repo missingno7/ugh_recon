@@ -7,10 +7,10 @@ assume cs:TIMERSEG
 public ext_0A32
 ext_0A32 label far
 TIMER_BASE label byte
-public _fn_0A32_0008
-_fn_0A32_0008 equ TIMER_BASE+02h
-public _fn_0A32_00A0
-_fn_0A32_00A0 equ TIMER_BASE+09Ah
+public _InstallTimerInterrupt
+_InstallTimerInterrupt equ TIMER_BASE+02h
+public _RestoreTimerInterrupt
+_RestoreTimerInterrupt equ TIMER_BASE+09Ah
 public _fn_0A32_01AA
 _fn_0A32_01AA equ TIMER_BASE+01A4h
 public _fn_0A32_021B
@@ -37,7 +37,14 @@ ds_7B7A equ 07B7Ah
 byte_0006 equ TIMER_BASE+00h
 byte_data_0006:
     db 00h, 00h ; data 0006..0008
-loc_0008:
+; CONTRACT (tools/apply.py)
+; Install the INT 08h callback dispatcher once, saving the preceding DOS vector.
+; In: no arguments; CS flag at 0006h determines whether installation is skipped.
+; Out: dispatcher state in DGROUP initialized; INT 08h points to TIMER:00D2.
+; Effects: DOS INT 21h/AH=35h and AH=25h; preserves DS, changes ES, AX, BX, DX, SI.
+; Quirk: initializes 16 slots; the saved-vector callback enables interrupts before chaining.
+; END CONTRACT
+InstallTimerInterrupt:
     test word ptr cs:[byte_0006], 0FFFFh ; @0008
     jne loc_0098 ; @000F JUMPS expansion
 loc_0014:
@@ -82,7 +89,14 @@ loc_0099:
     pushf ; @009A
     call dword ptr ds:[ds_7B72] ; @009B
     retf ; @009F
-loc_00A0:
+; CONTRACT (tools/apply.py)
+; Restore the saved INT 08h vector and the PIT channel 0 mode/divisor after installation.
+; In: no arguments; CS flag at 0006h gates all work.
+; Out: installation flag cleared; DS preserved; AX and DX changed on the active path.
+; Effects: DOS INT 21h/AH=25h; sends 36h to port 43h and two zero bytes to port 40h.
+; Quirk: a zero divisor means 65536 PIT clocks; an inactive call performs no I/O.
+; END CONTRACT
+RestoreTimerInterrupt:
     test word ptr cs:[byte_0006], 0FFFFh ; @00A0
     je loc_00D1 ; @00A7
     mov word ptr cs:[byte_0006], 0 ; @00AC

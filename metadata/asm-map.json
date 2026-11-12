@@ -5843,7 +5843,117 @@
         "0A32": 6
       },
       "alignment": "word",
-      "alignment_evidence": "Reproducing choice: all observed contributions start on word boundaries. Timer follows odd C end at image 0A325; zero linker padding at 0A325 supports WORD. BYTE versus WORD is not discriminated for GAME/SOUND."
+      "alignment_evidence": "Reproducing choice: all observed contributions start on word boundaries. Timer follows odd C end at image 0A325; zero linker padding at 0A325 supports WORD. BYTE versus WORD is not discriminated for GAME/SOUND.",
+      "bindings": {
+        "EXT_3629": [
+          13865,
+          0
+        ],
+        "_FN_0003": [
+          2168,
+          3
+        ],
+        "_FN_008A": [
+          2168,
+          138
+        ],
+        "_FN_0F88": [
+          2168,
+          3976
+        ],
+        "_FN_1059": [
+          2168,
+          4185
+        ],
+        "_FN_1768": [
+          2168,
+          5992
+        ],
+        "_FN_1852": [
+          2168,
+          6226
+        ],
+        "EXT_5C09": [
+          23561,
+          0
+        ],
+        "EXT_0A67": [
+          2663,
+          0
+        ],
+        "EXT_1E1F": [
+          7711,
+          0
+        ],
+        "EXT_2BF6": [
+          11254,
+          0
+        ],
+        "EXT_2D9A": [
+          11674,
+          0
+        ],
+        "EXT_2F9E": [
+          12190,
+          0
+        ],
+        "EXT_2FB7": [
+          12215,
+          0
+        ],
+        "EXT_325B": [
+          12891,
+          0
+        ],
+        "EXT_3260": [
+          12896,
+          0
+        ],
+        "EXT_3265": [
+          12901,
+          0
+        ],
+        "EXT_326B": [
+          12907,
+          0
+        ],
+        "EXT_3274": [
+          12916,
+          0
+        ],
+        "EXT_3279": [
+          12921,
+          0
+        ],
+        "EXT_3444": [
+          13380,
+          0
+        ],
+        "EXT_3632": [
+          13874,
+          0
+        ],
+        "EXT_3637": [
+          13879,
+          0
+        ],
+        "EXT_37A7": [
+          14247,
+          0
+        ],
+        "EXT_438A": [
+          17290,
+          0
+        ],
+        "EXT_4E83": [
+          20099,
+          0
+        ],
+        "EXT_5B63": [
+          23395,
+          0
+        ]
+      }
     },
     {
       "name": "SOUND",
@@ -7227,7 +7337,49 @@
         "0A32": 6
       },
       "alignment": "word",
-      "alignment_evidence": "Reproducing choice: all observed contributions start on word boundaries. Timer follows odd C end at image 0A325; zero linker padding at 0A325 supports WORD. BYTE versus WORD is not discriminated for GAME/SOUND."
+      "alignment_evidence": "Reproducing choice: all observed contributions start on word boundaries. Timer follows odd C end at image 0A325; zero linker padding at 0A325 supports WORD. BYTE versus WORD is not discriminated for GAME/SOUND.",
+      "bindings": {
+        "_FN_013B_001F": [
+          315,
+          31
+        ],
+        "_INSTALLTIMERINTERRUPT": [
+          2610,
+          8
+        ],
+        "_RESTORETIMERINTERRUPT": [
+          2610,
+          160
+        ],
+        "_FN_0A32_01AA": [
+          2610,
+          426
+        ],
+        "_FN_0A32_021B": [
+          2610,
+          539
+        ],
+        "_FN_0A32_02C1": [
+          2610,
+          705
+        ],
+        "_FN_0003": [
+          2168,
+          3
+        ],
+        "_FN_1128": [
+          2168,
+          4392
+        ],
+        "_FN_1768": [
+          2168,
+          5992
+        ],
+        "_FN_1943": [
+          2168,
+          6467
+        ]
+      }
     },
     {
       "name": "TIMER",
@@ -7523,7 +7675,13 @@
         "0A32": 6
       },
       "alignment": "word",
-      "alignment_evidence": "Reproducing choice: all observed contributions start on word boundaries. Timer follows odd C end at image 0A325; zero linker padding at 0A325 supports WORD. BYTE versus WORD is not discriminated for GAME/SOUND."
+      "alignment_evidence": "Reproducing choice: all observed contributions start on word boundaries. Timer follows odd C end at image 0A325; zero linker padding at 0A325 supports WORD. BYTE versus WORD is not discriminated for GAME/SOUND.",
+      "bindings": {
+        "EXT_5C09": [
+          23561,
+          0
+        ]
+      }
     }
   ],
   "encoding_exceptions": [],

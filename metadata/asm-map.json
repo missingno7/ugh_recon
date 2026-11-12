@@ -5952,6 +5952,974 @@
         "EXT_5B63": [
           23395,
           0
+        ],
+        "SAVEDBIOSVIDEOMODE": [
+          23561,
+          146
+        ],
+        "PREVIOUSKEYBOARDVECTOR": [
+          23561,
+          147
+        ],
+        "PREVIOUSKEYBOARDVECTORSEGMENT": [
+          23561,
+          149
+        ],
+        "KEYBOARDHANDLERVECTOR": [
+          23561,
+          151
+        ],
+        "DECODEDIMAGEPOINTER": [
+          23561,
+          155
+        ],
+        "CURRENTTILEMAPPOINTER": [
+          23561,
+          159
+        ],
+        "COMPRESSEDTILEMAPSPOINTER": [
+          23561,
+          163
+        ],
+        "TIMERBARPOINTER": [
+          23561,
+          167
+        ],
+        "BASEPALETTEPOINTER": [
+          23561,
+          171
+        ],
+        "FADEDPALETTEPOINTER": [
+          23561,
+          175
+        ],
+        "PALETTESOURCEPOINTER": [
+          23561,
+          179
+        ],
+        "LEVELWORKSPACEPOINTER": [
+          23561,
+          183
+        ],
+        "HIGHSCOREFILEHANDLE": [
+          23561,
+          187
+        ],
+        "DECIMALTENDIVISOR": [
+          23561,
+          189
+        ],
+        "DECIMALHUNDREDDIVISOR": [
+          23561,
+          190
+        ],
+        "DECIMALTHOUSANDDIVISOR": [
+          23561,
+          191
+        ],
+        "DECIMALTENTHOUSANDDIVISOR": [
+          23561,
+          193
+        ],
+        "VGAROWSTRIDEBYTES": [
+          23561,
+          195
+        ],
+        "TIMERBARDIVISOR": [
+          23561,
+          197
+        ],
+        "HIGHSCOREROWSTRIDE": [
+          23561,
+          199
+        ],
+        "DECIMALDIGITBUFFER": [
+          23561,
+          200
+        ],
+        "DECIMALDIGIT1": [
+          23561,
+          201
+        ],
+        "DECIMALDIGIT2": [
+          23561,
+          202
+        ],
+        "DECIMALDIGIT3": [
+          23561,
+          203
+        ],
+        "DECIMALDIGIT4": [
+          23561,
+          204
+        ],
+        "DECIMALDIGIT5": [
+          23561,
+          205
+        ],
+        "PASSWORDCOMPAREBIASEDBASE": [
+          23561,
+          2893
+        ],
+        "PASSWORDEDITBUFFER": [
+          23561,
+          2894
+        ],
+        "PASSWORDEDITCHARS2TO3": [
+          23561,
+          2896
+        ],
+        "LEVELNUMBERTENSCHARACTER": [
+          23561,
+          3069
+        ],
+        "LEVELNUMBERUNITSCHARACTER": [
+          23561,
+          3070
+        ],
+        "HIGHSCORENAMEENTRY": [
+          23561,
+          3181
+        ],
+        "HIGHSCORENAMECHARS2TO3": [
+          23561,
+          3183
+        ],
+        "HIGHSCORENAMECHARS4TO5": [
+          23561,
+          3185
+        ],
+        "HIGHSCORENAMECHARS6TO7": [
+          23561,
+          3187
+        ],
+        "HIGHSCORENAMECHARS8TO9": [
+          23561,
+          3189
+        ],
+        "HIGHSCOREROWS": [
+          23561,
+          3206
+        ],
+        "PLAYERANIMATIONCYCLESTARTS": [
+          23561,
+          3322
+        ],
+        "PLAYERANIMATIONCYCLEENDS": [
+          23561,
+          3324
+        ],
+        "VGASINGLEPLANEMASKS": [
+          23561,
+          9748
+        ],
+        "VGACUMULATIVEPLANEMASKS": [
+          23561,
+          9752
+        ],
+        "CURRENTLEVELINDEX": [
+          23561,
+          9756
+        ],
+        "SCORELOWWORD": [
+          23561,
+          9758
+        ],
+        "SCOREHIGHWORD": [
+          23561,
+          9760
+        ],
+        "LEVELTIMER": [
+          23561,
+          9762
+        ],
+        "LEVELCOUNTSBYPLAYERMODE": [
+          23561,
+          9764
+        ],
+        "MULTIPLIERLIMITSBYDIFFICULTY": [
+          23561,
+          9768
+        ],
+        "PLAYERIMPACTLIMITS": [
+          23561,
+          9774
+        ],
+        "PLAYERCOUNT": [
+          23561,
+          9780
+        ],
+        "PLAYERARRAYBYTES": [
+          23561,
+          9782
+        ],
+        "SELECTEDDIFFICULTY": [
+          23561,
+          9784
+        ],
+        "LIVESREMAINING": [
+          23561,
+          9788
+        ],
+        "SCOREMULTIPLIER": [
+          23561,
+          9789
+        ],
+        "PLAYERONECONTROLMODE": [
+          23561,
+          9791
+        ],
+        "PLAYERTWOCONTROLMODE": [
+          23561,
+          9793
+        ],
+        "CURRENTKEYBOARDSCANCODE": [
+          23561,
+          9795
+        ],
+        "PREVIOUSPOLLEDSCANCODE": [
+          23561,
+          9797
+        ],
+        "KEYBOARDSCANCODECHANGEBITS": [
+          23561,
+          9798
+        ],
+        "KEYBOARDSEQUENCEINDEX": [
+          23561,
+          9799
+        ],
+        "COORDINATESCALESCRATCH": [
+          23561,
+          9800
+        ],
+        "DEMOEXITCODE": [
+          23561,
+          9802
+        ],
+        "PLAYERUPINPUT": [
+          23561,
+          10124
+        ],
+        "PLAYERDOWNINPUT": [
+          23561,
+          10128
+        ],
+        "PLAYERLEFTINPUT": [
+          23561,
+          10132
+        ],
+        "PLAYERRIGHTINPUT": [
+          23561,
+          10136
+        ],
+        "PLAYERACTIONINPUT": [
+          23561,
+          10140
+        ],
+        "WATERRESTOREPENDING": [
+          23561,
+          10146
+        ],
+        "WATERSURFACEFRAMECOUNTDOWN": [
+          23561,
+          10147
+        ],
+        "WATERSURFACEFRAME": [
+          23561,
+          10148
+        ],
+        "CACHEDTIMERBARWIDTH": [
+          23561,
+          10150
+        ],
+        "SCREENFADELEVEL": [
+          23561,
+          10152
+        ],
+        "SCREENFADESTEP": [
+          23561,
+          10154
+        ],
+        "HUDDIGITCURSORX": [
+          23561,
+          10156
+        ],
+        "HUDDIGITCURSORY": [
+          23561,
+          10158
+        ],
+        "HUDLIVESX": [
+          23561,
+          10160
+        ],
+        "HUDSCOREX": [
+          23561,
+          10162
+        ],
+        "HUDLEVELCOUNTERX": [
+          23561,
+          10164
+        ],
+        "HUDPLAYERONEICONX": [
+          23561,
+          10166
+        ],
+        "HUDPLAYERONEDESTINATIONX": [
+          23561,
+          10168
+        ],
+        "HUDFAREX": [
+          23561,
+          10170
+        ],
+        "HUDMULTIPLIERX": [
+          23561,
+          10172
+        ],
+        "HUDPLAYERTWOICONX": [
+          23561,
+          10174
+        ],
+        "HUDPLAYERTWODESTINATIONX": [
+          23561,
+          10176
+        ],
+        "HUDCACHEDSCORELOW": [
+          23561,
+          10178
+        ],
+        "HUDCACHEDSCOREHIGH": [
+          23561,
+          10180
+        ],
+        "HUDCACHEDFARE": [
+          23561,
+          10182
+        ],
+        "DS_27C8": [
+          23561,
+          10184
+        ],
+        "HUDCACHEDMULTIPLIER": [
+          23561,
+          10186
+        ],
+        "HUDCACHEDLIVES": [
+          23561,
+          10187
+        ],
+        "HUDCACHEDLEVELCOUNTER": [
+          23561,
+          10188
+        ],
+        "HUDFARECLEARPENDING": [
+          23561,
+          10189
+        ],
+        "WATERSTEPPHASE": [
+          23561,
+          10190
+        ],
+        "LEVELCOMPLETIONMARKER": [
+          23561,
+          10191
+        ],
+        "PLAYERX32": [
+          23561,
+          10192
+        ],
+        "PLAYERTWOFIXEDX": [
+          23561,
+          10194
+        ],
+        "PLAYERY32": [
+          23561,
+          10196
+        ],
+        "PLAYERTWOFIXEDY": [
+          23561,
+          10198
+        ],
+        "PLAYERPIXELX": [
+          23561,
+          10200
+        ],
+        "PLAYERTWOPIXELX": [
+          23561,
+          10202
+        ],
+        "PLAYERYPIXELS": [
+          23561,
+          10204
+        ],
+        "SECONDPLAYERYPIXELS": [
+          23561,
+          10206
+        ],
+        "PLAYERCACHEDPIXELX": [
+          23561,
+          10208
+        ],
+        "PLAYERTWOCACHEDPIXELX": [
+          23561,
+          10210
+        ],
+        "PLAYERCACHEDPIXELY": [
+          23561,
+          10212
+        ],
+        "PLAYERTWOCACHEDPIXELY": [
+          23561,
+          10214
+        ],
+        "PLAYERSPRITEIDS": [
+          23561,
+          10216
+        ],
+        "PLAYERTWOSPRITEID": [
+          23561,
+          10218
+        ],
+        "PLAYERCACHEDSPRITEIDS": [
+          23561,
+          10220
+        ],
+        "PLAYERANIMATIONCOUNTDOWNS": [
+          23561,
+          10224
+        ],
+        "PLAYERTWOANIMATIONCOUNTDOWN": [
+          23561,
+          10226
+        ],
+        "PLAYERTHRUSTANIMATIONRATE": [
+          23561,
+          10228
+        ],
+        "PLAYERPLATFORMINDICES": [
+          23561,
+          10232
+        ],
+        "DS_27FA": [
+          23561,
+          10234
+        ],
+        "PLAYERCARRIEDKINDS": [
+          23561,
+          10236
+        ],
+        "PLAYERTWOPASSENGERICONSTATE": [
+          23561,
+          10238
+        ],
+        "HUDCACHEDPLAYERONEICONSTATE": [
+          23561,
+          10240
+        ],
+        "HUDCACHEDPLAYERTWOICONSTATE": [
+          23561,
+          10242
+        ],
+        "PLAYERDESTINATIONICONS": [
+          23561,
+          10244
+        ],
+        "PLAYERTWODESTINATIONICONINDEX": [
+          23561,
+          10246
+        ],
+        "PLAYERPASSENGERFARES": [
+          23561,
+          10248
+        ],
+        "PLAYERTWOFARE": [
+          23561,
+          10250
+        ],
+        "PLAYERMINIMUMFARES": [
+          23561,
+          10252
+        ],
+        "PLAYERHORIZONTALVELOCITIES": [
+          23561,
+          10256
+        ],
+        "DS_2812": [
+          23561,
+          10258
+        ],
+        "PLAYERVERTICALVELOCITIES": [
+          23561,
+          10260
+        ],
+        "DS_2816": [
+          23561,
+          10262
+        ],
+        "PLAYERIMPACTMAGNITUDE": [
+          23561,
+          10264
+        ],
+        "KEYBOARDSEQUENCERECORDS": [
+          23561,
+          10268
+        ],
+        "KEYBOARDSEQUENCENEXTSCAN": [
+          23561,
+          10269
+        ],
+        "KEYBOARDSEQUENCEACTIONINDEX": [
+          23561,
+          10271
+        ],
+        "KEYBOARDSEQUENCEACTIONVALUE": [
+          23561,
+          10272
+        ],
+        "KEYBOARDSEQUENCECANDIDATESTATE": [
+          23561,
+          10273
+        ],
+        "CURRENTLEVELRECORD": [
+          23561,
+          10473
+        ],
+        "LEVELPLATFORMLIST": [
+          23561,
+          10475
+        ],
+        "LEVELACTORLIST": [
+          23561,
+          10477
+        ],
+        "LEVELENEMYLIST": [
+          23561,
+          10479
+        ],
+        "REMAININGPASSENGERJOURNEYS": [
+          23561,
+          10481
+        ],
+        "LEVELINTROTEXTPOINTER": [
+          23561,
+          10483
+        ],
+        "LEVELRAINDIRECTION": [
+          23561,
+          10485
+        ],
+        "LEVELPLAYERONESTARTX": [
+          23561,
+          10486
+        ],
+        "LEVELPLAYERONESTARTY": [
+          23561,
+          10488
+        ],
+        "LEVELPLAYERTWOSTARTX": [
+          23561,
+          10490
+        ],
+        "LEVELPLAYERTWOSTARTY": [
+          23561,
+          10492
+        ],
+        "WATERY32": [
+          23561,
+          10494
+        ],
+        "WATERSURFACESTEP": [
+          23561,
+          10496
+        ],
+        "WATERYPIXELS": [
+          23561,
+          10499
+        ],
+        "PREVIOUSWATERSURFACEY": [
+          23561,
+          10501
+        ],
+        "WATERSURFACEBYTEOFFSET": [
+          23561,
+          10503
+        ],
+        "LEVELORDERTABLES": [
+          23561,
+          10505
+        ],
+        "PLATFORMLEFTEDGES": [
+          23561,
+          10509
+        ],
+        "PLATFORMRIGHTEDGES": [
+          23561,
+          10529
+        ],
+        "PLATFORMHEIGHTS": [
+          23561,
+          10549
+        ],
+        "PLATFORMARRIVALPOINTSX": [
+          23561,
+          10569
+        ],
+        "PLATFORMWAITINGPOINTSX": [
+          23561,
+          10589
+        ],
+        "PLATFORMSPAWNX": [
+          23561,
+          10609
+        ],
+        "PLATFORMDESTINATIONICONS": [
+          23561,
+          10629
+        ],
+        "PLATFORMACTOROCCUPANTS": [
+          23561,
+          10649
+        ],
+        "ACTORDESCRIPTORS": [
+          23561,
+          10669
+        ],
+        "ACTORINITIALPLATFORMINDICES": [
+          23561,
+          10701
+        ],
+        "ACTORJOURNEYCURSORS": [
+          23561,
+          10733
+        ],
+        "ACTORUPDATEORSCRIPTCURSOR": [
+          23561,
+          10765
+        ],
+        "DS_2A2D": [
+          23561,
+          10797
+        ],
+        "DEMOCOMPLETIONSCANBIASEDBASE": [
+          23561,
+          10827
+        ],
+        "ACTORPLATFORMORSCRIPTDONE": [
+          23561,
+          10829
+        ],
+        "ACTORDESTINATIONPLATFORMS": [
+          23561,
+          10861
+        ],
+        "ACTORSOURCEPLATFORMBYTEINDICES": [
+          23561,
+          10893
+        ],
+        "ACTORDESTINATIONPLATFORMBYTEINDICES": [
+          23561,
+          10925
+        ],
+        "DS_2ACD": [
+          23561,
+          10957
+        ],
+        "ACTORX32": [
+          23561,
+          10989
+        ],
+        "ACTORY32": [
+          23561,
+          11021
+        ],
+        "ACTORPIXELX": [
+          23561,
+          11053
+        ],
+        "ACTORPREVIOUSDRAWX": [
+          23561,
+          11085
+        ],
+        "ACTORPIXELY": [
+          23561,
+          11117
+        ],
+        "ACTORPREVIOUSDRAWY": [
+          23561,
+          11149
+        ],
+        "ACTORANIMATIONBYTEOFFSETS": [
+          23561,
+          11181
+        ],
+        "ACTORANIMATIONCOUNTDOWNS": [
+          23561,
+          11213
+        ],
+        "ACTORSPRITEIDS": [
+          23561,
+          11245
+        ],
+        "ACTORERASESPRITE": [
+          23561,
+          11277
+        ],
+        "ACTOROVERLAYORSCRIPTCALLBACKS": [
+          23561,
+          11309
+        ],
+        "ACTORERASEOVERLAYSPRITE": [
+          23561,
+          11341
+        ],
+        "DS_2C6D": [
+          23561,
+          11373
+        ],
+        "PASSENGERQUICKDELIVERYCOUNTDOWNS": [
+          23561,
+          11405
+        ],
+        "ENEMYDESCRIPTORS": [
+          23561,
+          11437
+        ],
+        "ENEMYPLATFORMINDICES": [
+          23561,
+          11447
+        ],
+        "ENEMYX32": [
+          23561,
+          11457
+        ],
+        "ENEMYY32": [
+          23561,
+          11467
+        ],
+        "ENEMYANIMATIONORDROPLISTS": [
+          23561,
+          11477
+        ],
+        "ENEMYINITIALDELAYS": [
+          23561,
+          11487
+        ],
+        "ENEMYHORIZONTALSPEEDS": [
+          23561,
+          11497
+        ],
+        "ENEMYSTATECALLBACKS": [
+          23561,
+          11507
+        ],
+        "ENEMYSTATECOUNTERS": [
+          23561,
+          11517
+        ],
+        "ENEMYDRAWX": [
+          23561,
+          11527
+        ],
+        "ENEMYPREVIOUSDRAWX": [
+          23561,
+          11537
+        ],
+        "ENEMYDRAWY": [
+          23561,
+          11547
+        ],
+        "ENEMYPREVIOUSDRAWY": [
+          23561,
+          11557
+        ],
+        "ENEMYANIMATIONBYTEOFFSETS": [
+          23561,
+          11567
+        ],
+        "ENEMYANIMATIONCOUNTDOWNS": [
+          23561,
+          11577
+        ],
+        "ENEMYSPRITEIDS": [
+          23561,
+          11587
+        ],
+        "ENEMYERASESPRITE": [
+          23561,
+          11597
+        ],
+        "ENEMYDIRECTIONORTARGETPLAYER": [
+          23561,
+          11607
+        ],
+        "ENEMYFLIGHTSOUNDHANDLES": [
+          23561,
+          11617
+        ],
+        "FALLINGITEMDESCRIPTORS": [
+          23561,
+          11627
+        ],
+        "FALLINGITEMCALLBACKS": [
+          23561,
+          11651
+        ],
+        "FALLINGITEMSPRITES": [
+          23561,
+          11675
+        ],
+        "FALLINGITEMERASESPRITE": [
+          23561,
+          11699
+        ],
+        "FALLINGITEMX": [
+          23561,
+          11723
+        ],
+        "FALLINGITEMY": [
+          23561,
+          11747
+        ],
+        "FALLINGITEMDRAWX": [
+          23561,
+          11771
+        ],
+        "FALLINGITEMPREVIOUSDRAWX": [
+          23561,
+          11795
+        ],
+        "FALLINGITEMDRAWY": [
+          23561,
+          11819
+        ],
+        "FALLINGITEMPREVIOUSDRAWY": [
+          23561,
+          11843
+        ],
+        "FALLINGITEMMOTIONORLIFETIME": [
+          23561,
+          11867
+        ],
+        "FALLINGITEMVERTICALSTEP": [
+          23561,
+          11891
+        ],
+        "RAINPARTICLEOFFSETS": [
+          23561,
+          11915
+        ],
+        "RAINPREVIOUSOFFSETS": [
+          23561,
+          12301
+        ],
+        "RAINPARTICLEXMODULOFOUR": [
+          23561,
+          12687
+        ],
+        "JOYSTICKPRESENTFLAGS": [
+          23561,
+          13073
+        ],
+        "SECONDJOYSTICKPRESENT": [
+          23561,
+          13075
+        ],
+        "FIRSTJOYSTICKXCOUNT": [
+          23561,
+          13077
+        ],
+        "SECONDJOYSTICKXCOUNT": [
+          23561,
+          13079
+        ],
+        "FIRSTJOYSTICKYCOUNT": [
+          23561,
+          13081
+        ],
+        "SECONDJOYSTICKYCOUNT": [
+          23561,
+          13083
+        ],
+        "JOYSTICKBUTTONBITS": [
+          23561,
+          13085
+        ],
+        "SECONDJOYSTICKBUTTONBITS": [
+          23561,
+          13087
+        ],
+        "DS_3321": [
+          23561,
+          13089
+        ],
+        "DS_3323": [
+          23561,
+          13091
+        ],
+        "DS_3325": [
+          23561,
+          13093
+        ],
+        "DS_3327": [
+          23561,
+          13095
+        ],
+        "FIRSTJOYSTICKXDOUBLECENTER": [
+          23561,
+          13097
+        ],
+        "SECONDJOYSTICKXDOUBLECENTER": [
+          23561,
+          13099
+        ],
+        "FIRSTJOYSTICKYDOUBLECENTER": [
+          23561,
+          13101
+        ],
+        "SECONDJOYSTICKYDOUBLECENTER": [
+          23561,
+          13103
+        ],
+        "JOYSTICKLEFTTHRESHOLDS": [
+          23561,
+          13105
+        ],
+        "SECONDJOYSTICKXLOWTHRESHOLD": [
+          23561,
+          13107
+        ],
+        "JOYSTICKRIGHTTHRESHOLDS": [
+          23561,
+          13109
+        ],
+        "SECONDJOYSTICKXHIGHTHRESHOLD": [
+          23561,
+          13111
+        ],
+        "JOYSTICKUPTHRESHOLDS": [
+          23561,
+          13113
+        ],
+        "SECONDJOYSTICKYLOWTHRESHOLD": [
+          23561,
+          13115
+        ],
+        "JOYSTICKDOWNTHRESHOLDS": [
+          23561,
+          13117
+        ],
+        "SECONDJOYSTICKYHIGHTHRESHOLD": [
+          23561,
+          13119
+        ],
+        "JOYSTICKENABLEDAXISMASK": [
+          23561,
+          13121
+        ],
+        "JOYSTICKSAMPLELOOPLIMIT": [
+          23561,
+          13123
         ]
       }
     },
@@ -7680,6 +8648,74 @@
         "EXT_5C09": [
           23561,
           0
+        ],
+        "LASTACTIVETIMERSLOTOFFSET": [
+          23561,
+          31308
+        ],
+        "TIMERINTERVALLOWBYSLOT": [
+          23561,
+          31310
+        ],
+        "TIMERINTERVALHIGHBYSLOT": [
+          23561,
+          31342
+        ],
+        "TIMERREMAININGLOWBYSLOT": [
+          23561,
+          31374
+        ],
+        "TIMERREMAININGHIGHBYSLOT": [
+          23561,
+          31406
+        ],
+        "TIMERCALLBACKDUEBYSLOT": [
+          23561,
+          31438
+        ],
+        "TIMERSLOTOFFSETBYHANDLE": [
+          23561,
+          31470
+        ],
+        "TIMERHANDLEBYSLOT": [
+          23561,
+          31502
+        ],
+        "TIMERCALLBACKOFFSETBYSLOT": [
+          23561,
+          31534
+        ],
+        "TIMERCALLBACKSEGMENTBYSLOT": [
+          23561,
+          31536
+        ],
+        "NEXTPITQUANTUMLOW": [
+          23561,
+          31598
+        ],
+        "NEXTPITQUANTUMHIGH": [
+          23561,
+          31600
+        ],
+        "PREVIOUSINT08OFFSET": [
+          23561,
+          31602
+        ],
+        "PREVIOUSINT08SEGMENT": [
+          23561,
+          31604
+        ],
+        "EARLIESTTIMERINTERVALLOW": [
+          23561,
+          31606
+        ],
+        "EARLIESTTIMERINTERVALHIGH": [
+          23561,
+          31608
+        ],
+        "PROGRAMMEDPITDIVISOR": [
+          23561,
+          31610
         ]
       }
     }

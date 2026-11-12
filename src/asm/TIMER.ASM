@@ -2,6 +2,24 @@
 ; Image contribution 0A326..0A661 (end exclusive).
 .286
 JUMPS
+; Real DGROUP storage; independent addresses are bound in asm-map.json.
+extrn LastActiveTimerSlotOffset:byte
+extrn TimerIntervalLowBySlot:byte
+extrn TimerIntervalHighBySlot:byte
+extrn TimerRemainingLowBySlot:byte
+extrn TimerRemainingHighBySlot:byte
+extrn TimerCallbackDueBySlot:byte
+extrn TimerSlotOffsetByHandle:byte
+extrn TimerHandleBySlot:byte
+extrn TimerCallbackOffsetBySlot:byte
+extrn TimerCallbackSegmentBySlot:byte
+extrn NextPitQuantumLow:byte
+extrn NextPitQuantumHigh:byte
+extrn PreviousInt08Offset:byte
+extrn PreviousInt08Segment:byte
+extrn EarliestTimerIntervalLow:byte
+extrn EarliestTimerIntervalHigh:byte
+extrn ProgrammedPitDivisor:byte
 TIMERSEG segment word public 'CODE'
 assume cs:TIMERSEG
 public ext_0A32
@@ -17,23 +35,6 @@ public _RemoveTimerCallback
 _RemoveTimerCallback equ TIMER_BASE+0215h
 public _SetTimerCallbackInterval
 _SetTimerCallbackInterval equ TIMER_BASE+02BBh
-LastActiveTimerSlotOffset equ 07A4Ch
-TimerIntervalLowBySlot equ 07A4Eh
-TimerIntervalHighBySlot equ 07A6Eh
-TimerRemainingLowBySlot equ 07A8Eh
-TimerRemainingHighBySlot equ 07AAEh
-TimerCallbackDueBySlot equ 07ACEh
-TimerSlotOffsetByHandle equ 07AEEh
-TimerHandleBySlot equ 07B0Eh
-TimerCallbackOffsetBySlot equ 07B2Eh
-TimerCallbackSegmentBySlot equ 07B30h
-NextPitQuantumLow equ 07B6Eh
-NextPitQuantumHigh equ 07B70h
-PreviousInt08Offset equ 07B72h
-PreviousInt08Segment equ 07B74h
-EarliestTimerIntervalLow equ 07B76h
-EarliestTimerIntervalHigh equ 07B78h
-ProgrammedPitDivisor equ 07B7Ah
 TimerInterruptInstalled equ TIMER_BASE+00h
 byte_data_0006:
     db 00h, 00h ; data 0006..0008

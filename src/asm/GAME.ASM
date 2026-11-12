@@ -2,6 +2,246 @@
 ; Image contribution 013B8..0664C (end exclusive).
 .286
 JUMPS
+; Real DGROUP storage; independent addresses are bound in asm-map.json.
+extrn SavedBiosVideoMode:byte
+extrn PreviousKeyboardVector:byte
+extrn PreviousKeyboardVectorSegment:byte
+extrn KeyboardHandlerVector:byte
+extrn DecodedImagePointer:byte
+extrn CurrentTileMapPointer:byte
+extrn CompressedTileMapsPointer:byte
+extrn TimerBarPointer:byte
+extrn BasePalettePointer:byte
+extrn FadedPalettePointer:byte
+extrn PaletteSourcePointer:byte
+extrn LevelWorkspacePointer:byte
+extrn HighScoreFileHandle:byte
+extrn DecimalTenDivisor:byte
+extrn DecimalHundredDivisor:byte
+extrn DecimalThousandDivisor:byte
+extrn DecimalTenThousandDivisor:byte
+extrn VgaRowStrideBytes:byte
+extrn TimerBarDivisor:byte
+extrn HighScoreRowStride:byte
+extrn DecimalDigitBuffer:byte
+extrn DecimalDigit1:byte
+extrn DecimalDigit2:byte
+extrn DecimalDigit3:byte
+extrn DecimalDigit4:byte
+extrn DecimalDigit5:byte
+extrn PasswordCompareBiasedBase:byte
+extrn PasswordEditBuffer:byte
+extrn PasswordEditChars2To3:byte
+extrn LevelNumberTensCharacter:byte
+extrn LevelNumberUnitsCharacter:byte
+extrn HighScoreNameEntry:byte
+extrn HighScoreNameChars2To3:byte
+extrn HighScoreNameChars4To5:byte
+extrn HighScoreNameChars6To7:byte
+extrn HighScoreNameChars8To9:byte
+extrn HighScoreRows:byte
+extrn PlayerAnimationCycleStarts:byte
+extrn PlayerAnimationCycleEnds:byte
+extrn VgaSinglePlaneMasks:byte
+extrn VgaCumulativePlaneMasks:byte
+extrn CurrentLevelIndex:byte
+extrn ScoreLowWord:byte
+extrn ScoreHighWord:byte
+extrn LevelTimer:byte
+extrn LevelCountsByPlayerMode:byte
+extrn MultiplierLimitsByDifficulty:byte
+extrn PlayerImpactLimits:byte
+extrn PlayerCount:byte
+extrn PlayerArrayBytes:byte
+extrn SelectedDifficulty:byte
+extrn LivesRemaining:byte
+extrn ScoreMultiplier:byte
+extrn PlayerOneControlMode:byte
+extrn PlayerTwoControlMode:byte
+extrn CurrentKeyboardScanCode:byte
+extrn PreviousPolledScanCode:byte
+extrn KeyboardScanCodeChangeBits:byte
+extrn KeyboardSequenceIndex:byte
+extrn CoordinateScaleScratch:byte
+extrn DemoExitCode:byte
+extrn PlayerUpInput:byte
+extrn PlayerDownInput:byte
+extrn PlayerLeftInput:byte
+extrn PlayerRightInput:byte
+extrn PlayerActionInput:byte
+extrn WaterRestorePending:byte
+extrn WaterSurfaceFrameCountdown:byte
+extrn WaterSurfaceFrame:byte
+extrn CachedTimerBarWidth:byte
+extrn ScreenFadeLevel:byte
+extrn ScreenFadeStep:byte
+extrn HudDigitCursorX:byte
+extrn HudDigitCursorY:byte
+extrn HudLivesX:byte
+extrn HudScoreX:byte
+extrn HudLevelCounterX:byte
+extrn HudPlayerOneIconX:byte
+extrn HudPlayerOneDestinationX:byte
+extrn HudFareX:byte
+extrn HudMultiplierX:byte
+extrn HudPlayerTwoIconX:byte
+extrn HudPlayerTwoDestinationX:byte
+extrn HudCachedScoreLow:byte
+extrn HudCachedScoreHigh:byte
+extrn HudCachedFare:byte
+extrn ds_27C8:byte
+extrn HudCachedMultiplier:byte
+extrn HudCachedLives:byte
+extrn HudCachedLevelCounter:byte
+extrn HudFareClearPending:byte
+extrn WaterStepPhase:byte
+extrn LevelCompletionMarker:byte
+extrn PlayerX32:byte
+extrn PlayerTwoFixedX:byte
+extrn PlayerY32:byte
+extrn PlayerTwoFixedY:byte
+extrn PlayerPixelX:byte
+extrn PlayerTwoPixelX:byte
+extrn PlayerYPixels:byte
+extrn SecondPlayerYPixels:byte
+extrn PlayerCachedPixelX:byte
+extrn PlayerTwoCachedPixelX:byte
+extrn PlayerCachedPixelY:byte
+extrn PlayerTwoCachedPixelY:byte
+extrn PlayerSpriteIds:byte
+extrn PlayerTwoSpriteId:byte
+extrn PlayerCachedSpriteIds:byte
+extrn PlayerAnimationCountdowns:byte
+extrn PlayerTwoAnimationCountdown:byte
+extrn PlayerThrustAnimationRate:byte
+extrn PlayerPlatformIndices:byte
+extrn ds_27FA:byte
+extrn PlayerCarriedKinds:byte
+extrn PlayerTwoPassengerIconState:byte
+extrn HudCachedPlayerOneIconState:byte
+extrn HudCachedPlayerTwoIconState:byte
+extrn PlayerDestinationIcons:byte
+extrn PlayerTwoDestinationIconIndex:byte
+extrn PlayerPassengerFares:byte
+extrn PlayerTwoFare:byte
+extrn PlayerMinimumFares:byte
+extrn PlayerHorizontalVelocities:byte
+extrn ds_2812:byte
+extrn PlayerVerticalVelocities:byte
+extrn ds_2816:byte
+extrn PlayerImpactMagnitude:byte
+extrn KeyboardSequenceRecords:byte
+extrn KeyboardSequenceNextScan:byte
+extrn KeyboardSequenceActionIndex:byte
+extrn KeyboardSequenceActionValue:byte
+extrn KeyboardSequenceCandidateState:byte
+extrn CurrentLevelRecord:byte
+extrn LevelPlatformList:byte
+extrn LevelActorList:byte
+extrn LevelEnemyList:byte
+extrn RemainingPassengerJourneys:byte
+extrn LevelIntroTextPointer:byte
+extrn LevelRainDirection:byte
+extrn LevelPlayerOneStartX:byte
+extrn LevelPlayerOneStartY:byte
+extrn LevelPlayerTwoStartX:byte
+extrn LevelPlayerTwoStartY:byte
+extrn WaterY32:byte
+extrn WaterSurfaceStep:byte
+extrn WaterYPixels:byte
+extrn PreviousWaterSurfaceY:byte
+extrn WaterSurfaceByteOffset:byte
+extrn LevelOrderTables:byte
+extrn PlatformLeftEdges:byte
+extrn PlatformRightEdges:byte
+extrn PlatformHeights:byte
+extrn PlatformArrivalPointsX:byte
+extrn PlatformWaitingPointsX:byte
+extrn PlatformSpawnX:byte
+extrn PlatformDestinationIcons:byte
+extrn PlatformActorOccupants:byte
+extrn ActorInitialPlatformIndices:byte
+extrn ActorJourneyCursors:byte
+extrn ActorUpdateOrScriptCursor:byte
+extrn DemoCompletionScanBiasedBase:byte
+extrn ActorPlatformOrScriptDone:byte
+extrn ActorDestinationPlatforms:byte
+extrn ActorSourcePlatformByteIndices:byte
+extrn ActorDestinationPlatformByteIndices:byte
+extrn ds_2ACD:byte
+extrn ActorX32:byte
+extrn ActorY32:byte
+extrn ActorPixelX:byte
+extrn ActorPreviousDrawX:byte
+extrn ActorPixelY:byte
+extrn ActorPreviousDrawY:byte
+extrn ActorAnimationByteOffsets:byte
+extrn ActorAnimationCountdowns:byte
+extrn ActorSpriteIds:byte
+extrn ActorEraseSprite:byte
+extrn ActorEraseOverlaySprite:byte
+extrn ds_2C6D:byte
+extrn PassengerQuickDeliveryCountdowns:byte
+extrn EnemyDescriptors:byte
+extrn EnemyPlatformIndices:byte
+extrn EnemyX32:byte
+extrn EnemyY32:byte
+extrn EnemyAnimationOrDropLists:byte
+extrn EnemyInitialDelays:byte
+extrn EnemyHorizontalSpeeds:byte
+extrn EnemyStateCallbacks:byte
+extrn EnemyStateCounters:byte
+extrn EnemyDrawX:byte
+extrn EnemyPreviousDrawX:byte
+extrn EnemyDrawY:byte
+extrn EnemyPreviousDrawY:byte
+extrn EnemyAnimationByteOffsets:byte
+extrn EnemyAnimationCountdowns:byte
+extrn EnemySpriteIds:byte
+extrn EnemyEraseSprite:byte
+extrn EnemyDirectionOrTargetPlayer:byte
+extrn EnemyFlightSoundHandles:byte
+extrn FallingItemDescriptors:byte
+extrn FallingItemCallbacks:byte
+extrn FallingItemSprites:byte
+extrn FallingItemEraseSprite:byte
+extrn FallingItemX:byte
+extrn FallingItemY:byte
+extrn FallingItemDrawX:byte
+extrn FallingItemPreviousDrawX:byte
+extrn FallingItemDrawY:byte
+extrn FallingItemPreviousDrawY:byte
+extrn FallingItemMotionOrLifetime:byte
+extrn FallingItemVerticalStep:byte
+extrn RainParticleOffsets:byte
+extrn RainPreviousOffsets:byte
+extrn RainParticleXModuloFour:byte
+extrn JoystickPresentFlags:byte
+extrn SecondJoystickPresent:byte
+extrn FirstJoystickXCount:byte
+extrn SecondJoystickXCount:byte
+extrn FirstJoystickYCount:byte
+extrn SecondJoystickYCount:byte
+extrn JoystickButtonBits:byte
+extrn SecondJoystickButtonBits:byte
+extrn ds_3321:byte
+extrn ds_3323:byte
+extrn ds_3325:byte
+extrn ds_3327:byte
+extrn FirstJoystickXDoubleCenter:byte
+extrn SecondJoystickXDoubleCenter:byte
+extrn FirstJoystickYDoubleCenter:byte
+extrn SecondJoystickYDoubleCenter:byte
+extrn JoystickLeftThresholds:byte
+extrn SecondJoystickXLowThreshold:byte
+extrn JoystickRightThresholds:byte
+extrn SecondJoystickXHighThreshold:byte
+extrn JoystickUpThresholds:byte
+extrn SecondJoystickYLowThreshold:byte
+extrn JoystickDownThresholds:byte
+extrn SecondJoystickYHighThreshold:byte
+extrn JoystickEnabledAxisMask:byte
+extrn JoystickSampleLoopLimit:byte
 ; This frame is known before CODE; other far-bank declarations follow CODE.
 extrn ext_3629:far
 extrn _InitializeSoundSystem:far
@@ -28,1006 +268,15 @@ public _fn_013B_001C
 _fn_013B_001C equ GAME_BASE+014h
 public _CopyFarBytes
 _CopyFarBytes equ GAME_BASE+018h
-; CONTRACT (tools/apply.py)
-; Byte from BIOS AH=0Fh with bit 7 cleared, restored by the DOS exit path.
-; END CONTRACT
-SavedBiosVideoMode equ 092h
-; CONTRACT (tools/apply.py)
-; Saved INT 09h far pointer, offset then segment; restored with LDS DX.
-; END CONTRACT
-PreviousKeyboardVector equ 093h
-; CONTRACT (tools/apply.py)
-; Segment-word view of the previous INT 09h far pointer.
-; END CONTRACT
-PreviousKeyboardVectorSegment equ 095h
-; CONTRACT (tools/apply.py)
-; New INT 09h far pointer passed to DOS AH=25h by installation.
-; END CONTRACT
-KeyboardHandlerVector equ 097h
-; CONTRACT (tools/apply.py)
-; Far scratch-image pointer consumed by the chunky-to-VGA uploader.
-; END CONTRACT
-DecodedImagePointer equ 09Bh
-; CONTRACT (tools/apply.py)
-; DGROUP far pointer consumed by DrawTileMap for 320 byte tile IDs in row-major order.
-; END CONTRACT
-CurrentTileMapPointer equ 09Fh
-; CONTRACT (tools/apply.py)
-; Far pointer to ICE-compressed tile maps; 072A decompresses and selects a 320-byte map.
-; END CONTRACT
-CompressedTileMapsPointer equ 0A3h
-; CONTRACT (tools/apply.py)
-; DGROUP far VGA pointer to timer bar; three rows at offsets 0,96,192 are written.
-; END CONTRACT
-TimerBarPointer equ 0A7h
-; CONTRACT (tools/apply.py)
-; Far pointer used as duplicate-palette destination and full-DAC upload source.
-; END CONTRACT
-BasePalettePointer equ 0ABh
-; CONTRACT (tools/apply.py)
-; Far pointer used as source for the scaled-palette range upload.
-; END CONTRACT
-FadedPalettePointer equ 0AFh
-; CONTRACT (tools/apply.py)
-; Far palette source; 466Ah reads its first 384 bytes and duplicates them.
-; END CONTRACT
-PaletteSourcePointer equ 0B3h
-; CONTRACT (tools/apply.py)
-; DGROUP far pointer to the 392-byte range zeroed during level display initialization.
-; END CONTRACT
-LevelWorkspacePointer equ 0B7h
-; CONTRACT (tools/apply.py)
-; DOS score-file handle, shared by load/save; stale values are retained after close/failure.
-; END CONTRACT
-HighScoreFileHandle equ 0BBh
-; CONTRACT (tools/apply.py)
-; Byte divisor ten used by the numeric two-digit encoder.
-; END CONTRACT
-DecimalTenDivisor equ 0BDh
-; CONTRACT (tools/apply.py)
-; Byte divisor one hundred used by the numeric four-digit encoder.
-; END CONTRACT
-DecimalHundredDivisor equ 0BEh
-; CONTRACT (tools/apply.py)
-; Word divisor one thousand used by the numeric four-digit encoder.
-; END CONTRACT
-DecimalThousandDivisor equ 0BFh
-; CONTRACT (tools/apply.py)
-; Word divisor ten thousand used by the numeric six-digit encoder.
-; END CONTRACT
-DecimalTenThousandDivisor equ 0C1h
-; CONTRACT (tools/apply.py)
-; DGROUP word holding the unchained VGA byte stride, initialized to 96 (060h).
-; Water routines multiply by its low byte using unsigned MUL r/m8, consuming AL, not AX.
-; END CONTRACT
-VgaRowStrideBytes equ 0C3h
-; CONTRACT (tools/apply.py)
-; Word divisor 700 converting remaining timer units to bar columns.
-; END CONTRACT
-TimerBarDivisor equ 0C5h
-; CONTRACT (tools/apply.py)
-; Byte high-score row stride, initially 21; 043A/0446 multiply unsigned CL by this value.
-; END CONTRACT
-HighScoreRowStride equ 0C7h
-; CONTRACT (tools/apply.py)
-; Start of a seven-byte decimal work buffer: six digits plus FFh from 3F0F.
-; 0210 converts six digits to ASCII with leading spaces; 0664 reuses its first two digits.
-; END CONTRACT
-DecimalDigitBuffer equ 0C8h
-; CONTRACT (tools/apply.py)
-; Decimal work-buffer digit at byte index 1; 0664 uses it for the level-number units digit.
-; END CONTRACT
-DecimalDigit1 equ 0C9h
-; CONTRACT (tools/apply.py)
-; Decimal work-buffer digit/score character at byte index 2, compared by 0452.
-; END CONTRACT
-DecimalDigit2 equ 0CAh
-; CONTRACT (tools/apply.py)
-; Decimal work-buffer digit/score character at byte index 3, compared by 0452.
-; END CONTRACT
-DecimalDigit3 equ 0CBh
-; CONTRACT (tools/apply.py)
-; Decimal work-buffer digit/score character at byte index 4, compared by 0452.
-; END CONTRACT
-DecimalDigit4 equ 0CCh
-; CONTRACT (tools/apply.py)
-; Decimal work-buffer digit/score character at byte index 5, compared by 0452.
-; END CONTRACT
-DecimalDigit5 equ 0CDh
-; CONTRACT (tools/apply.py)
-; Biased password comparison view, one byte before the input at 0B4E; not a separate buffer.
-; RunGameFromPassword increments BX before reading this base+BX; trailing input must be spaces.
-; END CONTRACT
-PasswordCompareBiasedBase equ 0B4Dh
-; CONTRACT (tools/apply.py)
-; Mutable 20-byte password field within the main-menu text; space padded, without its own NUL.
-; END CONTRACT
-PasswordEditBuffer equ 0B4Eh
-; CONTRACT (tools/apply.py)
-; Word view of password characters 2..3 (zero based); empty-entry handling writes 'NE' here.
-; END CONTRACT
-PasswordEditChars2To3 equ 0B50h
-; CONTRACT (tools/apply.py)
-; Mutable ASCII tens character in the centered LEVEL 00 line; set by 0664.
-; END CONTRACT
-LevelNumberTensCharacter equ 0BFDh
-; CONTRACT (tools/apply.py)
-; Mutable ASCII units character in the centered LEVEL 00 line; set by 0664.
-; END CONTRACT
-LevelNumberUnitsCharacter equ 0BFEh
-; CONTRACT (tools/apply.py)
-; Twelve-byte mutable high-score name field within the prompt text, followed by its NUL.
-; Empty input writes INCOGNITUS plus two spaces; stored names have two further padding bytes.
-; END CONTRACT
-HighScoreNameEntry equ 0C6Dh
-; CONTRACT (tools/apply.py)
-; Word view of high-score name characters 2..3 (zero based); default-name store writes 'CO'.
-; END CONTRACT
-HighScoreNameChars2To3 equ 0C6Fh
-; CONTRACT (tools/apply.py)
-; Word view of high-score name characters 4..5 (zero based); default-name store writes 'GN'.
-; END CONTRACT
-HighScoreNameChars4To5 equ 0C71h
-; CONTRACT (tools/apply.py)
-; Word view of high-score name characters 6..7 (zero based); default-name store writes 'IT'.
-; END CONTRACT
-HighScoreNameChars6To7 equ 0C73h
-; CONTRACT (tools/apply.py)
-; Word view of high-score name characters 8..9 (zero based); default-name store writes 'US'.
-; END CONTRACT
-HighScoreNameChars8To9 equ 0C75h
-; CONTRACT (tools/apply.py)
-; Five 21-byte high-score rows: 14 name/padding bytes, six score characters, then CR.
-; Two trailing bytes 00h/FFh extend the complemented/saved block to 107 bytes.
-; END CONTRACT
-HighScoreRows equ 0C86h
-; CONTRACT (tools/apply.py)
-; Word view of cycle starts indexed by player byte index 0/2; shares boundary at 0CFC.
-; END CONTRACT
-PlayerAnimationCycleStarts equ 0CFAh
-; CONTRACT (tools/apply.py)
-; Word view of exclusive frame-cycle ends indexed by player byte index 0/2.
-; END CONTRACT
-PlayerAnimationCycleEnds equ 0CFCh
-; CONTRACT (tools/apply.py)
-; Four bytes 1,2,4,8 selecting one timer-bar pixel plane.
-; END CONTRACT
-VgaSinglePlaneMasks equ 02614h
-; CONTRACT (tools/apply.py)
-; Four bytes 1,3,7,15 selecting planes through the final growing timer-bar column.
-; END CONTRACT
-VgaCumulativePlaneMasks equ 02618h
-; CONTRACT (tools/apply.py)
-; Zero-based level index used for password lookup and level selection; displayed as index+1.
-; 0C07 assigns the password's ordinal (or zero on failure), and 0FD3 increments on progression.
-; END CONTRACT
-CurrentLevelIndex equ 0261Ch
-; CONTRACT (tools/apply.py)
-; Low word of the shared unsigned 32-bit score; ADD here pairs with ADC at 2620.
-; END CONTRACT
-ScoreLowWord equ 0261Eh
-; CONTRACT (tools/apply.py)
-; High word of the shared unsigned 32-bit score; carries come from 261E.
-; END CONTRACT
-ScoreHighWord equ 02620h
-; CONTRACT (tools/apply.py)
-; Signed word countdown; initialized 23099, negative means expired; bar divides by 700.
-; END CONTRACT
-LevelTimer equ 02622h
-; CONTRACT (tools/apply.py)
-; Two word level-count limits selected by twice-player-count minus 2; initially 69 and 81.
-; Main-menu return handling at 0162 compares the current level index against the chosen limit.
-; END CONTRACT
-LevelCountsByPlayerMode equ 02624h
-; CONTRACT (tools/apply.py)
-; Three u16 limits indexed by difficulty*2; 1A7E gates multiplier-pickup creation.
-; END CONTRACT
-MultiplierLimitsByDifficulty equ 02628h
-; CONTRACT (tools/apply.py)
-; Three difficulty-selected word limits for PlayerImpactMagnitude: 3100,2300,1380 decimal.
-; Signed comparisons gate platform attachment and start the impact fade at equality or above.
-; END CONTRACT
-PlayerImpactLimits equ 0262Eh
-; CONTRACT (tools/apply.py)
-; Word count 1 or 2; some collision loops compare this against byte index 2.
-; END CONTRACT
-PlayerCount equ 02634h
-; CONTRACT (tools/apply.py)
-; Word equal to PlayerCount*2; proper parallel-player loops use it as end byte index.
-; END CONTRACT
-PlayerArrayBytes equ 02636h
-; CONTRACT (tools/apply.py)
-; Difficulty choice 0/1/2; menu F3 cycles it and table DA displays EASY/MEDIUM/HARD.
-; END CONTRACT
-SelectedDifficulty equ 02638h
-; CONTRACT (tools/apply.py)
-; Shared byte life count: new game writes 3; collected kind-1 items add and cap at 99.
-; Retry path 0FBCh decrements it and stops at zero or a negative result; byte wrapping matters.
-; END CONTRACT
-LivesRemaining equ 0263Ch
-; CONTRACT (tools/apply.py)
-; Packed multiplier: reset and pickup write a byte, but pickup and scoring read a word here.
-; Kind-2 items increment below difficulty limit; passenger delivery at 1AABh multiplies score.
-; Preserve the adjacent high byte at 263Eh and the original widths, rather than widening stores.
-; END CONTRACT
-ScoreMultiplier equ 0263Dh
-; CONTRACT (tools/apply.py)
-; Player 1 control selector: -1 keyboard, 0 joystick A, 1 joystick B; menu table E4 uses value+1.
-; END CONTRACT
-PlayerOneControlMode equ 0263Fh
-; CONTRACT (tools/apply.py)
-; Player 2 control selector with the same -1/0/1 encoding as player 1.
-; END CONTRACT
-PlayerTwoControlMode equ 02641h
-; CONTRACT (tools/apply.py)
-; Latest sampled keyboard make/break scan-code byte, returned in AL by PollPlayerControls.
-; Keyboard sampling copies it to the previous-byte cell before replacing it with the ISR byte.
-; END CONTRACT
-CurrentKeyboardScanCode equ 02643h
-; CONTRACT (tools/apply.py)
-; Old scan byte saved by 44F1h before replacing the current sample.
-; END CONTRACT
-PreviousPolledScanCode equ 02645h
-; CONTRACT (tools/apply.py)
-; Byte XOR of current and previous keyboard scan codes, returned in AH by PollPlayerControls.
-; Nonzero detects a change of code, including break codes; this is not a key-down boolean.
-; END CONTRACT
-KeyboardScanCodeChangeBits equ 02646h
-; CONTRACT (tools/apply.py)
-; Byte index into raw-scan prefixes shared by all candidate records; reset on match.
-; END CONTRACT
-KeyboardSequenceIndex equ 02647h
-; CONTRACT (tools/apply.py)
-; DGROUP shared word holding signed coordinate quarter or speed half; not reentrant.
-; END CONTRACT
-CoordinateScaleScratch equ 02648h
-; CONTRACT (tools/apply.py)
-; Word demo exit code: FFFF for Q, 1 for Escape, zero for completion or other input.
-; RunScriptedDemo returns SF/ZF from TEST of this word; AX need not contain it.
-; END CONTRACT
-DemoExitCode equ 0264Ah
-; CONTRACT (tools/apply.py)
-; Two player up-action words, byte index BX=0/2; nonzero requests upward thrust.
-; Joystick mapping writes 0/FFFF words; the keyboard interrupt writes one byte within each word.
-; END CONTRACT
-PlayerUpInput equ 0278Ch
-; CONTRACT (tools/apply.py)
-; Two player down-action words; joystick positive-Y selection sets FFFF, idle clears to zero.
-; Underwater movement adds downward thrust when nonzero; keyboard updates have byte width.
-; END CONTRACT
-PlayerDownInput equ 02790h
-; CONTRACT (tools/apply.py)
-; Two player left-action words; nonzero subtracts horizontal thrust in player movement.
-; Joystick mapping writes whole words, while the keyboard interrupt updates action bytes.
-; END CONTRACT
-PlayerLeftInput equ 02794h
-; CONTRACT (tools/apply.py)
-; Two player right-action words; nonzero adds horizontal thrust unless left action took precedence.
-; Joystick mapping writes whole words, while the keyboard interrupt updates action bytes.
-; END CONTRACT
-PlayerRightInput equ 02798h
-; CONTRACT (tools/apply.py)
-; Two player action-button words; joystick mapping sets FFFF when either button bit is active.
-; Actor interaction at 1C6F reads a byte; preserve mixed byte/word consumers and keyboard writes.
-; END CONTRACT
-PlayerActionInput equ 0279Ch
-; CONTRACT (tools/apply.py)
-; Byte flag for a second restoration of the previous water row after the boundary changes.
-; AdvanceWaterSurface writes FFh on movement; the next call clears it and skips movement.
-; END CONTRACT
-WaterRestorePending equ 027A2h
-; CONTRACT (tools/apply.py)
-; Byte countdown decremented for each water-surface draw; a negative result reloads 6.
-; Expiry also decrements WaterSurfaceFrame, wrapping a negative frame to 2.
-; END CONTRACT
-WaterSurfaceFrameCountdown equ 027A3h
-; CONTRACT (tools/apply.py)
-; Word selecting one of three CS near frame targets; expected 0..2, decremented at expiry.
-; DrawWaterSurface doubles this value for dispatch, with no bounds check.
-; END CONTRACT
-WaterSurfaceFrame equ 027A4h
-; CONTRACT (tools/apply.py)
-; Word cached timer/700 column count; updated even when shrink clears only one column.
-; END CONTRACT
-CachedTimerBarWidth equ 027A6h
-; CONTRACT (tools/apply.py)
-; Signed word palette-fade accumulator; 0..100h is passed to the palette scaling helper.
-; Values above 100h pace at retrace without scaling; a negative value ends demo/game fade loops.
-; END CONTRACT
-ScreenFadeLevel equ 027A8h
-; CONTRACT (tools/apply.py)
-; Signed word per-frame palette-fade step; demos use +4/-4, gameplay initialization uses +2.
-; Impact/completion/abort paths set -2; several callers immediately add the new step to the level.
-; END CONTRACT
-ScreenFadeStep equ 027AAh
-; CONTRACT (tools/apply.py)
-; Word pixel X advanced by six for every compared digit, including unchanged digits.
-; END CONTRACT
-HudDigitCursorX equ 027ACh
-; CONTRACT (tools/apply.py)
-; Word pixel Y for numeric HUD sprites; initialized and refreshed to 194.
-; END CONTRACT
-HudDigitCursorY equ 027AEh
-; CONTRACT (tools/apply.py)
-; Word X position for the two-digit counter read from 263C.
-; END CONTRACT
-HudLivesX equ 027B0h
-; CONTRACT (tools/apply.py)
-; Word X position for the six-digit score at 261E:2620.
-; END CONTRACT
-HudScoreX equ 027B2h
-; CONTRACT (tools/apply.py)
-; Word X position for the two-digit level-record byte at 28F1; no stronger meaning claimed.
-; END CONTRACT
-HudLevelCounterX equ 027B4h
-; CONTRACT (tools/apply.py)
-; Word X for sprite B2h plus player-one passenger/icon state 27FC.
-; END CONTRACT
-HudPlayerOneIconX equ 027B6h
-; CONTRACT (tools/apply.py)
-; Word X for sprite B7h plus player-one destination/icon index 2804.
-; END CONTRACT
-HudPlayerOneDestinationX equ 027B8h
-; CONTRACT (tools/apply.py)
-; Word X for the four-digit active passenger fare at 2808 or 280A; zeroed after unload.
-; END CONTRACT
-HudFareX equ 027BAh
-; CONTRACT (tools/apply.py)
-; Word X for the two-digit counter 263D, also used as a score multiplier outside region.
-; END CONTRACT
-HudMultiplierX equ 027BCh
-; CONTRACT (tools/apply.py)
-; Word X for sprite BFh plus player-two passenger/icon state 27FE; two-player layout only.
-; END CONTRACT
-HudPlayerTwoIconX equ 027BEh
-; CONTRACT (tools/apply.py)
-; Word X for sprite C4h plus player-two destination/icon index 2806.
-; END CONTRACT
-HudPlayerTwoDestinationX equ 027C0h
-; CONTRACT (tools/apply.py)
-; Low word of prior displayed score; six-digit comparison pairs this with 27C4.
-; END CONTRACT
-HudCachedScoreLow equ 027C2h
-; CONTRACT (tools/apply.py)
-; High word of prior displayed score; deliberately altered during initialization.
-; END CONTRACT
-HudCachedScoreHigh equ 027C4h
-; CONTRACT (tools/apply.py)
-; Word prior displayed four-digit fare; initialized to 9999 to force redraw.
-; END CONTRACT
-HudCachedFare equ 027C6h
-ds_27C8 equ 027C8h
-; CONTRACT (tools/apply.py)
-; Byte prior displayed counter from 263D; initialized by adding eleven modulo 100 once.
-; END CONTRACT
-HudCachedMultiplier equ 027CAh
-; CONTRACT (tools/apply.py)
-; Byte prior displayed counter from 263C; initialized by adding eleven modulo 100 once.
-; END CONTRACT
-HudCachedLives equ 027CBh
-; CONTRACT (tools/apply.py)
-; Byte prior displayed level-record counter 28F1; initialized to 99.
-; END CONTRACT
-HudCachedLevelCounter equ 027CCh
-; CONTRACT (tools/apply.py)
-; Byte requests zeroing the fare after no player carries a passenger; cleared after handling.
-; END CONTRACT
-HudFareClearPending equ 027CDh
-; CONTRACT (tools/apply.py)
-; Byte phase toggled with XOR 1 whenever water update is not handling a pending restore.
-; Only zero after the toggle applies WaterSurfaceStep to fixed-point Y at 28FEh.
-; END CONTRACT
-WaterStepPhase equ 027CEh
-; CONTRACT (tools/apply.py)
-; Signed byte completion marker, set to FE by the final actor-itinerary completion path at 14C7.
-; RunGameFromPassword tests its sign to choose next level versus life decrement; setup clears it.
-; END CONTRACT
-LevelCompletionMarker equ 027CFh
-; CONTRACT (tools/apply.py)
-; Two signed position words in 1/32-pixel units, indexed by player byte index 0 or 2.
-; END CONTRACT
-PlayerX32 equ 027D0h
-; CONTRACT (tools/apply.py)
-; Second player fixed X initialized from start X minus 512; 1/32-pixel units.
-; END CONTRACT
-PlayerTwoFixedX equ 027D2h
-; CONTRACT (tools/apply.py)
-; Two signed position words in 1/32-pixel units; carried/impact geometry uses this anchor.
-; END CONTRACT
-PlayerY32 equ 027D4h
-; CONTRACT (tools/apply.py)
-; Second player fixed Y initialized from scaled start Y minus 320; 1/32-pixel units.
-; END CONTRACT
-PlayerTwoFixedY equ 027D6h
-; CONTRACT (tools/apply.py)
-; Two parallel signed word pixel X values, selected by byte index 0 or 2.
-; END CONTRACT
-PlayerPixelX equ 027D8h
-; CONTRACT (tools/apply.py)
-; Second word of PlayerPixelX, initialized by arithmetic shifting fixed X right five.
-; END CONTRACT
-PlayerTwoPixelX equ 027DAh
-; CONTRACT (tools/apply.py)
-; Two cached pixel Y words derived by SAR 5; surface pickup requires water Y minus 18.
-; END CONTRACT
-PlayerYPixels equ 027DCh
-; CONTRACT (tools/apply.py)
-; Second element of PlayerYPixels; explicit second-player read occurs at 2016.
-; END CONTRACT
-SecondPlayerYPixels equ 027DEh
-; CONTRACT (tools/apply.py)
-; Two prior pixel X values for restoring the previous frame on each draw page.
-; END CONTRACT
-PlayerCachedPixelX equ 027E0h
-; CONTRACT (tools/apply.py)
-; Second word of PlayerCachedPixelX; initialized to the start pixel X.
-; END CONTRACT
-PlayerTwoCachedPixelX equ 027E2h
-; CONTRACT (tools/apply.py)
-; Two prior pixel Y values for restoring the previous frame on each draw page.
-; END CONTRACT
-PlayerCachedPixelY equ 027E4h
-; CONTRACT (tools/apply.py)
-; Second word of PlayerCachedPixelY; initialized to the start pixel Y.
-; END CONTRACT
-PlayerTwoCachedPixelY equ 027E6h
-; CONTRACT (tools/apply.py)
-; Two current player animation sprite IDs; advanced between per-player cycle boundaries.
-; END CONTRACT
-PlayerSpriteIds equ 027E8h
-; CONTRACT (tools/apply.py)
-; Second word of PlayerSpriteIds; initialized to E0h.
-; END CONTRACT
-PlayerTwoSpriteId equ 027EAh
-; CONTRACT (tools/apply.py)
-; Two previous player sprite IDs used for restoration rectangle dimensions.
-; END CONTRACT
-PlayerCachedSpriteIds equ 027ECh
-; CONTRACT (tools/apply.py)
-; Two signed countdown words; negative values add 200 and advance the sprite once.
-; END CONTRACT
-PlayerAnimationCountdowns equ 027F0h
-; CONTRACT (tools/apply.py)
-; Second word of PlayerAnimationCountdowns; initialized to FFFFh.
-; END CONTRACT
-PlayerTwoAnimationCountdown equ 027F2h
-; CONTRACT (tools/apply.py)
-; Two per-player words accumulating thrust's animation contribution during one movement update.
-; Movement adds 3Fh or 5Ah; player drawing caps the rate at 5Ah before advancing its frame timer.
-; END CONTRACT
-PlayerThrustAnimationRate equ 027F4h
-; CONTRACT (tools/apply.py)
-; Two words: platform index or FFFF for airborne/unattached; not byte indices.
-; END CONTRACT
-PlayerPlatformIndices equ 027F8h
-ds_27FA equ 027FAh
-; CONTRACT (tools/apply.py)
-; Two words: zero empty, descriptor +46 for passenger/stone; stone is kind four.
-; END CONTRACT
-PlayerCarriedKinds equ 027FCh
-; CONTRACT (tools/apply.py)
-; Second player load/icon state; zero disables its fare selection, BFh+value selects icon.
-; END CONTRACT
-PlayerTwoPassengerIconState equ 027FEh
-; CONTRACT (tools/apply.py)
-; Word cached passenger/icon state 27FC; change redraws both first-player icons.
-; END CONTRACT
-HudCachedPlayerOneIconState equ 02800h
-; CONTRACT (tools/apply.py)
-; Word cached passenger/icon state 27FE; initialized FFFFh; two-player HUD only.
-; END CONTRACT
-HudCachedPlayerTwoIconState equ 02802h
-; CONTRACT (tools/apply.py)
-; Two HUD icon indices: destination platform mapping, seven for stone, zero when empty.
-; END CONTRACT
-PlayerDestinationIcons equ 02804h
-; CONTRACT (tools/apply.py)
-; Second player destination/icon index; HUD draws C4h+value when load state changes.
-; END CONTRACT
-PlayerTwoDestinationIconIndex equ 02806h
-; CONTRACT (tools/apply.py)
-; Two unsigned fare words; decrease toward minimum while passenger is carried.
-; END CONTRACT
-PlayerPassengerFares equ 02808h
-; CONTRACT (tools/apply.py)
-; Second player fare; selected for four-digit display only when player one carries no passenger.
-; END CONTRACT
-PlayerTwoFare equ 0280Ah
-; CONTRACT (tools/apply.py)
-; Two unsigned fare floors from descriptor +42; compared unsigned by 1A42.
-; END CONTRACT
-PlayerMinimumFares equ 0280Ch
-; CONTRACT (tools/apply.py)
-; Two signed motion accumulators; player movement divides by 64 using SAR 6.
-; END CONTRACT
-PlayerHorizontalVelocities equ 02810h
-ds_2812 equ 02812h
-; CONTRACT (tools/apply.py)
-; Two signed motion accumulators; player movement divides by 64 using SAR 6.
-; END CONTRACT
-PlayerVerticalVelocities equ 02814h
-ds_2816 equ 02816h
-; CONTRACT (tools/apply.py)
-; Two per-player impact-magnitude words, reset on each movement call and filled by collisions.
-; Keeps the greater horizontal/vertical reflected magnitude for landing and difficulty-limit tests.
-; END CONTRACT
-PlayerImpactMagnitude equ 02818h
-; CONTRACT (tools/apply.py)
-; Six-byte records: three scan/FF bytes, action index/value, candidate state; FF sentinel.
-; END CONTRACT
-KeyboardSequenceRecords equ 0281Ch
-; CONTRACT (tools/apply.py)
-; Record+1 view used with the shared index to detect the sequence-end FF byte.
-; END CONTRACT
-KeyboardSequenceNextScan equ 0281Dh
-; CONTRACT (tools/apply.py)
-; Record+3 action-byte index; bit 1 also chooses the player control-sign gate.
-; END CONTRACT
-KeyboardSequenceActionIndex equ 0281Fh
-; CONTRACT (tools/apply.py)
-; Record+4 byte copied to the selected action slot on a completed sequence.
-; END CONTRACT
-KeyboardSequenceActionValue equ 02820h
-; CONTRACT (tools/apply.py)
-; Record+5: FF rejects a candidate, zero resets it; six-byte stride.
-; END CONTRACT
-KeyboardSequenceCandidateState equ 02821h
-; CONTRACT (tools/apply.py)
-; Base of 26-byte copied level record; first word is offset into decompressed tile-map bank.
-; END CONTRACT
-CurrentLevelRecord equ 028E9h
-; CONTRACT (tools/apply.py)
-; Near pointer from current record to platform records; signed-negative first word terminates.
-; END CONTRACT
-LevelPlatformList equ 028EBh
-; CONTRACT (tools/apply.py)
-; Near pointer from current record to actor placement triples; descriptor FFFFh terminates.
-; END CONTRACT
-LevelActorList equ 028EDh
-; CONTRACT (tools/apply.py)
-; Near pointer from current record to descriptor-dependent enemy placements, FFFFh terminated.
-; END CONTRACT
-LevelEnemyList equ 028EFh
-; CONTRACT (tools/apply.py)
-; Byte objective counter copied in the level record; exhausted itineraries decrement it.
-; END CONTRACT
-RemainingPassengerJourneys equ 028F1h
-; CONTRACT (tools/apply.py)
-; Near pointer to current level's instruction/title text; 0664 draws the whole text block.
-; Part of the packed 26-byte level record copied to 28E9; this word is at byte offset 0Ah.
-; END CONTRACT
-LevelIntroTextPointer equ 028F3h
-; CONTRACT (tools/apply.py)
-; Byte rain mode: zero disables effect, one enters from right/moves left, two the opposite.
-; END CONTRACT
-LevelRainDirection equ 028F5h
-; CONTRACT (tools/apply.py)
-; Record word start X in 1/32 units before subtracting the 16-pixel player X origin.
-; END CONTRACT
-LevelPlayerOneStartX equ 028F6h
-; CONTRACT (tools/apply.py)
-; Record word start Y before signed three-quarter scaling and ten-pixel Y origin subtraction.
-; END CONTRACT
-LevelPlayerOneStartY equ 028F8h
-; CONTRACT (tools/apply.py)
-; Record word second-player start X; initialized even in single-player mode.
-; END CONTRACT
-LevelPlayerTwoStartX equ 028FAh
-; CONTRACT (tools/apply.py)
-; Record word second-player start Y; signed three-quarter conversion precedes origin adjustment.
-; END CONTRACT
-LevelPlayerTwoStartY equ 028FCh
-; CONTRACT (tools/apply.py)
-; Word water surface coordinate in 1/32-pixel units after level initialization.
-; END CONTRACT
-WaterY32 equ 028FEh
-; CONTRACT (tools/apply.py)
-; Signed word increment for fixed-point water Y at 28FEh, in 1/32 pixel units.
-; Copied as part of the level record; AdvanceWaterSurface applies it on alternate phase zero.
-; END CONTRACT
-WaterSurfaceStep equ 02900h
-; CONTRACT (tools/apply.py)
-; Word water surface pixel Y; actor immersion and floating pickup tests use it.
-; END CONTRACT
-WaterYPixels equ 02903h
-; CONTRACT (tools/apply.py)
-; Word containing the prior water pixel row; refreshed before each non-pending water update.
-; Used for the color-bit toggle and both old-row restorations after movement.
-; END CONTRACT
-PreviousWaterSurfaceY equ 02905h
-; CONTRACT (tools/apply.py)
-; Word row offset, without VGA page base: low-byte water pixel Y times low-byte row stride.
-; DrawWaterSurface writes it; rain advancement at 3CC2h clips byte offsets against it.
-; END CONTRACT
-WaterSurfaceByteOffset equ 02907h
-; CONTRACT (tools/apply.py)
-; Two near pointers indexed by (playerCount-1)*2; selected table is indexed by level*2.
-; END CONTRACT
-LevelOrderTables equ 02909h
-; CONTRACT (tools/apply.py)
-; Ten signed pixel X bounds; FFFF terminates platform scans through this parallel array.
-; END CONTRACT
-PlatformLeftEdges equ 0290Dh
-; CONTRACT (tools/apply.py)
-; Ten pixel X bounds; stone landing uses inclusive bounds; patrol uses its own strict test.
-; END CONTRACT
-PlatformRightEdges equ 02921h
-; CONTRACT (tools/apply.py)
-; Ten pixel Y values after aspect conversion; actor feet snap to these on landing.
-; END CONTRACT
-PlatformHeights equ 02935h
-; CONTRACT (tools/apply.py)
-; Ten pixel X anchors used for passenger appearance and post-delivery departure.
-; END CONTRACT
-PlatformArrivalPointsX equ 02949h
-; CONTRACT (tools/apply.py)
-; Ten pixel X anchors passengers approach while waiting for a vehicle.
-; END CONTRACT
-PlatformWaitingPointsX equ 0295Dh
-; CONTRACT (tools/apply.py)
-; Word platform X values used to place actors/enemies after subtracting sprite origin offsets.
-; END CONTRACT
-PlatformSpawnX equ 02971h
-; CONTRACT (tools/apply.py)
-; Ten words mapping destination platform to the carried passenger HUD icon index.
-; END CONTRACT
-PlatformDestinationIcons equ 02985h
-; CONTRACT (tools/apply.py)
-; Ten actor byte indices; FFFF means unclaimed; appearance claims, boarding frees.
-; END CONTRACT
-PlatformActorOccupants equ 02999h
-; CONTRACT (tools/apply.py)
-; Sixteen near DGROUP descriptor pointers; FFFF terminates the active actor list.
-; END CONTRACT
+; Absolute view of DGDATA label ActorDescriptors; OFFSET extern adds fixups.
+; Retained for TASM 3.0 plain relocation order; see docs/data-source.md.
 ActorDescriptors equ 029ADh
-; CONTRACT (tools/apply.py)
-; Parallel actor word copied from placement; special descriptor 78DCh uses it as platform index.
-; END CONTRACT
-ActorInitialPlatformIndices equ 029CDh
-; CONTRACT (tools/apply.py)
-; Sixteen near journey pointers; current leg has source, delay, destination words.
-; END CONTRACT
-ActorJourneyCursors equ 029EDh
-; CONTRACT (tools/apply.py)
-; Sixteen near GAME callbacks in gameplay, or near DGROUP cursors in demo scripts.
-; END CONTRACT
-ActorUpdateOrScriptCursor equ 02A0Dh
-; CONTRACT (tools/apply.py)
-; Polymorphic actor scratch: wait mode, state timer, carrier byte index, or demo loop cursor.
-; Effects: interpret per active callback/script; no single scalar role is established.
-; END CONTRACT
+; Absolute view of DGDATA label ds_2A2D; OFFSET extern adds fixups.
+; Retained for TASM 3.0 plain relocation order; see docs/data-source.md.
 ds_2A2D equ 02A2Dh
-; CONTRACT (tools/apply.py)
-; Biased view two bytes before the demo completion-word array at 2A4D; no separate allocation.
-; TestAllDemoScriptsFinished increments BX before testing this base+BX for the prior script slot.
-; END CONTRACT
-DemoCompletionScanBiasedBase equ 02A4Bh
-; CONTRACT (tools/apply.py)
-; Sixteen words: current/source platform in gameplay; demo completion flag otherwise.
-; END CONTRACT
-ActorPlatformOrScriptDone equ 02A4Dh
-; CONTRACT (tools/apply.py)
-; Sixteen destination platform indices read from journey cursor +4.
-; END CONTRACT
-ActorDestinationPlatforms equ 02A6Dh
-; CONTRACT (tools/apply.py)
-; Sixteen source platform indices multiplied by two for parallel-array indexing.
-; END CONTRACT
-ActorSourcePlatformByteIndices equ 02A8Dh
-; CONTRACT (tools/apply.py)
-; Sixteen destination indices multiplied by two for parallel-array indexing.
-; END CONTRACT
-ActorDestinationPlatformByteIndices equ 02AADh
-; CONTRACT (tools/apply.py)
-; Polymorphic actor scratch: journey delay, thrown X speed, floating lifetime, demo repeat count.
-; Effects: interpret per active callback/script; no single scalar role is established.
-; END CONTRACT
-ds_2ACD equ 02ACDh
-; CONTRACT (tools/apply.py)
-; Sixteen signed positions in 1/32-pixel units; walking adds/subtracts 20h.
-; END CONTRACT
-ActorX32 equ 02AEDh
-; CONTRACT (tools/apply.py)
-; Sixteen signed positions in 1/32-pixel units; thrown and waterborne actors update these.
-; END CONTRACT
-ActorY32 equ 02B0Dh
-; CONTRACT (tools/apply.py)
-; Sixteen cached pixel X values; renderer updates these using ActorX32 SAR 5.
-; END CONTRACT
-ActorPixelX equ 02B2Dh
-; CONTRACT (tools/apply.py)
-; Sixteen actor/demo previous-draw X words in pixels; rotated from current pixel X before drawing.
-; The erase pass restores the background rectangle at this older position for each buffered page.
-; END CONTRACT
-ActorPreviousDrawX equ 02B4Dh
-; CONTRACT (tools/apply.py)
-; Sixteen cached pixel Y values; water tests may use the preceding render's value.
-; END CONTRACT
-ActorPixelY equ 02B6Dh
-; CONTRACT (tools/apply.py)
-; Sixteen actor/demo previous-draw Y words in pixels; paired with ActorPreviousDrawX for erasing.
-; These are parallel word arrays; demo initialization copies each starting Y here too.
-; END CONTRACT
-ActorPreviousDrawY equ 02B8Dh
-; CONTRACT (tools/apply.py)
-; Sixteen word offsets into sprite vectors; FFFE initialization precedes a +2 step.
-; END CONTRACT
-ActorAnimationByteOffsets equ 02BADh
-; CONTRACT (tools/apply.py)
-; Sixteen word update countdowns; frame advance occurs only when DEC reaches zero.
-; END CONTRACT
-ActorAnimationCountdowns equ 02BCDh
-; CONTRACT (tools/apply.py)
-; Sixteen current sprites; FFFF is hidden in gameplay, 7FFF is hidden in demo rendering.
-; END CONTRACT
-ActorSpriteIds equ 02BEDh
-; CONTRACT (tools/apply.py)
-; Sixteen actor/demo sprite IDs used for background erasure; exchanged with current IDs each pass.
-; FFFF skips erasure; demo erasure also skips hidden ID 7FFF. ResetSpriteEraseState writes FFFF.
-; END CONTRACT
-ActorEraseSprite equ 02C0Dh
-; CONTRACT (tools/apply.py)
-; Sixteen overlay sprites in gameplay; near GAME callbacks during demo interpretation.
-; END CONTRACT
+; Absolute view of DGDATA label ActorOverlayOrScriptCallbacks; OFFSET extern adds fixups.
+; Retained for TASM 3.0 plain relocation order; see docs/data-source.md.
 ActorOverlayOrScriptCallbacks equ 02C2Dh
-; CONTRACT (tools/apply.py)
-; Sixteen actor overlay erase-sprite IDs, rotated from the live overlay field at 2C2D.
-; The game erases these at actor previous X+11 and Y-13 decimal; FFFF suppresses erasure.
-; END CONTRACT
-ActorEraseOverlaySprite equ 02C4Dh
-; CONTRACT (tools/apply.py)
-; Polymorphic actor scratch: vertical speed in gameplay but update period in demo scripts.
-; Effects: interpret per active callback/script; no single scalar role is established.
-; END CONTRACT
-ds_2C6D equ 02C6Dh
-; CONTRACT (tools/apply.py)
-; Sixteen words; boarding sets 200, carrying decrements positives, delivery tests nonzero.
-; END CONTRACT
-PassengerQuickDeliveryCountdowns equ 02C8Dh
-; CONTRACT (tools/apply.py)
-; Five near DGROUP descriptor pointers; FFFF terminates enemy dispatch.
-; END CONTRACT
-EnemyDescriptors equ 02CADh
-; CONTRACT (tools/apply.py)
-; Five platform indices used by the dinosaur and tree placement/state paths.
-; END CONTRACT
-EnemyPlatformIndices equ 02CB7h
-; CONTRACT (tools/apply.py)
-; Five signed positions in 1/32-pixel units; bird flight and dinosaur charge update them.
-; END CONTRACT
-EnemyX32 equ 02CC1h
-; CONTRACT (tools/apply.py)
-; Five signed positions in 1/32-pixel units; stone collision tests compare against these.
-; END CONTRACT
-EnemyY32 equ 02CCBh
-; CONTRACT (tools/apply.py)
-; Five near DGROUP pointers: bird animation vector, or tree falling-reward descriptor list.
-; END CONTRACT
-EnemyAnimationOrDropLists equ 02CD5h
-; CONTRACT (tools/apply.py)
-; Five word delays; bird initialization copies its value into the active state countdown.
-; END CONTRACT
-EnemyInitialDelays equ 02CDFh
-; CONTRACT (tools/apply.py)
-; Five signed horizontal increments; patrol/flight reverse signs and charge adds acceleration.
-; END CONTRACT
-EnemyHorizontalSpeeds equ 02CE9h
-; CONTRACT (tools/apply.py)
-; Five near GAME callbacks called by 2363 with BX retained as enemy byte index.
-; END CONTRACT
-EnemyStateCallbacks equ 02CF3h
-; CONTRACT (tools/apply.py)
-; Five words reused as delays/stun timers, bird falling acceleration, or charge acceleration.
-; END CONTRACT
-EnemyStateCounters equ 02CFDh
-; CONTRACT (tools/apply.py)
-; Five enemy current-draw X words in pixels; game rendering fills them from signed fixed X SAR 5.
-; Previous values rotate into EnemyPreviousDrawX for background restoration.
-; END CONTRACT
-EnemyDrawX equ 02D07h
-; CONTRACT (tools/apply.py)
-; Five enemy previous-draw X words in pixels, used by the erasure pass at 0D34.
-; END CONTRACT
-EnemyPreviousDrawX equ 02D11h
-; CONTRACT (tools/apply.py)
-; Five enemy current-draw Y words in pixels; game rendering fills them from signed fixed Y SAR 5.
-; Previous values rotate into EnemyPreviousDrawY for background restoration.
-; END CONTRACT
-EnemyDrawY equ 02D1Bh
-; CONTRACT (tools/apply.py)
-; Five enemy previous-draw Y words in pixels, paired with EnemyPreviousDrawX for erasure.
-; END CONTRACT
-EnemyPreviousDrawY equ 02D25h
-; CONTRACT (tools/apply.py)
-; Five word sprite-vector byte offsets; FFFE initialization precedes +2 frame stepping.
-; END CONTRACT
-EnemyAnimationByteOffsets equ 02D2Fh
-; CONTRACT (tools/apply.py)
-; Five word update countdowns; frame cadence varies by enemy state.
-; END CONTRACT
-EnemyAnimationCountdowns equ 02D39h
-; CONTRACT (tools/apply.py)
-; Five current sprite words; FFFF hides the enemy.
-; END CONTRACT
-EnemySpriteIds equ 02D43h
-; CONTRACT (tools/apply.py)
-; Five enemy erase-sprite words, rotated from current sprite IDs at 2D43; FFFF skips erasure.
-; END CONTRACT
-EnemyEraseSprite equ 02D4Dh
-; CONTRACT (tools/apply.py)
-; Five words: bird target player number 0/1, or dinosaur animation offset 0/2.
-; END CONTRACT
-EnemyDirectionOrTargetPlayer equ 02D57h
-; CONTRACT (tools/apply.py)
-; Five word C sound-channel handles; bird flight stores one and 25A0 stops it.
-; END CONTRACT
-EnemyFlightSoundHandles equ 02D61h
-; CONTRACT (tools/apply.py)
-; Twelve near descriptor-pointer words, indexed by even slot byte offset 0..16h.
-; Spawn initializes a slot; flight, landing and collection consume its 20-byte descriptor.
-; END CONTRACT
-FallingItemDescriptors equ 02D6Bh
-; CONTRACT (tools/apply.py)
-; Twelve near GAME callback words for falling-item slots; dispatcher calls active slots.
-; Spawn selects descriptor+6 (flight), landing switches to descriptor+0Ah (pickup).
-; END CONTRACT
-FallingItemCallbacks equ 02D83h
-; CONTRACT (tools/apply.py)
-; Twelve sprite-ID words: FFFFh disables dispatch/rendering and marks the usual free slot.
-; Allocation accepts any negative word; spawn takes descriptor+10h as the sprite ID.
-; END CONTRACT
-FallingItemSprites equ 02D9Bh
-; CONTRACT (tools/apply.py)
-; Twelve falling-item erase-sprite words, rotated from current IDs at 2D9B; FFFF skips erasure.
-; This DGROUP array is unrelated to the GAME CS jump table at the same numerical offset.
-; END CONTRACT
-FallingItemEraseSprite equ 02DB3h
-; CONTRACT (tools/apply.py)
-; Twelve signed X-position words in 1/32 pixel units, indexed by even item slot byte offset.
-; Spawn subtracts descriptor[0]<<5; flight adds horizontal step, with signed offscreen limits.
-; END CONTRACT
-FallingItemX equ 02DCBh
-; CONTRACT (tools/apply.py)
-; Twelve signed Y-position words in 1/32 pixel units, indexed by even item slot byte offset.
-; Spawn subtracts height<<4; flight adds vertical step; landing snaps using height<<5.
-; END CONTRACT
-FallingItemY equ 02DE3h
-; CONTRACT (tools/apply.py)
-; Twelve falling-item current-draw X words in pixels; each draw derives them from fixed X SAR 5.
-; END CONTRACT
-FallingItemDrawX equ 02DFBh
-; CONTRACT (tools/apply.py)
-; Twelve falling-item previous-draw X words in pixels, copied before drawing and consumed by erase.
-; END CONTRACT
-FallingItemPreviousDrawX equ 02E13h
-; CONTRACT (tools/apply.py)
-; Twelve falling-item current-draw Y words in pixels; each draw derives them from fixed Y SAR 5.
-; END CONTRACT
-FallingItemDrawY equ 02E2Bh
-; CONTRACT (tools/apply.py)
-; Twelve falling-item previous-draw Y words in pixels, paired with FallingItemPreviousDrawX.
-; END CONTRACT
-FallingItemPreviousDrawY equ 02E43h
-; CONTRACT (tools/apply.py)
-; Twelve state-dependent words: horizontal step during flight, countdown after landing.
-; Spawn stores CX; landing replaces it with 0230h; pickup predecrements to equality zero.
-; END CONTRACT
-FallingItemMotionOrLifetime equ 02E5Bh
-; CONTRACT (tools/apply.py)
-; Twelve vertical-step words, in 1/32 pixel units per update, positive downward.
-; Spawn writes -(launch term+descriptor[0Ch]); flight adds gravity 3 with word wrapping.
-; END CONTRACT
-FallingItemVerticalStep equ 02E73h
-; CONTRACT (tools/apply.py)
-; 193 current VGA byte offsets; level initialization clears all and optionally seeds them.
-; END CONTRACT
-RainParticleOffsets equ 02E8Bh
-; CONTRACT (tools/apply.py)
-; 193 previous VGA byte offsets retained before particle motion and used by restoration.
-; END CONTRACT
-RainPreviousOffsets equ 0300Dh
-; CONTRACT (tools/apply.py)
-; 193 word plane indices (X modulo four), stored separately from particle byte offsets.
-; END CONTRACT
-RainParticleXModuloFour equ 0318Fh
-; CONTRACT (tools/apply.py)
-; Start of two word joystick-presence flags: negative permits selection in control options.
-; 50C6 initializes them to zero, then writes FFFFh after the corresponding port-201h test.
-; END CONTRACT
-JoystickPresentFlags equ 03311h
-; CONTRACT (tools/apply.py)
-; Second-stick presence word: zero initially, FFFFh if port bits 2/3 discharge.
-; END CONTRACT
-SecondJoystickPresent equ 03313h
-; CONTRACT (tools/apply.py)
-; Software count for port-201h bit 0; horizontal thresholds consumed by 0FE8h.
-; END CONTRACT
-FirstJoystickXCount equ 03315h
-; CONTRACT (tools/apply.py)
-; Software count for port-201h bit 2; parallel to first-stick X count.
-; END CONTRACT
-SecondJoystickXCount equ 03317h
-; CONTRACT (tools/apply.py)
-; Software count for port-201h bit 1; vertical thresholds consumed by 0FE8h.
-; END CONTRACT
-FirstJoystickYCount equ 03319h
-; CONTRACT (tools/apply.py)
-; Software count for port-201h bit 3; parallel to first-stick Y count.
-; END CONTRACT
-SecondJoystickYCount equ 0331Bh
-; CONTRACT (tools/apply.py)
-; Two joystick button-mask words: stick zero bits 30h, stick one bits C0h, active high after NOT.
-; Any set bit maps to the corresponding player's action input; preserve these as bitmasks.
-; END CONTRACT
-JoystickButtonBits equ 0331Dh
-; CONTRACT (tools/apply.py)
-; Active-high port bits C0h, stored as a word after a separate IN from first stick.
-; END CONTRACT
-SecondJoystickButtonBits equ 0331Fh
-ds_3321 equ 03321h
-ds_3323 equ 03323h
-ds_3325 equ 03325h
-ds_3327 equ 03327h
-; CONTRACT (tools/apply.py)
-; Twice the first-stick X calibration sample, wrapping at 16 bits; timeout candidate.
-; END CONTRACT
-FirstJoystickXDoubleCenter equ 03329h
-; CONTRACT (tools/apply.py)
-; Twice the second-stick X calibration sample; unsigned timeout candidate.
-; END CONTRACT
-SecondJoystickXDoubleCenter equ 0332Bh
-; CONTRACT (tools/apply.py)
-; Twice the first-stick Y calibration sample; unsigned timeout candidate.
-; END CONTRACT
-FirstJoystickYDoubleCenter equ 0332Dh
-; CONTRACT (tools/apply.py)
-; Twice the second-stick Y calibration sample; unsigned timeout candidate.
-; END CONTRACT
-SecondJoystickYDoubleCenter equ 0332Fh
-; CONTRACT (tools/apply.py)
-; Two joystick X low-threshold words; measured X <= threshold selects left, with signed comparison.
-; Calibration uses center - floor(center/2); each stick's word is two bytes apart.
-; END CONTRACT
-JoystickLeftThresholds equ 03331h
-; CONTRACT (tools/apply.py)
-; ceil(center/2) for the second-stick X count; compared with signed branches at 0FE8h.
-; END CONTRACT
-SecondJoystickXLowThreshold equ 03333h
-; CONTRACT (tools/apply.py)
-; Two joystick X high-threshold words; measured X >= threshold selects right if left did not win.
-; Calibration uses center + floor(center/2); preserve signed comparisons and endpoint equality.
-; END CONTRACT
-JoystickRightThresholds equ 03335h
-; CONTRACT (tools/apply.py)
-; center+floor(center/2) for second-stick X; arithmetic wraps to 16 bits.
-; END CONTRACT
-SecondJoystickXHighThreshold equ 03337h
-; CONTRACT (tools/apply.py)
-; Two joystick Y low-threshold words; measured Y <= threshold selects up, with signed comparison.
-; Calibration uses center - floor(center/2); each stick's word is two bytes apart.
-; END CONTRACT
-JoystickUpThresholds equ 03339h
-; CONTRACT (tools/apply.py)
-; ceil(center/2) for the second-stick Y count; low-direction threshold.
-; END CONTRACT
-SecondJoystickYLowThreshold equ 0333Bh
-; CONTRACT (tools/apply.py)
-; Two joystick Y high-threshold words; measured Y >= threshold selects down if up did not win.
-; Calibration uses center + floor(center/2); preserve signed comparisons and endpoint equality.
-; END CONTRACT
-JoystickDownThresholds equ 0333Dh
-; CONTRACT (tools/apply.py)
-; center+floor(center/2) for second-stick Y; high-direction threshold.
-; END CONTRACT
-SecondJoystickYHighThreshold equ 0333Fh
-; CONTRACT (tools/apply.py)
-; Byte: bits 0/1 enable stick one and 2/3 stick two; sampler masks other axes.
-; END CONTRACT
-JoystickEnabledAxisMask equ 03341h
-; CONTRACT (tools/apply.py)
-; Word maximum of four doubled center counts, initially FFFFh during detection.
-; END CONTRACT
-JoystickSampleLoopLimit equ 03343h
 ; CONTRACT (tools/apply.py)
 ; CS offset view of the three near water-frame targets indexed by 2*WaterSurfaceFrame.
 ; Consumer 2DFEh jumps here; actual word storage is WaterSurfaceDispatchWords at 2DB3h.
@@ -2381,6 +1630,7 @@ loc_0982:
 ; Clobbers/preserves: preserves BX and SI for the script interpreter; AX/flags may change.
 ; Effects/quirks: reached indirectly from script 1CBC, despite no direct call-graph callers.
 ; END CONTRACT
+public StartDemoFadeWhenSpriteHidden
 StartDemoFadeWhenSpriteHidden:
     cmp word ptr [bx + ActorSpriteIds], word ptr 07FFFh ; @0989
     jne loc_099E ; @098F
@@ -2396,6 +1646,7 @@ loc_099E:
 ; Clobbers/preserves: AX,CX,ES,DI/flags change; BX and SI survive the callback.
 ; Effects/quirks: no lower clamp; negative widths wrap to a byte. The pointed data is writable.
 ; END CONTRACT
+public SetDemoRevealSpriteWidth
 SetDemoRevealSpriteWidth:
     mov ax, 0140h ; @099F
     mov cx, word ptr [bx + ActorX32] ; @09A2
@@ -3482,6 +2733,7 @@ loc_149B:
 ; Effects: completion decrements the byte objective count unless DEC sets SF; zero starts fade-out.
 ; Effects: an exhausted journey installs and tail-jumps to descriptor callback +2C.
 ; END CONTRACT
+public ReadPassengerJourneyLeg
 ReadPassengerJourneyLeg:
     mov di, word ptr [bx + ActorJourneyCursors] ; @149C
     mov ax, word ptr [di + 4] ; @14A0
@@ -3523,6 +2775,7 @@ loc_14DD:
 ; Out: hides the actor; decrements nonzero delay, then tail-jumps through descriptor +0C.
 ; Effects: the platform occupant must equal FFFF; zero delay is immediately eligible.
 ; END CONTRACT
+public WaitForPassengerPlatform
 WaitForPassengerPlatform:
     mov word ptr [bx + ActorSpriteIds], 0FFFFh ; @1509
     mov ax, word ptr [bx + ds_2ACD] ; @150F
@@ -3545,6 +2798,7 @@ loc_153A:
 ; Out: installs descriptor +0E; writes pixel and x32 positions, animation offset FFFE/ticks 1.
 ; Effects: platform occupant stores BX, a byte index into actor parallel arrays.
 ; END CONTRACT
+public PlacePassengerOnPlatform
 PlacePassengerOnPlatform:
     mov si, word ptr [bx + ActorDescriptors] ; @153B
     mov ax, word ptr [si + 0Eh] ; @153F
@@ -3572,6 +2826,7 @@ PlacePassengerOnPlatform:
 ; Out: on countdown expiry selects descriptor +36 animation; FFFF tail-jumps through +10.
 ; Effects: the sprite is not changed on frames where the countdown remains nonzero.
 ; END CONTRACT
+public AnimatePassengerArrival
 AnimatePassengerArrival:
     dec word ptr [bx + ActorAnimationCountdowns] ; @1582
     jne loc_15B3 ; @1586
@@ -3595,6 +2850,7 @@ loc_15B3:
 ; Out: installs descriptor +12; resets animation to offset FFFE/ticks 1.
 ; Effects: writes FFFF to both state scratch and overlay fields.
 ; END CONTRACT
+public BeginPassengerPlatformWait
 BeginPassengerPlatformWait:
     mov si, word ptr [bx + ActorDescriptors] ; @15B4
     mov ax, word ptr [si + 012h] ; @15B8
@@ -3611,6 +2867,7 @@ BeginPassengerPlatformWait:
 ; Out: animates/moves one pixel per animation tick; may tail-jump to request or water state.
 ; Effects: tests water against cached pixel Y; collision helper returns SF and player platform AX.
 ; END CONTRACT
+public UpdatePassengerPlatformWait
 UpdatePassengerPlatformWait:
     mov di, word ptr [bx + ActorSourcePlatformByteIndices] ; @15D7
     mov si, word ptr [bx + ActorDescriptors] ; @15DB
@@ -3708,6 +2965,7 @@ loc_16EC:
 ; Out: installs descriptor +16, resets animation, and starts a 140-update state countdown.
 ; Effects: overlay is destination+010C, capped to sprite 0111 by an unsigned comparison.
 ; END CONTRACT
+public BeginPassengerDestinationDisplay
 BeginPassengerDestinationDisplay:
     mov si, word ptr [bx + ActorDescriptors] ; @16F6
     mov ax, word ptr [si + 016h] ; @16FA
@@ -3729,6 +2987,7 @@ loc_171F:
 ; Out: water/contact can switch descriptor; missing/occupied vehicle jumps through +18.
 ; Effects: a 140-update countdown ends at descriptor +1C, independently of animation ticks.
 ; END CONTRACT
+public UpdatePassengerDestinationDisplay
 UpdatePassengerDestinationDisplay:
     mov si, word ptr [bx + ActorDescriptors] ; @172A
     mov ax, word ptr [si + 2] ; @172E
@@ -3798,6 +3057,7 @@ loc_17E5:
 ; Out: installs descriptor +1A; sets overlay sprite 0112 and state countdown 140.
 ; Effects: animation offset FFFE and ticks 1 force the first frame on the next update.
 ; END CONTRACT
+public BeginPassengerQuestionDisplay
 BeginPassengerQuestionDisplay:
     mov si, word ptr [bx + ActorDescriptors] ; @17E6
     mov ax, word ptr [si + 01Ah] ; @17EA
@@ -3813,6 +3073,7 @@ BeginPassengerQuestionDisplay:
 ; Out: handles water/contact, advances descriptor +30 animation, and decrements state timer.
 ; Effects: at exactly zero, an empty vehicle on source platform selects +14; otherwise +10.
 ; END CONTRACT
+public UpdatePassengerQuestionDisplay
 UpdatePassengerQuestionDisplay:
     mov si, word ptr [bx + ActorDescriptors] ; @180A
     mov ax, word ptr [si + 2] ; @180E
@@ -3879,6 +3140,7 @@ loc_18C7:
 ; In: BX is actor byte index (2*slot); DS=DGROUP.
 ; Out: installs descriptor +1E and resets animation offset FFFE/ticks 1; overlay becomes FFFF.
 ; END CONTRACT
+public BeginPassengerApproach
 BeginPassengerApproach:
     mov si, word ptr [bx + ActorDescriptors] ; @18C8
     mov ax, word ptr [si + 01Eh] ; @18CC
@@ -3894,6 +3156,7 @@ BeginPassengerApproach:
 ; Effects: platform loss selects +18; movement is one pixel only when animation ticks expire.
 ; Effects: water/contact may swap the descriptor and tail-jump to its +08 callback.
 ; END CONTRACT
+public UpdatePassengerApproach
 UpdatePassengerApproach:
     mov si, word ptr [bx + ActorDescriptors] ; @18E6
     mov ax, word ptr [si + 2] ; @18EA
@@ -3982,6 +3245,7 @@ loc_19DF:
 ; Out: copies fare bounds from the old descriptor, swaps descriptor via +48, then uses 1A0D tail.
 ; Effects: fare bounds deliberately come from the old descriptor, not the paired descriptor.
 ; END CONTRACT
+public BoardWaterbornePassenger
 BoardWaterbornePassenger:
     mov si, word ptr [bx + ActorDescriptors] ; @19E0
     mov ax, word ptr [si + 040h] ; @19E4
@@ -3998,6 +3262,7 @@ BoardWaterbornePassenger:
 ; Out: copies fare bounds; shared tail installs +22, destination icon, owner index, hidden sprite.
 ; Effects: frees source platform and starts a 200-update quick-delivery counter.
 ; END CONTRACT
+public BoardPassenger
 BoardPassenger:
     mov si, word ptr [bx + ActorDescriptors] ; @19FB
     mov ax, word ptr [si + 040h] ; @19FF
@@ -4024,6 +3289,7 @@ loc_1A0D:
 ; Out: unsigned fare comparison controls decrement; positive quick-delivery ticks decrement.
 ; Effects: destination platform equality tail-jumps through descriptor +24 with DI=owner.
 ; END CONTRACT
+public UpdateCarriedPassenger
 UpdateCarriedPassenger:
     mov di, word ptr [bx + ds_2A2D] ; @1A42
     mov ax, word ptr [di + PlayerPassengerFares] ; @1A46
@@ -4053,6 +3319,7 @@ loc_1A7D:
 ; Effects: nonzero quick-delivery ticks and multiplier below difficulty limit spawn 7A38 item.
 ; Effects: calls C:fn_1852 for effect 3274; installs +26 and positions the passenger for exit.
 ; END CONTRACT
+public DeliverPassenger
 DeliverPassenger:
     mov si, word ptr [bx + ActorDescriptors] ; @1A7E
     mov ax, word ptr [si + 026h] ; @1A82
@@ -4119,6 +3386,7 @@ loc_1B04:
 ; Out: moves/animates on countdown expiry, then tail-jumps through descriptor +28.
 ; Effects: arrival is checked using both cached pixel X and freshly shifted x32 position.
 ; END CONTRACT
+public WalkPassengerToExit
 WalkPassengerToExit:
     mov di, word ptr [bx + ActorDestinationPlatformByteIndices] ; @1B29
     mov si, word ptr [bx + ActorDescriptors] ; @1B2D
@@ -4174,6 +3442,7 @@ loc_1BBD:
 ; In: BX is actor byte index (2*slot); DS=DGROUP.
 ; Out: installs descriptor +2A and sets animation offset FFFE/ticks 1.
 ; END CONTRACT
+public BeginPassengerDeparture
 BeginPassengerDeparture:
     mov si, word ptr [bx + ActorDescriptors] ; @1BBE
     mov ax, word ptr [si + 02Ah] ; @1BC2
@@ -4187,6 +3456,7 @@ BeginPassengerDeparture:
 ; Out: writes the current sprite; if the following word is FFFF, advances journey by four.
 ; Effects: tail-jumps through descriptor +08 at sequence end; does not display its sentinel.
 ; END CONTRACT
+public AnimatePassengerDeparture
 AnimatePassengerDeparture:
     dec word ptr [bx + ActorAnimationCountdowns] ; @1BD6
     jne loc_1C0D ; @1BDA
@@ -4208,6 +3478,7 @@ loc_1C0D:
 ; Return immediately for unused actor/enemy descriptor callbacks.
 ; Out: near RET; registers and flags are unchanged.
 ; END CONTRACT
+public IgnoreActorState
 IgnoreActorState:
     ret ; @1C0E
 ; CONTRACT (tools/apply.py)
@@ -4215,6 +3486,7 @@ IgnoreActorState:
 ; In: BX is actor byte index (2*slot); DS=DGROUP.
 ; Out: installs descriptor +12 and initializes animation offset FFFE/ticks 1.
 ; END CONTRACT
+public BeginStonePickupWait
 BeginStonePickupWait:
     mov si, word ptr [bx + ActorDescriptors] ; @1C0F
     mov ax, word ptr [si + 012h] ; @1C13
@@ -4228,6 +3500,7 @@ BeginStonePickupWait:
 ; Out: collision success with carried-kind zero tail-jumps through descriptor +20.
 ; Effects: SF from 2276 is consumed before testing carried kind; otherwise sets sprite 0220.
 ; END CONTRACT
+public UpdateStonePickupWait
 UpdateStonePickupWait:
     mov si, word ptr [bx + ActorDescriptors] ; @1C27
     call FindPlayerTouchingActor ; @1C2B
@@ -4244,6 +3517,7 @@ loc_1C41:
 ; In: DI is the overlapping player byte index.
 ; Out: installs +22; stores carried kind, icon 7, owner DI, and hidden actor sprite FFFF.
 ; END CONTRACT
+public AttachStoneToPlayer
 AttachStoneToPlayer:
     mov si, word ptr [bx + ActorDescriptors] ; @1C48
     mov ax, word ptr [si + 022h] ; @1C4C
@@ -4260,6 +3534,7 @@ AttachStoneToPlayer:
 ; Out: a negative byte at 279C+owner tail-jumps through descriptor +24.
 ; Effects: this is a signed byte test; it is not a nonzero word test.
 ; END CONTRACT
+public WaitForStoneRelease
 WaitForStoneRelease:
     mov di, word ptr [bx + ds_2A2D] ; @1C6B
     test byte ptr [di + PlayerActionInput], 0FFh ; @1C6F
@@ -4275,6 +3550,7 @@ loc_1C80:
 ; Out: clears carried kind/icon; copies player velocities SAR 5; installs descriptor +26.
 ; Effects: sets sprite 0221, uses x32/y32 geometry offsets, and plays effect 3632 via C.
 ; END CONTRACT
+public ThrowCarriedStone
 ThrowCarriedStone:
     mov si, word ptr [bx + ActorDescriptors] ; @1C81
     xor ax, ax ; @1C85
@@ -4321,6 +3597,7 @@ loc_1CE4:
 ; Effects: platform crossing uses cached old/new foot Y and inclusive horizontal bounds.
 ; Effects: landing snaps to platform height and tail-jumps through descriptor +10 with DI.
 ; END CONTRACT
+public UpdateThrownStone
 UpdateThrownStone:
     mov si, word ptr [bx + ActorDescriptors] ; @1CEE
     mov ax, word ptr [bx + ds_2ACD] ; @1CF2
@@ -4384,6 +3661,7 @@ loc_1DA7:
 ; Out: installs descriptor +0A; frees source platform, hides overlay, clears vertical velocity.
 ; Effects: resets animation offset FFFE/ticks 1.
 ; END CONTRACT
+public BeginPassengerResurfacing
 BeginPassengerResurfacing:
     mov si, word ptr [bx + ActorDescriptors] ; @1DA8
     mov ax, word ptr [si + 0Ah] ; @1DAC
@@ -4403,6 +3681,7 @@ BeginPassengerResurfacing:
 ; Effects: acceleration is +27h, -175h, or -5Ch according to signed surface/velocity tests.
 ; Effects: an upward surface crossing snaps Y and tail-jumps through descriptor +10.
 ; END CONTRACT
+public UpdatePassengerResurfacing
 UpdatePassengerResurfacing:
     mov si, word ptr [bx + ActorDescriptors] ; @1DD5
     dec word ptr [bx + ActorAnimationCountdowns] ; @1DD9
@@ -4473,6 +3752,7 @@ loc_1E9B:
 ; In: BX is actor byte index (2*slot); DS=DGROUP.
 ; Out: installs descriptor +0E; hides overlay and resets animation offset FFFE/ticks 1.
 ; END CONTRACT
+public BeginPassengerSinking
 BeginPassengerSinking:
     mov si, word ptr [bx + ActorDescriptors] ; @1E9C
     mov ax, word ptr [si + 0Eh] ; @1EA0
@@ -4488,6 +3768,7 @@ BeginPassengerSinking:
 ; Out: velocity adds 27h; y32 adds velocity SAR 6; unsigned Y>=1800 hides the sprite.
 ; Effects: offscreen path installs descriptor +2C without jumping to it in this update.
 ; END CONTRACT
+public UpdatePassengerSinking
 UpdatePassengerSinking:
     mov si, word ptr [bx + ActorDescriptors] ; @1EC0
     dec word ptr [bx + ActorAnimationCountdowns] ; @1EC4
@@ -4525,6 +3806,7 @@ loc_1F23:
 ; In: BX is actor byte index (2*slot); DS=DGROUP.
 ; Out: installs descriptor +12; resets animation and loads state delay from descriptor +44.
 ; END CONTRACT
+public BeginPassengerFloating
 BeginPassengerFloating:
     mov si, word ptr [bx + ActorDescriptors] ; @1F24
     mov ax, word ptr [si + 012h] ; @1F28
@@ -4541,6 +3823,7 @@ BeginPassengerFloating:
 ; Effects: descriptor 77FE skips vehicle search; other searches require vertical velocity zero.
 ; Effects: vehicle cached Y must equal water Y-18 exactly.
 ; END CONTRACT
+public UpdatePassengerFloating
 UpdatePassengerFloating:
     mov si, word ptr [bx + ActorDescriptors] ; @1F43
     dec word ptr [bx + ActorAnimationCountdowns] ; @1F47
@@ -4598,6 +3881,7 @@ loc_1FE1:
 ; Out: maintains water Y, loops +30 animation, and ends state countdown at descriptor +1C.
 ; Effects: checks vehicle Y only, including occupied vehicles; no match selects descriptor +18.
 ; END CONTRACT
+public UpdateFloatingDestinationDisplay
 UpdateFloatingDestinationDisplay:
     mov si, word ptr [bx + ActorDescriptors] ; @1FE2
     mov ax, word ptr ds:[WaterYPixels] ; @1FE6
@@ -4646,6 +3930,7 @@ loc_2067:
 ; In: BX is actor byte index (2*slot); DS=DGROUP.
 ; Out: maintains water Y and +30 animation; exactly-zero state timer selects descriptor +0C.
 ; END CONTRACT
+public UpdateFloatingQuestionDisplay
 UpdateFloatingQuestionDisplay:
     mov si, word ptr [bx + ActorDescriptors] ; @2068
     mov ax, word ptr ds:[WaterYPixels] ; @206C
@@ -4682,6 +3967,7 @@ loc_20C0:
 ; Out: no eligible vehicle selects +18; horizontal equality selects +20 with DI=player.
 ; Effects: cached vehicle Y must equal water Y-18; movement occurs on animation ticks only.
 ; END CONTRACT
+public UpdateFloatingPassengerApproach
 UpdateFloatingPassengerApproach:
     mov si, word ptr [bx + ActorDescriptors] ; @20C1
     mov ax, word ptr ds:[WaterYPixels] ; @20C5
@@ -4756,6 +4042,7 @@ loc_2194:
 ; Return immediately for unused waterborne passenger callbacks.
 ; Out: near RET; registers and flags are unchanged.
 ; END CONTRACT
+public IgnoreWaterbornePassengerState
 IgnoreWaterbornePassengerState:
     ret ; @2195
 ; CONTRACT (tools/apply.py)
@@ -4958,6 +4245,7 @@ loc_2378:
 ; In: BX is enemy byte index; DS=DGROUP.
 ; Out: installs descriptor +0A; hides sprite, resets animation, and copies delay from 2CDF.
 ; END CONTRACT
+public BeginBirdDelay
 BeginBirdDelay:
     mov si, word ptr [bx + EnemyDescriptors] ; @2379
     mov ax, word ptr [si + 0Ah] ; @237D
@@ -4973,6 +4261,7 @@ BeginBirdDelay:
 ; In: BX is enemy byte index; DS=DGROUP.
 ; Out: exactly-zero state countdown tail-jumps through descriptor +0C.
 ; END CONTRACT
+public WaitForBirdFlight
 WaitForBirdFlight:
     dec word ptr [bx + EnemyStateCounters] ; @239F
     jne loc_23AF ; @23A3
@@ -4986,6 +4275,7 @@ loc_23AF:
 ; Out: installs descriptor +0E and plays effect 325B through C:fn_1852.
 ; Effects: explicitly saves/restores BX and ES around the far C call.
 ; END CONTRACT
+public BeginBirdWarning
 BeginBirdWarning:
     mov si, word ptr [bx + EnemyDescriptors] ; @23B0
     mov ax, word ptr [si + 0Eh] ; @23B4
@@ -5010,6 +4300,7 @@ loc_23CE:
 ; In: BX is enemy byte index; DS=DGROUP.
 ; Out: exactly-zero state countdown tail-jumps through descriptor +10.
 ; END CONTRACT
+public WaitForBirdWarning
 WaitForBirdWarning:
     dec word ptr [bx + EnemyStateCounters] ; @23D9
     jne loc_23E9 ; @23DD
@@ -5024,6 +4315,7 @@ loc_23E9:
 ; Effects: plays looping effect 3260 and stores its returned channel handle in 2D61+BX.
 ; Effects: X=27E0 for leftward flight or FC20 for rightward; Y clamps against water and FF80.
 ; END CONTRACT
+public LaunchBirdTowardPlayer
 LaunchBirdTowardPlayer:
     mov si, word ptr [bx + EnemyDescriptors] ; @23EA
     mov di, word ptr [bx + EnemyDirectionOrTargetPlayer] ; @23EE
@@ -5093,6 +4385,7 @@ loc_2484:
 ; Effects: contact fades the scene only for the target player and when fade step is nonnegative.
 ; Effects: collision tests occur only when the four-update animation countdown expires.
 ; END CONTRACT
+public UpdateBirdFlight
 UpdateBirdFlight:
     mov si, word ptr [bx + EnemyDescriptors] ; @2493
     mov ax, word ptr [bx + EnemyHorizontalSpeeds] ; @2497
@@ -5145,6 +4438,7 @@ loc_252A:
 ; Out: installs descriptor +1E, adds descriptor +3A to 32-bit score, clears fall acceleration.
 ; Effects: chooses first frame from +36 or +38 according to horizontal speed sign.
 ; END CONTRACT
+public StunBirdAndAwardScore
 StunBirdAndAwardScore:
     mov ax, word ptr [si + 01Eh] ; @252B
     mov word ptr [bx + EnemyStateCallbacks], ax ; @252E
@@ -5167,6 +4461,7 @@ loc_2557:
 ; In: BX is enemy byte index; DS=DGROUP.
 ; Out: fall acceleration rises to 40; signed screen exits tail-jump through descriptor +08.
 ; END CONTRACT
+public UpdateStunnedBird
 UpdateStunnedBird:
     mov ax, word ptr [bx + EnemyHorizontalSpeeds] ; @255E
     add ax, word ptr [bx + EnemyX32] ; @2562
@@ -5210,6 +4505,7 @@ loc_25A6:
 ; In: BX is enemy byte index; DS=DGROUP.
 ; Out: installs descriptor +0A and resets animation offset FFFE/ticks 1.
 ; END CONTRACT
+public BeginDinosaurPatrol
 BeginDinosaurPatrol:
     mov si, word ptr [bx + EnemyDescriptors] ; @25B1
     mov ax, word ptr [si + 0Ah] ; @25B5
@@ -5223,6 +4519,7 @@ BeginDinosaurPatrol:
 ; Out: every four ticks moves, reverses at platform bounds, and loops directional animation.
 ; Effects: same-platform player selects +0C; stone hit reverses its Y speed and selects +1C.
 ; END CONTRACT
+public UpdateDinosaurPatrol
 UpdateDinosaurPatrol:
     mov si, word ptr [bx + EnemyDescriptors] ; @25C9
     dec word ptr [bx + EnemyAnimationCountdowns] ; @25CD
@@ -5278,6 +4575,7 @@ loc_2666:
 ; In: BX is enemy byte index; SI is its descriptor; DS=DGROUP.
 ; Out: installs descriptor +0E and resets animation offset FFFE/ticks 1.
 ; END CONTRACT
+public BeginDinosaurAlert
 BeginDinosaurAlert:
     mov ax, word ptr [si + 0Eh] ; @2667
     mov word ptr [bx + EnemyStateCallbacks], ax ; @266A
@@ -5291,6 +4589,7 @@ BeginDinosaurAlert:
 ; Out: timer zero selects +10; player leaves platform selects +08; stone hit selects +1C.
 ; Effects: five-update animation; direction and speed sign track the first matching player.
 ; END CONTRACT
+public UpdateDinosaurAlert
 UpdateDinosaurAlert:
     mov si, word ptr [bx + EnemyDescriptors] ; @2681
     dec word ptr [bx + EnemyStateCounters] ; @2685
@@ -5352,6 +4651,7 @@ loc_2725:
 ; In: BX is enemy byte index; SI is its descriptor; DS=DGROUP.
 ; Out: installs descriptor +12; resets animation and clears state acceleration.
 ; END CONTRACT
+public BeginDinosaurCharge
 BeginDinosaurCharge:
     mov ax, word ptr [si + 012h] ; @272E
     mov word ptr [bx + EnemyStateCallbacks], ax ; @2731
@@ -5366,6 +4666,7 @@ BeginDinosaurCharge:
 ; Effects: acceleration adds direction-1 each update; X adds speed plus new acceleration.
 ; Effects: player X velocity=(speed+acceleration)<<5, Y velocity uses the same value <<4.
 ; END CONTRACT
+public UpdateDinosaurCharge
 UpdateDinosaurCharge:
     mov si, word ptr [bx + EnemyDescriptors] ; @2748
     dec word ptr [bx + EnemyAnimationCountdowns] ; @274C
@@ -5444,6 +4745,7 @@ loc_282F:
 ; In: BX is enemy byte index; SI is its descriptor; DS=DGROUP.
 ; Out: installs descriptor +16 and resets animation offset FFFE/ticks 1.
 ; END CONTRACT
+public BeginDinosaurRecovery
 BeginDinosaurRecovery:
     mov ax, word ptr [si + 016h] ; @2830
     mov word ptr [bx + EnemyStateCallbacks], ax ; @2833
@@ -5456,6 +4758,7 @@ BeginDinosaurRecovery:
 ; Out: sequence FFFF selects +08; a stone hit reverses stone Y speed and selects +1C.
 ; Effects: advances descriptor +2A/+2C sequence every four updates.
 ; END CONTRACT
+public AnimateDinosaurRecovery
 AnimateDinosaurRecovery:
     mov si, word ptr [bx + EnemyDescriptors] ; @2844
     dec word ptr [bx + EnemyAnimationCountdowns] ; @2848
@@ -5485,6 +4788,7 @@ loc_288E:
 ; Out: installs descriptor +16, not +1A; resets animation offset FFFE/ticks 1.
 ; Effects: supplied descriptor therefore routes subsequent updates to 2844, not 28A3.
 ; END CONTRACT
+public BeginDinosaurImpactRecovery
 BeginDinosaurImpactRecovery:
     mov ax, word ptr [si + 016h] ; @288F
     mov word ptr [bx + EnemyStateCallbacks], ax ; @2892
@@ -5497,6 +4801,7 @@ BeginDinosaurImpactRecovery:
 ; Out: descriptor +32/+34 FFFF selects +08; a stone hit reverses stone Y speed/selects +1C.
 ; Effects: descriptor +1A points here, but initializer 288F installs +16 instead.
 ; END CONTRACT
+public AnimateDinosaurImpactRecovery
 AnimateDinosaurImpactRecovery:
     mov si, word ptr [bx + EnemyDescriptors] ; @28A3
     dec word ptr [bx + EnemyAnimationCountdowns] ; @28A7
@@ -5525,6 +4830,7 @@ loc_28ED:
 ; In: BX is enemy byte index; SI is its descriptor; DS=DGROUP.
 ; Out: installs descriptor +1E, adds +3A to 32-bit score, resets animation and stun timer.
 ; END CONTRACT
+public StunDinosaurAndAwardScore
 StunDinosaurAndAwardScore:
     mov ax, word ptr [si + 01Eh] ; @28EE
     mov word ptr [bx + EnemyStateCallbacks], ax ; @28F1
@@ -5540,6 +4846,7 @@ StunDinosaurAndAwardScore:
 ; In: BX is enemy byte index; DS=DGROUP.
 ; Out: timer zero selects descriptor +08; animation +36/+38 advances every four updates.
 ; END CONTRACT
+public UpdateStunnedDinosaur
 UpdateStunnedDinosaur:
     mov si, word ptr [bx + EnemyDescriptors] ; @2914
     dec word ptr [bx + EnemyStateCounters] ; @2918
@@ -5568,6 +4875,7 @@ loc_295A:
 ; In: BX is enemy byte index; DS=DGROUP.
 ; Out: installs descriptor +12 and resets animation offset FFFE/ticks 1.
 ; END CONTRACT
+public loc_295B
 loc_295B:
     mov si, word ptr [bx + EnemyDescriptors] ; @295B
     mov ax, word ptr [si + 012h] ; @295F
@@ -5582,6 +4890,7 @@ loc_295B:
 ; Effects: adds +29h or -29h to player X velocity by animation phase; stone hit selects +1C.
 ; Effects: player scan retries on DI=2 equal to player count; does not use player-array bytes.
 ; END CONTRACT
+public loc_2973
 loc_2973:
     mov si, word ptr [bx + EnemyDescriptors] ; @2973
     dec word ptr [bx + EnemyAnimationCountdowns] ; @2977
@@ -5666,6 +4975,7 @@ loc_2A52:
 ; In: BX is enemy byte index; SI is its descriptor; DS=DGROUP.
 ; Out: installs descriptor +1E, adds +3A to 32-bit score, and chooses first +36 sprite.
 ; END CONTRACT
+public loc_2A53
 loc_2A53:
     mov ax, word ptr [si + 01Eh] ; @2A53
     mov word ptr [bx + EnemyStateCallbacks], ax ; @2A56
@@ -5682,6 +4992,7 @@ loc_2A53:
 ; In: BX is enemy byte index; DS=DGROUP.
 ; Out: exactly-zero state countdown tail-jumps through descriptor +10.
 ; END CONTRACT
+public loc_2A76
 loc_2A76:
     dec word ptr [bx + EnemyStateCounters] ; @2A76
     jne loc_2A86 ; @2A7A
@@ -5695,6 +5006,7 @@ loc_2A86:
 ; Out: installs +0A; resets animation; writes x32/y32 shifted LEFT five to cached fields.
 ; Effects: the left shifts are preserved even though the renderer later treats caches as pixels.
 ; END CONTRACT
+public InitializeFruitTreeAnimation
 InitializeFruitTreeAnimation:
     mov si, word ptr [bx + EnemyDescriptors] ; @2A87
     mov ax, word ptr [si + 0Ah] ; @2A8B
@@ -5714,6 +5026,7 @@ InitializeFruitTreeAnimation:
 ; Out: every six updates loops +22 sequence; a hit sets stone sprite 0222 and selects +1C.
 ; Effects: stone vertical speed becomes NEG then SAR 1; +1C spawns the next falling reward.
 ; END CONTRACT
+public UpdateFruitTreeAnimation
 UpdateFruitTreeAnimation:
     dec word ptr [bx + EnemyAnimationCountdowns] ; @2AB5
     jne loc_2B0B ; @2AB9
@@ -5749,6 +5062,7 @@ loc_2B0B:
 ; Effects: indirect descriptor+4 spawn, then far C effect 1852 with 3274:0, FFh, 1.
 ; BX is saved around the C call; spawn's full-pool stack defect is inherited.
 ; END CONTRACT
+public ReleaseTreeReward
 ReleaseTreeReward:
     mov ax, word ptr [si + 01Eh] ; @2B0C
     mov word ptr [bx + EnemyStateCallbacks], ax ; @2B0F
@@ -5782,6 +5096,7 @@ loc_2B4E:
 ; Out: decrement the 16-bit delay; at zero choose descriptor+0Ah, or +20h on FFFFh.
 ; Effects/quirks: equality-only expiry; zero on entry wraps to FFFFh without transitioning.
 ; END CONTRACT
+public AdvanceTreeRewardCooldown
 AdvanceTreeRewardCooldown:
     mov si, word ptr [bx + EnemyDescriptors] ; @2B58
     dec word ptr [bx + EnemyStateCounters] ; @2B5C
@@ -5802,6 +5117,7 @@ loc_2B7D:
 ; In: a near callback return address; descriptor 76E4h holds this entry at +20h.
 ; Out: immediate near return; registers and flags unchanged.
 ; END CONTRACT
+public IgnoreExhaustedTree
 IgnoreExhaustedTree:
     ret ; @2B7E
 ; CONTRACT (tools/apply.py)
@@ -5831,6 +5147,7 @@ loc_2B90:
 ; Original bug: when all 12 slots are occupied, RET consumes the saved input BX as IP;
 ; the real return address stays on the stack. This path is not a normal failure return.
 ; END CONTRACT
+public SpawnFallingItem
 SpawnFallingItem:
     push bx ; @2B96
     mov bx, 016h ; @2B97
@@ -5870,6 +5187,7 @@ loc_2BE3:
 ; Landing snaps Y to (platform Y-height)<<5 and JMPs descriptor+8; DI=platform byte index.
 ; No platform test while rising. Offscreen removal changes only the sprite, leaving stale fields.
 ; END CONTRACT
+public AdvanceFallingItem
 AdvanceFallingItem:
     mov si, word ptr [bx + FallingItemDescriptors] ; @2BE4
     mov ax, word ptr [bx + FallingItemMotionOrLifetime] ; @2BE8
@@ -5932,6 +5250,7 @@ loc_2C96:
 ; Out: callback=descriptor[0Ah]; FallingItemMotionOrLifetime=0230h (560 updates).
 ; The former horizontal-step word is reused as a countdown; no motion words are cleared.
 ; END CONTRACT
+public LandFallingItem
 LandFallingItem:
     mov si, word ptr [bx + FallingItemDescriptors] ; @2C97
     mov ax, word ptr [si + 0Ah] ; @2C9B
@@ -5948,6 +5267,7 @@ LandFallingItem:
 ; Effects/quirks: ADD wraps before capping; lives and multiplier stores write only AL.
 ; Timer/multiplier reads are words; no score or sound is awarded directly here.
 ; END CONTRACT
+public ExpireOrCollectFallingItem
 ExpireOrCollectFallingItem:
     dec word ptr [bx + FallingItemMotionOrLifetime] ; @2CA9
     jne loc_2CBA ; @2CAD
@@ -8633,6 +7953,7 @@ RestoreKeyboardInterrupt:
 ; Preserves: AX, BX, SI, DS; sends PIC EOI at 20h and IRETs without chaining old handler.
 ; Quirks: no BIOS translation/queueing, no port-61h acknowledgement, no E0/E1 special case.
 ; END CONTRACT
+public HandleKeyboardScanInterrupt
 HandleKeyboardScanInterrupt:
     push ax ; @4567
     push bx ; @4568
@@ -8774,6 +8095,7 @@ loc_4676:
 ; Evidence: far pointers at 4614h and DGROUP:00AB, copies at 466Ah/4C81h, reads at 4E39h.
 ; No call/branch here is established; ADD [BX+SI],AL is a misleading zero-byte disassembly.
 ; END CONTRACT
+public loc_4681
 loc_4681:
     add byte ptr [bx + si], al ; @4681
     add byte ptr [bx + si], al ; @4683
@@ -9164,6 +8486,7 @@ loc_4681:
 ; Evidence: DGROUP:00AF points here and 4E42h writes all 768 scaled components.
 ; No executable entry is established; do not translate its zero-byte disassembly as a routine.
 ; END CONTRACT
+public loc_4981
 loc_4981:
     add byte ptr [bx + si], al ; @4981
     add byte ptr [bx + si], al ; @4983

@@ -45,21 +45,29 @@ def compare(want, got):
             'expanded_file_equal':want.data==got.data}
 
 def byte_classes():
-    """Disjoint load-image accounting; RAW is debt even with a known owner."""
+    """Disjoint load-image accounting, with curated data formats and explicit debt."""
+    from datagen import accounting
     doc=load_json('asm-map.json')
     asm={kind:sum(s['end']-s['start'] for m in doc['modules'] for s in m['spans'] if s['kind']==kind)
          for kind in ('code','data','padding')}
+    data=accounting()
     classes={'ASM_code':asm['code'],'C_code':7030,
              'runtime_library_code':0x13b8,'runtime_library_data':145+(0x7e2e-0x7b7c)-1,
              'compiler_switch_tables':44,'C_initialized_data':4,
-             'RAW_assembly_owned_data':asm['data'],
-             'RAW_far_banks_and_game_DGROUP':64768+(0x5c09-0x1a38)*16+(0x7b7c-0x92),
-             'assembler_and_linker_padding':asm['padding']+1+15+12+1+1,'UNKNOWN_file_bytes':0}
+             'typed_and_labelled_data':data.get('typed',0),
+             'known_format_payload_data':data.get('payload',0),
+             'packed_data_streams':data.get('packed',0),
+             'UNKNOWN_assembly_owned_data':asm['data'],
+             'UNKNOWN_far_banks_and_game_DGROUP':data.get('UNKNOWN',0),
+             'assembler_and_linker_padding':asm['padding']+1+15+12+1+1+data.get('padding',0),
+             'UNKNOWN_file_bytes':0}
     return {'classes':classes,'load_image_total':sum(classes.values()),
-            'RAW_data_debt':classes['RAW_assembly_owned_data']+classes['RAW_far_banks_and_game_DGROUP'],
-            'RAW_virtual_reservation_debt':128,
+            'UNKNOWN_data_debt':asm['data']+data.get('UNKNOWN',0),
+            'UNKNOWN_virtual_reservation_debt':128,
             'note':'Instruction extents use asm-map, superseding the old paragraph census. '
-                   'All copied opaque data is RAW debt, including data with an assembly owner. '
+                   'Data source objects use the complete curated data-layout partition. '
+                   'UNKNOWN retains opaque assembly-owned data and unresolved data objects. '
+                   'Typed/payload/packed data are data-format classifications, never exact ASM or C code. '
                    'The trailing reserve reproduces allocation only; its historical owner/use are unknown.'}
 
 def show(variant,r):
@@ -81,6 +89,8 @@ def main():
     oracle=(BUILD/'oracle/UGH_X.EXE').read_bytes()
     if sha256(original)!=lock['packed']['file_sha256'] or sha256(oracle)!=lock['expanded']['file_sha256']:
         raise ValueError('oracle hash mismatch; run python tools/oracle.py')
+    from datagen import check_sources
+    check_sources(MZ(oracle).image)
     executables=build();want=MZ(oracle)
     images={variant:MZ(exe.read_bytes()) for variant,exe in executables.items()}
     results={variant:compare(want,got) for variant,got in images.items()}
@@ -127,8 +137,8 @@ def main():
     print('proof packed:',proof['packed_size'],'equal:',proof['packed_equal'],
           'different bytes:',len(packed_diffs),'first difference:',f'{packed_diffs[0]:06X}' if packed_diffs else 'none')
     print('byte classes:',r['byte_accounting']['classes'])
-    print('RAW data debt:',r['byte_accounting']['RAW_data_debt'],'file bytes; virtual reserve:',
-          r['byte_accounting']['RAW_virtual_reservation_debt'],'bytes (owner/use unknown)')
+    print('UNKNOWN data debt:',r['byte_accounting']['UNKNOWN_data_debt'],'file bytes; virtual reserve:',
+          r['byte_accounting']['UNKNOWN_virtual_reservation_debt'],'bytes (owner/use unknown)')
     print('proof level:',r['proof_level'])
     (WORK/'verify.json').write_text(json.dumps(r,indent=2)+'\n')
     return 0 if accepted else 1

@@ -177,6 +177,49 @@ def bootstrap():
 def names():
     return json.loads(NAMES.read_text()) if NAMES.exists() else bootstrap()
 
+
+def register_data():
+    """Add newly curated data labels without regenerating permanent identities.
+
+    Reuse an existing DGROUP variable identity when its exact spelling/address
+    already occurs as an EQU view. Public data spellings are renameable across
+    all consumers. Code exports used by data pointers keep their original IDs.
+    """
+    doc=names(); layout=load_json('data-layout.json')
+    from datagen import validate
+    validate(layout)
+    for m in layout['modules']:
+        for l in m['labels']:
+            addr=f"{m['frame']:04X}:{l['offset']:04X}"
+            hits=[r for r in doc['symbols'].values() if r['address']==addr and
+                  any(s['name']==l['name'] for s in r['spellings'])]
+            if len(hits)>1:raise ValueError('ambiguous existing data identity '+l['name'])
+            if hits:r=hits[0]
+            else:
+                key=f"{addr}/{m['name']}/{l['name']}"
+                r=dict(name=l['name'],kind='data',address=addr,
+                       evidence='Curated layout metadata/data-layout.json; '+l.get('comment','')+
+                       ' See enclosing object/field comments and docs/data.md.',spellings=[])
+                doc['symbols'][key]=r
+            spelling=next((s for s in r['spellings'] if s['module']==m['name'] and s['name']==l['name']),None)
+            if spelling is None:
+                spelling=dict(module=m['name'],name=l['name'],decorated=False);r['spellings'].append(spelling)
+            if l.get('public'):
+                spelling['public']=True
+                for s in r['spellings']:
+                    if s['name']==l['name']:s['public']=True
+        for e in m['externals']:
+            # Register cross-module references as spellings of the exported identity.
+            hits=[r for r in doc['symbols'].values() if any(s['name']==e['name'] for s in r['spellings'])]
+            if len(hits)!=1:raise ValueError('missing/ambiguous external data binding '+e['name'])
+            r=hits[0]
+            for s in r['spellings']:
+                if s['name']==e['name']:s['public']=True
+            if not any(s['module']==m['name'] and s['name']==e['name'] for s in r['spellings']):
+                r['spellings'].append(dict(module=m['name'],name=e['name'],decorated=False,public=True))
+    NAMES.write_text(json_text(doc))
+    print('Registered curated data labels; preserved all existing identity keys')
+
 def resolve_symbol(query,doc=None):
     doc=names() if doc is None else doc
     if query in doc['symbols']:return query,doc['symbols'][query]
@@ -279,11 +322,13 @@ def check_regions(doc,rs=None):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--init',action='store_true');p.add_argument('--regions',action='store_true');p.add_argument('--check',action='store_true')
+    p.add_argument('--register-data',action='store_true',help='add curated data labels to the existing ledger')
     a=p.parse_args()
     if a.init:
         if NAMES.exists():raise ValueError('names.json already exists; identities must not be regenerated')
         NAMES.write_text(json_text(bootstrap()))
     if a.regions:(ROOT/'metadata/naming-regions.json').write_text(json_text(build_regions()))
+    if a.register_data:register_data()
     if a.check:
         doc=names();defs=definitions()
         for d in defs:

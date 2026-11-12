@@ -1,70 +1,133 @@
-"""Bootstrap RAW data source from the locked expanded image; never used by build.py.
+"""Regenerate structured data ASM from the locked image and data-layout.json.
 
-Only data intervals are copied. Runtime DGROUP data comes from C0H/CH.LIB and
-the four C globals' bytes come from module.c. All relocated words are symbolic.
+Explicit maintenance command, never a build dependency. Edit the curated layout
+for names, fields and comments; payload bytes are taken only from the locked
+original. --check verifies generated sources without writing them.
 """
-import json
+import argparse
+from collections import Counter
 from common import ROOT, BUILD, MZ, load_json, sha256
 
+CLASSES = {'typed', 'payload', 'packed', 'UNKNOWN', 'padding'}
 FRAMES = [0x1a38,0x1e1f,0x2bc6,0x2bf6,0x2d9a,0x2f9e,0x2fb7,
           0x325b,0x3260,0x3265,0x326b,0x3274,0x3279,0x3444,0x3629,
           0x3632,0x3637,0x37a7,0x438a,0x4e83,0x5b63,0x5c09]
 
-def emit(mz, start, end):
-    out=[]; p=start; sites=set(mz.sites)
-    while p<end:
-        if p in sites:
-            out.append(f'    dw seg ext_{mz.word(p):04X} ; image {p:06X}')
-            p+=2; continue
-        stop=min([end]+[s for s in sites if s>p])
-        run=p+1
-        while run<stop and mz.image[run]==mz.image[p]:run+=1
-        if run-p>=8:
-            out.append(f'    db {run-p} dup (0{mz.image[p]:02X}h)');p=run;continue
-        q=p
-        while q<min(stop,p+64) and 32<=mz.image[q]<127 and mz.image[q]!=39:q+=1
-        if q-p>=4:
-            out.append("    db '"+mz.image[p:q].decode('ascii')+"'");p=q;continue
-        q=min(stop,p+16)
-        # Stop before a useful run or string so these remain legible.
-        for i in range(p+1,q):
-            if i+8<=stop and len(set(mz.image[i:i+8]))==1:q=i;break
-            if i+4<=stop and all(32<=b<127 and b!=39 for b in mz.image[i:i+4]):q=i;break
-        out.append('    db '+', '.join(f'0{b:02X}h' for b in mz.image[p:q]));p=q
-    return out
 
-def write(name, lines):
-    (ROOT/'src/data'/name).write_bytes(('\r\n'.join(lines)+'\r\n').encode('ascii'))
+def validate(doc):
+    if doc['schema'] != 1: raise ValueError('unsupported data layout schema')
+    names = set()
+    for m in doc['modules']:
+        pos = m['start']
+        for o in m['objects']:
+            if o['start'] != pos or o['end'] <= pos or o['class'] not in CLASSES:
+                raise ValueError(f"{m['name']}: incomplete object partition at {pos:04X}")
+            p = pos
+            for f in o['fields']:
+                if f['start'] != p or f['end'] <= p or f['end'] > o['end']:
+                    raise ValueError(f"{m['name']}: incomplete field partition at {p:04X}")
+                width = {'db':1, 'dw':2, 'dd':4, 'string':1}[f['type']]
+                if (f['end']-p) % width: raise ValueError('unaligned field extent')
+                p = f['end']
+            if p != o['end']: raise ValueError('incomplete object fields')
+            pos = o['end']
+        if pos != m['end']: raise ValueError('incomplete module partition')
+        for label in m['labels']:
+            if not m['start'] <= label['offset'] < m['end']: raise ValueError('label outside module')
+            if label['name'].lower() in names: raise ValueError('duplicate data symbol '+label['name'])
+            names.add(label['name'].lower())
+        offsets={l['offset'] for l in m['labels']}
+        for o in m['objects']:
+            if o['start'] not in offsets: raise ValueError('unlabelled data object')
+            if o['class']=='UNKNOWN' and not any(l['offset']==o['start'] and
+                    l['name'].upper().startswith('UNKNOWN') for l in m['labels']):
+                raise ValueError('UNKNOWN object requires an explicit UNKNOWN label')
+    spans = sorted((m['frame']*16+m['start'], m['frame']*16+m['end']) for m in doc['modules'])
+    expected = [(0xa670,0x1a370)]+[(a*16,b*16) for a,b in zip(FRAMES,FRAMES[1:])]+[(0x5c122,0x63c0c)]
+    if spans != expected: raise ValueError('data source extents changed')
+
+
+def accounting(doc=None):
+    doc = load_json('data-layout.json') if doc is None else doc
+    validate(doc)
+    totals = Counter()
+    for m in doc['modules']:
+        for o in m['objects']: totals[o['class']] += o['end']-o['start']
+    return dict(totals)
+
+
+def hexnum(n): return f'0{n:X}h'
+
+
+def literals(raw, typ):
+    if typ == 'string':
+        parts = []; p = 0
+        while p < len(raw):
+            q = p
+            while q < len(raw) and 32 <= raw[q] < 127 and raw[q] != 39: q += 1
+            if q > p:
+                parts.append("'"+raw[p:q].decode('ascii')+"'"); p = q
+            else: parts.append(hexnum(raw[p])); p += 1
+        return ['    db '+', '.join(parts)]
+    width = {'db':1, 'dw':2, 'dd':4}[typ]
+    vals = [int.from_bytes(raw[p:p+width], 'little') for p in range(0,len(raw),width)]
+    if len(vals) > 1 and len(set(vals)) == 1:
+        return [f'    {typ} {len(vals)} dup ({hexnum(vals[0])})']
+    count = 16//width
+    return ['    '+typ+' '+', '.join(hexnum(v) for v in vals[p:p+count]) for p in range(0,len(vals),count)]
+
+
+def render(m, image):
+    lines = ['; GENERATED by tools/datagen.py from metadata/data-layout.json and the locked image.',
+             '; Maintain names, field types and comments in that layout; use tools/rename.py for names.', '.286']
+    lines += [f"extrn {e['name']}:{e['type']}" for e in m['externals']]
+    lines += [f"{m['segment']} segment {m['alignment']} public '{m['segment_class']}'"]
+    lines += ['public '+l['name'] for l in m['labels'] if l.get('public')]
+    labels = {}
+    for l in m['labels']: labels.setdefault(l['offset'],[]).append(l)
+    for o in m['objects']:
+        lines += ['', f"; {m['frame']:04X}:{o['start']:04X}..{o['end']:04X} [{o['class']}] {o['comment']}"]
+        for f in o['fields']:
+            if f.get('comment'): lines.append('; '+f['comment'])
+            cuts = sorted({f['start'], f['end']} | {p for p in labels if f['start'] < p < f['end']})
+            if f.get('expr') and len(cuts) != 2: raise ValueError('symbolic field split by an interior label')
+            for a,b in zip(cuts,cuts[1:]):
+                for l in labels.get(a,[]):
+                    if l.get('comment'): lines += ['; '+line for line in l['comment'].splitlines()]
+                    lines.append(l['name']+' label '+l.get('type','byte')+f' ; @{a:04X}')
+                if f.get('expr'): lines.append('    '+f['type']+' '+f['expr'])
+                else:
+                    typ = f['type']; width = {'db':1,'dw':2,'dd':4,'string':1}[typ]
+                    if (b-a)%width or (a-f['start'])%width:
+                        typ = 'dw' if (b-a)%2 == 0 and (a-f['start'])%2 == 0 else 'db'
+                    lines += literals(image[m['frame']*16+a:m['frame']*16+b],typ)
+    lines += [m['segment']+' ends']
+    if m.get('group'): lines.append(m['group']+' group '+m['segment'])
+    return ('\r\n'.join(lines+['end'])+'\r\n').encode('ascii')
+
+
+def check_sources(image, doc=None):
+    """Read-only verifier guard: accounting must describe the actual declarations."""
+    doc=load_json('data-layout.json') if doc is None else doc
+    validate(doc)
+    for m in doc['modules']:
+        path=ROOT/'src/data'/(m['name']+'.ASM')
+        if path.read_bytes()!=render(m,image): raise ValueError('stale generated source '+path.name)
+
 
 def main():
-    raw=(BUILD/'oracle/UGH_X.EXE').read_bytes()
-    if sha256(raw)!=load_json('oracle.json')['expanded']['file_sha256']:raise ValueError('unlocked oracle')
-    mz=MZ(raw);(ROOT/'src/data').mkdir(exist_ok=True)
-    note=['; RAW data debt. Bootstrap: tools/datagen.py; edit this source thereafter.', '.286']
-    write('ZERO.ASM',note+["ZERODATA segment para public 'FAR_DATA'",'public ext_0A67','ext_0A67 label far',
-                         '    db 64768 dup (0)','ZERODATA ends','end'])
-    for a,b in zip(FRAMES,FRAMES[1:]):
-        lines = note+[f"BANK_{a:04X} segment para public 'FAR_DATA'",f'public ext_{a:04X}',f'ext_{a:04X} label far']
-        lines += emit(mz,a*16,b*16)+[f'BANK_{a:04X} ends']
-        write(f'B{a:04X}.ASM',lines+['end'])
-    a=0x5c090+0x92;b=0x5c090+0x7b7c
-    frames=sorted({mz.word(p) for p in mz.sites if a<=p<b}-{0x5c09})
-    lines=note+['; Menu option/string offset table at DGROUP:00DA..00EC.',
-                '; GAME:0652 indexes the option entries and copies the selected DS string.',
-                'extrn ext_013B:far']
-    lines+=[f'extrn ext_{f:04X}:far' for f in frames if f!=0x13b]
-    lines+=["_DATA segment word public 'DATA'",'public ext_5C09','ext_5C09 label far']
-    lines+=emit(mz,a,0x5c090+0xda)
-    labels={}
-    for off in range(0xda,0xee,2):
-        target=0x5c090+mz.word(0x5c090+off);symbol=f'dg_text_{target-0x5c090:04X}'
-        labels[target]=symbol;lines.append('    dw offset '+symbol)
-    p=0x5c090+0xee
-    for target,symbol in sorted(labels.items()):
-        lines+=emit(mz,p,target)+[symbol+' label byte'];p=target
-    lines+=emit(mz,p,b)+['_DATA ends','DGROUP group _DATA']
-    lines+=['end']
-    write('DGDATA.ASM',lines)
-    print('RAW data sources:',b-a+64768+(FRAMES[-1]-FRAMES[0])*16,'bytes')
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--check',action='store_true'); args = parser.parse_args()
+    doc = load_json('data-layout.json'); validate(doc)
+    raw = (BUILD/'oracle/UGH_X.EXE').read_bytes()
+    if sha256(raw) != load_json('oracle.json')['expanded']['file_sha256']: raise ValueError('unlocked oracle')
+    mz = MZ(raw)
+    if args.check:
+        check_sources(mz.image,doc)
+    for m in doc['modules']:
+        path = ROOT/'src/data'/(m['name']+'.ASM'); data = render(m,mz.image)
+        if not args.check: path.write_bytes(data)
+    print('Structured data sources:',accounting(doc),'; total',sum(accounting(doc).values()))
 
-if __name__=='__main__':main()
+
+if __name__ == '__main__': main()

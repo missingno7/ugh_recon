@@ -25,7 +25,9 @@ build/link/. `build.py` invokes it afresh in build/link/proof/; nobody edits its
 outputs. The plain build copies the maintained sources directly to
 build/link/plain/. Both variants independently assemble all sources, compile C,
 stage hash-checked C0H.OBJ/CH.LIB and link with pinned tools, using fresh objects.
-`datagen.py` remains an explicit data bootstrap, never a build dependency.
+`datagen.py` explicitly regenerates structured data modules from the locked image
+and `metadata/data-layout.json`; it is never a build dependency. `verify.py`
+checks source/layout agreement read-only before building. See `docs/data-source.md`.
 
 The layout header states that its ordering was derived from the original
 relocation table. It is a modern **reproducing device, not recovered source
@@ -178,7 +180,19 @@ this stream does not uniquely establish a historical combined GAME+data object.
 All exported code hooks, C-visible sound globals and far-bank selectors are real
 PUBLIC/EXTRN labels/relocatable aliases. The module.c BIND/OMF comments are only
 independent object-judge expectations; the natural linker never consumes them.
-Numeric DS equates remain where full symbol conversion is unnecessary.
+DGDATA now defines the real game variables and typed objects. GAME/TIMER use 256
+real data EXTRNs in place of numeric views. Three GAME views remain absolute to
+preserve pinned TASM's plain relocation emission: ActorDescriptors (29AD),
+ds_2A2D (2A2D), ActorOverlayOrScriptCallbacks (2C2D). Their storage labels exist
+in DGDATA and share the original ledger identities. An external OFFSET, even
+behind an EQU, adds fixups and changes the plain order; subtracting two external
+offsets is rejected by TASM. Full details and controls are in docs/data-source.md.
+
+The eight DGDATA segment relocation sites and the proof-only deferred selector
+declarations are unchanged. New near pointer fields use real OFFSET labels,
+including code callbacks and sprite-directory bank offsets. These add ordinary
+OMF offset fixups, not DOS segment relocations. The proof remains exact in all
+525 relocation positions; the plain build retains exactly 35 differences.
 
 The eight additional allocation paragraphs are still represented by the
 128-byte trailing uninitialized reservation. Its historical owner/use and exact
@@ -196,15 +210,25 @@ historical source attribution.
 | runtime_library_data | 834 |
 | compiler_switch_tables | 44 |
 | C_initialized_data | 4 |
-| RAW_assembly_owned_data | 4,584 |
-| RAW_far_banks_and_game_DGROUP | 365,818 |
-| assembler_and_linker_padding | 31 |
+| typed_and_labelled_data | 100,103 |
+| known_format_payload_data | 223,409 |
+| packed_data_streams | 42,138 |
+| UNKNOWN_assembly_owned_data | 4,584 |
+| UNKNOWN_far_banks_and_game_DGROUP | 9 |
+| assembler_and_linker_padding | 190 |
 | UNKNOWN_file_bytes | 0 |
 | **Load image total** | **409,278** |
 
-RAW debt is **370,402 file bytes**, plus **128 virtual bytes** of unknown
-owner/use. A known assembly owner does not establish the meaning of opaque
-copied data. ASM contributions include 30,470 bytes total: 25,885 instruction
+UNKNOWN data debt is **4,593 file bytes**, plus **128 virtual bytes** of unknown
+owner/use. The structured data modules account for 365,818 bytes: 100,103 typed,
+223,409 known-format payload, 42,138 packed, 159 padding and nine UNKNOWN.
+The nine are DGROUP 00D6..00DA (four FF bytes), 0CF9..0CFA (one zero byte,
+alignment candidate only) and 3345..3349 (four zero bytes).
+The other 4,584 remain conservatively UNKNOWN assembly-owned data; this work
+does not claim a format classification for those code-module data extents.
+A known assembly owner does not establish the meaning of opaque copied data.
+Data-format classifications never count as exact ASM/C instruction reconstruction.
+ASM contributions include 30,470 bytes total: 25,885 instruction
 bytes, 4,584 owned data bytes and one padding byte. The C contribution is 7,074
 bytes, including 44 switch-table bytes; its four initialized globals are separate.
 

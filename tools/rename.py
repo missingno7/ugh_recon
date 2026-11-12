@@ -150,6 +150,15 @@ def prepare(pairs,evidence=None):
         amap['modules'][i]['name']=m['name']
         amap['modules'][i]['bindings']={k.upper():v for k,v in amap['modules'][i]['bindings'].items()}
     updates[ROOT/'metadata/asm-map.json']=S.json_text(amap).encode()
+    data_layout=ROOT/'metadata/data-layout.json'
+    if data_layout.exists():
+        data=json.loads(data_layout.read_text())
+        # Public tokens have one binding across every generated data module.
+        # Apply each module's substitutions to its curated names/expressions too.
+        for i,m in enumerate(data['modules']):
+            data['modules'][i]=replace_json(m,tables.get(m['name'],{}))
+            data['modules'][i]['name']=m['name']
+        updates[data_layout]=S.json_text(data).encode()
     inv=ROOT/'src/c/inventory.json'
     updates[inv]=S.json_text(replace_json(json.loads(inv.read_text()),tables.get('C',{}))).encode()
     regions=ROOT/'metadata/naming-regions.json'

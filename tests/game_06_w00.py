@@ -177,3 +177,49 @@ for mask,flags,ax in ((0,0x2,0),(1,0x203,0xabcd),(5,0x602,0xff00),(15,0x8d7,0x12
     CASES.append(Case(f'VGA enable mask={mask} flags={flags:04x}','GAME:EnableAllVgaWritePlanes',
                       setup=setup,regs=dict(AX=ax),flags=flags,flag_inputs=('CF',),
                       out_regs=ALL,check=check))
+
+
+# Shared-service integration cases.
+
+import struct
+for routine,values in [('WaitVerticalRetraceActive',[8]),('WaitVerticalRetraceActive',[0,1,0x80,0xff]),
+                       ('WaitVerticalRetraceInactive',[0]),('WaitVerticalRetraceInactive',[8,9,0xf8,0x81])]:
+    def setup(m,values=values):m.device.script(0x3da,values)
+    CASES.append(Case(routine+str(values),'GAME:'+routine,setup=setup,flags=0x602,
+        out_regs=GENERAL+('CF','PF','ZF','SF','OF','IF','DF')))
+for routine in ('InstallKeyboardSequenceInterrupt','RestoreKeyboardInterrupt','InstallDosCriticalErrorFailHandler'):
+    for flags in (2,0x202,0x602):
+        def setup(m):
+            m.write(0,0x24,struct.pack('<HH',0x1234,0x5678));m.write(0x40,0x1a,struct.pack('<HH',0x1e,0x2c))
+        CASES.append(Case(routine+f' flags {flags:04x}','GAME:'+routine,setup=setup,regs=dict(DS=DATA_SEG),
+            flags=flags,out_regs=GENERAL+('CF','PF','ZF','SF','OF','IF','DF')))
+for seconds in (0,1,59):
+    def setup(m,seconds=seconds):m.device.script(0xfffe,[(23<<24)|(59<<16)|(seconds<<8)|99])
+    def check(m,r,seconds=seconds):assert m.rb('GAME:RandomSecondsSeedByte')==seconds and r['CX']==0x173b
+    CASES.append(Case(f'DOS seconds {seconds}','GAME:SeedRandomFromDosSeconds',setup=setup,check=check,out_regs=ALL))
+for scan,index,candidate,control in ((0x1e,0,0,0xffff),(0x9e,0,0,0xffff),(0xe0,0,0,0xffff),
+                                   (0x1e,0,255,0xffff),(0x1e,1,0,0xffff),(0x1e,0,0,0)):
+    def setup(m,scan=scan,index=index,candidate=candidate,control=control):
+        m.device.script(0x60,[scan]);m.wb('DGROUP:KeyboardSequenceIndex',index)
+        m.write(DATA_SEG,m.off('DGROUP:KeyboardSequenceRecords'),bytes((0x1e,255,0,0,0x80,candidate,255)))
+        m.ww('DGROUP:PlayerOneControlMode',control)
+    CASES.append(Case(f'raw keyboard {scan:02x}/{index}/{candidate}/{control:04x}',
+        'GAME:HandleKeyboardScanInterrupt',setup=setup,kind='iret',flags=0xed7,out_regs=ALL))
+for mask,limit,values in ((0,7,[0xff,0]),(1,7,[0xff,0xff,1,1,0]),(15,7,[0,0,0,0,0,0]),
+                          (15,3,[0xff,0xff,15,15,15]),(1,0,[0xff,0xff]+[1]*65536),
+                          (8,3,[0xff,0xff,15,7]),(2,4,[0xff,0xff,15,13]),(4,4,[0xff,0xff,15,11])):
+    def setup(m,mask=mask,limit=limit,values=values):
+        m.device.script(0x201,values);m.wb('DGROUP:JoystickEnabledAxisMask',mask);m.ww('DGROUP:JoystickSampleLoopLimit',limit)
+    CASES.append(Case(f'joystick mask={mask} limit={limit}','GAME:SampleJoystickAxesAndButtons',
+        setup=setup,regs=dict(DS=DATA_SEG),flags=0x602,out_regs=GENERAL+('CF','PF','ZF','SF','OF','IF','DF')))
+
+for scan,index,states,control in ((0xe0,0,(0,0),0xffff),(0x48,1,(0,0),0xffff),
+        (0x50,1,(255,0),0xffff),(0x50,1,(255,0),0x7fff),(0x7f,0,(0,0),0xffff),
+        (0xe0,0,(255,255),0xffff)):
+    def setup(m,scan=scan,index=index,states=states,control=control):
+        m.device.script(0x60,[scan]);m.wb('DGROUP:KeyboardSequenceIndex',index)
+        m.write(DATA_SEG,m.off('DGROUP:KeyboardSequenceRecords'),
+            bytes((0xe0,0x48,255,0,0x80,states[0],0xe0,0x50,255,2,0x40,states[1],255)))
+        m.ww('DGROUP:PlayerOneControlMode',control);m.ww('DGROUP:PlayerOneControlMode',control,2)
+    CASES.append(Case(f'keyboard multi-candidate {scan:02x}/{index}/{states}/{control:04x}',
+        'GAME:HandleKeyboardScanInterrupt',setup=setup,kind='iret',flags=0xed7,out_regs=ALL))

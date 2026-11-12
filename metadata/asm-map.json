@@ -4978,18 +4978,6 @@
           ]
         },
         {
-          "offset": 18049,
-          "evidence": [
-            "DGROUP far pointer at image 5C13B"
-          ]
-        },
-        {
-          "offset": 18817,
-          "evidence": [
-            "DGROUP far pointer at image 5C13F"
-          ]
-        },
-        {
           "offset": 19585,
           "evidence": [
             "call at 0B84"
@@ -5519,6 +5507,23 @@
         },
         {
           "start": 17972,
+          "end": 18049,
+          "kind": "code"
+        },
+        {
+          "start": 18049,
+          "end": 18817,
+          "kind": "data",
+          "evidence": "Base palette: far pointer at GAME:4614, 192 words duplicated at 466A."
+        },
+        {
+          "start": 18817,
+          "end": 19585,
+          "kind": "data",
+          "evidence": "Faded palette: DGROUP:00AF far pointer; GAME:4E42 writes 768 scaled components."
+        },
+        {
+          "start": 19585,
           "end": 19933,
           "kind": "code"
         },

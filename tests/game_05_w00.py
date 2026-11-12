@@ -240,3 +240,38 @@ CASES += [sprite_case(298,-1,-2,0),sprite_case(547,-32768,191,0),
           sprite_case(298,3,20,20,width=0,height=0)]
 for sprite in (0,216,217,297,298,546,547,600):
     CASES.append(sprite_case(sprite,3,30,32,real=True))
+
+
+# Shared-service integration cases.
+
+for mask in (1,5,15):
+    for mode in (0,0x10):
+        for reverse in (False,True):
+            for count in (0,1,13):
+                def setup(m,mask=mask,mode=mode,count=count,reverse=reverse):
+                    m.device.map_mask=mask;m.device.gc[5]=mode
+                    for p in range(4): m.device.planes[p*65536:(p+1)*65536]=bytes((p*37+i*13)&255 for i in range(256))*256
+                    m.ww('GAME:DrawPagePointer',0xfffa if reverse else 0x1200)
+                    m.ww('GAME:BackgroundPagePointer',0x6000);m.ww('GAME:VgaPlaneCopyByteCount',count)
+                CASES.append(Case(f'save latch page mask={mask} mode={mode} reverse={reverse} n={count}',
+                    'GAME:SaveDrawPageBackground',setup=setup,flags=0x602 if reverse else 0x202,
+                    out_regs=('AX','BX','CX','DX','SI','DI','BP','CF','PF','ZF','SF','OF','IF','DF')))
+for x,y,w,h in ((0,0,1,1),(3,2,16,3),(0xffff,0xffff,9,2),(0x8000,0,0,1),(0,0,0,0),(0x7fff,5,0xffff,2)):
+    for mask in (5,15):
+        def setup(m,mask=mask):
+            m.device.map_mask=mask
+            for p in range(4):m.device.planes[p*65536:(p+1)*65536]=bytes((i*17+p*29)&255 for i in range(256))*256
+            m.ww('GAME:DrawPagePointer',0x4000);m.ww('GAME:BackgroundPagePointer',0)
+        CASES.append(Case(f'restore rectangle {x:04x}/{y:04x}/{w:04x}/{h:04x} mask={mask}',
+            'GAME:RestoreBackgroundRectangle',setup=setup,regs=dict(AX=x,BX=y,CX=w,DX=h),flags=0x602,
+            out_regs=('AX','BX','CX','DX','SI','DI','BP','CF','PF','ZF','SF','OF','IF','DF')))
+for column,row in ((0,0),(1,2),(0xffff,0xffff)):
+    CASES.append(Case(f'restore tile {column}/{row}','GAME:RestoreTileBackground',setup=setup,
+        regs=dict(AX=column,BX=row),flags=0x602,out_regs=('AX','BX','CX','DX','SI','DI','BP','IF','DF')))
+for water in (0,2,0xffff,0x8000):
+    def setup(m,water=water):
+        m.ww('DGROUP:WaterYPixels',water);m.ww('GAME:BackgroundPagePointer',0);m.ww('GAME:DrawPagePointer',0x4000)
+        for i in range(6):m.ww('DGROUP:RainPreviousOffsets',0x123+i,2*i)
+        for p in range(4):m.device.planes[p*65536:(p+1)*65536]=bytes((i+p*31)&255 for i in range(256))*256
+    CASES.append(Case(f'restore rain water={water:04x}','GAME:RestoreRainBackground',setup=setup,
+        regs=dict(DS=0x6c19),out_regs=('AX','BX','CX','DX','SI','DI','BP','CF','PF','AF','ZF','SF','OF','IF','DF')))

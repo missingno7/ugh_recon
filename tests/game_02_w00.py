@@ -242,3 +242,54 @@ def alternate_setup(m):
     word(m,ds,m.off('DGROUP:ActorUpdateOrScriptCursor')+2,65535)
 CASES.append(Case('interpreter uses dynamic DS','GAME:AdvanceDemoScripts',setup=alternate_setup,
                   regs=dict(DS=0x7500),out_regs=OUT))
+
+
+# Shared-service integration cases.
+
+for callbacks in ([],['IgnoreActorState'],['BeginStonePickupWait','IgnoreActorState']):
+    def setup(m,callbacks=callbacks):
+        for i,callback in enumerate(callbacks):
+            m.ww('DGROUP:ActorDescriptors',m.off('DGROUP:Data_78DC'),2*i)
+            m.ww('DGROUP:ActorUpdateOrScriptCursor',m.off('GAME:'+callback),2*i)
+        m.ww('DGROUP:ActorDescriptors',0xffff,2*len(callbacks))
+    CASES.append(Case('actor dispatcher '+str(callbacks),'GAME:DispatchActorUpdates',setup=setup,
+        regs=dict(DS=DATA_SEG),out_regs=OUT))
+# Untouched real header callback and real first records; setup never runs code.
+for script in ('Data_1040','Data_1E02','Data_2586'):
+    def setup(m,script=script):
+        base=m.off('DGROUP:'+script)
+        assert m.rw('DGROUP:'+script,6)==m.off('GAME:IgnoreActorState')
+        for name,value in (('ActorUpdateOrScriptCursor',base+8),('ActorOverlayOrScriptCallbacks',m.rw('DGROUP:'+script,6)),
+                           ('ActorAnimationCountdowns',1),('ActorAnimationByteOffsets',m.rw('DGROUP:'+script,4)),
+                           ('ActorX32',m.rw('DGROUP:'+script)*32),('ActorY32',m.rw('DGROUP:'+script,2)*32),
+                           ('ds_2ACD',0),('ds_2A2D',base+8)):
+            m.ww('DGROUP:'+name,value)
+        m.ww('DGROUP:ActorUpdateOrScriptCursor',65535,2)
+    CASES.append(Case('integrated real script '+script,'GAME:AdvanceDemoScripts',setup=setup,
+        regs=dict(DS=DATA_SEG),out_regs=OUT))
+
+# Compose every already translated actor-table target with a returning original
+# descriptor fixture from its own suite. Leading Ignore entries preserve the
+# tested slot index (6); the sentinel follows it. No callback/table is stubbed.
+from difftest import load_suite
+from dataclasses import replace
+actor_targets=('WaitForPassengerPlatform','PlacePassengerOnPlatform','AnimatePassengerArrival',
+    'BeginPassengerPlatformWait','BeginPassengerDestinationDisplay','BeginPassengerQuestionDisplay',
+    'BeginPassengerApproach','BoardPassenger','UpdateCarriedPassenger','WalkPassengerToExit',
+    'BeginPassengerDeparture','AnimatePassengerDeparture','IgnoreActorState','BeginPassengerResurfacing',
+    'UpdatePassengerResurfacing','BeginPassengerSinking','UpdatePassengerSinking','BeginPassengerFloating',
+    'UpdatePassengerFloating','UpdateFloatingDestinationDisplay','UpdateFloatingQuestionDisplay',
+    'UpdateFloatingPassengerApproach','IgnoreWaterbornePassengerState','BeginStonePickupWait',
+    'AttachStoneToPlayer','WaitForStoneRelease','UpdateThrownStone')
+actor_cases=load_suite('game_03_w00').CASES
+for target in actor_targets:
+    entry=next(c for c in actor_cases if c.routine=='GAME:'+target)
+    def setup(m,entry=entry,target=target):
+        entry.setup(m)
+        for i in (0,2,4):
+            m.ww('DGROUP:ActorDescriptors',m.off('DGROUP:Data_7720'),i)
+            m.ww('DGROUP:ActorUpdateOrScriptCursor',m.off('GAME:IgnoreActorState'),i)
+        m.ww('DGROUP:ActorUpdateOrScriptCursor',m.off('GAME:'+target),6)
+        m.ww('DGROUP:ActorDescriptors',0xffff,8)
+    CASES.append(replace(entry,routine='GAME:DispatchActorUpdates',title='actor dispatch native '+target,
+        setup=setup,check=None,out_regs=OUT))

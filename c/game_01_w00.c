@@ -1,15 +1,5 @@
 #include "ugh.h"
 
-/* SHARED-REQUEST: rd16_linear in ugh.h. A single x86 word operand starting at
- * FFFFh reads its high byte at the next linear address, unlike a second byte
- * instruction whose offset was incremented and wrapped. Preserve A20 here. */
-static uint16_t rd16_linear(uint16_t segment, uint16_t offset) {
-    uint32_t address=lin(segment,offset);
-    uint8_t low=ugh_read(address);
-    uint8_t high=ugh_read(address+1);
-    return (uint16_t)(low | (uint16_t)high*256u);
-}
-
 /* GAME:001C..001F are each one near RET, despite their far declarations in
  * module.c and SOUND. These adapters preserve all registers, flags and memory;
  * the harness/caller owns the two-byte near return. They assign no game result.

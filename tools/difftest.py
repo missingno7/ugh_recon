@@ -24,14 +24,7 @@ class Regs(C.Structure):
     _fields_=[(n.lower(),C.c_uint16) for n in REG_NAMES]
 
 
-class IoEvent(C.Structure):
-    _fields_=[(n,C.c_uint32) for n in ('kind','port','size','value')]
-
-
-class DeviceState(C.Structure):
-    _fields_=[('planes',C.c_uint8*(4*65536)),('latch',C.c_uint8*4),
-              ('seq_index',C.c_uint8),('map_mask',C.c_uint8),('gc_index',C.c_uint8),('read_map',C.c_uint8),
-              ('count',C.c_uint32),('error',C.c_uint32),('log',IoEvent*270000)]
+from emu import IoEvent, DeviceState
 
 
 @dataclass
@@ -78,6 +71,7 @@ def run(case,m,dll,poison=False):
     initial_regs=m.prepare(case.routine,regs,case.kind,args,flags)
     initial=m.snapshot()
     device_initial=m.device.state()
+    device_initial_logs=list(m.device.log)
     result=m.run(case.budget)
     asm=m.snapshot()
     if case.check: case.check(m,result)
@@ -86,6 +80,8 @@ def run(case,m,dll,poison=False):
     dll.ugh_devices_reset()
     dev=dll.ugh_device_state().contents
     C.memmove(C.addressof(dev),device_initial,len(device_initial))
+    dev.count=len(device_initial_logs)
+    for i,event in enumerate(device_initial_logs):dev.log[i]=IoEvent(*event)
     r=Regs(**{n.lower():v for n,v in initial_regs.items()})
     fn=getattr(dll,case.cfunc or 'c_'+case.routine.split(':')[1])
     fn.argtypes=[C.POINTER(Regs)]; fn.restype=C.c_int

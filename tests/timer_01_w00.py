@@ -217,3 +217,26 @@ for i in range(12):
     flags=(0x202,0x602,0x2,0x402)[i%4]
     CASES.append(setter(f'seeded setter {i}',periods,index,value,flags))
     CASES.append(remover(f'seeded remover {i}',periods,index,flags))
+
+
+# Shared-service integration cases.
+
+import struct
+for operation in ('InstallTimerInterrupt','RestoreTimerInterrupt'):
+    for installed in (0,1,2,0xffff):
+        for initial_flags in (0x202,0x602,0x2):
+            def setup(m,installed=installed):
+                m.ww('TIMER:TimerInterruptInstalled',installed)
+                m.write(0,0x20,struct.pack('<HH',0x1357,0x2468))
+                m.ww('DGROUP:PreviousInt08Offset',0xabcd); m.ww('DGROUP:PreviousInt08Segment',0x4567)
+                for n in ('TimerCallbackDueBySlot','TimerRemainingLowBySlot','TimerRemainingHighBySlot'):
+                    for i in range(16): m.ww('DGROUP:'+n,0x9234+i,2*i)
+            CASES.append(Case(f'{operation} installed={installed:04X} flags={initial_flags:04X}',
+                'TIMER:'+operation,setup=setup,kind='far',flags=initial_flags,
+                out_regs=tuple(x for x in OUT if x!='AF')))
+for flags in (2,0x202,0x602,0xcd7):
+    def setup(m):
+        seg,off=m.address('GAME:FailDosCriticalError')
+        m.ww('DGROUP:PreviousInt08Offset',off);m.ww('DGROUP:PreviousInt08Segment',seg)
+    CASES.append(Case(f'chain accepted IRET target flags={flags:04X}',
+        'TIMER:ChainSavedTimerInterrupt',setup=setup,regs=dict(DS=0x6c19),kind='far',flags=flags,out_regs=OUT))

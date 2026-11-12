@@ -144,8 +144,7 @@ EXPORT int c_AdvanceFallingItem(Regs *r) {
         r->ax=sub16(r,r->ax,rd16(r->ds,(uint16_t)(r->si+2)),0);
         r->ax=shl5(r,r->ax);
         wr16(r->ds,cell(D(FallingItemY),r->bx),r->ax);
-        if(rd16(r->ds,(uint16_t)(r->si+8))==G(LandFallingItem)) return c_LandFallingItem(r);
-        return UGH_BAD_CALLBACK;
+        return ugh_dispatch(r->cs,rd16(r->ds,(uint16_t)(r->si+8)),r);
 next:
         r->di=add16(r,r->di,2,0);
     }
@@ -254,8 +253,21 @@ EXPORT int c_DrawWaterSurface(Regs *r) {
     uint16_t old=r->si; r->si=(uint16_t)(r->si<<1);
     flag(r,CF,old&0x8000); flag(r,OF,((old^r->si)&0x8000)!=0); szp(r,r->si,16);
     uint16_t target=rd16(r->cs,cell(G(WaterSurfaceDispatch),r->si));
-    if(target==G(DrawWaterSurfaceFrame0)) return c_DrawWaterSurfaceFrame0(r);
-    if(target==G(DrawWaterSurfaceFrame1)) return c_DrawWaterSurfaceFrame1(r);
-    if(target==G(DrawWaterSurfaceFrame2)) return c_DrawWaterSurfaceFrame2(r);
-    return UGH_BAD_CALLBACK;
+    return ugh_dispatch(r->cs,target,r);
+}
+/* Near; FFFE is active, FFFF alone is skipped; updates descend through 12 slots.
+ * Target identity comes from RAM, and unknown/untranslated callbacks fail. */
+/* TRANSLATES GAME:DispatchFallingItems */
+EXPORT int c_DispatchFallingItems(Regs *r) {
+    r->bx=22;
+    do {
+        uint16_t sprite=rd16(r->ds,(uint16_t)(D(FallingItemSprites)+r->bx));
+        sub16(r,sprite,0xffff,0);
+        if(sprite!=0xffff) {
+            uint16_t target=rd16(r->ds,(uint16_t)(D(FallingItemCallbacks)+r->bx));
+            int status=ugh_call_near(target,(uint16_t)(G(DispatchFallingItems)+0x11),r); if(status) return status;
+        }
+        r->bx=sub16(r,r->bx,2,0);
+    } while((int16_t)r->bx>=0);
+    return UGH_OK;
 }

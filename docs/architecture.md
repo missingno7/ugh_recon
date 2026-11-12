@@ -13,7 +13,9 @@ original relative placement, including runtime, GAME, SOUND, C, TIMER, the zero
 workspace, 23 far-data frames and DGROUP. Segment:offset sums above FFFFFh remain
 addressable (A20 enabled, as in the reference harness). Offset arithmetic wraps
 through explicit uint16_t conversions. Byte/word/dword helpers perform little
-endian, unaligned access; no native pointer represents an original far pointer.
+endian, unaligned access. Effective offset calculations wrap before each operand;
+bytes within a single word/dword operand stay physically contiguous across FFFFh.
+This also applies above 1 MiB (A20 enabled); no native pointer represents an original far pointer.
 VGA aperture detection uses the physical address, including segment aliases.
 
 `Regs` carries AX/BX/CX/DX/SI/DI/BP/SP/CS/DS/ES/SS/IP/FLAGS. **Both DS and ES flow
@@ -42,17 +44,26 @@ contract. ICE's helpers and its physically separated match tail demonstrate this
 they are inline within c/ice.c and count as reached, not independently translated.
 Indirect dispatch reads original offset/segment words and resolves those addresses
 to translated functions; never replace a stored callback with a native pointer.
-`ugh_dispatch` currently accepts SOUND:ClearSoundState only. This exercises the
-TIMER indirect call without faking an interrupt vector or a no-op callback.
-The ISR pilot's callback register preparation is sufficient for this no-argument
-callee; adding targets that consume working registers/stack requires reproducing
-those call-site values and adding cases before expanding the dispatcher.
+`tools/cgen.py` generates `c/ugh_adapters.h`, package include headers and
+`c/dispatch_table.inc` from actual TRANSLATES/export pairs. The common header
+also declares pending plan entries. `ugh_resolve` is the single original-address
+resolver: it returns an implemented adapter or NULL. `ugh_dispatch` returns
+UGH_BAD_CALLBACK for untranslated/unknown targets, never default success. It
+flows DS/ES and working registers, supplies the target CS during execution, and
+restores the calling CS. It does not construct a CALL frame or implement RET.
+Near CALL sites use `ugh_call_near` with the measured original return IP;
+tail transfers retain the existing frame. Water's saved-DS tail ABI is retained.
+TIMER's far callback site supplies its ISR save area and original far return.
+`ugh_dispatch_interrupt` accepts only the explicit known IRET entries, executes
+their body, consumes the six-byte frame and restores CS/IP/FLAGS. PUSHF/CALL FAR
+keeps live IF/TF; hardware delivery clears them before entering the handler.
+External saved BIOS handlers remain unsupported unless explicitly modeled.
 
 GAME:001C..001F have near RET despite far C declarations. Preserve actual stack
 effects when translating callers: model the incoming return words and entry ABI,
-or report a bounded nonreturn. Do not silently replace RET by RETF. These hooks,
-self-referential tricks outside ICE and general callback dispatch remain future
-work, not claims made by this pilot.
+or report a bounded nonreturn. Do not silently replace RET by RETF. General
+resource-loader call chains, arbitrary corrupted targets and self-referential
+tricks outside ICE remain outside the composed certificate.
 
 ## Addresses and rebuilt execution
 
@@ -108,64 +119,61 @@ compiler helpers only with differential evidence for the corresponding callers.
 
 ## Platform and deterministic time
 
-Platform services are byte/word port transactions, VGA aperture reads/writes,
-software interrupts, and explicit service points (platform.h). Python Devices is
-the oracle-side implementation; c/platform.c is the C implementation. The pilot
-implements unchained full-mask VGA write mode 0/read mode 0, sequencer map mask,
-latches, and ordered PIC/PIT writes. No other VGA register mode, retrace, DOS,
-OPL, DSP, DMA, keyboard or joystick request is silently serviced. Independent
-known-answer checks cover the implemented subset; differential agreement alone
-does not prove the device model.
+Platform services are port transactions, physical VGA accesses, software
+interrupts and named polling service points. `tools/emu.py:Devices` independently
+implements the emulator boundary; `c/platform.c` and `c/memory.c` implement the C
+boundary. The ctypes layout is checked against `sizeof(Devices)` before every
+suite. RAM, complete device state (including script cursors, files and handles),
+and ordered I/O/DOS/IRQ logs compare. Unsupported requests and exhausted scripts
+fail. `python tests/_platform_kat.py` supplies independent known answers for each
+service, including the contiguous-operand regression.
 
-Future services and their observable contracts:
-
-| Service | Contract to implement once per side |
+| Service | Implemented narrow fixture contract |
 |---|---|
-| VGA | 4x64KiB planes; GC read/write modes, latches, rotate/logic/masks; SEQ, CRTC, attribute flip-flop, DAC RGB6/index cycling; BIOS video mode/state; scripted 3DAh retrace |
-| IRQ/PIT/PIC | IVT get/set, mask/EOI log; 1193182Hz integer PIT clocks; divisor 0=65536; deliver IRQ0 with IRET register/flag context; keep game timer slots in original DGROUP |
-| Keyboard | ordered raw port-60h scan bytes/IRQ1; BIOS INT16 AH00/01 queue and ZF; no implicit scan filtering |
-| Joystick | port-201h trigger and deterministic read-index axis decay/buttons; retain software-count calibration semantics |
-| AdLib | OPL 388/389 address/data/status transactions with scripted probe/timer status; translate event interpreters and leave their state in SOUND |
-| DSP/DMA | DSP base+6/+A/+C/+E reset/data/status protocol, DMA1 address/page/count/flip-flop, PIC mask/IRQ; expose the original eight-voice mixer's output bytes |
-| DOS files | in-memory named-file fixture service, create/truncate/open/read/write/close, DOS AX/CF, lowest free handles and short/error results; compare requests, contents, cursors and handles |
-| Other DOS/BIOS | vector get/set, critical-error action, time AH2C, video INT10, exit AH4C; fixture/configuration only, never real file writes or process exit in tests |
+| VGA | Four 64-KiB unchained planes; reads fill all latches, read modes 0/1; write modes 0..3, rotate/logic/set-reset/bit-mask and sequencer map mask. Mode 1 copies latches, mode 0/mask zero retains latches. GC 0..8, SEQ 0..4, CRTC 0..24, attribute index/data phase and DAC RGB6/index cycling are stored device state. Scripts provide raw 3DAh status; reads reset attribute phase. |
+| IRQ/PIT/PIC | IVT in original RAM; PIC mask and ordered EOI, PIT command 36h and low/high divisor bytes (zero means 65536). Finite explicit site/visit IRQ events carry integer PIT clocks. Enabled, unmasked delivery reads IVT[8+IRQ], creates the real saved FLAGS/CS/IP frame, clears IF/TF and executes an accepted handler to IRET. |
+| Keyboard | Raw 60h script bytes including prefixes and breaks. INT16 AH01 peeks and sets ZF; AH00 consumes one BIOS key word. An empty AH01 queue sets ZF; an empty blocking AH00 request fails. The BIOS word queue is a separate fixture, without implicit conversion from raw scans. |
+| Joystick | OUT 201h logs actual AL and rewinds that port's finite raw sample script. Every IN consumes exactly one raw byte. Two button reads and axis priority/counting remain in translated code. |
+| AdLib | 388h address, 389h register data; 388h probe/timer status is scripted. OPL event interpretation, delays, channels and track state remain original SOUND RAM. |
+| DSP/DMA | DSP probed bases 200h..260h: explicit status/data scripts at +Ch/+Ah/+Eh authorize reset/command writes at +6h/+Ch. No implicit ready/AA response or invented DMA completion. DMA1 address/count/page/mode/mask and shared low/high flip-flop, PIC mask/EOI are stored. IRQ delivery requires an event fixture. |
+| DOS files | Eight case-sensitive named in-memory files of at most 8192 bytes, handles 5..31 allocated lowest first. AH3C creates/truncates, 3D opens, 3E closes, 3F reads, 40 writes/truncates at CX=0. AX/CF report results; invalid handles, missing files and access errors are explicit. io_limit supplies short transfers; dos_error injects one consumed error. Contents, length, cursors and handles compare; no real host file is opened. |
+| Other DOS/BIOS | INT21 AH25 stores DS:DX to IVT[AL]; AH35 returns ES:BX, otherwise preserving registers/FLAGS. AH2C consumes configured CH/CL/DH/DL. AH4C records fixture exit code; it never exits the host. INT10 AH00 records mode/page; AH0F returns configured mode/columns/page. These are boundary fixtures, not a DOS/BIOS boot or VGA BIOS initialization emulation. |
 
-No wall clock drives tests. The pilot invokes each TIMER ISR synchronously from
-a prepared snapshot; no asynchronous IRQ arrives inside a call. The dispatcher
-subtracts NextPitQuantum, marks expired slots, invokes due callbacks in descending
-slot order, acknowledges IRQ0 and sends only the low earliest-interval word to
-the PIT. A single expiration adds the period once, without catch-up. Registration
-preserves FLAGS. The music initializer requests 1843h clocks for TickAdlxPlayback;
-fade scheduling requests 0001:D1EBh. Event handlers can change these intervals.
-Those are not a universal game/frame frequency.
+`m.device.script(port, values)` run-length encodes at most 128 runs in one of
+16 independent script slots. Port FFFFh configures BIOS key words; FFFEh encodes
+DOS time as hour/minute/second/hundredth bytes. Configure fields directly during
+setup; no fixture may execute the oracle to manufacture expected state.
+`m.device.file(name, bytes)` configures a file fixture. Bounds are explicit fixture
+capacities, not clipping added to game algorithms.
 
-For future wait tests, supply a deterministic event script in integer PIT clocks
-at SERVICE_RETRACE, SERVICE_TIMER_WAIT and SERVICE_IO. Advance time at the same
-named polling boundary on both sides; deliver enabled IRQs in a fixed order and
-model IRET. Polls must exhaust a finite script or make progress; never use host
-sleep or arbitrary instruction-count time to escape a wait. Retrace phase, raw
-input and DOS delays belong to that script. ISR/main-code interleavings outside
-these service points remain unverified until explicit race cases are added.
+`m.device.schedule(segment, offset, irq=0, skip=0, clocks=1)` appends one of at
+most 64 events. Only the next event is eligible; matching site visits decrement
+skip first. IF-clear/PIC-masked events remain pending. Delivery logs
+`(LOG_IRQ,irq,0,clocks)` and advances the integer clock by that many PIT clocks.
+No wall clock, host sleep or arbitrary instruction-count timer is used. The
+emulator stops/restarts at that original instruction; C calls
+`platform_service_point_at` at the identical point. Calibration uses SOUND
+loc_1163 and loc_116B (including inner LOOP visits), executes both real temporary
+IRQ handlers, and retains DX's original Begin-handler-offset bias. Tests verify
+both captured words and restoration of the prior vector. Retrace/input scripts
+advance at IN operations. Main/ISR races elsewhere remain unverified.
 
-## Pilot and work ownership
+## Translation and final-wave ownership
 
-There are 12 exported translations in five files, with suites game_pilot, ice,
-render_pilot, timer_pilot and module_pilot. The tests include real built scores,
-sprite bytes and all five ICE resources, 16-bit boundaries, reverse/overlapping
-copies, a zero-count 65536-iteration VGA loop, timer carry/expiry and 16 slots,
-non-boolean music flags and wrapping 32-bit clocks. Mutation controls and gate
-receipts live in build/workers/c-infra/. Coverage is generated separately under
-build/c/: a directly tested translation, an inline helper, and an executed entry
-are different claims. This is a pilot, not gameplay or SDL3 completeness.
+The integrated tree has 132 directly tested adapters, three ICE entries reached
+inline, and 149 remaining routines out of 284. GAME:4681 and 4981 are palette
+data, excluded from the routine census. This is bounded behavioural evidence;
+it changes no original C/runtime byte-match claim. Full gameplay is unverified.
 
-metadata/translation-plan.json assigns all 286 curated entries exactly once,
-uses the existing naming regions where possible, collapses direct-call/shared-tail
-cycles and groups independent leaves by region and depth. Its 56 packages own
-disjoint C files in 14 waves; same-wave packages can proceed in parallel. The
-integrated pilot and common headers/platform are reserved for the supervisor.
-Indirect edges are listed explicitly as unresolved dependencies; static graph
-absence is never evidence of no callback. Resolve each from original tables and
-call sites before claiming callers/composed execution complete.
+`metadata/translation-plan.json` retains integrated packages in wave 0 and assigns
+all remaining routines to eight exclusive C/suite pairs in final wave 1. Workers
+order local direct-call and indirect mutual families internally. Cross-package
+calls use the common resolver and real caller-owned ABI/frame. An absent callee
+fails with UGH_BAD_CALLBACK; workers list that exact edge as unverified and add
+composed cases after integration. There is no emulator bridge or success stub.
+This permits each worktree to compile independently before peer packages land.
+`coverage.py` checks the plan against the curated routine census exactly once,
+including inline-only entries, and rejects overlapping final-wave files.
 
 ## Direct interaction census
 
@@ -241,7 +249,7 @@ include DrawRainParticles, DrawTransparentSprite, DrawMapTile, RestoreSpriteBack
 RestoreTileBackground, RestorePlayfieldBackground, ClearAllVgaPlanes and their rectangle/
 page helpers. Portless wrappers inherit device effects through those calls.
 
-Borland runtime is a separate library class, outside the 286 translation entries. Its
+Borland runtime is a separate library class, outside the 284 translation entries. Its
 rebuilt runtime interrupt census is retained in build/workers/c-infra/runtime-io.txt:
 C0H startup uses INT21 AH30/4A/58/67/48/49, BIOS INT1A AH00, vector get/set
 AH35/AH25 for vectors 00/04/05/06, stderr AH40 and exit AH4C; linked library

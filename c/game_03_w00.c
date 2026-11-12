@@ -416,7 +416,7 @@ EXPORT int c_DispatchEnemyStates(Regs *r) {
         sub16(r,A(EnemyDescriptors),0xffff,0); if(r->flags&ZF) return UGH_OK;
         /* Real near CALL scratch is below the adapter's return frame. Callees
          * in this package consume no stack arguments and preserve SS/SP. */
-        int status=state_jump(r,A(EnemyStateCallbacks)); if(status) return status;
+        int status=ugh_call_near(A(EnemyStateCallbacks),(uint16_t)(G(DispatchEnemyStates)+0x10),r); if(status) return status;
         r->bx=add16(r,r->bx,2,0);
     }
     return UGH_BUDGET;
@@ -511,60 +511,5 @@ EXPORT int c_InitializeFruitTreeAnimation(Regs *r) {
     r->ax=shl(r,A(EnemyY32),5); W(EnemyDrawY,r->ax); return UGH_OK;
 }
 
-/* Local dispatcher until the shared callback service supports register-bearing
- * GAME near calls. This uses original generated addresses, never native stored
- * pointers. Unlisted targets use the shared dispatcher, which currently rejects
- * GAME targets with UGH_BAD_CALLBACK. SHARED-REQUEST */
-static int state_jump(Regs *r,uint16_t target) {
-    switch(target) {
-    case G(WaitForPassengerPlatform): return c_WaitForPassengerPlatform(r);
-    case G(PlacePassengerOnPlatform): return c_PlacePassengerOnPlatform(r);
-    case G(AnimatePassengerArrival): return c_AnimatePassengerArrival(r);
-    case G(BeginPassengerPlatformWait): return c_BeginPassengerPlatformWait(r);
-    case G(BeginPassengerDestinationDisplay): return c_BeginPassengerDestinationDisplay(r);
-    case G(BeginPassengerQuestionDisplay): return c_BeginPassengerQuestionDisplay(r);
-    case G(BeginPassengerApproach): return c_BeginPassengerApproach(r);
-    case G(BoardPassenger): return c_BoardPassenger(r);
-    case G(UpdateCarriedPassenger): return c_UpdateCarriedPassenger(r);
-    case G(WalkPassengerToExit): return c_WalkPassengerToExit(r);
-    case G(BeginPassengerDeparture): return c_BeginPassengerDeparture(r);
-    case G(AnimatePassengerDeparture): return c_AnimatePassengerDeparture(r);
-    case G(IgnoreActorState): return c_IgnoreActorState(r);
-    case G(BeginStonePickupWait): return c_BeginStonePickupWait(r);
-    case G(AttachStoneToPlayer): return c_AttachStoneToPlayer(r);
-    case G(WaitForStoneRelease): return c_WaitForStoneRelease(r);
-    case G(UpdateThrownStone): return c_UpdateThrownStone(r);
-    case G(BeginPassengerResurfacing): return c_BeginPassengerResurfacing(r);
-    case G(UpdatePassengerResurfacing): return c_UpdatePassengerResurfacing(r);
-    case G(BeginPassengerSinking): return c_BeginPassengerSinking(r);
-    case G(UpdatePassengerSinking): return c_UpdatePassengerSinking(r);
-    case G(BeginPassengerFloating): return c_BeginPassengerFloating(r);
-    case G(UpdatePassengerFloating): return c_UpdatePassengerFloating(r);
-    case G(UpdateFloatingDestinationDisplay): return c_UpdateFloatingDestinationDisplay(r);
-    case G(UpdateFloatingQuestionDisplay): return c_UpdateFloatingQuestionDisplay(r);
-    case G(UpdateFloatingPassengerApproach): return c_UpdateFloatingPassengerApproach(r);
-    case G(IgnoreWaterbornePassengerState): return c_IgnoreWaterbornePassengerState(r);
-    case G(FindThrownStoneHittingEnemy): return c_FindThrownStoneHittingEnemy(r);
-    case G(FindPlayerTouchingFallingItem): return c_FindPlayerTouchingFallingItem(r);
-    case G(FindPlayerTouchingActor): return c_FindPlayerTouchingActor(r);
-    case G(FindPlayerTouchingEnemy): return c_FindPlayerTouchingEnemy(r);
-    case G(DispatchEnemyStates): return c_DispatchEnemyStates(r);
-    case G(BeginBirdDelay): return c_BeginBirdDelay(r);
-    case G(WaitForBirdFlight): return c_WaitForBirdFlight(r);
-    case G(WaitForBirdWarning): return c_WaitForBirdWarning(r);
-    case G(StunBirdAndAwardScore): return c_StunBirdAndAwardScore(r);
-    case G(UpdateStunnedBird): return c_UpdateStunnedBird(r);
-    case G(BeginDinosaurPatrol): return c_BeginDinosaurPatrol(r);
-    case G(BeginDinosaurAlert): return c_BeginDinosaurAlert(r);
-    case G(BeginDinosaurCharge): return c_BeginDinosaurCharge(r);
-    case G(BeginDinosaurRecovery): return c_BeginDinosaurRecovery(r);
-    case G(BeginDinosaurImpactRecovery): return c_BeginDinosaurImpactRecovery(r);
-    case G(StunDinosaurAndAwardScore): return c_StunDinosaurAndAwardScore(r);
-    case G(UpdateStunnedDinosaur): return c_UpdateStunnedDinosaur(r);
-    case G(loc_295B): return c_loc_295B(r);
-    case G(loc_2A53): return c_loc_2A53(r);
-    case G(loc_2A76): return c_loc_2A76(r);
-    case G(InitializeFruitTreeAnimation): return c_InitializeFruitTreeAnimation(r);
-    default: return ugh_dispatch(GAME_SEG,target,r);
-    }
-}
+/* Tail transfers retain the incoming near return frame. */
+static int state_jump(Regs *r,uint16_t target) { return ugh_dispatch(r->cs,target,r); }

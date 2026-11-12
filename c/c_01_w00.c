@@ -26,24 +26,19 @@ EXPORT int c_ResetAdlibTrackChannelCursor(Regs *r) {
     return UGH_OK;
 }
 
-/* SHARED-REQUEST: generated aliases for compiler-owned switch storage/targets
- * are absent. Keep local entry-relative displacements until cgen exposes them.
- * They identify the exact 1B95 table and its eight original near targets, not
- * game state or guessed live segment values. */
-#define DURATION_AT(delta) ((uint16_t)(UGH_O_C_GetMusicTrackDuration+(delta)))
 static int duration_arm(uint16_t cs, uint8_t code) {
     unsigned nibble=code>>4;
     if(nibble>7) return 8;
-    uint16_t target=rd16(cs,DURATION_AT(0x107+2*nibble));
+    uint16_t target=rd16(cs,(uint16_t)(UGH_O_C_DurationSwitchTable+2*nibble));
     switch(target) {
-    case DURATION_AT(0x92): return 0; /* 1B20 long wait */
-    case DURATION_AT(0xae): return 1; /* 1B3C frequency */
-    case DURATION_AT(0xb4): return 2; /* 1B42 key off */
-    case DURATION_AT(0xb6): return 3; /* 1B44 volume */
-    case DURATION_AT(0xb8): return 4; /* 1B46 instrument */
-    case DURATION_AT(0xbe): return 6; /* 1B4C timer */
-    case DURATION_AT(0xc0): return 7; /* 1B4E extension, including 77 */
-    case DURATION_AT(0xd0): return 8; /* 1B5E default, also nibble 5 */
+    case UGH_O_C_DurationLongWait: return 0; /* 1B20 long wait */
+    case UGH_O_C_DurationFrequency: return 1; /* 1B3C frequency */
+    case UGH_O_C_DurationKeyOff: return 2; /* 1B42 key off */
+    case UGH_O_C_DurationVolume: return 3; /* 1B44 volume */
+    case UGH_O_C_DurationInstrument: return 4; /* 1B46 instrument */
+    case UGH_O_C_DurationTimer: return 6; /* 1B4C timer */
+    case UGH_O_C_DurationExtension: return 7; /* 1B4E extension, including 77 */
+    case UGH_O_C_DurationDefault: return 8; /* 1B5E default, also nibble 5 */
     default: return -1;
     }
 }

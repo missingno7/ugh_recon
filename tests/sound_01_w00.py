@@ -286,3 +286,37 @@ for k in range(12):
                  volume=rng.randrange(65536),repeat=rng.choice((0,1,2,0x8000)),
                  flags=rng.choice((0,2,0xfffc))) for _ in range(rng.randrange(1,9))]
     CASES.append(mixer_case(f'fixed random {k}',voices,request=rng.randrange(1,20)))
+
+
+# Shared-service integration cases.
+
+import struct
+for routine in ('BeginSoundDelayMeasurement','FinishSoundDelayMeasurement'):
+    for cx,dx in ((0,0),(0xffff,0x1234),(7,0xffff)):
+        def setup(m):m.ww('SOUND:PreviousCalibrationTimerVector',0x2468);m.ww('SOUND:PreviousCalibrationTimerSegment',0x1357)
+        CASES.append(Case(routine+f' CX={cx:04x} DX={dx:04x}','SOUND:'+routine,setup=setup,
+            regs=dict(CX=cx,DX=dx),kind='iret',flags=0xed7,out_regs=REGS+ARITH))
+for busy in (0,1,7,65536):
+    def setup(m,busy=busy):m.ww('SOUND:DspBasePort',0x220);m.device.script(0x22c,[0x81]*busy+([] if busy==65536 else [0x7f]))
+    CASES.append(Case(f'DSP busy reads {busy}','SOUND:WriteSoundBlasterDsp',setup=setup,
+        regs=dict(AX=0xa5d1),kind='far',out_regs=REGS+('CF','PF','ZF','SF','OF')))
+for first,second in ((0,0),(3,5),(1,65537)):
+    def setup(m,first=first,second=second):
+        m.write(0,0x20,struct.pack('<HH',0x2468,0x1357))
+        seg=m.seg('SOUND:CalibrateSoundDelay')
+        m.device.schedule(seg,m.off('SOUND:loc_1163'),skip=first,clocks=65536)
+        m.device.schedule(seg,m.off('SOUND:loc_116B'),skip=second,clocks=65536)
+    def check(m,r,second=second):
+        assert m.rw('SOUND:CalibrationLoopRemainder')==(-second)&65535
+        assert m.rw('SOUND:SoundIoDelayMultiplier')==(m.off('SOUND:BeginSoundDelayMeasurement')+second//65536)&65535
+        assert m.read(0,0x20,4)==struct.pack('<HH',0x2468,0x1357)
+        assert m.device.irq_cursor==2
+    CASES.append(Case(f'calibration IRQ visits {first}/{second}','SOUND:CalibrateSoundDelay',
+        setup=setup,check=check,kind='far',flags=0x602,out_regs=REGS+ARITH))
+for which in ('Main','Effect'):
+    for opcode in (0x01,0x0f,0x80,0xff):
+        def setup(m,opcode=opcode):
+            m.write(0x9000,0xfffe,bytes((opcode,0x35)));m.ww('SOUND:CurrentAdlxRecordOffset',m.off('SOUND:AudioChannelStates'))
+            m.ww('SOUND:AudioChannelStates',0x100,0x24)
+        CASES.append(Case(f'{which} dispatcher wait {opcode:02x}','SOUND:Run'+which+'AdlxEvents',
+            setup=setup,regs=dict(ES=0x9000,DI=0xfffe),kind='far',out_regs=REGS+ARITH))

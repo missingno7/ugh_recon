@@ -93,23 +93,9 @@ EXPORT int c_SamplePlayerCollisionPixels(Regs *r) {
     return UGH_OK;
 }
 
-/* Local resolver for the two translated callbacks found in real demo data.
- * IgnoreActorState (1C0E), used by other scripts, belongs to game_03_w00:
- * it is deliberately unsupported until that package is available. No fake RET.
- * Reproduce the near CALL frame at this call site. The unlabelled return
- * instruction at 0A19 is +42h from the generated AdvanceDemoScripts entry.
- */
-static int demo_callback(Regs *r, uint16_t target) {
-    int status;
-    if(r->cs!=GAME_SEG) return UGH_BAD_CALLBACK;
-    r->sp=(uint16_t)(r->sp-2);
-    wr16(r->ss,r->sp,(uint16_t)(G(AdvanceDemoScripts)+0x42));
-    if(target==G(StartDemoFadeWhenSpriteHidden)) status=c_StartDemoFadeWhenSpriteHidden(r);
-    else if(target==G(SetDemoRevealSpriteWidth)) status=c_SetDemoRevealSpriteWidth(r);
-    else if(target==G(loc_0B4E)) status=c_loc_0B4E(r);
-    else status=UGH_BAD_CALLBACK;
-    r->sp=(uint16_t)(r->sp+2);
-    return status;
+/* The call site owns its original near frame; the resolver owns identity. */
+static int demo_callback(Regs *r,uint16_t target) {
+    return ugh_call_near(target,(uint16_t)(G(AdvanceDemoScripts)+0x42),r);
 }
 
 /* In DS owns the FFFF-terminated cursor array, scripts and parallel state.
@@ -183,3 +169,17 @@ EXPORT int c_AdvanceDemoScripts(Regs *r) {
 /* DispatchActorUpdates is intentionally absent: every real nonempty actor
  * table calls other packages of this wave. See the report's unresolved edges.
  */
+/* Near; original table words resolve centrally. Callbacks receive the actual
+ * CALL return word and may change working registers, including BX. */
+/* TRANSLATES GAME:DispatchActorUpdates */
+EXPORT int c_DispatchActorUpdates(Regs *r) {
+    r->bx=logic(r,0,16);
+    for(unsigned budget=0;budget<32768;budget++) {
+        uint16_t descriptor=rd16(r->ds,(uint16_t)(D(ActorDescriptors)+r->bx));
+        sub16(r,descriptor,0xffff,0); if(descriptor==0xffff) return UGH_OK;
+        uint16_t target=rd16(r->ds,(uint16_t)(D(ActorUpdateOrScriptCursor)+r->bx));
+        int status=ugh_call_near(target,(uint16_t)(G(DispatchActorUpdates)+0x10),r); if(status) return status;
+        r->bx=add16(r,r->bx,2,0);
+    }
+    return UGH_BUDGET;
+}

@@ -1797,11 +1797,13 @@ loc_0AE5:
 loc_0AEA:
     ret ; @0AEA
 ; CONTRACT (tools/apply.py)
-; Initialize motion slots from a near-pointer vector, clear sprite caches, then execute first steps.
-; In: DS:SI is an FFFF-terminated vector; scripts start with X,Y,period,near callback words; DF=0.
-; Out: pixel/fixed positions, cursors, periods and completion/repeat words initialized.
-; Effects/quirks: resets shared actor/enemy/item sprite caches; tail-jumps to AdvanceDemoScripts.
-; No capacity check; the vector and its sentinel must fit the sixteen-slot parallel arrays.
+; Initialize motion slots from a near-pointer vector, clear sprite caches, execute first steps.
+; In: DS:SI is an FFFF-terminated vector; scripts start with X,Y,period,near callback; DF=0.
+; Script header X/Y are signed pixels, stored directly in pixel and previous-draw arrays.
+; The initializer shifts those words left five for the live X32/Y32 fixed-point arrays.
+; Out: positions, cursors, periods and completion/repeat words initialized.
+; Effects: resets actor/enemy/item sprite caches; tail-jumps to AdvanceDemoScripts.
+; Quirk: no capacity check; the vector and sentinel must fit the sixteen-slot parallel arrays.
 ; END CONTRACT
 InitializeDemoScripts:
     xor bx, bx ; @0AEB
@@ -8097,390 +8099,54 @@ loc_4676:
 ; END CONTRACT
 public loc_4681
 loc_4681:
-    add byte ptr [bx + si], al ; @4681
-    add byte ptr [bx + si], al ; @4683
-    add byte ptr [bx + si], al ; @4685
-    add byte ptr [bx + si], al ; @4687
-    add byte ptr [bx + si], al ; @4689
-    add byte ptr [bx + si], al ; @468B
-    add byte ptr [bx + si], al ; @468D
-    add byte ptr [bx + si], al ; @468F
-    add byte ptr [bx + si], al ; @4691
-    add byte ptr [bx + si], al ; @4693
-    add byte ptr [bx + si], al ; @4695
-    add byte ptr [bx + si], al ; @4697
-    add byte ptr [bx + si], al ; @4699
-    add byte ptr [bx + si], al ; @469B
-    add byte ptr [bx + si], al ; @469D
-    add byte ptr [bx + si], al ; @469F
-    add byte ptr [bx + si], al ; @46A1
-    add byte ptr [bx + si], al ; @46A3
-    add byte ptr [bx + si], al ; @46A5
-    add byte ptr [bx + si], al ; @46A7
-    add byte ptr [bx + si], al ; @46A9
-    add byte ptr [bx + si], al ; @46AB
-    add byte ptr [bx + si], al ; @46AD
-    add byte ptr [bx + si], al ; @46AF
-    add byte ptr [bx + si], al ; @46B1
-    add byte ptr [bx + si], al ; @46B3
-    add byte ptr [bx + si], al ; @46B5
-    add byte ptr [bx + si], al ; @46B7
-    add byte ptr [bx + si], al ; @46B9
-    add byte ptr [bx + si], al ; @46BB
-    add byte ptr [bx + si], al ; @46BD
-    add byte ptr [bx + si], al ; @46BF
-    add byte ptr [bx + si], al ; @46C1
-    add byte ptr [bx + si], al ; @46C3
-    add byte ptr [bx + si], al ; @46C5
-    add byte ptr [bx + si], al ; @46C7
-    add byte ptr [bx + si], al ; @46C9
-    add byte ptr [bx + si], al ; @46CB
-    add byte ptr [bx + si], al ; @46CD
-    add byte ptr [bx + si], al ; @46CF
-    add byte ptr [bx + si], al ; @46D1
-    add byte ptr [bx + si], al ; @46D3
-    add byte ptr [bx + si], al ; @46D5
-    add byte ptr [bx + si], al ; @46D7
-    add byte ptr [bx + si], al ; @46D9
-    add byte ptr [bx + si], al ; @46DB
-    add byte ptr [bx + si], al ; @46DD
-    add byte ptr [bx + si], al ; @46DF
-    add byte ptr [bx + si], al ; @46E1
-    add byte ptr [bx + si], al ; @46E3
-    add byte ptr [bx + si], al ; @46E5
-    add byte ptr [bx + si], al ; @46E7
-    add byte ptr [bx + si], al ; @46E9
-    add byte ptr [bx + si], al ; @46EB
-    add byte ptr [bx + si], al ; @46ED
-    add byte ptr [bx + si], al ; @46EF
-    add byte ptr [bx + si], al ; @46F1
-    add byte ptr [bx + si], al ; @46F3
-    add byte ptr [bx + si], al ; @46F5
-    add byte ptr [bx + si], al ; @46F7
-    add byte ptr [bx + si], al ; @46F9
-    add byte ptr [bx + si], al ; @46FB
-    add byte ptr [bx + si], al ; @46FD
-    add byte ptr [bx + si], al ; @46FF
-    add byte ptr [bx + si], al ; @4701
-    add byte ptr [bx + si], al ; @4703
-    add byte ptr [bx + si], al ; @4705
-    add byte ptr [bx + si], al ; @4707
-    add byte ptr [bx + si], al ; @4709
-    add byte ptr [bx + si], al ; @470B
-    add byte ptr [bx + si], al ; @470D
-    add byte ptr [bx + si], al ; @470F
-    add byte ptr [bx + si], al ; @4711
-    add byte ptr [bx + si], al ; @4713
-    add byte ptr [bx + si], al ; @4715
-    add byte ptr [bx + si], al ; @4717
-    add byte ptr [bx + si], al ; @4719
-    add byte ptr [bx + si], al ; @471B
-    add byte ptr [bx + si], al ; @471D
-    add byte ptr [bx + si], al ; @471F
-    add byte ptr [bx + si], al ; @4721
-    add byte ptr [bx + si], al ; @4723
-    add byte ptr [bx + si], al ; @4725
-    add byte ptr [bx + si], al ; @4727
-    add byte ptr [bx + si], al ; @4729
-    add byte ptr [bx + si], al ; @472B
-    add byte ptr [bx + si], al ; @472D
-    add byte ptr [bx + si], al ; @472F
-    add byte ptr [bx + si], al ; @4731
-    add byte ptr [bx + si], al ; @4733
-    add byte ptr [bx + si], al ; @4735
-    add byte ptr [bx + si], al ; @4737
-    add byte ptr [bx + si], al ; @4739
-    add byte ptr [bx + si], al ; @473B
-    add byte ptr [bx + si], al ; @473D
-    add byte ptr [bx + si], al ; @473F
-    add byte ptr [bx + si], al ; @4741
-    add byte ptr [bx + si], al ; @4743
-    add byte ptr [bx + si], al ; @4745
-    add byte ptr [bx + si], al ; @4747
-    add byte ptr [bx + si], al ; @4749
-    add byte ptr [bx + si], al ; @474B
-    add byte ptr [bx + si], al ; @474D
-    add byte ptr [bx + si], al ; @474F
-    add byte ptr [bx + si], al ; @4751
-    add byte ptr [bx + si], al ; @4753
-    add byte ptr [bx + si], al ; @4755
-    add byte ptr [bx + si], al ; @4757
-    add byte ptr [bx + si], al ; @4759
-    add byte ptr [bx + si], al ; @475B
-    add byte ptr [bx + si], al ; @475D
-    add byte ptr [bx + si], al ; @475F
-    add byte ptr [bx + si], al ; @4761
-    add byte ptr [bx + si], al ; @4763
-    add byte ptr [bx + si], al ; @4765
-    add byte ptr [bx + si], al ; @4767
-    add byte ptr [bx + si], al ; @4769
-    add byte ptr [bx + si], al ; @476B
-    add byte ptr [bx + si], al ; @476D
-    add byte ptr [bx + si], al ; @476F
-    add byte ptr [bx + si], al ; @4771
-    add byte ptr [bx + si], al ; @4773
-    add byte ptr [bx + si], al ; @4775
-    add byte ptr [bx + si], al ; @4777
-    add byte ptr [bx + si], al ; @4779
-    add byte ptr [bx + si], al ; @477B
-    add byte ptr [bx + si], al ; @477D
-    add byte ptr [bx + si], al ; @477F
-    add byte ptr [bx + si], al ; @4781
-    add byte ptr [bx + si], al ; @4783
-    add byte ptr [bx + si], al ; @4785
-    add byte ptr [bx + si], al ; @4787
-    add byte ptr [bx + si], al ; @4789
-    add byte ptr [bx + si], al ; @478B
-    add byte ptr [bx + si], al ; @478D
-    add byte ptr [bx + si], al ; @478F
-    add byte ptr [bx + si], al ; @4791
-    add byte ptr [bx + si], al ; @4793
-    add byte ptr [bx + si], al ; @4795
-    add byte ptr [bx + si], al ; @4797
-    add byte ptr [bx + si], al ; @4799
-    add byte ptr [bx + si], al ; @479B
-    add byte ptr [bx + si], al ; @479D
-    add byte ptr [bx + si], al ; @479F
-    add byte ptr [bx + si], al ; @47A1
-    add byte ptr [bx + si], al ; @47A3
-    add byte ptr [bx + si], al ; @47A5
-    add byte ptr [bx + si], al ; @47A7
-    add byte ptr [bx + si], al ; @47A9
-    add byte ptr [bx + si], al ; @47AB
-    add byte ptr [bx + si], al ; @47AD
-    add byte ptr [bx + si], al ; @47AF
-    add byte ptr [bx + si], al ; @47B1
-    add byte ptr [bx + si], al ; @47B3
-    add byte ptr [bx + si], al ; @47B5
-    add byte ptr [bx + si], al ; @47B7
-    add byte ptr [bx + si], al ; @47B9
-    add byte ptr [bx + si], al ; @47BB
-    add byte ptr [bx + si], al ; @47BD
-    add byte ptr [bx + si], al ; @47BF
-    add byte ptr [bx + si], al ; @47C1
-    add byte ptr [bx + si], al ; @47C3
-    add byte ptr [bx + si], al ; @47C5
-    add byte ptr [bx + si], al ; @47C7
-    add byte ptr [bx + si], al ; @47C9
-    add byte ptr [bx + si], al ; @47CB
-    add byte ptr [bx + si], al ; @47CD
-    add byte ptr [bx + si], al ; @47CF
-    add byte ptr [bx + si], al ; @47D1
-    add byte ptr [bx + si], al ; @47D3
-    add byte ptr [bx + si], al ; @47D5
-    add byte ptr [bx + si], al ; @47D7
-    add byte ptr [bx + si], al ; @47D9
-    add byte ptr [bx + si], al ; @47DB
-    add byte ptr [bx + si], al ; @47DD
-    add byte ptr [bx + si], al ; @47DF
-    add byte ptr [bx + si], al ; @47E1
-    add byte ptr [bx + si], al ; @47E3
-    add byte ptr [bx + si], al ; @47E5
-    add byte ptr [bx + si], al ; @47E7
-    add byte ptr [bx + si], al ; @47E9
-    add byte ptr [bx + si], al ; @47EB
-    add byte ptr [bx + si], al ; @47ED
-    add byte ptr [bx + si], al ; @47EF
-    add byte ptr [bx + si], al ; @47F1
-    add byte ptr [bx + si], al ; @47F3
-    add byte ptr [bx + si], al ; @47F5
-    add byte ptr [bx + si], al ; @47F7
-    add byte ptr [bx + si], al ; @47F9
-    add byte ptr [bx + si], al ; @47FB
-    add byte ptr [bx + si], al ; @47FD
-    add byte ptr [bx + si], al ; @47FF
-    add byte ptr [bx + si], al ; @4801
-    add byte ptr [bx + si], al ; @4803
-    add byte ptr [bx + si], al ; @4805
-    add byte ptr [bx + si], al ; @4807
-    add byte ptr [bx + si], al ; @4809
-    add byte ptr [bx + si], al ; @480B
-    add byte ptr [bx + si], al ; @480D
-    add byte ptr [bx + si], al ; @480F
-    add byte ptr [bx + si], al ; @4811
-    add byte ptr [bx + si], al ; @4813
-    add byte ptr [bx + si], al ; @4815
-    add byte ptr [bx + si], al ; @4817
-    add byte ptr [bx + si], al ; @4819
-    add byte ptr [bx + si], al ; @481B
-    add byte ptr [bx + si], al ; @481D
-    add byte ptr [bx + si], al ; @481F
-    add byte ptr [bx + si], al ; @4821
-    add byte ptr [bx + si], al ; @4823
-    add byte ptr [bx + si], al ; @4825
-    add byte ptr [bx + si], al ; @4827
-    add byte ptr [bx + si], al ; @4829
-    add byte ptr [bx + si], al ; @482B
-    add byte ptr [bx + si], al ; @482D
-    add byte ptr [bx + si], al ; @482F
-    add byte ptr [bx + si], al ; @4831
-    add byte ptr [bx + si], al ; @4833
-    add byte ptr [bx + si], al ; @4835
-    add byte ptr [bx + si], al ; @4837
-    add byte ptr [bx + si], al ; @4839
-    add byte ptr [bx + si], al ; @483B
-    add byte ptr [bx + si], al ; @483D
-    add byte ptr [bx + si], al ; @483F
-    add byte ptr [bx + si], al ; @4841
-    add byte ptr [bx + si], al ; @4843
-    add byte ptr [bx + si], al ; @4845
-    add byte ptr [bx + si], al ; @4847
-    add byte ptr [bx + si], al ; @4849
-    add byte ptr [bx + si], al ; @484B
-    add byte ptr [bx + si], al ; @484D
-    add byte ptr [bx + si], al ; @484F
-    add byte ptr [bx + si], al ; @4851
-    add byte ptr [bx + si], al ; @4853
-    add byte ptr [bx + si], al ; @4855
-    add byte ptr [bx + si], al ; @4857
-    add byte ptr [bx + si], al ; @4859
-    add byte ptr [bx + si], al ; @485B
-    add byte ptr [bx + si], al ; @485D
-    add byte ptr [bx + si], al ; @485F
-    add byte ptr [bx + si], al ; @4861
-    add byte ptr [bx + si], al ; @4863
-    add byte ptr [bx + si], al ; @4865
-    add byte ptr [bx + si], al ; @4867
-    add byte ptr [bx + si], al ; @4869
-    add byte ptr [bx + si], al ; @486B
-    add byte ptr [bx + si], al ; @486D
-    add byte ptr [bx + si], al ; @486F
-    add byte ptr [bx + si], al ; @4871
-    add byte ptr [bx + si], al ; @4873
-    add byte ptr [bx + si], al ; @4875
-    add byte ptr [bx + si], al ; @4877
-    add byte ptr [bx + si], al ; @4879
-    add byte ptr [bx + si], al ; @487B
-    add byte ptr [bx + si], al ; @487D
-    add byte ptr [bx + si], al ; @487F
-    add byte ptr [bx + si], al ; @4881
-    add byte ptr [bx + si], al ; @4883
-    add byte ptr [bx + si], al ; @4885
-    add byte ptr [bx + si], al ; @4887
-    add byte ptr [bx + si], al ; @4889
-    add byte ptr [bx + si], al ; @488B
-    add byte ptr [bx + si], al ; @488D
-    add byte ptr [bx + si], al ; @488F
-    add byte ptr [bx + si], al ; @4891
-    add byte ptr [bx + si], al ; @4893
-    add byte ptr [bx + si], al ; @4895
-    add byte ptr [bx + si], al ; @4897
-    add byte ptr [bx + si], al ; @4899
-    add byte ptr [bx + si], al ; @489B
-    add byte ptr [bx + si], al ; @489D
-    add byte ptr [bx + si], al ; @489F
-    add byte ptr [bx + si], al ; @48A1
-    add byte ptr [bx + si], al ; @48A3
-    add byte ptr [bx + si], al ; @48A5
-    add byte ptr [bx + si], al ; @48A7
-    add byte ptr [bx + si], al ; @48A9
-    add byte ptr [bx + si], al ; @48AB
-    add byte ptr [bx + si], al ; @48AD
-    add byte ptr [bx + si], al ; @48AF
-    add byte ptr [bx + si], al ; @48B1
-    add byte ptr [bx + si], al ; @48B3
-    add byte ptr [bx + si], al ; @48B5
-    add byte ptr [bx + si], al ; @48B7
-    add byte ptr [bx + si], al ; @48B9
-    add byte ptr [bx + si], al ; @48BB
-    add byte ptr [bx + si], al ; @48BD
-    add byte ptr [bx + si], al ; @48BF
-    add byte ptr [bx + si], al ; @48C1
-    add byte ptr [bx + si], al ; @48C3
-    add byte ptr [bx + si], al ; @48C5
-    add byte ptr [bx + si], al ; @48C7
-    add byte ptr [bx + si], al ; @48C9
-    add byte ptr [bx + si], al ; @48CB
-    add byte ptr [bx + si], al ; @48CD
-    add byte ptr [bx + si], al ; @48CF
-    add byte ptr [bx + si], al ; @48D1
-    add byte ptr [bx + si], al ; @48D3
-    add byte ptr [bx + si], al ; @48D5
-    add byte ptr [bx + si], al ; @48D7
-    add byte ptr [bx + si], al ; @48D9
-    add byte ptr [bx + si], al ; @48DB
-    add byte ptr [bx + si], al ; @48DD
-    add byte ptr [bx + si], al ; @48DF
-    add byte ptr [bx + si], al ; @48E1
-    add byte ptr [bx + si], al ; @48E3
-    add byte ptr [bx + si], al ; @48E5
-    add byte ptr [bx + si], al ; @48E7
-    add byte ptr [bx + si], al ; @48E9
-    add byte ptr [bx + si], al ; @48EB
-    add byte ptr [bx + si], al ; @48ED
-    add byte ptr [bx + si], al ; @48EF
-    add byte ptr [bx + si], al ; @48F1
-    add byte ptr [bx + si], al ; @48F3
-    add byte ptr [bx + si], al ; @48F5
-    add byte ptr [bx + si], al ; @48F7
-    add byte ptr [bx + si], al ; @48F9
-    add byte ptr [bx + si], al ; @48FB
-    add byte ptr [bx + si], al ; @48FD
-    add byte ptr [bx + si], al ; @48FF
-    add byte ptr [bx + si], al ; @4901
-    add byte ptr [bx + si], al ; @4903
-    add byte ptr [bx + si], al ; @4905
-    add byte ptr [bx + si], al ; @4907
-    add byte ptr [bx + si], al ; @4909
-    add byte ptr [bx + si], al ; @490B
-    add byte ptr [bx + si], al ; @490D
-    add byte ptr [bx + si], al ; @490F
-    add byte ptr [bx + si], al ; @4911
-    add byte ptr [bx + si], al ; @4913
-    add byte ptr [bx + si], al ; @4915
-    add byte ptr [bx + si], al ; @4917
-    add byte ptr [bx + si], al ; @4919
-    add byte ptr [bx + si], al ; @491B
-    add byte ptr [bx + si], al ; @491D
-    add byte ptr [bx + si], al ; @491F
-    add byte ptr [bx + si], al ; @4921
-    add byte ptr [bx + si], al ; @4923
-    add byte ptr [bx + si], al ; @4925
-    add byte ptr [bx + si], al ; @4927
-    add byte ptr [bx + si], al ; @4929
-    add byte ptr [bx + si], al ; @492B
-    add byte ptr [bx + si], al ; @492D
-    add byte ptr [bx + si], al ; @492F
-    add byte ptr [bx + si], al ; @4931
-    add byte ptr [bx + si], al ; @4933
-    add byte ptr [bx + si], al ; @4935
-    add byte ptr [bx + si], al ; @4937
-    add byte ptr [bx + si], al ; @4939
-    add byte ptr [bx + si], al ; @493B
-    add byte ptr [bx + si], al ; @493D
-    add byte ptr [bx + si], al ; @493F
-    add byte ptr [bx + si], al ; @4941
-    add byte ptr [bx + si], al ; @4943
-    add byte ptr [bx + si], al ; @4945
-    add byte ptr [bx + si], al ; @4947
-    add byte ptr [bx + si], al ; @4949
-    add byte ptr [bx + si], al ; @494B
-    add byte ptr [bx + si], al ; @494D
-    add byte ptr [bx + si], al ; @494F
-    add byte ptr [bx + si], al ; @4951
-    add byte ptr [bx + si], al ; @4953
-    add byte ptr [bx + si], al ; @4955
-    add byte ptr [bx + si], al ; @4957
-    add byte ptr [bx + si], al ; @4959
-    add byte ptr [bx + si], al ; @495B
-    add byte ptr [bx + si], al ; @495D
-    add byte ptr [bx + si], al ; @495F
-    add byte ptr [bx + si], al ; @4961
-    add byte ptr [bx + si], al ; @4963
-    add byte ptr [bx + si], al ; @4965
-    add byte ptr [bx + si], al ; @4967
-    add byte ptr [bx + si], al ; @4969
-    add byte ptr [bx + si], al ; @496B
-    add byte ptr [bx + si], al ; @496D
-    add byte ptr [bx + si], al ; @496F
-    add byte ptr [bx + si], al ; @4971
-    add byte ptr [bx + si], al ; @4973
-    add byte ptr [bx + si], al ; @4975
-    add byte ptr [bx + si], al ; @4977
-    add byte ptr [bx + si], al ; @4979
-    add byte ptr [bx + si], al ; @497B
-    add byte ptr [bx + si], al ; @497D
-    add byte ptr [bx + si], al ; @497F
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4681..4691
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4691..46A1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 46A1..46B1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 46B1..46C1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 46C1..46D1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 46D1..46E1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 46E1..46F1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 46F1..4701
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4701..4711
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4711..4721
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4721..4731
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4731..4741
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4741..4751
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4751..4761
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4761..4771
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4771..4781
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4781..4791
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4791..47A1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 47A1..47B1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 47B1..47C1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 47C1..47D1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 47D1..47E1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 47E1..47F1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 47F1..4801
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4801..4811
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4811..4821
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4821..4831
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4831..4841
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4841..4851
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4851..4861
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4861..4871
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4871..4881
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4881..4891
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4891..48A1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 48A1..48B1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 48B1..48C1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 48C1..48D1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 48D1..48E1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 48E1..48F1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 48F1..4901
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4901..4911
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4911..4921
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4921..4931
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4931..4941
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4941..4951
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4951..4961
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4961..4971
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4971..4981
 ; CONTRACT (tools/apply.py)
 ; Keep this seed mechanical: 768 zero bytes are the writable faded RGB palette.
 ; Evidence: DGROUP:00AF points here and 4E42h writes all 768 scaled components.
@@ -8488,390 +8154,54 @@ loc_4681:
 ; END CONTRACT
 public loc_4981
 loc_4981:
-    add byte ptr [bx + si], al ; @4981
-    add byte ptr [bx + si], al ; @4983
-    add byte ptr [bx + si], al ; @4985
-    add byte ptr [bx + si], al ; @4987
-    add byte ptr [bx + si], al ; @4989
-    add byte ptr [bx + si], al ; @498B
-    add byte ptr [bx + si], al ; @498D
-    add byte ptr [bx + si], al ; @498F
-    add byte ptr [bx + si], al ; @4991
-    add byte ptr [bx + si], al ; @4993
-    add byte ptr [bx + si], al ; @4995
-    add byte ptr [bx + si], al ; @4997
-    add byte ptr [bx + si], al ; @4999
-    add byte ptr [bx + si], al ; @499B
-    add byte ptr [bx + si], al ; @499D
-    add byte ptr [bx + si], al ; @499F
-    add byte ptr [bx + si], al ; @49A1
-    add byte ptr [bx + si], al ; @49A3
-    add byte ptr [bx + si], al ; @49A5
-    add byte ptr [bx + si], al ; @49A7
-    add byte ptr [bx + si], al ; @49A9
-    add byte ptr [bx + si], al ; @49AB
-    add byte ptr [bx + si], al ; @49AD
-    add byte ptr [bx + si], al ; @49AF
-    add byte ptr [bx + si], al ; @49B1
-    add byte ptr [bx + si], al ; @49B3
-    add byte ptr [bx + si], al ; @49B5
-    add byte ptr [bx + si], al ; @49B7
-    add byte ptr [bx + si], al ; @49B9
-    add byte ptr [bx + si], al ; @49BB
-    add byte ptr [bx + si], al ; @49BD
-    add byte ptr [bx + si], al ; @49BF
-    add byte ptr [bx + si], al ; @49C1
-    add byte ptr [bx + si], al ; @49C3
-    add byte ptr [bx + si], al ; @49C5
-    add byte ptr [bx + si], al ; @49C7
-    add byte ptr [bx + si], al ; @49C9
-    add byte ptr [bx + si], al ; @49CB
-    add byte ptr [bx + si], al ; @49CD
-    add byte ptr [bx + si], al ; @49CF
-    add byte ptr [bx + si], al ; @49D1
-    add byte ptr [bx + si], al ; @49D3
-    add byte ptr [bx + si], al ; @49D5
-    add byte ptr [bx + si], al ; @49D7
-    add byte ptr [bx + si], al ; @49D9
-    add byte ptr [bx + si], al ; @49DB
-    add byte ptr [bx + si], al ; @49DD
-    add byte ptr [bx + si], al ; @49DF
-    add byte ptr [bx + si], al ; @49E1
-    add byte ptr [bx + si], al ; @49E3
-    add byte ptr [bx + si], al ; @49E5
-    add byte ptr [bx + si], al ; @49E7
-    add byte ptr [bx + si], al ; @49E9
-    add byte ptr [bx + si], al ; @49EB
-    add byte ptr [bx + si], al ; @49ED
-    add byte ptr [bx + si], al ; @49EF
-    add byte ptr [bx + si], al ; @49F1
-    add byte ptr [bx + si], al ; @49F3
-    add byte ptr [bx + si], al ; @49F5
-    add byte ptr [bx + si], al ; @49F7
-    add byte ptr [bx + si], al ; @49F9
-    add byte ptr [bx + si], al ; @49FB
-    add byte ptr [bx + si], al ; @49FD
-    add byte ptr [bx + si], al ; @49FF
-    add byte ptr [bx + si], al ; @4A01
-    add byte ptr [bx + si], al ; @4A03
-    add byte ptr [bx + si], al ; @4A05
-    add byte ptr [bx + si], al ; @4A07
-    add byte ptr [bx + si], al ; @4A09
-    add byte ptr [bx + si], al ; @4A0B
-    add byte ptr [bx + si], al ; @4A0D
-    add byte ptr [bx + si], al ; @4A0F
-    add byte ptr [bx + si], al ; @4A11
-    add byte ptr [bx + si], al ; @4A13
-    add byte ptr [bx + si], al ; @4A15
-    add byte ptr [bx + si], al ; @4A17
-    add byte ptr [bx + si], al ; @4A19
-    add byte ptr [bx + si], al ; @4A1B
-    add byte ptr [bx + si], al ; @4A1D
-    add byte ptr [bx + si], al ; @4A1F
-    add byte ptr [bx + si], al ; @4A21
-    add byte ptr [bx + si], al ; @4A23
-    add byte ptr [bx + si], al ; @4A25
-    add byte ptr [bx + si], al ; @4A27
-    add byte ptr [bx + si], al ; @4A29
-    add byte ptr [bx + si], al ; @4A2B
-    add byte ptr [bx + si], al ; @4A2D
-    add byte ptr [bx + si], al ; @4A2F
-    add byte ptr [bx + si], al ; @4A31
-    add byte ptr [bx + si], al ; @4A33
-    add byte ptr [bx + si], al ; @4A35
-    add byte ptr [bx + si], al ; @4A37
-    add byte ptr [bx + si], al ; @4A39
-    add byte ptr [bx + si], al ; @4A3B
-    add byte ptr [bx + si], al ; @4A3D
-    add byte ptr [bx + si], al ; @4A3F
-    add byte ptr [bx + si], al ; @4A41
-    add byte ptr [bx + si], al ; @4A43
-    add byte ptr [bx + si], al ; @4A45
-    add byte ptr [bx + si], al ; @4A47
-    add byte ptr [bx + si], al ; @4A49
-    add byte ptr [bx + si], al ; @4A4B
-    add byte ptr [bx + si], al ; @4A4D
-    add byte ptr [bx + si], al ; @4A4F
-    add byte ptr [bx + si], al ; @4A51
-    add byte ptr [bx + si], al ; @4A53
-    add byte ptr [bx + si], al ; @4A55
-    add byte ptr [bx + si], al ; @4A57
-    add byte ptr [bx + si], al ; @4A59
-    add byte ptr [bx + si], al ; @4A5B
-    add byte ptr [bx + si], al ; @4A5D
-    add byte ptr [bx + si], al ; @4A5F
-    add byte ptr [bx + si], al ; @4A61
-    add byte ptr [bx + si], al ; @4A63
-    add byte ptr [bx + si], al ; @4A65
-    add byte ptr [bx + si], al ; @4A67
-    add byte ptr [bx + si], al ; @4A69
-    add byte ptr [bx + si], al ; @4A6B
-    add byte ptr [bx + si], al ; @4A6D
-    add byte ptr [bx + si], al ; @4A6F
-    add byte ptr [bx + si], al ; @4A71
-    add byte ptr [bx + si], al ; @4A73
-    add byte ptr [bx + si], al ; @4A75
-    add byte ptr [bx + si], al ; @4A77
-    add byte ptr [bx + si], al ; @4A79
-    add byte ptr [bx + si], al ; @4A7B
-    add byte ptr [bx + si], al ; @4A7D
-    add byte ptr [bx + si], al ; @4A7F
-    add byte ptr [bx + si], al ; @4A81
-    add byte ptr [bx + si], al ; @4A83
-    add byte ptr [bx + si], al ; @4A85
-    add byte ptr [bx + si], al ; @4A87
-    add byte ptr [bx + si], al ; @4A89
-    add byte ptr [bx + si], al ; @4A8B
-    add byte ptr [bx + si], al ; @4A8D
-    add byte ptr [bx + si], al ; @4A8F
-    add byte ptr [bx + si], al ; @4A91
-    add byte ptr [bx + si], al ; @4A93
-    add byte ptr [bx + si], al ; @4A95
-    add byte ptr [bx + si], al ; @4A97
-    add byte ptr [bx + si], al ; @4A99
-    add byte ptr [bx + si], al ; @4A9B
-    add byte ptr [bx + si], al ; @4A9D
-    add byte ptr [bx + si], al ; @4A9F
-    add byte ptr [bx + si], al ; @4AA1
-    add byte ptr [bx + si], al ; @4AA3
-    add byte ptr [bx + si], al ; @4AA5
-    add byte ptr [bx + si], al ; @4AA7
-    add byte ptr [bx + si], al ; @4AA9
-    add byte ptr [bx + si], al ; @4AAB
-    add byte ptr [bx + si], al ; @4AAD
-    add byte ptr [bx + si], al ; @4AAF
-    add byte ptr [bx + si], al ; @4AB1
-    add byte ptr [bx + si], al ; @4AB3
-    add byte ptr [bx + si], al ; @4AB5
-    add byte ptr [bx + si], al ; @4AB7
-    add byte ptr [bx + si], al ; @4AB9
-    add byte ptr [bx + si], al ; @4ABB
-    add byte ptr [bx + si], al ; @4ABD
-    add byte ptr [bx + si], al ; @4ABF
-    add byte ptr [bx + si], al ; @4AC1
-    add byte ptr [bx + si], al ; @4AC3
-    add byte ptr [bx + si], al ; @4AC5
-    add byte ptr [bx + si], al ; @4AC7
-    add byte ptr [bx + si], al ; @4AC9
-    add byte ptr [bx + si], al ; @4ACB
-    add byte ptr [bx + si], al ; @4ACD
-    add byte ptr [bx + si], al ; @4ACF
-    add byte ptr [bx + si], al ; @4AD1
-    add byte ptr [bx + si], al ; @4AD3
-    add byte ptr [bx + si], al ; @4AD5
-    add byte ptr [bx + si], al ; @4AD7
-    add byte ptr [bx + si], al ; @4AD9
-    add byte ptr [bx + si], al ; @4ADB
-    add byte ptr [bx + si], al ; @4ADD
-    add byte ptr [bx + si], al ; @4ADF
-    add byte ptr [bx + si], al ; @4AE1
-    add byte ptr [bx + si], al ; @4AE3
-    add byte ptr [bx + si], al ; @4AE5
-    add byte ptr [bx + si], al ; @4AE7
-    add byte ptr [bx + si], al ; @4AE9
-    add byte ptr [bx + si], al ; @4AEB
-    add byte ptr [bx + si], al ; @4AED
-    add byte ptr [bx + si], al ; @4AEF
-    add byte ptr [bx + si], al ; @4AF1
-    add byte ptr [bx + si], al ; @4AF3
-    add byte ptr [bx + si], al ; @4AF5
-    add byte ptr [bx + si], al ; @4AF7
-    add byte ptr [bx + si], al ; @4AF9
-    add byte ptr [bx + si], al ; @4AFB
-    add byte ptr [bx + si], al ; @4AFD
-    add byte ptr [bx + si], al ; @4AFF
-    add byte ptr [bx + si], al ; @4B01
-    add byte ptr [bx + si], al ; @4B03
-    add byte ptr [bx + si], al ; @4B05
-    add byte ptr [bx + si], al ; @4B07
-    add byte ptr [bx + si], al ; @4B09
-    add byte ptr [bx + si], al ; @4B0B
-    add byte ptr [bx + si], al ; @4B0D
-    add byte ptr [bx + si], al ; @4B0F
-    add byte ptr [bx + si], al ; @4B11
-    add byte ptr [bx + si], al ; @4B13
-    add byte ptr [bx + si], al ; @4B15
-    add byte ptr [bx + si], al ; @4B17
-    add byte ptr [bx + si], al ; @4B19
-    add byte ptr [bx + si], al ; @4B1B
-    add byte ptr [bx + si], al ; @4B1D
-    add byte ptr [bx + si], al ; @4B1F
-    add byte ptr [bx + si], al ; @4B21
-    add byte ptr [bx + si], al ; @4B23
-    add byte ptr [bx + si], al ; @4B25
-    add byte ptr [bx + si], al ; @4B27
-    add byte ptr [bx + si], al ; @4B29
-    add byte ptr [bx + si], al ; @4B2B
-    add byte ptr [bx + si], al ; @4B2D
-    add byte ptr [bx + si], al ; @4B2F
-    add byte ptr [bx + si], al ; @4B31
-    add byte ptr [bx + si], al ; @4B33
-    add byte ptr [bx + si], al ; @4B35
-    add byte ptr [bx + si], al ; @4B37
-    add byte ptr [bx + si], al ; @4B39
-    add byte ptr [bx + si], al ; @4B3B
-    add byte ptr [bx + si], al ; @4B3D
-    add byte ptr [bx + si], al ; @4B3F
-    add byte ptr [bx + si], al ; @4B41
-    add byte ptr [bx + si], al ; @4B43
-    add byte ptr [bx + si], al ; @4B45
-    add byte ptr [bx + si], al ; @4B47
-    add byte ptr [bx + si], al ; @4B49
-    add byte ptr [bx + si], al ; @4B4B
-    add byte ptr [bx + si], al ; @4B4D
-    add byte ptr [bx + si], al ; @4B4F
-    add byte ptr [bx + si], al ; @4B51
-    add byte ptr [bx + si], al ; @4B53
-    add byte ptr [bx + si], al ; @4B55
-    add byte ptr [bx + si], al ; @4B57
-    add byte ptr [bx + si], al ; @4B59
-    add byte ptr [bx + si], al ; @4B5B
-    add byte ptr [bx + si], al ; @4B5D
-    add byte ptr [bx + si], al ; @4B5F
-    add byte ptr [bx + si], al ; @4B61
-    add byte ptr [bx + si], al ; @4B63
-    add byte ptr [bx + si], al ; @4B65
-    add byte ptr [bx + si], al ; @4B67
-    add byte ptr [bx + si], al ; @4B69
-    add byte ptr [bx + si], al ; @4B6B
-    add byte ptr [bx + si], al ; @4B6D
-    add byte ptr [bx + si], al ; @4B6F
-    add byte ptr [bx + si], al ; @4B71
-    add byte ptr [bx + si], al ; @4B73
-    add byte ptr [bx + si], al ; @4B75
-    add byte ptr [bx + si], al ; @4B77
-    add byte ptr [bx + si], al ; @4B79
-    add byte ptr [bx + si], al ; @4B7B
-    add byte ptr [bx + si], al ; @4B7D
-    add byte ptr [bx + si], al ; @4B7F
-    add byte ptr [bx + si], al ; @4B81
-    add byte ptr [bx + si], al ; @4B83
-    add byte ptr [bx + si], al ; @4B85
-    add byte ptr [bx + si], al ; @4B87
-    add byte ptr [bx + si], al ; @4B89
-    add byte ptr [bx + si], al ; @4B8B
-    add byte ptr [bx + si], al ; @4B8D
-    add byte ptr [bx + si], al ; @4B8F
-    add byte ptr [bx + si], al ; @4B91
-    add byte ptr [bx + si], al ; @4B93
-    add byte ptr [bx + si], al ; @4B95
-    add byte ptr [bx + si], al ; @4B97
-    add byte ptr [bx + si], al ; @4B99
-    add byte ptr [bx + si], al ; @4B9B
-    add byte ptr [bx + si], al ; @4B9D
-    add byte ptr [bx + si], al ; @4B9F
-    add byte ptr [bx + si], al ; @4BA1
-    add byte ptr [bx + si], al ; @4BA3
-    add byte ptr [bx + si], al ; @4BA5
-    add byte ptr [bx + si], al ; @4BA7
-    add byte ptr [bx + si], al ; @4BA9
-    add byte ptr [bx + si], al ; @4BAB
-    add byte ptr [bx + si], al ; @4BAD
-    add byte ptr [bx + si], al ; @4BAF
-    add byte ptr [bx + si], al ; @4BB1
-    add byte ptr [bx + si], al ; @4BB3
-    add byte ptr [bx + si], al ; @4BB5
-    add byte ptr [bx + si], al ; @4BB7
-    add byte ptr [bx + si], al ; @4BB9
-    add byte ptr [bx + si], al ; @4BBB
-    add byte ptr [bx + si], al ; @4BBD
-    add byte ptr [bx + si], al ; @4BBF
-    add byte ptr [bx + si], al ; @4BC1
-    add byte ptr [bx + si], al ; @4BC3
-    add byte ptr [bx + si], al ; @4BC5
-    add byte ptr [bx + si], al ; @4BC7
-    add byte ptr [bx + si], al ; @4BC9
-    add byte ptr [bx + si], al ; @4BCB
-    add byte ptr [bx + si], al ; @4BCD
-    add byte ptr [bx + si], al ; @4BCF
-    add byte ptr [bx + si], al ; @4BD1
-    add byte ptr [bx + si], al ; @4BD3
-    add byte ptr [bx + si], al ; @4BD5
-    add byte ptr [bx + si], al ; @4BD7
-    add byte ptr [bx + si], al ; @4BD9
-    add byte ptr [bx + si], al ; @4BDB
-    add byte ptr [bx + si], al ; @4BDD
-    add byte ptr [bx + si], al ; @4BDF
-    add byte ptr [bx + si], al ; @4BE1
-    add byte ptr [bx + si], al ; @4BE3
-    add byte ptr [bx + si], al ; @4BE5
-    add byte ptr [bx + si], al ; @4BE7
-    add byte ptr [bx + si], al ; @4BE9
-    add byte ptr [bx + si], al ; @4BEB
-    add byte ptr [bx + si], al ; @4BED
-    add byte ptr [bx + si], al ; @4BEF
-    add byte ptr [bx + si], al ; @4BF1
-    add byte ptr [bx + si], al ; @4BF3
-    add byte ptr [bx + si], al ; @4BF5
-    add byte ptr [bx + si], al ; @4BF7
-    add byte ptr [bx + si], al ; @4BF9
-    add byte ptr [bx + si], al ; @4BFB
-    add byte ptr [bx + si], al ; @4BFD
-    add byte ptr [bx + si], al ; @4BFF
-    add byte ptr [bx + si], al ; @4C01
-    add byte ptr [bx + si], al ; @4C03
-    add byte ptr [bx + si], al ; @4C05
-    add byte ptr [bx + si], al ; @4C07
-    add byte ptr [bx + si], al ; @4C09
-    add byte ptr [bx + si], al ; @4C0B
-    add byte ptr [bx + si], al ; @4C0D
-    add byte ptr [bx + si], al ; @4C0F
-    add byte ptr [bx + si], al ; @4C11
-    add byte ptr [bx + si], al ; @4C13
-    add byte ptr [bx + si], al ; @4C15
-    add byte ptr [bx + si], al ; @4C17
-    add byte ptr [bx + si], al ; @4C19
-    add byte ptr [bx + si], al ; @4C1B
-    add byte ptr [bx + si], al ; @4C1D
-    add byte ptr [bx + si], al ; @4C1F
-    add byte ptr [bx + si], al ; @4C21
-    add byte ptr [bx + si], al ; @4C23
-    add byte ptr [bx + si], al ; @4C25
-    add byte ptr [bx + si], al ; @4C27
-    add byte ptr [bx + si], al ; @4C29
-    add byte ptr [bx + si], al ; @4C2B
-    add byte ptr [bx + si], al ; @4C2D
-    add byte ptr [bx + si], al ; @4C2F
-    add byte ptr [bx + si], al ; @4C31
-    add byte ptr [bx + si], al ; @4C33
-    add byte ptr [bx + si], al ; @4C35
-    add byte ptr [bx + si], al ; @4C37
-    add byte ptr [bx + si], al ; @4C39
-    add byte ptr [bx + si], al ; @4C3B
-    add byte ptr [bx + si], al ; @4C3D
-    add byte ptr [bx + si], al ; @4C3F
-    add byte ptr [bx + si], al ; @4C41
-    add byte ptr [bx + si], al ; @4C43
-    add byte ptr [bx + si], al ; @4C45
-    add byte ptr [bx + si], al ; @4C47
-    add byte ptr [bx + si], al ; @4C49
-    add byte ptr [bx + si], al ; @4C4B
-    add byte ptr [bx + si], al ; @4C4D
-    add byte ptr [bx + si], al ; @4C4F
-    add byte ptr [bx + si], al ; @4C51
-    add byte ptr [bx + si], al ; @4C53
-    add byte ptr [bx + si], al ; @4C55
-    add byte ptr [bx + si], al ; @4C57
-    add byte ptr [bx + si], al ; @4C59
-    add byte ptr [bx + si], al ; @4C5B
-    add byte ptr [bx + si], al ; @4C5D
-    add byte ptr [bx + si], al ; @4C5F
-    add byte ptr [bx + si], al ; @4C61
-    add byte ptr [bx + si], al ; @4C63
-    add byte ptr [bx + si], al ; @4C65
-    add byte ptr [bx + si], al ; @4C67
-    add byte ptr [bx + si], al ; @4C69
-    add byte ptr [bx + si], al ; @4C6B
-    add byte ptr [bx + si], al ; @4C6D
-    add byte ptr [bx + si], al ; @4C6F
-    add byte ptr [bx + si], al ; @4C71
-    add byte ptr [bx + si], al ; @4C73
-    add byte ptr [bx + si], al ; @4C75
-    add byte ptr [bx + si], al ; @4C77
-    add byte ptr [bx + si], al ; @4C79
-    add byte ptr [bx + si], al ; @4C7B
-    add byte ptr [bx + si], al ; @4C7D
-    add byte ptr [bx + si], al ; @4C7F
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4981..4991
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4991..49A1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 49A1..49B1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 49B1..49C1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 49C1..49D1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 49D1..49E1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 49E1..49F1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 49F1..4A01
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4A01..4A11
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4A11..4A21
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4A21..4A31
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4A31..4A41
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4A41..4A51
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4A51..4A61
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4A61..4A71
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4A71..4A81
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4A81..4A91
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4A91..4AA1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4AA1..4AB1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4AB1..4AC1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4AC1..4AD1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4AD1..4AE1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4AE1..4AF1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4AF1..4B01
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4B01..4B11
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4B11..4B21
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4B21..4B31
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4B31..4B41
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4B41..4B51
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4B51..4B61
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4B61..4B71
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4B71..4B81
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4B81..4B91
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4B91..4BA1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4BA1..4BB1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4BB1..4BC1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4BC1..4BD1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4BD1..4BE1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4BE1..4BF1
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4BF1..4C01
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4C01..4C11
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4C11..4C21
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4C21..4C31
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4C31..4C41
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4C41..4C51
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4C51..4C61
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4C61..4C71
+    db 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h, 00h ; data 4C71..4C81
 ; CONTRACT (tools/apply.py)
 ; Unpack an ICE picture to the scratch segment, then copy its palette from offset FA00h.
 ; In: SI=packed resource segment, DS=DGROUP; source starts at offset zero.

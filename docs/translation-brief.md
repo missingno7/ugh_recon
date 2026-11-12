@@ -1,6 +1,6 @@
 # Translation worker work order
 
-Translate one assigned package from metadata/translation-plan.json into its
+Translate one assigned final-wave package from metadata/translation-plan.json into its
 exclusive C/test files. Read AGENTS.md, docs/workers.md, docs/architecture.md,
 the source contracts, relevant naming-worker REPORT.md and applied `note` lines
 first. Read both callers and callees; source-line intervals do not bound shared
@@ -8,25 +8,53 @@ tails. Use c/ice.c and tests/ice.py as a working example. Do not edit src/, asse
 the oracle lock, another package's files, existing tools or the common interfaces.
 Propose exact shared-interface changes in your report for the supervisor.
 
+The supervisor creates a separate Git worktree for each worker. Never share a
+worktree/build directory or run simultaneous build/test commands in one worktree.
+Workers write only their assigned C file and suite, plus build/workers/WORKER/.
+They do not stage, commit, create worktrees or change Git state themselves.
+Start from a clean checkout with `python tools/build.py`, then
+`python tools/difftest.py`: no assets/ directory or original game file is needed.
+The pinned historical toolchain and Python/Unicorn/native GCC still must exist.
+Never run verify.py or oracle.py in a translation worker worktree. Those gates
+belong to the supervisor with the original evidence. cbuild.py/difftest.py keep
+their fixed build/ paths; worktree isolation is the parallel-build mechanism.
+
+Use these code-proven details where older comments disagree: motion-script
+header X/Y are pixels; InitializeDemoScripts shifts left five for X32/Y32.
+TIMER installation initializes slot zero and handle maps, leaving other slot
+storage stale. Removal copies callback pointers with undoubled slot offsets in
+the interleaved table. The generated DGDATA annotations and two TIMER comments
+await their canonical source/tool correction; preserve the observed behaviour.
+
 ## Starting and writing a routine
 
-1. Confirm the package's dependencies are accepted. Packages in one parallel wave
-   have disjoint files; later packages may start once their listed dependencies
-   are available. Indirect callees, callback tables and runtime boundaries require
-   additional investigation even if no static edge is listed. Mutual direct-call
-   families are in one indivisible package. Do not invent a stub for a callee.
-2. Run `python tools/cgen.py --check`. A stale build/symbol error goes to the
-   supervisor; do not edit generated offsets or relax a check. The supervisor
-   refreshes build/link/plain with verify.py, then runs cgen.py. Symbols come from
-   our map/listings, cross-checked against names.json, never guessed addresses.
+1. All eight remaining packages run concurrently in final wave 1. Order local
+   dependencies internally, including indirect dispatcher/handler mutual families.
+   Read callers, callees and tables even if the static direct graph has no edge.
+   For another package's routine, use `ugh_dispatch(live_segment, offset, r)`
+   through `ugh_adapters.h`; form the actual near/far frame at a CALL site, retain
+   the incoming frame for a tail. Do not directly link an absent c_Label symbol.
+   Unknown/untranslated targets return UGH_BAD_CALLBACK. Tests reaching such a
+   boundary must record the exact edge as unverified; a pre-transfer comparison
+   is a diagnostic, never composed acceptance. No emulator bridge is implemented.
+   Do not replace a dependency with an Ignore/RET handler. Integration runs the
+   actual callees and closes every recorded edge after all packages arrive.
+2. Run `python tools/build.py` first, then `python tools/cgen.py --check`.
+   Rebuilt map/listings supply symbols; never edit generated offsets. If the
+   source receipt is stale, rerun build.py and report persistent drift. cbuild.py
+   automatically refreshes the generated adapter interface and package headers
+   from your implementations. Generated files are not maintained worker edits.
 3. Write a contract: entry/return kind, register/flag inputs/outputs, segment flows,
    cdecl stack words if any, state/output ranges, call targets and device effects.
    Cite each unusual width, signed comparison, stale value and bug in a short
    comment. A mechanical name remains mechanical until code proves its meaning.
 4. Add `/* TRANSLATES MODULE:Label */` immediately above
    `EXPORT int c_Label(Regs *r) { ... }`. If label spellings collide, export
-   c_MODULE_Label and set Case.cfunc explicitly. Add prototypes in a package-owned
-   header for C callers; common headers are supervisor-owned. The marker is for
+   c_MODULE_Label and set Case.cfunc explicitly. The generator publishes
+   prototypes in `c/ugh_adapters.h` and a package
+   include header; do not maintain local declaration workarounds. Common files
+   are supervisor-owned. Include `ugh.h` or `ugh_adapters.h` for peer calls.
+   The marker is for
    coverage, not acceptance by itself. Record inline helpers separately in the
    report; do not mark them independently translated without their own adapter.
 5. Keep all game lvalues in ugh_mem through rd8/rd16/rd32/wr8/wr16/wr32. Use G/S/D/T
@@ -36,7 +64,9 @@ Propose exact shared-interface changes in your report for the supervisor.
    DS/ES comes from r, not from the data symbol's usual owner. No native pointer
    or C static/global may hold original game state or converted records.
 
-Unsigned operations wrap explicitly at the original byte/word boundary. Use
+Effective offsets and register operations wrap explicitly at the original byte/word
+boundary. Bytes within one word/dword operand are contiguous across FFFFh;
+rd16/rd16_linear/wr16/rd32/wr32 implement that distinction. Use
 int16_t/int8_t only where signed x86 branches demand it. Preserve original carry
 chains, logical-versus-arithmetic shifts, flags that survive INC/DEC/LOOP, zero
 counts that execute a full loop, and equality-only sentinel tests. Widening a
@@ -53,13 +83,15 @@ contract. A fallthrough/shared tail is one helper, not a copied approximation.
 An indirect call/jump reads the original pointer/table and resolves its original
 address; unknown targets return an error. Near RET under a far declaration is
 an actual stack quirk, not permission to repair the oracle. Self-references use
-generated original addresses. General callback argument/stack support must be
-added at the actual call site; the pilot dispatch supports only ClearSoundState.
+generated original addresses. Callback arguments, return kind and stack support
+belong at each actual call
+site. `ugh_dispatch` resolves all implemented addresses; `ugh_call_near` supplies
+the measured near return IP. IRET dispatch is separate from ordinary callbacks.
 
 ## Hardware boundary
 
 Use platform.h for port transactions, physical VGA access and software interrupt
-requests. The current model supports only the pilot subset in architecture.md.
+requests. The implemented fixture services and their capacities are listed in architecture.md.
 An unsupported request fails. Do not return zero/default success, bypass a wait,
 replace a drawing call with a no-op or mutate game state in a test-only device
 hook to make equality appear. Specify the narrow missing service with inputs,
@@ -103,6 +135,7 @@ The pilot demonstrates full RAM comparison plus 32-bit clock and DF poison cases
 Run serially (shared build outputs must not be mutated concurrently):
 
 ```
+python tools/build.py                # once first, and after exact-source changes
 python tools/cbuild.py
 python tools/difftest.py PACKAGE
 python tools/difftest.py PACKAGE --poison
@@ -118,8 +151,9 @@ C mutations in its package are caught by assertions/comparisons; and any remaini
 unexecuted/unsupported paths are named. Restore mutations in finally blocks and
 rerun the restored suite. Inline-only, translated-untested and platform-boundary
 entries are separate statuses. Never mark a whole package complete from a few
-passing paths. Integration also requires verify.py, asmverify.py and cjudge.py
-still to pass; changing src/ is outside a translation worker's ownership.
+passing paths. The supervisor runs verify.py, asmverify.py and cjudge.py at integration.
+Changing src/ or running verify.py/oracle.py is outside a translation worker's
+ownership. A passing bounded body does not close an unavailable native call edge.
 
 ## Report
 

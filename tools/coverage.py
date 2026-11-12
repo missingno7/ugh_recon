@@ -6,6 +6,7 @@ unresolved in this static reachable-body diagnostic, never counted as full proof
 """
 import json
 import re
+from collections import Counter
 from capstone import Cs, CS_ARCH_X86, CS_MODE_16
 from capstone.x86_const import X86_OP_IMM
 from common import ROOT, load_json, sha256
@@ -78,6 +79,14 @@ def main():
     tested=set(declared)
     executed=set(cov['executed']) if cov else set()
     expected={r['module']+':'+r['name'] for r in rs}
+    plan=load_json('translation-plan.json')
+    assigned=Counter(row['name'] for p in plan['packages'] for row in p['routines'])
+    if set(assigned)!=expected or any(n!=1 for n in assigned.values()):
+        raise ValueError('translation plan must cover every curated routine exactly once')
+    if plan['routine_count']!=len(expected): raise ValueError('translation plan routine count drift')
+    pending=[p for p in plan['packages'] if p['wave']==1]
+    owned=[f for p in pending for f in p['files']+p['test_files']]
+    if len(owned)!=len(set(owned)): raise ValueError('final-wave file ownership overlaps')
     if set(translated)-expected: raise ValueError('translation marker not in routine census')
     rows=[]
     for r in rs:
@@ -89,7 +98,9 @@ def main():
                          entry_executed=entry in executed,
                          instructions=len(reachable),executed=len(ran),
                          missing=sorted(reachable-executed),indirect_tails=indirect))
-    counts=dict(routines=len(rows),translations=len(translated),directly_tested=len(tested),
+    inline=sum(row['status']=='pilot_inline_only' for p in plan['packages'] for row in p['routines'])
+    counts=dict(routines=len(rows),translations=len(translated),inline_only=inline,
+                remaining=len(rows)-len(translated)-inline,final_wave_packages=len(pending),directly_tested=len(tested),
                 entries_executed=sum(r['entry_executed'] for r in rows))
     report=dict(counts=counts,notes='Reachable-body instruction counts can overlap at shared tails. '
                 'Calls excluded; computed jumps unresolved. Execution is behavioural evidence only.',routines=rows)

@@ -28,18 +28,24 @@ static inline uint32_t lin(uint16_t s, uint16_t o) { return (uint32_t)s*16u + o;
 EXPORT uint8_t ugh_read(uint32_t address);
 EXPORT void ugh_write(uint32_t address, uint8_t value);
 static inline uint8_t rd8(uint16_t s, uint16_t o) { return ugh_read(lin(s,o)); }
-static inline uint16_t rd16(uint16_t s, uint16_t o) {
-    return (uint16_t)(rd8(s,o) | (uint16_t)rd8(s,(uint16_t)(o+1))*256u);
+/* Effective offsets wrap before an operand; bytes within it are contiguous. */
+static inline uint16_t rd16_linear(uint16_t s,uint16_t o) {
+    uint32_t a=lin(s,o); uint16_t low=ugh_read(a);
+    return (uint16_t)(low | (uint16_t)ugh_read(a+1)*256u);
 }
-static inline uint32_t rd32(uint16_t s, uint16_t o) {
-    return rd16(s,o) | (uint32_t)rd16(s,(uint16_t)(o+2))*65536u;
+static inline uint16_t rd16(uint16_t s,uint16_t o) { return rd16_linear(s,o); }
+static inline uint32_t rd32(uint16_t s,uint16_t o) {
+    uint32_t a=lin(s,o),v=0;
+    for(unsigned i=0;i<4;i++) v|=(uint32_t)ugh_read(a+i)<<(8*i);
+    return v;
 }
-static inline void wr8(uint16_t s, uint16_t o, uint8_t v) { ugh_write(lin(s,o),v); }
-static inline void wr16(uint16_t s, uint16_t o, uint16_t v) {
-    wr8(s,o,(uint8_t)v); wr8(s,(uint16_t)(o+1),(uint8_t)(v>>8));
+static inline void wr8(uint16_t s,uint16_t o,uint8_t v) { ugh_write(lin(s,o),v); }
+static inline void wr16(uint16_t s,uint16_t o,uint16_t v) {
+    uint32_t a=lin(s,o); ugh_write(a,(uint8_t)v); ugh_write(a+1,(uint8_t)(v>>8));
 }
-static inline void wr32(uint16_t s, uint16_t o, uint32_t v) {
-    wr16(s,o,(uint16_t)v); wr16(s,(uint16_t)(o+2),(uint16_t)(v>>16));
+static inline void wr32(uint16_t s,uint16_t o,uint32_t v) {
+    uint32_t a=lin(s,o);
+    for(unsigned i=0;i<4;i++) ugh_write(a+i,(uint8_t)(v>>(8*i)));
 }
 static inline void flag(Regs *r, uint16_t bit, int on) {
     r->flags = (uint16_t)((r->flags & ~bit) | (on ? bit : 0));
@@ -71,6 +77,24 @@ static inline void set_ah(Regs *r,uint8_t x) { r->ax=(uint16_t)((r->ax&255u)|(ui
 /* Far cdecl argument byte offset, relative to the incoming SP after CALL FAR. */
 static inline uint16_t arg16(const Regs *r, uint16_t n) { return rd16(r->ss,(uint16_t)(r->sp+4+n)); }
 /* Every indirect target is resolved by its original far address; unknown is an error. */
-int ugh_dispatch(uint16_t segment, uint16_t offset, Regs *r);
-EXPORT int c_ClearSoundState(Regs *r);
+EXPORT int ugh_dispatch(uint16_t segment, uint16_t offset, Regs *r);
+typedef int (*UghAdapter)(Regs *r);
+UghAdapter ugh_resolve(uint16_t segment,uint16_t offset);
+int ugh_call_near(uint16_t target,uint16_t return_ip,Regs *r);
+EXPORT int ugh_dispatch_interrupt(uint16_t segment,uint16_t offset,Regs *r);
+EXPORT uint16_t ugh_load16(uint16_t segment,uint16_t offset);
+EXPORT uint32_t ugh_load32(uint16_t segment,uint16_t offset);
+EXPORT void ugh_store16(uint16_t segment,uint16_t offset,uint16_t value);
+EXPORT void ugh_store32(uint16_t segment,uint16_t offset,uint32_t value);
+#include "ugh_adapters.h"
+/* Compiler-owned switch positions measured within the rebuilt C function. */
+#define UGH_O_C_DurationSwitchTable (UGH_O_C_GetMusicTrackDuration + 0x0107u)
+#define UGH_O_C_DurationLongWait (UGH_O_C_GetMusicTrackDuration + 0x0092u)
+#define UGH_O_C_DurationFrequency (UGH_O_C_GetMusicTrackDuration + 0x00AEu)
+#define UGH_O_C_DurationKeyOff (UGH_O_C_GetMusicTrackDuration + 0x00B4u)
+#define UGH_O_C_DurationVolume (UGH_O_C_GetMusicTrackDuration + 0x00B6u)
+#define UGH_O_C_DurationInstrument (UGH_O_C_GetMusicTrackDuration + 0x00B8u)
+#define UGH_O_C_DurationTimer (UGH_O_C_GetMusicTrackDuration + 0x00BEu)
+#define UGH_O_C_DurationExtension (UGH_O_C_GetMusicTrackDuration + 0x00C0u)
+#define UGH_O_C_DurationDefault (UGH_O_C_GetMusicTrackDuration + 0x00D0u)
 #endif

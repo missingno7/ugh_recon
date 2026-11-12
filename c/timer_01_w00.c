@@ -1,9 +1,7 @@
 #include "ugh.h"
+#include "platform.h"
 
 /* Publish these in a shared timer interface for later packages. */
-/* SHARED-REQUEST */
-EXPORT int c_RemoveTimerCallback(Regs *r);
-EXPORT int c_SetTimerCallbackInterval(Regs *r);
 
 /* Inline implementation of the two separate minimum-scan loops (0291/02DD).
  * BX:CX is the current low:high candidate. CMP is unsigned; only SUB SI,2/JNS
@@ -91,4 +89,49 @@ EXPORT int c_SetTimerCallbackInterval(Regs *r) {
     scan_timer_minimum(r,rd16(r->ds,D(LastActiveTimerSlotOffset)));
     r->ds=saved_ds;
     return UGH_OK;
+}
+/* Far register ABI, no arguments. Installation initializes only slot zero and
+ * the handle maps; countdown/due/callback residue in other slots survives. */
+/* TRANSLATES TIMER:InstallTimerInterrupt */
+EXPORT int c_InstallTimerInterrupt(Regs *r) {
+    uint16_t installed=rd16(r->cs,T(TimerInterruptInstalled));
+    logic(r,installed,16); if(installed) return UGH_OK;
+    wr16(r->cs,T(TimerInterruptInstalled),1);
+    uint16_t ds=r->ds; r->ds=DATA_SEG; r->ax=0x3508;
+    int status=platform_interrupt(0x21,r); if(status) return status;
+    wr16(r->ds,D(PreviousInt08Offset),r->bx); wr16(r->ds,D(PreviousInt08Segment),r->es);
+    r->ax=T(ChainSavedTimerInterrupt); wr16(r->ds,D(TimerCallbackOffsetBySlot),r->ax);
+    r->ax=TIMER_SEG; wr16(r->ds,D(TimerCallbackSegmentBySlot),r->ax);
+    wr16(r->ds,D(NextPitQuantumLow),0); wr16(r->ds,D(NextPitQuantumHigh),1);
+    wr16(r->ds,D(EarliestTimerIntervalLow),0); wr16(r->ds,D(EarliestTimerIntervalHigh),1);
+    wr16(r->ds,D(TimerIntervalLowBySlot),0); wr16(r->ds,D(TimerIntervalHighBySlot),1);
+    wr16(r->ds,D(TimerRemainingLowBySlot),0); wr16(r->ds,D(TimerRemainingHighBySlot),1);
+    r->si=30;
+    do { wr16(r->ds,(uint16_t)(D(TimerSlotOffsetByHandle)+r->si),0x8000); r->si=sub16(r,r->si,2,0); } while((int16_t)r->si>=0);
+    wr16(r->ds,D(TimerSlotOffsetByHandle),0); wr16(r->ds,D(TimerHandleBySlot),0); wr16(r->ds,D(LastActiveTimerSlotOffset),0);
+    r->ax=TIMER_SEG; r->ds=r->ax; r->dx=T(HandleTimerInterrupt); r->ax=0x2508;
+    status=platform_interrupt(0x21,r); r->ds=ds; return status;
+}
+/* Far register ABI. Active path restores DS and leaves AL=0, DX=old offset;
+ * inactive path performs just TEST. IF/DF survive; PIT zero means 65536. */
+/* TRANSLATES TIMER:RestoreTimerInterrupt */
+EXPORT int c_RestoreTimerInterrupt(Regs *r) {
+    uint16_t installed=rd16(r->cs,T(TimerInterruptInstalled));
+    logic(r,installed,16); if(!installed) return UGH_OK;
+    wr16(r->cs,T(TimerInterruptInstalled),0); uint16_t ds=r->ds;
+    r->ax=DATA_SEG; r->ds=r->ax; r->dx=rd16(r->ds,D(PreviousInt08Offset));
+    r->ds=rd16(r->ds,D(PreviousInt08Segment)); r->ax=0x2508;
+    int status=platform_interrupt(0x21,r); if(status) return status;
+    set_al(r,0x36); platform_out(0x43,1,(uint8_t)r->ax);
+    set_al(r,(uint8_t)logic(r,0,8)); platform_out(0x40,1,0); platform_out(0x40,1,0);
+    r->ds=ds; return UGH_OK;
+}
+/* STI/PUSHF/CALL FAR to an IRET handler. The six-byte frame is real RAM.
+ * The saved external BIOS handler has no implicit/default implementation. */
+/* TRANSLATES TIMER:ChainSavedTimerInterrupt */
+EXPORT int c_ChainSavedTimerInterrupt(Regs *r) {
+    flag(r,IF,1); r->sp=(uint16_t)(r->sp-6);
+    wr16(r->ss,r->sp,(uint16_t)(T(ChainSavedTimerInterrupt)+6));
+    wr16(r->ss,(uint16_t)(r->sp+2),r->cs); wr16(r->ss,(uint16_t)(r->sp+4),r->flags);
+    return ugh_dispatch_interrupt(rd16(r->ds,D(PreviousInt08Segment)),rd16(r->ds,D(PreviousInt08Offset)),r);
 }

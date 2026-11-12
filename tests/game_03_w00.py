@@ -422,3 +422,12 @@ for target,descriptor in (
         m.ww('DGROUP:EnemyStateCallbacks',m.off('GAME:'+target),0)
     boundary('DispatchEnemyStates','native enemy dispatcher edge '+target,0x236f-0x2363,
              target,actor_state=False,setup=native_enemy)
+
+# The two wave-0 tree callees now exist; execute the actual CALL and return.
+closed={'GAME:AdvanceTreeRewardCooldown','GAME:IgnoreExhaustedTree'}
+for entry,delta,target in BOUNDARIES:
+    if target in closed:
+        def setup(m,entry=entry):
+            entry.setup(m);m.ww('DGROUP:EnemyDescriptors',0xffff,2)
+        CASES.append(replace(entry,setup=setup))
+BOUNDARIES=[edge for edge in BOUNDARIES if edge[2] not in closed]

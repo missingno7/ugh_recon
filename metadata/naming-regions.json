@@ -452,8 +452,6 @@
         "GAME:HandleKeyboardScanInterrupt",
         "GAME:UploadChunkyImageToVgaPlanes",
         "GAME:DuplicateSourcePaletteHalves",
-        "GAME:loc_4681",
-        "GAME:loc_4981",
         "GAME:UnpackPictureAndCopyPalette",
         "GAME:UnpackIceToScratch",
         "GAME:UnpackIceStream",
@@ -538,7 +536,9 @@
         "GAME:SecondJoystickYLowThreshold",
         "GAME:SecondJoystickYHighThreshold",
         "GAME:JoystickEnabledAxisMask",
-        "GAME:JoystickSampleLoopLimit"
+        "GAME:JoystickSampleLoopLimit",
+        "GAME:loc_4681",
+        "GAME:loc_4981"
       ]
     },
     {

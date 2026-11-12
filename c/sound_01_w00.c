@@ -221,3 +221,74 @@ EXPORT int c_HandleDspProbeInterrupt(Regs *r) {
     wr8(r->cs,S(DspProbeIrqSeen),1);
     return UGH_OK;
 }
+/* IRET entries. DOS vector service owns only IVT storage. The interrupted
+ * AX/CX changes are deliberately visible to the calibration polling loop. */
+/* TRANSLATES SOUND:BeginSoundDelayMeasurement */
+EXPORT int c_BeginSoundDelayMeasurement(Regs *r) {
+    uint16_t ds=r->ds,dx=r->dx; set_al(r,0x20); platform_out(0x20,1,0x20);
+    r->ax=SOUND_SEG; r->ds=r->ax; r->dx=S(FinishSoundDelayMeasurement); r->ax=0x2508;
+    int status=platform_interrupt(0x21,r); r->ds=ds; r->dx=dx;
+    set_ah(r,1); set_al(r,(uint8_t)logic(r,0,8)); return status;
+}
+/* TRANSLATES SOUND:FinishSoundDelayMeasurement */
+EXPORT int c_FinishSoundDelayMeasurement(Regs *r) {
+    uint16_t ds=r->ds,dx=r->dx; set_al(r,0x20); platform_out(0x20,1,0x20);
+    r->dx=rd16(r->cs,S(PreviousCalibrationTimerVector)); r->ds=rd16(r->cs,S(PreviousCalibrationTimerSegment));
+    r->ax=0x2508; int status=platform_interrupt(0x21,r);
+    wr16(r->cs,S(CalibrationLoopRemainder),r->cx); r->dx=dx;
+    wr16(r->cs,S(SoundIoDelayMultiplier),r->dx); r->cx=1; set_al(r,1); r->ds=ds; return status;
+}
+/* Far, preserves all registers/segments. Flags follow final CMP AL,1.
+ * IRQs occur only at the two named original polling instructions. DX starts
+ * at Begin's offset, retaining the original measured-delay offset bias. */
+/* TRANSLATES SOUND:CalibrateSoundDelay */
+EXPORT int c_CalibrateSoundDelay(Regs *r) {
+    Regs saved=*r; r->sp=(uint16_t)(r->sp-12);
+    r->ax=0x3508; int status=platform_interrupt(0x21,r); if(status) return status;
+    wr16(r->cs,S(PreviousCalibrationTimerVector),r->bx); wr16(r->cs,S(PreviousCalibrationTimerSegment),r->es);
+    r->ax=SOUND_SEG; r->ds=r->ax; r->dx=S(BeginSoundDelayMeasurement); r->ax=0x2508;
+    status=platform_interrupt(0x21,r); if(status) return status; r->ax=logic(r,0,16);
+    unsigned budget=1000000;
+    do {
+        if(!budget--) return UGH_BUDGET;
+        status=platform_service_point_at(SERVICE_TIMER_WAIT,r->cs,S(loc_1163),r); if(status) return status;
+        sub16(r,r->ax>>8,1,0);
+    } while((r->ax>>8)!=1);
+    do {
+        r->cx=0;
+        do {
+            if(!budget--) return UGH_BUDGET;
+            status=platform_service_point_at(SERVICE_TIMER_WAIT,r->cs,S(loc_116B),r); if(status) return status;
+            r->cx=(uint16_t)(r->cx-1);
+        } while(r->cx);
+        uint16_t cf=r->flags&CF; r->dx=add16(r,r->dx,1,0); flag(r,CF,cf);
+        sub16(r,(uint8_t)r->ax,1,0);
+    } while((uint8_t)r->ax!=1);
+    uint16_t flags=r->flags; *r=saved; r->flags=flags; return UGH_OK;
+}
+/* Far; original timeout still writes the command after 65536 busy reads.
+ * Preserves AX/CX/DX, flags from the last TEST AL,80. */
+/* TRANSLATES SOUND:WriteSoundBlasterDsp */
+EXPORT int c_WriteSoundBlasterDsp(Regs *r) {
+    uint16_t ax=r->ax,cx=r->cx,dx=r->dx;
+    set_ah(r,(uint8_t)r->ax); r->dx=add16(r,rd16(r->cs,S(DspBasePort)),12,0); r->cx=logic(r,0,16);
+    do {
+        set_al(r,(uint8_t)platform_in(r->dx,1)); if(ugh_devices.error) return UGH_UNSUPPORTED;
+        logic(r,(uint8_t)r->ax&0x80,8); r->cx=(uint16_t)(r->cx-1);
+    } while(r->cx && (r->ax&0x80));
+    set_al(r,(uint8_t)(r->ax>>8)); platform_out(r->dx,1,(uint8_t)r->ax);
+    r->ax=ax; r->cx=cx; r->dx=dx; return UGH_OK;
+}
+/* Far-returning interpreters; table tails retain the original caller's frame.
+ * Available wait handlers terminate; other handlers may tail back here. */
+static int adlx_dispatch(Regs *r,uint16_t table) {
+    set_al(r,rd8(r->es,r->di));
+    uint16_t cf=r->flags&CF; r->di=add16(r,r->di,1,0); flag(r,CF,cf);
+    set_ah(r,(uint8_t)logic(r,0,8)); r->bx=r->ax;
+    r->bx=logic(r,(r->bx>>3)&0xfffe,16); r->bx=add16(r,r->bx,table,0);
+    return ugh_dispatch(r->cs,rd16(r->cs,r->bx),r);
+}
+/* TRANSLATES SOUND:RunMainAdlxEvents */
+EXPORT int c_RunMainAdlxEvents(Regs *r) { return adlx_dispatch(r,S(MainAdlxDispatchTable)); }
+/* TRANSLATES SOUND:RunEffectAdlxEvents */
+EXPORT int c_RunEffectAdlxEvents(Regs *r) { return adlx_dispatch(r,S(EffectAdlxDispatchTable)); }

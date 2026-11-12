@@ -16211,7 +16211,7 @@
     },
     "013B:4681/GAME/loc_4681": {
       "name": "loc_4681",
-      "kind": "code",
+      "kind": "data",
       "address": "013B:4681",
       "evidence": "Address and declaration in src/asm/GAME.ASM.",
       "spellings": [
@@ -16231,7 +16231,7 @@
     },
     "013B:4981/GAME/loc_4981": {
       "name": "loc_4981",
-      "kind": "code",
+      "kind": "data",
       "address": "013B:4981",
       "evidence": "Address and declaration in src/asm/GAME.ASM.",
       "spellings": [

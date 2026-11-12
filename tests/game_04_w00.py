@@ -229,3 +229,26 @@ def tail_case(frame,start=0,colors=(0x5401,0x5655,0x5857),mask=1):
 for frame in range(3):
     CASES += [tail_case(frame),tail_case(frame,0xFFF0),
               tail_case(frame,13,(0xD581,0x2011,0xF0A3),1)]
+
+
+# Shared-service integration cases.
+
+for slots in ([],[0],[0,3,11]):
+    def setup(m,slots=slots):
+        for i in range(12):m.ww('DGROUP:FallingItemSprites',0xfffe if i in slots else 0xffff,2*i)
+        for i in slots:
+            m.ww('DGROUP:FallingItemCallbacks',m.off('GAME:LandFallingItem'),2*i)
+            m.ww('DGROUP:FallingItemDescriptors',m.off('DGROUP:Data_7970'),2*i)
+    CASES.append(Case('falling dispatcher '+str(slots),'GAME:DispatchFallingItems',setup=setup,
+        regs=dict(DS=0x6c19),out_regs=('AX','BX','CX','DX','SI','DI','BP','CF','PF','AF','ZF','SF','OF','IF','DF')))
+for x in (0xfe00,0x2800):
+    def setup(m,x=x):
+        for i in range(12):m.ww('DGROUP:FallingItemSprites',0xffff,2*i)
+        for i in (0,11):
+            m.ww('DGROUP:FallingItemSprites',0xfffe,2*i)
+            m.ww('DGROUP:FallingItemCallbacks',m.off('GAME:AdvanceFallingItem'),2*i)
+            m.ww('DGROUP:FallingItemDescriptors',m.off('DGROUP:Data_7970'),2*i)
+            m.ww('DGROUP:FallingItemX',x,2*i);m.ww('DGROUP:FallingItemMotionOrLifetime',0,2*i)
+    CASES.append(Case(f'falling dispatcher native flight signed boundary {x:04x}',
+        'GAME:DispatchFallingItems',setup=setup,regs=dict(DS=0x6c19),flags=0x602,
+        out_regs=('AX','BX','CX','DX','SI','DI','BP','CF','PF','AF','ZF','SF','OF','IF','DF')))

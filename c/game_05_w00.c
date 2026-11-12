@@ -191,3 +191,67 @@ EXPORT int c_DrawTransparentSprite(Regs *r) {
     platform_out(0x3c5,1,15);
     return UGH_OK;
 }
+/* Near register ABI. GC bit mask zero copies all enabled plane latches.
+ * Visits waterY+1 down to zero (word doubling and signed post-test). */
+/* TRANSLATES GAME:RestoreRainBackground */
+EXPORT int c_RestoreRainBackground(Regs *r) {
+    r->dx=0x3ce; set_al(r,8); platform_out(r->dx,1,8);
+    r->dx=0x3cf; set_al(r,0); platform_out(r->dx,1,0);
+    r->di=0xa000; r->es=r->di; r->cx=rd16(r->cs,G(BackgroundPagePointer));
+    r->bp=rd16(r->cs,G(DrawPagePointer));
+    r->bx=(uint16_t)((rd16(r->ds,D(WaterYPixels))+1)*2);
+    do {
+        r->si=r->cx; r->di=r->bp;
+        r->si=add16(r,r->si,rd16(r->ds,(uint16_t)(D(RainPreviousOffsets)+r->bx)),0);
+        r->di=add16(r,r->di,rd16(r->ds,(uint16_t)(D(RainPreviousOffsets)+r->bx)),0);
+        set_al(r,rd8(r->es,r->si)); wr8(r->es,r->di,(uint8_t)r->ax);
+        r->bx=sub16(r,r->bx,2,0);
+    } while((int16_t)r->bx>=0);
+    set_al(r,255); platform_out(r->dx,1,255); return UGH_OK;
+}
+/* GC mode changes preserve non-write-mode bits. Final AND defines flags. */
+static void copy_mode(Regs *r,int enable) {
+    r->dx=enable?0x3ce:0x3cf;
+    if(enable) { set_al(r,5); platform_out(r->dx,1,5); r->dx=0x3cf; }
+    set_al(r,(uint8_t)platform_in(r->dx,1));
+    set_al(r,(uint8_t)logic(r,(uint8_t)r->ax&0xfc,8));
+    if(enable) set_al(r,(uint8_t)((uint8_t)r->ax+1));
+    platform_out(r->dx,1,(uint8_t)r->ax);
+}
+/* Near; preserves AX/BX/CX/DX/SI/DS/ES, DI returns advanced row base.
+ * Whole byte groups are restored without edge masking. Height zero is 65536. */
+/* TRANSLATES GAME:RestoreBackgroundRectangle */
+EXPORT int c_RestoreBackgroundRectangle(Regs *r) {
+    Regs saved=*r; copy_mode(r,1);
+    uint16_t x=saved.ax,y=saved.bx;
+    uint16_t quarter=(uint16_t)((x>>2)|((x&0x8000)?0xc000:0));
+    uint16_t base=(uint16_t)(y*96+quarter);
+    uint16_t src=(uint16_t)(base+rd16(r->cs,G(BackgroundPagePointer)));
+    uint16_t dst=(uint16_t)(base+rd16(r->cs,G(DrawPagePointer)));
+    uint16_t width=(uint16_t)((uint16_t)((uint16_t)((x&3)+saved.cx)+3)>>2);
+    uint16_t rows=saved.dx;
+    do {
+        flag(r,DF,0);
+        for(unsigned i=0;i<width;i++) wr8(0xa000,(uint16_t)(dst+i),rd8(0xa000,(uint16_t)(src+i)));
+        src=(uint16_t)(src+96); dst=(uint16_t)(dst+96); rows--;
+    } while(rows);
+    copy_mode(r,0); uint16_t flags=r->flags; *r=saved; r->flags=flags; r->di=dst;
+    return UGH_OK;
+}
+/* Near fallthrough into the same rectangle implementation. */
+/* TRANSLATES GAME:RestoreTileBackground */
+EXPORT int c_RestoreTileBackground(Regs *r) {
+    r->ax=(uint16_t)(r->ax<<4); r->bx=(uint16_t)(r->bx*12); r->cx=16; r->dx=12;
+    return c_RestoreBackgroundRectangle(r);
+}
+/* Near; DS restored, ES becomes background segment; SI/DI follow incoming DF.
+ * REP count zero performs no accesses. AX/DX and arithmetic flags clobbered. */
+/* TRANSLATES GAME:SaveDrawPageBackground */
+EXPORT int c_SaveDrawPageBackground(Regs *r) {
+    copy_mode(r,1); uint16_t ds=r->ds;
+    r->si=rd16(r->cs,G(DrawPagePointer)); r->ds=rd16(r->cs,(uint16_t)(G(DrawPagePointer)+2));
+    r->di=rd16(r->cs,G(BackgroundPagePointer)); r->es=rd16(r->cs,(uint16_t)(G(BackgroundPagePointer)+2));
+    r->cx=rd16(r->cs,G(VgaPlaneCopyByteCount));
+    while(r->cx) { uint8_t v=rd8(r->ds,r->si); wr8(r->es,r->di,v); r->si=(uint16_t)(r->si+step(r)); r->di=(uint16_t)(r->di+step(r)); r->cx--; }
+    r->ds=ds; copy_mode(r,0); return UGH_OK;
+}

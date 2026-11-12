@@ -198,7 +198,9 @@ AdlxTickCount equ SOUND_BASE+022Eh
 ; END CONTRACT
 AdlxTickHighWord equ SOUND_BASE+0230h
 ; CONTRACT (tools/apply.py)
-; 32-bit elapsed origin; repeat copies current clock, C elapsed query subtracts it.
+; 32-bit origin subtracted from AdlxTickCount by C:GetElapsedMusicTime.
+; Start and whole-track repeat copy the current clock; section restore adds scanned loop ticks.
+; Section restore changes this origin, not AdlxTickCount or the main event deadline.
 ; END CONTRACT
 MainAdlxTimeOrigin equ SOUND_BASE+0232h
 ; CONTRACT (tools/apply.py)
@@ -206,11 +208,15 @@ MainAdlxTimeOrigin equ SOUND_BASE+0232h
 ; END CONTRACT
 MainAdlxTimeOriginHigh equ SOUND_BASE+0234h
 ; CONTRACT (tools/apply.py)
-; Word callback counter incremented before interpolation; unsigned comparison controls completion.
+; Word incremented once per AdvanceMusicFade callback, independently of AdlxTickCount.
+; C resets it to zero; interpolation runs through MusicFadeDuration, then the next call cancels.
 ; END CONTRACT
 MusicFadeStep equ SOUND_BASE+023Ah
 ; CONTRACT (tools/apply.py)
-; Word interpolation divisor and unsigned final step; zero is not checked in callback.
+; Word fade-callback count: unsigned completion limit and signed IDIV interpolation divisor.
+; The fade callback has its own 0001:D1EBh PIT-clock interval; these are not ADLX ticks.
+; With duration zero, an entry step of FFFFh wraps to zero and divides by zero; step zero cancels.
+; Values with bit 15 set are signed divisors despite the unsigned completion comparison.
 ; END CONTRACT
 MusicFadeDuration equ SOUND_BASE+023Ch
 ; CONTRACT (tools/apply.py)
@@ -218,23 +224,33 @@ MusicFadeDuration equ SOUND_BASE+023Ch
 ; END CONTRACT
 MusicFadeStartVolume equ SOUND_BASE+023Eh
 ; CONTRACT (tools/apply.py)
-; Word interpolation target volume; final step exactly reaches this value before cancellation.
+; Word target in start + signed((target-start)*step)/duration, with 16-bit arithmetic.
+; For ordinary positive durations/volume ranges, step==duration applies the target value.
+; The callback remains scheduled until a later incremented step is unsigned-above duration.
 ; END CONTRACT
 MusicFadeTargetVolume equ SOUND_BASE+0240h
 ; CONTRACT (tools/apply.py)
-; Word tested by dispatcher and volume routing to decide whether main music is active.
+; Main-track dispatch/routing flag: C start sets one, C stop clears it.
+; Separate from main record flags at 0234h; a finite 77h expiration clears those flags only.
+; ASM tests bit 0; C tests the full word. ClearSoundState zeroes both states.
 ; END CONTRACT
 MainAdlxPlaying equ SOUND_BASE+024Ah
 ; CONTRACT (tools/apply.py)
-; Word set to 1 when fade callback is registered, cleared after cancellation.
+; Word set to one when ScheduleMusicFade registers the independent fade callback.
+; CancelMusicFade or the callback's step>duration path clears it; C fade-out polls the word.
+; It stays set between callbacks and is not a callback reentry guard.
 ; END CONTRACT
 MusicFadeScheduled equ SOUND_BASE+024Ch
 ; CONTRACT (tools/apply.py)
-; Word bit 0 enables cursor-offset threshold check and C:1943h section-state restoration.
+; Word whose bit 0 enables repeated cursor-offset checks against MainAdlxSectionEnd.
+; Successful C:ScanMusicEvents sets one; C:DisableMusicSectionLoop clears it if music is active.
+; C:ApplyScannedMusicEvents restores the first scan cursor/state without clearing this flag.
 ; END CONTRACT
 MainAdlxSectionLoopEnabled equ SOUND_BASE+0250h
 ; CONTRACT (tools/apply.py)
-; Far pointer from C scanner; ASM loop test compares only its offset against cursor DI.
+; Far cursor saved by the second C:ScanMusicEvents pass, after the end-time threshold.
+; Driver compares only its offset to the main cursor; reaching it restores FirstScannedEvent.
+; Thresholds can overshoot by a wait event; pointer segment is stored but not compared here.
 ; END CONTRACT
 MainAdlxSectionEnd equ SOUND_BASE+0256h
 ; CONTRACT (tools/apply.py)
@@ -254,7 +270,9 @@ ActiveSampleVoiceCount equ SOUND_BASE+0262h
 ; END CONTRACT
 ActiveSampleVoiceMask equ SOUND_BASE+0264h
 ; CONTRACT (tools/apply.py)
-; Word slot context: 12 for main track, 8..11 for effects; consulted by routing and end handler.
+; Word ADLX descriptor/owner context: 12 for main music, 8..11 for effects during dispatch.
+; C start and allocation restoration also assign it; volume routing uses this slot context.
+; It is not an OPL channel index. C fade-out writes zero; the effect loop can leave twelve.
 ; END CONTRACT
 CurrentAdlxSlot equ SOUND_BASE+0268h
 ; CONTRACT (tools/apply.py)
@@ -841,11 +859,12 @@ WriteAdlibRegister:
     pop dx ; @120F
     retf ; @1210
 ; CONTRACT (tools/apply.py)
-; Scale saved OPL total levels by channel and requested volume; write operator levels.
-; In: far cdecl words channel [BP+6] (low byte), volume [BP+8] (low byte); channel<9.
-; Out: updates the live or displaced 20-byte channel record; preserves AX/BX/CX/DX/SI.
-; Quirk: displaced routing requires active music, current channel>=12 and reservations;
-; live arithmetic keeps high bytes of successive unsigned 8-bit products, without clipping.
+; Scale saved OPL total levels by channel/requested volume and write operator levels.
+; In: far cdecl words OPL channel [BP+6] low byte<9, volume [BP+8] low byte.
+; Out: updates live/displaced channel record; preserves AX/BX/CX/DX/SI.
+; Displaced routing needs MainAdlxPlaying bit 0, CurrentAdlxSlot>=12, and a reserved channel
+; at/above 9-ReservedAdlibChannelCount. CurrentAdlxSlot is a descriptor slot, not this channel.
+; Live arithmetic keeps high bytes of unsigned 8-bit products without clipping.
 ; END CONTRACT
 SetAdlibChannelVolume:
     enter 0, 0 ; @1211
@@ -930,10 +949,12 @@ loc_12DE:
     leave ; @12E3
     retf ; @12E4
 ; CONTRACT (tools/apply.py)
-; Timer callback: advance fade step and apply signed linear interpolation via C:1128h.
-; In: CS:0246h step, 0248h duration, 024Ah start, 024Ch target; duration must be nonzero.
-; Out: cancels its callback only when incremented step is unsigned-above duration.
-; Preserves AX/BX/CX/DX; cancellation changes DS through TIMER:021Bh.
+; Independent fade-timer callback: increment 16-bit MusicFadeStep, then interpolate volume.
+; In: MusicFadeDuration, start/target volumes; timer period is fixed at 0001:D1EBh PIT clocks.
+; Applies start + signed((target-start)*step)/duration via C:SetMusicTrackVolume while unsigned
+; step<=duration; the first unsigned-above step removes the callback and clears scheduled state.
+; Normal positive duration reaches target at equality and clears MusicFadeScheduled one call later.
+; Preserves AX/BX/CX/DX; cancellation changes DS. IDIV signedness/overflow and step wrap survive.
 ; END CONTRACT
 AdvanceMusicFade:
     push ax ; @12E5
@@ -1001,10 +1022,11 @@ loc_1376:
     retf ; @1376
 ; CONTRACT (tools/apply.py)
 ; Copy instrument state and write modulator/carrier and feedback OPL registers.
-; In: far cdecl channel word [BP+6] low byte, far pointer [BP+8]; channel<9.
-; Out: copies 12 bytes into the live/displaced 20-byte record; leaves DF clear.
-; Quirk: event payloads are 11 bytes but this routine copies 12; displaced routing
-; requires current channel exactly 12. Hardware path reapplies saved channel volume.
+; In: far cdecl OPL channel [BP+6] low byte<9, far instrument pointer [BP+8].
+; Out: copies 12 bytes into a 20-byte record, leaves DF clear; live path stamps CurrentAdlxSlot
+; as channel owner and reapplies saved volume. Event payload advancement is only 11 bytes.
+; Displaced copy requires CurrentAdlxSlot==12 and channel>=9-ReservedAdlibChannelCount.
+; Slot twelve means main-track context, not physical OPL channel twelve.
 ; END CONTRACT
 LoadAdlibInstrument:
     enter 0, 0 ; @1377
@@ -1236,9 +1258,10 @@ loc_156B:
     leave ; @156F
     retf ; @1570
 ; CONTRACT (tools/apply.py)
-; Set the per-channel gain byte and reapply saved volume, or update displaced gain.
-; In: far cdecl words channel [BP+6] low byte<9, gain [BP+8] low byte.
-; Preserves CX/DX/SI; AX/BX may change. No identified caller except event handlers.
+; Set per-OPL-channel gain and reapply saved volume, or update the displaced gain byte.
+; In: far cdecl channel [BP+6] low byte<9, gain [BP+8] low byte; event handlers call this.
+; Displaced path needs CurrentAdlxSlot>=12, reservations, and channel>=9-reserved count;
+; it does not additionally test MainAdlxPlaying. Preserves CX/DX/SI; AX/BX may change.
 ; END CONTRACT
 SetAdlibChannelGain:
     enter 0, 0 ; @1571
@@ -1720,11 +1743,13 @@ EffectAdlxDispatchStorage:
     dw offset HandleEffectAdlxShortWait
     dw offset HandleEffectAdlxShortWait
 ; CONTRACT (tools/apply.py)
-; Timer callback: increment 32-bit clock even while playback guard bit 0 is set.
-; If unguarded, run due main events, then effect slots 8..11 with flags&5==5.
-; Preserves AX/BX/DX and ES/DI around interpreters; other registers follow callees.
-; Quirk: main dispatch tests CS:0256h, not main record active bit; loop threshold
-; compares cursor offset only. Guard set/cleared without restoring a prior word value.
+; Timer callback: increment AdlxTickCount even while AdlxPlaybackGuard bit 0 prevents dispatch.
+; Unguarded path sets the guard, runs due main events if MainAdlxPlaying bit 0, then effects 8..11.
+; Main loop: if MainAdlxSectionLoopEnabled bit 0 and cursor offset>=MainAdlxSectionEnd offset,
+; call C:ApplyScannedMusicEvents to restore section-start state, then reload the far cursor.
+; This is recurring: restore leaves the enable flag set, ignores threshold segment, and rebases
+; MainAdlxTimeOrigin without changing AdlxTickCount/deadline. Effect records require flags&5==5.
+; Preserves AX/BX/DX and ES/DI around interpreters; clears guard without restoring its prior word.
 ; END CONTRACT
 TickAdlxPlayback:
     inc word ptr cs:[AdlxTickCount] ; @1939

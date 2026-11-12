@@ -575,7 +575,7 @@
       "dgroup_offsets": []
     },
     {
-      "name": "StopActiveSoundOutputs",
+      "name": "StartSoundOutputs",
       "address": "0878:096B",
       "length": 95,
       "instruction_length": 95,
@@ -610,7 +610,7 @@
       "dgroup_offsets": []
     },
     {
-      "name": "StopSampleChannel",
+      "name": "StopSoundChannel",
       "address": "0878:09CA",
       "length": 166,
       "instruction_length": 166,
@@ -1064,7 +1064,7 @@
       "dgroup_offsets": []
     },
     {
-      "name": "ClearMusicEventPendingFlag",
+      "name": "DisableMusicSectionLoop",
       "address": "0878:1491",
       "length": 42,
       "instruction_length": 42,

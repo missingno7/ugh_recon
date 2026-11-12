@@ -22497,62 +22497,62 @@
       ]
     },
     "0878:096B/C/fn_096B": {
-      "name": "StopActiveSoundOutputs",
+      "name": "StartSoundOutputs",
       "kind": "c-function",
       "address": "0878:096B",
-      "evidence": "Stops active digital output and reapplies current volume to the music voices.",
+      "evidence": "Starts queued sample DMA and attempts to start loaded ADLX effect descriptors 8..11.",
       "spellings": [
         {
           "module": "C",
-          "name": "StopActiveSoundOutputs",
+          "name": "StartSoundOutputs",
           "decorated": false
         },
         {
           "module": "GAME",
-          "name": "_StopActiveSoundOutputs",
+          "name": "_StartSoundOutputs",
           "decorated": true,
           "public": true
         },
         {
           "module": "SOUND",
-          "name": "_StopActiveSoundOutputs",
+          "name": "_StartSoundOutputs",
           "decorated": true,
           "public": true
         },
         {
           "module": "TIMER",
-          "name": "_StopActiveSoundOutputs",
+          "name": "_StartSoundOutputs",
           "decorated": true,
           "public": true
         }
       ]
     },
     "0878:09CA/C/fn_09CA": {
-      "name": "StopSampleChannel",
+      "name": "StopSoundChannel",
       "kind": "c-function",
       "address": "0878:09CA",
-      "evidence": "Stops a digital channel, if active, and clears its active-mask bit.",
+      "evidence": "Stops a selected sample voice, or delegates an ADLX effect slot to StopAdlibTrackChannel.",
       "spellings": [
         {
           "module": "C",
-          "name": "StopSampleChannel",
+          "name": "StopSoundChannel",
           "decorated": false
         },
         {
           "module": "GAME",
-          "name": "_StopSampleChannel",
+          "name": "_StopSoundChannel",
           "decorated": true,
           "public": true
         },
         {
           "module": "SOUND",
-          "name": "_StopSampleChannel",
+          "name": "_StopSoundChannel",
           "decorated": true,
           "public": true
         },
         {
           "module": "TIMER",
-          "name": "_StopSampleChannel",
+          "name": "_StopSoundChannel",
           "decorated": true,
           "public": true
         }
@@ -22807,31 +22807,31 @@
       ]
     },
     "0878:1491/C/fn_1491": {
-      "name": "ClearMusicEventPendingFlag",
+      "name": "DisableMusicSectionLoop",
       "kind": "c-function",
       "address": "0878:1491",
-      "evidence": "Clears the pending music-event flag when a main track is active.",
+      "evidence": "Disables the recurring scanned section loop by clearing MainAdlxSectionLoopEnabled.",
       "spellings": [
         {
           "module": "C",
-          "name": "ClearMusicEventPendingFlag",
+          "name": "DisableMusicSectionLoop",
           "decorated": false
         },
         {
           "module": "GAME",
-          "name": "_ClearMusicEventPendingFlag",
+          "name": "_DisableMusicSectionLoop",
           "decorated": true,
           "public": true
         },
         {
           "module": "SOUND",
-          "name": "_ClearMusicEventPendingFlag",
+          "name": "_DisableMusicSectionLoop",
           "decorated": true,
           "public": true
         },
         {
           "module": "TIMER",
-          "name": "_ClearMusicEventPendingFlag",
+          "name": "_DisableMusicSectionLoop",
           "decorated": true,
           "public": true
         }

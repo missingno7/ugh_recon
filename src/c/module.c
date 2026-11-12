@@ -126,17 +126,17 @@ struct s_chunk {
 extern void far LoadAdlibInstrument(int,void far *), far SetAdlibFrequency(int,unsigned);
 extern unsigned char far * far MainAdlxCursor, * far FirstScannedEvent;
 
-int StopSampleChannel(unsigned);
+int StopSoundChannel(unsigned);
 int LoadIffSample(unsigned, unsigned char huge *, unsigned, unsigned, unsigned);
 
 extern void far *far memset(void far *,int,unsigned);
 extern unsigned char far * far MainAdlxSectionEnd;
 
 /* CONTRACT (tools/apply.py)
- * Initializes requested sound devices and clears shared sound state.
- * In: device mask, bit 1 requests digital playback and bit 0 requests AdLib.
- * Out: returns/stores the subset of requested devices that initialized successfully.
- * Effects: clears prior device state; failed device initialization leaves its bit clear.
+ * Initializes requested devices after shutting down prior devices and clearing sound state.
+ * In: device bits, bit 0 AdLib and bit 1 DSP; Out: returns/stores successful-device subset.
+ * Quirk: SetDspSampleRate(8000) runs before SoundDeviceBits is assigned, so its gate is clear.
+ * DSP success also calls near-RET game hooks through far declarations; do not repair that ABI.
  * END CONTRACT */
 /* @0878:0003 */
 int InitializeSoundSystem(unsigned bits)
@@ -162,10 +162,9 @@ int InitializeSoundSystem(unsigned bits)
 }
 
 /* CONTRACT (tools/apply.py)
- * Shuts down active devices and makes shutdown idempotent after the first call.
- * In: shared initialized-device bits and shutdown state.
- * Out: clears active-device bits and marks shutdown complete.
- * Effects: stops digital playback and invokes each active device's sound teardown.
+ * Sets AdlxPlaybackGuard, cancels any fade, and tears down devices selected by SoundDeviceBits.
+ * Out: clears device bits and sets SoundSystemShutdown; leaves the ADLX guard set.
+ * Returns early only when shutdown was already recorded and no device bit remains set.
  * END CONTRACT */
 /* @0878:008A */
 void ShutdownSoundSystem(void)
@@ -183,10 +182,10 @@ void ShutdownSoundSystem(void)
 }
 
 /* CONTRACT (tools/apply.py)
- * Loads the bank resource through the game module's resource callback.
- * In: three callback arguments forwarded to the game resource loader.
- * Out: returns -1 on loader failure; otherwise stores bank base and length and returns length.
- * Effects: updates the shared huge-pointer bank view used by indexed sound loading.
+ * Calls GAME:001Dh for a huge bank pointer and GAME:001Ch for its length.
+ * In: three dword arguments; Out: -1 for a null pointer, otherwise stores base/length.
+ * Quirk: both game hooks are near RET stubs called through far declarations, with no result
+ * assignment. The executable supplies no implemented resource-loader contract for these hooks.
  * END CONTRACT */
 /* @0878:00F5 */
 unsigned long LoadSoundBankResource(unsigned long a, unsigned long b, unsigned long c)
@@ -200,10 +199,11 @@ unsigned long LoadSoundBankResource(unsigned long a, unsigned long b, unsigned l
 }
 
 /* CONTRACT (tools/apply.py)
- * Parses a FORM/8SVX sample and initializes one digital playback channel.
- * In: channel < 8, huge pointer to file bytes, volume, repeat count and step.
- * Out: returns 1 on setup or -1 on rejection; updates the channel descriptor and active mask.
- * Effects: waits on SoundBusyFlag; clamps volume to 255 and rounds sample byte length down even.
+ * Finds VHDR and BODY tags bytewise in FORM data and initializes sample descriptor 0..7.
+ * In: huge data pointer, volume, repeat count and Q8 step; requires SoundDeviceBits&2.
+ * Out: 1 on setup or -1 on rejection; clamps volume to 255 and rounds BODY length down even.
+ * Effects: calls StopSoundChannel, then waits for SampleMixerBusy before setting mask/count.
+ * Descriptor writes precede that wait; there is no claimed atomic descriptor replacement.
  * END CONTRACT */
 /* @0878:0176 */
 int LoadIffSample(unsigned x, unsigned char huge *p, unsigned volume, unsigned count, unsigned step)
@@ -247,7 +247,7 @@ int LoadIffSample(unsigned x, unsigned char huge *p, unsigned volume, unsigned c
     p++;
     if (length > 64000UL)
         return -1;
-    StopSampleChannel(x);
+    StopSoundChannel(x);
     if (volume > 255)
         volume = 255;
     length &= 0xfffe;
@@ -277,9 +277,10 @@ int LoadIffSample(unsigned x, unsigned char huge *p, unsigned volume, unsigned c
 }
 
 /* CONTRACT (tools/apply.py)
- * Loads ADLX track data into one AdLib channel slot and sets its requested volume.
- * In: channel >= 8, far data pointer, volume and playback count/control.
- * Out: returns 1 on parse success or -1; delegates slot setup to LoadAdlibTrackData.
+ * Attempts to load an ADLX descriptor and stores its requested volume.
+ * In: unsigned channel >=8, far data pointer, volume and playback count.
+ * Quirk: LoadAdlibTrackData returns 1 or -1, both true here; parse/device rejection therefore
+ * still stores the volume and returns 1. Only channel<8 returns -1 through this wrapper.
  * END CONTRACT */
 /* @0878:0691 */
 int LoadAdlibChannel(unsigned x, unsigned char far *p, unsigned a, unsigned b)
@@ -321,12 +322,14 @@ int LoadBankSoundByIndex(unsigned x, unsigned index, unsigned a, unsigned b, uns
 }
 
 /* CONTRACT (tools/apply.py)
- * Stops active digital output and reapplies current volume to the music voices.
- * In: active device bits, active sample count and music voice count.
- * Out: no return value; requests digital stop and silences/reapplies AdLib voice levels.
+ * Starts queued sample DMA and attempts to start loaded ADLX effect descriptors 8..11.
+ * In: SoundDeviceBits, ActiveSampleVoiceCount, and each effect descriptor's stored volume.
+ * Effects: PrimeSampleDmaPlayback refills/starts DMA; StartAdlibTrackChannel allocates voices.
+ * Already-active/unloaded ADLX descriptors are rejected by the callee; results are ignored.
+ * No direct caller was identified; this routine does not stop the active outputs.
  * END CONTRACT */
 /* @0878:096B */
-void StopActiveSoundOutputs(void)
+void StartSoundOutputs(void)
 {
     int i;
     if ((SoundDeviceBits & 2) && ActiveSampleVoiceCount)
@@ -337,13 +340,14 @@ void StopActiveSoundOutputs(void)
 }
 
 /* CONTRACT (tools/apply.py)
- * Stops a digital channel, if active, and clears its active-mask bit.
- * In: channel index; shared device bits and active-channel mask.
- * Out: returns 1 on accepted request or -1 when rejected/not active.
- * Effects: waits for SoundBusyFlag before clearing an active digital channel.
+ * Stops a selected sample voice, or delegates an ADLX effect slot to StopAdlibTrackChannel.
+ * In: unsigned slot; Out: -1 for slot>12 or an inactive sample when device bit 1 is enabled.
+ * Otherwise returns 1, including no-op requests with device bit 1 clear or slot twelve.
+ * Quirk: the SoundDeviceBits&2 gate also encloses ADLX delegation, even with AdLib enabled.
+ * Sample path clears repeat count, waits on SampleMixerBusy, then rechecks/clears mask and count.
  * END CONTRACT */
 /* @0878:09CA */
-int StopSampleChannel(unsigned x)
+int StopSoundChannel(unsigned x)
 {
     if (x > 12)
         return -1;
@@ -381,10 +385,11 @@ unsigned long SwapDwordByteOrder(unsigned long x)
 }
 
 /* CONTRACT (tools/apply.py)
- * Parses ADLX, AHDR, IMAP and TRCK chunks into an AdLib channel descriptor.
- * In: channel 8..12, far pointer to chunk data, playback count.
- * Out: returns 1 on success or -1 on device, channel, tag or voice-capacity rejection.
- * Effects: channel 12 stores the instrument-map pointer and track tick rate.
+ * Parses ADLX/AHDR/IMAP/TRCK into descriptor 8..12; requires SoundDeviceBits&1.
+ * In: far data pointer and repeat count (zero sets infinite-repeat bit); Out: 1 or -1.
+ * Stores start/cursor at TRCK payload and length=root_size-34; sizes use original mixed endian.
+ * For slot 12, f06/f10 are MainAdlxStartPointer/MainAdlxCursor; also sets IMAP and ticks/unit.
+ * Effect voice count must fit 9-ReservedAdlibChannelCount; tags/sizes lack full bounds checks.
  * END CONTRACT */
 /* @0878:0AA9 */
 int LoadAdlibTrackData(int x, unsigned char far *p, int n)
@@ -432,10 +437,11 @@ int LoadAdlibTrackData(int x, unsigned char far *p, int n)
 }
 
 /* CONTRACT (tools/apply.py)
- * Allocates AdLib voices and starts a previously loaded ADLX channel.
- * In: channel, volume; descriptor must contain loaded ADLX track data.
- * Out: returns 1 when started or -1 when rejected; restores the guard on success.
- * Effects: may move current voices; failure after allocation-count growth leaves that growth intact.
+ * Starts loaded ADLX descriptor 8..12 and reserves physical OPL channels for effects 8..11.
+ * In: slot and volume (any high byte clamps to 255); requires device bit 0 and loaded bit 2.
+ * Out: 1 with descriptor active bit and deadline=AdlxTickCount+3; restores saved guard on success.
+ * Effects: CurrentAdlxSlot is assigned before range/descriptor rejection and is not restored.
+ * Capacity failure rolls back ReservedAdlibChannelCount but leaves AdlxPlaybackGuard set to 1.
  * END CONTRACT */
 /* @0878:0CFC */
 int StartAdlibTrackChannel(int x, int n)
@@ -478,9 +484,9 @@ int StartAdlibTrackChannel(int x, int n)
 }
 
 /* CONTRACT (tools/apply.py)
- * Resets a loaded ADLX channel's current data pointer to its start pointer.
- * In: channel index and loaded-track descriptor.
- * Out: returns 1 when accepted or -1 when out of range or not an ADLX descriptor.
+ * Copies a loaded descriptor's f06 start pointer to f10 cursor; leaves its deadline untouched.
+ * In: signed slot; Out: -1 for slot>12 or missing loaded bit, otherwise 1.
+ * Quirk: no lower-bound check; for valid slot 12 this writes MainAdlxCursor.
  * END CONTRACT */
 /* @0878:0F2D */
 int ResetAdlibTrackChannelCursor(int x)
@@ -492,10 +498,12 @@ int ResetAdlibTrackChannelCursor(int x)
 }
 
 /* CONTRACT (tools/apply.py)
- * Loads the main ADLX music track and starts it immediately or with a timed fade.
- * In: far track-data pointer, fade/control word and target volume.
- * Out: returns 1 after initialization or -1 if AdLib is unavailable or parsing fails.
- * Effects: starts the music timer; fade mode advances through the assembly sound handler.
+ * Loads the main ADLX descriptor and enables main playback, immediately or with fade-in.
+ * In: far track pointer, fade-callback count (zero immediate), requested target volume.
+ * Out: -1 for missing AdLib/parser failure, otherwise 1; lower-level start result is ignored.
+ * Stores MainAdlxTimeOrigin=AdlxTickCount. Playback timer was registered by AdLib initialization.
+ * Fade-in resets MusicFadeStep and registers a separate fixed-period callback; stored track
+ * volume is assigned the target immediately, even while hardware volume is still fading.
  * END CONTRACT */
 /* @0878:0F88 */
 int StartMusicTrack(unsigned char far *p, int n, int a)
@@ -523,10 +531,11 @@ int StartMusicTrack(unsigned char far *p, int n, int a)
 }
 
 /* CONTRACT (tools/apply.py)
- * Stops the main music track immediately or fades its volume before teardown.
- * In: zero stops immediately; nonzero is the fade duration in music timer units.
- * Out: returns 1 when a track is active and teardown completes, otherwise -1.
- * Effects: fade mode busy-waits for MusicFadeBusyFlag, then stops and restores voice state.
+ * Stops effects 8..11, then disables main playback immediately or after a blocking fade-out.
+ * In: zero for immediate stop, otherwise number of independent fade callbacks through the target.
+ * Out: -1 without AdLib or an active main track, otherwise 1; main descriptor flags remain.
+ * Fade mode waits for MusicFadeScheduled to clear, sets CurrentAdlxSlot=0 and silences operators.
+ * Immediate mode only clears MainAdlxPlaying after canceling a fade; it does not key off music.
  * END CONTRACT */
 /* @0878:1059 */
 int StopMusicTrack(int n)
@@ -558,10 +567,10 @@ int StopMusicTrack(int n)
 }
 
 /* CONTRACT (tools/apply.py)
- * Applies a music volume to each currently indexed music voice.
- * In: requested volume; active AdLib device, track state and prior voice selection.
- * Out: stores the volume and returns 1, or -1 when AdLib/track is unavailable.
- * Clobbers/preserves: saves and restores CurrentMusicVoice around the voice loop.
+ * Stores requested music volume and routes it over OPL channels 0..MusicVoiceCount-1.
+ * In: volume, device bit 0 and MainAdlxPlaying; Out: 1 applied, -1 if device/track unavailable.
+ * Preserves CurrentAdlxSlot around a temporary value of 12; reserved channels update saved state.
+ * CurrentAdlxSlot selects the track context, not the OPL channel in the loop.
  * END CONTRACT */
 /* @0878:1128 */
 int SetMusicTrackVolume(int n)
@@ -581,10 +590,13 @@ int SetMusicTrackVolume(int n)
 }
 
 /* CONTRACT (tools/apply.py)
- * Scans the music event stream over two successive time windows into voice snapshots.
- * In: start and end time units, multiplied by MusicTicksPerUnit.
- * Out: stores two scan pointers and elapsed tick delta; returns 1 and sets pending, or -1.
- * Effects: parses event opcodes; first pass updates ScannedAdlibVoiceStates, second advances only.
+ * Scans from MainAdlxStartPointer to two timing thresholds and enables a recurring section loop.
+ * In: start/end units multiplied by MusicTicksPerUnit; requires AdLib and MainAdlxPlaying.
+ * Out: FirstScannedEvent, MainAdlxSectionEnd, start-state snapshot, and second-pass tick delta;
+ * returns 1 and sets MainAdlxSectionLoopEnabled, or -1 without rolling back prior scan writes.
+ * Only the first pass updates ScannedAdlibVoiceStates; waits can overshoot either threshold.
+ * Quirks: no ordering/zero-span validation or playback guard. Scanner uses nominal payload sizes;
+ * unlike SOUND it skips invalid-channel instrument/frequency payloads and length-skips 77h.
  * END CONTRACT */
 /* @0878:11AD */
 int ScanMusicEvents(unsigned a, unsigned b)
@@ -660,12 +672,12 @@ int ScanMusicEvents(unsigned a, unsigned b)
 }
 
 /* CONTRACT (tools/apply.py)
- * Clears the pending music-event flag when a main track is active.
- * In: shared MusicTrackActive state.
- * Out: clears MusicEventsPending if active; always returns 1.
+ * Disables the recurring scanned section loop by clearing MainAdlxSectionLoopEnabled.
+ * In: MainAdlxPlaying; only clears the flag while that word is nonzero. Always returns 1.
+ * Leaves scan pointers, snapshots and clocks untouched; no pending event is acknowledged.
  * END CONTRACT */
 /* @0878:1491 */
-int ClearMusicEventPendingFlag(void)
+int DisableMusicSectionLoop(void)
 {
     if (MainAdlxPlaying)
         MainAdlxSectionLoopEnabled = 0;
@@ -673,10 +685,11 @@ int ClearMusicEventPendingFlag(void)
 }
 
 /* CONTRACT (tools/apply.py)
- * Removes an AdLib channel's allocated voices and fills the vacated slots.
- * In: channel descriptor, current voice allocation and shared voice snapshots.
- * Out: updates channel allocation and hardware voice state; no return value.
- * Effects: copies/reprograms voices through ASM helpers and preserves source loop order.
+ * Releases an effect descriptor's reserved OPL channels and compacts the remaining allocations.
+ * In: effect slot and descriptor voice count/base; Out: decreases ReservedAdlibChannelCount.
+ * Moves live effect records and restores displaced main-track state where music voices exist.
+ * Effects: writes CurrentAdlxSlot for instrument ownership/routing and does not restore it.
+ * The hardware helpers write OPL registers; SetAdlibFrequency unconditionally reenables IF.
  * END CONTRACT */
 /* @0878:14BB */
 void RestoreAdlibVoiceAllocation(int x)
@@ -721,10 +734,11 @@ void RestoreAdlibVoiceAllocation(int x)
 }
 
 /* CONTRACT (tools/apply.py)
- * Stops one allocated ADLX channel and restores its displaced voice state.
- * In: channel index and prior SoundStateGuard value.
- * Out: clears its descriptor and restores the saved guard on the accepted path.
- * Effects: releases voices, resets its sample cursor, and reassigns affected voices.
+ * Stops an active loaded ADLX effect slot 8..11; slot 12 main music is explicitly excluded.
+ * In: device bit 0, descriptor flags and AdlxPlaybackGuard; invalid/inactive requests do nothing.
+ * Out: clears descriptor flags, restores its start cursor, keys off allocated OPL channels,
+ * and calls RestoreAdlibVoiceAllocation. Saves/restores the ADLX guard on the accepted path.
+ * Cursor is an ADLX event cursor; CurrentAdlxSlot may change during allocation restoration.
  * END CONTRACT */
 /* @0878:1768 */
 void StopAdlibTrackChannel(int x)
@@ -747,10 +761,11 @@ void StopAdlibTrackChannel(int x)
 }
 
 /* CONTRACT (tools/apply.py)
- * Loads an ADLX effect into a free AdLib channel, or replaces the oldest channel.
- * In: far effect data, volume and playback control/count.
- * Out: returns selected channel 8..11 on success or -1 when loading/starting fails.
- * Effects: channel age is compared as an unsigned-looking C field with ordinary C int semantics.
+ * Selects free effect slot 8..11, or replaces the slot with the least unsigned f00 field.
+ * In: far ADLX data, volume and repeat count; requires device bit 0.
+ * Out: chosen slot or -1; free-slot path returns the slot even if loading/starting fails.
+ * Quirks: LoadAdlibChannel treats parser -1 as true; free-slot path ignores start result.
+ * No timestamp writer for f00 was found; replacement ties favor slot 8, not proven oldest age.
  * END CONTRACT */
 /* @0878:1852 */
 int PlayAdlibEffect(unsigned char far *p, int n, int a)
@@ -778,10 +793,12 @@ int PlayAdlibEffect(unsigned char far *p, int n, int a)
 }
 
 /* CONTRACT (tools/apply.py)
- * Applies scanned music state, updates the event cursor and advances the music clock.
- * In: pending scan pointers, elapsed tick delta, current voice and hardware snapshots.
- * Out: writes changed hardware voice state and updates applied clock ticks.
- * Effects: uses the current allocation boundary to choose active versus saved voice state.
+ * Restores the scanned section-start cursor and voice snapshot when the loop threshold is met.
+ * In: device bit 0, FirstScannedEvent, ScannedMusicClockTicks and scanned voice records.
+ * Out: MainAdlxCursor=FirstScannedEvent; adds loop ticks to MainAdlxTimeOrigin with 32-bit wrap.
+ * Leaves AdlxTickCount, the main deadline and MainAdlxSectionLoopEnabled unchanged.
+ * Restores live OPL channels below 9-ReservedAdlibChannelCount, saved records above that boundary;
+ * final volume call reads the live record even on the saved-record path. Relies on caller context.
  * END CONTRACT */
 /* @0878:1943 */
 void ApplyScannedMusicEvents(void)
@@ -803,10 +820,10 @@ void ApplyScannedMusicEvents(void)
 }
 
 /* CONTRACT (tools/apply.py)
- * Converts accumulated music-clock ticks since the last applied position to time units.
- * In: MusicClockTicks, AppliedMusicClockTicks and nonzero MusicTicksPerUnit.
- * Out: returns their unsigned difference divided by the tick rate.
- * Effects: unsigned long subtraction retains 32-bit wrap semantics.
+ * Returns (AdlxTickCount-MainAdlxTimeOrigin)/MusicTicksPerUnit as unsigned 32-bit arithmetic.
+ * In: nonzero ticks/unit; no device/active-state check or guard against a torn clock read.
+ * Origin is set at start/whole-track repeat and advanced by section-loop duration on restore.
+ * Units are AHDR timing units, not seconds when ADLX events change the playback timer period.
  * END CONTRACT */
 /* @0878:1A50 */
 unsigned long GetElapsedMusicTime(void)
@@ -816,10 +833,11 @@ unsigned long GetElapsedMusicTime(void)
 
 
 /* CONTRACT (tools/apply.py)
- * Scans the encoded music event stream and totals its time deltas.
- * In: active AdLib device, track-active flag, event pointer/length and nonzero tick rate.
- * Out: returns total duration in time units, or zero when prerequisites are absent.
- * Effects: opcodes advance by payload lengths; malformed streams lack per-opcode bounds.
+ * Scans nominal ADLX opcode payload sizes and divides accumulated waits by MusicTicksPerUnit.
+ * In: device bit 0, MainAdlxPlaying, start pointer/length and nonzero ticks/unit; else returns 0.
+ * Out: unsigned 16-bit timing-unit count; not a wall-clock duration when timer periods vary.
+ * Quirks: long-wait delta wraps at 16 bits here; scanner skips invalid-channel payloads and
+ * treats 77h as length-prefixed, unlike SOUND. Payload advances have no per-event bounds check.
  * END CONTRACT */
 /* @0878:1A8E */
 unsigned GetMusicTrackDuration(void)

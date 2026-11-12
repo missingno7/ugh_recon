@@ -1,0 +1,37 @@
+{
+  "packed": {
+    "path": "assets/dos/UGH.EXE",
+    "file_size": 139685,
+    "file_sha256": "1058cad6771a540f75b109dbe77adda1f6590e7c0309349482c601542e459e7a",
+    "packer": "PKLITE 1.15, standard mode"
+  },
+  "expanded": {
+    "file_size": 411838,
+    "file_sha256": "ef93d2cd5eb558f6a7d0007e0109f2e9ee952dc125389d7a6256646087636d7c",
+    "header": {
+      "magic": 23117,
+      "last_page_bytes": 190,
+      "pages": 805,
+      "reloc_count": 525,
+      "header_paras": 160,
+      "min_alloc": 17,
+      "max_alloc": 65535,
+      "ss": 25580,
+      "sp": 128,
+      "checksum": 0,
+      "ip": 0,
+      "cs": 0,
+      "reloc_offset": 62,
+      "overlay": 0
+    },
+    "header_gap_hex": "0100fb506a7200000000000000000000000000000000000000000000000000000000",
+    "header_pad_all_zero": true,
+    "image_size": 409278,
+    "image_sha256": "2741638a508233a8d14a2a7bad5a4355eb527e4607b6509caec428582035cd4d",
+    "tail_size": 0,
+    "reloc_ordered_sha256": "740af3940c3bed1b779c9b6c525824a8a514428181d625fb57714c24c887c472",
+    "reloc_sorted_sha256": "f2521ab1cb538ca3f49ff38c54e190697f954d829d7c3f514bb679d26db7d186",
+    "reloc_distinct_sites": 525
+  },
+  "repack_reproduces_packed": true
+}

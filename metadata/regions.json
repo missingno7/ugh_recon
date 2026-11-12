@@ -1,0 +1,41 @@
+{
+  "note": "Curated classification of the expanded load image by segment frame (paragraph, as stored at relocation sites). Frames come from relocation values, so a frame can hold several link segments; refine by splitting entries. tools/census.py fails unless these cover the image exactly.",
+  "classes": {
+    "RUNTIME": "Borland C++ 3.0 startup and library members; attributed, rebuilt from the original library",
+    "ASM": "hand-written assembly (TASM); to be reconstructed as assembly source",
+    "C": "compiled C (BC++ 3.0, huge model); to be matched from C source",
+    "DATA": "data; owner and format to be established",
+    "UNKNOWN": "not yet classified"
+  },
+  "regions": [
+    {"frame": "0000", "class": "RUNTIME", "name": "startup and runtime code", "evidence": "C0H.OBJ match at entry; far-called long/huge-pointer helpers"},
+    {"frame": "013B", "class": "ASM", "name": "game", "evidence": "program body called from startup at 013B:0008; jcc+3 nop padding (TASM JUMPS); VGA and joystick ports"},
+    {"frame": "0664", "class": "ASM", "name": "sound", "evidence": "cs: variables, jcc+3 nop padding; AdLib 388h/389h, DMA and PIC ports"},
+    {"frame": "0878", "class": "C", "name": "C module", "evidence": "push bp/mov bp,sp or enter; push ds; mov ax,1A37h; mov ds,ax prologues"},
+    {"frame": "0A32", "class": "ASM", "name": "timer", "evidence": "PIT ports 40h/43h; cs: flag tests with nop padding"},
+    {"frame": "0A67", "class": "DATA", "name": "far data referenced by game", "evidence": "no code referenced; three relocation references"},
+    {"frame": "1A37", "class": "DATA", "name": "C module data segment", "evidence": "DS value loaded by every C function"},
+    {"frame": "1A38", "class": "DATA", "name": "far data", "evidence": "single reference from DGROUP"},
+    {"frame": "1E1F", "class": "DATA", "name": "far data", "evidence": "pointer table at game cs:59CA"},
+    {"frame": "2BC6", "class": "DATA", "name": "far data", "evidence": "single reference from DGROUP"},
+    {"frame": "2BF6", "class": "DATA", "name": "far data", "evidence": "single reference from game"},
+    {"frame": "2D9A", "class": "DATA", "name": "far data", "evidence": "single reference from game"},
+    {"frame": "2F9E", "class": "DATA", "name": "far data", "evidence": "single reference from game"},
+    {"frame": "2FB7", "class": "DATA", "name": "far data", "evidence": "single reference from game"},
+    {"frame": "325B", "class": "DATA", "name": "far data", "evidence": "single reference from game"},
+    {"frame": "3260", "class": "DATA", "name": "far data", "evidence": "single reference from game"},
+    {"frame": "3265", "class": "DATA", "name": "far data", "evidence": "single reference from game"},
+    {"frame": "326B", "class": "DATA", "name": "far data", "evidence": "single reference from game"},
+    {"frame": "3274", "class": "DATA", "name": "far data", "evidence": "two references from game"},
+    {"frame": "3279", "class": "DATA", "name": "far data", "evidence": "two references from game"},
+    {"frame": "3444", "class": "DATA", "name": "far data", "evidence": "single reference from game"},
+    {"frame": "3629", "class": "DATA", "name": "far data", "evidence": "single reference from game"},
+    {"frame": "3632", "class": "DATA", "name": "far data", "evidence": "single reference from game"},
+    {"frame": "3637", "class": "DATA", "name": "far data", "evidence": "single reference from game"},
+    {"frame": "37A7", "class": "DATA", "name": "far data", "evidence": "pointer table at game cs:59CE"},
+    {"frame": "438A", "class": "DATA", "name": "far data", "evidence": "pointer table at game cs:59D2"},
+    {"frame": "4E83", "class": "DATA", "name": "far data", "evidence": "pointer table at game cs:59D6"},
+    {"frame": "5B63", "class": "DATA", "name": "far data", "evidence": "pointer table at game cs:59DA/59DE"},
+    {"frame": "5C09", "class": "DATA", "name": "DGROUP", "evidence": "DS loaded by startup and game; Borland banner at offset 4"}
+  ]
+}

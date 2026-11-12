@@ -1,0 +1,15 @@
+{
+  "note": "Paths are relative to C:/tools. A reproducing configuration, pinned by hash; see docs/executable.md for what is evidenced about the original tools.",
+  "runner": {"path": "nmlgcdos/msdos.exe", "sha256": "f7f6cb0a3e816c5edb13112d327c1bddbf7463fe7bf9a005ca1eb5317751bd02"},
+  "tools": {
+    "PKLITE": {"path": "pklite-1.15/PKLITE.EXE", "sha256": "43f7967879ff7fe4640bdc322da0236d6620a5bc85d7b751d416d94c64db3cca"},
+    "BCC":    {"path": "borland-c++-3.0/files/BIN/BCC.EXE", "sha256": "e56c6d228191e33665802e3affd9f44803af7c19c0c5a591c28ad10ffcdada6f"},
+    "TASM":   {"path": "borland-c++-3.0/files/BIN/TASM.EXE", "sha256": "c338721a4280f0302a4ba5505a94da2057fa155a83fa512379eecc83738013df"},
+    "TLINK":  {"path": "borland-c++-3.0/files/BIN/TLINK.EXE", "sha256": "ac0ac8b0084e06e9916ee12602aa4fcba998f7b702fc2adf4a213564288147c7"},
+    "TLIB":   {"path": "borland-c++-3.0/files/BIN/TLIB.EXE", "sha256": "b1d38b750c97c639e25aceaad80572c4145a66b46a5532d65d92e9b19c311360"}
+  },
+  "libraries": {
+    "C0H.OBJ": {"path": "borland-c++-3.0/files/LIB/HLIB/C0H.OBJ", "sha256": "131edec8314c6361a09ec47d217c5232b74e85dcd67a558cdd218c8f4a8ba329"},
+    "CH.LIB":  {"path": "borland-c++-3.0/files/LIB/HLIB/CH.LIB", "sha256": "b11b50658f1bfe861257beeabe8344dc667a17f68af2dfda312ba88b46788819"}
+  }
+}

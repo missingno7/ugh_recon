@@ -1,0 +1,6 @@
+build/
+**/__pycache__/
+*.pyc
+# Private original inputs are local task inputs, never committed.
+assets/
+.claude/

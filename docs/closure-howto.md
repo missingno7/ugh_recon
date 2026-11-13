@@ -210,3 +210,58 @@ negative results and pending D scenarios in the certificate/report. A successful
 lint does not promote evidence. The second round proposes
 `verified-under-assumptions` only for the explicit bounded/step domains; the
 general full-window contract retains C evidence. The supervisor owns final status.
+
+## Timer state and callback boundary
+
+The timer worker adds `native/timer.h`, `native/timer.c` and its bridge. Slots
+are records, while public handles retain their original even identities. The
+handle map is deliberately not required to be a bijection: removal corrupts it.
+`timer_remove_wrong_stride` retains the sequential, overlapping callback-word
+copy through symbolic fragment provenance. Only the bridge binds fragments to
+machine words. Mixed or externally supplied targets remain explicit OPEN cases.
+Normal callers register a `TimerCallback` enum. The two fixture callbacks are
+separately named and are not claims about game registration sites.
+
+The bridge admits aligned active slots within capacity, with a selected handle
+mapping to an active slot. Removing the last remaining slot, invalid/stale/odd
+handles, overflow registration and unknown registration targets use the retained
+L1 implementation. Passing those cases therefore verifies compatibility, not a
+native proof for unchecked segment writes. Installation, restoration, saved BIOS
+chaining, PIT/PIC I/O and stack adapters remain at the machine/platform boundary.
+Native tick accounting and descending due consumption are separate phases;
+the bridge reprojects after each callback, preserving callback mutations and its
+original cursor. It does not precompute a callback list.
+
+```
+python verif/timer_evidence.py enumerate
+python verif/timer_projection.py
+python verif/timer_mutants.py
+python verif/timer_evidence.py register --count 16 --symbolic --timeout 120
+python verif/timer_evidence.py remove --count 16 --symbolic --timeout 120
+python verif/timer_evidence.py set --count 16 --symbolic --timeout 90
+python verif/timer_evidence.py tick --count 1 --timeout 90
+python verif/timer_evidence.py tick --count 3 --timeout 90
+python verif/timer_evidence.py tick --count 16 --timeout 150
+python verif/timer_evidence.py tick --count 3 --negative --timeout 30
+python verif/timer_integration.py --whole
+python tools/closure.py
+```
+
+Symbolic API profiles admit any active count up to 16, any even in-range handle
+with an active aligned mapping, arbitrary words (including corrupt other maps),
+and arbitrary intervals/countdowns/due/target fragments. Registration additionally
+requires capacity and a free handle at or below the new slot; its symbolic proof
+uses the playback callback, with typed target projection checked separately.
+Tick proofs admit arbitrary words at the stated fixed counts. These are actual-C
+relational operation checks on an aligned, normalized timer-RAM shim, with safety
+and unwind assertions enabled. They do not prove instruction-level asynchronous
+interleavings. The variable-count tick profile timed out at 120 seconds and earns
+no proof. The finite enumerations state their domains in the timer certificate.
+
+`timer_build.py` uses `closure_support.compile_c` for an isolated combined DLL.
+It copies and renames only the four selected L1 endpoints; original stack wrappers
+dispatch to the bridged endpoints. Generated audit counters distinguish native
+steps from L1 fallback. No existing builder/certificate is changed. The integration
+runner gives `wholegame.main` a separate Windows loader reference because that
+entry point unloads the DLL it receives; the runner retains its reference to read
+the counters afterwards. All reports live under `build/workers/close-timer/`.

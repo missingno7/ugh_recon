@@ -1,0 +1,438 @@
+{
+  "component": "timer",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "proposed_status_reason": "Native owned state and typed API are implemented, with B relational API proofs, bounded tick proofs, finite-domain A, C and D. Global callback/reentrancy reachability and instruction-level interleavings remain open; supervisor owns promotion.",
+  "original": {
+    "L0": [
+      "TIMER:RegisterTimerCallback 0A32:01AA",
+      "TIMER:RemoveTimerCallback 0A32:021B",
+      "TIMER:SetTimerCallbackInterval 0A32:02C1",
+      "TIMER:HandleTimerInterrupt 0A32:00D2",
+      "TIMER:RegisterTimerCallbackFromStack 0A32:030E",
+      "TIMER:RemoveTimerCallbackFromStack 0A32:0323"
+    ],
+    "L1": [
+      "c/timer.c:c_RegisterTimerCallback/c_HandleTimerInterrupt",
+      "c/timer_system.c:c_RemoveTimerCallback/c_SetTimerCallbackInterval",
+      "c/timer_stack.c:c_RegisterTimerCallbackFromStack/c_RemoveTimerCallbackFromStack"
+    ],
+    "static_evidence": [
+      "src/asm/TIMER.ASM complete instruction stream",
+      "src/asm/SOUND.ASM registration/removal/setter sites",
+      "src/c/module.c StartMusicTrack/StopMusicTrack/ShutdownSoundSystem",
+      "metadata/program-model.json components.timer and indirect_sites.0A32:0145/009B",
+      "docs/architecture-model.md timer records and open questions"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/timer.c",
+      "native/timer.h",
+      "native/bridge/timer_bridge.c"
+    ],
+    "header": "native/timer.h",
+    "functions": [
+      "timer_register",
+      "timer_remove",
+      "timer_remove_wrong_stride",
+      "timer_set_interval",
+      "timer_account_tick",
+      "timer_take_due",
+      "timer_handle_slot",
+      "timer_target",
+      "timer_callback"
+    ],
+    "build": "python verif/timer_build.py",
+    "bridge": "Four canonical endpoints; original stack adapters remain unchanged and dispatch to the bridged API. Install/restore/chain remain L1 platform services."
+  },
+  "purpose": "Own the sixteen-slot callback scheduler: intervals, remaining clocks, stale due flags, public handle identities, intentionally broken removal, and two-phase interrupt tick accounting. Hardware capabilities remain outside ordinary native code.",
+  "interface": {
+    "inputs": [
+      "TimerState with count 1..16 and sixteen initialized records/maps; all uint32 intervals/countdowns/quanta admitted",
+      "Register: typed TimerCallback; interval in PIT clocks",
+      "Remove/set: uint16 even public identity with an aligned active mapping; removal count >=2",
+      "Account tick then visit descending indices from count-1; callbacks may mutate state between consumes"
+    ],
+    "outputs": [
+      "Registration identity or -1 for inadmissible native allocation; removal returns original AX identity result; setter publishes unsigned minimum",
+      "Tick updates remaining/due/quantum and returns pre-callback AX/DX scratch for the bridge; take_due clears due before returning a typed target or OPEN"
+    ],
+    "effects": [
+      "Mutates only supplied TimerState. No native globals, devices, allocation, register model or original addresses",
+      "Bridge projects full active/inactive arrays, handles and logical globals; hardware and exact far-call/stack shell stay in bridge/L1",
+      "Invalid machine inputs execute explicitly retained l1_* endpoints, not native validation semantics"
+    ],
+    "preconditions": [
+      "Single serialized API operation; initialized nonaliasing state struct; no live-stack, device or code alias to timer storage",
+      "Each admitted remove/set identity maps to an aligned active slot. Map bijection is NOT assumed",
+      "Register: count<16 and some high-bit-free marker at or below new slot index; enum is one of named non-OPEN callbacks",
+      "After callbacks, count stays 1..16 aligned; stale descending cursor may exceed reduced active count, but remains within initialized capacity"
+    ],
+    "projection": "DGROUP parallel low/high words become uint32 fields; due and handles remain literal words. Callback word identities become symbolic fragments, with snapshot provenance for 32 arbitrary OPEN words. Only bridge binds those fragments to original words. Installed flag is projected but unchanged; saved INT08 vector stays solely in platform/L1.",
+    "machine_shell": [
+      "Register: AX allocated identity; BX/CX/DX and saved shell/FLAGS preserved",
+      "Remove: DS becomes DGROUP; AX remains requested identity for tail or becomes tail handle for moved path; BX/CX minimum; FLAGS and other saved registers preserved",
+      "Setter: AX and DS preserved, BX/CX minimum, countdown/due untouched, FLAGS preserved",
+      "Stack adapters load callback words/interval or identity and preserve BP/SP using unchanged L1 glue. loc_032F remains literal removal adapter",
+      "ISR preserves interrupted shell/FLAGS at return; callback clobbers flow to following callbacks except saved DS/SI; bridge retains real RAM far frames. Transient save scratch excluded only by no-live-stack-alias observation contract."
+    ]
+  },
+  "callers": [
+    {
+      "routine": "SOUND:InitializeAdlibPlayback",
+      "site": "0664:1B24",
+      "target": "SOUND:TickAdlxPlayback 0664:1939",
+      "interval": "0x1843 = 6211",
+      "context": "Foreground initialization/calibration; guard prevents repeated registration on ordinary successful lifecycle"
+    },
+    {
+      "routine": "SOUND:ScheduleMusicFade",
+      "site": "0664:1366",
+      "target": "SOUND:AdvanceMusicFade 0664:12E5",
+      "interval": "0x1D1EB = 119275",
+      "context": "Foreground through C:StartMusicTrack/StopMusicTrack; scheduled flag suppresses duplicates"
+    },
+    {
+      "routine": "TIMER:InstallTimerInterrupt",
+      "site": "0A32:0031/0037",
+      "target": "TIMER:ChainSavedTimerInterrupt 0A32:0099",
+      "interval": "65536",
+      "context": "Foreground install initializes slot zero"
+    },
+    {
+      "routine": "SOUND:AdvanceMusicFade",
+      "site": "0664:1323",
+      "operation": "remove its stored handle",
+      "context": "Interrupt callback when unsigned incremented step exceeds duration"
+    },
+    {
+      "routine": "SOUND:CancelMusicFade",
+      "site": "0664:1341",
+      "operation": "remove stored fade handle if scheduled",
+      "context": "Foreground C:StartMusicTrack/StopMusicTrack/ShutdownSoundSystem"
+    },
+    {
+      "routine": "SOUND:ShutdownAdlibPlayback",
+      "site": "0664:1A74",
+      "operation": "remove stored playback handle if attempted-init byte set",
+      "context": "Foreground through C:ShutdownSoundSystem; failed init also sets attempted byte, so handle may be stale"
+    },
+    {
+      "routine": "SOUND:HandleMainAdlxTimerPeriod / HandleEffectAdlxTimerPeriod",
+      "sites": [
+        "0664:16C3",
+        "0664:1874"
+      ],
+      "operation": "set playback interval to 0:BE16 event value",
+      "context": "ADLX interrupt event processing; effect command changes interval only on its guarded path"
+    },
+    {
+      "routine": "TIMER:RegisterTimerCallbackFromStack / RemoveTimerCallbackFromStack",
+      "sites": [
+        "0A32:031D",
+        "0A32:0329"
+      ],
+      "context": "No internal callers in program model; public far-stack input remains open. Unreferenced loc_032F calls REMOVE, not setter."
+    }
+  ],
+  "callees": {
+    "native": [
+      "timer_minimum",
+      "timer_remove_wrong_stride",
+      "timer_fragment",
+      "timer_put_fragment",
+      "timer_target",
+      "timer_callback",
+      "timer_handle_slot"
+    ],
+    "boundary": [
+      "L1 InstallTimerInterrupt/RestoreTimerInterrupt/ChainSavedTimerInterrupt",
+      "platform_out",
+      "ugh_dispatch"
+    ],
+    "classification": "Native has no indirect invocation. Descending consume returns typed callback for host invocation; bridge retains the machine ABI."
+  },
+  "indirect": {
+    "sites": [
+      {
+        "site": "0A32:0145",
+        "classification": "partially_resolved",
+        "known_game_targets": [
+          "0664:12E5 AdvanceMusicFade",
+          "0664:1939 TickAdlxPlayback",
+          "0A32:0099 ChainSavedTimerInterrupt"
+        ],
+        "open": "Public caller-supplied pointers, corrupted/mixed pairs, malformed handles and IRQ interleavings can add targets. Never assumed absent."
+      },
+      {
+        "site": "0A32:009B",
+        "classification": "external",
+        "target": "Saved INT08 vector obtained from DOS; IRET ABI required; existing platform boundary"
+      }
+    ],
+    "fixtures": [
+      "SOUND:ClearSoundState",
+      "TIMER:HandleTimerInterrupt (table-only fixture; not invoked by new native tests)"
+    ],
+    "typed_interface": "TimerCallback enum includes three game targets, two named fixtures and explicit TIMER_OPEN"
+  },
+  "memory": {
+    "owner": "Timer subsystem",
+    "read": [
+      "DGROUP:7A4C last slot; 7A4E/7A6E interval arrays; 7A8E/7AAE remaining arrays; 7ACE due; 7AEE handle map; 7B0E slot handles; 7B2E interleaved callback words; 7B6E quantum; 7B76 earliest; 7B7A divisor",
+      "TIMER code-segment TimerInterruptInstalled (projection only)"
+    ],
+    "write": [
+      "Same arrays/logical globals on native operations; no saved-vector or installed-flag mutation by migrated operations"
+    ],
+    "boundary": [
+      "7B72/7B74 previous INT08 vector: retained existing platform ownership",
+      "PIT ports 43h/40h, PIC 20h, INT21 vector requests remain platform/L1"
+    ],
+    "aliases": "Ordinary timer RAM and disjoint stack only. Inactive/stale cells are preserved. Malformed wrap/odd/out-of-range alias cases are retained L1 fallback, not a native alias theorem."
+  },
+  "assumptions": [
+    "Native count remains 1..16; no bijection assumption on maps; caller-supplied handle validity is checked separately at each operation",
+    "Relational RAM shim admits aligned timer-region words only, normalizes segment access, and does not model concurrent instruction-level delivery",
+    "Proofs allow arbitrary interval high bits/zero, countdown underflow/overflow, due low bits and corrupted other mapping values; no unsigned-positive time invariant is imposed",
+    "Original code is single CPU with word writes atomic. Remove does PUSHF/CLI around updates; setter resolves handle BEFORE CLI, then updates under CLI; register publishes last slot only after initialization and masks interrupts only when lowering earliest",
+    "Original registration writes interval/countdown/pointer words before publishing last; this helps visibility but is not a proved general reentrancy protocol. Saved BIOS callback executes STI, allowing nesting. Native guarantees serialized calls and explicit between-callback mutation only",
+    "Successful named lifecycle supports [BIOS, playback, optional fade] with capacity <=3 and tail removals, because shutdown cancels fade before playback. This is a static conditional finding, not a proved global reachable-state exclusion",
+    "Failed init retains attempted flag and stale handle; open callback API and mid-instruction IRQ schedules are outside that successful-lifecycle argument. Defects are retained, so native correctness does not depend on excluding moved removal"
+  ],
+  "eliminated": [
+    {
+      "detail": "Parallel low/high arrays in normal timer operations",
+      "evidence": "Owned TimerSlot records use unsigned uint32 arithmetic; actual-C relational proofs compare every active/inactive interval/countdown/due/map/target cell"
+    },
+    {
+      "detail": "Machine code addresses and dispatch in ordinary native code",
+      "evidence": "Typed callback enum plus symbolic fragment provenance; exhaustive 65536-word x32-position roundtrips of actual bridge binding functions; OPEN never normalized to a known callback"
+    },
+    {
+      "detail": "Register/stack/hardware ABI inside native module",
+      "evidence": "Bridge retains exact shell and unchanged L1 stack wrappers; routine/whole-game comparisons include registers, RAM, devices and logs under the existing observation model"
+    }
+  ],
+  "retained": [
+    {
+      "detail": "Wrong-stride callback copy and sequential overlap order",
+      "reason": "timer_remove_wrong_stride uses slot index as word position; separate reads preserve overlapping second-read-after-first-write semantics"
+    },
+    {
+      "detail": "Broken moved-slot handle mapping and stale destination handle",
+      "reason": "Original self-stores tail handle and writes it to handle-zero mapping, then frees requested handle; intentionally not repaired"
+    },
+    {
+      "detail": "Stale due on registration, inactive residue and unchanged countdown on setter",
+      "reason": "Actual instruction stream never initializes/reloads these fields at those APIs"
+    },
+    {
+      "detail": "Tick sign test, modulo 2^32 arithmetic, reload once, descending equal-time order",
+      "reason": "Original tests sign of resulting HIGH WORD or zero, not borrow; huge/zero intervals and overshoot can stay due next tick. Last registered slot runs first; callbacks see other callbacks clobbers via bridge"
+    },
+    {
+      "detail": "Unsigned interval minimum; remove seeds 65536, setter seeds requested interval; quantum copied before callback changes",
+      "reason": "Different original scans and timing phases; PIT emits only low word, zero encodes 65536"
+    },
+    {
+      "detail": "Unchecked invalid/stale handle machine behavior",
+      "reason": "No validation exists in L0. Malformed inputs may overwrite other arrays/segment memory or scan wrapped offsets; they remain explicitly L1 rather than native-safe behavior claimed equivalent"
+    }
+  ],
+  "evidence": [
+    {
+      "property": "All handle and mapping value classification domains",
+      "level": "A",
+      "method": "Compile actual timer_handle_slot; every handle at counts 1..16 with canonical maps, and every 16-bit selected map value for every valid even identity/count. Invalid identities do not access map.",
+      "command": "python verif/timer_evidence.py enumerate",
+      "result": "PASS: 17825792 classifications. Full product decomposes because other map cells are not read; count 1..16 and every uint16 handle/mapping value covered.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Three-slot symbolic-fragment removal finite domain",
+      "level": "A",
+      "method": "Actual extracted L1 remover vs maintained native C; every 4^6 six-fragment pattern and all three removable identities, inactive state fixed.",
+      "command": "python verif/timer_evidence.py enumerate",
+      "result": "PASS: 12288 cases. A only for stated finite family, not arbitrary 16-slot states.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Representative API/countdown/due operation observations",
+      "level": "C",
+      "method": "Actual L1/native pair with edge uint32 values, all capacity counts for APIs, complete due masks at counts 1..4.",
+      "command": "python verif/timer_evidence.py enumerate",
+      "result": "PASS: 5048 cases including sign boundary, underflow, wrap, holes, all removals and stale fields.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Bridge symbolic fragment binding",
+      "level": "A",
+      "method": "Actual two bridge binding functions; all 65536 words at all 32 positions plus all five named callback pairs.",
+      "command": "python verif/timer_projection.py",
+      "result": "PASS: 2097152 word roundtrips and 5 typed callbacks. This does not prove full state projection for all states.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Bridge full-state roundtrip",
+      "level": "C",
+      "method": "Actual project/publish functions; 2048 deterministic random complete timer images, all 16 count values, installed flag and saved vector retained.",
+      "command": "python verif/timer_projection.py",
+      "result": "PASS: 2048 complete 304-byte region roundtrips; no snapshot-derived expected implementation.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Register operation from arbitrary admitted state",
+      "level": "B",
+      "method": "CBMC actual C with count 1..15, symbolic even handle/free position, arbitrary arrays, playback callback and arbitrary interval; every projected cell compared.",
+      "command": "python verif/timer_evidence.py register --count 16 --symbolic --timeout 120",
+      "result": "PASS, 58.88 seconds. Free handle at/below new slot required; all slots initialized, aligned RAM shim; fully covering unwind18, bounds/pointer/signed-overflow checks. Fixed playback callback; other target constructors have separate finite-domain checks.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Remove operation from arbitrary admitted state, defects included",
+      "level": "B",
+      "method": "CBMC actual L1/native; count 2..16, symbolic even handle and arbitrary aligned active mapping, other maps arbitrary/nonbijective; compare all sixteen records/maps and return result/minimum.",
+      "command": "python verif/timer_evidence.py remove --count 16 --symbolic --timeout 120",
+      "result": "PASS, 51.05 seconds on final current-header replay. Includes moved/tail removal, handle zero, arbitrary callback fragments, due bits and 32-bit values. Unwind18 and safety assertions enabled. Composes over sequences whose every step satisfies admission, not every unvalidated public sequence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Set operation from arbitrary admitted state",
+      "level": "B",
+      "method": "CBMC actual L1/native; count 1..16, symbolic handle with arbitrary active mapping, all uint32 periods and other state words.",
+      "command": "python verif/timer_evidence.py set --count 16 --symbolic --timeout 90",
+      "result": "PASS, 31.59 seconds. All intervals/countdowns/due/map/target cells and unsigned minimum compared; preserved countdown included. Aligned ordinary RAM shim and unwind18 with safety checks.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Tick accounting operation at fixed full and small capacities",
+      "level": "B",
+      "method": "CBMC actual complete accounting phase extracted verbatim from L1 ISR vs actual native account function; arbitrary uint32 quanta/intervals/countdowns, all due words, targets/maps.",
+      "command": "python verif/timer_evidence.py tick --count 1 --timeout 90; python verif/timer_evidence.py tick --count 3 --timeout 90; python verif/timer_evidence.py tick --count 16 --timeout 150",
+      "result": "PASS for counts 1,3,16; all sixteen record/map cells, next quantum and AX/DX pre-callback scratch compared. The separate native consume/dispatch/port shell retains C/D evidence, not B. Fully covering unwind18 and safety checks; variable-count tick timed out at120 seconds and earns no proof. Final current-header times: 12.66/13.74/58.01 seconds.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Harness too-small bound and semantic defect controls",
+      "level": "C",
+      "method": "Keep unwinding assertions; seed four native semantic defects in scratch and run actual compiled enumeration.",
+      "command": "python verif/timer_evidence.py tick --count 3 --negative --timeout 30; python verif/timer_mutants.py",
+      "result": "PASS controls: unwind1 fails project.unwind.0; wrong pointer stride, removed negative due test, setter countdown reset and clearing reused due all detected with observation failures.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "L0 -> bridged L1 routine and callback composition",
+      "level": "C",
+      "method": "Maintained timer/timer_stack/timer_system ordinary and poisoned suites plus new real fade self-removal -> lower ClearSoundState -> BIOS-chain IRQ case.",
+      "command": "python verif/timer_integration.py --whole",
+      "result": "PASS: timer24, timer_stack30, timer_system180, timer_callbacks2 =236. Generated audit native/fallback pairs: register22/0, remove66/16, set42/14, tick14/0. Malformed cases that fallback do not prove native malformed-memory behavior.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "L0 -> bridged L1 whole-game observation model",
+      "level": "D",
+      "method": "Actual wholegame.main with separate loader reference and same14 scenarios; copied cached oracle hashes; no source/test edits.",
+      "command": "python verif/timer_integration.py --whole",
+      "result": "PASS: all14 scenarios,9963 frames plus terminal boundaries. Native/fallback pairs: register2/0, remove2/0, set1/0, tick1707/0. No timer fallback in whole scenarios. Coverage reaches timer in adlib; other scenarios remain regression coverage, not proof they execute timer.",
+      "date": "2026-11-13"
+    }
+  ],
+  "amiga": {
+    "classification": "unresolved",
+    "finding": "No timer scheduler counterpart established. No Amiga-derived behavioral or byte claim."
+  },
+  "uncertainty": [
+    "Instruction-level IRQ interleavings and nested timer interrupts after STI are not proved; serialized native operations are an explicit contract, not a recovered global IF invariant",
+    "Global exclusion or concrete named-game reachability of moved removal is unresolved. Conditional successful serialized lifecycle has only tail removals; public API demonstrably admits moved removal. Both original defects are preserved for admitted states regardless",
+    "Public callback target set remains open outside the three named registration flows, including corrupted mixed pairs; no unconditional closed-world claim",
+    "Only fixed count1/3/16 tick-account proofs completed. Symbolic count1..16 tick timed out at120 seconds. Due selection/bridge shell and full temporal composition remain C/D",
+    "Malformed/odd/stale/wrapped handles, overflow capacity, removing the sole slot and nonadmitted callbacks use L1 fallback; explicit native errors are not an L0 compatibility theorem",
+    "If callback leaves malformed/zero active count, bridge returns unsupported; no equivalence claimed outside postcallback invariant",
+    "Only supervisor sets accepted status. L0/L1 evidence stays differential C/D; B L1/L2 does not promote L0.",
+    "Global tools/closure.py currently fails because concurrent naming changed c/ugh_sym.h against coordinate_scale/decimal/far_copy locks. Timer certificate itself validates. Those certificates are outside this worker write scope; no hash bypass or relock performed."
+  ],
+  "dependencies": {
+    "native/timer.c": {
+      "includes": [
+        "timer.h"
+      ],
+      "calls": [
+        "timer_callback",
+        "timer_fragment",
+        "timer_handle_slot",
+        "timer_minimum",
+        "timer_put_fragment",
+        "timer_remove_wrong_stride",
+        "timer_target"
+      ]
+    },
+    "native/timer.h": {
+      "includes": [
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/timer_bridge.c": {
+      "includes": [
+        "../timer.h",
+        "platform.h"
+      ],
+      "calls": [
+        "D",
+        "S",
+        "T",
+        "flag",
+        "l1_HandleTimerInterrupt",
+        "l1_RegisterTimerCallback",
+        "l1_RemoveTimerCallback",
+        "l1_SetTimerCallbackInterval",
+        "platform_out",
+        "rd16",
+        "rd32",
+        "szp",
+        "timer_account_tick",
+        "timer_callback",
+        "timer_handle_slot",
+        "timer_project",
+        "timer_publish",
+        "timer_register",
+        "timer_remove",
+        "timer_set_interval",
+        "timer_take_due",
+        "timer_token_word",
+        "timer_word_token",
+        "ugh_dispatch",
+        "wr16",
+        "wr32"
+      ]
+    }
+  },
+  "observation_chain": "L0 -> bridged L1: C routine cases plus D deterministic scenarios. L1 -> native: per-property A/B/C above. Global semantic closure remains partial.",
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "native/timer.c": "05803307a67871c34cc69e8c8b9a5168103b399c0555638c13998e5838620513",
+    "native/timer.h": "99bb08b73cbd7ea5ef618975b601948a6dcee9d7e331db29d699b9b08eea0403",
+    "native/bridge/timer_bridge.c": "da2747aa9bbd83baa12dc410e34c6277ac64ad15b3fa49d69a75e18245c676bd",
+    "c/timer.c": "49e56856d56bb1ae68b62fa9112ce294f77182bebfc8e2cd5392737f1c06080b",
+    "c/timer_system.c": "89ead348d18a649f37dca6f44c94c309c3d50b7b6d0877411064f9ac0129d92b",
+    "c/timer_stack.c": "512cfb5332569f32adffed22e5211db5772440428369cc9cc808be931631c98d",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "src/asm/TIMER.ASM": "ef53f29ee97899bf538298d360f6979004f41abcd5e07e2d23ecfb6642f5ae2a",
+    "src/asm/SOUND.ASM": "70150219d03e52ec3ed5f6c96ca179fd3cf98b54ff68995a1ae264e8d368652d",
+    "src/c/module.c": "e58e54aa3f44fdfd29bdbcbaa471de2a6405235cbe2b276df56ea7193d548ae1",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
+    "verif/timer_build.py": "4902f41651703faae92384a57f75c86416aa07d17c0dd2ef51d8f3b8a99aa6ab",
+    "verif/timer_evidence.py": "8724db59b7a4cb622d579220f7c0e3afb54c9b4b37437199904193a1c561de3e",
+    "verif/timer_enumeration.c": "c2d2a64a1a8fe6591429e56443c2c2f21123f8acec18d928bb0adffc2485f1d4",
+    "verif/timer_projection.py": "539f6d57ddb4328954f79c6dff291e4622fbfbebcfb37bb3fc26307035ec4c5b",
+    "verif/timer_mutants.py": "801a87a3f81e677a89d5ce7d697d7340e2db0bb67a54c1ef94aafe65f0863cdf",
+    "verif/timer_callbacks.py": "4149fe68343ff59647e5baa10beeae519625d099345ec256cdadf92e0c8d0b38",
+    "verif/timer_integration.py": "d591e8c5b6b8fca9df337a095e4bf4606cf7a81194f9912036d541a0c31c74b9",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5"
+  }
+}

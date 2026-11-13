@@ -1,0 +1,21 @@
+{
+  "note": "Verification tools for native/ evidence (docs/modernization.md). Installed by the supervisor on 2026-11-13; worker sandboxes cannot download or write C:/tools.",
+  "cbmc": {
+    "version": "6.11.0",
+    "source": "https://github.com/diffblue/cbmc/releases/download/cbmc-6.11.0/cbmc-6.11.0-win64.msi",
+    "download": "C:/tools/download/cbmc/cbmc-6.11.0-win64.msi",
+    "download_sha256": "8dcb29c2e91329898ecde5b79198dad2f4b5ebc5cb6b7d15e892c4fe26c6ea53",
+    "install": "msiexec /a (administrative extraction, no system install) into C:/tools/cbmc-6.11.0",
+    "exe": "C:/tools/cbmc-6.11.0/cbmc/bin/cbmc.exe",
+    "exe_sha256": "e2f6a110906b7c5998f31617c89220f9840735250333c90c56ef467c667d8bda",
+    "usage": "CBMC's default preprocessor on Windows is cl.exe (absent) and it cannot parse MinGW system headers. Preprocess with MinGW gcc against minimal shim headers instead: gcc -E -P -nostdinc -I<shim> file.c -o file.i, then cbmc file.i. Checked on a two-implementation uint16 equivalence harness: VERIFICATION SUCCESSFUL."
+  },
+  "z3": {
+    "version": "5.4.1",
+    "source": "https://pypi.org/project/z3-solver/5.4.1.0/ (z3_solver-5.4.1.0-py3-none-win_amd64.whl)",
+    "download": "C:/tools/download/z3/z3_solver-5.4.1.0-py3-none-win_amd64.whl",
+    "download_sha256": "4e32027ebc2077d1bb518113e370a1798746c1e7e2719144712ddd39c4e87ea6",
+    "install": "wheel unpacked into C:/tools/z3-solver-5.4.1.0",
+    "usage": "PYTHONPATH=C:/tools/z3-solver-5.4.1.0 python -c \"import z3\""
+  }
+}

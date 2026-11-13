@@ -12,12 +12,13 @@ int ugh_dispatch(uint16_t segment,uint16_t offset,Regs *r) {
     UghAdapter fn=ugh_resolve(segment,offset);
     if(!fn) return UGH_BAD_CALLBACK;
     uint16_t cs=r->cs; r->cs=segment;
-    int status=fn(r); r->cs=cs; return status;
+    int status=fn(r); if(status!=UGH_CONTROL_TRANSFER && status!=UGH_DOS_EXIT) r->cs=cs; return status;
 }
 int ugh_call_near(uint16_t target,uint16_t return_ip,Regs *r) {
     r->sp=(uint16_t)(r->sp-2); wr16(r->ss,r->sp,return_ip);
     int status=ugh_dispatch(r->cs,target,r);
-    r->sp=(uint16_t)(r->sp+2); return status;
+    if(!status) r->sp=(uint16_t)(r->sp+2);
+    return status;
 }
 /* Entry after PUSHF/CALL FAR or IRQ frame creation. Only accepted IRET bodies
  * are legal. CALL FAR does not itself clear IF/TF. Unknown handlers fail. */

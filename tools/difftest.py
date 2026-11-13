@@ -90,10 +90,11 @@ def run(case,m,dll,poison=False):
         # The adapter models the handler body; the declared IRET pops saved FLAGS.
         a=r.ss*16+((r.sp+4)&65535)
         r.flags=mem[a] | (mem[a+1]<<8)
-    r.sp=(r.sp+m.return_size)&65535; r.ip=0xfff0
+    if case.kind!='exit': r.sp=(r.sp+m.return_size)&65535; r.ip=0xfff0
     got=bytes(mem)
     problems=[]
-    if status: problems.append(f'C returned status {status}')
+    if status!=(5 if case.kind=='exit' else 0): problems.append(f'C returned status {status}')
+    if case.kind=='exit' and not dev.exited: problems.append('C did not reach DOS termination')
     if dev.error: problems.append('C requested unsupported hardware or overflowed its log')
     # Stack scratch below the entry return frame is the sole excluded memory span.
     # Incoming frame and all cdecl arguments remain compared. All other RAM is checked,
@@ -147,7 +148,9 @@ def main():
             total+=1
             try: problems=run(case,m,d,a.poison or bool(os.environ.get('UGH_POISON')))
             except Exception as e: problems=[f'{type(e).__name__}: {e}']
-            rows.append(dict(suite=name,title=case.title,routine=case.routine,passed=not problems,steps=m.steps))
+            row=dict(suite=name,title=case.title,routine=case.routine,passed=not problems,steps=m.steps)
+            if a.coverage: row['edges']=sorted(m.case_edges)
+            rows.append(row)
             if problems:
                 failed+=1; bad+=1; print(f'FAIL {name}: {case.title}')
                 for problem in problems: print('  '+problem)
@@ -162,6 +165,7 @@ def main():
     target=ROOT/'build/c/difftest.json'; target.write_text(json.dumps(report,indent=2)+'\n')
     if a.coverage:
         report['executed']=sorted(m.executed)
+        report['edges']=sorted(m.call_edges)
         (ROOT/'build/c/executed.json').write_text(json.dumps(report,indent=2)+'\n')
     print(f'{total-failed}/{total} cases equal'+(' (poison)' if report['poison'] else ''))
     return 1 if failed or not total else 0

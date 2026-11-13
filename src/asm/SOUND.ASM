@@ -2421,11 +2421,10 @@ HandleDspProbeInterrupt:
     mov byte ptr cs:[DspProbeIrqSeen], 1 ; @1EF9
     iret ; @1EFF
 ; CONTRACT (tools/apply.py)
-; Locate mix buffers; scan bases 210h..260h and IRQ candidates 7,5,3,2.
-; For each candidate replace its DOS vector, trigger 3-byte DMA, poll 1000h iterations,
-; mask the candidate IRQ and restore its vector; success AX=1 leaves base/vector/mask.
-; Out: failure AX=0, base=0 (vector=0 after candidate exhaustion); preserves DS/ES.
-; Quirks: CX!=0 defines success, not probe flag; original PIC mask is not restored.
+; Prefix locates DMA buffers and writes the initial vector/base before calling GAME:001F.
+; ABI quirk: far CALL 1F14 targets a near RET, resuming at GAME:1F19 with saved SOUND CS
+; still on the stack. GAME executes IN AX,DX, SUB DI,DI, then invalid opcode FF /7.
+; The intended SOUND base/IRQ scan is not reachable through that unmodified entry path.
 ; END CONTRACT
 ProbeSoundBlasterDmaIrq:
     push es ; @1F00
@@ -2566,9 +2565,9 @@ loc_2051:
 DspProbeIrqOrderStorage:
     db 07h, 05h, 03h, 02h ; data 2058..205C
 ; CONTRACT (tools/apply.py)
-; Calibrate delays and probe DSP/DMA IRQ; if found, save vector and install 1E04h.
-; Out: AX=1 success or AX=0 failure; success unmasks IRQ and enables speaker (D1h).
-; Preserves DS/ES; no repeat-install guard; DOS vectors and PIC mask are modified.
+; Calibrate delays, then call ProbeSoundBlasterDmaIrq with a real far return frame.
+; The probe inherits the GAME:001F near-RET continuation, not a returning DSP contract.
+; Its intended device installation tail is not established as reachable from this entry.
 ; END CONTRACT
 InitializeDspPlayback:
     push ds ; @205C
@@ -2617,8 +2616,10 @@ loc_20B6:
     pop ds ; @20B7
     retf ; @20B8
 ; CONTRACT (tools/apply.py)
-; Disable DSP speaker (D3h), mask selected IRQ, restore its saved DOS vector, reset DSP.
-; Preserves DS; reset helper returns CF status. No installed-state check or PIC-mask restore.
+; Send D3h, then far CALL GAME:001F at 20C0; that hook executes near RET.
+; Actual continuation is GAME:20C5 with saved SOUND CS still on the stack.
+; This enters the middle of UpdateFloatingPassengerApproach, skipping its SI load.
+; Normal SOUND PIC/vector/reset completion is not established through that entry path.
 ; END CONTRACT
 ShutdownDspPlayback:
     push ds ; @20B9

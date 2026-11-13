@@ -50975,7 +50975,7 @@
               "start": 4160,
               "end": 4164,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 4164,
@@ -51464,7 +51464,7 @@
               "start": 4322,
               "end": 4326,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 4326,
@@ -51929,7 +51929,7 @@
               "start": 4476,
               "end": 4480,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 4480,
@@ -52982,7 +52982,7 @@
               "start": 4826,
               "end": 4830,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 4830,
@@ -53363,7 +53363,7 @@
               "start": 4952,
               "end": 4956,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 4956,
@@ -53840,7 +53840,7 @@
               "start": 5110,
               "end": 5114,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 5114,
@@ -54149,7 +54149,7 @@
               "start": 5212,
               "end": 5216,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 5216,
@@ -54362,7 +54362,7 @@
               "start": 5282,
               "end": 5286,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 5286,
@@ -54647,7 +54647,7 @@
               "start": 5376,
               "end": 5380,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 5380,
@@ -54884,7 +54884,7 @@
               "start": 5454,
               "end": 5458,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 5458,
@@ -55097,7 +55097,7 @@
               "start": 5524,
               "end": 5528,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 5528,
@@ -55502,7 +55502,7 @@
               "start": 5658,
               "end": 5662,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 5662,
@@ -55763,7 +55763,7 @@
               "start": 5744,
               "end": 5748,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 5748,
@@ -56048,7 +56048,7 @@
               "start": 5838,
               "end": 5842,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 5842,
@@ -56261,7 +56261,7 @@
               "start": 5908,
               "end": 5912,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 5912,
@@ -56698,7 +56698,7 @@
               "start": 6048,
               "end": 6052,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 6052,
@@ -59107,7 +59107,7 @@
               "start": 6850,
               "end": 6854,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 6854,
@@ -59680,7 +59680,7 @@
               "start": 7040,
               "end": 7044,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 7044,
@@ -60061,7 +60061,7 @@
               "start": 7166,
               "end": 7170,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 7170,
@@ -60634,7 +60634,7 @@
               "start": 7356,
               "end": 7360,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 7360,
@@ -61615,7 +61615,7 @@
               "start": 7682,
               "end": 7686,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 7686,
@@ -61853,7 +61853,7 @@
               "start": 7756,
               "end": 7760,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 7760,
@@ -62966,7 +62966,7 @@
               "start": 8126,
               "end": 8130,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 8130,
@@ -64127,7 +64127,7 @@
               "start": 8512,
               "end": 8516,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 8516,
@@ -65288,7 +65288,7 @@
               "start": 8898,
               "end": 8902,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 8902,
@@ -66269,7 +66269,7 @@
               "start": 9224,
               "end": 9228,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 9228,
@@ -66942,7 +66942,7 @@
               "start": 9444,
               "end": 9448,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 9448,
@@ -67431,7 +67431,7 @@
               "start": 9606,
               "end": 9610,
               "type": "dw",
-              "comment": "Signed initial X/Y, 1/32 pixel units"
+              "comment": "Signed initial X/Y in pixels; initializer shifts left five for X32/Y32."
             },
             {
               "start": 9610,

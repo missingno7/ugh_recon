@@ -14,7 +14,8 @@ typedef struct Regs {
     uint16_t ax, bx, cx, dx, si, di, bp, sp, cs, ds, es, ss, ip, flags;
 } Regs;
 enum { CF=1, PF=4, AF=16, ZF=64, SF=128, IF=512, DF=1024, OF=2048 };
-enum { UGH_OK=0, UGH_UNSUPPORTED=1, UGH_BUDGET=2, UGH_BAD_CALLBACK=3 };
+enum { UGH_OK=0, UGH_UNSUPPORTED=1, UGH_BUDGET=2, UGH_BAD_CALLBACK=3,
+       UGH_CONTROL_TRANSFER=4, UGH_DOS_EXIT=5 };
 #define G(n) UGH_O_GAME_##n
 #define S(n) UGH_O_SOUND_##n
 #define D(n) UGH_O_DGROUP_##n
@@ -82,6 +83,10 @@ typedef int (*UghAdapter)(Regs *r);
 UghAdapter ugh_resolve(uint16_t segment,uint16_t offset);
 int ugh_call_near(uint16_t target,uint16_t return_ip,Regs *r);
 EXPORT int ugh_dispatch_interrupt(uint16_t segment,uint16_t offset,Regs *r);
+/* A far CALL to one of GAME's actual near RET hooks leaves the saved caller
+ * CS on the original stack. Status 4 exposes the unresolved CS:IP continuation;
+ * it is never normal completion or an invented far-returning device hook. */
+EXPORT int ugh_call_near_ret_hook(Regs *r,uint16_t target,uint16_t return_ip);
 EXPORT uint16_t ugh_load16(uint16_t segment,uint16_t offset);
 EXPORT uint32_t ugh_load32(uint16_t segment,uint16_t offset);
 EXPORT void ugh_store16(uint16_t segment,uint16_t offset,uint16_t value);

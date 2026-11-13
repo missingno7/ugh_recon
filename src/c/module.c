@@ -162,9 +162,11 @@ int InitializeSoundSystem(unsigned bits)
 }
 
 /* CONTRACT (tools/apply.py)
- * Sets AdlxPlaybackGuard, cancels any fade, and tears down devices selected by SoundDeviceBits.
- * Out: clears device bits and sets SoundSystemShutdown; leaves the ADLX guard set.
- * Returns early only when shutdown was already recorded and no device bit remains set.
+ * Shutdown uses the live-DS latch store, including foreground TIMER-removal DS leaks.
+ * Out: clears device bits and writes 1 to live DS:SoundSystemShutdown; leaves ADLX guard set.
+ * Quirk: CancelMusicFade or ShutdownAdlibPlayback can call TIMER:RemoveTimerCallback,
+ * leaving DS as DGROUP. The final latch store then writes DGROUP:0002 instead of
+ * the C module shutdown latch.
  * END CONTRACT */
 /* @0878:008A */
 void ShutdownSoundSystem(void)

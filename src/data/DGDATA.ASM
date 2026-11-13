@@ -2818,7 +2818,7 @@ DemoTable_1020 label word ; @1020
     dw 0FFFFh
 
 ; 5C09:1040..10E2 [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_1040 label word ; @1040
     dw 091h, 04h
 ; Update period
@@ -2981,7 +2981,7 @@ Data_1040 label word ; @1040
     dw 08000h
 
 ; 5C09:10E2..117C [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_10E2 label word ; @10E2
     dw 099h, 06Ah
 ; Update period
@@ -3136,7 +3136,7 @@ Data_10E2 label word ; @10E2
     dw 08000h
 
 ; 5C09:117C..12DA [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_117C label word ; @117C
     dw 07Ch, 06Eh
 ; Update period
@@ -3487,7 +3487,7 @@ Data_117C label word ; @117C
     dw 08000h
 
 ; 5C09:12DA..1358 [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_12DA label word ; @12DA
     dw 022h, 06Ah
 ; Update period
@@ -3614,7 +3614,7 @@ Data_12DA label word ; @12DA
     dw 08000h
 
 ; 5C09:1358..13F6 [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_1358 label word ; @1358
     dw 091h, 051h
 ; Update period
@@ -3773,7 +3773,7 @@ Data_1358 label word ; @1358
     dw 08000h
 
 ; 5C09:13F6..145C [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_13F6 label word ; @13F6
     dw 06Bh, 053h
 ; Update period
@@ -3876,7 +3876,7 @@ Data_13F6 label word ; @13F6
     dw 08000h
 
 ; 5C09:145C..14A2 [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_145C label word ; @145C
     dw 06Bh, 053h
 ; Update period
@@ -3947,7 +3947,7 @@ Data_145C label word ; @145C
     dw 08000h
 
 ; 5C09:14A2..1500 [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_14A2 label word ; @14A2
     dw 06Bh, 053h
 ; Update period
@@ -4042,7 +4042,7 @@ Data_14A2 label word ; @14A2
     dw 08000h
 
 ; 5C09:1500..154E [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_1500 label word ; @1500
     dw 06Bh, 053h
 ; Update period
@@ -4121,7 +4121,7 @@ Data_1500 label word ; @1500
     dw 08000h
 
 ; 5C09:154E..1594 [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_154E label word ; @154E
     dw 06Bh, 053h
 ; Update period
@@ -4192,7 +4192,7 @@ Data_154E label word ; @154E
     dw 08000h
 
 ; 5C09:1594..161A [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_1594 label word ; @1594
     dw 06Bh, 053h
 ; Update period
@@ -4327,7 +4327,7 @@ Data_1594 label word ; @1594
     dw 08000h
 
 ; 5C09:161A..1670 [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_161A label word ; @161A
     dw 06Bh, 053h
 ; Update period
@@ -4414,7 +4414,7 @@ Data_161A label word ; @161A
     dw 08000h
 
 ; 5C09:1670..16CE [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_1670 label word ; @1670
     dw 06Bh, 053h
 ; Update period
@@ -4509,7 +4509,7 @@ Data_1670 label word ; @1670
     dw 08000h
 
 ; 5C09:16CE..1714 [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_16CE label word ; @16CE
     dw 06Bh, 053h
 ; Update period
@@ -4580,7 +4580,7 @@ Data_16CE label word ; @16CE
     dw 08000h
 
 ; 5C09:1714..1792 [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_1714 label word ; @1714
     dw 06Bh, 053h
 ; Update period
@@ -4724,7 +4724,7 @@ DemoTable_1792 label word ; @1792
     dw 0FFFFh
 
 ; 5C09:17A0..1AC2 [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_17A0 label word ; @17A0
     dw 0107h, 06Eh
 ; Update period
@@ -5527,7 +5527,7 @@ Data_17A0 label word ; @17A0
     dw 08000h
 
 ; 5C09:1AC2..1B80 [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_1AC2 label word ; @1AC2
     dw 0109h, 048h
 ; Update period
@@ -5718,7 +5718,7 @@ Data_1AC2 label word ; @1AC2
     dw 08000h
 
 ; 5C09:1B80..1BFE [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_1B80 label word ; @1B80
     dw 0E8h, 057h
 ; Update period
@@ -5845,7 +5845,7 @@ Data_1B80 label word ; @1B80
     dw 08000h
 
 ; 5C09:1BFE..1CBC [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_1BFE label word ; @1BFE
     dw 0140h, 05Bh
 ; Update period
@@ -6036,7 +6036,7 @@ Data_1BFE label word ; @1BFE
     dw 08000h
 
 ; 5C09:1CBC..1E02 [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_1CBC label word ; @1CBC
     dw 0140h, 06Ah
 ; Update period
@@ -6363,7 +6363,7 @@ Data_1CBC label word ; @1CBC
     dw 08000h
 
 ; 5C09:1E02..1E40 [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_1E02 label word ; @1E02
     dw 0B4h, 053h
 ; Update period
@@ -6441,7 +6441,7 @@ DemoTable_1E40 label word ; @1E40
     dw 0FFFFh
 
 ; 5C09:1E4C..1FBE [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_1E4C label word ; @1E4C
     dw 014Bh, 086h
 ; Update period
@@ -6812,7 +6812,7 @@ Data_1E4C label word ; @1E4C
     dw 08000h
 
 ; 5C09:1FBE..2140 [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_1FBE label word ; @1FBE
     dw 014Bh, 082h
 ; Update period
@@ -7199,7 +7199,7 @@ Data_1FBE label word ; @1FBE
     dw 08000h
 
 ; 5C09:2140..22C2 [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_2140 label word ; @2140
     dw 014Bh, 086h
 ; Update period
@@ -7586,7 +7586,7 @@ Data_2140 label word ; @2140
     dw 08000h
 
 ; 5C09:22C2..2408 [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_22C2 label word ; @22C2
     dw 0140h, 07Ah
 ; Update period
@@ -7913,7 +7913,7 @@ Data_22C2 label word ; @22C2
     dw 08000h
 
 ; 5C09:2408..24DE [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_2408 label word ; @2408
     dw 0FFE0h, 050h
 ; Update period
@@ -8137,7 +8137,7 @@ DemoTable_24DE label word ; @24DE
     dw 0FFFFh
 
 ; 5C09:24E4..2586 [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_24E4 label word ; @24E4
     dw 0145h, 036h
 ; Update period
@@ -8300,7 +8300,7 @@ Data_24E4 label word ; @24E4
     dw 08000h
 
 ; 5C09:2586..2614 [typed] motion script; consumer 013B:09D7,0AEB
-; Signed initial X/Y, 1/32 pixel units
+; Signed initial X/Y in pixels; initializer shifts left five for X32/Y32.
 Data_2586 label word ; @2586
     dw 017Dh, 06Eh
 ; Update period

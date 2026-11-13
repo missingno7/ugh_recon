@@ -1,6 +1,9 @@
 #include "platform.h"
 #include <string.h>
 Devices ugh_devices;
+static FrameObserver frame_observer;
+EXPORT void ugh_set_frame_observer(FrameObserver observer) { frame_observer=observer; }
+int platform_frame_boundary(Regs *r) { return frame_observer?frame_observer(r):UGH_OK; }
 EXPORT Devices *ugh_device_state(void) { return &ugh_devices; }
 EXPORT uint32_t ugh_device_size(void) { return sizeof(Devices); }
 EXPORT void ugh_devices_reset(void) {
@@ -9,7 +12,7 @@ EXPORT void ugh_devices_reset(void) {
     ugh_devices.video_mode=3; ugh_devices.video_columns=80;
 }
 static void log_event(unsigned kind,uint16_t port,unsigned size,uint32_t value) {
-    if(ugh_devices.count>=270000u) { ugh_devices.error=1; return; }
+    if(ugh_devices.count>=1080000u) { ugh_devices.error=1; return; }
     IoEvent *e=&ugh_devices.log[ugh_devices.count++];
     e->kind=kind; e->port=port; e->size=size; e->value=value;
 }
@@ -20,9 +23,12 @@ static InputScript *script(uint16_t port) {
 }
 static int scripted(uint16_t port,uint32_t *value,int peek) {
     InputScript *s=script(port);
-    if(!s || s->cursor>=s->count || s->cursor>=128) { ugh_devices.error=1; return UGH_UNSUPPORTED; }
+    if(!s || !s->cycles_left || s->cursor>=s->count || s->cursor>=128) { ugh_devices.error=1; return UGH_UNSUPPORTED; }
     *value=s->runs[s->cursor].value;
-    if(!peek && ++s->used==s->runs[s->cursor].repeat) { s->cursor++; s->used=0; }
+    if(!peek && ++s->used==s->runs[s->cursor].repeat) {
+        s->cursor++; s->used=0;
+        if(s->cursor==s->count && s->cycles_left>1) { s->cycles_left--; s->cursor=0; }
+    }
     return UGH_OK;
 }
 static void out_byte(uint16_t port,uint8_t v) {
@@ -66,7 +72,8 @@ static void out_byte(uint16_t port,uint8_t v) {
     case 0x0b: d->dma_mode=v; break;
     case 0x0c: d->dma_flip=0; break;
     case 0x83: d->dma_page=v; break;
-    case 0x201: { InputScript *s=script(port); if(!s) d->error=1; else s->cursor=s->used=0; break; }
+    case 0x201: { InputScript *s=script(port); if(!s) d->error=1;
+        else { s->cursor=s->used=0; s->cycles_left=s->cycles; } break; }
     default:
         if(port>=0x206 && port<=0x26e && ((port&15)==6 || (port&15)==12) &&
            (script((uint16_t)((port&0xfff0)+12)) || script((uint16_t)((port&0xfff0)+14)))) break;
@@ -108,7 +115,10 @@ int platform_interrupt(uint8_t n,Regs *r) {
         r->ax=(uint16_t)v; if(ah==1) flag(r,ZF,0); return UGH_OK;
     }
     if(n==0x21 && ah>=0x3c && ah<=0x40) {
-        if(d->dos_error) { unsigned e=d->dos_error; d->dos_error=0; return dos_result(r,e,1); }
+        if(d->dos_error) {
+            if(d->dos_error_skip) d->dos_error_skip--;
+            else { unsigned e=d->dos_error; d->dos_error=0; return dos_result(r,e,1); }
+        }
         if(ah==0x3c || ah==0x3d) {
             uint8_t name[64]={0}; i=0;
             for(;i<63;i++) { name[i]=rd8(r->ds,(uint16_t)(r->dx+i)); if(!name[i]) break; }

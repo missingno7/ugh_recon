@@ -56,6 +56,7 @@ EXPORT int c_DisableMusicSectionLoop(Regs *r);
 EXPORT int c_DispatchActorUpdates(Regs *r);
 EXPORT int c_DispatchEnemyStates(Regs *r);
 EXPORT int c_DispatchFallingItems(Regs *r);
+EXPORT int c_DosShutdownTail(Regs *r);
 EXPORT int c_DrawControlOptions(Regs *r);
 EXPORT int c_DrawDemoSprites(Regs *r);
 EXPORT int c_DrawHighScoreNameEntry(Regs *r);

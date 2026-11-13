@@ -119,7 +119,9 @@ def generate_adapters(check=False):
     compile before the callee is supplied. Only implemented entries resolve.
     """
     exports={}; packages={}
-    pattern=r'/\* TRANSLATES (\w+):(\w+)\b[^*]*(?:\*(?!/)[^*]*)*\*/\s*EXPORT int (c_\w+)\(Regs \*r\)'
+    # Explicit abnormal control prefixes resolve for composed diagnostics but
+    # deliberately do not count as TRANSLATES in the coverage inventory.
+    pattern=r'/\* (?:TRANSLATES|CONTROL_PREFIX|SHARED_ENTRY) (\w+):(\w+)\b[^*]*(?:\*(?!/)[^*]*)*\*/\s*EXPORT int (c_\w+)\(Regs \*r\)'
     for path in sorted((ROOT/'c').glob('*.c')):
         rows=re.findall(pattern,path.read_text())
         packages[path.stem]=rows
@@ -128,11 +130,9 @@ def generate_adapters(check=False):
             if key in exports: raise ValueError('duplicate translated identity: '+str(key))
             exports[key]=fn
     plan=json.loads((ROOT/'metadata/translation-plan.json').read_text())
-    # The plan format retains the original per-routine identity field.
     declarations=set(exports.values())
-    for package in plan['packages']:
-        for routine in package['routines']:
-            declarations.add('c_'+routine['name'].split(':')[1])
+    for routine in plan['routines']:
+        declarations.add('c_'+routine['routine'].split(':')[1])
     for rec in json.loads((ROOT/'metadata/names.json').read_text())['symbols'].values():
         if rec['kind'] in ('routine','c-function'):
             declarations.add('c_'+rec['name'])

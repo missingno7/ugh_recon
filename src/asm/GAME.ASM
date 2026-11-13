@@ -7340,9 +7340,8 @@ loc_4171:
     ret ; @4171
 ; CONTRACT (tools/apply.py)
 ; Draw the 20-column by 16-row byte tile map through the sprite renderer.
-; In: DGROUP DS supplies far map pointer 009F; map entries are sprite IDs.
-; Out: DS becomes the map segment; SI advances 320 bytes. DL/DH finish at 20/16.
-; Effects: tiles are placed at (column*16,row*12); no map/tile range checks; BP clobbered.
+; Out: DS becomes the map segment; SI changes by +320 with DF clear or -320 with DF set.
+; DL/DH finish at 20/16. The later water lookup uses the resulting live DS.
 ; END CONTRACT
 DrawTileMap:
     lds si, dword ptr ds:[CurrentTileMapPointer] ; @4172

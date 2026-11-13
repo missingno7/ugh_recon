@@ -39,9 +39,10 @@ TimerInterruptInstalled equ TIMER_BASE+00h
 byte_data_0006:
     db 00h, 00h ; data 0006..0008
 ; CONTRACT (tools/apply.py)
-; Install the INT 08h dispatcher once and initialize the timer-slot tables.
+; Install INT 08h once, initializing slot zero and handle maps while other slots stay stale.
 ; In: no arguments; CS:0006 word suppresses repeat installation.
-; Out: saves the old INT 08h vector, installs TIMER:00D2, clears slot state.
+; Out: saves the old INT 08h vector, installs TIMER:00D2.
+; Initializes slot zero and handle maps; other slot storage survives.
 ; Effects: DOS INT 21h/AH=35h and AH=25h; changes ES and working registers.
 ; Quirk: saved-vector chaining executes STI before calling the prior handler.
 ; END CONTRACT
@@ -289,12 +290,14 @@ loc_0208:
     pop di ; @0219
     retf ; @021A
 ; CONTRACT (tools/apply.py)
-; Remove the timer identified by AX, compact the active slot prefix, and rescan its minimum.
+; Remove the timer identified by AX, move the last slot into the removed slot, and rescan its
+; minimum.
 ; In: AX is a timer handle returned by RegisterTimerCallback.
 ; Out: marks the handle free and updates the earliest interval from remaining slots.
 ; Effects: CLI protects the table update; POPF restores the caller's interrupt flags.
 ; Quirk: the moved-slot path stores through the fixed TimerSlotOffsetByHandle base;
 ; it also self-stores TimerHandleBySlot at the old tail. Preserve these literal writes.
+; Quirk: callback copying uses undoubled slot offsets in the interleaved far-pointer table.
 ; END CONTRACT
 RemoveTimerCallback:
     push si ; @021B

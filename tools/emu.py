@@ -26,7 +26,7 @@ class IoEvent(C.Structure):
 class ScriptRun(C.Structure):
     _fields_=[('value',C.c_uint32),('repeat',C.c_uint32)]
 class InputScript(C.Structure):
-    _fields_=[(n,C.c_uint32) for n in ('port','count','cursor','used')]+[('runs',ScriptRun*128)]
+    _fields_=[(n,C.c_uint32) for n in ('port','count','cursor','used')]+[('runs',ScriptRun*128)]+[(n,C.c_uint32) for n in ('cycles','cycles_left')]
 class IrqEvent(C.Structure):
     _fields_=[(n,C.c_uint32) for n in ('segment','offset','skip','irq','clocks')]
 class DosFile(C.Structure):
@@ -43,8 +43,8 @@ class DeviceState(C.Structure):
         (n,C.c_uint8) for n in ('pit_phase','pit_command','video_mode','video_page','video_columns','exit_code','exited')]+[
         ('clocks',C.c_uint32),('script_count',C.c_uint32),('scripts',InputScript*16),
         ('irq_count',C.c_uint32),('irq_cursor',C.c_uint32),('irqs',IrqEvent*64),
-        ('files',DosFile*8),('handles',DosHandle*32),('io_limit',C.c_uint32),('dos_error',C.c_uint32),
-        ('count',C.c_uint32),('error',C.c_uint32),('log',IoEvent*270000)]
+        ('files',DosFile*8),('handles',DosHandle*32),('io_limit',C.c_uint32),('dos_error',C.c_uint32),('dos_error_skip',C.c_uint32),
+        ('count',C.c_uint32),('error',C.c_uint32),('log',IoEvent*1080000)]
 
 
 class Devices:
@@ -67,14 +67,16 @@ class Devices:
 
     def state(self): return C.string_at(C.addressof(self.raw),DeviceState.count.offset)
 
-    def script(self,port,values):
+    def script(self,port,values,cycles=1):
         runs=[]
         for v in values:
             if runs and runs[-1][0]==v: runs[-1][1]+=1
             else: runs.append([v,1])
+        if not runs or not 1<=cycles<=0xffffffff: raise ValueError('fixture script cycles/count')
         if len(runs)>128 or self.script_count>=16: raise ValueError('fixture script capacity')
         if any(self.scripts[i].port==port for i in range(self.script_count)): raise ValueError('duplicate port script')
         s=self.scripts[self.script_count]; self.script_count+=1; s.port=port; s.count=len(runs)
+        s.cycles=s.cycles_left=cycles
         for i,(v,n) in enumerate(runs): s.runs[i]=ScriptRun(v,n)
 
     def _script(self,port):
@@ -82,11 +84,13 @@ class Devices:
 
     def _take(self,port,peek=False):
         s=self._script(port)
-        if s is None or s.cursor>=s.count: raise RuntimeError(f'exhausted input script {port:04X}')
+        if s is None or not s.cycles_left or s.cursor>=s.count: raise RuntimeError(f'exhausted input script {port:04X}')
         v=s.runs[s.cursor].value
         if not peek:
             s.used+=1
-            if s.used==s.runs[s.cursor].repeat: s.cursor+=1; s.used=0
+            if s.used==s.runs[s.cursor].repeat:
+                s.cursor+=1; s.used=0
+                if s.cursor==s.count and s.cycles_left>1: s.cycles_left-=1; s.cursor=0
         return v
 
     def schedule(self,segment,offset,irq=0,skip=0,clocks=1):
@@ -164,7 +168,8 @@ class Devices:
             elif p==0xb: self.dma_mode=b
             elif p==0xc: self.dma_flip=0
             elif p==0x83: self.dma_page=b
-            elif p==0x201 and self._script(p) is not None: self._script(p).cursor=0; self._script(p).used=0
+            elif p==0x201 and self._script(p) is not None:
+                s=self._script(p); s.cursor=s.used=0; s.cycles_left=s.cycles
             elif 0x206<=p<=0x26e and p&15 in (6,12) and (self._script((p&0xfff0)+12) is not None or self._script((p&0xfff0)+14) is not None): pass
             else: raise RuntimeError(f'unsupported OUT {p:04X}={b:02X}')
 
@@ -201,7 +206,9 @@ class Devices:
                 if ah==1: m.setreg('FLAGS',m.reg('FLAGS')&~64)
         elif number==0x21 and 0x3c<=ah<=0x40:
             if self.dos_error:
-                e=self.dos_error; self.dos_error=0; result(e,True); return
+                if self.dos_error_skip: self.dos_error_skip-=1
+                else:
+                    e=self.dos_error; self.dos_error=0; result(e,True); return
             if ah in (0x3c,0x3d):
                 name=bytearray()
                 for i in range(63):
@@ -267,6 +274,7 @@ class Machine:
         self.uc.hook_add(UC_HOOK_INTR,self._intr)
         self.coverage = coverage
         self.executed = set()
+        self.call_edges = set()
         self.reset()
 
     def reset(self):
@@ -276,6 +284,9 @@ class Machine:
         self.steps = 0
         self.error = None
         self.returned = False
+        self.expected_exit = self.terminal_exit = False
+        self.last_transfer = None
+        self.case_edges = set()
 
     def address(self, name):
         if name not in self.symbols: raise KeyError('use MODULE:Name: '+name)
@@ -318,21 +329,41 @@ class Machine:
         try: self.device.out(port,size,value)
         except Exception as e: self.error=e; uc.emu_stop()
     def _intr(self,uc,number,user):
-        try: self.device.interrupt(number,self)
+        try:
+            self.device.interrupt(number,self)
+            if self.expected_exit and self.device.exited:
+                self.terminal_exit=True; uc.emu_stop()
         except Exception as e: self.error=e; uc.emu_stop()
     def _code(self,uc,address,size,user):
         if address==self.stop_at:
             self.returned=True; uc.emu_stop(); return
-        if self.device.service(self,self.reg('CS'),self.reg('IP')):
+        if (self.device.irq_cursor<self.device.irq_count and
+                self.device.service(self,self.reg('CS'),self.reg('IP'))):
             self.resume_irq=True; uc.emu_stop(); return
         self.steps+=1
-        if self.coverage: self.executed.add(address-LOAD*16)
+        if self.coverage:
+            self.executed.add(address-LOAD*16)
+            if self.last_transfer:
+                site,kind=self.last_transfer
+                edge=(site,address-LOAD*16,kind)
+                self.call_edges.add(edge); self.case_edges.add(edge)
+            # Observe executed transfers, including indirect tables, rather
+            # than infer composition from the presence of a callee adapter.
+            raw=bytes(uc.mem_read(address,size));p=0
+            while p<len(raw) and raw[p] in (0x26,0x2e,0x36,0x3e,0x64,0x65,0x66,0x67,0xf0,0xf2,0xf3):p+=1
+            op=raw[p] if p<len(raw) else 0
+            kind='call' if op in (0xe8,0x9a) else 'tail' if op in (0xe9,0xeb,0xea) else None
+            if op==0xff and p+1<len(raw):
+                group=(raw[p+1]>>3)&7
+                kind='call' if group in (2,3) else 'tail' if group in (4,5) else None
+            self.last_transfer=(address-LOAD*16,kind) if kind else None
 
     def prepare(self, routine, regs=None, kind='near', args=(), flags=0x202):
         """Put far-cdecl words after the return frame, identical for ASM and C.
         SS is a dedicated scratch segment outside all loaded program/data bytes.
         """
         segment, offset = self.address(routine)
+        self.expected_exit=kind=='exit'; self.terminal_exit=False
         initial=dict.fromkeys(REG_NAMES,0)
         initial.update(CS=segment,IP=offset,DS=DATA_SEG,ES=DATA_SEG,SS=STACK_SEG,FLAGS=flags)
         initial.update(regs or {})
@@ -358,6 +389,8 @@ class Machine:
         except UcError as e:
             raise RuntimeError(f'{e} at {self.reg("CS"):04X}:{self.reg("IP"):04X}') from e
         if self.error: raise self.error
+        if self.expected_exit and self.terminal_exit:
+            return {k:self.reg(k) for k in REG_NAMES}
         if not self.returned:
             raise RuntimeError(f'budget {budget} exhausted at {self.reg("CS"):04X}:{self.reg("IP"):04X}')
         if self.reg('SP')!=STACK_TOP:

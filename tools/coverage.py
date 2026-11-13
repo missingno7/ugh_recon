@@ -80,13 +80,24 @@ def main():
     executed=set(cov['executed']) if cov else set()
     expected={r['module']+':'+r['name'] for r in rs}
     plan=load_json('translation-plan.json')
-    assigned=Counter(row['name'] for p in plan['packages'] for row in p['routines'])
+    assigned=Counter(row['routine'] for row in plan['routines'])
     if set(assigned)!=expected or any(n!=1 for n in assigned.values()):
         raise ValueError('translation plan must cover every curated routine exactly once')
-    if plan['routine_count']!=len(expected): raise ValueError('translation plan routine count drift')
-    pending=[p for p in plan['packages'] if p['wave']==1]
-    owned=[f for p in pending for f in p['files']+p['test_files']]
-    if len(owned)!=len(set(owned)): raise ValueError('final-wave file ownership overlaps')
+    if plan['schema']!=2: raise ValueError('translation table schema drift')
+    for row in plan['routines']:
+        name=row['routine']; status=row['status']; path=ROOT/row['file']; suite=ROOT/row['suite']
+        if not path.is_file() or not suite.is_file(): raise ValueError('missing translation table path: '+name)
+        if status=='translated':
+            if name not in translated or translated[name]['file'].replace('\\','/')!=row['file']:
+                raise ValueError('translation table/source drift: '+name)
+            if suite.stem not in declared.get(name,set()): raise ValueError('table suite does not test '+name)
+        elif status=='control_prefix':
+            if name in translated or '/* CONTROL_PREFIX '+name+' */' not in path.read_text():
+                raise ValueError('abnormal control prefix/source drift: '+name)
+        elif status=='inline_only':
+            if name not in {'GAME:DecodeIceLiteralAndMatchStream','GAME:ReadIceBitToCarry','GAME:ReadIceBitsToDx'} or path.name!='ice.c':
+                raise ValueError('only the three established ICE entries are inline-only')
+        else: raise ValueError('unknown translation table status: '+status)
     if set(translated)-expected: raise ValueError('translation marker not in routine census')
     rows=[]
     for r in rs:
@@ -98,9 +109,10 @@ def main():
                          entry_executed=entry in executed,
                          instructions=len(reachable),executed=len(ran),
                          missing=sorted(reachable-executed),indirect_tails=indirect))
-    inline=sum(row['status']=='pilot_inline_only' for p in plan['packages'] for row in p['routines'])
+    inline=sum(row['status']=='inline_only' for row in plan['routines'])
     counts=dict(routines=len(rows),translations=len(translated),inline_only=inline,
-                remaining=len(rows)-len(translated)-inline,final_wave_packages=len(pending),directly_tested=len(tested),
+                remaining=len(rows)-len(translated)-inline,
+                control_prefixes=sum(row['status']=='control_prefix' for row in plan['routines']),directly_tested=len(tested),
                 entries_executed=sum(r['entry_executed'] for r in rows))
     report=dict(counts=counts,notes='Reachable-body instruction counts can overlap at shared tails. '
                 'Calls excluded; computed jumps unresolved. Execution is behavioural evidence only.',routines=rows)

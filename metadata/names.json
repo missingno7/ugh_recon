@@ -20824,7 +20824,7 @@
       "name": "ProbeSoundBlasterDmaIrq",
       "kind": "code",
       "address": "0664:1F00",
-      "evidence": "Locate mix buffers; scan bases 210h..260h and IRQ candidates 7,5,3,2.",
+      "evidence": "Prefix locates DMA buffers and writes the initial vector/base before calling GAME:001F.",
       "spellings": [
         {
           "module": "SOUND",
@@ -21110,7 +21110,7 @@
       "name": "InitializeDspPlayback",
       "kind": "code",
       "address": "0664:205C",
-      "evidence": "Calibrate delays and probe DSP/DMA IRQ; if found, save vector and install 1E04h.",
+      "evidence": "Calibrate delays, then call ProbeSoundBlasterDmaIrq with a real far return frame.",
       "spellings": [
         {
           "module": "SOUND",
@@ -21226,7 +21226,7 @@
       "name": "ShutdownDspPlayback",
       "kind": "code",
       "address": "0664:20B9",
-      "evidence": "Disable DSP speaker (D3h), mask selected IRQ, restore its saved DOS vector, reset DSP.",
+      "evidence": "Send D3h, then far CALL GAME:001F at 20C0; that hook executes near RET.",
       "spellings": [
         {
           "module": "SOUND",
@@ -21734,7 +21734,7 @@
       "name": "InstallTimerInterrupt",
       "kind": "code",
       "address": "0A32:0008",
-      "evidence": "Install the INT 08h callback dispatcher once, saving the preceding DOS vector.",
+      "evidence": "Install INT 08h once, initializing slot zero and handle maps while other slots stay stale.",
       "spellings": [
         {
           "module": "TIMER",
@@ -22134,7 +22134,7 @@
       "name": "RemoveTimerCallback",
       "kind": "code",
       "address": "0A32:021B",
-      "evidence": "Remove the timer identified by AX, compact the active slot prefix, and rescan its minimum.",
+      "evidence": "Remove the timer identified by AX, move the last slot into the removed slot, and rescan its",
       "spellings": [
         {
           "module": "TIMER",
@@ -22345,7 +22345,7 @@
       "name": "ShutdownSoundSystem",
       "kind": "c-function",
       "address": "0878:008A",
-      "evidence": "Shuts down active devices and makes shutdown idempotent after the first call.",
+      "evidence": "Shutdown uses the live-DS latch store, including the foreground TIMER-removal DS leak.",
       "spellings": [
         {
           "module": "C",

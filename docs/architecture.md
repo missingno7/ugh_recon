@@ -59,11 +59,41 @@ their body, consumes the six-byte frame and restores CS/IP/FLAGS. PUSHF/CALL FAR
 keeps live IF/TF; hardware delivery clears them before entering the handler.
 External saved BIOS handlers remain unsupported unless explicitly modeled.
 
-GAME:001C..001F have near RET despite far C declarations. Preserve actual stack
-effects when translating callers: model the incoming return words and entry ABI,
-or report a bounded nonreturn. Do not silently replace RET by RETF. General
-resource-loader call chains, arbitrary corrupted targets and self-referential
-tricks outside ICE remain outside the composed certificate.
+GAME:001C..001F really execute near RET. `ugh_call_near_ret_hook` constructs
+CALL FAR's two words, executes the actual translated leaf and pops only IP.
+CS remains GAME and the saved caller CS remains at SS:SP. `UGH_CONTROL_TRANSFER`
+(4) propagates that exact landing without unwinding native caller-owned frames.
+It is an unresolved transfer, never successful resource/device completion.
+`CONTROL_PREFIX` adapters resolve for composed diagnostics but coverage does not
+count them as completed translations. `python tests/_abi_kat.py` compares the
+actual original landing, registers, nonstack RAM, retained CS word and devices:
+
+| Entry | First hook call | Actual continuation | Retained word |
+|---|---|---|---|
+| SOUND:ProbeSoundBlasterDmaIrq | 1F14 -> GAME:001F | GAME:1F19 | SOUND CS |
+| SOUND:InitializeDspPlayback | Probe after calibration | GAME:1F19 | SOUND CS |
+| SOUND:ShutdownDspPlayback | 20C0 -> GAME:001F | GAME:20C5 | SOUND CS |
+| C:LoadSoundBankResource | 0111 -> GAME:001D | GAME:0116 | C CS |
+| C:InitializeSoundSystem, bits=2 | Initialise DSP -> Probe | GAME:1F19 | SOUND CS |
+
+GAME:1F19 decodes as IN AX,DX then SUB DI,DI; at 1F1C the next opcode is
+invalid (FF /7). A returning word-input service would therefore lead to a CPU
+fault, not the intended SOUND probe scan. Word IN and CPU fault delivery are not
+modelled services. GAME:20C5 enters UpdateFloatingPassengerApproach after its SI
+load, using live DS/SI/BX. GAME:0116 enters the middle of the menu player-count
+instruction stream: XOR AL,26h; XOR AX,3; store player count; shift/store array
+size; jump to menu redraw. Subsequent RETs consume the retained segment word as
+an IP in GAME. Those corrupted continuations are not repaired or executed in C.
+The second resource-length hook at C:014D and the later intended DSP hooks have
+no accepted returning path from these entries. The four control prefixes remain
+explicit translation debt. C:InitializeSoundSystem's ordinary disabled/AdLib
+paths are implemented and tested; its DSP path has a verified transfer landing.
+
+The tree-reward full-pool defect is separate: SpawnFallingItem pushes caller BX,
+scans indices 22,20,...,0, then reaches RET with saved BX still at SS:SP. RET
+pops that saved value as IP, leaving the actual near return word pending and
+CS unchanged. Thus the continuation depends on the caller's BX and subsequent
+stack contents. No allocation failure result or normal reward return is invented.
 
 ## Addresses and rebuilt execution
 
@@ -110,7 +140,7 @@ versions and jeopardize its existing Borland certificate.
 
 The read-only probe build/workers/c-infra/measure_c.py confirms native GCC rejects
 the source; even after erasing the qualifiers it fails assertions for DOS int,
-record stride and pointer storage. c/module_pilot.c proves three translated
+record stride and pointer storage. c/music_clock.c proves three translated
 functions: SwapDwordByteOrder, DisableMusicSectionLoop and GetElapsedMusicTime.
 The latter two leave ES=SOUND, as the compiled code does. Time subtraction is
 uint32_t modulo arithmetic; rate zero is an unsupported INT-0 path, not zero time.
@@ -136,15 +166,30 @@ service, including the contiguous-operand regression.
 | Joystick | OUT 201h logs actual AL and rewinds that port's finite raw sample script. Every IN consumes exactly one raw byte. Two button reads and axis priority/counting remain in translated code. |
 | AdLib | 388h address, 389h register data; 388h probe/timer status is scripted. OPL event interpretation, delays, channels and track state remain original SOUND RAM. |
 | DSP/DMA | DSP probed bases 200h..260h: explicit status/data scripts at +Ch/+Ah/+Eh authorize reset/command writes at +6h/+Ch. No implicit ready/AA response or invented DMA completion. DMA1 address/count/page/mode/mask and shared low/high flip-flop, PIC mask/EOI are stored. IRQ delivery requires an event fixture. |
-| DOS files | Eight case-sensitive named in-memory files of at most 8192 bytes, handles 5..31 allocated lowest first. AH3C creates/truncates, 3D opens, 3E closes, 3F reads, 40 writes/truncates at CX=0. AX/CF report results; invalid handles, missing files and access errors are explicit. io_limit supplies short transfers; dos_error injects one consumed error. Contents, length, cursors and handles compare; no real host file is opened. |
+| DOS files | Eight case-sensitive named in-memory files of at most 8192 bytes, handles 5..31 allocated lowest first. AH3C creates/truncates, 3D opens, 3E closes, 3F reads, 40 writes/truncates at CX=0. AX/CF report results; invalid handles, missing files and access errors are explicit. io_limit supplies short transfers; dos_error injects one consumed error after dos_error_skip file requests. Contents, length, cursors and handles compare; no real host file is opened. |
 | Other DOS/BIOS | INT21 AH25 stores DS:DX to IVT[AL]; AH35 returns ES:BX, otherwise preserving registers/FLAGS. AH2C consumes configured CH/CL/DH/DL. AH4C records fixture exit code; it never exits the host. INT10 AH00 records mode/page; AH0F returns configured mode/columns/page. These are boundary fixtures, not a DOS/BIOS boot or VGA BIOS initialization emulation. |
 
-`m.device.script(port, values)` run-length encodes at most 128 runs in one of
-16 independent script slots. Port FFFFh configures BIOS key words; FFFEh encodes
-DOS time as hour/minute/second/hundredth bytes. Configure fields directly during
-setup; no fixture may execute the oracle to manufacture expected state.
-`m.device.file(name, bytes)` configures a file fixture. Bounds are explicit fixture
-capacities, not clipping added to game algorithms.
+`m.device.script(port, values, cycles=1)` run-length encodes at most 128 runs
+in one of 16 independent script slots, with 1..FFFFFFFFh finite cycles. Peeking
+does not consume a run or cycle. Exhaustion still fails; after the last cycle the
+cursor equals count and cycles_left remains one. OUT 201h restarts the entire
+configured waveform and its cycle countdown. Empty waveforms and zero cycles
+are rejected before fixture state changes. Port FFFFh configures BIOS key words;
+FFFEh encodes DOS time as hour/minute/second/hundredth bytes.
+
+`dos_error_skip` counts only INT21 AH3C..40 requests while dos_error is nonzero.
+Every request logs first. A skipped request runs its ordinary service, including
+natural failures. The selected request sets AX/CF, consumes dos_error, and leaves
+file/handle/buffer state untouched. Non-file services do not decrement the count.
+`m.device.file(name, bytes)` configures a file fixture. Ordered C logs have
+1,080,000 entries (the whole menu exceeds the prior 270,000-entry bound).
+These are explicit fixture capacities, not clipping in game algorithms.
+
+A Case with kind='exit' stops at the modelled INT21 AH4C on the emulator side;
+C propagates UGH_DOS_EXIT (5) with the live stack. No RET or host process exit is
+fabricated. Ordinary routine cases continue to require a checked return sentinel.
+The reference CPU's POPF-zero probe has 286 semantics; an 8086 rejection fixture
+has not been supplied.
 
 `m.device.schedule(segment, offset, irq=0, skip=0, clocks=1)` appends one of at
 most 64 events. Only the next event is eligible; matching site visits decrement
@@ -156,24 +201,46 @@ emulator stops/restarts at that original instruction; C calls
 loc_1163 and loc_116B (including inner LOOP visits), executes both real temporary
 IRQ handlers, and retains DX's original Begin-handler-offset bias. Tests verify
 both captured words and restoration of the prior vector. Retrace/input scripts
-advance at IN operations. Main/ISR races elsewhere remain unverified.
+advance at IN operations. The additional GAME:00E9 and 0D7B polling sites permit finite keyboard IRQ traces
+through main-menu/game composition. Main/ISR races elsewhere remain unverified.
 
-## Translation and final-wave ownership
+## Translation inventory and composition
 
-The integrated tree has 132 directly tested adapters, three ICE entries reached
-inline, and 149 remaining routines out of 284. GAME:4681 and 4981 are palette
-data, excluded from the routine census. This is bounded behavioural evidence;
-it changes no original C/runtime byte-match claim. Full gameplay is unverified.
+The maintained files now have content names. `menu.c`, `scene.c`, `actors.c` /
+`actors_states.c`, `items_water.c`, `render.c` / `render_primitives.c`, `video.c`,
+`dos_input.c`, `adlib.c`, `dsp.c`, `sound_api.c`, `sound_engine.c`, `timer.c`,
+`timer_system.c` and `timer_stack.c` retain original-address adapters. Smaller
+files contain menu helpers, demo scripts, game services, music clocks/analysis,
+sound-state clearing, ICE, memory, ABI transfers and platform services.
 
-`metadata/translation-plan.json` retains integrated packages in wave 0 and assigns
-all remaining routines to eight exclusive C/suite pairs in final wave 1. Workers
-order local direct-call and indirect mutual families internally. Cross-package
-calls use the common resolver and real caller-owned ABI/frame. An absent callee
-fails with UGH_BAD_CALLBACK; workers list that exact edge as unverified and add
-composed cases after integration. There is no emulator bridge or success stub.
-This permits each worktree to compile independently before peer packages land.
-`coverage.py` checks the plan against the curated routine census exactly once,
-including inline-only entries, and rejects overlapping final-wave files.
+`metadata/translation-plan.json` is a schema-2 routine/file/suite/status table,
+with each of the 284 curated identities exactly once. There are 277 translated
+entries, three established inline ICE entries and four control prefixes still
+counted as remaining. `coverage.py` checks actual source markers, file paths and
+suite declarations; it does not infer completion from a prefix or rename an
+unsupported entry to inline. `cgen.py` publishes shared entries and explicit
+control prefixes for dispatch without granting them translation credit.
+
+C compiler scratch values can become visible through ASM callers. In particular,
+StopAdlibTrackChannel's disabled exit leaves AX=SOUND; after active release it
+pops the channel argument into CX, reloads AX=SOUND and DX=the saved guard.
+StartAdlibTrackChannel also leaves the deadline low word in CX (tick+3),
+which the assembly effect callers expose. RestoreAdlibVoiceAllocation retains
+the compiler's BX stride scratch and POP CX
+where SOUND's effect-expiry handler exposes them. ShutdownSoundSystem writes
+through live DS; foreground fade cancellation or AdLib teardown -> TIMER removal can leave DGROUP,
+so the final latch write goes to DGROUP:0002. ScanMusicEvents clears DF on its
+runtime-memset path. These are literal behaviours, not API improvements.
+
+`difftest.py --coverage` records executed call/tail edges per case as well as
+instruction visits. A missing callee or unsupported request still fails. Known
+external BIOS interrupt contexts and corrupt return targets remain outside the
+finite certificate. Frame snapshots use a read-only observer at the real page
+flip RET (GAME:4EE5); diagnostic stops propagate a budget result. The observer
+does not change game RAM, clocks or platform logs. `tests/_whole_program.py`
+starts GAME:0008 (_main), stops after two flips and compares the original-address
+RAM, VGA/device state and ordered logs at each boundary. This is bounded
+composition evidence, not a DOS boot or a complete playthrough.
 
 ## Direct interaction census
 

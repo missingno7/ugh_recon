@@ -85,10 +85,32 @@ def main():
     else:raise AssertionError('script exhaustion accepted')
     d.platform_in(0x60,1);assert c.error
 
+    # Finite waveform cycles: exact order, nonconsuming BIOS peeks and restart.
+    for values,cycles in (([],1),([0,8],0),([1],0x100000000)):
+        q=Devices()
+        try:q.script(0x201,values,cycles=cycles)
+        except ValueError:pass
+        else:raise AssertionError('invalid finite waveform accepted')
+        assert q.script_count==0
+    d.ugh_devices_reset();p=Devices();c=d.ugh_device_state().contents
+    p.script(0x3da,[0,8],cycles=3);p.script(0x201,[255,0],cycles=2)
+    p.script(0xffff,[0x1e61,0x3062],cycles=2)
+    C.memmove(C.addressof(c),p.state(),len(p.state()))
+    for expected in [0,8]*3:inp(0x3da,expected)
+    assert p.scripts[0].cursor==c.scripts[0].cursor==2
+    inp(0x201,255);inp(0x201,0);inp(0x201,255)
+    out(0x201,0);assert p.scripts[1].cycles_left==c.scripts[1].cycles_left==2
+    for expected in [255,0]*2:inp(0x201,expected)
+    assert C.string_at(C.addressof(c),len(p.state()))==p.state()
+    try:p.inp(0x3da,1)
+    except RuntimeError:pass
+    else:raise AssertionError('finite waveform did not exhaust')
+    d.platform_in(0x3da,1);assert c.error
+
     # Direct DOS/BIOS KATs: explicit bytes and register outputs on BOTH sides.
     m=Machine();m.prepare('GAME:loc_001C',regs=dict(AX=0x3509,DS=0x7500,DX=0xabcd),flags=0xed7)
     m.write(0,0x24,b'\x34\x12\xcd\xab');m.write(0x7500,0x100,b'SCORE.DAT\0')
-    p=m.device;p.script(0xfffe,[0x173b3b63]);p.script(0xffff,[0x1e61,0x3062]);p.file('SCORE.DAT',b'ABCD')
+    p=m.device;p.script(0xfffe,[0x173b3b63]);p.script(0xffff,[0x1e61,0x3062],cycles=2);p.file('SCORE.DAT',b'ABCD')
     d.ugh_devices_reset();c=d.ugh_device_state().contents;C.memmove(mem,m.snapshot(),MEM_SIZE);C.memmove(C.addressof(c),p.state(),len(p.state()))
     r=Regs(**{n.lower():m.reg(n) for n in REG_NAMES})
     def interrupt(n,**inputs):
@@ -101,9 +123,10 @@ def main():
     assert m.read(0,0x24,4)==bytes(mem[0x24:0x28])==b'\x9a\x78\x67\x45'
     interrupt(0x21,AX=0x3509);assert (r.bx,r.es)==(0x789a,0x4567)
     interrupt(0x21,AX=0x2c00);assert (r.cx,r.dx)==(0x173b,0x3b63)
-    interrupt(0x16,AX=0x100);assert r.ax==0x1e61 and not r.flags&64
-    interrupt(0x16,AX=0);assert r.ax==0x1e61
-    interrupt(0x16,AX=0);assert r.ax==0x3062
+    for key in [0x1e61,0x3062]*2:
+        for repeat_peek in range(2):
+            interrupt(0x16,AX=0x100);assert r.ax==key and not r.flags&64
+        interrupt(0x16,AX=0);assert r.ax==key
     interrupt(0x16,AX=0x100);assert r.flags&64
     interrupt(0x10,AX=0x13);interrupt(0x10,AX=0xf00);assert r.ax==0x5013
     interrupt(0x21,AX=0x3d00,DS=0x7500,DX=0x100);assert r.ax==5 and not r.flags&1
@@ -116,6 +139,24 @@ def main():
     m.write(0x7500,0x300,b'ABSENT.DAT\0');mem[0x75300:0x7530b]=b'ABSENT.DAT\0'
     interrupt(0x21,AX=0x3d00,DX=0x300);assert r.ax==2 and r.flags&1
     p.dos_error=c.dos_error=5;interrupt(0x21,AX=0x3d00,DX=0x100);assert r.ax==5 and r.flags&1
+    # Only file requests decrement the delayed-error countdown. A selected
+    # failed request leaves handles, cursor, contents and destination untouched.
+    for skip in (1,2):
+        p.dos_error=c.dos_error=5;p.dos_error_skip=c.dos_error_skip=skip
+        interrupt(0x10,AX=0xf00);assert c.dos_error_skip==skip
+        interrupt(0x21,AX=0x3d00,DS=0x7500,DX=0x100);assert r.ax==5 and not r.flags&1
+        before=m.read(0x7500,0x400,4)
+        interrupt(0x21,AX=0x3f00,BX=5,CX=2,DX=0x400)
+        if skip==1:
+            assert r.ax==5 and r.flags&1 and c.handles[5].position==0
+            assert m.read(0x7500,0x400,4)==before
+            interrupt(0x21,AX=0x3e00,BX=5)
+        else:
+            assert r.ax==2 and not r.flags&1 and c.handles[5].position==2
+            interrupt(0x21,AX=0x3e00,BX=5)
+            assert r.ax==5 and r.flags&1 and c.handles[5].active
+            interrupt(0x21,AX=0x3e00,BX=5)
+        assert c.dos_error==c.dos_error_skip==0
     interrupt(0x21,AX=0x4c07);assert p.exited==c.exited==1 and p.exit_code==c.exit_code==7
 
     # Exact-address resolution rejects an unknown address without fake success.
@@ -123,7 +164,7 @@ def main():
     # IRQ0 calibration is also a KAT: independent assertions on both captured
     # measurements and IVT restoration run through the normal differential suite.
     from difftest import load_suite,run
-    for case in load_suite('sound_01_w00').CASES:
+    for case in load_suite('sound_engine').CASES:
         if case.routine=='SOUND:CalibrateSoundDelay':assert not run(case,m,d,True)
     # Explicit IRQ3 delivery follows IVT, creates an IRQ frame and IRETs.
     m.reset();m.device.schedule(m.seg('GAME:WaitVerticalRetraceActive'),m.off('GAME:WaitVerticalRetraceActive'),irq=3,clocks=17)

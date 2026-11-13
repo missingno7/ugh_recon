@@ -139,6 +139,56 @@ memory effects, callback relations. Prefer low coupling, high confidence, tracta
 verification, much removable machinery, architectural value and reusable technique. Start
 small; gameplay state machines come after the techniques are proven on leaves.
 
+## Architectural recovery
+
+Modernization serves a larger aim: a comprehensible model of how Ugh! works, in which the
+structure of the implementation reflects the structure of the game. Two processes run
+together and inform each other:
+
+1. **Archaeology**: recover the structure the original programmers worked with (procedures,
+   conventions, records, modules, state machines, algorithms) as far as evidence supports.
+2. **Modernization**: express that recovered structure as clean native C.
+
+Neither the original source nor its file split can be recovered uniquely; the goal is the
+best-supported interpretation, not a reconstruction of one programmer's text, and no
+architecture is imposed without evidence. Native code is not required to copy the DOS
+programmers' organisation either: it follows the recovered *game* structure, using the DOS
+organisation where that is what the evidence shows the game to be.
+
+Evidence for structure, roughly strongest first:
+
+- Data layout as declared: record sizes and field order used consistently by several routines,
+  tables indexed the same way, constants shared across modules.
+- Conventions the code follows consistently: a register that always carries the same thing
+  into a family of routines, flag-returning predicates, callback signatures, the prologue
+  forms (`PROC`/`ARG`/`USES`/`enter`) and padding the assembler left.
+- Link and assembly artefacts: relocation runs and alignment padding (lower bounds on
+  modules), the order of routines and data, which segment owns which variables.
+- Dataflow: who writes a piece of state (ownership), who only reads it, which routines form a
+  closed cluster around it, which values drive dispatch (state machines).
+- The Amiga original: an algorithm, table or quirk present in both versions belongs to the
+  game's design; one present only in DOS is a port artefact or a DOS change. Shared bugs and
+  shared odd constants are strong signs of close translation; different algorithms for the
+  same rule show reimplementation. Classified as in the section below.
+
+Where recovered structure lives:
+
+- **In L0, byte-neutrally**: names and contract comments (already), and further where TASM
+  allows it without changing a byte: `STRUC` definitions for records with field references
+  instead of numeric offsets, `EQU` names for state values and constants, `PROC` boundaries,
+  comments that group routines into the subsystems found. The byte proof guards every step.
+- **In `docs/architecture-model.md`** (created from the program model and Amiga findings):
+  subsystems and their responsibilities, owned state, records and their meaning, state
+  machines with their states and transitions, conventions, and the DOS/Amiga correspondence.
+  Each claim carries its evidence and a grade (established, supported, hypothesis).
+- **In L2**: modules, types and interfaces follow the architecture model. A closure unit is
+  preferably a recovered subsystem or a coherent part of one, not an arbitrary set of
+  routines.
+
+The certificate's `purpose`, `interface` and `memory` fields use the architecture model's
+terms, and a certificate may correct the model; disagreements go back into the model with
+their evidence.
+
 ## The Amiga version
 
 `assets/amiga/` holds the original game for another CPU. DOS is authoritative for the DOS

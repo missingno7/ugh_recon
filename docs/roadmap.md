@@ -43,6 +43,19 @@ To be replaced by the dependency analysis (program model work order). Layers fro
 7. Simulation: player craft, passengers, animals, items, water, collisions.
 8. Sequencing: menus, demos, scenes, high scores, game flow.
 
+## Architecture model
+
+The native architecture is not designed up front. It is recovered (docs/modernization.md,
+"Architectural recovery") and recorded in `docs/architecture-model.md`, which is created once
+the program model and the Amiga correspondence are in. Planned uses:
+
+- candidate ranking weighs whether a unit is a recovered subsystem with owned state and a
+  clear role, not only coupling and removable machinery;
+- record layouts confirmed by several readers and by the Amiga version become `STRUC`
+  declarations in L0 (byte-neutral) and types in L2;
+- state machines (passengers, animals, game flow) are recovered as states and transitions
+  before their code is migrated.
+
 ## Candidates for early closure
 
 | Candidate | Why | Concern |

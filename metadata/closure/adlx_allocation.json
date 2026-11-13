@@ -1,0 +1,269 @@
+{
+  "component": "adlx_allocation",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "original": {
+    "L0": [
+      "C:StopAdlibTrackChannel 0878:1768",
+      "C:RestoreAdlibVoiceAllocation 0878:14BB",
+      "C:StartAdlibTrackChannel 0878:0CFC",
+      "C:PlayAdlibEffect 0878:1852"
+    ],
+    "L1": [
+      "c/sound_api.c:c_StopAdlibTrackChannel,c_RestoreAdlibVoiceAllocation,c_StartAdlibTrackChannel,c_PlayAdlibEffect"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/adlx_allocation.h",
+      "native/adlx_allocation.c",
+      "native/bridge/adlx_allocation_bridge.c"
+    ],
+    "header": "native/adlx_allocation.h",
+    "functions": [
+      "audio_allocation_supported",
+      "audio_allocation_run",
+      "audio_effect_select"
+    ],
+    "build": "python verif/adlx_allocation_build.py"
+  },
+  "purpose": "Acquire/release shared OPL voices, select/replace effect records, compact live effects and restore displaced music with exact ordered programming; remove ordinary END lifecycle from L1.",
+  "interface": {
+    "inputs": [
+      "AudioState, operation STOP/RESTORE/START, raw channel identity, volume word and device bits. Play bridge borrows resource cursor/count and explicit parser service."
+    ],
+    "outputs": [
+      "Updated shared state, ordered register writes and subordinate-call journal; start result/clamped argument; selected effect record/replacement decision."
+    ],
+    "effects": [
+      "Guard save/restore except capacity failure leaves1; current slot assigned before start rejection and is never restored after music restoration; selected cursor restored on STOP."
+    ],
+    "preconditions": [
+      "Serialized ordinary RAM with disjoint stack; forward copies for native path; iterated physical voice records0..8.",
+      "audio_allocation_supported must hold for run; RESTORE native requires effect slot8..11, reserved<=9,count<=reserved,base<=9,count<=9-base.",
+      "START gates/capacity failure admit arbitrary words; successful voice loops require base/count within0..9. Invalid STOP requests are admitted as no-ops.",
+      "Backward copies and physical allocation aliases outside this domain use audited literal fallback; instrument channel9 owner alias remains the accepted effects behavior."
+    ]
+  },
+  "callers": "Effect END and C lifecycle wrappers including sound facade, loading, music shutdown and effect replacement. Accepted effects bridge dispatches STOP to this native endpoint in combined/native builds.",
+  "callees": {
+    "native": "Accepted audio_main_step for key-off/frequency/instrument; new exact volume helper and ordinary record copies.",
+    "external": "Play retains LoadAdlibChannel/LoadAdlibTrackData parser service through L1; its nested STOP and subsequent START resolve native. No native END service uses the C stop/restoration bodies in the admitted domain."
+  },
+  "indirect": "Play parser, STOP and START are the only service targets. No native indirect transfers; OPL hardware stays platform_out. Explicit literal boundary handles unsupported physical allocations and incoming backwards record copies.",
+  "memory": {
+    "owner": "Reuse accepted native/audio.h and audio_projection.h unchanged; no header layout or input lock changes.",
+    "channels": "Effect8..11 and main12 aliases,42-byte stride; control/start/cursor/count/base/volume/deadline and unsigned age selection.",
+    "voices": "Live/Saved20-byte records,12 instrument bytes plus volume/gain/owner/frequency; saved records stay at physical indexes during effect compaction.",
+    "globals": "Device bit0 read-only, guard, reserved voice count, raw current slot, tick count, music voice count/volume, playing/operator map. No mixer/DMA owned."
+  },
+  "assumptions": [
+    "No instruction-level IRQ/store observer or instrument/stack alias in native path.",
+    "Subordinate driver source snapshots are stable: live self-source or disjoint saved/live records within0..8.",
+    "Driver delays retain state/flags/product behavior, not CPU cycle timing.",
+    "Malformed large allocations are literal compatibility cases, not a proof of native arbitrary-memory alias behavior."
+  ],
+  "eliminated": [
+    "C frame/register/segment notation from ordinary allocation code.",
+    "Recursive C allocation calls from END; native STOP calls native restoration directly.",
+    "Opaque physical copies replaced by typed forward record operations in explicitly bounded domain."
+  ],
+  "retained": [
+    "First inactive effect record; all-busy least unsigned age, strict less-than and first-slot tie. No priority/owner eligibility gate.",
+    "Free selection returns slot even when load/start fails. Replacement requires inactive after stop and nonnegative load/start.",
+    "Word capacity addition wraps; rollback preserves wrap; failure leaks guard1 and writes volume/current slot first.",
+    "Saved instrument/frequency/gain/track-volume copied before taking music voices; saved owner remains stale.",
+    "Compaction descends and adjusts loaded peers, even inactive loaded peers; restores current slot from moved owner.",
+    "Music restoration sets current slot12 and live owner12, without restoring raw current slot afterward; final frequency comes from saved records after loader.",
+    "Frequency/key always live; instrument and volume retain different raw-current/reservation/playing gates.",
+    "Channel9 instrument owner alias remains displaced[0].owner; shared snapshots do not manufacture a tenth voice."
+  ],
+  "evidence": [
+    {
+      "property": "Generated full C composition",
+      "level": "C",
+      "method": "Actual extracted L1 API/voice/copy code vs maintained native bridge; every persistent SOUND byte, full GP/flags/cdecl arguments and complete ordered ports",
+      "command": "python verif/adlx_allocation_evidence.py",
+      "result": "PASS90000 cases,30000 per STOP/RESTORE/START,including backwards literal paths.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Rebuilt L0 audio suites and direct allocation cases",
+      "level": "C",
+      "method": "Combined actual audio DLL vs checked rebuilt L0, real drivers/parsers, complete RAM and ordered device observations",
+      "command": "python verif/adlx_allocation_integration.py --whole --local-reference",
+      "result": "PASS3066 cases including862 new allocation cases;19 maintained scenarios pass.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "All four-record selection inputs",
+      "level": "B",
+      "method": "Actual extracted C PlayAdlibEffect and actual native selector; arbitrary four32-bit ages/control words; normalized ordinary-RAM/stack binding and explicit parser cut, safety/unwinding on,unwind6",
+      "command": "python verif/adlx_allocation_selection.py",
+      "result": "PASS; includes first-free and all-busy strict unsigned minimum/first-tie policy. Does not prove parser or complete Play lifecycle.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Selection tie negative control",
+      "level": "B",
+      "method": "Scratch native mutation changes strict age comparison from< to<=; unchanged actual C reference",
+      "command": "python verif/adlx_allocation_selection.py --negative",
+      "result": "Expected FAIL main.assertion.2 selected physical effect record.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Current-slot restoration negative control",
+      "level": "C",
+      "method": "Scratch native mutation retains released effect identity instead of assigning12 during music restoration; unchanged actual C reference",
+      "command": "python verif/adlx_allocation_evidence.py --negative",
+      "result": "Expected FAIL persistent audio bytes. This is a successful defect control,not passing mutated code.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "All shipped resources with native END lifecycle",
+      "level": "C",
+      "method": "Independent full compiled L1 and combined native audio, persistent RAM/GP/IF/DF and every ordered port event after every interpreter burst; parser supplies inventory only",
+      "command": "python verif/adlx_allocation_corpus.py",
+      "result": "PASS11 resources,66 runs,15456 bursts,90280 native events,118912 ordered register writes.55 finite END runs plus11 bounded two-pass infinite runs.55 native STOP entries,zero allocation literal fallback.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "All maintained whole-game scenarios",
+      "level": "D",
+      "method": "Combined native audio DLL vs checked rebuilt L0,including promoted gameplay-adlib requiring effects reach",
+      "command": "python verif/adlx_allocation_integration.py --whole --local-reference",
+      "result": "PASS19 maintained scenarios; combined routine/scenario audit STOP773 entries761 native12 literal,RESTORE266 entries248 native18 literal,START421 entries383 native38 literal,PLAY101 entries,56 free20 replacement choices. Counts include nested/rejected entries.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Actual promoted scratch host",
+      "level": "D",
+      "method": "Copy maintained tree and checked plain image, promote only scratch allocation certificate, run actual unchanged tools/hostbuild.py and host/check.py --variant native CLIs",
+      "command": "python verif/adlx_allocation_host.py",
+      "result": "PASS18 linked native units,19 scenarios plus256-frame smoke. Final scratch build/workers/close-adlx-3/host-promotion-38016. Maintained certificate not promoted.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Final clean-reference reproduction",
+      "level": "C",
+      "method": "Fresh checked plain rebuild and scratch expansion/repack against unchanged oracle lock, followed by compiled samples/negative controls/CBMC selector/corpus/L0 integration/real scratch host/global boundary gate",
+      "command": "python verif/adlx_allocation_reproduce.py --fresh-reference",
+      "result": "PASS all8 commands returned0; global19 certificates0 errors. Source unchanged from replay; final certificate appends evidence and locks.",
+      "date": "2026-11-13"
+    }
+  ],
+  "amiga": "TFMX serves a similar role with different storage/driver design; no allocation or ordered-write equivalence claimed.",
+  "uncertainty": [
+    "Full allocation/voice/bridge composition has C evidence; wider arbitrary-state actual-C CBMC profiles,including scalar capacity attempt,timed out at120s and earn no proof.",
+    "Incoming backwards record copies and unsupported physical allocation aliases remain explicit audited L1 compatibility. Ordinary shipped END corpus needs no fallback.",
+    "Resource parsing/container loading stays L1. Complete Play external-service exceptions and instruction-level asynchronous observations are outside the normal-return serialized contract.",
+    "Tick/guard/clock/fade scheduling,scan/section application and PCM/DMA remain outside this unit."
+  ],
+  "dependencies": {
+    "native/adlx_allocation.h": {
+      "includes": [
+        "adlx_main.h"
+      ],
+      "calls": []
+    },
+    "native/adlx_allocation.c": {
+      "includes": [
+        "adlx_allocation.h"
+      ],
+      "calls": [
+        "audio_allocation_action",
+        "audio_allocation_level",
+        "audio_allocation_restore",
+        "audio_allocation_voice",
+        "audio_allocation_volume",
+        "audio_effect_slot",
+        "audio_main_step"
+      ]
+    },
+    "native/bridge/adlx_allocation_bridge.c": {
+      "includes": [
+        "../adlx_allocation.h",
+        "audio_projection.h",
+        "platform.h"
+      ],
+      "calls": [
+        "S",
+        "allocation_call",
+        "allocation_delay",
+        "allocation_deliver",
+        "allocation_enter",
+        "allocation_entry",
+        "allocation_leave",
+        "allocation_literal",
+        "allocation_publish",
+        "allocation_push",
+        "arg16",
+        "audio_allocation_run",
+        "audio_allocation_supported",
+        "audio_bridge_bank",
+        "audio_bridge_cursor",
+        "audio_bridge_pointer",
+        "audio_bridge_project",
+        "audio_bridge_publish_voice",
+        "audio_bridge_voice",
+        "audio_effect_select",
+        "flag",
+        "l1_RestoreAdlibVoiceAllocation",
+        "l1_StartAdlibTrackChannel",
+        "l1_StopAdlibTrackChannel",
+        "platform_out",
+        "rd16",
+        "rd32",
+        "rd8",
+        "set_al",
+        "ugh_dispatch",
+        "wr16",
+        "wr32",
+        "wr8"
+      ]
+    }
+  },
+  "proposed_status_reason": "Full serialized allocation/driver/ABI/stream composition is C plus D and actual scratch host; selector has B evidence. No full lifecycle CBMC equivalence is claimed. Supervisor status decision required.",
+  "boundary_gate": {
+    "command": "python tools/closure.py",
+    "result": "PASS19 certificates,0 errors",
+    "date": "2026-11-13"
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "c/adlib.c": "2f4e551282f6ac33f8d24127f3cd5294e679f72ce28794c3ed295ce243c18bf0",
+    "c/game_services.c": "e9301da5d7fae6f2aacce7dda8d4e6f0e86cbe8c40e736216185c4a8f792a7c5",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/sound_api.c": "ba1c98bf3a03b5f48a71d4491bdebf3acfc17b0f6cce51db370a0e58c0507e4c",
+    "c/sound_engine.c": "5e4116c31806441e464de35d5649894ec4eea28025254a2edea616235e6e6881",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "native/adlx_allocation.c": "4fd567bf96fd73d071073a7d70bd31ad5d0339df16fcea5dd083e87989bbc858",
+    "native/adlx_allocation.h": "e0e5c37e9612494d05042149f923bb0ed8acf223a8eb7f84bd8447ae68ffdc9b",
+    "native/adlx_effects.c": "0004628dd7cb88e6990c15b95c95c2f74e3cd8e17d7433375e9f39f637cd1f37",
+    "native/adlx_effects.h": "89fd75bd98516b98178986632b69ab0e1c58dc37d91ab0e08095ce5729e98be6",
+    "native/adlx_main.c": "2e624d0ee0ea20d647b54d811671f52c50706e0cb34529c7bd8ac8c18e0dec42",
+    "native/adlx_main.h": "a67988ae0fa9f4d2c5d0451f02851385a900f96a6fba67c56e4764ffc10469f6",
+    "native/audio.h": "e14ee8e39125b55ced910d17214acddfcd9fb0339192990487dca22dd3e04a5a",
+    "native/bridge/adlx_allocation_bridge.c": "ce1bbd8ff5cc2b57bb0ea50a8aa1b667a42cb3e379f5daf26df92de3a7ee6256",
+    "native/bridge/adlx_effects_bridge.c": "720a905d58d47e2c13f342fc2d174c964f17b09a69455dd3b2b34cac8ba8253e",
+    "native/bridge/adlx_main_bridge.c": "91f38d4455d13917b3c7cf4a9fb89a02963be5cf509374e4570d81407f03c9c0",
+    "native/bridge/audio_projection.h": "e15ee379c16623f0dfb9830e154c5c71b0f2d2a424a6073c3dec497c50cd8630",
+    "verif/adlx_allocation_build.py": "9c9833abc9fe71b6d1452a0a8e39e5eea631fb3b6c6493c5f24bd1d62123e2b8",
+    "verif/adlx_allocation_cases.py": "5780ee6d7b094dfe9cff0e8227043de2e340839890bff7a93edc3be5086ccab0",
+    "verif/adlx_allocation_corpus.py": "ea4de66029405acddc006ecbda70a1895c90c80102d7cf23fe33eba3fbd18dbb",
+    "verif/adlx_allocation_evidence.py": "f393a31ba67565c28928a0011f7428a12e0ac263ee3c2ed37fbc0f4905fdbfbd",
+    "verif/adlx_allocation_harness.c": "b312b251b9171aa4edb42e1f3ac2443657a867beb79e82cd5ad0a59f10df43b5",
+    "verif/adlx_allocation_host.py": "cf83e77b1d62b24f483ebc103abb7b1e2a022ef7f4c50937e44211b495990aeb",
+    "verif/adlx_allocation_integration.py": "64a334826606d15e6ee8bea6c0c7742630b6ddfa94ca36cb33a4a5dd7aadb4da",
+    "verif/adlx_allocation_proof.c": "5d1174dfb1853393942d592bc90863372d5815b303cd391d498a515fa128f0aa",
+    "verif/adlx_allocation_proofs.py": "2510afa3b6d5563807402529f87a8bf983752455b4853405836e95eac6f893f2",
+    "verif/adlx_allocation_reproduce.py": "d8783e27c796eab9ae120a6058872e9f019771747c3d4d337184adb82bd15808",
+    "verif/adlx_allocation_selection.py": "46df7a36f014b983ed82591a791e4e3004b2169536731649154c224e30c36121",
+    "verif/adlx_effects_cases.py": "044edb8c6a25ecd2934c926cb9baea66c53f9ab9442744fc4c67495d69099bab",
+    "verif/adlx_effects_corpus.py": "62d8d968857d2a8510b978e010087640abd4e4b6e46408b4d8a76dca958fd225",
+    "verif/adlx_effects_harness.c": "e55ad7c704673730bc0a968724b7fa946df37a032724addcfb052b761a059849",
+    "verif/adlx_effects_integration.py": "3cb136d4fdf1abe707c53801cc74d35f8fa036e59d1134a21ad9e86590ba8c5c",
+    "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde"
+  }
+}

@@ -144,7 +144,9 @@ level A for the contract's properties; `verified-under-assumptions` needs level 
    complete and reviewed.
 2. **Implementation**: L2 code and its bridge, nothing else; status `migrated`.
 3. **Verification**: the strongest feasible level per property, recorded in the certificate.
-4. **Review** by the supervisor against this document; status set.
+4. **Review** by the supervisor against this document; status set. A status of `migrated` or
+   stronger links the unit into the native host, so the review runs `python tools/hostbuild.py`
+   and `python host/check.py --variant native` before the status is committed.
 5. **Close**: callers that are already native call the L2 interface directly; the bridge stays
    until no L1 caller remains. `tools/closure.py` keeps the boundary from eroding.
 

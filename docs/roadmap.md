@@ -103,6 +103,8 @@ is the second unit, chosen to exercise state ownership and indirect control flow
 | Music clock | verified-within-contract: all properties proved on the actual C for all inputs (A), zero-rate fault retained as a status; two of its three functions are never called in the scenarios | `metadata/closure/music_clock.json` |
 | Level view | verified-within-contract: decoding proved (A); projection proved over every shipped level resource and checked against the actual loader (A). Introduces the shared types `native/level.h`, `native/geometry.h` | `metadata/closure/level_view.json` |
 | Contact predicates | migrated: complete coordinate domains enumerated (A), arbitrary geometry and two-entry stone lists proved (B), scanning of up to 16 stones only tested (C) | `metadata/closure/contacts.json` |
+| Random number generator | integration-validated: one step proved over all 64-bit states, bounds and register shell (A); reduction enumerated over 2^32 pairs; 14 scenarios and a rainy level with 2,795 draws (D) | `metadata/closure/random.json` |
+| Falling items | migrated: every transition proved from any admitted slot state (B), finite domains enumerated (A), pickup scenarios for multiplier and timer items (D). Full pool: at most 11 occupied slots under the shipped spawn sources (bounded), abnormal return still reproduced. The lives item has no producer in the shipped game | `metadata/closure/falling_items.json` |
 | everything else | unanalyzed | |
 
 ## Tooling gaps

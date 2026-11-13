@@ -4,7 +4,8 @@
 typedef struct DeliveryPlan {
     PassengerStoneSlot slot;ActorType types[2];ActorRenderHistory render;
     PassengerDeliveryWorld world;LevelPlatform platforms[10];uint16_t frames[4][256];
-    PassengerDeliveryResult result;size_t consumed;int bad,spawn_seen,sound_seen;
+    PassengerDeliveryResult result;size_t consumed;int bad,spawn_seen,sound_seen,tail_seen;
+    ActorPhase input_phase,published_phase;int phase_written;PassengerDeliveryEntry entry;uint16_t actor_index;
 } DeliveryPlan;
 static uint16_t delivery_word(Regs *r,uint16_t base,uint16_t index) {return rd16(r->ds,(uint16_t)(base+index));}
 static uint16_t delivery_identity(unsigned id) {return id<6?(uint16_t)(D(Data_7720)+74u*id):0;}
@@ -30,15 +31,19 @@ static uint16_t delivery_consume(DeliveryPlan *plan,Regs *r,uint16_t address,uin
     if(plan->consumed>=plan->result.count) {plan->bad=1;return 0;}
     PassengerDeliveryWrite write=plan->result.writes[plan->consumed++];uint16_t base=0,index=r->bx,value=write.value;int width=0;
     switch(write.field) {
-    case PD_PHASE:base=D(ActorUpdateOrScriptCursor);value=delivery_phase(value);break;
+    case PD_PHASE:base=D(ActorUpdateOrScriptCursor);plan->published_phase=(ActorPhase)value;plan->phase_written=1;value=delivery_phase(value);break;
     case PD_TYPE:base=D(ActorDescriptors);value=delivery_identity(value);break;
     case PD_CURSOR:base=D(ActorAnimationByteOffsets);break;case PD_TICK:base=D(ActorAnimationCountdowns);break;
-    case PD_POSE:case PD_REQUEST:base=D(ActorPhaseOrDemoLoopCursor);break;
-    case PD_CARRIER:base=D(ActorPhaseOrDemoLoopCursor);value=(uint16_t)(value*2u);break;
+    case PD_POSE:case PD_REQUEST:
+        if(!(actor_phase_aliases(plan->published_phase)&(unsigned)(write.field==PD_POSE?ACTOR_ALIAS_WAITING_POSE:ACTOR_ALIAS_REQUEST_TICKS))) plan->bad=1;
+        base=D(ActorPhaseOrDemoLoopCursor);break;
+    case PD_CARRIER:
+        if(!(actor_phase_aliases(plan->published_phase)&ACTOR_ALIAS_CARRIER) || value>=plan->world.player_slots) plan->bad=1;
+        base=D(ActorPhaseOrDemoLoopCursor);value=(uint16_t)(value*2u);break;
     case PD_SPRITE:base=D(ActorSpriteIds);break;case PD_OVERLAY:base=D(ActorOverlayOrScriptCallbacks);break;
     case PD_X:base=D(ActorX32);break;case PD_Y:base=D(ActorY32);break;
     case PD_QUICK:base=D(PassengerQuickDeliveryCountdowns);break;
-    case PD_OCCUPANT_CLEAR:base=D(PlatformActorOccupants);index=(uint16_t)(write.index*2u);break;
+    case PD_OCCUPANT_CLEAR:if(write.index>=plan->world.platform_count) plan->bad=1;base=D(PlatformActorOccupants);index=(uint16_t)(write.index*2u);break;
     case PD_FARE:base=D(PlayerPassengerFares);index=(uint16_t)(write.index*2u);break;
     case PD_FLOOR:base=D(PlayerMinimumFares);index=(uint16_t)(write.index*2u);break;
     case PD_KIND:base=D(PlayerCarriedKinds);index=(uint16_t)(write.index*2u);break;
@@ -47,6 +52,7 @@ static uint16_t delivery_consume(DeliveryPlan *plan,Regs *r,uint16_t address,uin
     case PD_SCORE_HIGH:base=D(ScoreHighWord);index=0;break;
     case PD_HUD_CLEAR:base=D(HudFareClearPending);index=0;width=1;break;
     }
+    if((write.field==PD_FARE || write.field==PD_FLOOR || write.field==PD_KIND || write.field==PD_ICON) && write.index>=plan->world.player_slots) plan->bad=1;
     if(write.field!=PD_OCCUPANT_CLEAR && write.field!=PD_FARE && write.field!=PD_FLOOR && write.field!=PD_KIND && write.field!=PD_ICON && write.index) plan->bad=1;
     if((uint16_t)(base+index)!=address || value!=expected || byte!=width) plan->bad=1;
     return value;
@@ -56,6 +62,56 @@ static void delivery_write16(DeliveryPlan *plan,Regs *r,uint16_t address,uint16_
 }
 static void delivery_write8(DeliveryPlan *plan,Regs *r,uint16_t address,uint8_t expected) {
     uint16_t value=delivery_consume(plan,r,address,expected,1);wr8(r->ds,address,(uint8_t)value);
+}
+static int delivery_projection(DeliveryPlan *plan,Regs *r) {
+#ifdef ACTOR_VERIFY
+    /* At this cut all of this operation's journal, but none of its immediate
+     * callee, has run. Entry context supplies an unwritten phase: direct L1
+     * calls admit an arbitrary stale stored callback word. A phase output
+     * makes both the native tag and its RAM encoding live and checked. */
+    ActorPhase phase=plan->published_phase;
+    uint16_t index=plan->actor_index;PassengerStoneSlot *slot=&plan->slot;
+    if(plan->consumed!=plan->result.count || slot->phase!=phase ||
+       (slot->type!=&plan->types[0] && slot->type!=&plan->types[1])) return 0;
+    if(delivery_word(r,D(ActorDescriptors),index)!=delivery_identity(slot->type->id)) return 0;
+    if(plan->phase_written && delivery_word(r,D(ActorUpdateOrScriptCursor),index)!=delivery_phase((uint16_t)phase)) return 0;
+    if(slot->source_platform!=delivery_word(r,D(ActorPlatformOrScriptDone),index) ||
+       slot->destination_platform!=delivery_word(r,D(ActorDestinationPlatforms),index) ||
+       slot->position.x32!=delivery_word(r,D(ActorX32),index) || slot->position.y32!=delivery_word(r,D(ActorY32),index) ||
+       slot->sprite!=delivery_word(r,D(ActorSpriteIds),index) || slot->overlay_sprite!=delivery_word(r,D(ActorOverlayOrScriptCallbacks),index) ||
+       slot->animation.byte_offset!=delivery_word(r,D(ActorAnimationByteOffsets),index) ||
+       slot->animation.countdown!=delivery_word(r,D(ActorAnimationCountdowns),index) ||
+       slot->quick_delivery_ticks!=delivery_word(r,D(PassengerQuickDeliveryCountdowns),index)) return 0;
+    PassengerStoneSlot observed={0};
+    if(!actor_bridge_alias_project(r->ds,index/2u,phase,&observed)) return 0;
+    unsigned aliases=actor_phase_aliases(phase);
+    const ActorAlias members[]={ACTOR_ALIAS_WAITING_POSE,ACTOR_ALIAS_REQUEST_TICKS,ACTOR_ALIAS_CARRIER};
+    for(unsigned i=0;i<3;i++) if(aliases&(unsigned)members[i]) {
+        uint16_t actual,expected;
+        if(!actor_alias_value(slot,members[i],&actual) || !actor_alias_value(&observed,members[i],&expected) || actual!=expected) return 0;
+        if(members[i]==ACTOR_ALIAS_CARRIER && slot->carrier!=observed.carrier) return 0;
+    }
+    if(plan->render.pixel_x!=delivery_word(r,D(ActorPixelX),index) || plan->render.pixel_y!=delivery_word(r,D(ActorPixelY),index)) return 0;
+    if(plan->world.player_count!=rd16(r->ds,D(PlayerCount)) || plan->world.player_slots!=(size_t)(rd16(r->ds,D(PlayerArrayBytes))/2u) ||
+       plan->world.platform_count!=10 || plan->world.platforms!=plan->platforms ||
+       plan->world.water_pixel_y!=rd16(r->ds,D(WaterYPixels)) || plan->world.multiplier!=rd16(r->ds,D(ScoreMultiplier)) ||
+       plan->world.score!=((uint32_t)rd16(r->ds,D(ScoreLowWord))|((uint32_t)rd16(r->ds,D(ScoreHighWord))<<16)) ||
+       plan->world.hud_clear!=rd8(r->ds,D(HudFareClearPending))) return 0;
+    if(plan->entry==PD_DELIVER && plan->world.multiplier_limit!=delivery_word(r,D(MultiplierLimitsByDifficulty),(uint16_t)(2u*rd16(r->ds,D(SelectedDifficulty))))) return 0;
+    for(unsigned i=0;i<2;i++) {
+        const PassengerCraft *craft=&plan->world.craft[i];uint16_t at=(uint16_t)(2u*i);
+        if(craft->position.x32!=delivery_word(r,D(PlayerX32),at) || craft->position.y32!=delivery_word(r,D(PlayerY32),at) ||
+           craft->pixel_x!=delivery_word(r,D(PlayerPixelX),at) || craft->platform!=delivery_word(r,D(PlayerPlatformIndices),at) ||
+           craft->fare!=delivery_word(r,D(PlayerPassengerFares),at) || craft->minimum_fare!=delivery_word(r,D(PlayerMinimumFares),at) ||
+           craft->carried_kind!=delivery_word(r,D(PlayerCarriedKinds),at) || craft->destination_icon!=delivery_word(r,D(PlayerDestinationIcons),at)) return 0;
+    }
+    for(unsigned i=0;i<10;i++) if(plan->platforms[i].surface_y!=delivery_word(r,D(PlatformHeights),(uint16_t)(2u*i)) ||
+       plan->platforms[i].waiting_x!=delivery_word(r,D(PlatformWaitingPointsX),(uint16_t)(2u*i)) ||
+       plan->platforms[i].destination_icon!=delivery_word(r,D(PlatformDestinationIcons),(uint16_t)(2u*i))) return 0;
+#else
+    (void)plan;(void)r;
+#endif
+    return 1;
 }
 static int delivery_dispatch(Regs *r,DeliveryPlan *plan,uint16_t target) {
     uint16_t expected=0;
@@ -69,14 +125,27 @@ static int delivery_dispatch(Regs *r,DeliveryPlan *plan,uint16_t target) {
     case PD_NEXT_WATER:expected=G(BeginPassengerResurfacing);break;
     default:plan->bad=1;break;
     }
-    if(plan->bad || plan->consumed!=plan->result.count || expected!=target) {plan->bad=1;return UGH_BAD_CALLBACK;}
+    if(plan->bad || plan->tail_seen || plan->consumed!=plan->result.count || expected!=target) {plan->bad=1;return UGH_BAD_CALLBACK;}
+    if(plan->result.next==PD_NEXT_BOARD || plan->result.next==PD_NEXT_DELIVER) {
+        if(plan->result.selected<0 || (size_t)plan->result.selected>=plan->world.player_slots ||
+           r->di!=(uint16_t)(2u*(unsigned)plan->result.selected)) {plan->bad=1;return UGH_BAD_CALLBACK;}
+        r->di=(uint16_t)(2u*(unsigned)plan->result.selected);
+    }
+    if(!delivery_projection(plan,r)) {plan->bad=1;return UGH_BAD_CALLBACK;}
+    plan->tail_seen=1;
     return ugh_dispatch(r->cs,target,r);
+}
+static int delivery_complete(const DeliveryPlan *plan) {
+    return !plan->bad && plan->consumed==plan->result.count &&
+        plan->spawn_seen==plan->result.spawn_bonus && plan->sound_seen==plan->result.bonus_sound &&
+        plan->tail_seen==(plan->result.next!=PD_NEXT_NONE) && !plan->result.finish_pending;
 }
 static int delivery_near(Regs *r,DeliveryPlan *plan,uint16_t target,uint16_t return_ip) {
     if(target==G(SpawnFallingItem)) {
         if(!plan->result.spawn_bonus || plan->spawn_seen || r->si!=D(FallingDescriptor_7A38) ||
             r->ax!=plan->result.launch.x32 || r->bp!=plan->result.launch.y32 || r->cx || r->dx) {plan->bad=1;return UGH_BAD_CALLBACK;}
         plan->spawn_seen=1;
+        if(!delivery_projection(plan,r)) {plan->bad=1;return UGH_BAD_CALLBACK;}
         /* Real item bridge calls items_spawn and retains its full-pool transfer.
          * On that outcome no post-allocation passenger stores are consumed. */
     } else if(target!=G(FindPlayerTouchingActor)) {plan->bad=1;return UGH_BAD_CALLBACK;}
@@ -84,6 +153,7 @@ static int delivery_near(Regs *r,DeliveryPlan *plan,uint16_t target,uint16_t ret
 }
 static int delivery_sound(Regs *r,DeliveryPlan *plan,uint16_t segment,uint16_t target) {
     if(!plan->result.bonus_sound || !plan->spawn_seen || plan->sound_seen || segment!=UGH_S_C_PlayAdlibEffect || target!=UGH_O_C_PlayAdlibEffect) {plan->bad=1;return UGH_BAD_CALLBACK;}
+    if(!delivery_projection(plan,r)) {plan->bad=1;return UGH_BAD_CALLBACK;}
     plan->sound_seen=1;int status=ugh_dispatch(segment,target,r);
     if(!status) {
         PassengerDeliveryResult finish=passenger_delivery_finish(&plan->slot,&plan->world);
@@ -128,6 +198,7 @@ static int delivery_prepare(Regs *r,PassengerDeliveryEntry entry,DeliveryPlan *p
     ActorPhase phase=entry==PD_WAIT?ACTOR_PLATFORM_WAIT:entry==PD_DESTINATION?ACTOR_DESTINATION_REQUEST:entry==PD_QUESTION?ACTOR_QUESTION:
         entry==PD_APPROACH?ACTOR_APPROACH:entry==PD_CARRIED || entry==PD_DELIVER?ACTOR_CARRIED_PASSENGER:ACTOR_READ_JOURNEY;
     if(!actor_bridge_alias_project(r->ds,r->bx/2u,phase,&plan->slot)) return 0;
+    plan->input_phase=plan->published_phase=phase;plan->entry=entry;plan->actor_index=r->bx;
     plan->slot.source_platform=delivery_word(r,D(ActorPlatformOrScriptDone),r->bx);plan->slot.destination_platform=delivery_word(r,D(ActorDestinationPlatforms),r->bx);
     int source=entry==PD_WAIT || entry==PD_DESTINATION || entry==PD_QUESTION || entry==PD_APPROACH || entry==PD_BOARD || entry==PD_RESCUE;
     /* Approach can board immediately, including between animation ticks. */
@@ -442,84 +513,96 @@ EXPORT int c_BeginPassengerPlatformWait(Regs *r) {
     DeliveryPlan plan;
     if(!delivery_prepare(r,PD_BEGIN_WAIT,&plan)) return l1_BeginPassengerPlatformWait(r);
     int status=shell_BeginPassengerPlatformWait(r,&plan);
-    if(plan.bad || (!status && (plan.consumed!=plan.result.count || plan.spawn_seen!=plan.result.spawn_bonus || plan.sound_seen!=plan.result.bonus_sound))) return UGH_BAD_CALLBACK;
+    if(plan.bad || (!status && !delivery_complete(&plan))) return UGH_BAD_CALLBACK;
+    if(!status && !plan.tail_seen && !delivery_projection(&plan,r)) return UGH_BAD_CALLBACK;
     return status;
 }
 EXPORT int c_UpdatePassengerPlatformWait(Regs *r) {
     DeliveryPlan plan;
     if(!delivery_prepare(r,PD_WAIT,&plan)) return l1_UpdatePassengerPlatformWait(r);
     int status=shell_UpdatePassengerPlatformWait(r,&plan);
-    if(plan.bad || (!status && (plan.consumed!=plan.result.count || plan.spawn_seen!=plan.result.spawn_bonus || plan.sound_seen!=plan.result.bonus_sound))) return UGH_BAD_CALLBACK;
+    if(plan.bad || (!status && !delivery_complete(&plan))) return UGH_BAD_CALLBACK;
+    if(!status && !plan.tail_seen && !delivery_projection(&plan,r)) return UGH_BAD_CALLBACK;
     return status;
 }
 EXPORT int c_BeginPassengerDestinationDisplay(Regs *r) {
     DeliveryPlan plan;
     if(!delivery_prepare(r,PD_BEGIN_DESTINATION,&plan)) return l1_BeginPassengerDestinationDisplay(r);
     int status=shell_BeginPassengerDestinationDisplay(r,&plan);
-    if(plan.bad || (!status && (plan.consumed!=plan.result.count || plan.spawn_seen!=plan.result.spawn_bonus || plan.sound_seen!=plan.result.bonus_sound))) return UGH_BAD_CALLBACK;
+    if(plan.bad || (!status && !delivery_complete(&plan))) return UGH_BAD_CALLBACK;
+    if(!status && !plan.tail_seen && !delivery_projection(&plan,r)) return UGH_BAD_CALLBACK;
     return status;
 }
 EXPORT int c_UpdatePassengerDestinationDisplay(Regs *r) {
     DeliveryPlan plan;
     if(!delivery_prepare(r,PD_DESTINATION,&plan)) return l1_UpdatePassengerDestinationDisplay(r);
     int status=shell_UpdatePassengerDestinationDisplay(r,&plan);
-    if(plan.bad || (!status && (plan.consumed!=plan.result.count || plan.spawn_seen!=plan.result.spawn_bonus || plan.sound_seen!=plan.result.bonus_sound))) return UGH_BAD_CALLBACK;
+    if(plan.bad || (!status && !delivery_complete(&plan))) return UGH_BAD_CALLBACK;
+    if(!status && !plan.tail_seen && !delivery_projection(&plan,r)) return UGH_BAD_CALLBACK;
     return status;
 }
 EXPORT int c_BeginPassengerQuestionDisplay(Regs *r) {
     DeliveryPlan plan;
     if(!delivery_prepare(r,PD_BEGIN_QUESTION,&plan)) return l1_BeginPassengerQuestionDisplay(r);
     int status=shell_BeginPassengerQuestionDisplay(r,&plan);
-    if(plan.bad || (!status && (plan.consumed!=plan.result.count || plan.spawn_seen!=plan.result.spawn_bonus || plan.sound_seen!=plan.result.bonus_sound))) return UGH_BAD_CALLBACK;
+    if(plan.bad || (!status && !delivery_complete(&plan))) return UGH_BAD_CALLBACK;
+    if(!status && !plan.tail_seen && !delivery_projection(&plan,r)) return UGH_BAD_CALLBACK;
     return status;
 }
 EXPORT int c_UpdatePassengerQuestionDisplay(Regs *r) {
     DeliveryPlan plan;
     if(!delivery_prepare(r,PD_QUESTION,&plan)) return l1_UpdatePassengerQuestionDisplay(r);
     int status=shell_UpdatePassengerQuestionDisplay(r,&plan);
-    if(plan.bad || (!status && (plan.consumed!=plan.result.count || plan.spawn_seen!=plan.result.spawn_bonus || plan.sound_seen!=plan.result.bonus_sound))) return UGH_BAD_CALLBACK;
+    if(plan.bad || (!status && !delivery_complete(&plan))) return UGH_BAD_CALLBACK;
+    if(!status && !plan.tail_seen && !delivery_projection(&plan,r)) return UGH_BAD_CALLBACK;
     return status;
 }
 EXPORT int c_BeginPassengerApproach(Regs *r) {
     DeliveryPlan plan;
     if(!delivery_prepare(r,PD_BEGIN_APPROACH,&plan)) return l1_BeginPassengerApproach(r);
     int status=shell_BeginPassengerApproach(r,&plan);
-    if(plan.bad || (!status && (plan.consumed!=plan.result.count || plan.spawn_seen!=plan.result.spawn_bonus || plan.sound_seen!=plan.result.bonus_sound))) return UGH_BAD_CALLBACK;
+    if(plan.bad || (!status && !delivery_complete(&plan))) return UGH_BAD_CALLBACK;
+    if(!status && !plan.tail_seen && !delivery_projection(&plan,r)) return UGH_BAD_CALLBACK;
     return status;
 }
 EXPORT int c_UpdatePassengerApproach(Regs *r) {
     DeliveryPlan plan;
     if(!delivery_prepare(r,PD_APPROACH,&plan)) return l1_UpdatePassengerApproach(r);
     int status=shell_UpdatePassengerApproach(r,&plan);
-    if(plan.bad || (!status && (plan.consumed!=plan.result.count || plan.spawn_seen!=plan.result.spawn_bonus || plan.sound_seen!=plan.result.bonus_sound))) return UGH_BAD_CALLBACK;
+    if(plan.bad || (!status && !delivery_complete(&plan))) return UGH_BAD_CALLBACK;
+    if(!status && !plan.tail_seen && !delivery_projection(&plan,r)) return UGH_BAD_CALLBACK;
     return status;
 }
 EXPORT int c_BoardWaterbornePassenger(Regs *r) {
     DeliveryPlan plan;
     if(!delivery_prepare(r,PD_RESCUE,&plan)) return l1_BoardWaterbornePassenger(r);
     int status=shell_BoardWaterbornePassenger(r,&plan);
-    if(plan.bad || (!status && (plan.consumed!=plan.result.count || plan.spawn_seen!=plan.result.spawn_bonus || plan.sound_seen!=plan.result.bonus_sound))) return UGH_BAD_CALLBACK;
+    if(plan.bad || (!status && !delivery_complete(&plan))) return UGH_BAD_CALLBACK;
+    if(!status && !plan.tail_seen && !delivery_projection(&plan,r)) return UGH_BAD_CALLBACK;
     return status;
 }
 EXPORT int c_BoardPassenger(Regs *r) {
     DeliveryPlan plan;
     if(!delivery_prepare(r,PD_BOARD,&plan)) return l1_BoardPassenger(r);
     int status=shell_BoardPassenger(r,&plan);
-    if(plan.bad || (!status && (plan.consumed!=plan.result.count || plan.spawn_seen!=plan.result.spawn_bonus || plan.sound_seen!=plan.result.bonus_sound))) return UGH_BAD_CALLBACK;
+    if(plan.bad || (!status && !delivery_complete(&plan))) return UGH_BAD_CALLBACK;
+    if(!status && !plan.tail_seen && !delivery_projection(&plan,r)) return UGH_BAD_CALLBACK;
     return status;
 }
 EXPORT int c_UpdateCarriedPassenger(Regs *r) {
     DeliveryPlan plan;
     if(!delivery_prepare(r,PD_CARRIED,&plan)) return l1_UpdateCarriedPassenger(r);
     int status=shell_UpdateCarriedPassenger(r,&plan);
-    if(plan.bad || (!status && (plan.consumed!=plan.result.count || plan.spawn_seen!=plan.result.spawn_bonus || plan.sound_seen!=plan.result.bonus_sound))) return UGH_BAD_CALLBACK;
+    if(plan.bad || (!status && !delivery_complete(&plan))) return UGH_BAD_CALLBACK;
+    if(!status && !plan.tail_seen && !delivery_projection(&plan,r)) return UGH_BAD_CALLBACK;
     return status;
 }
 EXPORT int c_DeliverPassenger(Regs *r) {
     DeliveryPlan plan;
     if(!delivery_prepare(r,PD_DELIVER,&plan)) return l1_DeliverPassenger(r);
     int status=shell_DeliverPassenger(r,&plan);
-    if(plan.bad || (!status && (plan.consumed!=plan.result.count || plan.spawn_seen!=plan.result.spawn_bonus || plan.sound_seen!=plan.result.bonus_sound))) return UGH_BAD_CALLBACK;
+    if(plan.bad || (!status && !delivery_complete(&plan))) return UGH_BAD_CALLBACK;
+    if(!status && !plan.tail_seen && !delivery_projection(&plan,r)) return UGH_BAD_CALLBACK;
     return status;
 }
 /* DELIVERY_EXPORTS_END */

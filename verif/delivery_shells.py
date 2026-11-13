@@ -45,7 +45,8 @@ def exports():
     DeliveryPlan plan;
     if(!delivery_prepare(r,{entry},&plan)) return l1_{name}(r);
     int status=shell_{name}(r,&plan);
-    if(plan.bad || (!status && (plan.consumed!=plan.result.count || plan.spawn_seen!=plan.result.spawn_bonus || plan.sound_seen!=plan.result.bonus_sound))) return UGH_BAD_CALLBACK;
+    if(plan.bad || (!status && !delivery_complete(&plan))) return UGH_BAD_CALLBACK;
+    if(!status && !plan.tail_seen && !delivery_projection(&plan,r)) return UGH_BAD_CALLBACK;
     return status;
 }}
 '''

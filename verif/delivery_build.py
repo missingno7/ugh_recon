@@ -4,7 +4,7 @@ from pathlib import Path
 from closure_support import ROOT,compile_c,hashes,save,function
 from delivery_shells import NAMES,ENTRIES,BRIDGE
 sys.path.insert(0,str(ROOT/'tools'))
-OUT=ROOT/'build/workers/close-stones-3'
+OUT=ROOT/'build/workers/close-stones-4'
 CONTACTS=['FindPlayerTouchingActor','FindPlayerTouchingEnemy','FindPlayerTouchingFallingItem','FindThrownStoneHittingEnemy']
 ITEMS=['SpawnFallingItem','AdvanceFallingItem','LandFallingItem','ExpireOrCollectFallingItem','DispatchFallingItems']
 SOURCES=[ROOT/'native/passenger_delivery.c',BRIDGE,ROOT/'native/actor_resources.c',ROOT/'native/bridge/actor_resources_bridge.c',

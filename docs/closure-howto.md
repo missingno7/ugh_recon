@@ -494,3 +494,52 @@ separate output, frame (everything else unchanged) and dependence (no other
 input matters) properties over the actual code, each its own CBMC profile. A
 timeout earns nothing; a set of split properties that together cover the
 handler's whole observable state is B.
+
+## Passenger branch stages and matching cuts
+
+`delivery_reproduce.py --fresh` reproduces the passenger waiting/delivery unit.
+`delivery_proofs.py` runs output, byte-frame and input-dependence profiles for
+literal L1 spans and the actual native branch helpers. It also proves the real
+projection predicate and journal/dispatch/completion helpers. `--resume` reuses
+only PASS receipts whose recorded inputs still match. The clean-checkout path
+does not require saved worker receipts. `--record-stop` records open pieces
+without proposing migration.
+
+The composition inventory is `delivery_coverage.py`: it removes each literal
+proved span from all six updating bodies, checks the small remaining SI/DI
+setup, both display selectors, the full shell adaptation and the exact native
+branch order. Tick, animation, contact and multiplication seams assert all
+input arguments equal and allow arbitrary shared outputs; independent actual-C
+helper theorems discharge these assumptions. The animation theorem admits any
+registered nonempty vector and any live/sentinel cursor, rather than only the
+small vectors used by the compiled corpus. Journal append is proved at an
+arbitrary prefix length, so the zero-prefix stage proofs can be concatenated.
+Dependence profiles observe an arbitrary appended position through that proved
+append lemma; they retain every append argument/count without duplicating two
+symbolically updated full journal arrays. Output profiles use the actual append
+implementation. Native frame profiles hide its owned journal-cell writes using
+the actual append frame theorem, retaining the exact count and bound. The
+inventory also checks that native callers never read the hidden journal payload.
+
+Output alone is insufficient: compare the typed working slot/world at the
+matching cut, after that operation's journal and before its immediate tail or
+service. A parent's working snapshot is not the callee's poststate. Frame
+checks cover every other native/resource/history byte and an arbitrary RAM
+byte, including other physical slots and the HUD high byte. Dependence varies
+inactive aliases and retained renderer histories independently. Active alias
+reads must still obey the existing phase table; do not widen it to fit a proof.
+`delivery_frame_full.py` additionally varies every slot field outside the
+declared read/retained-output inputs. This proves frame preservation for a
+phase-agnostic shared helper at every phase value, rather than only at one seed
+phase. Native and RAM byte-frame obligations are separate solver profiles.
+Selected craft, next requests, pending finish, item/audio requests and abnormal
+completion are observable outputs, even if the retained machine shell could
+otherwise hide a private native defect.
+
+`delivery_limits.py` enforces two solver permits across this worker's CLIs,
+a hard 8 GiB private-memory job cap (CBMC plus child solver) and at most600 s.
+Every non-PASS result is archived with the generated C, preprocessed input and
+log. Timeouts, caps and source changes are negative results, never proof. A
+successful caller theorem with abstract child effects remains conditional on
+the contacts/items/audio owners' contracts; the compiled differential and
+scratch native-host runs exercise the actual children.

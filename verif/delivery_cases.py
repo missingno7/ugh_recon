@@ -8,8 +8,8 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--selection-mutant',action='store_true');a=p.parse_args()
     folder=OUT/('cases-selection-mutant' if a.selection_mutant else 'cases');inputs=pair(folder);source=ROOT/'verif/delivery_harness.c';raw=source.read_text()
     if a.selection_mutant:
-        core=ROOT/'native/passenger_delivery.c';text=core.read_text();old='if(center==target) {result.next=PD_NEXT_BOARD;break;}'
-        assert text.count(old)==1;mutant=folder/core.name;mutant.write_text(text.replace(old,'if(center==target) {result.next=PD_NEXT_BOARD;result.selected^=1;break;}'))
+        core=ROOT/'native/passenger_delivery.c';text=core.read_text();old='if(center==target) {result->next=PD_NEXT_BOARD;return;}'
+        assert text.count(old)==1;mutant=folder/core.name;mutant.write_text(text.replace(old,'if(center==target) {result->next=PD_NEXT_BOARD;result->selected^=1;return;}'))
         inc=folder/'pair.inc';inc.write_text(inc.read_text().replace(core.as_posix(),mutant.as_posix()));inputs+=[mutant]
     # Expand only the RAM accessor's declared immutable vector resources, not
     # either implementation. Four live words instead of the symbolic bound two.
@@ -59,7 +59,7 @@ def main():
     }
 '''
     marker='    for(unsigned test=0;test<6000;test++) {';assert raw.count(marker)==1;raw=raw.replace(marker,extra+marker)
-    harness=folder/'harness.c';harness.write_text('#include "pair.inc"\n'+raw);exe=folder/'cases.exe';built=compile_c([harness],exe,[ROOT/'c',ROOT/'native',ROOT/'native/bridge'])
+    harness=folder/'harness.c';harness.write_text('#include "pair.inc"\n'+raw);exe=folder/'cases.exe';built=compile_c([harness],exe,[ROOT/'c',ROOT/'native',ROOT/'native/bridge'],['-DACTOR_VERIFY'])
     run=subprocess.run([str(exe)],capture_output=True,text=True)
     result=('DETECTED' if run.returncode==23 else 'MISSED') if a.selection_mutant else ('PASS' if run.returncode==0 else 'FAIL')
     save(folder/'result.json',receipt(built['command'],[*inputs,source,Path(__file__)],result=result,stdout=run.stdout,stderr=run.stderr,domain='Original finite/generated corpus plus independent native candidate fixture (four handlers x two player counts x sixteen match/busy combinations), all2x2 incoming/stored carriers, twelve one-player entries, all three difficulties/two carriers, animation timer/period/cursor and craft-competition matrices; four live words per vector.'))

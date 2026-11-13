@@ -1,7 +1,7 @@
 {
   "component": "passenger_delivery",
-  "status": "boundary-established",
-  "proposed_status": "boundary-established",
+  "status": "migrated",
+  "proposed_status": "migrated",
   "original": [
     {
       "identity": "GAME:BeginPassengerPlatformWait",
@@ -85,7 +85,8 @@
     ],
     "outputs": [
       "Ordered semantic field/index/value journal, immediate-tail request and selected craft; typed item launch and bonus sound requests.",
-      "Bonus delivery publishes score then returns a pending continuation. Only successful item allocation AND audio permit passenger_delivery_finish to update Y, cursor, countdown and HUD."
+      "Bonus delivery publishes score then returns a pending continuation. Only successful item allocation AND audio permit passenger_delivery_finish to update Y, cursor, countdown and HUD.",
+      "BOARD/DELIVER tails consume the full native selected craft after the parent journal and before the callee. Normal return rejects an unconsumed non-NONE next request or finish_pending. ACTOR_VERIFY checks active native working state at each matching cut."
     ],
     "effects": [
       "Initializers seed phase, cursor FFFE, countdown 1 and phase-specific overlay/pose/request. Updating land handlers may move, display, board, or pair to water and call L1 BeginPassengerResurfacing.",
@@ -97,7 +98,7 @@
       "Bridge admits DS=DGROUP, CS=GAME, even actor index below32, one of the six exact passenger descriptors and checked pair/callback identities. Land-only handlers reject water; rescue requires water; the three request/approach initializers admit both.",
       "PlayerCount is one or two and PlayerArrayBytes is twice that value. Incoming craft is valid for boarding/rescue/delivery; active stored carrier is checked by the existing alias projection. Malformed state retains explicit L1 compatibility before native publication.",
       "Live source is below ten with its paired doubled index for waiting/request/approach/boarding/rescue. Live destination is below ten and paired for approach/boarding/rescue/carried/delivery. Initializer destination words remain arbitrary, including wrapped icon arithmetic.",
-      "Four immutable nonempty live animation vectors terminate with FFFF inside the registered bank [Animation_0E20,1020h), at most256 live words. Due animation cursors and approach current cursors must address an available live/sentinel word; malformed vectors/cursors retain L1.",
+      "Four immutable nonempty live animation vectors terminate with FFFF inside the registered bank [Animation_0E20,1020h), at most255 live words plus the terminal. Due animation cursors and approach current cursors must address an available live/sentinel word; malformed vectors/cursors retain L1.",
       "Native caller consumes each output once, applies internal tail after the journal, routes contact/audio through existing entries and bonus allocation through the actual native items bridge. Full-pool abnormal transfer does not run the continuation.",
       "The fixed multiplier item resource retains its registered spawn/update/landing/expiry callback identities. Its other scalar fields remain arbitrary in B; arbitrary callback corruption of that service descriptor is outside this native proof."
     ]
@@ -142,14 +143,17 @@
       "Current cached pixel X/Y and all renderer history survive; craft positions/platforms/pixel X and immutable platform geometry/icons.",
       "Current/paired descriptor geometry, period, fare/floor/kind and animation resources. Item allocation/benefits and audio retain their existing owners."
     ],
-    "aliases": "Existing per-phase table unchanged. Wait reads waiting_pose only; destination/question read request_ticks only; carried/delivery read carrier only. Approach reads none. Delivery snapshots the valid carrier before changing phase to walk; finish reads no inactive alias. ACTOR_VERIFY poisons inactive aliases.",
+    "aliases": "Existing per-phase table unchanged. Wait reads waiting_pose only; destination/question read request_ticks only; carried/delivery read carrier only. Approach reads none. Delivery snapshots the valid carrier before changing phase to walk; finish reads no inactive alias. ACTOR_VERIFY poisons inactive aliases. Journal alias tags are checked against the published phase. Full size_t carrier and ordinary journal indices are range checked before inverse projection; no high-bit truncation is accepted. The phase alias table is unchanged.",
     "renderer": "No renderer histories or pixel caches are recomputed, cleared or serialized; previous coordinates, erase sprites and cached pixels remain untouched.",
     "representation": "Only bridge code knows original addresses, doubled identities, callback targets, stack/register/flag effects. Ordinary native code contains typed phases, resources, craft indices, arithmetic and effects."
   },
   "assumptions": [
-    "Actual-C proofs are one step from arbitrary admitted scalar state, rather than initialization-reachable states. Resource sizes and disjointness are explicit bounded assumptions.",
-    "L0-to-L1 remains independently rebuilt differential C/D evidence. L1-to-native proofs do not establish matching DOS bytes.",
-    "Audio is a successful observing callback in the symbolic harness; actual existing audio entries run in routine/scenario/native-host checks. The items allocator and its bridge are actual maintained C in the harness, including full pool."
+    "One-step B composition on actual maintained C, from any admitted state. No initialization reachability, scalar magnitude, cleared renderer history, free item slot or positive timer/fare restriction.",
+    "Ordinary disjoint RAM/resources/stack; one or two crafts, ten platforms. Fixed selected slot0 is justified by uniform constant-offset addressing; arbitrary-other-slot byte frame checks every other physical identity. Finite tests additionally vary all sixteen physical slots.",
+    "Animation primitive admits every registered nonempty bank fitting [0E20,1020), any current live/terminal cursor, arbitrary live values and all four vector kinds. Caller tick/frame seams have arbitrary shared poststates and assert input/vector equality. Resource/cursor corruption outside bridge admission keeps L1 compatibility.",
+    "Contact query composes with contacts certificate kind0 whole-bridge B, including arbitrary geometry. Item request composes with falling_items spawn B, including all twelve occupied slots and its abnormal transfer. Audio uses the existing entry and a shared arbitrary status/register result at the caller proof seam; child footprints remain owned by their certificates.",
+    "Output, byte frame and input dependence are distinct profiles. Literal source partition, native orchestration and journal-prefix lemmas compose the stages; all protocol/service controls and complete machine registers/flags/ordered stores are outputs. The actual complete projection predicate is proved separately and checked at matching production cuts.",
+    "L0-to-L1 evidence remains independently rebuilt C/D. None of this is evidence for matching DOS bytes."
   ],
   "eliminated": [
     "Native API has no machine registers, addresses, dispatch or flag model. An ordered typed journal retains every observable passenger/global store and the bridge validates its values/order.",
@@ -167,107 +171,867 @@
   ],
   "evidence": [
     {
-      "property": "Bridged published effects on complete finite scalar slices",
+      "property": "Finite scalar slices",
       "level": "A",
       "command": "python verif/delivery_evidence.py enumerate",
       "result": "PASS 531163 comparisons: seven complete word slices, boundary pairs, rescue pairs, full pool and 6000 x twelve generated states",
-      "method": "Seven 65536-word slices: destination icon input; destination/question request counter; carried fare and quick words; cached approach X; delivery fare. Other inputs fixed. Observations are published machine state, registers/flags, calls and caller store order; this does not prove unconsumed native selected/control or all private working-slot fields. Eleven-by-eleven boundary grids and 6000x12 generated states are C, not A.",
+      "method": "Seven complete 65536-word slices; no Cartesian full-handler claim. Compiled with ACTOR_VERIFY. Boundary/generated cases are C.",
       "date": "2026-11-13"
     },
     {
-      "property": "BeginPassengerPlatformWait actual-C bridged published effects",
+      "property": "Resource/carrier/selection matrices",
+      "level": "C",
+      "command": "python verif/delivery_cases.py; python verif/delivery_cases.py --selection-mutant",
+      "result": "PASS 531457 comparisons: seven complete word slices, boundary pairs, rescue pairs, full pool and 6000 x twelve generated states; selected-only mutant DETECTED",
+      "method": "Original finite/generated corpus plus independent native candidate fixture (four handlers x two player counts x sixteen match/busy combinations), all2x2 incoming/stored carriers, twelve one-player entries, all three difficulties/two carriers, animation timer/period/cursor and craft-competition matrices; four live words per vector.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Production bridge consumption and working-state controls",
+      "level": "C",
+      "command": "python verif/delivery_selection_gap.py; python verif/delivery_mutants.py",
+      "result": "DETECTED_BY_BRIDGE; all15 defects DETECTED",
+      "method": "Includes selected-only, private phase/craft, high carrier/index, wrong alias tag, nonconsumed next and pending; actual bridge and full machine observations.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Actual-C unwind control",
+      "level": "C",
+      "command": "python verif/delivery_evidence.py BeginPassengerPlatformWait --tag compact --compact --negative --timeout 180",
+      "result": "Expected FAIL delivery_prepare.unwind.0 in 45.121s",
+      "method": "Insufficient bound on the actual preparation loop is rejected; safety/unwinding assertions were not disabled.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Literal source partition and exact orchestration",
       "level": "B",
-      "command": "python verif/delivery_evidence.py BeginPassengerPlatformWait --tag compact --compact --timeout 600",
-      "result": "PASS 72.376s with bounds/pointer/signed-overflow/unwind assertions",
-      "method": "Actual extracted L1 versus actual native core and complete bridge, real contact code and native item allocator/bridge. Arbitrary slot0..15, scalar/register/flag/history/platform/craft/item state; ten platforms, paired live indices, valid incoming/stored carriers; two live arbitrary non-FFFF frame words per vector and terminal. Due cursors FFFE/0/2; approach non-due current0/2/4; otherwise dormant cursors any word. First passenger pair, symbolic geometry/fares/period/kind; shared initializers symbolic land/water. Difficulty0 with arbitrary cap. Other two pairs/difficulties/general vector sizes remain C. No reachability or pool-availability assumption. Item-internal store order belongs to existing allocator closure; all item words, calls, full machine state and caller/global/stack store order are compared.",
+      "command": "python verif/delivery_coverage.py",
+      "result": "PASS",
+      "method": "Output covers every owned typed state cell, ordered journal/store, complete registers/flags/continuation and all controls/services at the cut. Frame covers all other native/resource/history bytes and an arbitrary other RAM byte/slot. Dependence varies unborrowed slot fields, inactive aliases and retained renderer histories. Tick/frame/contact/product seams assert actual input equality and admit arbitrary shared outputs; separate helper theorems discharge them. Dependence observes an arbitrary append position through the separately proved actual pd_emit lemma, preserving all append arguments/counts without a duplicated symbolic journal array. Literal partitions and exact native wiring compose these properties by branch order; append theorem lifts a stage from the zero-length test journal to any admitted prefix. Immediate tails and item/audio child effects compose with their separately owned contracts, not an unproved second native snapshot.",
       "date": "2026-11-13"
     },
     {
-      "property": "BeginPassengerDestinationDisplay actual-C bridged published effects",
+      "property": "verif/delivery_scalar.py submerged",
       "level": "B",
-      "command": "python verif/delivery_evidence.py BeginPassengerDestinationDisplay --tag compact --compact --timeout 600",
-      "result": "PASS 118.107s with bounds/pointer/signed-overflow/unwind assertions",
-      "method": "Actual extracted L1 versus actual native core and complete bridge, real contact code and native item allocator/bridge. Arbitrary slot0..15, scalar/register/flag/history/platform/craft/item state; ten platforms, paired live indices, valid incoming/stored carriers; two live arbitrary non-FFFF frame words per vector and terminal. Due cursors FFFE/0/2; approach non-due current0/2/4; otherwise dormant cursors any word. First passenger pair, symbolic geometry/fares/period/kind; shared initializers symbolic land/water. Difficulty0 with arbitrary cap. Other two pairs/difficulties/general vector sizes remain C. No reachability or pool-availability assumption. Item-internal store order belongs to existing allocator closure; all item words, calls, full machine state and caller/global/stack store order are compared.",
+      "command": "python verif/delivery_scalar.py submerged outputs --timeout 600; python verif/delivery_scalar.py submerged frame --frame-part native --timeout 600; python verif/delivery_scalar.py submerged frame --frame-part ram --timeout 600; python verif/delivery_scalar.py submerged dependencies --timeout 600",
+      "result": "outputs PASS 2.940s; frame --frame-part native PASS 1.208s; frame --frame-part ram PASS 0.833s; dependencies PASS 0.795s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
       "date": "2026-11-13"
     },
     {
-      "property": "BeginPassengerQuestionDisplay actual-C bridged published effects",
+      "property": "verif/delivery_frame_full.py submerged",
       "level": "B",
-      "command": "python verif/delivery_evidence.py BeginPassengerQuestionDisplay --tag compact --compact --timeout 600",
-      "result": "PASS 100.893s with bounds/pointer/signed-overflow/unwind assertions",
-      "method": "Actual extracted L1 versus actual native core and complete bridge, real contact code and native item allocator/bridge. Arbitrary slot0..15, scalar/register/flag/history/platform/craft/item state; ten platforms, paired live indices, valid incoming/stored carriers; two live arbitrary non-FFFF frame words per vector and terminal. Due cursors FFFE/0/2; approach non-due current0/2/4; otherwise dormant cursors any word. First passenger pair, symbolic geometry/fares/period/kind; shared initializers symbolic land/water. Difficulty0 with arbitrary cap. Other two pairs/difficulties/general vector sizes remain C. No reachability or pool-availability assumption. Item-internal store order belongs to existing allocator closure; all item words, calls, full machine state and caller/global/stack store order are compared.",
+      "command": "python verif/delivery_frame_full.py submerged --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.279s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
       "date": "2026-11-13"
     },
     {
-      "property": "BeginPassengerApproach actual-C bridged published effects",
+      "property": "verif/delivery_scalar.py scan-empty",
       "level": "B",
-      "command": "python verif/delivery_evidence.py BeginPassengerApproach --tag compact --compact --timeout 600",
-      "result": "PASS 95.194s with bounds/pointer/signed-overflow/unwind assertions",
-      "method": "Actual extracted L1 versus actual native core and complete bridge, real contact code and native item allocator/bridge. Arbitrary slot0..15, scalar/register/flag/history/platform/craft/item state; ten platforms, paired live indices, valid incoming/stored carriers; two live arbitrary non-FFFF frame words per vector and terminal. Due cursors FFFE/0/2; approach non-due current0/2/4; otherwise dormant cursors any word. First passenger pair, symbolic geometry/fares/period/kind; shared initializers symbolic land/water. Difficulty0 with arbitrary cap. Other two pairs/difficulties/general vector sizes remain C. No reachability or pool-availability assumption. Item-internal store order belongs to existing allocator closure; all item words, calls, full machine state and caller/global/stack store order are compared.",
+      "command": "python verif/delivery_scalar.py scan-empty outputs --timeout 600; python verif/delivery_scalar.py scan-empty frame --frame-part native --timeout 600; python verif/delivery_scalar.py scan-empty frame --frame-part ram --timeout 600; python verif/delivery_scalar.py scan-empty dependencies --timeout 600",
+      "result": "outputs PASS 1.484s; frame --frame-part native PASS 1.400s; frame --frame-part ram PASS 0.939s; dependencies PASS 1.162s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
       "date": "2026-11-13"
     },
     {
-      "property": "BoardWaterbornePassenger actual-C bridged published effects",
+      "property": "verif/delivery_frame_full.py scan-empty",
       "level": "B",
-      "command": "python verif/delivery_evidence.py BoardWaterbornePassenger --tag compact --compact --timeout 600",
-      "result": "PASS 143.690s with bounds/pointer/signed-overflow/unwind assertions",
-      "method": "Actual extracted L1 versus actual native core and complete bridge, real contact code and native item allocator/bridge. Arbitrary slot0..15, scalar/register/flag/history/platform/craft/item state; ten platforms, paired live indices, valid incoming/stored carriers; two live arbitrary non-FFFF frame words per vector and terminal. Due cursors FFFE/0/2; approach non-due current0/2/4; otherwise dormant cursors any word. First passenger pair, symbolic geometry/fares/period/kind; shared initializers symbolic land/water. Difficulty0 with arbitrary cap. Other two pairs/difficulties/general vector sizes remain C. No reachability or pool-availability assumption. Item-internal store order belongs to existing allocator closure; all item words, calls, full machine state and caller/global/stack store order are compared.",
+      "command": "python verif/delivery_frame_full.py scan-empty --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.443s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
       "date": "2026-11-13"
     },
     {
-      "property": "BoardPassenger actual-C bridged published effects",
+      "property": "verif/delivery_scalar.py scan-any",
       "level": "B",
-      "command": "python verif/delivery_evidence.py BoardPassenger --tag compact --compact --timeout 600",
-      "result": "PASS 166.226s with bounds/pointer/signed-overflow/unwind assertions",
-      "method": "Actual extracted L1 versus actual native core and complete bridge, real contact code and native item allocator/bridge. Arbitrary slot0..15, scalar/register/flag/history/platform/craft/item state; ten platforms, paired live indices, valid incoming/stored carriers; two live arbitrary non-FFFF frame words per vector and terminal. Due cursors FFFE/0/2; approach non-due current0/2/4; otherwise dormant cursors any word. First passenger pair, symbolic geometry/fares/period/kind; shared initializers symbolic land/water. Difficulty0 with arbitrary cap. Other two pairs/difficulties/general vector sizes remain C. No reachability or pool-availability assumption. Item-internal store order belongs to existing allocator closure; all item words, calls, full machine state and caller/global/stack store order are compared.",
+      "command": "python verif/delivery_scalar.py scan-any outputs --timeout 600; python verif/delivery_scalar.py scan-any frame --frame-part native --timeout 600; python verif/delivery_scalar.py scan-any frame --frame-part ram --timeout 600; python verif/delivery_scalar.py scan-any dependencies --timeout 600",
+      "result": "outputs PASS 1.409s; frame --frame-part native PASS 1.372s; frame --frame-part ram PASS 0.910s; dependencies PASS 1.075s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
       "date": "2026-11-13"
     },
     {
-      "property": "Routine bridge/device observations",
+      "property": "verif/delivery_frame_full.py scan-any",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py scan-any --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.438s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py tick",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py tick outputs --timeout 600; python verif/delivery_scalar.py tick frame --frame-part native --timeout 600; python verif/delivery_scalar.py tick frame --frame-part ram --timeout 600; python verif/delivery_scalar.py tick dependencies --timeout 600",
+      "result": "outputs PASS 1.186s; frame --frame-part native PASS 1.345s; frame --frame-part ram PASS 0.848s; dependencies PASS 0.830s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py tick",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py tick --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.427s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py frame",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py frame outputs --timeout 600; python verif/delivery_scalar.py frame frame --frame-part native --timeout 600; python verif/delivery_scalar.py frame frame --frame-part ram --timeout 600; python verif/delivery_scalar.py frame dependencies --timeout 600",
+      "result": "outputs PASS 59.990s; frame --frame-part native PASS 1.590s; frame --frame-part ram PASS 2.353s; dependencies PASS 1.211s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py frame",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py frame --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.678s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py water",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py water outputs --timeout 600; python verif/delivery_scalar.py water frame --frame-part native --timeout 600; python verif/delivery_scalar.py water frame --frame-part ram --timeout 600; python verif/delivery_scalar.py water dependencies --timeout 600",
+      "result": "outputs PASS 52.128s; frame --frame-part native PASS 1.536s; frame --frame-part ram PASS 6.097s; dependencies PASS 1.415s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py water",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py water --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.720s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py contact-query",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py contact-query outputs --timeout 600; python verif/delivery_scalar.py contact-query frame --frame-part native --timeout 600; python verif/delivery_scalar.py contact-query frame --frame-part ram --timeout 600; python verif/delivery_scalar.py contact-query dependencies --timeout 600",
+      "result": "outputs PASS 2.090s; frame --frame-part native PASS 1.222s; frame --frame-part ram PASS 1.035s; dependencies PASS 0.773s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py contact-query",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py contact-query --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.314s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py contact-water",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py contact-water outputs --timeout 600; python verif/delivery_scalar.py contact-water frame --frame-part native --timeout 600; python verif/delivery_scalar.py contact-water frame --frame-part ram --timeout 600; python verif/delivery_scalar.py contact-water dependencies --timeout 600",
+      "result": "outputs PASS 34.437s; frame --frame-part native PASS 1.506s; frame --frame-part ram PASS 1.652s; dependencies PASS 1.575s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py contact-water",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py contact-water --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.669s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py water-test",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py water-test outputs --timeout 600; python verif/delivery_scalar.py water-test frame --frame-part native --timeout 600; python verif/delivery_scalar.py water-test frame --frame-part ram --timeout 600; python verif/delivery_scalar.py water-test dependencies --timeout 600",
+      "result": "outputs PASS 181.190s; frame --frame-part native PASS 1.649s; frame --frame-part ram PASS 5.661s; dependencies PASS 1.482s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py water-test",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py water-test --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.693s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py wait-motion",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py wait-motion outputs --timeout 600; python verif/delivery_scalar.py wait-motion frame --frame-part native --timeout 600; python verif/delivery_scalar.py wait-motion frame --frame-part ram --timeout 600; python verif/delivery_scalar.py wait-motion dependencies --timeout 600",
+      "result": "outputs PASS 75.244s; frame --frame-part native PASS 1.555s; frame --frame-part ram PASS 0.956s; dependencies PASS 1.004s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py wait-motion",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py wait-motion --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.641s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py wait-request",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py wait-request outputs --timeout 600; python verif/delivery_scalar.py wait-request frame --frame-part native --timeout 600; python verif/delivery_scalar.py wait-request frame --frame-part ram --timeout 600; python verif/delivery_scalar.py wait-request dependencies --timeout 600",
+      "result": "outputs PASS 8.994s; frame --frame-part native PASS 1.495s; frame --frame-part ram PASS 5.462s; dependencies PASS 1.304s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py wait-request",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py wait-request --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.552s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py destination-choice",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py destination-choice outputs --timeout 600; python verif/delivery_scalar.py destination-choice frame --frame-part native --timeout 600; python verif/delivery_scalar.py destination-choice frame --frame-part ram --timeout 600; python verif/delivery_scalar.py destination-choice dependencies --timeout 600",
+      "result": "outputs PASS 13.578s; frame --frame-part native PASS 1.463s; frame --frame-part ram PASS 7.658s; dependencies PASS 1.059s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py destination-choice",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py destination-choice --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.540s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py destination-clock",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py destination-clock outputs --timeout 600; python verif/delivery_scalar.py destination-clock frame --frame-part native --timeout 600; python verif/delivery_scalar.py destination-clock frame --frame-part ram --timeout 600; python verif/delivery_scalar.py destination-clock dependencies --timeout 600",
+      "result": "outputs PASS 17.893s; frame --frame-part native PASS 1.447s; frame --frame-part ram PASS 4.285s; dependencies PASS 0.811s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py destination-clock",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py destination-clock --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.525s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py question-clock",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py question-clock outputs --timeout 600; python verif/delivery_scalar.py question-clock frame --frame-part native --timeout 600; python verif/delivery_scalar.py question-clock frame --frame-part ram --timeout 600; python verif/delivery_scalar.py question-clock dependencies --timeout 600",
+      "result": "outputs PASS 26.095s; frame --frame-part native PASS 1.619s; frame --frame-part ram PASS 5.184s; dependencies PASS 1.200s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py question-clock",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py question-clock --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.675s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py approach-choice",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py approach-choice outputs --timeout 600; python verif/delivery_scalar.py approach-choice frame --frame-part native --timeout 600; python verif/delivery_scalar.py approach-choice frame --frame-part ram --timeout 600; python verif/delivery_scalar.py approach-choice dependencies --timeout 600",
+      "result": "outputs PASS 7.075s; frame --frame-part native PASS 1.490s; frame --frame-part ram PASS 4.898s; dependencies PASS 1.131s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py approach-choice",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py approach-choice --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.451s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py approach-motion",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py approach-motion outputs --timeout 600; python verif/delivery_scalar.py approach-motion frame --frame-part native --timeout 600; python verif/delivery_scalar.py approach-motion frame --frame-part ram --timeout 600; python verif/delivery_scalar.py approach-motion dependencies --timeout 600",
+      "result": "outputs PASS 62.572s; frame --frame-part native PASS 1.472s; frame --frame-part ram PASS 5.182s; dependencies PASS 0.873s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py approach-motion",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py approach-motion --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.457s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py fare",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py fare outputs --timeout 600; python verif/delivery_scalar.py fare frame --frame-part native --timeout 600; python verif/delivery_scalar.py fare frame --frame-part ram --timeout 600; python verif/delivery_scalar.py fare dependencies --timeout 600",
+      "result": "outputs PASS 3.011s; frame --frame-part native PASS 9.033s; frame --frame-part ram PASS 0.913s; dependencies PASS 14.900s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py fare",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py fare --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 9.012s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py quick",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py quick outputs --timeout 600; python verif/delivery_scalar.py quick frame --frame-part native --timeout 600; python verif/delivery_scalar.py quick frame --frame-part ram --timeout 600; python verif/delivery_scalar.py quick dependencies --timeout 600",
+      "result": "outputs PASS 1.011s; frame --frame-part native PASS 1.447s; frame --frame-part ram PASS 0.857s; dependencies PASS 0.842s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py quick",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py quick --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.336s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py carried-transition",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py carried-transition outputs --timeout 600; python verif/delivery_scalar.py carried-transition frame --frame-part native --timeout 600; python verif/delivery_scalar.py carried-transition frame --frame-part ram --timeout 600; python verif/delivery_scalar.py carried-transition dependencies --timeout 600",
+      "result": "outputs PASS 6.904s; frame --frame-part native PASS 1.316s; frame --frame-part ram PASS 4.606s; dependencies PASS 0.847s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py carried-transition",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py carried-transition --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.246s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py delivery-prefix",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py delivery-prefix outputs --timeout 600; python verif/delivery_scalar.py delivery-prefix frame --frame-part native --timeout 600; python verif/delivery_scalar.py delivery-prefix frame --frame-part ram --timeout 600; python verif/delivery_scalar.py delivery-prefix dependencies --timeout 600",
+      "result": "outputs PASS 4.745s; frame --frame-part native PASS 1.782s; frame --frame-part ram PASS 1.070s; dependencies PASS 0.903s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py delivery-prefix",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py delivery-prefix --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.616s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py product",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py product frame --frame-part native --timeout 600; python verif/delivery_scalar.py product frame --frame-part ram --timeout 600; python verif/delivery_scalar.py product dependencies --timeout 600",
+      "result": "frame --frame-part native PASS 1.227s; frame --frame-part ram PASS 0.818s; dependencies PASS 0.804s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py product",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py product --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.170s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py award",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py award outputs --timeout 600; python verif/delivery_scalar.py award frame --frame-part native --timeout 600; python verif/delivery_scalar.py award frame --frame-part ram --timeout 600; python verif/delivery_scalar.py award dependencies --timeout 600",
+      "result": "outputs PASS 1.603s; frame --frame-part native PASS 1.380s; frame --frame-part ram PASS 0.862s; dependencies PASS 0.840s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py award",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py award --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.290s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py delivery-reward",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py delivery-reward outputs --timeout 600; python verif/delivery_scalar.py delivery-reward frame --frame-part native --timeout 600; python verif/delivery_scalar.py delivery-reward frame --frame-part ram --timeout 600; python verif/delivery_scalar.py delivery-reward dependencies --timeout 600",
+      "result": "outputs PASS 142.237s; frame --frame-part native PASS 1.518s; frame --frame-part ram PASS 3.014s; dependencies PASS 0.895s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py delivery-reward",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py delivery-reward --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.472s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py finish",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py finish outputs --timeout 600; python verif/delivery_scalar.py finish frame --frame-part native --timeout 600; python verif/delivery_scalar.py finish frame --frame-part ram --timeout 600; python verif/delivery_scalar.py finish dependencies --timeout 600",
+      "result": "outputs PASS 1.964s; frame --frame-part native PASS 1.528s; frame --frame-part ram PASS 0.915s; dependencies PASS 0.834s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py finish",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py finish --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.461s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py begin-wait",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py begin-wait outputs --timeout 600; python verif/delivery_scalar.py begin-wait frame --frame-part native --timeout 600; python verif/delivery_scalar.py begin-wait frame --frame-part ram --timeout 600; python verif/delivery_scalar.py begin-wait dependencies --timeout 600",
+      "result": "outputs PASS 1.045s; frame --frame-part native PASS 1.497s; frame --frame-part ram PASS 0.845s; dependencies PASS 0.816s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py begin-wait",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py begin-wait --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.423s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py begin-destination",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py begin-destination outputs --timeout 600; python verif/delivery_scalar.py begin-destination frame --frame-part native --timeout 600; python verif/delivery_scalar.py begin-destination frame --frame-part ram --timeout 600; python verif/delivery_scalar.py begin-destination dependencies --timeout 600",
+      "result": "outputs PASS 1.285s; frame --frame-part native PASS 1.528s; frame --frame-part ram PASS 0.868s; dependencies PASS 0.836s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py begin-destination",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py begin-destination --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.511s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py begin-question",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py begin-question outputs --timeout 600; python verif/delivery_scalar.py begin-question frame --frame-part native --timeout 600; python verif/delivery_scalar.py begin-question frame --frame-part ram --timeout 600; python verif/delivery_scalar.py begin-question dependencies --timeout 600",
+      "result": "outputs PASS 1.260s; frame --frame-part native PASS 1.542s; frame --frame-part ram PASS 0.892s; dependencies PASS 0.850s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py begin-question",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py begin-question --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.516s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py begin-approach",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py begin-approach outputs --timeout 600; python verif/delivery_scalar.py begin-approach frame --frame-part native --timeout 600; python verif/delivery_scalar.py begin-approach frame --frame-part ram --timeout 600; python verif/delivery_scalar.py begin-approach dependencies --timeout 600",
+      "result": "outputs PASS 1.218s; frame --frame-part native PASS 1.470s; frame --frame-part ram PASS 0.867s; dependencies PASS 0.816s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py begin-approach",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py begin-approach --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.450s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py board",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py board outputs --timeout 600; python verif/delivery_scalar.py board frame --frame-part native --timeout 600; python verif/delivery_scalar.py board frame --frame-part ram --timeout 600; python verif/delivery_scalar.py board dependencies --timeout 600",
+      "result": "outputs PASS 8.164s; frame --frame-part native PASS 2.035s; frame --frame-part ram PASS 1.296s; dependencies PASS 0.902s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py board",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py board --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 2.049s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py rescue",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py rescue outputs --timeout 600; python verif/delivery_scalar.py rescue frame --frame-part native --timeout 600; python verif/delivery_scalar.py rescue frame --frame-part ram --timeout 600; python verif/delivery_scalar.py rescue dependencies --timeout 600",
+      "result": "outputs PASS 37.895s; frame --frame-part native PASS 2.415s; frame --frame-part ram PASS 1.498s; dependencies PASS 2.023s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py rescue",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py rescue --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 2.526s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py contact-destination",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py contact-destination outputs --timeout 600; python verif/delivery_scalar.py contact-destination frame --frame-part native --timeout 600; python verif/delivery_scalar.py contact-destination frame --frame-part ram --timeout 600; python verif/delivery_scalar.py contact-destination dependencies --timeout 600",
+      "result": "outputs PASS 40.375s; frame --frame-part native PASS 1.579s; frame --frame-part ram PASS 1.913s; dependencies PASS 1.539s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py contact-destination",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py contact-destination --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.557s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py contact-question",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py contact-question outputs --timeout 600; python verif/delivery_scalar.py contact-question frame --frame-part native --timeout 600; python verif/delivery_scalar.py contact-question frame --frame-part ram --timeout 600; python verif/delivery_scalar.py contact-question dependencies --timeout 600",
+      "result": "outputs PASS 38.365s; frame --frame-part native PASS 1.549s; frame --frame-part ram PASS 1.864s; dependencies PASS 1.610s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py contact-question",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py contact-question --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.577s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_scalar.py contact-approach",
+      "level": "B",
+      "command": "python verif/delivery_scalar.py contact-approach outputs --timeout 600; python verif/delivery_scalar.py contact-approach frame --frame-part native --timeout 600; python verif/delivery_scalar.py contact-approach frame --frame-part ram --timeout 600; python verif/delivery_scalar.py contact-approach dependencies --timeout 600",
+      "result": "outputs PASS 36.858s; frame --frame-part native PASS 1.506s; frame --frame-part ram PASS 1.761s; dependencies PASS 1.520s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_frame_full.py contact-approach",
+      "level": "B",
+      "command": "python verif/delivery_frame_full.py contact-approach --timeout 600",
+      "result": "arbitrary unborrowed native fields PASS 1.557s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_product_proof.py",
+      "level": "B",
+      "command": "python verif/delivery_product_proof.py --timeout 600",
+      "result": "outputs PASS 0.053s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py outputs",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py outputs --timeout 600",
+      "result": "outputs PASS 2.138s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py frame",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py frame --timeout 600",
+      "result": "frame PASS 3.175s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py dependencies",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py dependencies --timeout 600",
+      "result": "dependencies PASS 3.365s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 0",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 0 --timeout 600",
+      "result": "corruption --field 0 PASS 2.143s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 1",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 1 --timeout 600",
+      "result": "corruption --field 1 PASS 2.159s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 2",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 2 --timeout 600",
+      "result": "corruption --field 2 PASS 2.139s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 3",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 3 --timeout 600",
+      "result": "corruption --field 3 PASS 2.171s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 4",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 4 --timeout 600",
+      "result": "corruption --field 4 PASS 2.164s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 5",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 5 --timeout 600",
+      "result": "corruption --field 5 PASS 2.147s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 6",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 6 --timeout 600",
+      "result": "corruption --field 6 PASS 2.103s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 7",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 7 --timeout 600",
+      "result": "corruption --field 7 PASS 2.132s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 8",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 8 --timeout 600",
+      "result": "corruption --field 8 PASS 2.108s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 9",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 9 --timeout 600",
+      "result": "corruption --field 9 PASS 2.106s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 10",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 10 --timeout 600",
+      "result": "corruption --field 10 PASS 2.087s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 11",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 11 --timeout 600",
+      "result": "corruption --field 11 PASS 2.110s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 12",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 12 --timeout 600",
+      "result": "corruption --field 12 PASS 2.106s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 13",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 13 --timeout 600",
+      "result": "corruption --field 13 PASS 2.147s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 14",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 14 --timeout 600",
+      "result": "corruption --field 14 PASS 2.148s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 15",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 15 --timeout 600",
+      "result": "corruption --field 15 PASS 2.129s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 16",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 16 --timeout 600",
+      "result": "corruption --field 16 PASS 2.185s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 17",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 17 --timeout 600",
+      "result": "corruption --field 17 PASS 2.317s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 18",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 18 --timeout 600",
+      "result": "corruption --field 18 PASS 2.337s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 19",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 19 --timeout 600",
+      "result": "corruption --field 19 PASS 2.288s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 20",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 20 --timeout 600",
+      "result": "corruption --field 20 PASS 2.290s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 21",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 21 --timeout 600",
+      "result": "corruption --field 21 PASS 2.413s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 22",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 22 --timeout 600",
+      "result": "corruption --field 22 PASS 2.333s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 23",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 23 --timeout 600",
+      "result": "corruption --field 23 PASS 2.292s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 24",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 24 --timeout 600",
+      "result": "corruption --field 24 PASS 2.260s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_projection_proof.py corruption --field 25",
+      "level": "B",
+      "command": "python verif/delivery_projection_proof.py corruption --field 25 --timeout 600",
+      "result": "corruption --field 25 PASS 2.250s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_kernel.py emit",
+      "level": "B",
+      "command": "python verif/delivery_kernel.py emit outputs --timeout 600; python verif/delivery_kernel.py emit frame --timeout 600; python verif/delivery_kernel.py emit dependencies --timeout 600",
+      "result": "outputs PASS 0.065s; frame PASS 3.145s; dependencies PASS 51.634s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_kernel.py consume",
+      "level": "B",
+      "command": "python verif/delivery_kernel.py consume outputs --timeout 600; python verif/delivery_kernel.py consume frame --timeout 600; python verif/delivery_kernel.py consume dependencies --timeout 600",
+      "result": "outputs PASS 0.108s; frame PASS 0.575s; dependencies PASS 0.165s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_kernel.py complete",
+      "level": "B",
+      "command": "python verif/delivery_kernel.py complete outputs --timeout 600; python verif/delivery_kernel.py complete frame --timeout 600; python verif/delivery_kernel.py complete dependencies --timeout 600",
+      "result": "outputs PASS 0.094s; frame PASS 0.278s; dependencies PASS 0.137s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "verif/delivery_kernel.py dispatch",
+      "level": "B",
+      "command": "python verif/delivery_kernel.py dispatch outputs --timeout 600; python verif/delivery_kernel.py dispatch frame --timeout 600; python verif/delivery_kernel.py dispatch dependencies --timeout 600",
+      "result": "outputs PASS 0.103s; frame PASS 0.435s; dependencies PASS 0.133s",
+      "method": "Actual extracted C; pointer/bounds/signed-overflow/unwinding assertions enabled. Output/frame/dependence split, with checked shared arbitrary helper outputs at seams where declared. See source-locked coverage and proof-matrix receipts; no timeout/cap is positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "L0 to bridged L1 routine suites",
       "level": "C",
       "command": "python verif/delivery_integration.py --whole --local-reference",
       "result": "PASS 3238 normal/poisoned cases",
-      "method": "Five maintained suites, actual L0 independent reference, full observations. Receipt separates native entries from explicit malformed/resource fallback; compiled finite/generated harness additionally asserts zero fallback.",
+      "method": "Actual native contact/items dependencies, full machine/device observations; receipt separates malformed/resource L1 fallbacks.",
       "date": "2026-11-13"
     },
     {
       "property": "Whole-game observations",
       "level": "D",
       "command": "python verif/delivery_integration.py --whole --local-reference",
-      "result": "PASS all 19 maintained scenarios",
-      "method": "Frame/state/device/log digests; zero passenger fallback in whole-game audit. Receipt identifies entries reached; question/rescue are not claimed reached when audit is zero.",
+      "result": "PASS all 19 scenarios",
+      "method": "Per-boundary state/device/log digests, zero passenger fallback in scenario audit; unreached entries are not inferred reached.",
       "date": "2026-11-13"
     },
     {
-      "property": "Independent carrier and resource matrices",
-      "level": "C",
-      "command": "python verif/delivery_cases.py",
-      "result": "PASS 531457 comparisons: seven complete word slices, boundary pairs, rescue pairs, full pool and 6000 x twelve generated states",
-      "method": "Original finite/generated corpus plus independent native candidate fixture (four handlers x two player counts x sixteen match/busy combinations), all2x2 incoming/stored carriers, twelve one-player entries, all three difficulties/two carriers, animation timer/period/cursor and craft-competition matrices; four live words per vector.",
-      "date": "2026-11-13"
-    },
-    {
-      "property": "Native selected output fixture control",
-      "level": "C",
-      "command": "python verif/delivery_cases.py --selection-mutant",
-      "result": "DETECTED selected-only defect independently of retained machine DI",
-      "method": "The finite semantic fixture observes result.selected itself. The separate selection-gap diagnostic records whether the production bridge binds that value; a machine-only miss is not positive evidence.",
-      "date": "2026-11-13"
-    },
-    {
-      "property": "Real scratch promotion/native host",
+      "property": "Scratch native-host promotion",
       "level": "D",
       "command": "python verif/delivery_host.py",
-      "result": "PASS actual tools/closure.py; tools/hostbuild.py; host/check.py --variant native",
-      "method": "Pinned clean committed baseline with only owned files overlaid, only scratch passenger_delivery promoted; all 19 maintained scenarios and attract smoke pass.",
-      "date": "2026-11-13"
-    },
-    {
-      "property": "Defect and production-unwind controls",
-      "level": "C",
-      "command": "python verif/delivery_mutants.py; python verif/delivery_evidence.py BeginPassengerPlatformWait --tag compact --compact --negative --timeout 180",
-      "result": "PASS 7 defects detected; actual delivery_prepare insufficient unwind fails",
-      "method": "Private native source mutants, maintained files unchanged; bounds/unwinding assertions enabled.",
+      "result": "PASS real tools/closure.py; tools/hostbuild.py; host/check.py --variant native; 19 scenarios plus256-frame smoke",
+      "method": "Clean committed baseline plus only owned overlays. Only the scratch passenger certificate is promoted; host tooling is unchanged.",
       "date": "2026-11-13"
     }
   ],
@@ -276,11 +1040,7 @@
     "finding": "Accepted actor-storage/architecture model supplies names and ownership. No Amiga timing, equality, fares, layout or ordering is imported as equivalence evidence."
   },
   "uncertainty": [
-    "Only the supervisor promotes administrative status. Explicit malformed-state L1 fallback is compatibility, not a native proof for malformed inputs.",
-    "Recorded selected-craft composition gap: native result.selected is not consumed by the current bridge at BOARD/DELIVER immediate tails. Current native selection matches the direct finite fixture, but the original bridge comparison cannot certify this output. See verif/delivery_selection_gap.py.",
-    "No B claim for UpdatePassengerPlatformWait, UpdatePassengerDestinationDisplay, UpdatePassengerQuestionDisplay, UpdatePassengerApproach, UpdateCarriedPassenger, DeliverPassenger. Their broad scalar/state behavior currently has A finite slices and C/D evidence only. The coupled unit remains unclosed.",
-    "Early duplicated-log/general-dispatch profiles timed out at300/600s or were canceled after replacement; diagnostic receipts earn no proof. Final streaming store comparator preserves the same exact ordered caller/global/stack observations while avoiding a redundant symbolic log copy. Per-entry COMPLETE target sets and immediate-tail depth are asserted, never assumed.",
-    "Unit-six water state updates remain L1. The shared initializers and water-boarding entry are closed here; no closure claim for the water state machine."
+    "Administrative status stays boundary-established until supervisor review. Unit-six water updates remain L1; only their shared initializers/rescue entry belong here. Malformed-state fallback is compatibility evidence, not native closure outside admission."
   ],
   "dependencies": {
     "native/passenger_delivery.h": {
@@ -298,17 +1058,32 @@
       "calls": [
         "actor_alias_value",
         "contact_players",
+        "pd_approach_choice",
+        "pd_approach_motion",
+        "pd_award",
         "pd_begin",
         "pd_board",
+        "pd_carried_transition",
         "pd_contact",
+        "pd_contact_test",
+        "pd_delivery_prefix",
+        "pd_delivery_reward",
+        "pd_destination_choice",
+        "pd_display_clock",
         "pd_emit",
+        "pd_fare_decay",
+        "pd_fare_product",
         "pd_finish",
         "pd_frame",
         "pd_platform",
+        "pd_quick_decay",
         "pd_signed",
         "pd_submerged",
         "pd_tick",
-        "pd_water"
+        "pd_wait_motion",
+        "pd_wait_request",
+        "pd_water",
+        "pd_water_test"
       ]
     },
     "native/bridge/passenger_delivery_bridge.c": {
@@ -328,9 +1103,12 @@
         "READ",
         "W",
         "WRITE",
+        "actor_alias_value",
         "actor_bridge_alias_project",
+        "actor_phase_aliases",
         "add16",
         "dec16",
+        "delivery_complete",
         "delivery_consume",
         "delivery_dispatch",
         "delivery_id",
@@ -338,6 +1116,7 @@
         "delivery_near",
         "delivery_phase",
         "delivery_prepare",
+        "delivery_projection",
         "delivery_sound",
         "delivery_vector",
         "delivery_word",
@@ -400,36 +1179,628 @@
       ]
     }
   },
-  "proposed_status_reason": "Recorded stop at boundary-established: implementation, finite/C/D checks and scratch host pass, but full-domain actual-C proofs for six coupled updating handlers remain open. Do not promote to migrated on the passing tests. The native selected-craft result must also be bound to the immediate boarding/delivery tail; its diagnostic mutation currently escapes the machine-only harness.",
-  "recorded_stop": {
-    "proved_entries": [
-      "BeginPassengerPlatformWait",
-      "BeginPassengerDestinationDisplay",
-      "BeginPassengerQuestionDisplay",
-      "BeginPassengerApproach",
-      "BoardWaterbornePassenger",
-      "BoardPassenger"
+  "split_composition": {
+    "matrix_result": "PASS",
+    "passed_properties": 206,
+    "pending": [],
+    "coverage": [
+      {
+        "handler": "UpdatePassengerPlatformWait",
+        "pieces": [
+          {
+            "piece": "water-test",
+            "sha256": "6cf4577e5fe76086c91310731e02816dba527f383761aa9f544ac95869fd0695"
+          },
+          {
+            "piece": "wait-motion",
+            "sha256": "ff8207d1262d417c459e7fef0be096d5db16e8ace63c8d95864ae781db40c6e8"
+          },
+          {
+            "piece": "contact-water",
+            "sha256": "8a76fcb074d12df27e204233f8e1bb482fd46e1db41e9a14ec9f4c7764c26f79"
+          },
+          {
+            "piece": "wait-request",
+            "sha256": "6c972c3878e863e9e08cb637f1b4f7d97002629d957774ea94a84f3868b1961f"
+          }
+        ],
+        "only_remaining_setup": "r->di=A(ActorSourcePlatformByteIndices); r->si=A(ActorDescriptors);"
+      },
+      {
+        "handler": "display",
+        "pieces": [
+          {
+            "piece": "water-test",
+            "sha256": "6cf4577e5fe76086c91310731e02816dba527f383761aa9f544ac95869fd0695"
+          },
+          {
+            "piece": "contact-destination",
+            "sha256": "13de52492e00db78374d1b258c6909113800c87e1367ccd56aaf59289c986139"
+          },
+          {
+            "piece": "destination-choice",
+            "sha256": "0b74e6902b070524444ac5d15d618f73d2e3e8e49b0c542b5d7ae24db52892f7"
+          },
+          {
+            "piece": "destination-clock",
+            "sha256": "e19ea80d54cff00bc7d0a00a9bd2e45c828f2f7a7b0d252492ead1de5379f126"
+          }
+        ],
+        "only_remaining_setup": "r->si=A(ActorDescriptors);"
+      },
+      {
+        "handler": "UpdatePassengerApproach",
+        "pieces": [
+          {
+            "piece": "water-test",
+            "sha256": "6cf4577e5fe76086c91310731e02816dba527f383761aa9f544ac95869fd0695"
+          },
+          {
+            "piece": "contact-approach",
+            "sha256": "27c1a5a3c2b0ed676ec20629cc0ae417dcc3fe1456f968208462b787c5b658ee"
+          },
+          {
+            "piece": "approach-choice",
+            "sha256": "05feb171efe18bf18ed73c2a82a91590e1583609aceb07316d25ba22b0d07a51"
+          },
+          {
+            "piece": "approach-motion",
+            "sha256": "05796690bb197e3d090a4e51f0fead5382a60d983a3f7dfc5bfed029cfad7836"
+          }
+        ],
+        "only_remaining_setup": "r->si=A(ActorDescriptors);"
+      },
+      {
+        "handler": "UpdateCarriedPassenger",
+        "pieces": [
+          {
+            "piece": "fare",
+            "sha256": "7e3b8d2452994e19cbc77a1e508e1febc9614b178fb4b947dc835db3fb5e6f0f"
+          },
+          {
+            "piece": "quick",
+            "sha256": "a32e4b86839f4a5d068d89ad6be2cf74a035ecc2ba77d269ca5c4ccab6f32499"
+          },
+          {
+            "piece": "carried-transition",
+            "sha256": "8bdecbe20c4adc00d06c54fe859705762e1f002e02e06dda0d5470ee77035d43"
+          }
+        ],
+        "only_remaining_setup": ""
+      },
+      {
+        "handler": "DeliverPassenger",
+        "pieces": [
+          {
+            "piece": "delivery-prefix",
+            "sha256": "230af9cef98ac9802fe5bd831fcdbf7c67266c8d13454e8758815555dc499132"
+          },
+          {
+            "piece": "award",
+            "sha256": "4c660f7a87aa180391035f3a21c63a398fb9a30aa1fd1c4059b215a23dcf97c8"
+          },
+          {
+            "piece": "delivery-reward",
+            "sha256": "ae3413b3e6d1a9120af850ca02d27ac7996acea076ac3867d7109a855ee2c377"
+          }
+        ],
+        "only_remaining_setup": ""
+      }
     ],
-    "pending_entries": [
-      "UpdatePassengerPlatformWait",
-      "UpdatePassengerDestinationDisplay",
-      "UpdatePassengerQuestionDisplay",
-      "UpdatePassengerApproach",
-      "UpdateCarriedPassenger",
-      "DeliverPassenger"
-    ],
-    "cause": "Large whole-domain bridge formulas exceed practical solver memory/time. No reachability, scalar-boundary, full-pool or machine-observation restriction is introduced to make them pass.",
-    "continuation": "Keep the actual-C harness and complete compared state. Optimize exact array/log/dispatch encoding or prove an equivalent composition before replaying all six open entries. Finish only after every profile and the final scratch host gate pass.",
-    "command": "python verif/delivery_reproduce.py --fresh --record-stop --working-tree-lint",
-    "native_projection": "The six B rows prove the actual C bridged published effects, not a standalone equivalence of every native in/out slot/world/control field. Before native closure, compare the active native working-state projection with the L1 step and enforce complete next/pending/selected request consumption. Do not infer those properties from correct journal publication.",
-    "selected_tail_binding": "Open: delivery_dispatch checks target and journal but does not bind result.selected to incoming craft for BOARD/DELIVER tails. A selected-only mutation passes the original 531163-case machine harness, while the new direct finite selected-output fixture detects it. Add checked native-selected DI publication and replay all affected proofs before migration."
+    "maximum_solver_overlap": 2,
+    "limits": {
+      "private_bytes": 8589934592,
+      "seconds": 600
+    },
+    "imported_certificates": [
+      "contacts.json: kind0 whole-bridge B",
+      "falling_items.json: spawn B/full-pool transfer",
+      "adlx_effects.json: existing audio entry/child footprint"
+    ]
   },
+  "negative_results": [
+    {
+      "receipt": "build\\workers\\close-stones-4\\negative\\1794598969864206700-61852-MEMORY_CAP\\result.json",
+      "result": "MEMORY_CAP",
+      "seconds": 69.67239810002502,
+      "peak_private_bytes": 8589930496,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-4\\projection\\corruption\\harness.i",
+        "--unwind",
+        "40",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-4\\negative\\1794599899627069700-75492-TIMEOUT\\result.json",
+      "result": "TIMEOUT",
+      "seconds": 180.02094680001028,
+      "peak_private_bytes": 194957312,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-4\\scalar\\product-outputs\\harness.i",
+        "--unwind",
+        "40",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe",
+        "--unwindset",
+        "dl_ref0_contact.0:3,observed_actual_platform_player.0:3,observed_actual_pd_shell1_platform_player.0:3,dl_ref1_frame.0:3,pd_shell1_frame.0:3",
+        "--no-array-field-sensitivity"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-4\\negative\\1794600514083421900-79544-MEMORY_CAP\\result.json",
+      "result": "MEMORY_CAP",
+      "seconds": 72.17102309997426,
+      "peak_private_bytes": 8589934592,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-4\\projection\\corruption25\\harness.i",
+        "--unwind",
+        "40",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-4\\negative\\1794601140450580000-76604-ERROR\\result.json",
+      "result": "ERROR",
+      "seconds": 0.023031799995806068,
+      "peak_private_bytes": 5058560,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-4\\kernel\\emit-outputs\\harness.i",
+        "--unwind",
+        "3",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-4\\negative\\1794601521386938300-53652-TIMEOUT\\result.json",
+      "result": "TIMEOUT",
+      "seconds": 120.02033089997713,
+      "peak_private_bytes": 20070400,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-4\\kernel\\emit-dependencies\\harness.i",
+        "--unwind",
+        "3",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-4\\negative\\1794602085010299100-62756-INPUT_CHANGED\\result.json",
+      "result": "INPUT_CHANGED",
+      "seconds": 16.997593999956734,
+      "peak_private_bytes": 479952896,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-4\\scalar\\destination-choice-frame\\harness.i",
+        "--unwind",
+        "40",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe",
+        "--unwindset",
+        "dl_ref0_contact.0:3,observed_actual_platform_player.0:3,observed_actual_pd_shell1_platform_player.0:3,dl_ref1_frame.0:3,pd_shell1_frame.0:3",
+        "--no-array-field-sensitivity"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-4\\negative\\1794602210977593300-75284-INPUT_CHANGED\\result.json",
+      "result": "INPUT_CHANGED",
+      "seconds": 106.36770790000446,
+      "peak_private_bytes": 439812096,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-4\\scalar\\destination-clock-frame\\harness.i",
+        "--unwind",
+        "40",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe",
+        "--unwindset",
+        "dl_ref0_contact.0:3,observed_actual_platform_player.0:3,observed_actual_pd_shell1_platform_player.0:3,piece_actual_frame.0:3,piece_actual_pd_shell1_frame.0:3",
+        "--no-array-field-sensitivity"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-4\\negative\\1794602479427128000-80324-TIMEOUT\\result.json",
+      "result": "TIMEOUT",
+      "seconds": 600.0347371000098,
+      "peak_private_bytes": 783228928,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-4\\scalar\\wait-motion-dependencies\\harness.i",
+        "--unwind",
+        "40",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe",
+        "--unwindset",
+        "dl_ref0_contact.0:3,observed_actual_platform_player.0:3,observed_actual_pd_shell1_platform_player.0:3,piece_actual_frame.0:3,piece_actual_pd_shell1_frame.0:3",
+        "--no-array-field-sensitivity"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-4\\negative\\1794602550261110100-20216-INPUT_CHANGED\\result.json",
+      "result": "INPUT_CHANGED",
+      "seconds": 130.48016279999865,
+      "peak_private_bytes": 456097792,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-4\\scalar\\question-clock-frame\\harness.i",
+        "--unwind",
+        "40",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe",
+        "--unwindset",
+        "dl_ref0_contact.0:3,observed_actual_platform_player.0:3,observed_actual_pd_shell1_platform_player.0:3,piece_actual_frame.0:3,piece_actual_pd_shell1_frame.0:3",
+        "--no-array-field-sensitivity"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-4\\negative\\1794602677693881500-71708-FAIL\\result.json",
+      "result": "FAIL",
+      "seconds": 45.02342320000753,
+      "peak_private_bytes": 1248464896,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-4\\evidence\\BeginPassengerPlatformWait_compact_negative\\harness.i",
+        "--unwind",
+        "40",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--unwindset",
+        "dl_ref0_contact.0:3,dl_ref1_frame.0:3,dl_ref1_platform_player.0:3,pd_shell1_frame.0:3,pd_shell1_platform_player.0:3,delivery_vector.0:4,delivery_prepare.0:1",
+        "--no-array-field-sensitivity",
+        "--arrays-uf-never"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-4\\negative\\1794603277729499900-80924-TIMEOUT\\result.json",
+      "result": "TIMEOUT",
+      "seconds": 600.0496604000218,
+      "peak_private_bytes": 688721920,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-4\\scalar\\approach-motion-frame\\harness.i",
+        "--unwind",
+        "40",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe",
+        "--unwindset",
+        "dl_ref0_contact.0:3,observed_actual_platform_player.0:3,observed_actual_pd_shell1_platform_player.0:3,piece_actual_frame.0:3,piece_actual_pd_shell1_frame.0:3",
+        "--no-array-field-sensitivity"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-4\\negative\\1794603380826373900-77020-TIMEOUT\\result.json",
+      "result": "TIMEOUT",
+      "seconds": 600.0726746,
+      "peak_private_bytes": 1272254464,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-4\\scalar\\wait-motion-dependencies\\harness.i",
+        "--unwind",
+        "40",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe",
+        "--unwindset",
+        "dl_ref0_contact.0:3,observed_actual_platform_player.0:3,observed_actual_pd_shell1_platform_player.0:3,piece_actual_frame.0:3,piece_actual_pd_shell1_frame.0:3",
+        "--no-array-field-sensitivity"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-4\\negative\\1794603404769388100-59828-INPUT_CHANGED\\result.json",
+      "result": "INPUT_CHANGED",
+      "seconds": 20.54498390003573,
+      "peak_private_bytes": 221511680,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-4\\scalar\\fare-frame\\harness.i",
+        "--unwind",
+        "40",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe",
+        "--unwindset",
+        "dl_ref0_contact.0:3,observed_actual_platform_player.0:3,observed_actual_pd_shell1_platform_player.0:3,dl_ref1_frame.0:3,pd_shell1_frame.0:3",
+        "--no-array-field-sensitivity"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-4\\negative\\1794603573672122100-22416-INPUT_CHANGED\\result.json",
+      "result": "INPUT_CHANGED",
+      "seconds": 295.9253024000209,
+      "peak_private_bytes": 603934720,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-4\\scalar\\approach-motion-dependencies\\harness.i",
+        "--unwind",
+        "40",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe",
+        "--unwindset",
+        "dl_ref0_contact.0:3,observed_actual_platform_player.0:3,observed_actual_pd_shell1_platform_player.0:3,piece_actual_frame.0:3,piece_actual_pd_shell1_frame.0:3",
+        "--no-array-field-sensitivity"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-4\\negative\\1794603593183838500-31696-INPUT_CHANGED\\result.json",
+      "result": "INPUT_CHANGED",
+      "seconds": 7.220682399987709,
+      "peak_private_bytes": 280408064,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-4\\scalar\\carried-transition-outputs\\harness.i",
+        "--unwind",
+        "40",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe",
+        "--unwindset",
+        "dl_ref0_contact.0:3,observed_actual_platform_player.0:3,observed_actual_pd_shell1_platform_player.0:3,dl_ref1_frame.0:3,pd_shell1_frame.0:3",
+        "--no-array-field-sensitivity"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-4\\negative\\1794603599592664300-56596-INPUT_CHANGED\\result.json",
+      "result": "INPUT_CHANGED",
+      "seconds": 6.403109300008509,
+      "peak_private_bytes": 358383616,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-4\\scalar\\carried-transition-frame\\harness.i",
+        "--unwind",
+        "40",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe",
+        "--unwindset",
+        "dl_ref0_contact.0:3,observed_actual_platform_player.0:3,observed_actual_pd_shell1_platform_player.0:3,dl_ref1_frame.0:3,pd_shell1_frame.0:3",
+        "--no-array-field-sensitivity"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-4\\negative\\1794603604497049400-48056-TIMEOUT\\result.json",
+      "result": "TIMEOUT",
+      "seconds": 180.02255449997028,
+      "peak_private_bytes": 405262336,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-4\\scalar\\approach-motion-frame-native\\harness.i",
+        "--unwind",
+        "40",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe",
+        "--unwindset",
+        "dl_ref0_contact.0:3,observed_actual_platform_player.0:3,observed_actual_pd_shell1_platform_player.0:3,piece_actual_frame.0:3,piece_actual_pd_shell1_frame.0:3",
+        "--no-array-field-sensitivity"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-4\\negative\\1794604023854574500-58724-MEMORY_CAP\\result.json",
+      "result": "MEMORY_CAP",
+      "seconds": 0.01606970001012087,
+      "peak_private_bytes": 6586368,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-4\\cap-control\\harness.i",
+        "--unwind",
+        "1",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-4\\negative\\1794604620856372000-64948-FAIL\\result.json",
+      "result": "FAIL",
+      "seconds": 43.71238129999256,
+      "peak_private_bytes": 1248563200,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-4\\evidence\\BeginPassengerPlatformWait_compact_negative\\harness.i",
+        "--unwind",
+        "40",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--unwindset",
+        "dl_ref0_contact.0:3,dl_ref1_frame.0:3,dl_ref1_platform_player.0:3,pd_shell1_frame.0:3,pd_shell1_platform_player.0:3,delivery_vector.0:4,delivery_prepare.0:1",
+        "--no-array-field-sensitivity",
+        "--arrays-uf-never"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-4\\negative\\1794604939844957400-73304-MEMORY_CAP\\result.json",
+      "result": "MEMORY_CAP",
+      "seconds": 0.013693400018382818,
+      "peak_private_bytes": 6615040,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-4\\cap-control\\harness.i",
+        "--unwind",
+        "1",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-4\\negative\\1794604989916996300-52868-FAIL\\result.json",
+      "result": "FAIL",
+      "seconds": 45.12111820001155,
+      "peak_private_bytes": 1248878592,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-4\\evidence\\BeginPassengerPlatformWait_compact_negative\\harness.i",
+        "--unwind",
+        "40",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--unwindset",
+        "dl_ref0_contact.0:3,dl_ref1_frame.0:3,dl_ref1_platform_player.0:3,pd_shell1_frame.0:3,pd_shell1_platform_player.0:3,delivery_vector.0:4,delivery_prepare.0:1",
+        "--no-array-field-sensitivity",
+        "--arrays-uf-never"
+      ]
+    }
+  ],
+  "proposed_status_reason": "All actual-C split output/frame/dependence pieces, matching-cut projection and protocol lemmas pass with complete compositional coverage; finite/C/D, selected-only bridge control and actual scratch host promotion pass. B is conditional on explicit disjoint resource and closed child contracts.",
   "scratch_acceptance": {
-    "baseline_revision": "5be6a2c095f9236a9d4bd14ac114b7600010d879",
+    "baseline_revision": "cd48651ca064cd5e39b216a222fbe32627f50062",
     "linked_components": [
       "actor_types",
+      "adlx_allocation",
       "adlx_effects",
+      "adlx_loader",
       "adlx_main",
+      "adlx_music",
+      "adlx_sections",
       "contacts",
       "coordinate_scale",
       "decimal",
@@ -475,8 +1846,8 @@
   "verification_input_hashing": "sha256-lf-text",
   "verification_inputs": {
     "native/passenger_delivery.h": "e01d99b23879eb69ad449d6c25a82f44f1a80d800a424f1e7539b951cd166657",
-    "native/passenger_delivery.c": "0908cda5be2fd60dc43b71da198a3071be438d3c435801f375787618d3a35af3",
-    "native/bridge/passenger_delivery_bridge.c": "2e491d562dc5644c19723c09424094beac6485abaf577155bfa0ae492a262595",
+    "native/passenger_delivery.c": "ca71e756fff535f31a132c1bf865a9ef91161ebd84972c39991cddf07c322494",
+    "native/bridge/passenger_delivery_bridge.c": "d13e82cbbc5c2525e5e5115d747910c50d966656cebc5fb81eb1e27b255b290e",
     "native/actor_resources.c": "47e21228ee1d873fa5636e062a955e4a6b5a8f0522a7bde2cf223708c9880137",
     "native/bridge/actor_resources_bridge.c": "6941d649e3fb35d3898b35c3e461fedd0ceee0210861300ce674ac78aac0acc2",
     "native/level_view.c": "f0b3db5747f718d7c112c721735ca5a497a9b93a6ecb33096223b188b170353d",
@@ -485,17 +1856,28 @@
     "native/bridge/contacts_bridge.c": "ae0355b3a17443a2d39b41b9ac99656041ae63c9bebf3a399e207e6257b1bdab",
     "native/items.c": "d3ede593a1249fc46da025fc304f90ed8f962a5145a81731c6dc70b2f384b8ec",
     "native/bridge/items_bridge.c": "badddeb8758636e00216082cbb4e945fd11445c070f400db25b10ccf39506995",
-    "verif/delivery_build.py": "2aa35853b161e046ab087bdb750d010413cb9f1be69d125d81f84fc1bfc410dd",
-    "verif/delivery_cases.py": "6200a672b218de414209454eb893223a4d58a4713871dde20899316f32b811d6",
-    "verif/delivery_certificate.py": "c78d51eae9367668b2821d4d3984d2487eeb2418c136d43ac2c53f9bce6129a8",
-    "verif/delivery_evidence.py": "c248cb7d2a69aa54abc3420db8055136b2cd9af77de169cc7596fe36f72be8c3",
+    "verif/delivery_build.py": "db95adccee0bfaa0fa7d08fac8170985b276f840c8504d9dda0ea048620be56e",
+    "verif/delivery_cases.py": "e6e5bda0b17642007d9e3da8012ef4be41774736c0e2178b51746142c040e785",
+    "verif/delivery_certificate.py": "fdade0c85964a3ea10a93a1da663d572c4cfc5025bb9823a0df530287c4c30f6",
+    "verif/delivery_coverage.py": "49e1c1a76e2ea488e0d99c52f9d1a5c2c0c755703ceb2d3e2b6c3e25b351f0f6",
+    "verif/delivery_evidence.py": "3b462246baf1ae29ab466926d877f90afba7317a636817800f0d9ac5b258510d",
+    "verif/delivery_frame_full.py": "70d6527497bcc04b7facefaadd31673fa3badab64fd63c9c337bbeddc328ca9f",
     "verif/delivery_harness.c": "a35666afbfa4fb32faaa1c333755f7b1a1ac7165d4a5981697ca591d1d9e9e73",
     "verif/delivery_host.py": "354a90cf63a4be3c535758f1667e566ec0d72d48ac37135c5cce0893cfa98cb3",
     "verif/delivery_integration.py": "f515df5595241465b9dd016870759b8a86aaa28f04bed528421d3492552f4b9e",
-    "verif/delivery_mutants.py": "2bf527e9a921bf24f4e1892e5f01f20d712a0d5838636aa5b16bd62c7c831334",
-    "verif/delivery_reproduce.py": "636821d3768cf8b52b72be0898e09fe02fc5965389282ee2d0eb39820b5ecb04",
-    "verif/delivery_selection_gap.py": "ff995cd474710f0500c7176087f749bb90ae180548cc0942e43864cf198459cd",
-    "verif/delivery_shells.py": "8b1dc1b4afbae92ab9222c29eeb446224113737e30a6cbd5e388c0b9875a8aa2",
+    "verif/delivery_kernel.py": "1d8dd466f9b464b46f4dcccc740d331722f057721394d944e3619b41e0917f23",
+    "verif/delivery_limits.py": "b8bbf458d2e81b54db99495ae1682d090f2dd8dc1da2ee8e4ffaf5d32b3f33a2",
+    "verif/delivery_mutants.py": "47b34f6518fbd80d5121b425a5536d7978b70eb30a2a27b3211b8a38aa58c97e",
+    "verif/delivery_pieces.py": "9d9bbc2cc101ef62fd30b8a2c20e476b3703feef15e7b94e63900539fb4f5171",
+    "verif/delivery_product_proof.py": "564cdd6bb222b5acfff153f19d73c577d9a1d7ea27bb7efed57f61e7f632618e",
+    "verif/delivery_projection_proof.py": "5b91f227420846ad985947c5e03aabd6683516509e23c9c5ce4eb1c94af5620a",
+    "verif/delivery_proofs.py": "26788c4613e799f9af6b34e654e3d76800b6b8e19cb4c3d6fb58c084edc8727f",
+    "verif/delivery_record.py": "15bb5e946ea4880712be63fc3b55ed24d69e31369492b78a119ff894b9901f44",
+    "verif/delivery_reproduce.py": "9c91219b7881195739746380624f4c5f06b19116256457a66918ad45ccdab2fa",
+    "verif/delivery_scalar.py": "78b0e108fa33c9ca7441b778b73763bf7b09df3f4e21c45e98fee64c14d07951",
+    "verif/delivery_scalar_support.c": "fae3094877c721e93f2d6e975f254f03af391cf841099d3c8f3a14e867edcc14",
+    "verif/delivery_selection_gap.py": "c98ddf999ac988b44405e9f028d80b8f7aa968d66170029b69b76b0f5b34fc37",
+    "verif/delivery_shells.py": "52633096579d7fade5bd4078b17a93b88ec871087195f89548256fa97afe2749",
     "native/actors.h": "b1c7653a6e566c7f0e3e18ad38fc3f63726d01b78a6fa6843df017d2d155a42c",
     "native/actor_resources.h": "212fe3bc958c74140f45b9e7a3745f650d22e7a853a2edf273eeacfd93f96247",
     "native/contacts.h": "2d329a52985ea628a56afaee703e8b2f84ed9a328e58109c3be4dac3e90c1d29",

@@ -1,7 +1,7 @@
 """CBMC on actual ICE C, preprocessed with minimal Windows-compatible headers."""
 import argparse,hashlib,json,re,subprocess,time
 from pathlib import Path
-from windows_job import WindowsJob
+from closure_support import checked_compile,run_solver
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'build/workers/pilot-ice-2'
 GCC=Path('C:/msys64/mingw64/bin/gcc.exe')
@@ -74,8 +74,7 @@ def run(stream,output,unwind,timeout=120,native=None,tag='whole',backend='sat',m
          f'-DPRIMITIVE={primitives.index(mode) if mode in primitives else 0}',
          f'-DCOVER_RUN={int(coverage)}',
          str(folder/'whole.c'),'-o',str(folder/'whole.i')]
-    p=subprocess.run(cmd,capture_output=True,text=True);(folder/'preprocess.log').write_text(p.stdout+p.stderr)
-    if p.returncode:raise RuntimeError(p.stderr)
+    p=checked_compile(cmd);(folder/'preprocess.log').write_text(p.stdout+p.stderr)
     loops={'main.0':stream+1,'main.1':output+1,'main.2':output+1,'read_bits.0':16,
         'c_UnpackIceStream.0':6,'c_UnpackIceStream.1':output+2,'c_UnpackIceStream.2':5,
         'c_UnpackIceStream.3':3,'c_UnpackIceStream.4':output+2,'c_UnpackIceStream.5':output//2+2,
@@ -96,18 +95,7 @@ def run(stream,output,unwind,timeout=120,native=None,tag='whole',backend='sat',m
         z3exe=next(install.rglob('z3.exe'))
         command+=['--z3','--external-smt2-solver',str(z3exe)]
     if stream>256:command+=['--arrays-uf-always']
-    start=time.perf_counter()
-    with WindowsJob() as job,(folder/'cbmc.log').open('w') as log:
-        p=subprocess.Popen(command,stdout=log,stderr=subprocess.STDOUT)
-        job.assign(p)
-        try:
-            code=p.wait(timeout=timeout)
-        except subprocess.TimeoutExpired:
-            # CBMC's external solver is a child process. Kill the entire owned
-            # tree, including it, rather than leaving an orphan after timeout.
-            job.terminate()
-            p.wait();code=None
-    elapsed=time.perf_counter()-start;log=(folder/'cbmc.log').read_text()
+    code,elapsed,log=run_solver(command,folder,timeout)
     failures=re.findall(r'^\[([^]]+)\] (.*): FAILURE$',log,re.M)
     witnesses=[(name,description) for name,description in failures if 'witness:' in description]
     result=dict(stream_size=stream,output_size=output,token_bound=output//2+1,unwind=unwind,seconds=elapsed,
@@ -117,7 +105,7 @@ def run(stream,output,unwind,timeout=120,native=None,tag='whole',backend='sat',m
         decision_times=re.findall(r'Runtime decision procedure: ([^\n]+)',log),failures=failures,witnesses=witnesses,
         preprocessed_sha256=hashlib.sha256((folder/'whole.i').read_bytes()).hexdigest(),
         inputs={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in
-                [ROOT/'c/ice.c',Path(native or ROOT/'native/ice.c'),ROOT/'native/ice.h',Path(__file__),ROOT/'verif/windows_job.py',*sorted((ROOT/'verif').glob('ice_cbmc_*.c')),*sorted((ROOT/'verif/cbmc_shim').glob('*.h'))]})
+                [ROOT/'c/ice.c',Path(native or ROOT/'native/ice.c'),ROOT/'native/ice.h',Path(__file__),ROOT/'verif/windows_job.py',ROOT/'verif/closure_support.py',*sorted((ROOT/'verif').glob('ice_cbmc_*.c')),*sorted((ROOT/'verif/cbmc_shim').glob('*.h'))]})
     (folder/'result.json').write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps({k:result[k] for k in ('result','stream_size','output_size','token_bound','unwind','seconds','solver_times')}),flush=True)
     return result
@@ -130,5 +118,8 @@ if __name__=='__main__':
     parser.add_argument('--backend',choices=['sat','z3'],default='sat')
     parser.add_argument('--mode',choices=['whole','init','step','reader','bits','literal','length','offset'],default='whole')
     parser.add_argument('--coverage',action='store_true')
-    a=parser.parse_args();r=run(a.stream,a.output,a.unwind,a.timeout,a.native,a.tag,a.backend,a.mode,a.coverage)
+    parser.add_argument('--out',type=Path,help='isolate regenerated proof receipts')
+    a=parser.parse_args()
+    if a.out:OUT=a.out.resolve()
+    r=run(a.stream,a.output,a.unwind,a.timeout,a.native,a.tag,a.backend,a.mode,a.coverage)
     raise SystemExit(0 if r['result'] in ('PASS','WITNESSED') else 1)

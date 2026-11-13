@@ -1,0 +1,303 @@
+{
+  "component": "decimal",
+  "proposed_status": "migrated",
+  "proposed_status_reason": "A for canonical value domains, B for the stated symbolic profiles, C for arbitrary live-divisor/alias/32-bit outlier behavior. Full contract therefore remains migrated despite D integration.",
+  "original": {
+    "L0": [
+      "GAME:EncodeSixDecimalDigits 013B:3F0F",
+      "GAME:EncodeFourDecimalDigits 013B:3F2F",
+      "GAME:EncodeTwoDecimalDigits 013B:3F43",
+      "Shared six/four/two tails through 013B:3F54"
+    ],
+    "L1": [
+      "c/render_primitives.c:c_EncodeTwoDecimalDigits/c_EncodeFourDecimalDigits/c_EncodeSixDecimalDigits"
+    ],
+    "static_evidence": [
+      "src/asm/GAME.ASM decimal and HUD shared tails",
+      "src/data/DGDATA.ASM DecimalTenDivisor through DecimalDigit5",
+      "c/menu.c and c/render.c all return sites"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/decimal.c",
+      "native/decimal.h",
+      "native/bridge/decimal_bridge.c"
+    ],
+    "header": "native/decimal.h",
+    "functions": [
+      "decimal_two",
+      "decimal_four",
+      "decimal_six"
+    ],
+    "bridge": [
+      "c_EncodeTwoDecimalDigits",
+      "c_EncodeFourDecimalDigits",
+      "c_EncodeSixDecimalDigits"
+    ]
+  },
+  "purpose": "Shared numeric digit encoding for HUD, level introduction and high scores, separated from drawing, ASCII conversion and blanking.",
+  "interface": {
+    "inputs": [
+      "AL byte, AX unsigned word, or DX:AX 32-bit bit pattern becomes uint8/uint16/uint32 value",
+      "DecimalOutput: positive capacity, initialized writable bytes, cursor below capacity; 65536-byte ring is the DOS boundary",
+      "DecimalDivisors: live byte references to ten, hundred, little-endian thousand and ten-thousand words"
+    ],
+    "outputs": [
+      "Exactly 2/4/6 numeric bytes plus FF sentinel on success; cursor points at sentinel, not past it",
+      "DecimalResult reports division status, final packed remainder pair and thousand-stage remainder for bridge diagnostics"
+    ],
+    "effects": [
+      "Reads each divisor immediately before its division, after earlier ordered digit writes",
+      "Writes numeric leading zeros; never ASCII or leading-blank suppression",
+      "Retains partial output and intermediate arithmetic diagnostics on L1 unsupported-division paths"
+    ],
+    "preconditions": [
+      "Output metadata and the divisor-reference struct do not alias the byte storage they describe",
+      "Divisor bytes may alias output or each other; they must remain accessible and initialized for every performed read",
+      "Bridge storage is ordinary RAM with no instruction bytes, VGA, live L0 save/return stack or concurrent writers",
+      "DOS successful-return contract requires every division nonzero and quotient representable; L0 divide faults are outside it"
+    ],
+    "projection": "Bridge borrows the actual shared RAM ring and live divisor addresses; no divisor snapshot. AX/DX diagnostic projections are retained; BX/CX and other shell values remain untouched. IF/DF are preserved, and digit cursor always increments independent of DF.",
+    "errors": "DECIMAL_DIVISION_ERROR maps to L1 UGH_UNSUPPORTED with partial writes; this is not an emulation or equivalence proof for L0 INT 0.",
+    "format_examples": [
+      "two(0)=[0,0,255], two(255)=[25,5,255]",
+      "four(65535)=[65,5,3,5,255] with canonical divisors",
+      "six(1000000) begins with byte 10; six(25600000) wraps its first-byte count to zero",
+      "The six-digit loop subtracts at least once and tests the signed high word. High unsigned inputs can stop immediately or traverse the wrap boundary; no unsigned quotient rewrite is made."
+    ]
+  },
+  "callers": [
+    {
+      "routine": "GAME:ShowLevelIntroduction",
+      "entry": "two",
+      "site": "013B:0679",
+      "observations": "CurrentLevelIndex increment wraps as byte, then numeric buffer at C8; caller adds 48 to tens/units for title text. ADD defines arithmetic flags before use."
+    },
+    {
+      "routine": "GAME:InsertHighScoreAndClearScore",
+      "entry": "six",
+      "site": "013B:021A",
+      "observations": "Reads six C8 bytes, performs its own ASCII and leading-zero-to-space conversion. XOR/AND/CMP define flags before tests; no encoder arithmetic flag result."
+    },
+    {
+      "routine": "GAME:RedrawChangedSixDigitNumber",
+      "entry": "six twice",
+      "sites": [
+        "013B:3EC0",
+        "013B:3ECA"
+      ],
+      "observations": "C8 and CF numeric/sentinel buffers. First call must preserve CX previous score high word and BX low word; second enters comparison tail that XORs SI and CMPs bytes before branches."
+    },
+    {
+      "routine": "GAME:RedrawChangedFourDigitNumber",
+      "entry": "four twice",
+      "sites": [
+        "013B:3ED2",
+        "013B:3EDA"
+      ],
+      "observations": "C8/CF buffers; BX preserved for previous value; shared comparison tail defines tested flags."
+    },
+    {
+      "routine": "GAME:RedrawChangedTwoDigitNumber",
+      "entry": "two twice",
+      "sites": [
+        "013B:3F02",
+        "013B:3F0A"
+      ],
+      "observations": "C8/CF buffers; BL previous value retained; comparison tail defines flags. Shared four/two falls are internal, not independent contracts."
+    }
+  ],
+  "callees": {
+    "L0": [
+      "Six falls through four, four falls through two; no external application callee"
+    ],
+    "L2": [
+      "put_digit",
+      "divisor_word",
+      "two_tail",
+      "four_tail"
+    ]
+  },
+  "indirect": {
+    "sites": [],
+    "classification": "No indirect transfer in encoder; three public entries and direct internal shared tails."
+  },
+  "memory": {
+    "read": [
+      "DS:00BD byte ten=10, 00BE byte hundred=100, 00BF word thousand=1000, 00C1 word ten-thousand=10000 in shipped DGROUP",
+      "Live reads follow earlier writes, including intentional output-over-divisor aliases"
+    ],
+    "write": [
+      "Borrowed DS:SI numeric bytes and sentinel, per-byte cursor wraps at FFFF",
+      "C8..CE current digits/sentinel and CF..D5 previous digits/sentinel in the HUD; menu also uses C8"
+    ],
+    "owners": [
+      "Decimal group interprets divisors as configuration; initial storage is DGROUP data",
+      "Borrowed digit buffers consumed by HUD/front-end; ASCII formatting and draw caches remain caller-owned"
+    ],
+    "aliases": "Divisors are read-only in ordinary use, not assumed immutable: output aliases can modify later divisors. Word divisor bytes are contiguous, not individually cursor-wrapped."
+  },
+  "assumptions": [
+    "No whole-program score/range invariant is used to normalize out-of-range inputs",
+    "Full 65536-byte output ring for DOS bridge; smaller capacities are explicit native extensions",
+    "Known caller flag liveness is conditional on normal call/return and no code/stack corruption"
+  ],
+  "eliminated": [
+    {
+      "detail": "Register-based division parameters and segmented output cursor inside native code",
+      "evidence": "Value parameters, ordinary byte pointers and output cursor replace them; bridge preserves all observed values. Shared tails remain one native unit."
+    },
+    {
+      "detail": "Arithmetic flags as a semantic result",
+      "evidence": "DIV flags are undefined at L0; final INC SI also changes arithmetic flags. Every known caller defines tested flags before branching: title ADD, high-score XOR/AND/CMP, HUD comparison XOR/CMP. IF/DF remain preserved. L1 already leaves arithmetic flags unchanged, and bridge keeps that shell; no claim that its dead arithmetic flags equal L0."
+    },
+    {
+      "detail": "Saved CX stack word in six-digit encoder",
+      "evidence": "L0 push/pop preserves CX, required by first six-digit HUD call. Native local variables plus untouched bridge CX preserve the observable value; live-stack aliasing excluded."
+    }
+  ],
+  "retained": [
+    {
+      "detail": "Live mutable divisor reads and output alias ordering",
+      "reason": "Existing four-digit 12345 alias case writes 12 over divisor ten before two-tail reads it; snapshotting divisors is wrong."
+    },
+    {
+      "detail": "Numeric leading zeros, FF sentinel, low-byte quotient truncation",
+      "reason": "HUD draws zero digits normally; caller-specific text/blank conversion follows the encoder; out-of-range values deliberately need not be decimal digits."
+    },
+    {
+      "detail": "Six-digit repeated subtraction, signed high-word stop and byte-count wrap",
+      "reason": "Unsigned division/modulo by 100000 changes 32-bit outlier behavior. Native keeps the loop exactly in uint32 arithmetic."
+    },
+    {
+      "detail": "Forward cursor increments independent of incoming DF; modulo-65536 bridge output",
+      "reason": "L0 uses INC SI, not string instructions."
+    },
+    {
+      "detail": "AX/DX diagnostics and preserved shell",
+      "reason": "Tests compare them; some values are conservatively live downstream. No minimal-register-liveness assumption is needed to discard them."
+    }
+  ],
+  "evidence": [
+    {
+      "property": "L1 -> L2 canonical-divisor complete finite value domains",
+      "level": "A",
+      "method": "Execute actual compiled L1/native/bridge for every element, compare output bytes, cursor and complete register shell; independent positional-digit check.",
+      "command": "python verif/small_units.py enumerate --mutants",
+      "result": "PASS: all 256 two-digit byte inputs; all 65536 four-digit word inputs including values above 9999; every six-digit value 0..999999. These domains use canonical divisors, disjoint output at 0500 and the declared initial shell. Additionally all 65536 byte-value/ten-divisor pairs, including L1 zero-divisor rejection, pass at the same output placement. Seeded first-digit defect detected (C control).",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "L1 -> L2 arbitrary ten divisor and output-over-divisor alias profile",
+      "level": "B",
+      "method": "CBMC actual two-digit bodies; arbitrary 256-byte initial storage and start 0..249, arbitrary value low byte, divisor including zero, arbitrary flags/CX; compare status, partial outputs and diagnostics.",
+      "command": "python verif/small_units.py decimal --kind 0 --timeout 30",
+      "result": "PASS; bounds/pointers/overflow/unwinding checked. Nonwrapping 256-byte footprint, not full-ring wrap.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "L1 -> L2 usual six-digit domain with canonical divisors",
+      "level": "B",
+      "method": "CBMC actual whole six/four/two bodies, symbolic value<=999999, canonical divisors and disjoint cursor zero in 256-byte storage; arbitrary output seeds and environment.",
+      "command": "python verif/small_units.py decimal --kind 2 --canonical --timeout 60",
+      "result": "PASS; complete loop bound with unwinding assertions. Enumeration above independently gives A for the same value domain, not for arbitrary divisor/state combinations.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "L0/L1 -> native extension cases",
+      "level": "C",
+      "method": "Maintained render_primitives suite includes custom divisors, alternate DS, FFFF cursor wrap, four-digit live-divisor alias, first-byte overflow and signed-high-word six-digit boundary cases.",
+      "command": "python verif/small_integration.py --whole",
+      "result": "PASS as part of 388 render_primitives cases. General arbitrary-divisor or arbitrary-32-bit equivalence is not proved.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Proof harness nonvacuity/unwind negative control",
+      "level": "C",
+      "method": "Intentionally inadequate unwind on actual whole six-digit routine.",
+      "command": "python verif/small_units.py decimal --kind 2 --canonical --unwind 1 --negative --timeout 30",
+      "result": "PASS control: l1_EncodeSixDecimalDigits loop unwinding assertion fails as required.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "L0 -> bridged L1 routine composition",
+      "level": "C",
+      "method": "Maintained L0 differential suites, ordinary and poisoned registers/flags; complete compared RAM/devices.",
+      "command": "python verif/small_integration.py --whole",
+      "result": "PASS: game_services 44, render_primitives 388, sound_api 546, render 526, menu 330, actors_states 1044; 2878/2878. Whole DLL substitutes exactly these three units. build/workers/close-small/integration.json.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "L0 -> bridged L1 deterministic whole-game observation model",
+      "level": "D",
+      "method": "Invoke actual tools/wholegame.py main via its imported load_dll binding and redirect OUT; read copied cached reference hashes, no source/test edits.",
+      "command": "python verif/small_integration.py --whole",
+      "result": "PASS: all 14 maintained scenarios, 9963 frames plus terminal boundaries; final cached comparisons 9.44 seconds (9.62 seconds tool wall time). Coverage reaches CopyFarBytes in adlib; decimal in enemy/gameplay/high-score/passenger/two-player/water; both scalers in gameplay families. Not unrestricted gameplay equivalence. build/workers/close-small/whole/last-run.json and call-edges.json.",
+      "date": "2026-11-13"
+    }
+  ],
+  "uncertainty": [
+    "Arbitrary live-divisor four/six profiles timed out at 60/120 seconds; no result for that general domain.",
+    "Full 32-bit six-entry behavior and general mutable-divisor/ring-alias combinations retain C evidence; no claim from a hand-written algebraic model.",
+    "L0 INT 0 divide-fault environment is unresolved and outside successful-return equivalence."
+  ],
+  "status": "migrated",
+  "status_reason": "Initial administrative value only. Worker proposes the status separately; supervisor owns acceptance.",
+  "amiga": {
+    "classification": "unresolved",
+    "finding": "Not inspected for these units; no Amiga correspondence or byte-equivalence claim."
+  },
+  "observation_chain": "L0 -> L1 remains C routine evidence plus D selected scenarios. L1 -> L2 properties have the individual levels below; stronger L1/L2 proofs do not promote the L0 link.",
+  "dependencies": {
+    "native/decimal.c": {
+      "includes": [
+        "decimal.h"
+      ],
+      "calls": [
+        "divisor_word",
+        "four_tail",
+        "put_digit",
+        "two_tail"
+      ]
+    },
+    "native/decimal.h": {
+      "includes": [
+        "stddef.h",
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/decimal_bridge.c": {
+      "includes": [
+        "../decimal.h",
+        "ugh.h"
+      ],
+      "calls": [
+        "D",
+        "decimal_four",
+        "decimal_six",
+        "decimal_two",
+        "divisors",
+        "lin"
+      ]
+    }
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "native/decimal.c": "77258d5cece080c041e9a45ad9c863130b7c7615fd1510673d4435ec72615320",
+    "native/decimal.h": "7847c3cd660b44b709dd31fd2fbe6b4031a8440962b1e3cc515cff1c4d37ec34",
+    "native/bridge/decimal_bridge.c": "225e5f193d95b69bf6544d307beca486a1b3e59b1118c90f33b072d24dfcbde0",
+    "c/render_primitives.c": "447a9f435f22cc46c9c30d8d11ee9046d57d57c48d6bbaa2e91768e32f9698c0",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "10449282002d400d44c555614d1a10e5ffc195544184925f8da7d9141644dff1",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
+    "verif/small_units.py": "81ce77206e13bfe5dc9b78a4cba2f5d72b38a2fccad4535e5d21d9fc3eb195ec",
+    "verif/small_enumeration.c": "99710dcb43e4f008b6dadcb10a309868b834c925058ea333a9ded514362a517d",
+    "verif/decimal_cbmc.c": "d3129285da52e537019c0f60708fc38d61029b07a0b3ca372dba2472707ebb6f",
+    "verif/small_integration.py": "e576102460010a49cc6e987c50038b09f66fc30f6854a9a8ee870c7f251a6172",
+    "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
+    "metadata/verif-tools.json": "d50d082e61d0d1123586509ecdeb636e4c3d12b90741961387f524ab1b5b350b"
+  }
+}

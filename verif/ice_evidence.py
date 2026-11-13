@@ -4,6 +4,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'tools'))
 import nbuild
+from closure_support import checked_compile
 OUT=ROOT/'build/workers/pilot-ice'
 
 def extract():
@@ -27,8 +28,7 @@ def primitives(native=None):
     exe=OUT/'primitives.exe'
     cmd=[str(nbuild.GCC),'-O2','-std=c11','-Wall','-Wextra','-Werror','-I',str(ROOT/'c'),'-I',str(OUT),'-o',str(exe),*map(str,sources)]
     if native:cmd.insert(1,f'-DICE_IMPLEMENTATION="{Path(native).as_posix()}"')
-    p=subprocess.run(cmd,capture_output=True,text=True)
-    if p.returncode:raise RuntimeError(p.stdout+p.stderr)
+    checked_compile(cmd)
     start=time.perf_counter();p=subprocess.run([str(exe),str(OUT/'snapshot.bin')],capture_output=True,text=True)
     if p.returncode:
         if native:return dict(exit_code=p.returncode,detected=True,seconds=time.perf_counter()-start)
@@ -50,7 +50,7 @@ def bounded(native=None,streams=None):
     sources += [OUT/'bounded_l1.c',OUT/'bounded_l2.c',ROOT/'native/bridge/ice_bridge.c']
     path=OUT/f'bounded_{os.getpid()}.dll'
     cmd=[str(nbuild.GCC),'-shared','-O2','-std=c11','-I',str(ROOT/'c'),'-o',str(path),*map(str,sources)]
-    subprocess.run(cmd,check=True,capture_output=True)
+    checked_compile(cmd)
     dll=nbuild.load_l1(path);mem=dll.ugh_memory().contents
     snapshot=Machine().snapshot();C.memmove(mem,snapshot,MEM_SIZE)
     dll.bounded_reference.argtypes=[C.POINTER(Regs)]
@@ -78,11 +78,15 @@ def bounded(native=None,streams=None):
                 solver_seconds=None,method='complete finite enumeration of the compiled C pair; no solver',command=cmd)
 
 def main():
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--native');args=parser.parse_args()
+    global OUT
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--native')
+    parser.add_argument('--out',type=Path,help='isolate receipts and generated files from the historical pilot run')
+    args=parser.parse_args()
+    if args.out:OUT=args.out.resolve()
     OUT.mkdir(parents=True,exist_ok=True)
     result=dict(primitives=primitives(args.native),bounded=bounded(args.native))
     result['inputs']={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in
-                      [ROOT/'c/ice.c',ROOT/'native/ice.c',ROOT/'verif/ice_primitives.c',Path(__file__)]}
+                      [ROOT/'c/ice.c',ROOT/'native/ice.c',ROOT/'verif/ice_primitives.c',Path(__file__),ROOT/'verif/closure_support.py']}
     name='exhaustive.json' if not args.native else Path(args.native).stem+'_evidence.json'
     (OUT/name).write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))
 if __name__=='__main__':main()

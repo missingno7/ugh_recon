@@ -11,6 +11,79 @@ machine adapter only in `native/bridge/`. The ICE API is an in/out byte-buffer
 function; the bridge preserves registers and flags outside that API. Small-buffer
 errors are explicitly extensions, while complete windows retain the DOS wrap.
 
+The reusable harness library is now `verif/closure_support.py` (about 100 lines).
+It owns function extraction, checked C compilation, the pinned CBMC preprocessing
+and process-tree timeout recipe, and receipts with source/tool/preprocessed hashes.
+It contains no component algorithm. `ice_evidence.py` uses its compiler runner
+and `ice_cbmc.py` uses its preprocessor runner and solver process owner;
+the original ICE certificate and historical proof claims remain unchanged. Run a
+fresh pilot reproduction in an isolated destination:
+
+```
+python verif/ice_evidence.py --out build/workers/close-small/pilot-ice
+python verif/ice_cbmc.py --mode reader --stream 16 --output 8 --unwind 17 --timeout 30 --out build/workers/close-small/pilot-cbmc
+```
+
+For a small new unit, use `small_units.pair()` as the worked recipe: copy actual
+L1 functions with `closure_support.function()` and rename their exported names,
+include the maintained native C and optionally its bridge, then compile them
+together. The extraction masks comments/strings when finding braces and fails
+if a named function disappears. It does not translate instructions or substitute
+a hand-written arithmetic model. The small-unit harnesses include the real
+`c/ugh.h`; the ICE-specific `ugh.h` shim is not suitable for their other helpers.
+Minimal system headers still come from `verif/cbmc_shim`. `-U_WIN32` suppresses
+only the DLL export decoration during CBMC preprocessing. A RAM accessor shim
+must state its exact footprint and alias assumptions.
+
+```
+python verif/small_units.py enumerate --mutants
+python verif/small_units.py coordinate_scale --timeout 30
+python verif/small_units.py far_copy --bound 1 --exact --timeout 30
+python verif/small_units.py far_copy --bound 12 --exact --canonical --timeout 30
+python verif/small_units.py far_copy --bound 20 --exact --canonical --timeout 30
+python verif/small_units.py decimal --kind 0 --timeout 30
+python verif/small_units.py decimal --kind 2 --canonical --timeout 60
+python verif/small_units.py far_copy --bound 20 --exact --canonical --unwind 1 --negative --timeout 30
+python verif/small_units.py decimal --kind 2 --canonical --unwind 1 --negative --timeout 30
+python verif/small_integration.py --whole
+python tools/closure.py
+python verif/closure_kat.py
+```
+
+Here `--canonical` means disjoint fixed spans for the copy proof, and canonical
+divisors/disjoint output for decimal. Those restrictions are B, even though the
+bytes, direction and input values remain symbolic. The unrestricted overlap and
+large-array CBMC profiles timed out; they have no proof claim. Enumeration covers
+every 16-bit scaler input, all two/four-digit value inputs with canonical divisors,
+all 65536 byte-value/ten-divisor pairs for the two-digit entry,
+and every six-digit value 0..999999. These finite domains are A; the 168 copy
+cases and the three defect controls are C. Do not describe the million-value
+six-digit enumeration as covering arbitrary 32-bit inputs or mutable divisors.
+The native API deliberately retains those broader quirks, whose general evidence
+is C. The certificates record the distinctions and proposed statuses.
+
+`nbuild.build(..., components=[...])` builds one combined bridged DLL. Shared L1
+translation units are copied under `build/native/` and the selected reference
+functions become `l1_*`; the original exported names belong to the bridges.
+The maintained L1 files are never edited. Default selection remains ICE.
+`small_integration.py` reuses the existing six routine suites and calls the actual
+`wholegame.main()` with its `load_dll` binding supplied by the runner. It copies
+cached references into its worker output directory and redirects `wholegame.OUT`.
+Thus the full whole-game gate runs against the variant without changing its
+source or tests. This is a Python API hook; the tool has no variant-DLL CLI option.
+Failure tracing would need a separate instrumented-variant build hook.
+
+New certificates can carry `verification_inputs`: SHA-256 hashes of maintained
+L1/native/harness/tool inputs. `closure.py` rejects a changed input until evidence
+is rerun and the certificate reviewed. This lock detects stale evidence, but does
+not prove the assertions are sound. `verification_input_hashing: sha256-lf-text`
+normalizes only CRLF to LF so Git's Windows checkout setting does not invalidate
+text-source locks; generated build/proof receipts still hash the actual bytes.
+Generated receipts are reproducible under
+`build/workers/close-small/`; they need not be present for boundary lint on a clean
+checkout. Certificate `status` remains the initial administrative `unanalyzed`;
+`proposed_status` and its reason are for the supervisor's decision.
+
 Run the pilot from the repository root (Python 3, pycparser, Unicorn/Capstone and
 the existing MinGW installation are prerequisites):
 

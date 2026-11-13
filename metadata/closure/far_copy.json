@@ -1,0 +1,250 @@
+{
+  "component": "far_copy",
+  "proposed_status": "migrated",
+  "proposed_status_reason": "Full ordered/wrapping/alias contract has C evidence; B covers the stated disjoint 12/20-byte spans and one-byte overlap domain. D scenarios pass, but do not raise the full contract to A or B.",
+  "original": {
+    "L0": [
+      "GAME:CopyFarBytes 013B:0020..0038"
+    ],
+    "L1": [
+      "c/game_services.c:c_CopyFarBytes"
+    ],
+    "static_evidence": [
+      "src/asm/GAME.ASM:CopyFarBytes PROC C far USES",
+      "src/c/module.c five CopyFarBytes calls",
+      "docs/program-model.md Ranking and order of semantic closure"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/far_copy.c",
+      "native/far_copy.h",
+      "native/bridge/far_copy_bridge.c"
+    ],
+    "header": "native/far_copy.h",
+    "functions": [
+      "copy_ordered_bytes"
+    ],
+    "bridge": "c_CopyFarBytes",
+    "build": "python tools/nbuild.py bridge --components far_copy decimal coordinate_scale"
+  },
+  "purpose": "Borrowed ordered byte copy for AdLib event/voice state; owns no persistent state. It is intentionally neither memcpy nor memmove.",
+  "interface": {
+    "inputs": [
+      "Two accessible initialized 65536-byte RAM windows, possibly overlapping with different base addresses",
+      "Independent uint16 source/destination cursors, uint16 count, backwards boolean"
+    ],
+    "outputs": [
+      "Destination bytes after exactly count ordered read-then-write steps; zero count does nothing",
+      "Bridge publishes CX=0 and preserves every other register/flag"
+    ],
+    "effects": [
+      "One source-byte read immediately followed by one destination-byte write per iteration",
+      "Both cursors independently wrap modulo 65536; no allocation, devices or callbacks"
+    ],
+    "preconditions": [
+      "Storage is ordinary RAM, without concurrent mutation, instruction-byte/VGA/device aliases or overlap with the live L0 stack (save, return and argument areas)",
+      "The two native pointers designate the actual shared storage if windows overlap, never independent snapshots"
+    ],
+    "projection": "Bridge samples all low-word arguments before copying; source/destination segment arithmetic stays in bridge, direction becomes a boolean, high count word is never read."
+  },
+  "callers": [
+    {
+      "routine": "C:StartAdlibTrackChannel",
+      "sites": [
+        "0878:0E53"
+      ],
+      "arguments": "12, high=0, AdlibVoiceStates[i] -> SavedAdlibVoiceStates[i]",
+      "bounds": "20-byte records; normal i<9, distinct arrays. Copies only first 12 bytes.",
+      "direction": "Incoming DF; neither helper nor C caller establishes CLD. Do not assume forward for the component.",
+      "observations": "Saved state bytes, preserved DS/SI/DI/BP/ES; CX is conservatively live in the model."
+    },
+    {
+      "routine": "C:ScanMusicEvents",
+      "sites": [
+        "0878:138F"
+      ],
+      "arguments": "12, high=0, event cursor p -> ScannedAdlibVoiceStates[code&15]",
+      "bounds": "12-byte event payload, voice selector 0..15; event pointer is external and can wrap/alias under malformed states.",
+      "direction": "Incoming DF, retained.",
+      "observations": "Scanned instrument bytes; caller advances p by 11 after the call. No non-overlap theorem is assumed."
+    },
+    {
+      "routine": "C:RestoreAdlibVoiceAllocation",
+      "sites": [
+        "0878:15B7"
+      ],
+      "arguments": "12, high=0, AdlibVoiceStates[i-n] -> AdlibVoiceStates[i]",
+      "bounds": "Record stride 20. Normal positive n gives disjoint individual 12-byte copies; descending i preserves compaction order across calls. Zero n aliases exactly; malformed index/n states are not silently normalized.",
+      "direction": "Incoming DF, retained; descending record order is independent of byte direction.",
+      "observations": "CX=0 is a known live output; voice contents and preserved registers retained."
+    },
+    {
+      "routine": "C:ApplyScannedMusicEvents",
+      "sites": [
+        "0878:19C9",
+        "0878:1A1C"
+      ],
+      "arguments": "20, high=0, ScannedAdlibVoiceStates[i] -> AdlibVoiceStates[i] or SavedAdlibVoiceStates[i]",
+      "bounds": "Whole 20-byte records, normally i<MusicVoiceCount<=9 and arrays disjoint; no public malformed-state bound inferred.",
+      "direction": "Incoming DF, retained.",
+      "observations": "Voice bytes feed instrument/frequency/volume calls; CX conservatively live, preserved registers retained."
+    }
+  ],
+  "callees": {
+    "L0": [],
+    "L2": [],
+    "classification": "Leaf; ordinary C array operations only."
+  },
+  "indirect": {
+    "sites": [],
+    "classification": "No indirect transfer inside the unit. Public entry permits callers outside the model only within this explicit RAM/stack contract."
+  },
+  "memory": {
+    "read": [
+      "Low count, source/destination far arguments on caller stack; high count ignored",
+      "Source ring byte at the current cursor; earlier destination writes are visible through aliases"
+    ],
+    "write": [
+      "Destination ring byte at each ordered cursor",
+      "Bridge CX only; L0 transient save frame excluded by precondition"
+    ],
+    "owners": [
+      "Borrowed SOUND AdlibVoiceStates/SavedAdlibVoiceStates/ScannedAdlibVoiceStates and external event storage; audio owns all of them"
+    ],
+    "aliases": "Retain exact alias, forward/backward partial overlap, unequal-base physical alias and offset wrap; no restrict qualifiers or snapshot copying."
+  },
+  "assumptions": [
+    "Known call graph is not unrestricted completeness; unknown entries must satisfy the explicit boundary",
+    "Normal record/count facts describe callers; general API does not depend on their bounds",
+    "No interrupts/concurrent writers interleave the byte sequence"
+  ],
+  "eliminated": [
+    {
+      "detail": "cdecl, segment values and USES save frame in ordinary native code",
+      "evidence": "L0 PROC samples far arguments, REP MOVSB, restores DS/ES/SI/DI/BP; bridge performs argument/address projection and preserves shell. C routine suites compare these observations."
+    },
+    {
+      "detail": "High count word",
+      "evidence": "L0 ARG arg_0008 is never loaded; L1 arg16(r,0) only. All five original C sites pass high=0; C copy cases also pass FEED and compare unchanged semantics."
+    }
+  ],
+  "retained": [
+    {
+      "detail": "Incoming direction, ordered overlap, independent offset wrap",
+      "reason": "REP MOVSB performs a read then a write in incoming DF order, without CLD or pointer normalization; caller contracts do not justify deleting these."
+    },
+    {
+      "detail": "CX=0, flags and other registers unchanged",
+      "reason": "Caller model identifies live CX at several sites; REP MOVSB does not alter flags and USES restores saved registers. Bridge keeps the complete shell."
+    },
+    {
+      "detail": "Low count zero means zero iterations",
+      "reason": "REP MOVSB semantics differ from several other game loops whose zero count runs 65536 times."
+    }
+  ],
+  "evidence": [
+    {
+      "property": "L1 -> L2 ordered copy on representative wrap/alias/count states",
+      "level": "C",
+      "method": "Compiled real L1 plus production native and bridge, complete 65568-byte arena and register comparison; seven counts 0,1,2,12,20,256,65535, two directions, three base shifts, four edge cursors.",
+      "command": "python verif/small_units.py enumerate --mutants",
+      "result": "PASS: 168 cases; reverse-direction seeded defect detected. This is sampling of the full copy domain, not A.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "L1 -> L2 one-byte overlap subdomain",
+      "level": "B",
+      "method": "CBMC 6.11.0 actual whole C bodies, arbitrary bytes, flags, cursors/base shifts subject to the explicit 64-byte nonwrapping footprint, exact count one; arbitrary-index RAM comparison.",
+      "command": "python verif/small_units.py far_copy --bound 1 --exact --timeout 30",
+      "result": "PASS; unwinding, bounds, pointer and signed-overflow assertions enabled. Not a proof for arbitrary count or wrap.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "L1 -> L2 observed call lengths on disjoint spans",
+      "level": "B",
+      "method": "CBMC actual C, two disjoint fixed spans in a 64-byte arena, all initial bytes and incoming flags/directions; exact counts 12 and 20. No translational-symmetry generalization is claimed.",
+      "command": "python verif/small_units.py far_copy --bound 12 --exact --canonical --timeout 30 && python verif/small_units.py far_copy --bound 20 --exact --canonical --timeout 30",
+      "result": "PASS both profiles; fully covering unwinds, safety assertions and complete compared arena.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Proof harness nonvacuity/unwind negative control",
+      "level": "C",
+      "method": "Intentionally inadequate unwind on actual full copy body.",
+      "command": "python verif/small_units.py far_copy --bound 20 --exact --canonical --unwind 1 --negative --timeout 30",
+      "result": "PASS control: L1 loop unwinding assertion fails as required; no proof of truncated execution accepted.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "L0 -> bridged L1 routine composition",
+      "level": "C",
+      "method": "Maintained L0 differential suites, ordinary and poisoned registers/flags; complete compared RAM/devices.",
+      "command": "python verif/small_integration.py --whole",
+      "result": "PASS: game_services 44, render_primitives 388, sound_api 546, render 526, menu 330, actors_states 1044; 2878/2878. Whole DLL substitutes exactly these three units. build/workers/close-small/integration.json.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "L0 -> bridged L1 deterministic whole-game observation model",
+      "level": "D",
+      "method": "Invoke actual tools/wholegame.py main via its imported load_dll binding and redirect OUT; read copied cached reference hashes, no source/test edits.",
+      "command": "python verif/small_integration.py --whole",
+      "result": "PASS: all 14 maintained scenarios, 9963 frames plus terminal boundaries; final cached comparisons 9.44 seconds (9.62 seconds tool wall time). Coverage reaches CopyFarBytes in adlib; decimal in enemy/gameplay/high-score/passenger/two-player/water; both scalers in gameplay families. Not unrestricted gameplay equivalence. build/workers/close-small/whole/last-run.json and call-edges.json.",
+      "date": "2026-11-13"
+    }
+  ],
+  "uncertainty": [
+    "General full-ring overlap/copy-count equivalence remains C: arbitrary-overlap count<=20 timed out at 90 seconds in 64 bytes and at 120 seconds with full windows; even full-window count<=1 timed out at 45 seconds. No A claim from hand-written memory models or an unchecked induction.",
+    "Incoming DF may be one for public/malformed states; no whole-program DF-clear invariant has been proved.",
+    "No proof for VGA, concurrent mutation or live-stack aliasing; those remain outside the contract."
+  ],
+  "status": "migrated",
+  "status_reason": "Initial administrative value only. Worker proposes the status separately; supervisor owns acceptance.",
+  "amiga": {
+    "classification": "unresolved",
+    "finding": "Not inspected for these units; no Amiga correspondence or byte-equivalence claim."
+  },
+  "observation_chain": "L0 -> L1 remains C routine evidence plus D selected scenarios. L1 -> L2 properties have the individual levels below; stronger L1/L2 proofs do not promote the L0 link.",
+  "dependencies": {
+    "native/far_copy.c": {
+      "includes": [
+        "far_copy.h"
+      ],
+      "calls": []
+    },
+    "native/far_copy.h": {
+      "includes": [
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/far_copy_bridge.c": {
+      "includes": [
+        "../far_copy.h",
+        "ugh.h"
+      ],
+      "calls": [
+        "arg16",
+        "copy_ordered_bytes",
+        "lin"
+      ]
+    }
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "native/far_copy.c": "0c9b6e5db629c707b527c83afa87fca09b3d4765bcdcf43153f71819defcb541",
+    "native/far_copy.h": "67fe6bd7ccd288810f43c6726d164619546da14290b0c8c3a313a1ecbda6a751",
+    "native/bridge/far_copy_bridge.c": "2760bf0ef20fd0193ef7b2578dd253a4f50a0b1534294dc41d510b93f0df9e38",
+    "c/game_services.c": "e9301da5d7fae6f2aacce7dda8d4e6f0e86cbe8c40e736216185c4a8f792a7c5",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "10449282002d400d44c555614d1a10e5ffc195544184925f8da7d9141644dff1",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
+    "verif/small_units.py": "81ce77206e13bfe5dc9b78a4cba2f5d72b38a2fccad4535e5d21d9fc3eb195ec",
+    "verif/small_enumeration.c": "99710dcb43e4f008b6dadcb10a309868b834c925058ea333a9ded514362a517d",
+    "verif/far_copy_cbmc.c": "064cfa6c0d2a8b0985f0b305a89f4a57cf619cddac64a437fc9396e717799fca",
+    "verif/small_integration.py": "e576102460010a49cc6e987c50038b09f66fc30f6854a9a8ee870c7f251a6172",
+    "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
+    "metadata/verif-tools.json": "d50d082e61d0d1123586509ecdeb636e4c3d12b90741961387f524ab1b5b350b"
+  }
+}

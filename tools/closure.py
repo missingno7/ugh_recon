@@ -4,7 +4,7 @@ This is a source rule checker, not a C verifier. pycparser enumerates actual
 direct calls (including static helpers); includes are checked literally. Unknown
 syntax/indirect calls fail closed. Comments and strings do not trigger bans.
 """
-import argparse,json,re,sys
+import argparse,hashlib,json,re,sys
 from pathlib import Path
 from pycparser import c_ast,c_parser
 ROOT=Path(__file__).resolve().parents[1]
@@ -60,11 +60,22 @@ def validate():
             cert=json.loads(path.read_text());missing=FIELDS-set(cert)
             if missing:raise ValueError('missing fields: '+', '.join(sorted(missing)))
             if cert['status'] not in STATUSES:raise ValueError('invalid status')
+            if cert.get('proposed_status',cert['status']) not in STATUSES:raise ValueError('invalid proposed status')
             if cert['component']!=path.stem:raise ValueError('component differs from filename')
             original_offsets.update(int(x,16) for x in re.findall(r'\b[0-9A-Fa-f]{4}:([0-9A-Fa-f]{4})\b',json.dumps(cert['original'])) if int(x,16)>=256)
             for key in FIELDS-{'uncertainty'}:
                 if not cert[key]:raise ValueError(f'empty field: {key}')
             if cert['status']=='blocked' and not cert['uncertainty']:raise ValueError('blocked status needs reason')
+            # Optional maintained-source lock for new certificates. Historical
+            # pilot source hashes remain historical; never silently relock them.
+            for name,expected in cert.get('verification_inputs',{}).items():
+                p=(ROOT/name).resolve()
+                if not p.is_relative_to(ROOT.resolve()) or not p.is_file():raise ValueError(f'invalid verification input {name}')
+                mode=cert.get('verification_input_hashing','sha256-bytes')
+                if mode not in ('sha256-bytes','sha256-lf-text'):raise ValueError('invalid verification_input_hashing')
+                data=p.read_bytes()
+                if mode=='sha256-lf-text':data=data.replace(b'\r\n',b'\n')
+                if hashlib.sha256(data).hexdigest()!=expected:raise ValueError(f'stale verification input {name}; rerun evidence and review certificate')
             for evidence in cert['evidence']:
                 for key in ('property','level','method','command','result','date'):
                     if not evidence.get(key):raise ValueError(f'evidence missing {key}')

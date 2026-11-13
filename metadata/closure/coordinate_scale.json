@@ -1,0 +1,222 @@
+{
+  "component": "coordinate_scale",
+  "proposed_status": "integration-validated",
+  "proposed_status_reason": "A for full 16-bit value/scratch domain by compiled enumeration and actual-C symbolic shell proof; D scenarios exercise both entries. L0 link remains routine C plus scenario D, not an L0 formal proof.",
+  "original": {
+    "L0": [
+      "GAME:ScaleLevelYToThreeQuarters 013B:3D4D",
+      "GAME:ScaleLevelSpeedToThreeHalves 013B:3D5A"
+    ],
+    "L1": [
+      "c/render_primitives.c:c_ScaleLevelYToThreeQuarters/c_ScaleLevelSpeedToThreeHalves"
+    ],
+    "static_evidence": [
+      "src/asm/GAME.ASM scalers and InitializeLevelDisplay",
+      "src/data/DGDATA.ASM LevelWorkspacePointer -> CoordinateScaleScratch",
+      "docs/program-model.md scratch alias warning"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/coordinate_scale.c",
+      "native/coordinate_scale.h",
+      "native/bridge/coordinate_scale_bridge.c"
+    ],
+    "header": "native/coordinate_scale.h",
+    "functions": [
+      "scale_level_y",
+      "scale_level_speed"
+    ],
+    "bridge": [
+      "c_ScaleLevelYToThreeQuarters",
+      "c_ScaleLevelSpeedToThreeHalves"
+    ]
+  },
+  "purpose": "Convert signed 16-bit level geometry/speed bit patterns while publishing the removed quarter or half as retained observable state.",
+  "interface": {
+    "inputs": [
+      "uint16 bit pattern: all 65536 values admitted"
+    ],
+    "outputs": [
+      "CoordinateScale.value: wrapped original-minus-floor-quarter or original-plus-floor-half",
+      "CoordinateScale.removed_fraction: signed floor-rounded fraction as 16-bit bit pattern"
+    ],
+    "effects": [
+      "Pure native functions; no global state",
+      "Bridge writes the fraction through incoming DS to CoordinateScaleScratch, then publishes original ADD/SUB flags and AX"
+    ],
+    "preconditions": [
+      "Bridge scratch word is ordinary initialized/writable RAM, with no VGA, instruction, concurrent mutation or live L0 stack alias",
+      "Return structure storage follows ordinary C value semantics"
+    ],
+    "projection": "Scratch word is retained explicitly in CoordinateScale and projected through incoming DS by bridge. Integer arithmetic uses unsigned bit patterns, explicit sign fill and 16-bit result wrap."
+  },
+  "callers": [
+    {
+      "routine": "GAME:LoadCurrentLevelState",
+      "sites": [
+        "013B:39CE",
+        "013B:39F5",
+        "013B:3A4D",
+        "013B:3A80",
+        "013B:3B78",
+        "013B:3BA6"
+      ],
+      "observations": "AX feeds player/water/platform/enemy values. Scratch remains in workspace. Later arithmetic defines tested flags; bridge still retains all result flags rather than relying on liveness."
+    },
+    {
+      "routine": "GAME:ReadPassengerJourneyLeg",
+      "sites": [
+        "013B:14F6"
+      ],
+      "observations": "Scaled speed AX used; known model has no changed flag live after this call. All flags are retained regardless."
+    }
+  ],
+  "callees": {
+    "L0": [],
+    "L2": [
+      "floor_fraction"
+    ],
+    "classification": "Arithmetic leaf pair; no indirect calls."
+  },
+  "indirect": {
+    "sites": [],
+    "classification": "No indirect transfer; normal near-return entries only within this explicit alias boundary."
+  },
+  "memory": {
+    "read": [
+      "Input AX and incoming shell; L0 reads CoordinateScaleScratch after writing it"
+    ],
+    "write": [
+      "Incoming DS:2648 word CoordinateScaleScratch",
+      "L0 transient PUSH AX below return frame, excluded from semantic observations by no-live-stack-alias boundary"
+    ],
+    "owners": [
+      "Scratch belongs to level workspace; LevelWorkspacePointer at DGROUP:00B7 initially points to DGROUP:2648",
+      "InitializeLevelDisplay clears 392 bytes beginning at that pointer; scalers write the first word"
+    ],
+    "liveness": "Only named direct readers are the scalers themselves, but program model explicitly says aliases/indexed bulk effects incomplete. Workspace is also cleared in bulk. Absence of a later named read is insufficient evidence of dead state; retained without claiming a later gameplay reader."
+  },
+  "assumptions": [
+    "No restriction on signed value or overflow; full 16-bit input domain",
+    "Normalized one-word RAM accessor shim in the shell proof; physical segment selection remains bridge projection, excludes stack/device aliases",
+    "No asynchronous mutation between write and read in the original scaler"
+  ],
+  "eliminated": [
+    {
+      "detail": "Saved input AX word and SAR machine instruction inside native code",
+      "evidence": "Input parameter retains value; explicit sign fill implements signed floor fraction for every 16-bit input. Compiled exhaustive enumeration and actual-C CBMC prove value/scratch results."
+    },
+    {
+      "detail": "Registers/segments in native API",
+      "evidence": "Ordinary CoordinateScale return value; bridge performs single owned-word write and existing arithmetic helper for the shell. Actual-C CBMC checks all register/flag bit patterns in the normalized RAM projection."
+    }
+  ],
+  "retained": [
+    {
+      "detail": "CoordinateScaleScratch write",
+      "reason": "No complete read/alias liveness proof; LevelWorkspacePointer points directly to this word and initializer bulk-clears its range. Returned removed_fraction and bridge write preserve it."
+    },
+    {
+      "detail": "Negative odd rounding toward minus infinity and 16-bit result wrap",
+      "reason": "Truncating signed division or multiply/divide rewrites differ, including negative coordinates and speed overflow."
+    },
+    {
+      "detail": "Incoming DS destination and all final ADD/SUB flags; all other registers/flags unchanged",
+      "reason": "Kept conservatively; no caller-observation elimination is needed. Bridge computes the same shell using the maintained L1 helpers."
+    }
+  ],
+  "evidence": [
+    {
+      "property": "L1 -> L2 full value and retained-scratch domain",
+      "level": "A",
+      "method": "Compiled actual functions, every 16-bit input for each entry, two preserved-flag seeds; native returned value and fraction compared directly with L1.",
+      "command": "python verif/small_units.py enumerate --mutants",
+      "result": "PASS: 131072 value-domain cases and 262144 bridge/register cases. This is A for value/fraction; flag seeds alone would be C for arbitrary shell. Wrong negative rounding seeded defect detected (C control).",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "L1 -> native plus bridge arbitrary register/flag shell",
+      "level": "A",
+      "method": "CBMC actual complete functions and real c/ugh.h helpers; arbitrary input AX and all register/flag fields, both operations. Exact normalized one-word RAM shim; no loops or value restrictions.",
+      "command": "python verif/small_units.py coordinate_scale --timeout 30",
+      "result": "PASS: value, fraction, stored scratch, status and all fourteen register/flag fields. DS normalized to zero in the RAM shim; bridge physical address projection is part of the stated boundary.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "L0 -> bridged L1 routine composition",
+      "level": "C",
+      "method": "Maintained L0 differential suites, ordinary and poisoned registers/flags; complete compared RAM/devices.",
+      "command": "python verif/small_integration.py --whole",
+      "result": "PASS: game_services 44, render_primitives 388, sound_api 546, render 526, menu 330, actors_states 1044; 2878/2878. Whole DLL substitutes exactly these three units. build/workers/close-small/integration.json.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "L0 -> bridged L1 deterministic whole-game observation model",
+      "level": "D",
+      "method": "Invoke actual tools/wholegame.py main via its imported load_dll binding and redirect OUT; read copied cached reference hashes, no source/test edits.",
+      "command": "python verif/small_integration.py --whole",
+      "result": "PASS: all 14 maintained scenarios, 9963 frames plus terminal boundaries; final cached comparisons 9.44 seconds (9.62 seconds tool wall time). Coverage reaches CopyFarBytes in adlib; decimal in enemy/gameplay/high-score/passenger/two-player/water; both scalers in gameplay families. Not unrestricted gameplay equivalence. build/workers/close-small/whole/last-run.json and call-edges.json.",
+      "date": "2026-11-13"
+    }
+  ],
+  "uncertainty": [
+    "No proof that the scratch word is dead; deliberately retained.",
+    "No device/concurrent/live-stack alias equivalence claim.",
+    "Native equivalence does not establish an L0 formal proof; L0/L1 remains C plus selected D."
+  ],
+  "status": "integration-validated",
+  "status_reason": "Initial administrative value only. Worker proposes the status separately; supervisor owns acceptance.",
+  "amiga": {
+    "classification": "unresolved",
+    "finding": "Not inspected for these units; no Amiga correspondence or byte-equivalence claim."
+  },
+  "observation_chain": "L0 -> L1 remains C routine evidence plus D selected scenarios. L1 -> L2 properties have the individual levels below; stronger L1/L2 proofs do not promote the L0 link.",
+  "dependencies": {
+    "native/coordinate_scale.c": {
+      "includes": [
+        "coordinate_scale.h"
+      ],
+      "calls": [
+        "floor_fraction"
+      ]
+    },
+    "native/coordinate_scale.h": {
+      "includes": [
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/coordinate_scale_bridge.c": {
+      "includes": [
+        "../coordinate_scale.h",
+        "ugh.h"
+      ],
+      "calls": [
+        "D",
+        "add16",
+        "scale_level_speed",
+        "scale_level_y",
+        "sub16",
+        "wr16"
+      ]
+    }
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "native/coordinate_scale.c": "7bf708b14dc66fdace02a69b7a1b993b37c2535934a71dc0e5d9d397a5903118",
+    "native/coordinate_scale.h": "e7022a067efeba307f7658b3726f196f20647f9fdd175c9b85b08a5d033a4202",
+    "native/bridge/coordinate_scale_bridge.c": "601bd9cd7cc5ebb8875f076787fa7392d1085fa163dce431887dbbf2e18660e8",
+    "c/render_primitives.c": "447a9f435f22cc46c9c30d8d11ee9046d57d57c48d6bbaa2e91768e32f9698c0",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "10449282002d400d44c555614d1a10e5ffc195544184925f8da7d9141644dff1",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
+    "verif/small_units.py": "81ce77206e13bfe5dc9b78a4cba2f5d72b38a2fccad4535e5d21d9fc3eb195ec",
+    "verif/small_enumeration.c": "99710dcb43e4f008b6dadcb10a309868b834c925058ea333a9ded514362a517d",
+    "verif/coordinate_scale_cbmc.c": "6fda0af3b19f55250a8063514d603eeda5de7d667b766049d042e92fb9130c86",
+    "verif/small_integration.py": "e576102460010a49cc6e987c50038b09f66fc30f6854a9a8ee870c7f251a6172",
+    "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
+    "metadata/verif-tools.json": "d50d082e61d0d1123586509ecdeb636e4c3d12b90741961387f524ab1b5b350b"
+  }
+}

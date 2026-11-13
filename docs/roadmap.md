@@ -108,6 +108,9 @@ is the second unit, chosen to exercise state ownership and indirect control flow
 | Actor types | migrated: projection over all shipped actor resources and the per-phase validity table proved (A); renderer history persistence across a mode switch tested (C). `native/actors.h` holds the accepted design (docs/actor-storage.md) | `metadata/closure/actor_types.json` |
 | Demo interpreter core | migrated: all 28 shipped scripts enumerated over 62,214 ticks (A), one-instruction steps from any admitted slot (B), demo-to-gameplay history handoff checked | `metadata/closure/demo_core.json` |
 | Hazards (bird, Triopterus, Dino, reward tree) | migrated: each of 31 handlers proved one step from any admitted slot state (B), finite and generated transitions enumerated (A); composition with all 16 stones only tested. DOS constants and the Triopterus impact routing retained | `metadata/closure/hazards.json` |
+| Stone lifecycle | migrated: six handlers proved one step from any admitted slot (B), scalar domains enumerated (A), live borrowing by hazards checked; out-of-contract inputs fall back to L1 in the bridge (zero fallbacks in scenarios) | `metadata/closure/stones.json` |
+| Passenger itinerary, appearance, departure | migrated: eight handlers proved one step (B), scalar slices enumerated (A); waiting, request, approach and delivery handlers stay L1 | `metadata/closure/passenger_itinerary.json` |
+| Main ADLX music interpreter | migrated: nine event operations proved one step from any admitted channel state (B); all 11 shipped resources produce identical ordered AdLib writes (96,144). Introduces `native/audio.h` | `metadata/closure/adlx_main.json` |
 | everything else | unanalyzed | |
 
 ## Tooling gaps

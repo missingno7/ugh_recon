@@ -1,0 +1,396 @@
+{
+  "component": "passenger_itinerary",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "original": [
+    {
+      "identity": "GAME:ReadPassengerJourneyLeg",
+      "address": "013B:149C",
+      "l1": "c_ReadPassengerJourneyLeg"
+    },
+    {
+      "identity": "GAME:WaitForPassengerPlatform",
+      "address": "013B:1509",
+      "l1": "c_WaitForPassengerPlatform"
+    },
+    {
+      "identity": "GAME:PlacePassengerOnPlatform",
+      "address": "013B:153B",
+      "l1": "c_PlacePassengerOnPlatform"
+    },
+    {
+      "identity": "GAME:AnimatePassengerArrival",
+      "address": "013B:1582",
+      "l1": "c_AnimatePassengerArrival"
+    },
+    {
+      "identity": "GAME:WalkPassengerToExit",
+      "address": "013B:1B29",
+      "l1": "c_WalkPassengerToExit"
+    },
+    {
+      "identity": "GAME:BeginPassengerDeparture",
+      "address": "013B:1BBE",
+      "l1": "c_BeginPassengerDeparture"
+    },
+    {
+      "identity": "GAME:AnimatePassengerDeparture",
+      "address": "013B:1BD6",
+      "l1": "c_AnimatePassengerDeparture"
+    },
+    {
+      "identity": "GAME:IgnoreActorState",
+      "address": "013B:1C0E",
+      "l1": "c_IgnoreActorState"
+    }
+  ],
+  "native": {
+    "files": [
+      "native/passenger_itinerary.h",
+      "native/passenger_itinerary.c",
+      "native/bridge/passenger_itinerary_bridge.c"
+    ],
+    "header": "native/passenger_itinerary.h",
+    "functions": [
+      "itinerary_apply"
+    ],
+    "build": "python verif/itinerary_build.py"
+  },
+  "purpose": "Passenger itinerary, appearance and departure: objective exhaustion/completion, delayed platform competition and placement, current-sentinel arrival, cached-pixel walk, lookahead departure and exact no-op. Unit-five platform-wait initializer remains L1.",
+  "interface": {
+    "inputs": [
+      "PassengerStoneSlot with existing ActorType, full finite PassengerJourney and ordinary leg index; separate persistent ActorRenderHistory.",
+      "Borrowed immutable platform geometry, mutable availability/normal actor identity, remaining/completion bytes and fade words; any scalar words including zero countdown/period/delay."
+    ],
+    "outputs": [
+      "Updated slot/render/world plus ordered typed writes and explicit immediate-tail request. The bridge publishes native journal values only; copied L1 arithmetic computes diagnostic expected values and the full machine shell.",
+      "Real existing scaler call retains CoordinateScaleScratch and near return frame; all unit-five calls remain through L1."
+    ],
+    "effects": [
+      "Read leg writes destination/source and their paired indices before scaled delay and phase; exhaustion decrements byte only when DEC8 sign is clear, signals completion FE with fade -2, hides then no-op tail.",
+      "Placement claims the platform immediately and explicitly seeds only current pixel coordinates, fixed position and animation; previous/erase history survives.",
+      "Animation preserves intermediate predecrement-zero/reload/cursor/sprite stores and the departure journey advance before its immediate read-leg tail."
+    ],
+    "preconditions": [
+      "Serialized ordinary nonaliasing RAM/stack, immutable bounded resources and accessible native storage. Native world actor identity below sixteen; platform references in range when live. A completing native departure has a following itinerary leg, possibly the final leg. Arbitrary transfers beyond an existing terminal are outside the native composition proof.",
+      "Native frames contain live sprite words excluding FFFF; count excludes terminal. Due arrival may point at terminal, walk may reset terminal to first nonempty frame; due departure requires current live frame and accessible following terminal/live word. Inactive animation cursors may be any word.",
+      "Bridge admits DS=DGROUP, CS=GAME, aligned slot 0..15 and one of the three exact land descriptors with the checked callback set. Water/stone/unknown descriptors and malformed callbacks retain L1.",
+      "Live source/destination platform numbers must be below ten and paired with their original doubled indices. Dormant indices are not constrained or normalized.",
+      "Read bridge resolves the complete bounded remaining journey suffix using the accepted parser; valid current leg and nonwrapping resource span, no mutable actor-output overlap. The suffix base plus four times leg is the inverse projection.",
+      "Due animations borrow the registered immutable bank beginning Animation_0E20 and ending before 1020h, at most 256 live frames. Odd/out-of-window cursors, empty walk/departure or modified out-of-bank references use explicit L1 compatibility before publication."
+    ]
+  },
+  "callers": [
+    "DispatchActorUpdates G:1486/1492, ascending active physical slots; level bootstrap; descriptor tails within this unit.",
+    "DeliverPassenger (unit five, L1) installs walk-to-exit. Known callers retain conservative complete register/flag observations; no liveness elimination is claimed."
+  ],
+  "callees": {
+    "native": [
+      "actor_alias_value",
+      "scale_level_speed"
+    ],
+    "bridge": [
+      "actor_bridge_alias_project",
+      "actor_bridge_journey",
+      "ScaleLevelSpeedToThreeHalves",
+      "BeginPassengerPlatformWait (L1 unit five)",
+      "closed internal placement/departure/read/no-op tails"
+    ]
+  },
+  "indirect": {
+    "targets": [
+      "PlacePassengerOnPlatform",
+      "BeginPassengerPlatformWait",
+      "BeginPassengerDeparture",
+      "ReadPassengerJourneyLeg",
+      "IgnoreActorState"
+    ],
+    "classification": "Known descriptor code identities checked before native execution. Typed result.next is checked against the actual tail target after all native writes have been consumed. Callback status is preserved; no no-op substitution for unit five."
+  },
+  "memory": {
+    "owned": [
+      "Actor phase, journey cursor, source/destination numbers and paired index writes, journey-wait alias, sprite, animation cursor/countdown, fixed coordinates.",
+      "Platform occupancy claim; remaining/completion low bytes and fade rate/level on exhaustion."
+    ],
+    "borrowed": [
+      "Immutable descriptor geometry/period/vectors/callbacks and full remaining journey; platform arrival/surface; current cached pixel X; all histories imported without recalculation."
+    ],
+    "renderer": "Only explicit placement writes current pixel X/Y. Previous X/Y and erase sprite/overlay survive. No mode switch clearing or full-slot dump.",
+    "aliases": "Only IT_WAIT reads journey_wait through actor_alias_value. Existing checked bridge projection poisons inactive aliases in verification builds. All other entries read none of the checked aliases; no validity-table widening or actor header change.",
+    "representation": "The native log carries semantic field IDs, normal actor/platform indices and resource leg numbers; only the bridge encodes doubled indices, callback identities and addresses."
+  },
+  "assumptions": [
+    "One step from arbitrary admitted slot state, not only states reached from initialization. Immutable finite resource buffers and bounded platform storage.",
+    "The full general resource-size contract retains C where symbolic profiles cover only two-frame vectors and up to three journey legs. Tests and scenarios do not promote those bounds to A/B.",
+    "L0 is untouched and L0->L1 remains C/D. L1->native A/B proofs concern the real C and do not establish byte matches."
+  ],
+  "eliminated": [
+    "Native C uses no registers, memory model, code addresses or dispatch; checked output journal separates semantic ownership from the retained bridge shell.",
+    "Doubled platform and actor identities derive only under the bridge paired-write admission rule; they are not discarded for malformed states, which keep L1."
+  ],
+  "retained": [
+    "DEC8 sign-gated objective update, including 0->FF discarded and 128->127 accepted; completion byte FE and wrapping fade level minus two with adjacent bytes untouched.",
+    "Zero journey delay acts immediately; nonzero delay predecrements and can place in that call. Zero animation countdown/period wraps rather than acting as a positive host timer.",
+    "First available slot claims occupancy before another slot runs; no precomputed placement list.",
+    "Arrival tests current sentinel before sprite store; departure stores current sprite before next-word sentinel test and immediate journey advance/read.",
+    "Walk uses stale renderer current pixel X for its initial signed/equality comparison; after a real one-pixel wrapped move it compares SAR5 of current X. FFFF alone resets looped animation, and no overshoot clamp is introduced.",
+    "All stale fields and histories not explicitly written remain untouched. Exact no-op preserves every register, flag and RAM word."
+  ],
+  "evidence": [
+    {
+      "property": "Complete finite scalar slices",
+      "level": "A",
+      "command": "python verif/itinerary_evidence.py enumerate",
+      "result": "PASS actual-L1/native journal, all persistent state, full registers/flags and ordered stores\n655631 comparisons: exhaustive word slices, all objective bytes and 8000 generated states x eight entries",
+      "method": "Nine 65536-element slices: occupied/free delay, three countdowns, period, signed scaled wait, cached X, dormant animation cursor; all 256 objective bytes at seven fade boundaries. Other inputs fixed; generated 8000x8 states are C, not A.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Journal/register/flag bridge and composed tails",
+      "level": "C",
+      "command": "python verif/itinerary_integration.py --whole --local-reference",
+      "result": "PASS 3238 normal/poisoned routine cases",
+      "method": "Actual bridged L1 versus independently rebuilt L0, full declared state and ordered device observations; explicit fallback audited separately.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Whole-game observations",
+      "level": "D",
+      "command": "python verif/itinerary_integration.py --whole --local-reference",
+      "result": "PASS all seventeen scenarios",
+      "method": "Deterministic frame/state/device/log digests against independent rebuilt L0 references.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Actual scratch promotion and native host",
+      "level": "D",
+      "command": "python verif/itinerary_host.py -> python tools/hostbuild.py; python host/check.py --variant native",
+      "result": "PASS seventeen maintained scenarios, departure extension and 256-frame attract smoke",
+      "method": "Maintained sources copied; only scratch passenger status=migrated; actual unmodified CLI builder/checker, all accepted committed native units (including stones) plus this passenger unit linked.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Defect and production-unwind controls",
+      "level": "C",
+      "command": "python verif/itinerary_mutants.py; python verif/itinerary_evidence.py PlacePassengerOnPlatform --negative --timeout 30",
+      "result": "PASS all five defects detected; insufficient actual itinerary_prepare loop unwind fails",
+      "method": "Scratch native objective sign, completion byte, departure lookahead, cached pixel and zero delay defects; no maintained source patch.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "ReadPassengerJourneyLeg actual-C one-step",
+      "level": "B",
+      "command": "python verif/itinerary_evidence.py ReadPassengerJourneyLeg --timeout 180",
+      "result": "PASS 17.934s with bounds/pointer/signed-overflow/unwind assertions",
+      "method": "Full native journal + bridge vs actual extracted L1, including actual internal tails, real scaler and L1 unit-five initializer. Arbitrary physical slot0..15, all admitted scalar/register/flag/history/occupancy words, ten platforms, paired live indices, two live frames per vector (FFFF terminator); direct Read has three legs or one for exhaustion, departure has two or three legs and includes its immediate Read/exhaustion tail. Due animation cursor FFFE/0/2 (departure FFFE/0); non-due cursor any word. Ordinary disjoint resource/RAM/stack normalization with the first land descriptor identity (its geometry/period/frame words remain arbitrary); the other two land identities are generated C coverage. No initializer reachability assumption. No-op additionally admits arbitrary incoming segments/stack/registers.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "WaitForPassengerPlatform actual-C one-step",
+      "level": "B",
+      "command": "python verif/itinerary_evidence.py WaitForPassengerPlatform --timeout 180",
+      "result": "PASS 69.688s with bounds/pointer/signed-overflow/unwind assertions",
+      "method": "Full native journal + bridge vs actual extracted L1, including actual internal tails, real scaler and L1 unit-five initializer. Arbitrary physical slot0..15, all admitted scalar/register/flag/history/occupancy words, ten platforms, paired live indices, two live frames per vector (FFFF terminator); direct Read has three legs or one for exhaustion, departure has two or three legs and includes its immediate Read/exhaustion tail. Due animation cursor FFFE/0/2 (departure FFFE/0); non-due cursor any word. Ordinary disjoint resource/RAM/stack normalization with the first land descriptor identity (its geometry/period/frame words remain arbitrary); the other two land identities are generated C coverage. No initializer reachability assumption. No-op additionally admits arbitrary incoming segments/stack/registers.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "PlacePassengerOnPlatform actual-C one-step",
+      "level": "B",
+      "command": "python verif/itinerary_evidence.py PlacePassengerOnPlatform --timeout 180",
+      "result": "PASS 10.863s with bounds/pointer/signed-overflow/unwind assertions",
+      "method": "Full native journal + bridge vs actual extracted L1, including actual internal tails, real scaler and L1 unit-five initializer. Arbitrary physical slot0..15, all admitted scalar/register/flag/history/occupancy words, ten platforms, paired live indices, two live frames per vector (FFFF terminator); direct Read has three legs or one for exhaustion, departure has two or three legs and includes its immediate Read/exhaustion tail. Due animation cursor FFFE/0/2 (departure FFFE/0); non-due cursor any word. Ordinary disjoint resource/RAM/stack normalization with the first land descriptor identity (its geometry/period/frame words remain arbitrary); the other two land identities are generated C coverage. No initializer reachability assumption. No-op additionally admits arbitrary incoming segments/stack/registers.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "AnimatePassengerArrival actual-C one-step",
+      "level": "B",
+      "command": "python verif/itinerary_evidence.py AnimatePassengerArrival --timeout 180",
+      "result": "PASS 13.703s with bounds/pointer/signed-overflow/unwind assertions",
+      "method": "Full native journal + bridge vs actual extracted L1, including actual internal tails, real scaler and L1 unit-five initializer. Arbitrary physical slot0..15, all admitted scalar/register/flag/history/occupancy words, ten platforms, paired live indices, two live frames per vector (FFFF terminator); direct Read has three legs or one for exhaustion, departure has two or three legs and includes its immediate Read/exhaustion tail. Due animation cursor FFFE/0/2 (departure FFFE/0); non-due cursor any word. Ordinary disjoint resource/RAM/stack normalization with the first land descriptor identity (its geometry/period/frame words remain arbitrary); the other two land identities are generated C coverage. No initializer reachability assumption. No-op additionally admits arbitrary incoming segments/stack/registers.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "WalkPassengerToExit actual-C one-step",
+      "level": "B",
+      "command": "python verif/itinerary_evidence.py WalkPassengerToExit --timeout 300",
+      "result": "PASS 112.213s with bounds/pointer/signed-overflow/unwind assertions",
+      "method": "Full native journal + bridge vs actual extracted L1, including actual internal tails, real scaler and L1 unit-five initializer. Arbitrary physical slot0..15, all admitted scalar/register/flag/history/occupancy words, ten platforms, paired live indices, two live frames per vector (FFFF terminator); direct Read has three legs or one for exhaustion, departure has two or three legs and includes its immediate Read/exhaustion tail. Due animation cursor FFFE/0/2 (departure FFFE/0); non-due cursor any word. Ordinary disjoint resource/RAM/stack normalization with the first land descriptor identity (its geometry/period/frame words remain arbitrary); the other two land identities are generated C coverage. No initializer reachability assumption. No-op additionally admits arbitrary incoming segments/stack/registers.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "BeginPassengerDeparture actual-C one-step",
+      "level": "B",
+      "command": "python verif/itinerary_evidence.py BeginPassengerDeparture --timeout 180",
+      "result": "PASS 6.439s with bounds/pointer/signed-overflow/unwind assertions",
+      "method": "Full native journal + bridge vs actual extracted L1, including actual internal tails, real scaler and L1 unit-five initializer. Arbitrary physical slot0..15, all admitted scalar/register/flag/history/occupancy words, ten platforms, paired live indices, two live frames per vector (FFFF terminator); direct Read has three legs or one for exhaustion, departure has two or three legs and includes its immediate Read/exhaustion tail. Due animation cursor FFFE/0/2 (departure FFFE/0); non-due cursor any word. Ordinary disjoint resource/RAM/stack normalization with the first land descriptor identity (its geometry/period/frame words remain arbitrary); the other two land identities are generated C coverage. No initializer reachability assumption. No-op additionally admits arbitrary incoming segments/stack/registers.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "AnimatePassengerDeparture actual-C one-step",
+      "level": "B",
+      "command": "python verif/itinerary_evidence.py AnimatePassengerDeparture --timeout 180",
+      "result": "PASS 73.459s with bounds/pointer/signed-overflow/unwind assertions",
+      "method": "Full native journal + bridge vs actual extracted L1, including actual internal tails, real scaler and L1 unit-five initializer. Arbitrary physical slot0..15, all admitted scalar/register/flag/history/occupancy words, ten platforms, paired live indices, two live frames per vector (FFFF terminator); direct Read has three legs or one for exhaustion, departure has two or three legs and includes its immediate Read/exhaustion tail. Due animation cursor FFFE/0/2 (departure FFFE/0); non-due cursor any word. Ordinary disjoint resource/RAM/stack normalization with the first land descriptor identity (its geometry/period/frame words remain arbitrary); the other two land identities are generated C coverage. No initializer reachability assumption. No-op additionally admits arbitrary incoming segments/stack/registers.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "IgnoreActorState actual-C one-step",
+      "level": "B",
+      "command": "python verif/itinerary_evidence.py IgnoreActorState --timeout 180",
+      "result": "PASS 0.391s with bounds/pointer/signed-overflow/unwind assertions",
+      "method": "Full native journal + bridge vs actual extracted L1, including actual internal tails, real scaler and L1 unit-five initializer. Arbitrary physical slot0..15, all admitted scalar/register/flag/history/occupancy words, ten platforms, paired live indices, two live frames per vector (FFFF terminator); direct Read has three legs or one for exhaustion, departure has two or three legs and includes its immediate Read/exhaustion tail. Due animation cursor FFFE/0/2 (departure FFFE/0); non-due cursor any word. Ordinary disjoint resource/RAM/stack normalization with the first land descriptor identity (its geometry/period/frame words remain arbitrary); the other two land identities are generated C coverage. No initializer reachability assumption. No-op additionally admits arbitrary incoming segments/stack/registers.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Input-only departure witness",
+      "level": "D",
+      "command": "python verif/itinerary_scenario.py",
+      "result": "PASS 2400 boundaries; departure init/animation 1/57, zero fallback",
+      "method": "Extended maintained passenger input trace, no RAM patches; independent actual L0 reference and native journal comparison.",
+      "date": "2026-11-13"
+    }
+  ],
+  "amiga": {
+    "classification": "similar purpose with confirmed DOS differences",
+    "finding": "The accepted architecture/actor-storage model supplies design meaning. No Amiga timing, field layout or itinerary equivalence is imported; DOS transitions prevail."
+  },
+  "uncertainty": [
+    "Only the supervisor promotes status; initial administrative status remains unanalyzed.",
+    "Explicit L1 fallback proves compatibility on tested malformed cases, never a native proof for those cases.",
+    "Early unspecialized full dispatch profiles timed out; an array-UF nested-member solver invariant error was encountered. Final maintained profiles use checked per-entry target/depth assertions and ordinary bit-flattened arrays. Failed/overlapping exploratory receipts earn no proof.",
+    "Unit-five passenger gameplay and water handlers are retained L1; this certificate does not close their state machines."
+  ],
+  "dependencies": {
+    "native/passenger_itinerary.h": {
+      "includes": [
+        "actor_resources.h",
+        "coordinate_scale.h",
+        "level.h"
+      ],
+      "calls": []
+    },
+    "native/passenger_itinerary.c": {
+      "includes": [
+        "passenger_itinerary.h"
+      ],
+      "calls": [
+        "actor_alias_value",
+        "itinerary_begin",
+        "itinerary_emit",
+        "itinerary_frame",
+        "itinerary_phase",
+        "itinerary_sar",
+        "itinerary_signed",
+        "itinerary_tick",
+        "scale_level_speed"
+      ]
+    },
+    "native/bridge/passenger_itinerary_bridge.c": {
+      "includes": [
+        "../passenger_itinerary.h",
+        "actor_projection.h",
+        "ugh.h"
+      ],
+      "calls": [
+        "A",
+        "B",
+        "D",
+        "DESC",
+        "F",
+        "G",
+        "R",
+        "READ",
+        "W",
+        "WRITE",
+        "actor_bridge_alias_project",
+        "actor_bridge_journey",
+        "add16",
+        "dec16",
+        "flag",
+        "it_shell0_actor_frame",
+        "it_shell0_actor_init",
+        "it_shell0_actor_tick",
+        "it_shell0_less",
+        "it_shell0_sar",
+        "it_shell0_shl",
+        "it_shell0_state_jump",
+        "it_shell0_tail",
+        "it_shell1_byte_dec",
+        "it_shell1_byte_sub",
+        "it_shell1_shift",
+        "itinerary_apply",
+        "itinerary_consume",
+        "itinerary_dispatch",
+        "itinerary_phase_code",
+        "itinerary_prepare",
+        "itinerary_vector",
+        "itinerary_word",
+        "itinerary_write8",
+        "l1_AnimatePassengerArrival",
+        "l1_AnimatePassengerDeparture",
+        "l1_BeginPassengerDeparture",
+        "l1_PlacePassengerOnPlatform",
+        "l1_ReadPassengerJourneyLeg",
+        "l1_WaitForPassengerPlatform",
+        "l1_WalkPassengerToExit",
+        "logic",
+        "rd16",
+        "rd8",
+        "set_al",
+        "shell_AnimatePassengerArrival",
+        "shell_AnimatePassengerDeparture",
+        "shell_BeginPassengerDeparture",
+        "shell_PlacePassengerOnPlatform",
+        "shell_ReadPassengerJourneyLeg",
+        "shell_WaitForPassengerPlatform",
+        "shell_WalkPassengerToExit",
+        "sub16",
+        "szp",
+        "ugh_call_near",
+        "ugh_dispatch",
+        "wr16",
+        "wr8"
+      ]
+    }
+  },
+  "proposed_status_reason": "Per-entry actual-C bounded proofs, finite exhaustive domains, C/D general resource/bridge integration and actual scratch native-host promotion pass. General vector/journey sizes and malformed compatibility remain C, so propose migrated only.",
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "native/passenger_itinerary.h": "4b56d468f1a87f50a209a46cf4868dc2895c85f8ceb77823c4d8806fbccfc4cb",
+    "native/passenger_itinerary.c": "111d8dcb3c6528a54ab34adb4c93025f3dd023d92fa53e10a6f0e0546fc75258",
+    "native/bridge/passenger_itinerary_bridge.c": "b83c821b9b8d1be0a7fb991b25b874344215fd588b8221058a1225a112a36212",
+    "native/actor_resources.c": "47e21228ee1d873fa5636e062a955e4a6b5a8f0522a7bde2cf223708c9880137",
+    "native/bridge/actor_resources_bridge.c": "6941d649e3fb35d3898b35c3e461fedd0ceee0210861300ce674ac78aac0acc2",
+    "native/coordinate_scale.c": "7bf708b14dc66fdace02a69b7a1b993b37c2535934a71dc0e5d9d397a5903118",
+    "native/level_view.c": "f0b3db5747f718d7c112c721735ca5a497a9b93a6ecb33096223b188b170353d",
+    "native/bridge/level_view_bridge.c": "ff2db79ab215fd6bbf4ed99c5fb64dc39b8fdb060f3c57b07070158b998f4d11",
+    "verif/itinerary_build.py": "b06148d5763c5809dffb67fe436c256d67a2a2d1cfac7dcbf4a50526e3e26811",
+    "verif/itinerary_certificate.py": "71f16efb5c503d8e05d350641f7e4108be015ad2777546ee0f10f8e45914ecdc",
+    "verif/itinerary_departure.txt": "dd7cb186974803ed7436b99600394606594109283d668f7ee5a893a90f89f705",
+    "verif/itinerary_evidence.py": "a4d0e652966e8d6c03802f2a38ad0415fcd07fc519de3f708fbc6ccc47971eff",
+    "verif/itinerary_harness.c": "33fc88fe7dfa88dbb754489fc6dc76a8cb80f3e5b92cd1d206fb2ec9c4c0ec2d",
+    "verif/itinerary_host.py": "5969ac2847e7a725786cb18d920c0b6da07ff0210bf9e295de0a5f3431efbe17",
+    "verif/itinerary_integration.py": "83418c0ed0fd8b1e2794c11b0c9f654a422efc91c0a68146f53858dc50fda28c",
+    "verif/itinerary_mutants.py": "5259ec7831d26840e379c550a50de58d2ff6d5e4a5fde3de8727b9aa18959e6b",
+    "verif/itinerary_reproduce.py": "c39da838490e23934f693ce4c40b4306701e56361a6b29205dceb74aa99c8eba",
+    "verif/itinerary_scenario.py": "cbb1acf4fce0b0bb5b9057fab49bf087e820f5d9e3eef019d456de2221e179aa",
+    "verif/itinerary_shells.py": "b36b6fafc68e98b14c02d7bfd283a972655500955fb2215abf72c23e43521410",
+    "native/actors.h": "b1c7653a6e566c7f0e3e18ad38fc3f63726d01b78a6fa6843df017d2d155a42c",
+    "native/actor_resources.h": "212fe3bc958c74140f45b9e7a3745f650d22e7a853a2edf273eeacfd93f96247",
+    "native/coordinate_scale.h": "e7022a067efeba307f7658b3726f196f20647f9fdd175c9b85b08a5d033a4202",
+    "native/level.h": "d9d498993704f2b446d52fa1f3e3cc4b721d9344cfef8520ab4979c3395f45ca",
+    "native/geometry.h": "e630be5b080076dfd0f95ff07be51887e5c39d8caa3bdfae7271e06be37c6410",
+    "native/bridge/actor_projection.h": "71e0476afe7c0b082b5eac20957028e58a61f6741ef11c7ca546fe8bbad8b483",
+    "c/actors.c": "d17c03c844f95780f0647b85aa854a87c3e566b0f56fe89ee0a95d6d689f3ff2",
+    "c/actors_states.c": "79a460a0436e773bdd795953f63c6765d71c0e346cdf8bbccbcf707817994447",
+    "c/render_primitives.c": "447a9f435f22cc46c9c30d8d11ee9046d57d57c48d6bbaa2e91768e32f9698c0",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
+    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
+    "host/check.py": "ae78b6b48e7c77aa4c513f8474d23d7ef9d26afe39ab55ea70e871473701e94c",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5"
+  }
+}

@@ -1,0 +1,343 @@
+{
+  "proposed_status": "migrated",
+  "proposed_status_reason": "A exhaustive finite coordinate/count/velocity domains, B actual-C symbolic arbitrary geometry and bridge shell (including two-entry stone scans), C for general up-to-sixteen stone-list composition. The weakest full-contract property remains C despite D integration. Count-sixteen CBMC timeouts are explicitly not proofs.",
+  "original": {
+    "L0": [
+      "GAME:FindThrownStoneHittingEnemy 013B:2196",
+      "GAME:FindPlayerTouchingFallingItem 013B:2207",
+      "GAME:FindPlayerTouchingActor 013B:2276",
+      "GAME:FindPlayerTouchingEnemy 013B:22F1"
+    ],
+    "L1": [
+      "c/actors.c:c_FindThrownStoneHittingEnemy",
+      "c/actors.c:contact and three c_FindPlayerTouching* entries"
+    ],
+    "static_evidence": [
+      "Exact G:2196..2362 signed CMP/JL/JG/JLE and final TEST DI",
+      "All direct call return sites in src/asm/GAME.ASM",
+      "metadata/program-model.json conservative caller observations"
+    ]
+  },
+  "native": {
+    "header": "native/contacts.h; shared native/geometry.h",
+    "functions": [
+      "contact_player",
+      "contact_players",
+      "contact_stone",
+      "contact_stones"
+    ],
+    "bridge": [
+      "c_FindPlayerTouchingFallingItem",
+      "c_FindPlayerTouchingActor",
+      "c_FindPlayerTouchingEnemy",
+      "c_FindThrownStoneHittingEnemy"
+    ],
+    "build": "python verif/contacts_build.py",
+    "files": [
+      "native/contacts.h",
+      "native/contacts.c",
+      "native/bridge/contacts_bridge.c"
+    ]
+  },
+  "purpose": "Borrow geometry and choose the first touching player, or the first eligible descending/stationary thrown stone hitting the selected enemy. No persistent state or generic object-state abstraction.",
+  "interface": {
+    "inputs": [
+      "ObjectPosition current X32/Y32 words, arbitrary geometry anchor/extent words, two player positions and arbitrary 16-bit PlayerCount",
+      "StoneContactView[0..16] with projected descriptor+handler eligibility, arbitrary position/vertical-step words, and enemy position",
+      "Ordinary stable RAM for bridge reads; source words may be correlated/aliased but are not mutated or asynchronously changed"
+    ],
+    "outputs": [
+      "ContactProbe ordinary touching value and last constructed wrapped boundary; ContactSelection slot number or -1 and boundary diagnostic",
+      "Bridge DI=2*slot or FFFF; AX actor platform on hit, otherwise last constructed boundary; stone miss AX=FFFF",
+      "Final TEST-DI SF/ZF/PF and cleared CF/OF; preserve IF/DF and unrelated shell. The bridge additionally reproduces deterministic L1 AF though L0 TEST leaves AF undefined"
+    ],
+    "effects": [
+      "Reads supplied inputs only; no native/bridge RAM writes, callbacks, allocation, globals or I/O",
+      "Bridge may read stable fields earlier than L0 short-circuit order; extra ordinary RAM reads have no semantic side effects"
+    ],
+    "preconditions": [
+      "All scalar word patterns admitted: negative coordinates/extents, wrapping arithmetic, reversed signed bounds and nonstandard counts are not excluded",
+      "Native stone count<=16, initialized accessible array and no output/input alias; bridge finds exact FFFF descriptor sentinel at index<=16",
+      "Corrupt/unterminated lists beyond this bound call the retained L1 endpoint explicitly, rather than being treated as a native result",
+      "Normalized symbolic proofs bind BX=0, SI=0100, DS=0 to independent read-only fields. Physical source projection/offset wrap has separate C evidence; no device/live mutation semantics are abstracted"
+    ],
+    "player_bounds": "Let W truncate to 16 bits and S interpret a word as signed. Inclusive bounds: S(W((anchorY-2*extentY)*32+objectY-640)) <= S(playerY) <= S(W(anchorY*32+objectY)); S(W((anchorX-extentX)*32+objectX-832)) <= S(playerX) <= S(W((anchorX+extentX)*32+objectX-160)). Every CMP uses independently wrapped endpoints, never a wrapped difference sign.",
+    "item_geometry": "Item descriptor +0/+2 become anchorX/anchorY, with extentX=extentY=3 (vertical subtract six), independent of descriptor callback fields.",
+    "stone_bounds": "Inclusive enemyY in [S(W(stoneY-640)),S(W(stoneY+256))], enemyX in [S(W(stoneX-832)),S(W(stoneX+384))]. Eligibility requires exact stone descriptor, exact thrown update handler, and vertical-step sign clear (zero accepted).",
+    "search_order": "Always test player 0. Only PlayerCount==2 retries player 1 after miss. Stone scan proceeds ascending slot order to the first exact FFFF descriptor; wrong descriptor, wrong handler or negative vertical step skips. Never choose nearest.",
+    "cached_geometry": "These DOS predicates read current fixed-point positions and descriptor words, not cached draw/pixel positions or current sprite dimensions. Do not refresh/derive geometry from a renderer cache.",
+    "flags": "Known direct callers branch immediately on SF. Actor hit MOV AX,platform follows TEST DI, so platform FFFF does not indicate miss. ZF indicates slot zero, not a general hit boolean. PF follows low DI parity. Full L1 flags are retained as a conservative bridge contract."
+  },
+  "callers": {
+    "FindPlayerTouchingFallingItem": {
+      "routines": [
+        "GAME:ExpireOrCollectFallingItem"
+      ],
+      "observed": [
+        "di",
+        "sf"
+      ]
+    },
+    "FindPlayerTouchingActor": {
+      "routines": [
+        "GAME:UpdatePassengerApproach",
+        "GAME:UpdatePassengerDestinationDisplay",
+        "GAME:UpdatePassengerPlatformWait",
+        "GAME:UpdatePassengerQuestionDisplay",
+        "GAME:UpdateStonePickupWait"
+      ],
+      "observed": [
+        "ah",
+        "al",
+        "di",
+        "sf"
+      ]
+    },
+    "FindPlayerTouchingEnemy": {
+      "routines": [
+        "GAME:UpdateBirdFlight",
+        "GAME:UpdateTriopterusCharge"
+      ],
+      "observed": [
+        "ah",
+        "al",
+        "di",
+        "sf"
+      ]
+    },
+    "FindThrownStoneHittingEnemy": {
+      "routines": [
+        "GAME:AnimateTriopterusImpactRecovery",
+        "GAME:AnimateTriopterusRecovery",
+        "GAME:UpdateBirdFlight",
+        "GAME:UpdateDinoForce",
+        "GAME:UpdateFruitTreeAnimation",
+        "GAME:UpdateTriopterusAlert",
+        "GAME:UpdateTriopterusCharge",
+        "GAME:UpdateTriopterusPatrol"
+      ],
+      "observed": [
+        "ah",
+        "al",
+        "di",
+        "sf"
+      ]
+    }
+  },
+  "callees": {
+    "native": [
+      "signed_word",
+      "contact_player",
+      "contact_stone"
+    ],
+    "bridge": [
+      "level_bridge_geometry",
+      "contact_players",
+      "contact_stones",
+      "rd16",
+      "sub16",
+      "logic"
+    ],
+    "compatibility": [
+      "l1_FindThrownStoneHittingEnemy outside native sentinel bound"
+    ]
+  },
+  "indirect": {
+    "sites": [],
+    "classification": "Leaf predicates. Stone handler words are compared/classified, never called. Known caller graph is conservative, not an unrestricted external-entry proof."
+  },
+  "memory": {
+    "read": [
+      "Incoming DS object/player position arrays and descriptor +0..6 (+0..2 items); PlayerCount and actor-hit PlayerPlatformIndices",
+      "ActorDescriptors through sentinel; eligibility handler and vertical-step words; eligible stone X32/Y32; selected EnemyX32/Y32"
+    ],
+    "write": [
+      "Only bridge AX/DI/flags; no RAM mutation"
+    ],
+    "owners": [
+      "Borrowed player, PassengerStone, HazardOrRewardSource and FallingItem fields; no persistent contacts owner"
+    ],
+    "aliases": "Stable read-only aliases are sampled; no native state is invented for render caches, descriptor callbacks, carried state or occupancy."
+  },
+  "assumptions": [
+    "Serialized ordinary RAM reads; device/VGA aliases and asynchronous mutation excluded",
+    "Fixed-width C integer definitions and compiler ABI; receipts pin MinGW and CBMC tool hashes",
+    "The whole-game gate is deterministic scenario evidence only; it does not prove all game states or all L0 callers known"
+  ],
+  "eliminated": [
+    {
+      "detail": "Register/flag ABI inside predicates",
+      "evidence": "Ordinary typed position/geometry arrays and return values; bridge alone binds DI, AX and TEST flags."
+    },
+    {
+      "detail": "Machine descriptor/handler identity in native code",
+      "evidence": "Only bridge maps exact stone descriptor+handler to thrown_stone; no code addresses or callback dispatch enters L2."
+    },
+    {
+      "detail": "Player platform as a geometry field",
+      "evidence": "Only actor contact bridge reads it after a successful geometry result, preserving TEST flags; no platform state struct is designed."
+    }
+  ],
+  "retained": [
+    {
+      "detail": "16-bit wrap before each signed bound comparison, inclusive equality, empty reversed intervals",
+      "reason": "Direct L0 JL/JG/JLE; unsigned or widened rectangle logic changes signed-boundary behavior."
+    },
+    {
+      "detail": "Current fixed-point positions and descriptor geometry, independent of pixel/render caches",
+      "reason": "Exact L0 read footprint; Amiga uses a different geometry implementation."
+    },
+    {
+      "detail": "Player retry equality and ascending first-hit scan",
+      "reason": "CMP DI,PlayerCount/JE permits only one retry for count two; stone sentinel/eligibility controls exact order."
+    },
+    {
+      "detail": "Native diagnostic boundary and bridge shell",
+      "reason": "Conservative caller model observes AX/DI/SF; full L1 shell retained and checked even when scratch AX has no established gameplay meaning."
+    },
+    {
+      "detail": "Explicit L1 corrupt-sentinel compatibility",
+      "reason": "L1 admits a 32768-iteration guard; no native proof is claimed for arbitrary memory walks."
+    }
+  ],
+  "evidence": [
+    {
+      "property": "Coordinate slices, retry words, stone step words and slot priority",
+      "level": "A",
+      "method": "Actual compiled L1/native/bridge; compare complete register shell and flags. Six fixed geometry/position classes, each full 65536-value X and Y slices for all three player entries; all count words; all stone velocity words; stone coordinate slices.",
+      "command": "python verif/contacts_evidence.py enumerate",
+      "result": "PASS: 2,752,544 comparisons. A only for these finite slice/count/velocity domains, not all combinations.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Complete Cartesian coordinate-pair domains",
+      "level": "A",
+      "method": "Execute actual compiled L1 and native core for every one of 2^32 coordinate pairs with remaining inputs fixed, separately item, ordinary actor/enemy geometry, signed-wrap geometry, and one eligible stone.",
+      "command": "python verif/contacts_evidence.py enumerate --pairs --kind 0; python verif/contacts_evidence.py enumerate --pairs --kind 2; python verif/contacts_evidence.py enumerate --pairs --kind 2 --case 1; python verif/contacts_evidence.py enumerate --pairs --kind 3",
+      "result": "PASS each 4,294,967,296 Cartesian pairs plus 2,752,544 short-profile comparisons; no geometry-domain generalization from enumeration.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Arbitrary geometry and full bridge shell of three player entries",
+      "level": "B",
+      "method": "CBMC actual extracted L1, native and bridge C; arbitrary descriptor words, object/player coordinates, count, platform words and incoming registers/flags; normalized ordinary read-only byte-RAM footprint. Bounds/pointers/signed-overflow/unwinding checked.",
+      "command": "python verif/contacts_evidence.py prove --kind 0 --bridge --timeout 45; python verif/contacts_evidence.py prove --kind 1 --bridge --timeout 45; python verif/contacts_evidence.py prove --kind 2 --bridge --timeout 45",
+      "result": "PASS all three. No on-screen, canonical-descriptor, extent-sign or ordered-bounds assumptions. Address/footprint normalization is why this relational whole-bridge claim is B.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Arbitrary two-entry stone list, eligibility, geometry and bridge shell",
+      "level": "B",
+      "method": "CBMC actual whole L1/native/bridge C, two arbitrary entries then exact sentinel, descriptor words other than sentinel, arbitrary handlers/velocities/coordinates and shell.",
+      "command": "python verif/contacts_evidence.py prove --kind 3 --count 2 --bridge --timeout 45",
+      "result": "PASS. Complete within stated two-entry normalized footprint; no promotion to sixteen-entry composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Inclusive edge and unwinding negative controls",
+      "level": "C",
+      "method": "Scratch native mutant changes horizontal lower-edge equality to rejection; inadequate unwind leaves real L1 shift loop incomplete.",
+      "command": "python verif/contacts_evidence.py enumerate --mutant; python verif/contacts_evidence.py prove --kind 2 --negative --timeout 30",
+      "result": "PASS controls: mutant changes item hit at X=352 from DI=0 to FFFF; negative proof fails shl.unwind.0. The initial scan-negative attempt failed harness setup unwind, so only this actual-helper negative is claimed.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "L0 -> bridged L1 contact/caller composition and up-to-sixteen scanning",
+      "level": "C",
+      "method": "Maintained L0 differential suites with ordinary/poison environments, exact edge/count/wrap fixtures and whole RAM/device observation model; short enumeration additionally visits ordered stone slots.",
+      "command": "python verif/contacts_integration.py --whole",
+      "result": "PASS actors 974, actors_states 1044, items_water 210, render 526 = 2754/2754. Native-entry counters [item150,actor300,enemy144,stone518], no fallback.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "L0 -> bridged L1 whole-game observations",
+      "level": "D",
+      "method": "Actual wholegame.main with separate loader reference and worker-local reports/cached rebuilt-L0 hashes; no source/test patches.",
+      "command": "python verif/contacts_integration.py --whole",
+      "result": "PASS all 14 scenarios, 9963 frames plus terminal boundaries. Native calls [item0,actor23060,enemy94,stone1639]; no fallback. Falling-item pickup is not reached by these D scenarios and retains its separate routine C evidence.",
+      "date": "2026-11-13"
+    }
+  ],
+  "amiga": {
+    "classification": "similar purpose with different implementation; confirmed inclusive comparison property only",
+    "command": "python tools/amiga.py --out build/workers/close-contacts/amiga",
+    "finding": "Fresh static h0:06D92 reads sprite dimensions via generic-object animation links and cached origin words +18/+1A, shifts wrapped coordinate differences by five, adjusts half size differences and compares absolute distances. h0:06DC4 BGT rejects strictly greater X and h0:06DEE SLE accepts Y equality. h0:06D06 adds enemy descriptor extents to stone radii 7/5; DOS instead hazards scan stone slots with fixed asymmetric bounds. Both inclusive edges do not establish matching geometry or rounding; candidate-flow listing/reachability limitations retained. No cross-CPU execution or normalization."
+  },
+  "uncertainty": [
+    "Full sixteen-entry symbolic scanning timed out: byte-RAM profile 45 seconds and word-RAM arrays-UF profile 120 seconds. General scan composition remains C.",
+    "Arbitrary unterminated/corrupt memory walks use explicit L1 compatibility, not a closed native contract; no fallback observed in accepted routine/scenario runs.",
+    "Bridge physical aliases/concurrency/device accesses outside ordinary stable RAM are not proved. The conservative known-caller model remains incomplete for arbitrary external entries.",
+    "Whole-game scenarios do not reach falling-item pickup. Native behavior is not changed to Amiga cached-sprite geometry."
+  ],
+  "observation_chain": "L0 -> L1 remains differential C plus selected D scenarios. Actual-C A/B results concern L1 -> L2 only; L2 is behavioral, never an exact ASM/C byte contribution.",
+  "component": "contacts",
+  "status": "migrated",
+  "status_reason": "Administrative initial value; only the supervisor sets accepted status.",
+  "dependencies": {
+    "native/contacts.h": {
+      "includes": [
+        "geometry.h",
+        "stddef.h",
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/contacts.c": {
+      "includes": [
+        "contacts.h"
+      ],
+      "calls": [
+        "contact_player",
+        "contact_stone",
+        "signed_word"
+      ]
+    },
+    "native/bridge/contacts_bridge.c": {
+      "includes": [
+        "../contacts.h",
+        "level_projection.h",
+        "ugh.h"
+      ],
+      "calls": [
+        "D",
+        "G",
+        "contact_players",
+        "contact_position",
+        "contact_stones",
+        "l1_FindThrownStoneHittingEnemy",
+        "level_bridge_geometry",
+        "logic",
+        "player_bridge",
+        "rd16",
+        "sub16"
+      ]
+    }
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "c/actors.c": "d17c03c844f95780f0647b85aa854a87c3e566b0f56fe89ee0a95d6d689f3ff2",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
+    "native/bridge/contacts_bridge.c": "ae0355b3a17443a2d39b41b9ac99656041ae63c9bebf3a399e207e6257b1bdab",
+    "native/bridge/level_projection.h": "d463ba8829671479c3349435080eb7f16ae48551c7a7b0464d27dbc88257df83",
+    "native/bridge/level_view_bridge.c": "ff2db79ab215fd6bbf4ed99c5fb64dc39b8fdb060f3c57b07070158b998f4d11",
+    "native/contacts.c": "f809c3af54ddb43b07b60be870e30e404f0b0456f4542585011cb5108dcc8b15",
+    "native/contacts.h": "2d329a52985ea628a56afaee703e8b2f84ed9a328e58109c3be4dac3e90c1d29",
+    "native/geometry.h": "e630be5b080076dfd0f95ff07be51887e5c39d8caa3bdfae7271e06be37c6410",
+    "native/level.h": "d9d498993704f2b446d52fa1f3e3cc4b721d9344cfef8520ab4979c3395f45ca",
+    "native/level_view.c": "f0b3db5747f718d7c112c721735ca5a497a9b93a6ecb33096223b188b170353d",
+    "src/asm/GAME.ASM": "29c9ead3b191a744c59b465a3bd4de29f2e217b92492cf57edb8c13bc3494204",
+    "src/data/DGDATA.ASM": "9d46889e26434a597ed19b91c119029af3dbf3dbcfa9811c4ed5aa18dc157541",
+    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/contacts_build.py": "4654ca8ef9ef7fd0d14656c37f2b191e16b0ec7858e7aee6d5140c15741515f8",
+    "verif/contacts_cbmc.c": "bb7335b03faf866b36cb68d164f89be1461b4bae541f0c2661ce24ef6ba752d0",
+    "verif/contacts_enumeration.c": "89679ce310708ce638fb13a3a79cda232602df8cf838545da8082b96ab547198",
+    "verif/contacts_evidence.py": "37c9b8a80da9a191195b039a9fea7c5584dddaf6863b189a7c9b1a7bf0f4fbd9",
+    "verif/contacts_integration.py": "a94fea3cda4d06225ace693930e53dc64d47c38a1ba46acf5e533451d08e6a92",
+    "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574"
+  }
+}

@@ -265,3 +265,95 @@ steps from L1 fallback. No existing builder/certificate is changed. The integrat
 runner gives `wholegame.main` a separate Windows loader reference because that
 entry point unloads the DLL it receives; the runner retains its reference to read
 the counters afterwards. All reports live under `build/workers/close-timer/`.
+
+## Immutable level views and contact predicates
+
+`native/level.h` and `native/geometry.h` are shared resource/geometry vocabulary,
+authorized by the close-contacts work order. They describe borrowed immutable
+inputs, not a new simulation state. Platform `destination_icon` is its established
+HUD type word, not an invented terrain/material type. A surface consists of its
+signed pixel bounds and aspect-converted Y. Input +E, complete packed level bytes,
+actor placement tails and complete variable enemy placement bytes stay raw.
+Unprojected descriptor callbacks and +3A/+3C remain in the original immutable
+tables; the geometry projection reads only the four established words (two for
+items, with literal three-pixel extents). No callback or actor state API is implied.
+
+`level_bridge_project` resolves the record's encoded references, copies the chosen
+320-byte tile map and builds a const view in caller-owned storage. It does not
+replace `LoadCurrentLevelState`, decompress resources, initialize simulation state,
+or change the loader's reverse-copy/alias behavior. Native helpers decode ordinary
+resource bytes; segment arithmetic and descriptor identities stay in the bridge.
+The projection contract requires ordinary stable RAM and accessible nonwrapping
+level/list records; descriptor geometry alone retains operand-offset wrap and a
+contiguous word spanning FFFF. Capacity/unknown-enemy failures leave the output view
+unpublished, with partially filled storage permitted.
+
+```
+python verif/level_view_evidence.py --loader
+python verif/level_view_evidence.py --prove
+python verif/contacts_evidence.py enumerate
+python verif/contacts_evidence.py enumerate --mutant
+python verif/contacts_evidence.py enumerate --pairs --kind 0
+python verif/contacts_evidence.py enumerate --pairs --kind 2
+python verif/contacts_evidence.py enumerate --pairs --kind 2 --case 1
+python verif/contacts_evidence.py enumerate --pairs --kind 3
+python verif/contacts_evidence.py prove --kind 0 --bridge --timeout 45
+python verif/contacts_evidence.py prove --kind 1 --bridge --timeout 45
+python verif/contacts_evidence.py prove --kind 2 --bridge --timeout 45
+python verif/contacts_evidence.py prove --kind 3 --count 2 --bridge --timeout 45
+python verif/contacts_evidence.py prove --kind 2 --negative --timeout 30
+python verif/contacts_integration.py --whole
+python tools/amiga.py --out build/workers/close-contacts/amiga
+python tools/closure.py
+```
+
+All generated files belong to `build/workers/close-contacts/`. The isolated builder
+renames only L1 **definitions**, so calls in the same translation unit also enter
+the bridges. It uses the shared compiler/receipt helpers without changing the
+historically locked `nbuild.py` or `closure_support.py`. Audit counters separately
+report native entry and the explicit corrupt/unterminated stone-list fallback.
+The integration runner checks the actual whole-game entry point and retains its
+own DLL loader reference while that entry point unloads its separate reference.
+`contacts_reference.py` reads a checked fresh canonical plain build/expansion if
+present. From a clean checkout it instead prepares both under this worker using
+the pinned original tools, checks the plain image/relocation set/symbols against
+the existing lock, and checks expansion/repack against the unchanged oracle lock.
+It never calls `cgen.generate`. To exercise that path even with canonical caches:
+
+```
+python verif/contacts_reference.py --fresh
+python verif/level_view_evidence.py --loader --local-reference
+python verif/contacts_integration.py --whole --local-reference
+```
+
+On a missing whole-game reference cache, the maintained whole-game tool generates
+the reference from the rebuilt plain L0 inside the isolated output directory.
+
+Enumeration executes actual extracted L1 C and the maintained native C. The short
+profile covers 2,752,544 cases: full word-coordinate slices in six geometry classes,
+all player-count words, all stone vertical-step words and ordered stone slots.
+Each `--pairs` profile additionally executes all 2^32 Cartesian coordinate pairs
+with the remaining inputs fixed. Kind 0 is item, kind 2 is actor/enemy geometry,
+kind 3 is one eligible stone; case 1 is the signed-wrap/reversed-bound class.
+These are A only for the explicitly enumerated finite domains. The mutant changes
+an inclusive horizontal edge to exclusive and must be detected with a changed hit.
+
+CBMC uses the real `ugh.h` arithmetic, actual extracted L1 functions and actual
+native/bridge code. Player profiles admit arbitrary geometry words, positions,
+platforms, count and incoming flags, on a normalized read-only footprint. They
+compare selection, scratch/platform results and the complete register/flag shell.
+Stone count-two admits arbitrary eligible/ineligible descriptor/handler words,
+coordinates and vertical steps. It is B for that list bound; it is not a full-pool
+proof. Both count-16 profiles timed out (byte RAM 45 seconds; equivalent word RAM
+with `--word-memory` and arrays-UF 120 seconds). They earn no proof. The negative
+profile must fail the actual L1 `shl` unwinding assertion. Geometry arithmetic has
+no assumed on-screen range, ordered-rectangle invariant, or canonical descriptors.
+
+The bridge publishes DI byte identities and final TEST-DI flags. Actor platform
+loading follows TEST and must not change SF even for platform FFFF. All four
+geometric comparisons are signed and inclusive **after** word wrapping; reversed
+signed intervals are empty. Only count exactly two retries player one. Contacts
+read current X32/Y32, not pixel/render caches. Amiga h0:06D92 instead uses cached
+sprite dimensions/origins and shifts position differences before comparing; its
+inclusive BGT/SLE edges do not establish DOS geometric equivalence. Keep these
+implementations distinct.

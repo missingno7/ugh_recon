@@ -100,6 +100,9 @@ is the second unit, chosen to exercise state ownership and indirect control flow
 | Decimal digits | migrated: complete domains for the divisors the game uses (A), arbitrary divisors bounded (B) | `metadata/closure/decimal.json` |
 | Far copy | migrated: observed call lengths proved (B), general overlap and wrap tested (C) | `metadata/closure/far_copy.json` |
 | Timer service | migrated: each API operation proved from any admitted state (B), handle domains enumerated (A), tick accounting at 1/3/16 slots (B), interrupt interleavings open; both removal defects retained | `metadata/closure/timer.json` |
+| Music clock | verified-within-contract: all properties proved on the actual C for all inputs (A), zero-rate fault retained as a status; two of its three functions are never called in the scenarios | `metadata/closure/music_clock.json` |
+| Level view | verified-within-contract: decoding proved (A); projection proved over every shipped level resource and checked against the actual loader (A). Introduces the shared types `native/level.h`, `native/geometry.h` | `metadata/closure/level_view.json` |
+| Contact predicates | migrated: complete coordinate domains enumerated (A), arbitrary geometry and two-entry stone lists proved (B), scanning of up to 16 stones only tested (C) | `metadata/closure/contacts.json` |
 | everything else | unanalyzed | |
 
 ## Tooling gaps
@@ -115,7 +118,7 @@ is the second unit, chosen to exercise state ownership and indirect control flow
 
 `python tools/hostbuild.py` builds `build/host/ugh.exe`: the literal C with SDL3 platform services
 (window, keyboard, AdLib through Nuked-OPL3). Its headless mode reproduces the whole-game digests
-of all 14 scenarios. Closed native units are not linked into the host yet.
+of all 14 scenarios. The host links every unit at status `migrated` or stronger through its bridge (`--literal` builds the pure translation); both variants reproduce all 14 scenarios.
 
 ## Work in progress
 

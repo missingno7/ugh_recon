@@ -1,0 +1,261 @@
+{
+  "proposed_status": "verified-within-contract",
+  "proposed_status_reason": "A for the finite immutable shipped-resource domain (81 distinct records, both complete orders, all 23 descriptor geometries), and actual-C symbolic raw decoding. This does not close LoadCurrentLevelState initialization, arbitrary synthetic reference graphs, or resource mutation.",
+  "original": {
+    "L0": [
+      "GAME:LoadCurrentLevelState 013B:3976 record/list readers; no claim to replace the routine",
+      "GAME platform input readers 013B:3A67..3AA8",
+      "DGROUP 81 level records 5C09:3479..3CB2; platform/placement lists; descriptors 5C09:7630..7A4B"
+    ],
+    "L1": [
+      "c/render.c:c_LoadCurrentLevelState, reads compared after all 150 ordered level loads",
+      "c/actors.c:contact descriptor readers"
+    ],
+    "static_evidence": [
+      "docs/architecture-model.md immutable descriptions and platforms",
+      "docs/amiga.md level layout",
+      "src/asm/GAME.ASM exact readers",
+      "tools/dataprobe.py:levels independent resource decoder"
+    ]
+  },
+  "native": {
+    "header": "native/level.h; native/geometry.h",
+    "functions": [
+      "level_description",
+      "level_platform",
+      "level_object_geometry",
+      "level_item_geometry"
+    ],
+    "bridge": [
+      "level_bridge_project",
+      "level_bridge_geometry"
+    ],
+    "build": "python verif/contacts_build.py",
+    "files": [
+      "native/geometry.h",
+      "native/level.h",
+      "native/level_view.c",
+      "native/bridge/level_projection.h",
+      "native/bridge/level_view_bridge.c"
+    ]
+  },
+  "purpose": "Provide read-only resource views for level maps, landing platforms, placements and the descriptor geometry used by contacts. Preserve unresolved source bytes without converting machine callbacks or inventing simulation state.",
+  "interface": {
+    "inputs": [
+      "The immutable shipped DOS level records/lists and decoded 32000-byte map bank; all 81 records in both 69/81 orders",
+      "Accessible initialized byte inputs for native decoders; separately allocated output and bridge storage",
+      "Geometry decode: any four descriptor words; item decode: first two words and fixed extents three"
+    ],
+    "outputs": [
+      "LevelDescription with const borrowed tiles/platform/placement pointers and explicit counts",
+      "LevelPlatform left/right pixel bounds, aspect-converted surface Y, arrival/wait/spawn anchors, destination icon/type and skipped raw word",
+      "ObjectGeometry anchor and extent words; current object positions are a separate borrowed view",
+      "Bridge returns one on projection success, zero on capacity/map/unknown-enemy rejection without publishing output view"
+    ],
+    "effects": [
+      "Reads source only, writes caller-provided storage/view; no persistent native globals, allocation, callbacks or device operations",
+      "Every packed level byte retained, including +09/+19 and encoded references; actor placement +4 retained raw; complete variable enemy placement retained raw"
+    ],
+    "preconditions": [
+      "Ordinary stable RAM; source level/list records do not cross the 16-bit offset endpoint; no concurrent resource mutation or device aliases",
+      "Storage/view do not alias inputs; borrowed const pointers remain valid for consumer lifetime",
+      "The immutable closure domain is the exact shipped tables. Arbitrary synthetic/corrupt lists are compatibility extensions with weaker evidence",
+      "Descriptor geometry bridge permits any word operand offset, including FFFF with a contiguous second byte and wrapped next effective offset"
+    ],
+    "projection": "Only the bridge resolves the encoded map/list/descriptor identities. Native APIs receive ordinary buffers, counts and typed views. The level raw bytes are opaque evidence, never dereferenced as machine addresses.",
+    "scope": "The stateful loader remains L1, including reverse-copy overlap, decompression, water/start corrections, weather/RNG and all actor/hazard initializers. No native loader or object state machine is claimed.",
+    "platform_type": "Input +0C is established as the destination HUD icon/type. No terrain/material type is inferred. Landing surfaces use existing platform bounds/surface_y.",
+    "reserved_descriptors": "Actor descriptor +3A/+3C and all callback/tail data outside the contact prefix remain uninterpreted in the unchanged immutable source tables; this API projects no fields for them."
+  },
+  "callers": [
+    "Contacts bridge borrows descriptor geometry on every call",
+    "Future native passenger/stone/hazard/item callers may borrow the shared views; no such caller migration is claimed"
+  ],
+  "callees": {
+    "native": [
+      "resource_word"
+    ],
+    "bridge": [
+      "rd8",
+      "rd16",
+      "level_description",
+      "level_platform",
+      "level_object_geometry",
+      "level_item_geometry"
+    ]
+  },
+  "indirect": {
+    "sites": [],
+    "classification": "No indirect transfers; stored code words are not executed or converted to native callbacks."
+  },
+  "memory": {
+    "read": [
+      "81 packed records + map bank + terminated platform/actor/enemy lists + contact prefixes of 4 enemy/8 actor/11 item descriptors",
+      "Geometry accesses use contiguous word bytes and wrapped effective operand offsets"
+    ],
+    "write": [
+      "Caller-owned LevelProjectionStorage and LevelDescription only; partial storage allowed on rejected projection"
+    ],
+    "owners": [
+      "Immutable level/resource data; platform occupancy, actor callbacks, render caches and mutable current-record state are outside this projection"
+    ],
+    "aliases": "Read-only source aliases are not mutated; native output metadata/storage must not alias source."
+  },
+  "assumptions": [
+    "Locked original expansion and independently decoded map bank",
+    "The finite shipped-resource membership is a contract restriction, not a theorem that malformed resources cannot occur",
+    "Compiler/C ABI and bridge memory accessors are trusted links; receipts pin compiler and source inputs"
+  ],
+  "eliminated": [
+    {
+      "detail": "Machine references in ordinary resource APIs",
+      "evidence": "Bridge resolves them to const ordinary pointers; raw encoded fields are retained solely as opaque bytes."
+    },
+    {
+      "detail": "Platform occupancy mixed with immutable platform description",
+      "evidence": "G:3A9E separately initializes occupants FFFF; native description contains no occupancy/state field."
+    }
+  ],
+  "retained": [
+    {
+      "detail": "Signed aspect conversion and word wrap",
+      "reason": "Y-SAR(Y,2) rounds negative odd values down before subtraction; native uses an explicit sign-filled shift."
+    },
+    {
+      "detail": "Reserved/skipped bytes",
+      "reason": "No established meaning for level +09/+19, platform +E, bird/Triopterus/Dino skipped placement words or stone placement tail; preserve raw."
+    },
+    {
+      "detail": "Descriptor geometry fields are unrestricted words",
+      "reason": "Do not substitute sprite width/height, pixel caches, or on-screen assumptions."
+    }
+  ],
+  "evidence": [
+    {
+      "property": "Native byte decoding contract",
+      "level": "A",
+      "method": "CBMC 6.11.0 on actual native C, arbitrary 26 input bytes; full field/raw relations, signed aspect rounding, borrowed-pointer identity, bounds/pointers/overflow/unwinding assertions.",
+      "command": "python verif/level_view_evidence.py --prove",
+      "result": "PASS: 0/63 failed; no on-screen/canonical-word assumptions. This is a raw-decoding proof, not a whole-loader proof.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Complete immutable shipped-resource projection domain",
+      "level": "A",
+      "method": "Actual compiled bridge/native projection versus independently checked dataprobe decoder, every 69+81 order entry and every descriptor; all projected fields, raw tails, counts, maps and unchanged source RAM checked.",
+      "command": "python verif/level_view_evidence.py --loader",
+      "result": "PASS: 150 ordered entries, 81 distinct records, 806 platform uses, 493 actor placements, 265 enemy placements, all 23 descriptors; descriptor operand at FFFF checked. Complete only for this finite resource domain.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Projection agrees with actual L1 loader on shipped resources",
+      "level": "A",
+      "method": "Execute actual compiled c_LoadCurrentLevelState for all ordered inputs, then compare platform arrays/occupancy initialization, descriptor/platform identities, sentinels and all 320 tile bytes with native projection.",
+      "command": "python verif/level_view_evidence.py --loader",
+      "result": "PASS: all 150 ordered loader executions; no L0 execution in this enumeration, no claim about unprojected initialization fields.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "L0 -> bridged L1 composition",
+      "level": "C",
+      "method": "Maintained rebuilt-L0 differential suites, ordinary and poisoned register/flag environments; full observation model.",
+      "command": "python verif/contacts_integration.py --whole",
+      "result": "PASS: actors 974, actors_states 1044, items_water 210, render 526 = 2754/2754. Render includes real and synthetic loader cases; the loader remains L1.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "L0 -> bridged L1 scenario context",
+      "level": "D",
+      "method": "Actual wholegame.main with isolated variant DLL and cached rebuilt-L0 references, worker-local reports.",
+      "command": "python verif/contacts_integration.py --whole",
+      "result": "PASS all 14 scenarios, 9963 frames plus terminal boundaries. Only descriptor geometry is consumed by contact bridges; no claim that the complete level-view projection replaces loader work in the scenarios.",
+      "date": "2026-11-13"
+    }
+  ],
+  "amiga": {
+    "classification": "confirmed equivalent for enumerated level/platform data; similar purpose with different representations",
+    "command": "python tools/amiga.py --out build/workers/close-contacts/amiga",
+    "finding": "Fresh static extraction reproduces both level orders, shared playable maps and platform scalars. Amiga 38-byte levels, 18-byte platforms and 126/110/30-byte descriptors are not DOS layouts. Reserved bytes are not named from equality alone."
+  },
+  "uncertainty": [
+    "Arbitrary synthetic reference graphs/unknown enemy descriptors are not part of the finite immutable closure claim. Rejection leaves partial storage but does not publish the view.",
+    "Itineraries, text interpretation, descriptor callback/tail semantics and all object state are deliberately outside the geometry/level-view unit.",
+    "The original loader is not modernized; this closes its immutable input vocabulary only."
+  ],
+  "observation_chain": "L0 reconstruction remains byte exact under its existing gates, unchanged by this work. The L0 -> L1 link here is C/D; finite/resource A and raw-C proofs apply only to L1/native projection.",
+  "component": "level_view",
+  "status": "verified-within-contract",
+  "status_reason": "Administrative initial value; only the supervisor sets accepted status.",
+  "dependencies": {
+    "native/geometry.h": {
+      "includes": [
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/level.h": {
+      "includes": [
+        "geometry.h",
+        "stddef.h",
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/level_view.c": {
+      "includes": [
+        "level.h"
+      ],
+      "calls": [
+        "resource_word"
+      ]
+    },
+    "native/bridge/level_projection.h": {
+      "includes": [
+        "../level.h",
+        "ugh.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/level_view_bridge.c": {
+      "includes": [
+        "level_projection.h"
+      ],
+      "calls": [
+        "D",
+        "level_bridge_geometry",
+        "level_description",
+        "level_item_geometry",
+        "level_object_geometry",
+        "level_platform",
+        "projection_bytes",
+        "projection_word",
+        "rd16",
+        "rd8"
+      ]
+    }
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "c/render.c": "7620324caaff46b39094d4b8f7077f2a5426a728806e52f1c56a962771208b40",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "metadata/oracle.json": "7db8024058b1a1e34c7b02058e49f331f30effb6f35927945abcafaf63f9033f",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
+    "native/bridge/level_projection.h": "d463ba8829671479c3349435080eb7f16ae48551c7a7b0464d27dbc88257df83",
+    "native/bridge/level_view_bridge.c": "ff2db79ab215fd6bbf4ed99c5fb64dc39b8fdb060f3c57b07070158b998f4d11",
+    "native/geometry.h": "e630be5b080076dfd0f95ff07be51887e5c39d8caa3bdfae7271e06be37c6410",
+    "native/level.h": "d9d498993704f2b446d52fa1f3e3cc4b721d9344cfef8520ab4979c3395f45ca",
+    "native/level_view.c": "f0b3db5747f718d7c112c721735ca5a497a9b93a6ecb33096223b188b170353d",
+    "src/asm/GAME.ASM": "29c9ead3b191a744c59b465a3bd4de29f2e217b92492cf57edb8c13bc3494204",
+    "src/data/DGDATA.ASM": "9d46889e26434a597ed19b91c119029af3dbf3dbcfa9811c4ed5aa18dc157541",
+    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/contacts_build.py": "4654ca8ef9ef7fd0d14656c37f2b191e16b0ec7858e7aee6d5140c15741515f8",
+    "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
+    "verif/level_view_cbmc.c": "217f09799077c54d02343af7642a1e070b945d7808f26e1a8ed6240169cc2a73",
+    "verif/level_view_evidence.py": "b16e3aec1040946b22a364245ebc9cdeca6539a51dccf8be9c89328a943caa40",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574"
+  }
+}

@@ -1,10 +1,13 @@
 # Native Windows host
 
-The host runs the literal `c/` translation, starting at `GAME:RunDosGame` after
-the historical Borland startup. It uses SDL3 for the window, input and audio.
-It does not execute DOS, the EXE's instructions, or a CPU emulator. This is an
-L1 integration vehicle; it currently links no `native/` L2 components. The
-historical byte certificate and the L1 behavioural certificates remain separate.
+The host starts at `GAME:RunDosGame` after the historical Borland startup and
+uses SDL3 for the window, input and audio. It does not execute DOS, the EXE's
+instructions, or a CPU emulator. By default, `hostbuild.py` reads
+`metadata/closure/*.json` and links each component whose certificate `status`
+is `migrated` or stronger through its maintained bridge. It keeps a renamed L1
+entrypoint for each bridge fallback. The pure L1 build is available with
+`--literal`. The historical byte certificate and the L1 behavioural
+certificates remain separate from native closure evidence.
 
 From the repository root:
 
@@ -13,6 +16,15 @@ python tools/build.py
 python tools/hostbuild.py
 build/host/ugh.exe
 ```
+
+`python tools/hostbuild.py` builds the default bridged variant at
+`build/host/ugh.exe`; the current linked units are coordinate_scale, decimal,
+far_copy, ice and timer. `python tools/hostbuild.py --literal` builds the pure
+L1 comparison variant at the same path. Each build writes
+`build/host/hostbuild.json`; its `variant` and `linked_units` fields identify
+the selection. `build/host/ugh.exe --version` prints that selection. A
+certificate that qualifies but lacks one native implementation file, one
+bridge, or exported `c_` endpoints stops the build with the unit and reason.
 
 The DOS build uses the pinned historical tools through `tools/dos.py`.
 `hostbuild.py` requires that build to be current, and checks its source receipts,
@@ -79,8 +91,19 @@ build/host/ugh.exe --headless 12 --script tests/scenarios/startup.txt
 build/host/ugh.exe --headless 16 --script tests/scenarios/adlib.txt
 build/host/ugh.exe --headless 256 --smoke 256
 python tools/wholegame.py
-python host/check.py
+python host/check.py --variant native
+python tools/hostbuild.py --literal
+python host/check.py --variant literal
+python tools/hostbuild.py
 ```
+
+Run the first checker command after the default build and the second after the
+literal build. Each command compares all 14 maintained scenario boundary
+digests against `build/whole/*.ref.json` and runs the 256-flip attract smoke;
+the checker only reads those references. Results are written to
+`build/workers/host-native/host-check-native.json` and
+`build/workers/host-native/host-check-literal.json`. The final default build
+restores the native-bridged executable at the standard path.
 
 `--headless N` runs at most N page flips without opening video/audio devices.
 It prints one JSON record per page flip to stdout and, for a terminal scenario,

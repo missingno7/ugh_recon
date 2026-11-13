@@ -16,6 +16,9 @@ const char *host_shot;
 static int paced=1,smoke,stopped,terminal_seen;
 static uint64_t start_ns,wall_start_ns,deadline_ns,irq_time_ns,retrace_time_ns,audio_time_ns,timer_irqs,retraces;
 extern void ugh_devices_reset(void);
+extern const char *host_native_units[];
+extern const unsigned host_native_unit_count;
+extern const char *host_variant;
 static double timeout_seconds;
 static const char *save_dir;
 static DosFile persisted;
@@ -153,9 +156,16 @@ static void usage(void) {
          "Headless emits wholegame-compatible JSON records to stdout. Diagnostics use stderr.\n"
          "--smoke starts the cold attract fixture; --script accepts tests/scenarios/*.txt.");
 }
+static void print_version(void) {
+    printf("Ugh host (%s); native units:",host_variant);
+    if(!host_native_unit_count) printf(" none (literal L1)");
+    for(unsigned i=0;i<host_native_unit_count;i++) printf(" %s",host_native_units[i]);
+    putchar('\n');
+}
 int main(int argc,char **argv) {
     const char *script=NULL,*data=NULL,*wav=NULL; int scale=3,audio=1,frame_option=0;
     scenario_defaults();
+    for(int i=1;i<argc;i++) if(!strcmp(argv[i],"--version")) { print_version(); return 0; }
     for(int i=1;i<argc;i++) {
         const char *arg=argv[i];
         if(!strcmp(arg,"--help")) { usage(); return 0; }

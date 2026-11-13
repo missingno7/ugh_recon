@@ -11,12 +11,13 @@ import subprocess
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT/'build/workers/host'
+OUT = ROOT/'build/workers/host-native'
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('scenarios', nargs='*')
+    parser.add_argument('--variant',choices=('native','literal'),default='native')
     args = parser.parse_args()
     OUT.mkdir(parents=True,exist_ok=True)
     paths=sorted((ROOT/'tests/scenarios').glob('*.txt'))
@@ -48,8 +49,8 @@ def main():
                      capture_output=True,text=True,timeout=35,cwd=ROOT)
     smoke=dict(passed=p.returncode==0 and len(p.stdout.splitlines())==256,stderr=p.stderr)
     print('PASS smoke: 256 attract frames' if smoke['passed'] else 'FAIL smoke',flush=True)
-    receipt=dict(passed=all(r['passed'] for r in results) and smoke['passed'],scenarios=results,smoke=smoke)
-    (OUT/'host-check.json').write_text(json.dumps(receipt,indent=2)+'\n')
+    receipt=dict(variant=args.variant,passed=all(r['passed'] for r in results) and smoke['passed'],scenarios=results,smoke=smoke)
+    (OUT/f'host-check-{args.variant}.json').write_text(json.dumps(receipt,indent=2)+'\n')
     return 0 if receipt['passed'] else 1
 
 

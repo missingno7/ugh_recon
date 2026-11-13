@@ -1,0 +1,471 @@
+{
+  "component": "falling_items",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "proposed_status_reason": "All gameplay transitions have actual-C relational B evidence, dispatch selection B and finite mixed-handler composition C, a shipped-source capacity argument B, routine differential C and whole-game D with two active-item scenarios. General mutable descriptor aliases and malformed entries remain explicit L1 compatibility paths with C evidence. Supervisor review/promotion is pending; the read-only host overlay tests selection as migrated.",
+  "original": {
+    "L0": [
+      "GAME:DispatchFallingItems 013B:2B7F",
+      "GAME:SpawnFallingItem 013B:2B96",
+      "GAME:AdvanceFallingItem 013B:2BE4",
+      "GAME:LandFallingItem 013B:2C97",
+      "GAME:ExpireOrCollectFallingItem 013B:2CA9"
+    ],
+    "L1": [
+      "c/items_water.c",
+      "c/actors_states.c:c_ExpireOrCollectFallingItem"
+    ],
+    "link_note": "L0-to-L1 remains differential evidence, never a formal equivalence or new byte-match claim. Native proof adds no matching ASM/C/runtime attribution."
+  },
+  "native": {
+    "header": "native/items.h",
+    "files": [
+      "native/items.h",
+      "native/items.c",
+      "native/bridge/items_bridge.c"
+    ],
+    "functions": [
+      "items_spawn",
+      "item_advance",
+      "item_land",
+      "item_collect",
+      "items_next",
+      "item_update",
+      "items_dispatch"
+    ],
+    "build": "python verif/items_build.py",
+    "representation": "Twelve FallingItem records, copied immutable FallingItemType views, FallingItemPhase enum for the stored flight/landed handler. Sprite FFFF alone denotes inactive dispatch; phase and all payload remain stale on retirement. item_update and items_dispatch select native control flow by the enum."
+  },
+  "purpose": "Own falling-item allocation, flight/platform landing, landed countdown, first-player collection and timer/life/multiplier effects. Borrow immutable descriptor geometry and level platforms plus player contact positions. Leave sprite erase/pixel caches and shared benefit state ownership with rendering/session services.",
+  "interface": {
+    "inputs": [
+      "Twelve accessible disjoint records; all scalar word patterns admitted, including stale inactive fields, negative sprites, wrapping positions/velocities, zero lifetimes and reversed geometry bounds.",
+      "FallingItemType geometry anchor words, extents exactly three, arbitrary launch impulse and benefit amount, projected kind 0 timer/1 lives/otherwise multiplier.",
+      "Zero through ten stable ordered LevelPlatform surfaces, two player positions, arbitrary player_count word, timer/multiplier/lives and an already selected arbitrary multiplier_limit word."
+    ],
+    "outputs": [
+      "Explicit ITEM_SPAWNED with highest eligible slot, or ITEM_POOL_FULL without any state mutation; the latter is not an original normal failure result.",
+      "Typed transition/contact diagnostics and persistent item records; ordered direct native dispatch over the current descending slots.",
+      "Bridge preserves complete deterministic L1 register/flag shell, including stale outputs and L1-defined values of L0-undefined flags, within its projection contract.",
+      "On full pool, saved incoming BX becomes pending CS:IP with BX=FFFE and the genuine caller return still pending at SP. The established RET-only IgnoreExhaustedTree target returns normally; every other target returns UGH_CONTROL_TRANSFER, refining L1's UGH_BAD_CALLBACK diagnosis with the same pending machine continuation. No invented allocation failure or fabricated target execution."
+    ],
+    "effects": [
+      "Spawn writes descriptor identity, callback, sprite, X, Y, vertical step and motion cell for exactly the chosen slot.",
+      "Flight can update X, vertical step, Y; signed X/bottom removal changes only sprite. Touchdown snaps Y, changes phase and overwrites motion/lifetime with 560.",
+      "Landed step predecrements the lifetime word. Equality zero retires before contact; a miss preserves the sprite; a hit writes one selected shared benefit then retires sprite only.",
+      "Native code has no registers, memory model, original code addresses, callbacks, I/O or global mutable simulation state. Bridge writes through the original parallel-array projection."
+    ],
+    "preconditions": [
+      "Ordinary stable RAM, serialized execution, accessible initialized descriptors/platform lists/records, stack and data disjoint; no device-aperture aliases or asynchronous mutation.",
+      "Direct native slot operations admit arbitrary phase payloads when explicitly invoked; item_update/items_dispatch admit only the two declared phase values. Sprite activity is independent of the stored phase.",
+      "Bridge normalizes even slot byte indices 0..22 and known landing target. Invalid indices, mutable descriptor/output aliases, unknown landing callbacks, or platform walks beyond ten retain L1 explicitly.",
+      "The symbolic proofs normalize selected slot identity to zero, DS=0, SS=1, descriptor=0100, SP=9000 and multiplier-table index zero, while values and incoming scratch registers/flags are arbitrary. Slot symmetry applies to disjoint array indices. First-right/eleventh-left physical alias is retained. Physical wrapped descriptor projection and dynamic DS have differential evidence.",
+      "The 12-slot capacity and 10-platform bounds are complete admitted native storage bounds, not bounds on how many outer frames may execute."
+    ],
+    "state_machine": [
+      "Inactive means sprite==FFFF. Allocation instead accepts ANY sign-set sprite, including active FFFE; highest index wins.",
+      "Spawn -> flight: X=launchX-(anchorX<<5), Y=launchY-(anchorY<<4), horizontal=CX, vy=-(launchTerm+impulse), all modulo 16 bits; sprite and flight handler installed.",
+      "Flight: first form wrapped X+horizontal; signed X<=-512 or >=10240 retires without storing X. Otherwise store X, add gravity three modulo word and store vy. Negative vy integrates Y and bypasses bottom/platform tests.",
+      "Descending flight: form wrapped new Y; signed Y>=6144 retires before storing Y. Otherwise store Y. Old/new bottoms use SAR5 plus descriptor height with word wrapping.",
+      "Landing scans ascending platforms. Old bottom must be strictly less than signed surface and new bottom at least surface. CenterX=SAR5(X)+anchorX must be at least left, then wrapped centerX-1 at most right. First hit snaps Y=(surface-height)<<5 and immediately enters landed phase with lifetime 560.",
+      "Landed: predecrement modulo word; exactly zero -> inactive before contact. Otherwise native contact_players chooses the first touching player (only player_count==2 retries the second). On hit apply benefit and mark sprite FFFF; on miss remain landed.",
+      "Retirement never clears descriptor, stored handler/phase, positions, vertical step, motion/lifetime or render caches."
+    ],
+    "benefits": {
+      "timer": "Kind word zero: low16(timer+amount), then unsigned min with 5A3B (23099). Wrap precedes cap; stores one word.",
+      "lives": "Kind word one: low8(lives+low8(amount)), then unsigned min with 99. Store AL only; adjacent multiplier byte is untouched.",
+      "multiplier": "Every other kind word: compare entire multiplier word unsigned with selected limit, increment low byte modulo 256 only when below, preserve the high byte. Amount is ignored. Shipped limits are 3/9/99 for difficulty 0/1/2.",
+      "shipped_descriptors": "Ordinals 0..8 are timer rewards of 3000,7000,5000,5000,8000,7000,3000,5000,10000 with sprites 011D..0125. Ordinal 9 is life+1, sprite 0128, and has no shipped producer. Ordinal 10 is multiplier+1, sprite 0129, from qualifying quick delivery. All have geometry 8,16 and handlers Spawn/Advance/Land/ExpireOrCollect."
+    },
+    "field_decision": "Retain one motion_or_lifetime word. Flight alone reads horizontal motion; landing kills that value with 0230; collection alone reads lifetime. Phase separation is established, but inactive/stale projection and direct compatibility entries still preserve the single observable storage cell. No second independent stale value is invented."
+  },
+  "callers": {
+    "spawn": [
+      "GAME:DeliverPassenger: quick countdown nonzero and word multiplier below difficulty limit; descriptor ordinal 10; launch at player X+512/Y+320, horizontal and term zero",
+      "GAME:ReleaseTreeReward: descriptor from tree list, stone X/Y/horizontal, transformed bounced vertical term; cursor advances only after the call, cooldown 210"
+    ],
+    "dispatcher": "GAME:RunGameFromPassword after actors and hazards, before drawing items. Visits slot byte indices 22,20,...,0; skips exact sprite FFFF only.",
+    "flight_landing": "Stored flight/landed handlers and descriptor +8 landing tail. Direct suite calls additionally exercise arbitrary stale slot contents.",
+    "renderer": "RunGameFromPassword reads item sprite, X/Y, derives current pixel caches by SAR5, rotates draw/erase caches and restores prior rectangles. It does not read item callback, descriptor, vertical step or motion/lifetime. Render caches remain rendering-owned."
+  },
+  "callees": {
+    "native": [
+      "contact_players (native/contacts.h)",
+      "item_land",
+      "item_update",
+      "items_next"
+    ],
+    "bridge": "Actual ABI arithmetic and projection helpers; explicit L1 compatibility endpoints outside admitted storage/alias/landing contracts. Dispatch retains machine call framing around the exported native adapters."
+  },
+  "indirect": {
+    "complete_sets": {
+      "013B:2B8C stored update": [
+        "GAME:AdvanceFallingItem",
+        "GAME:ExpireOrCollectFallingItem"
+      ],
+      "013B:2B3A descriptor spawn": [
+        "GAME:SpawnFallingItem"
+      ],
+      "013B:2C8E descriptor landing": [
+        "GAME:LandFallingItem"
+      ],
+      "descriptor_plus_A installed_landed": [
+        "GAME:ExpireOrCollectFallingItem"
+      ]
+    },
+    "classification": "Complete under initialized shipped descriptors/index/mode invariants from the program model. Unknown mutable callback words remain machine-boundary dispatch/error cases, never silently classified as ordinary native states. Full-pool saved-BX transfer is separately explicit."
+  },
+  "memory": {
+    "owned": "D:2D6B descriptors[12], 2D83 callbacks[12], 2D9B sprites[12], 2DCB X[12], 2DE3 Y[12], 2E5B motion/lifetime[12], 2E73 vy[12], all word arrays.",
+    "borrowed": "Immutable item descriptor +0/+2,+C,+E,+10,+12 and callback +6/+8/+A; platform left/right/heights; player X32/Y32/count; difficulty-selected multiplier cap.",
+    "shared_effects": "D:LevelTimer word, LivesRemaining byte, ScoreMultiplier low byte with word comparison/high byte retained. The item module borrows these values; it does not own score/session/physics.",
+    "rendering": "D:2DB3 erase sprite, 2DFB drawX, 2E13 previousX, 2E2B drawY, 2E43 previousY remain external and untouched.",
+    "aliases": "Motion/lifetime phase reuse retained. Descriptor/output aliases and arbitrary memory walks use L1. The symbolic RAM maps adjacent platform arrays faithfully, including first-right at the eleventh-left address. Stable wrapped operand projection has differential coverage."
+  },
+  "assumptions": [
+    "Shipped-source B capacity invariant: all producers use intact shipped descriptors/lists/itineraries; craft position/velocity bounds hold at throws, stone energy E=v*v+2*v-4*y<=39104 with descending contact NEG/SAR energy loss, item initial Y in -544..6256 and launch velocity -135..-14.",
+    "Actual free flight exhaustively retires within 125 updates for that envelope; landing can occur only sooner and adds 560. A strict 700-update window covers all outstanding items including the current pre-dispatch spawn.",
+    "Tree consecutive spawns are at least 210 updates apart. A passenger's consecutive deliveries include nine-frame departure (57 updates), next scaled itinerary wait, nine-frame arrival through sentinel (64), and a 140 destination countdown. Walks/travel/additional states only increase those gaps.",
+    "All 150 shipped order entries satisfy a sum of per-source 700-window bounds at most 12 INCLUDING the contemplated spawn, so occupied<=11 just before any allocator call. This proves the defective allocation path unreachable under these assumptions, not that twelve occupied slots are actually reachable or that arbitrary external states cannot fill the pool.",
+    "Actors and hazards update before item dispatch; paused simulation freezes producers and consumers together; level/retry initialization clears item sprites. No arbitrary external callbacks or corrupt-state injection in this shipped-game argument.",
+    "Pinned fixed-width C/MinGW/CBMC tool ABI; receipts record actual command arrays, sources, preprocessed hashes, tool manifest and timing."
+  ],
+  "eliminated": [
+    {
+      "detail": "Parallel-array control representation in ordinary native code",
+      "evidence": "FallingItem records and a phase enum with direct item_update/items_dispatch; raw pointer/callback identities are confined to projection."
+    },
+    {
+      "detail": "Register and segmented-memory dependencies inside gameplay transitions",
+      "evidence": "Typed ordinary parameters, return diagnostics and borrowed level/contact types; complete shell kept and checked in the bridge."
+    },
+    {
+      "detail": "Normal failure fiction on pool exhaustion",
+      "evidence": "Native explicit ITEM_POOL_FULL is mapped to the original saved-BX continuation, never to a normal DOS allocator failure."
+    }
+  ],
+  "retained": [
+    {
+      "detail": "All word arithmetic wraps before signed or unsigned comparisons; spawn height uses <<4; landing height <<5",
+      "reason": "Direct DOS instructions, including negative gravity/Y wrap domains."
+    },
+    {
+      "detail": "Negative allocation versus FFFF-only dispatch activity",
+      "reason": "Allocator TEST/JNS and dispatcher CMP FFFF differ; FFFE is both allocatable and active."
+    },
+    {
+      "detail": "Single phase-reused cell and every stale payload on retirement",
+      "reason": "No unproved deletion of inactive state or second fabricated stale value."
+    },
+    {
+      "detail": "Predecrement equality expiry; zero wraps to FFFF and still contacts",
+      "reason": "Collection lifetime order is DOS-specific and differs from Amiga."
+    },
+    {
+      "detail": "Wrapped timer/life additions before caps, byte stores, word multiplier comparison and stale high byte",
+      "reason": "Exact shared-state store widths are observable by scoring and HUD/session code."
+    },
+    {
+      "detail": "Saved-BX full-pool abnormal transfer",
+      "reason": "Original defect; B shipped-source exclusion does not justify deleting its API/boundary behavior."
+    },
+    {
+      "detail": "Mutable aliases, malformed targets/indices and overlong platform lists remain L1 compatibility",
+      "reason": "These cases are outside the admitted native state representation; no native proof is claimed for them."
+    }
+  ],
+  "evidence": [
+    {
+      "property": "L0-to-bridged L1 routine suites including callers and renderer",
+      "level": "C",
+      "method": "Unchanged normal and poison difftest suites",
+      "command": "python verif/items_integration.py --whole --local-reference",
+      "result": "PASS 2754/2754: items_water 210, actors_states 1044, actors 974, render 526. Eight retained-L1 flight entries (overlong platform-list fixtures) and two alias spawn entries are compatibility evidence, not native proof.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Actual C finite domains, ordinary enum dispatcher and bridge projection",
+      "level": "A",
+      "method": "Exhaustively enumerate 4096 slot masks with three negative markers; all lifetime/shared word slices, all life-byte/addend pairs, all landed prior words and four flight word slices; additionally 100000 generated direct operations and 10000 mixed-handler dispatcher cases (the generated portions are C).",
+      "command": "python verif/items_evidence.py enumerate",
+      "result": "PASS 921011 comparisons. A only for enumerated finite slices/masks/byte pairs; no claim of exhaustive Cartesian flight, arbitrary descriptor or complete mixed-handler state domains.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Spawn allocation and full-pool continuation from arbitrary admitted slot state",
+      "level": "B",
+      "method": "CBMC actual L1/native/bridge relational step with all twelve arbitrary sprite/payload words, symbolic input registers and arbitrary descriptor scalars; bound/pointer/overflow/unwind assertions enabled",
+      "command": "python verif/items_evidence.py spawn --timeout 60",
+      "result": "PASS with unwind 25. Full-pool pending CS:IP/SP/flags preserved; explicit control-transfer boundary replaces L1's unresolved-target diagnostic status.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Flight and touchdown from arbitrary admitted state",
+      "level": "B",
+      "method": "CBMC actual C, arbitrary geometry/positions/motion/platform words, ten surfaces plus sign sentinel, full persistent projection and bridge shell",
+      "command": "python verif/items_evidence.py flight --platforms 10 --timeout 90",
+      "result": "PASS with unwind 25; includes signed/wrapping/remove/rise/descend/first-platform touchdown branches. First-right word aliases the required negative eleventh-left sentinel in the ten-surface profile.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Direct landing from arbitrary prior motion/lifetime",
+      "level": "B",
+      "method": "CBMC actual C and bridge, any payload and descriptor scalars, full shell/persistent state",
+      "command": "python verif/items_evidence.py land --timeout 30",
+      "result": "PASS with unwind 25",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Expiry, contact and every benefit kind from arbitrary admitted landed state",
+      "level": "B",
+      "method": "CBMC actual C including independent L1 contact body and native contacts, arbitrary lifetime/player count/two player positions/geometry/kind/amount/timer/lives/multiplier/cap words",
+      "command": "python verif/items_evidence.py collect --timeout 60",
+      "result": "PASS with unwind 25; same shared effects and complete deterministic L1 register/flag shell",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Descending dispatcher selection and call order",
+      "level": "B",
+      "method": "CBMC actual dispatchers with observing no-op callbacks, arbitrary twelve sprite/handler words; compare complete visited-index sequence and shell. Handler state effects are separate proofs; full mixed-handler composition remains C.",
+      "command": "python verif/items_evidence.py dispatch-selection --timeout 90",
+      "result": "PASS with unwind 13. No claim that the timed-out full-dispatch CBMC profile proved composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Shipped-source capacity envelope and unspawned life descriptor",
+      "level": "B",
+      "method": "Exhaustive actual native free flight over 829722 envelope states, integer SMT stone-energy lemmas linked by manual source-writer review, all shipped resource/order/animation/list data checked, per-source lifetime-window arithmetic",
+      "command": "python verif/items_capacity.py",
+      "result": "PASS: flight<=125, total<=685, window 700; maximum including new spawn 12, before allocation 11, 150 order entries. Life ordinal 9 absent from all shipped producer sets. Stone/lifecycle/environment invariants remain explicit assumptions, not an automatic proof on the whole gameplay C.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Negative proof bound and seeded retained-quirk defects",
+      "level": "C",
+      "method": "Unwind one must fail; scratch timer-cap, expiry and safe-full-pool mutants must be detected by compiled actual-C comparison",
+      "command": "python verif/items_evidence.py flight --negative --timeout 30; python verif/items_mutants.py",
+      "result": "PASS controls: unwind assertion fails and all three mutants are DETECTED",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Maintained whole-game integration",
+      "level": "D",
+      "method": "Every deterministic page boundary, complete RAM/device/ordered-log digests against the independent rebuilt original",
+      "command": "python verif/items_integration.py --whole --local-reference",
+      "result": "PASS all fourteen scenarios. Audit: only inactive item dispatch occurs; these traces do not establish active transitions.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Active quick-delivery multiplier pickup",
+      "level": "D",
+      "method": "Fixed input-only 841-frame real-entry/password/level59 trace, every boundary independently generated on L0 and checked against bridged L1; no gameplay state patches",
+      "command": "python verif/items_scenario.py author; python verif/items_scenario.py verify",
+      "result": "PASS; all original item routines and contact reached, native spawn 1 / flight 39 / dispatch 809 / collect 1, no fallback. Landing uses direct native item_land from the flight tail.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Active tree timer pickup",
+      "level": "D",
+      "method": "Fixed input-only 813-frame real-entry level1 stone pickup/flight/throw/tree-reward trace, all L0 boundaries compared",
+      "command": "python verif/items_scenario.py author --kind timer; python verif/items_scenario.py verify --kind timer",
+      "result": "PASS; native spawn 1 / flight 29 / dispatch 798 / collect 47, no fallback. Life collection is unavailable in intact shipped gameplay.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Standalone native host, including the proposed item migration",
+      "level": "D",
+      "method": "Real host builder under a read-only migrated-selection and projection-library overlay; unchanged host checker against L0 references, plus both external pickup scripts",
+      "command": "python verif/items_host.py",
+      "result": "PASS fourteen scenarios, 256-frame attract smoke, multiplier pickup 841 frames and timer pickup 813 frames. Unmodified python tools/hostbuild.py is BLOCKED by its pre-existing rejection of level_view (no replacement c_ exports). No host/tool source outside this work order was changed.",
+      "date": "2026-11-13"
+    }
+  ],
+  "amiga": {
+    "classification": "Similar purpose with confirmed differences; no DOS byte evidence",
+    "findings": "Same tree reward order 0,8,5,7,6,1,4,3,2. Amiga has five slots and normal full-pool return, separate lifetime initialized 400, different flight/water/collection ordering, timer cap 3FAC (16300). DOS keeps twelve slots, malformed full-pool continuation, lifetime 560, predecrement expiry and cap 5A3B. None is normalized to Amiga."
+  },
+  "uncertainty": [
+    "The B capacity proof is conditional on the recorded stone/craft/lifecycle/source invariants, whose linkage to their actual callers is static review, not a whole-game model check. It proves no full-pool allocator call within that envelope; twelve simultaneously occupied slots are an upper bound without a reachability witness.",
+    "Full mixed-handler dispatcher CBMC timed out at 90 seconds; initial selection proof also timed out at 60 seconds before a footprint specialization/per-loop bound. No timeout earns proof. Actual full dispatch has enumeration/generated/differential/D evidence.",
+    "A shipped whole-game scenario collecting each of all three benefit kinds cannot be supplied: the life descriptor has no producer. Additional timer descriptor ordinals 1..8 have transition proof but no individual whole-play pickup witness.",
+    "General descriptor/output aliases, malformed indices/targets and overlong platform walks are retained L1 paths, not native closure proofs. Arbitrary interrupt interleavings and modified resource tables are outside the capacity argument.",
+    "Only the supervisor promotes status. Host readiness is checked with a read-only migrated selection overlay while the certificate remains administratively unanalyzed.",
+    "Unmodified tools/hostbuild.py currently rejects level_view because its library bridge has no c_ replacement exports. The authorized write set excludes that tool. A read-only overlay verifies the resulting host including falling_items and all current migrated units; REPORT.md supplies the exact minimal external fix."
+  ],
+  "dependencies": {
+    "native/items.h": {
+      "includes": [
+        "contacts.h",
+        "level.h"
+      ],
+      "calls": []
+    },
+    "native/items.c": {
+      "includes": [
+        "items.h"
+      ],
+      "calls": [
+        "contact_players",
+        "item_advance",
+        "item_collect",
+        "item_land",
+        "item_pixels",
+        "item_signed",
+        "item_update",
+        "items_next"
+      ]
+    },
+    "native/bridge/items_bridge.c": {
+      "includes": [
+        "../items.h",
+        "ugh.h"
+      ],
+      "calls": [
+        "D",
+        "G",
+        "add16",
+        "dec16",
+        "flag",
+        "item_byte_add",
+        "item_land",
+        "item_ordinary",
+        "item_project",
+        "item_publish",
+        "item_sar",
+        "item_shl",
+        "item_type",
+        "item_update",
+        "item_word",
+        "items_next",
+        "items_spawn",
+        "l1_AdvanceFallingItem",
+        "l1_ExpireOrCollectFallingItem",
+        "l1_LandFallingItem",
+        "l1_SpawnFallingItem",
+        "lin",
+        "logic",
+        "rd16",
+        "rd8",
+        "set_al",
+        "sub16",
+        "szp",
+        "ugh_call_near",
+        "wr16",
+        "wr8"
+      ]
+    }
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "c/abi.c": "5f7c2c2fc015ca43e3786a7f96cb38113211da54acefce19564c1df78d74857a",
+    "c/actors.c": "d17c03c844f95780f0647b85aa854a87c3e566b0f56fe89ee0a95d6d689f3ff2",
+    "c/actors.h": "00817c6f676f61811df11066fca3335c9757e0f59f7cad241dff762fee7b71bd",
+    "c/actors_states.c": "79a460a0436e773bdd795953f63c6765d71c0e346cdf8bbccbcf707817994447",
+    "c/actors_states.h": "375dda6bd3fa6cd5552cc98df7f7c785dc5d70850a10f96207bd0894161cd5d8",
+    "c/adlib.c": "2f4e551282f6ac33f8d24127f3cd5294e679f72ce28794c3ed295ce243c18bf0",
+    "c/adlib.h": "70f2c0d3f51dc49dd05918266b4de07d247a12909f11e8329244b8d9af56cdee",
+    "c/demo_scripts.c": "a19c7e52bc709a28f9be40bc66b60c6de82df888f8eb725b79f0b9556fe795d7",
+    "c/demo_scripts.h": "ea65090001ef64f26f31c39de2075c098949bcb9ca8448480cd1fccdf55a608b",
+    "c/dispatch.c": "80a97f55a460a21dac9d6295939a8276c83b66cef886f814365e0a823814debf",
+    "c/dos_input.c": "b6a086f3917441a23c4238f582e00605d8a239ded81b03a658ff308890601e53",
+    "c/dos_input.h": "8cee17811645a61424b6174e0213402b8c21defd5b4fa6d56511225c70e5193e",
+    "c/dsp.c": "a2f4dc144514ed9ea8cdca8a75c9813718342a5ed5c26176ff6d691f89d651b5",
+    "c/dsp.h": "9b2c2b95b0781caf3a96b7b0b19f8078601557f5e0a11bec889d109ef2755b63",
+    "c/game_services.c": "e9301da5d7fae6f2aacce7dda8d4e6f0e86cbe8c40e736216185c4a8f792a7c5",
+    "c/game_services.h": "7a63f8bd05b2710c27c4c4247b00e0f1fc06a4ecdaa388bf47eb9fb1374965c5",
+    "c/ice.c": "27e2898dd6a5e70af26bde84c0ba8cd6e8a045e40d94df21fd5b122f10a2242e",
+    "c/ice.h": "925da59e4f3fb6cf278100578e56093dc7138040c98eb9f286acb9c867512578",
+    "c/items_water.c": "ab5c2c72096b5e6355a2575f9a58c321f91680d7cd97653581dcbab59033e2d9",
+    "c/items_water.h": "d18978433dcc966235010906984c13fcb76c3469bf4bc0f8e33345101099f148",
+    "c/memory.c": "97f59e3c343cd6911854d0bfc3ff624417de2844f712caa96ec6799d3a9783d9",
+    "c/menu.c": "b2ea585a4cb2b40c349fd7a017642534ea2b4982140a25a6dcacd12ce3b418b0",
+    "c/menu.h": "eaa33e9e9db1f3caa44f60b4a0c862b1bc82855a6389e91f330606e27317b1de",
+    "c/menu_helpers.c": "48125ab011a2ab29cd7936aa61e9889c8715ee843090c6ddd00f9d14dddbb6ad",
+    "c/menu_helpers.h": "9c5998717eec5a79122d91ca1d6a045f303baaf5b96dbf14cf6401b4df34e4e2",
+    "c/music_analysis.c": "604fc3c80dec56a6740444b908da8baeff325357760ab8b82e9db72f5e022fe5",
+    "c/music_analysis.h": "3b2175241d1ced443d9463c6545232630cd4ccd20d907dab83296c8e4cd7fe23",
+    "c/music_clock.c": "2583d53f81c50bc148d423866cbd8f0fa14ff6bb3e5f8320a60e02b35a7d82fa",
+    "c/music_clock.h": "5ffc27066dc1c8438e716850ce666daaa00421dec8be964337b43f75a936210e",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/render.c": "7620324caaff46b39094d4b8f7077f2a5426a728806e52f1c56a962771208b40",
+    "c/render.h": "bcac207ffd7130100008409d8b4069b9ac126b713c81bfb043f1eb1e9603c160",
+    "c/render_primitives.c": "447a9f435f22cc46c9c30d8d11ee9046d57d57c48d6bbaa2e91768e32f9698c0",
+    "c/render_primitives.h": "92f16baae8b087d052e7ca713921fe74ad63e4f0a9f370190b2cc476c7a0ab09",
+    "c/scene.c": "0060ef52ee2cc8b4c98d1b04b6387cd809809a9226f4b4f71c01a75a99d5e460",
+    "c/scene.h": "77c02b56b44a4eb584da4d17cad94cc7f4be79ea3a2f70fd03d7ed2dc50f884a",
+    "c/sound_api.c": "ba1c98bf3a03b5f48a71d4491bdebf3acfc17b0f6cce51db370a0e58c0507e4c",
+    "c/sound_api.h": "b15efba9d9cf41053b3b818d4bb3a084936b6d3e15dafc05544648c88e4687c1",
+    "c/sound_engine.c": "5e4116c31806441e464de35d5649894ec4eea28025254a2edea616235e6e6881",
+    "c/sound_engine.h": "bb288a280c6cf526e91718ccd7fd02a2762e9d58f3d0d53a2f2feef9472eabd1",
+    "c/sound_state.c": "c57e5874b9a7b761faf49dd0bf6da4338ffaea31af1cea5c91a2f13e8ea9ded2",
+    "c/sound_state.h": "bdbbef92b75c99c274bde293ec8bcb1f7a997ed1e8176dc5deda96806c6fbad4",
+    "c/timer.c": "49e56856d56bb1ae68b62fa9112ce294f77182bebfc8e2cd5392737f1c06080b",
+    "c/timer.h": "4ae328394adb59216a373832fbf926a926ce9fe8f813bbe7c3927c9abaf10937",
+    "c/timer_stack.c": "512cfb5332569f32adffed22e5211db5772440428369cc9cc808be931631c98d",
+    "c/timer_stack.h": "e076aba16f8ee3dacbffcddbfa5b065a79a6e8000fa825244bffeb3771d1a514",
+    "c/timer_system.c": "89ead348d18a649f37dca6f44c94c309c3d50b7b6d0877411064f9ac0129d92b",
+    "c/timer_system.h": "f7204fef034e9f641f1f12ad9412efe80844d5be64b177300bdc5a9a20136a49",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_adapters.h": "c18eafbbe16170d01fcfac6853deab651d3c2b54343b47bccd6ce0de4303ad38",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "c/video.c": "681732591d8efb11cf1d5d5816c999bca718560bd247d9c9cc6c0f36982b2fa2",
+    "c/video.h": "35e4d6076edd69e2722cf7d52392871345f5e0eb78af7ce67e13c8ed0c02f192",
+    "metadata/oracle.json": "7db8024058b1a1e34c7b02058e49f331f30effb6f35927945abcafaf63f9033f",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
+    "native/bridge/items_bridge.c": "badddeb8758636e00216082cbb4e945fd11445c070f400db25b10ccf39506995",
+    "native/contacts.c": "f809c3af54ddb43b07b60be870e30e404f0b0456f4542585011cb5108dcc8b15",
+    "native/contacts.h": "2d329a52985ea628a56afaee703e8b2f84ed9a328e58109c3be4dac3e90c1d29",
+    "native/geometry.h": "e630be5b080076dfd0f95ff07be51887e5c39d8caa3bdfae7271e06be37c6410",
+    "native/items.c": "d3ede593a1249fc46da025fc304f90ed8f962a5145a81731c6dc70b2f384b8ec",
+    "native/items.h": "167ed4e4d1d4ff78201eb37144bd1b77d6f1d9a6b51b935f0f5ba2142eb55736",
+    "native/level.h": "d9d498993704f2b446d52fa1f3e3cc4b721d9344cfef8520ab4979c3395f45ca",
+    "src/asm/GAME.ASM": "29c9ead3b191a744c59b465a3bd4de29f2e217b92492cf57edb8c13bc3494204",
+    "src/data/DGDATA.ASM": "9d46889e26434a597ed19b91c119029af3dbf3dbcfa9811c4ed5aa18dc157541",
+    "tests/actors.py": "80b0aed22ae70e2b8eeead4a4176ce5b5935ac93ee517869df14035ffa9ea7ad",
+    "tests/actors_states.py": "94ec4f7e880e6d717c5fc1a645f6f2dfebab18150f915e9ee0009789f5126de6",
+    "tests/items_water.py": "ea1f63e28e3dbc63d89649e167f5677bdb3a13b542eb588c90e6ed34a1f6db30",
+    "tests/render.py": "ac899241858dd7dd0f2d175a7f5b7229257b5b59a24291c65078881281c86e7e",
+    "tests/scenarios/adlib.txt": "1db37ba320e4c3c85449c2f4a7f5ecd8543e6de6933e165e534b79adb3386f2f",
+    "tests/scenarios/attract.txt": "07339939be35779cc94094221155e97a11c6dec396ab6dce85f238a415896a01",
+    "tests/scenarios/completion.txt": "d898ad1f8abd49f7757303b562028cf7f0c10143dfb0358dad4e0a6fee7386bc",
+    "tests/scenarios/enemy.txt": "c5140aa9afe062e09cbefb949b78d06733c306518f315ba8f5448a0c2b8062a6",
+    "tests/scenarios/gameplay.txt": "b0be47d570408d44dc977faca40ef2a258c0686958f7fa68574cc411bb25a03a",
+    "tests/scenarios/high-score.txt": "5b698cb06b6d77d9a9d6f009cea71b8a1af9c16c8ecf3c344e33a9b8d93b1220",
+    "tests/scenarios/menu.txt": "3e8347d504ac0c13ced62c1befb26b59a353c46de397bb3ac79f5089b20ea8b1",
+    "tests/scenarios/passenger.txt": "e95f43a019615449dd142652ea837aaeb4a82e7bce9c6ecd72dd67411fe44922",
+    "tests/scenarios/password.txt": "fea4555e22daca6a5e4e154fd4d6c1b7871d80aa574c402363d5b3b938657bd2",
+    "tests/scenarios/pregame.txt": "6697f662ccf5791b57e14d5dcb0c216c7428312441c570f10b0e031a33a97cf8",
+    "tests/scenarios/reveal.txt": "8be34ff993316d7e099576cccd8af23d28267b02eee37df01a430f8e94418c84",
+    "tests/scenarios/startup.txt": "bddaf9054cfb6f1a4a5734e147c2481c28d0fa0768af141c311ddb13a38fbd7b",
+    "tests/scenarios/two-player.txt": "5c07be6ec944b7a38082d275633bba2ef26cc9e90828b673bb8434ad3ffa78e5",
+    "tests/scenarios/water.txt": "22aca0913b25142891f67c57f20d56cfef57c16df862269a377f924217e96f84",
+    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
+    "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
+    "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
+    "tools/wholegame.py": "ba6fff7d0f1583e734ab69435e801f2d101758078c36712744bc5b3e839fa65c",
+    "verif/cbmc_shim/stddef.h": "03e62ec5f7016e0582b92f016d7e4017b56746e2b216ae8d7fad236ae7e723e7",
+    "verif/cbmc_shim/stdint.h": "ff382e7cc9e8ac2ff6cef94767bb680b49944513ebff33b6d7e548fe12a5d7d0",
+    "verif/cbmc_shim/ugh.h": "d23d5fb7f8d14f5c03944d9cce971d6d21fdf32c28ebac1f2710842cd03d7e72",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
+    "verif/items_build.py": "1147ce5534ed1244d198281d74c0ab94528938e1b8e6bb331736c7881aa641e7",
+    "verif/items_capacity.c": "dd450da12f382fcf692da2f927705753c30c969ac139aa0efc0f915f6cfb3fc1",
+    "verif/items_capacity.py": "4dc5ec64694a146b304ca70e527250784bb9f3b5646d37f3c176854b609e6251",
+    "verif/items_evidence.py": "e9dbd421b744f1c79616c5117d7ca5e16970b5a6cb34bbc9546cca8a37cab969",
+    "verif/items_harness.c": "323a40c48d0b0b069a54c55725c874456e2ee88bae8bac8ca7a22974551deaa4",
+    "verif/items_host.py": "22f51e83ac015243daf4387a16102b40a4c62bf0fa1bb256cd0cc35f97d1db0f",
+    "verif/items_integration.py": "c52a99fa54a2080eb5073697bf59e72a2ac30b42a4312a95482a6a08cdaf8f55",
+    "verif/items_mutants.py": "4e16229f146901bdccca879af048064fc88017f9ca42aaba25c55266a8b7515b",
+    "verif/items_scenario.py": "e06c53bcded5537c0141f7823e3deca2510661821618ae08b07175c2b034c93e",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574"
+  },
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-13",
+      "reason": "supervisor applied the library-unit fix to tools/hostbuild.py (export-less bridges link as libraries)",
+      "result": "unmodified python tools/hostbuild.py builds with falling_items and level_view linked; python host/check.py --variant native passes all scenarios including items-multiplier and items-timer and the 256-frame smoke; python tools/wholegame.py passes 16 scenarios"
+    }
+  ]
+}

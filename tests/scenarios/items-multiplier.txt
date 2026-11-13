@@ -1,0 +1,42 @@
+timing pit-quantum-at-polls
+# Fixed input-only trace, authored on C; verify independently on L0.
+frames 841
+card none
+joystick f0 f0 ff ff ff ff ff ff ff ff f0 f0 f0 f0
+bios 0020 0020 0020 0020 0020 004f 004d 0045 0047 0041 0044 0041 0057 004e 000d
+1: esc -esc
+4: esc -esc
+9: f2 -f2
+26: f1 -f1
+29: enter -enter
+31: cycle=enter,-enter
+131: stick=-1,-1
+155: stick=-1,0
+156: stick=0,1
+158: stick=0,0
+159: stick=0,1
+160: stick=0,0
+162: stick=0,1
+163: stick=0,0
+178: stick=0,1
+189: stick=0,0
+191: stick=0,-1
+192: stick=0,0
+194: stick=0,-1
+195: stick=0,0
+196: stick=0,-1
+197: stick=0,0
+199: stick=0,-1
+200: stick=0,0
+201: stick=0,-1
+202: stick=0,0
+204: stick=0,-1
+205: stick=0,0
+207: stick=0,-1
+208: stick=0,0
+209: stick=0,-1
+210: stick=0,0
+requires GAME:SpawnFallingItem GAME:AdvanceFallingItem GAME:LandFallingItem GAME:ExpireOrCollectFallingItem GAME:FindPlayerTouchingFallingItem
+requires GAME:EditLevelPassword GAME:RunGameFromPassword GAME:DeliverPassenger
+expect ScoreLowWord 2599
+expect CurrentLevelIndex 58

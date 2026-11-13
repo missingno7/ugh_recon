@@ -39,8 +39,8 @@ def selected_units(literal=False):
             raise RuntimeError(f'{component}: host bridge build requires one native .c and one bridge .c; got {native} / {bridges}')
         bridge_text=bridges[0].read_text()
         exports=sorted(set(re.findall(r'\bEXPORT\s+int\s+(c_[A-Za-z0-9_]+)\s*\(',bridge_text)))
-        if not exports:
-            raise RuntimeError(f'{component}: no exported c_ bridge entrypoints found in {bridges[0]}')
+        # A bridge without c_ exports is a library unit (for example the level view used by
+        # other bridges): it is linked and replaces no L1 routine.
         selected.append(dict(component=component,status=status,native=native[0],bridge=bridges[0],exports=exports))
     return selected
 

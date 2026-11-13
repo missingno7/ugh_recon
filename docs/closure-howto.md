@@ -357,3 +357,73 @@ read current X32/Y32, not pixel/render caches. Amiga h0:06D92 instead uses cache
 sprite dimensions/origins and shifts position differences before comparing; its
 inclusive BGT/SLE edges do not establish DOS geometric equivalence. Keep these
 implementations distinct.
+
+## Falling items: slot transitions and capacity
+
+`native/items.h` keeps twelve records, a flight/landed handler enum, and the
+original sprite activity marker. The motion/lifetime cell remains one field:
+landing replaces it, and retirement leaves it stale. Rendering continues to own
+its erase and pixel caches. Only the bridge publishes sprite/position words.
+The full-pool native result is explicit. Its bridge exposes saved-BX as the
+pending CS:IP continuation with `UGH_CONTROL_TRANSFER`; the real return frame
+remains pending. The known RET-only saved target can continue normally. This
+refines L1's `BAD_CALLBACK` diagnosis of an unresolved target without repairing
+the original stack defect.
+
+Run from a clean checkout:
+
+```
+python verif/items_evidence.py enumerate
+python verif/items_evidence.py spawn --timeout 60
+python verif/items_evidence.py flight --platforms 10 --timeout 90
+python verif/items_evidence.py land --timeout 30
+python verif/items_evidence.py collect --timeout 60
+python verif/items_evidence.py dispatch-selection --timeout 90
+python verif/items_evidence.py flight --negative --timeout 30
+python verif/items_mutants.py
+python verif/items_capacity.py
+python verif/items_integration.py --whole --local-reference
+python verif/items_scenario.py author
+python verif/items_scenario.py verify
+python verif/items_scenario.py author --kind timer
+python verif/items_scenario.py verify --kind timer
+python tools/closure.py
+python verif/items_host.py
+```
+
+The relational harness compiles the maintained L1 routines, native module,
+contact implementation and actual bridge together. Every slot word and shared
+benefit is compared, plus complete registers/flags and abnormal continuation.
+Its normalized RAM retains the adjacent platform-array alias at the eleventh
+left word / first right word. Descriptors, data, stack and device apertures are
+otherwise separate and stable. Callback words have their complete established
+target set. Direct-operation proofs normalize the selected slot to zero; the
+same disjoint array indexing applies to all twelve identities. Dispatch-selection
+proves the actual dispatchers with observing no-op callbacks, recording every
+visited index. Each real handler's state effects are separately proved. Full
+mixed-handler dispatcher CBMC timed out; finite composition enumeration and
+whole-game evidence are reported separately.
+
+`items_capacity.py` derives a B envelope over all 150 shipped order entries.
+The stone energy identity is an integer model linked by static writer review,
+not a proof on the stone C. Actual native free flight is enumerated for 829,722
+initial Y/velocity pairs; its maximum 125 updates plus 560 landed updates is
+below the deliberately conservative 700-update window. Itinerary animation/
+countdown lower bounds and tree cooldowns give at most twelve items including
+the impending spawn, hence at most eleven occupied slots before allocation.
+These assumptions are explicit in the receipt and certificate. Arbitrary
+injected item states can fill the pool and retain the abnormal continuation.
+
+The existing fourteen scenarios reach only inactive item dispatch. The worker's
+two additional input-only scenarios exercise a quick-delivery multiplier and a
+tree timer pickup, each compared at every boundary with L0. Their exact text
+stays under `build/workers/close-items/` for supervisor addition to tests. Lives
+descriptor ordinal nine has no shipped spawn source; a truthful shipped-game
+scenario cannot collect it. Its numeric transition has actual-C proof and
+exhaustive byte-add enumeration instead.
+
+The isolated builder avoids changing historically source-locked shared tooling.
+`items_host.py` invokes the real host builder with a read-only selection overlay
+for the proposed migrated unit and suppresses regeneration of protected L1
+files. It then runs the unchanged `host/check.py --variant native`. Certificate
+promotion remains the supervisor's decision.

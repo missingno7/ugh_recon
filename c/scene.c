@@ -392,11 +392,11 @@ EXPORT int c_InitializeDemoScripts(Regs *r) {
         r->ax=rd16(r->ds,(uint16_t)(r->di+2));
         WX(ActorPixelY,r->bx,r->ax); WX(ActorPreviousDrawY,r->bx,r->ax);
         r->ax=(uint16_t)(r->ax<<5); WX(ActorY32,r->bx,r->ax);
-        r->ax=rd16(r->ds,(uint16_t)(r->di+4)); WX(ds_2C6D,r->bx,r->ax);
+        r->ax=rd16(r->ds,(uint16_t)(r->di+4)); WX(ActorVerticalOrDemoPeriod,r->bx,r->ax);
         r->ax=rd16(r->ds,(uint16_t)(r->di+6)); WX(ActorOverlayOrScriptCallbacks,r->bx,r->ax);
         r->di=add16(r,r->di,8,0); WX(ActorUpdateOrScriptCursor,r->bx,r->di);
         WX(ActorAnimationCountdowns,r->bx,1);
-        r->ax=logic(r,0,16); WX(ds_2ACD,r->bx,r->ax); WX(ActorPlatformOrScriptDone,r->bx,r->ax);
+        r->ax=logic(r,0,16); WX(ActorMotionWaitOrDemoRepeats,r->bx,r->ax); WX(ActorPlatformOrScriptDone,r->bx,r->ax);
         r->bx=add16(r,r->bx,2,0);
     }
     WX(ActorUpdateOrScriptCursor,r->bx,r->di);

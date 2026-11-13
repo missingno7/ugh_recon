@@ -19,7 +19,7 @@ def initialize_case(n=1,xy=(10,20),period=3,callback='IgnoreActorState',
         # Poison stale arrays independently of register poisoning.
         for name in ('ActorSpriteIds','ActorEraseSprite','ActorX32','ActorY32',
                      'ActorPixelX','ActorPixelY','ActorPreviousDrawX','ActorPreviousDrawY',
-                     'ActorAnimationCountdowns','ds_2ACD','ActorPlatformOrScriptDone'):
+                     'ActorAnimationCountdowns','ActorMotionWaitOrDemoRepeats','ActorPlatformOrScriptDone'):
             for i in range(16): put(m,ds,name,0xa751+i,2*i)
         if real:
             expected['si']=m.off('DGROUP:'+real)

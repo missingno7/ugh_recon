@@ -169,7 +169,7 @@ extrn ActorPlatformOrScriptDone:byte
 extrn ActorDestinationPlatforms:byte
 extrn ActorSourcePlatformByteIndices:byte
 extrn ActorDestinationPlatformByteIndices:byte
-extrn ds_2ACD:byte
+extrn ActorMotionWaitOrDemoRepeats:byte
 extrn ActorX32:byte
 extrn ActorY32:byte
 extrn ActorPixelX:byte
@@ -181,7 +181,7 @@ extrn ActorAnimationCountdowns:byte
 extrn ActorSpriteIds:byte
 extrn ActorEraseSprite:byte
 extrn ActorEraseOverlaySprite:byte
-extrn ds_2C6D:byte
+extrn ActorVerticalOrDemoPeriod:byte
 extrn PassengerQuickDeliveryCountdowns:byte
 extrn EnemyDescriptors:byte
 extrn EnemyPlatformIndices:byte
@@ -272,9 +272,9 @@ _CopyFarBytes equ GAME_BASE+018h
 ; Absolute view of DGDATA label ActorDescriptors; OFFSET extern adds fixups.
 ; Retained for TASM 3.0 plain relocation order; see docs/data-source.md.
 ActorDescriptors equ 029ADh
-; Absolute view of DGDATA label ds_2A2D; OFFSET extern adds fixups.
+; Absolute view of DGDATA label ActorPhaseOrDemoLoopCursor; OFFSET extern adds fixups.
 ; Retained for TASM 3.0 plain relocation order; see docs/data-source.md.
-ds_2A2D equ 02A2Dh
+ActorPhaseOrDemoLoopCursor equ 02A2Dh
 ; Absolute view of DGDATA label ActorOverlayOrScriptCallbacks; OFFSET extern adds fixups.
 ; Retained for TASM 3.0 plain relocation order; see docs/data-source.md.
 ActorOverlayOrScriptCallbacks equ 02C2Dh
@@ -1695,7 +1695,7 @@ loc_09D9:
     je loc_0A57 ; @09E0
     dec word ptr [bx + ActorAnimationCountdowns] ; @09E5
     jne loc_0A52 ; @09E9
-    mov ax, word ptr [bx + ds_2C6D] ; @09EE
+    mov ax, word ptr [bx + ActorVerticalOrDemoPeriod] ; @09EE
     mov word ptr [bx + ActorAnimationCountdowns], ax ; @09F2
 loc_09F6:
     lodsw ; @09F6
@@ -1715,17 +1715,17 @@ loc_09F6:
 loc_0A1B:
     cmp ax, word ptr 08000h ; @0A1B
     je loc_0A2D ; @0A1E
-    mov word ptr [bx + ds_2ACD], ax ; @0A23
-    mov word ptr [bx + ds_2A2D], si ; @0A27
+    mov word ptr [bx + ActorMotionWaitOrDemoRepeats], ax ; @0A23
+    mov word ptr [bx + ActorPhaseOrDemoLoopCursor], si ; @0A27
     jmp short loc_09F6 ; @0A2B
 loc_0A2D:
-    mov ax, word ptr [bx + ds_2ACD] ; @0A2D
+    mov ax, word ptr [bx + ActorMotionWaitOrDemoRepeats] ; @0A2D
     and ax, ax ; @0A31
     je loc_0A45 ; @0A33
     inc ax ; @0A38
-    mov word ptr [bx + ds_2ACD], ax ; @0A39
+    mov word ptr [bx + ActorMotionWaitOrDemoRepeats], ax ; @0A39
     je short loc_09F6 ; @0A3D
-    mov si, word ptr [bx + ds_2A2D] ; @0A3F
+    mov si, word ptr [bx + ActorPhaseOrDemoLoopCursor] ; @0A3F
     jmp short loc_09F6 ; @0A43
 loc_0A45:
     sub si, 2 ; @0A45
@@ -1823,14 +1823,14 @@ loc_0AED:
     shl ax, 5 ; @0B13
     mov word ptr [bx + ActorY32], ax ; @0B16
     mov ax, word ptr [di + DemoHeaderPeriod] ; @0B1A
-    mov word ptr [bx + ds_2C6D], ax ; @0B1D
+    mov word ptr [bx + ActorVerticalOrDemoPeriod], ax ; @0B1D
     mov ax, word ptr [di + DemoHeaderCallback] ; @0B21
     mov word ptr [bx + ActorOverlayOrScriptCallbacks], ax ; @0B24
     add di, size DemoMotionHeader ; @0B28
     mov word ptr [bx + ActorUpdateOrScriptCursor], di ; @0B2B
     mov word ptr [bx + ActorAnimationCountdowns], 1 ; @0B2F
     xor ax, ax ; @0B35
-    mov word ptr [bx + ds_2ACD], ax ; @0B37
+    mov word ptr [bx + ActorMotionWaitOrDemoRepeats], ax ; @0B37
     mov word ptr [bx + ActorPlatformOrScriptDone], ax ; @0B3B
     add bx, 2 ; @0B3F
     jmp short loc_0AED ; @0B42
@@ -2767,7 +2767,7 @@ loc_14DD:
     mov word ptr [bx + ActorSourcePlatformByteIndices], ax ; @14EF
     mov ax, word ptr [di + JourneyLegWait] ; @14F3
     call ScaleLevelSpeedToThreeHalves ; @14F6
-    mov word ptr [bx + ds_2ACD], ax ; @14F9
+    mov word ptr [bx + ActorMotionWaitOrDemoRepeats], ax ; @14F9
     mov si, word ptr [bx + ActorDescriptors] ; @14FD
     mov ax, word ptr [si + 0Ah] ; @1501
     mov word ptr [bx + ActorUpdateOrScriptCursor], ax ; @1504
@@ -2781,11 +2781,11 @@ loc_14DD:
 public WaitForPassengerPlatform
 WaitForPassengerPlatform:
     mov word ptr [bx + ActorSpriteIds], 0FFFFh ; @1509
-    mov ax, word ptr [bx + ds_2ACD] ; @150F
+    mov ax, word ptr [bx + ActorMotionWaitOrDemoRepeats] ; @150F
     cmp ax, word ptr 00h ; @1513
     je loc_1525 ; @1516
     dec ax ; @151B
-    mov word ptr [bx + ds_2ACD], ax ; @151C
+    mov word ptr [bx + ActorMotionWaitOrDemoRepeats], ax ; @151C
     jne loc_153A ; @1520
 loc_1525:
     mov di, word ptr [bx + ActorSourcePlatformByteIndices] ; @1525
@@ -2861,7 +2861,7 @@ BeginPassengerPlatformWait:
     mov word ptr [bx + ActorAnimationByteOffsets], 0FFFEh ; @15BF
     mov word ptr [bx + ActorAnimationCountdowns], 1 ; @15C5
     mov ax, 0FFFFh ; @15CB
-    mov word ptr [bx + ds_2A2D], ax ; @15CE
+    mov word ptr [bx + ActorPhaseOrDemoLoopCursor], ax ; @15CE
     mov word ptr [bx + ActorOverlayOrScriptCallbacks], ax ; @15D2
     ret ; @15D6
 ; CONTRACT (tools/apply.py)
@@ -2901,7 +2901,7 @@ loc_1620:
     add ax, word ptr [si] ; @1630
     cmp ax, word ptr [di + PlatformWaitingPointsX] ; @1632
     je loc_168E ; @1636
-    mov word ptr [bx + ds_2A2D], 0 ; @163B
+    mov word ptr [bx + ActorPhaseOrDemoLoopCursor], 0 ; @163B
     jl loc_166A ; @1641
 loc_1646:
     mov di, word ptr [si + 032h] ; @1646
@@ -2928,7 +2928,7 @@ loc_1683:
     add word ptr [bx + ActorX32], 020h ; @1687
     jmp short loc_16B6 ; @168C
 loc_168E:
-    cmp word ptr [bx + ds_2A2D], 1 ; @168E
+    cmp word ptr [bx + ActorPhaseOrDemoLoopCursor], 1 ; @168E
     je loc_169E ; @1693
 loc_1698:
     mov word ptr [bx + ActorAnimationByteOffsets], 0 ; @1698
@@ -2939,7 +2939,7 @@ loc_169E:
     cmp ax, word ptr 0FFFFh ; @16A7
     je short loc_1698 ; @16AA
     mov word ptr [bx + ActorSpriteIds], ax ; @16AC
-    mov word ptr [bx + ds_2A2D], 1 ; @16B0
+    mov word ptr [bx + ActorPhaseOrDemoLoopCursor], 1 ; @16B0
 loc_16B6:
     call FindPlayerTouchingActor ; @16B6
     js loc_16D0 ; @16B9
@@ -2982,7 +2982,7 @@ BeginPassengerDestinationDisplay:
     mov ax, 0111h ; @171C
 loc_171F:
     mov word ptr [bx + ActorOverlayOrScriptCallbacks], ax ; @171F
-    mov word ptr [bx + ds_2A2D], 08Ch ; @1723
+    mov word ptr [bx + ActorPhaseOrDemoLoopCursor], 08Ch ; @1723
     ret ; @1729
 ; CONTRACT (tools/apply.py)
 ; Animate a destination request while an empty vehicle remains on the source platform.
@@ -3049,7 +3049,7 @@ loc_17BC:
 loc_17D5:
     mov word ptr [bx + ActorSpriteIds], ax ; @17D5
 loc_17D9:
-    dec word ptr [bx + ds_2A2D] ; @17D9
+    dec word ptr [bx + ActorPhaseOrDemoLoopCursor] ; @17D9
     jne loc_17E5 ; @17DD
     jmp word ptr [si + 01Ch] ; @17E2
 loc_17E5:
@@ -3068,7 +3068,7 @@ BeginPassengerQuestionDisplay:
     mov word ptr [bx + ActorAnimationByteOffsets], 0FFFEh ; @17F1
     mov word ptr [bx + ActorAnimationCountdowns], 1 ; @17F7
     mov word ptr [bx + ActorOverlayOrScriptCallbacks], 0112h ; @17FD
-    mov word ptr [bx + ds_2A2D], 08Ch ; @1803
+    mov word ptr [bx + ActorPhaseOrDemoLoopCursor], 08Ch ; @1803
     ret ; @1809
 ; CONTRACT (tools/apply.py)
 ; Animate the question bubble, then retry pickup or return to waiting.
@@ -3120,7 +3120,7 @@ loc_1875:
 loc_188E:
     mov word ptr [bx + ActorSpriteIds], ax ; @188E
 loc_1892:
-    dec word ptr [bx + ds_2A2D] ; @1892
+    dec word ptr [bx + ActorPhaseOrDemoLoopCursor] ; @1892
     jne loc_18C7 ; @1896
     mov di, word ptr [bx + ActorSourcePlatformByteIndices] ; @189B
     mov ax, word ptr [bx + ActorPlatformOrScriptDone] ; @189F
@@ -3280,7 +3280,7 @@ loc_1A0D:
     mov si, word ptr [bx + ActorDestinationPlatformByteIndices] ; @1A1B
     mov ax, word ptr [si + PlatformDestinationIcons] ; @1A1F
     mov word ptr [di + PlayerDestinationIcons], ax ; @1A23
-    mov word ptr [bx + ds_2A2D], di ; @1A27
+    mov word ptr [bx + ActorPhaseOrDemoLoopCursor], di ; @1A27
     mov word ptr [bx + ActorSpriteIds], 0FFFFh ; @1A2B
     mov word ptr [bx + PassengerQuickDeliveryCountdowns], 0C8h ; @1A31
     mov di, word ptr [bx + ActorSourcePlatformByteIndices] ; @1A37
@@ -3294,7 +3294,7 @@ loc_1A0D:
 ; END CONTRACT
 public UpdateCarriedPassenger
 UpdateCarriedPassenger:
-    mov di, word ptr [bx + ds_2A2D] ; @1A42
+    mov di, word ptr [bx + ActorPhaseOrDemoLoopCursor] ; @1A42
     mov ax, word ptr [di + PlayerPassengerFares] ; @1A46
     cmp ax, word ptr [di + PlayerMinimumFares] ; @1A4A
     jbe loc_1A58 ; @1A4E
@@ -3333,7 +3333,7 @@ DeliverPassenger:
     mov ax, 010h ; @1A93
     sub ax, word ptr [si] ; @1A96
     shl ax, 5 ; @1A98
-    mov di, word ptr [bx + ds_2A2D] ; @1A9B
+    mov di, word ptr [bx + ActorPhaseOrDemoLoopCursor] ; @1A9B
     add ax, word ptr [di + PlayerX32] ; @1A9F
     mov word ptr [bx + ActorX32], ax ; @1AA3
     mov ax, word ptr [di + PlayerPassengerFares] ; @1AA7
@@ -3528,7 +3528,7 @@ AttachStoneToPlayer:
     mov ax, word ptr [si + 046h] ; @1C53
     mov word ptr [di + PlayerCarriedKinds], ax ; @1C56
     mov word ptr [di + PlayerDestinationIcons], 7 ; @1C5A
-    mov word ptr [bx + ds_2A2D], di ; @1C60
+    mov word ptr [bx + ActorPhaseOrDemoLoopCursor], di ; @1C60
     mov word ptr [bx + ActorSpriteIds], 0FFFFh ; @1C64
     ret ; @1C6A
 ; CONTRACT (tools/apply.py)
@@ -3539,7 +3539,7 @@ AttachStoneToPlayer:
 ; END CONTRACT
 public WaitForStoneRelease
 WaitForStoneRelease:
-    mov di, word ptr [bx + ds_2A2D] ; @1C6B
+    mov di, word ptr [bx + ActorPhaseOrDemoLoopCursor] ; @1C6B
     test byte ptr [di + PlayerActionInput], 0FFh ; @1C6F
     jns loc_1C80 ; @1C74
     mov si, word ptr [bx + ActorDescriptors] ; @1C79
@@ -3561,10 +3561,10 @@ ThrowCarriedStone:
     mov word ptr [di + PlayerDestinationIcons], ax ; @1C8B
     mov ax, word ptr [di + PlayerHorizontalVelocities] ; @1C8F
     sar ax, 5 ; @1C93
-    mov word ptr [bx + ds_2ACD], ax ; @1C96
+    mov word ptr [bx + ActorMotionWaitOrDemoRepeats], ax ; @1C96
     mov ax, word ptr [di + PlayerVerticalVelocities] ; @1C9A
     sar ax, 5 ; @1C9E
-    mov word ptr [bx + ds_2C6D], ax ; @1CA1
+    mov word ptr [bx + ActorVerticalOrDemoPeriod], ax ; @1CA1
     mov ax, word ptr [di + PlayerX32] ; @1CA5
     mov bp, word ptr [di + PlayerY32] ; @1CA9
     add ax, word ptr 0200h ; @1CAD
@@ -3603,16 +3603,16 @@ loc_1CE4:
 public UpdateThrownStone
 UpdateThrownStone:
     mov si, word ptr [bx + ActorDescriptors] ; @1CEE
-    mov ax, word ptr [bx + ds_2ACD] ; @1CF2
+    mov ax, word ptr [bx + ActorMotionWaitOrDemoRepeats] ; @1CF2
     add ax, word ptr [bx + ActorX32] ; @1CF6
     cmp ax, word ptr 0FE00h ; @1CFA
     jle loc_1D38 ; @1CFD
     cmp ax, word ptr 02800h ; @1D02
     jge loc_1D38 ; @1D05
     mov word ptr [bx + ActorX32], ax ; @1D0A
-    mov ax, word ptr [bx + ds_2C6D] ; @1D0E
+    mov ax, word ptr [bx + ActorVerticalOrDemoPeriod] ; @1D0E
     add ax, word ptr 02h ; @1D12
-    mov word ptr [bx + ds_2C6D], ax ; @1D15
+    mov word ptr [bx + ActorVerticalOrDemoPeriod], ax ; @1D15
     test ax, 0FFFFh ; @1D19
     jns loc_1D28 ; @1D1C
     add word ptr [bx + ActorY32], ax ; @1D21
@@ -3675,7 +3675,7 @@ BeginPassengerResurfacing:
     mov word ptr [bx + ActorOverlayOrScriptCallbacks], ax ; @1DBE
     mov word ptr [bx + ActorAnimationByteOffsets], 0FFFEh ; @1DC2
     mov word ptr [bx + ActorAnimationCountdowns], 1 ; @1DC8
-    mov word ptr [bx + ds_2C6D], 0 ; @1DCE
+    mov word ptr [bx + ActorVerticalOrDemoPeriod], 0 ; @1DCE
     ret ; @1DD4
 ; CONTRACT (tools/apply.py)
 ; Animate and accelerate a waterborne passenger toward the surface.
@@ -3709,7 +3709,7 @@ loc_1E07:
     je loc_1E22 ; @1E1B
     mov ch, 1 ; @1E20
 loc_1E22:
-    mov ax, word ptr [bx + ds_2C6D] ; @1E22
+    mov ax, word ptr [bx + ActorVerticalOrDemoPeriod] ; @1E22
     and ch, 0FFh ; @1E26
     js loc_1E40 ; @1E29
     cmp ax, word ptr 00h ; @1E2E
@@ -3733,11 +3733,11 @@ loc_1E58:
     jle loc_1E63 ; @1E5B
     mov ax, 01800h ; @1E60
 loc_1E63:
-    mov word ptr [bx + ds_2C6D], ax ; @1E63
+    mov word ptr [bx + ActorVerticalOrDemoPeriod], ax ; @1E63
     sar ax, 6 ; @1E67
     add ax, word ptr [bx + ActorY32] ; @1E6A
     mov word ptr [bx + ActorY32], ax ; @1E6E
-    cmp word ptr [bx + ds_2C6D], 0 ; @1E72
+    cmp word ptr [bx + ActorVerticalOrDemoPeriod], 0 ; @1E72
     jge loc_1E9B ; @1E77
     sar ax, 5 ; @1E7C
     sub ax, word ptr [si + 2] ; @1E7F
@@ -3763,7 +3763,7 @@ BeginPassengerSinking:
     mov word ptr [bx + ActorOverlayOrScriptCallbacks], 0FFFFh ; @1EA7
     mov word ptr [bx + ActorAnimationByteOffsets], 0FFFEh ; @1EAD
     mov word ptr [bx + ActorAnimationCountdowns], 1 ; @1EB3
-    mov word ptr [bx + ds_2C6D], 0 ; @1EB9
+    mov word ptr [bx + ActorVerticalOrDemoPeriod], 0 ; @1EB9
     ret ; @1EBF
 ; CONTRACT (tools/apply.py)
 ; Animate a sinking passenger and add gravity until it leaves the scene.
@@ -3789,9 +3789,9 @@ loc_1ED9:
     jmp short loc_1ED9 ; @1EF0
 loc_1EF2:
     mov word ptr [bx + ActorSpriteIds], ax ; @1EF2
-    mov ax, word ptr [bx + ds_2C6D] ; @1EF6
+    mov ax, word ptr [bx + ActorVerticalOrDemoPeriod] ; @1EF6
     add ax, word ptr 027h ; @1EFA
-    mov word ptr [bx + ds_2C6D], ax ; @1EFD
+    mov word ptr [bx + ActorVerticalOrDemoPeriod], ax ; @1EFD
     sar ax, 6 ; @1F01
     add ax, word ptr [bx + ActorY32] ; @1F04
     cmp ax, word ptr 01800h ; @1F08
@@ -3817,7 +3817,7 @@ BeginPassengerFloating:
     mov word ptr [bx + ActorAnimationByteOffsets], 0FFFEh ; @1F2F
     mov word ptr [bx + ActorAnimationCountdowns], 1 ; @1F35
     mov ax, word ptr [si + 044h] ; @1F3B
-    mov word ptr [bx + ds_2ACD], ax ; @1F3E
+    mov word ptr [bx + ActorMotionWaitOrDemoRepeats], ax ; @1F3E
     ret ; @1F42
 ; CONTRACT (tools/apply.py)
 ; Keep a passenger at the water surface and seek an empty stationary vehicle.
@@ -3873,7 +3873,7 @@ loc_1FBE:
 loc_1FD2:
     jmp word ptr [si + 014h] ; @1FD2
 loc_1FD5:
-    dec word ptr [bx + ds_2ACD] ; @1FD5
+    dec word ptr [bx + ActorMotionWaitOrDemoRepeats] ; @1FD5
     jne loc_1FE1 ; @1FD9
     jmp word ptr [si + 0Ch] ; @1FDE
 loc_1FE1:
@@ -3923,7 +3923,7 @@ loc_203E:
 loc_2057:
     mov word ptr [bx + ActorSpriteIds], ax ; @2057
 loc_205B:
-    dec word ptr [bx + ds_2A2D] ; @205B
+    dec word ptr [bx + ActorPhaseOrDemoLoopCursor] ; @205B
     jne loc_2067 ; @205F
     jmp word ptr [si + 01Ch] ; @2064
 loc_2067:
@@ -3959,7 +3959,7 @@ loc_2097:
 loc_20B0:
     mov word ptr [bx + ActorSpriteIds], ax ; @20B0
 loc_20B4:
-    dec word ptr [bx + ds_2A2D] ; @20B4
+    dec word ptr [bx + ActorPhaseOrDemoLoopCursor] ; @20B4
     jne loc_20C0 ; @20B8
     jmp word ptr [si + 0Ch] ; @20BD
 loc_20C0:
@@ -4065,7 +4065,7 @@ loc_2198:
     jne loc_21FA ; @21A7
     cmp word ptr [di + ActorUpdateOrScriptCursor], word ptr 01CEEh ; @21AC
     jne loc_21FA ; @21B2
-    test word ptr [di + ds_2C6D], 0FFFFh ; @21B7
+    test word ptr [di + ActorVerticalOrDemoPeriod], 0FFFFh ; @21B7
     js loc_21FA ; @21BD
     mov ax, word ptr [di + ActorY32] ; @21C2
     add ax, word ptr 0100h ; @21C6
@@ -4419,7 +4419,7 @@ loc_24E7:
     call FindThrownStoneHittingEnemy ; @24EB
     js loc_2503 ; @24EE
     call StopBirdFlightSound ; @24F3
-    neg word ptr [di + ds_2C6D] ; @24F6
+    neg word ptr [di + ActorVerticalOrDemoPeriod] ; @24F6
     mov word ptr [di + ActorSpriteIds], 0222h ; @24FA
     jmp word ptr [si + 01Ch] ; @2500
 loc_2503:
@@ -4579,7 +4579,7 @@ loc_2648:
     jne short loc_263C ; @264F
     call FindThrownStoneHittingEnemy ; @2651
     js loc_2666 ; @2654
-    neg word ptr [di + ds_2C6D] ; @2659
+    neg word ptr [di + ActorVerticalOrDemoPeriod] ; @2659
     mov word ptr [di + ActorSpriteIds], 0222h ; @265D
     jmp word ptr [si + 01Ch] ; @2663
 loc_2666:
@@ -4639,7 +4639,7 @@ loc_26C3:
 loc_26C7:
     call FindThrownStoneHittingEnemy ; @26C7
     js loc_26DC ; @26CA
-    neg word ptr [di + ds_2C6D] ; @26CF
+    neg word ptr [di + ActorVerticalOrDemoPeriod] ; @26CF
     mov word ptr [di + ActorSpriteIds], 0222h ; @26D3
     jmp word ptr [si + 01Ch] ; @26D9
 loc_26DC:
@@ -4724,7 +4724,7 @@ loc_277E:
 loc_2782:
     call FindThrownStoneHittingEnemy ; @2782
     js loc_2797 ; @2785
-    neg word ptr [di + ds_2C6D] ; @278A
+    neg word ptr [di + ActorVerticalOrDemoPeriod] ; @278A
     mov word ptr [di + ActorSpriteIds], 0222h ; @278E
     jmp word ptr [si + 01Ch] ; @2794
 loc_2797:
@@ -4825,7 +4825,7 @@ loc_2875:
 loc_2879:
     call FindThrownStoneHittingEnemy ; @2879
     js loc_288E ; @287C
-    neg word ptr [di + ds_2C6D] ; @2881
+    neg word ptr [di + ActorVerticalOrDemoPeriod] ; @2881
     mov word ptr [di + ActorSpriteIds], 0222h ; @2885
     jmp word ptr [si + 01Ch] ; @288B
 loc_288E:
@@ -4880,7 +4880,7 @@ loc_28D4:
 loc_28D8:
     call FindThrownStoneHittingEnemy ; @28D8
     js loc_28ED ; @28DB
-    neg word ptr [di + ds_2C6D] ; @28E0
+    neg word ptr [di + ActorVerticalOrDemoPeriod] ; @28E0
     mov word ptr [di + ActorSpriteIds], 0222h ; @28E4
     jmp word ptr [si + 01Ch] ; @28EA
 loc_28ED:
@@ -5048,7 +5048,7 @@ loc_2A3A:
     je short loc_29CB ; @2A41
     call FindThrownStoneHittingEnemy ; @2A43
     js loc_2A52 ; @2A46
-    neg word ptr [di + ds_2C6D] ; @2A4B
+    neg word ptr [di + ActorVerticalOrDemoPeriod] ; @2A4B
     jmp word ptr [si + 01Ch] ; @2A4F
 loc_2A52:
     ret ; @2A52
@@ -5137,10 +5137,10 @@ loc_2AE6:
     mov word ptr [bx + EnemySpriteIds], ax ; @2AE6
     call FindThrownStoneHittingEnemy ; @2AEA
     js loc_2B0B ; @2AED
-    mov ax, word ptr [di + ds_2C6D] ; @2AF2
+    mov ax, word ptr [di + ActorVerticalOrDemoPeriod] ; @2AF2
     neg ax ; @2AF6
     sar ax, 1 ; @2AF8
-    mov word ptr [di + ds_2C6D], ax ; @2AFA
+    mov word ptr [di + ActorVerticalOrDemoPeriod], ax ; @2AFA
     mov word ptr [di + ActorSpriteIds], 0222h ; @2AFE
     mov si, word ptr [bx + EnemyDescriptors] ; @2B04
     jmp word ptr [si + 01Ch] ; @2B08
@@ -5162,8 +5162,8 @@ ReleaseTreeReward:
     mov word ptr [bx + EnemySpriteIds], 0E8h ; @2B19
     mov ax, word ptr [di + ActorX32] ; @2B1F
     mov bp, word ptr [di + ActorY32] ; @2B23
-    mov cx, word ptr [di + ds_2ACD] ; @2B27
-    mov dx, word ptr [di + ds_2C6D] ; @2B2B
+    mov cx, word ptr [di + ActorMotionWaitOrDemoRepeats] ; @2B27
+    mov dx, word ptr [di + ActorVerticalOrDemoPeriod] ; @2B2B
     neg dx ; @2B2F
     sar dx, 2 ; @2B31
     mov si, word ptr [bx + EnemyAnimationOrDropLists] ; @2B34

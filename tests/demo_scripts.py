@@ -130,7 +130,7 @@ def script_case(title,records,repeat=0,restart=None,ticks=1,period=2,x=0x7fff,y=
         else:
             for i,b in enumerate(records): m.write(ds,(base+i)&65535,bytes((b,)))
         for name,v in (('ActorUpdateOrScriptCursor',base),('ActorAnimationCountdowns',ticks),
-                       ('ds_2C6D',period),('ds_2ACD',repeat),('ds_2A2D',0x4100 if restart else base),
+                       ('ActorVerticalOrDemoPeriod',period),('ActorMotionWaitOrDemoRepeats',repeat),('ActorPhaseOrDemoLoopCursor',0x4100 if restart else base),
                        ('ActorX32',x),('ActorY32',y),('ActorPlatformOrScriptDone',0x1357)):
             # A stream may alias X itself: leave the record's first word intact.
             if not(cursor and name=='ActorX32'): m.ww('DGROUP:'+name,v)
@@ -174,17 +174,17 @@ CASES += [script_case('zero period reload',record(0,0,0),period=0),
                       callback='SetDemoRevealSpriteWidth',
                       expected={'ActorX32':0x1248}),
           script_case('install negative count',words(0xfffe)+record(7,1,2),
-                      expected={'ds_2ACD':0xfffe,'ds_2A2D':0x4002,'ActorUpdateOrScriptCursor':0x4006}),
+                      expected={'ActorMotionWaitOrDemoRepeats':0xfffe,'ActorPhaseOrDemoLoopCursor':0x4002,'ActorUpdateOrScriptCursor':0x4006}),
           script_case('successive negative counts',words(0x8001,0xffff)+record(7,1,2),
-                      expected={'ds_2ACD':0xffff,'ds_2A2D':0x4004}),
+                      expected={'ActorMotionWaitOrDemoRepeats':0xffff,'ActorPhaseOrDemoLoopCursor':0x4004}),
           script_case('stop marker pins cursor',words(0x8000),
                       expected={'ActorUpdateOrScriptCursor':0x4000,'ActorPlatformOrScriptDone':0xffff}),
           script_case('repeat expires into next record',words(0x8000)+record(8,2,3),repeat=0xffff,
-                      expected={'ds_2ACD':0,'ActorUpdateOrScriptCursor':0x4006})]
+                      expected={'ActorMotionWaitOrDemoRepeats':0,'ActorUpdateOrScriptCursor':0x4006})]
 for repeat in (0xfffe,1,0x7fff,0x8000):
     CASES.append(script_case(f'repeat follows saved pointer {repeat:04X}',words(0x8000),
                  repeat=repeat,restart=record(0x7fff,0,0),callback='StartDemoFadeWhenSpriteHidden',
-                 expected={'ds_2ACD':(repeat+1)&65535,'ActorUpdateOrScriptCursor':0x4104,'ScreenFadeLevel':0xfffe}))
+                 expected={'ActorMotionWaitOrDemoRepeats':(repeat+1)&65535,'ActorUpdateOrScriptCursor':0x4104,'ScreenFadeLevel':0xfffe}))
 
 
 def real_case(name,selector,repeat=0):
@@ -206,10 +206,10 @@ def real_case(name,selector,repeat=0):
         m.ww('DGROUP:ActorUpdateOrScriptCursor',candidates[selector])
         m.ww('DGROUP:ActorUpdateOrScriptCursor',65535,2)
         m.ww('DGROUP:ActorAnimationCountdowns',1)
-        m.ww('DGROUP:ds_2C6D',int.from_bytes(m.read(DATA_SEG,base+4,2),'little'))
+        m.ww('DGROUP:ActorVerticalOrDemoPeriod',int.from_bytes(m.read(DATA_SEG,base+4,2),'little'))
         m.ww('DGROUP:ActorOverlayOrScriptCallbacks',int.from_bytes(m.read(DATA_SEG,base+6,2),'little'))
-        m.ww('DGROUP:ds_2ACD',repeat)
-        m.ww('DGROUP:ds_2A2D',candidates['sprite'])
+        m.ww('DGROUP:ActorMotionWaitOrDemoRepeats',repeat)
+        m.ww('DGROUP:ActorPhaseOrDemoLoopCursor',candidates['sprite'])
     return Case(f'rebuilt {name} {selector} repeat={repeat:04X}', 'GAME:AdvanceDemoScripts',
                 setup=setup,regs=dict(DS=DATA_SEG),out_regs=OUT)
 
@@ -224,7 +224,7 @@ def many_setup(m):
         p=0x4000+i*4
         m.write(DATA_SEG,p,record(0x7fff if i%2 else 5,-i,i))
         for name,value in (('ActorUpdateOrScriptCursor',p),('ActorAnimationCountdowns',1 if i%3 else 2),
-                           ('ds_2C6D',i),('ActorX32',i*0x1111),('ActorY32',0xffff-i),
+                           ('ActorVerticalOrDemoPeriod',i),('ActorX32',i*0x1111),('ActorY32',0xffff-i),
                            ('ActorOverlayOrScriptCallbacks',m.off('GAME:StartDemoFadeWhenSpriteHidden'))):
             m.ww('DGROUP:'+name,value,i*2)
     m.ww('DGROUP:ActorUpdateOrScriptCursor',65535,32)
@@ -236,7 +236,7 @@ def alternate_setup(m):
     ds=0x7500
     m.write(ds,0x4000,words(0xfffe)+record(0x7fff,-128,127))
     for name,value in (('ActorUpdateOrScriptCursor',0x4000),('ActorAnimationCountdowns',1),
-                       ('ds_2C6D',0),('ActorX32',0x8000),('ActorY32',0xfffe),
+                       ('ActorVerticalOrDemoPeriod',0),('ActorX32',0x8000),('ActorY32',0xfffe),
                        ('ActorOverlayOrScriptCallbacks',m.off('GAME:SetDemoRevealSpriteWidth'))):
         word(m,ds,m.off('DGROUP:'+name),value)
     word(m,ds,m.off('DGROUP:ActorUpdateOrScriptCursor')+2,65535)
@@ -262,7 +262,7 @@ for script in ('Data_1040','Data_1E02','Data_2586'):
         for name,value in (('ActorUpdateOrScriptCursor',base+8),('ActorOverlayOrScriptCallbacks',m.rw('DGROUP:'+script,6)),
                            ('ActorAnimationCountdowns',1),('ActorAnimationByteOffsets',m.rw('DGROUP:'+script,4)),
                            ('ActorX32',m.rw('DGROUP:'+script)*32),('ActorY32',m.rw('DGROUP:'+script,2)*32),
-                           ('ds_2ACD',0),('ds_2A2D',base+8)):
+                           ('ActorMotionWaitOrDemoRepeats',0),('ActorPhaseOrDemoLoopCursor',base+8)):
             m.ww('DGROUP:'+name,value)
         m.ww('DGROUP:ActorUpdateOrScriptCursor',65535,2)
     CASES.append(Case('integrated real script '+script,'GAME:AdvanceDemoScripts',setup=setup,

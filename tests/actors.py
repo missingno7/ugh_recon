@@ -27,8 +27,8 @@ def fixture(m,actor='Data_7720',enemy='Data_766C',controlled=False):
               'ActorAnimationByteOffsets','ActorAnimationCountdowns','ActorX32',
               'ActorY32','ActorPixelX','ActorPixelY','ActorOverlayOrScriptCallbacks',
               'ActorSourcePlatformByteIndices','ActorDestinationPlatformByteIndices',
-              'ActorDestinationPlatforms','ActorJourneyCursors','ds_2ACD','ds_2A2D',
-              'ds_2C6D','PassengerQuickDeliveryCountdowns','EnemyDescriptors',
+              'ActorDestinationPlatforms','ActorJourneyCursors','ActorMotionWaitOrDemoRepeats','ActorPhaseOrDemoLoopCursor',
+              'ActorVerticalOrDemoPeriod','PassengerQuickDeliveryCountdowns','EnemyDescriptors',
               'EnemyStateCallbacks','EnemyAnimationByteOffsets','EnemyAnimationCountdowns',
               'EnemySpriteIds','EnemyX32','EnemyY32','EnemyDrawX','EnemyDrawY',
               'EnemyHorizontalSpeeds','EnemyStateCounters','EnemyInitialDelays',
@@ -42,7 +42,7 @@ def fixture(m,actor='Data_7720',enemy='Data_766C',controlled=False):
     for n,v in (('ActorAnimationByteOffsets',0),('ActorAnimationCountdowns',2),
                 ('ActorX32',3200),('ActorY32',2560),('ActorPixelX',100),('ActorPixelY',80),
                 ('ActorSourcePlatformByteIndices',2),('ActorDestinationPlatformByteIndices',4),
-                ('ActorDestinationPlatforms',3),('ds_2A2D',2),('ds_2ACD',2),('ds_2C6D',0),
+                ('ActorDestinationPlatforms',3),('ActorPhaseOrDemoLoopCursor',2),('ActorMotionWaitOrDemoRepeats',2),('ActorVerticalOrDemoPeriod',0),
                 ('PassengerQuickDeliveryCountdowns',2),('ActorJourneyCursors',0xfffe)):
         m.ww('DGROUP:'+n,v,ACTOR)
     for n,v in (('EnemyAnimationByteOffsets',0),('EnemyAnimationCountdowns',2),
@@ -135,7 +135,7 @@ for n in ('IgnoreActorState','IgnoreWaterbornePassengerState'):
 
 for delay,occupant in ((0,0xffff),(1,0xffff),(2,0xffff),(0xffff,0xffff),(0,0),(1,0xfffe)):
     case('WaitForPassengerPlatform',f'platform wait {delay}/{occupant}',
-         [('ds_2ACD',delay,ACTOR),('PlatformActorOccupants',occupant,2)])
+         [('ActorMotionWaitOrDemoRepeats',delay,ACTOR),('PlatformActorOccupants',occupant,2)])
 for ticks,offset in ((0,0),(2,0),(1,0xfffe),(1,0),(1,2)):
     case('AnimatePassengerArrival',f'arrival ticks={ticks} offset={offset}',
          [('ActorAnimationCountdowns',ticks,ACTOR),('ActorAnimationByteOffsets',offset,ACTOR)],
@@ -171,11 +171,11 @@ for x,vx,y,vy in ((0xfe00,0,1000,0),(0xfe01,0,1000,0),(0x27ff,0,1000,0),
                   (3200,0,0x17ff,0),(3200,0,1000,0xfffc),(3200,0,1000,0xfffe),
                   (3200,0,0x17fe,0),(3200,0,0x17fd,0),(3200,0,0xffff,0)):
     case('UpdateThrownStone',f'stone physics {x:04x}/{vx:04x}/{y:04x}/{vy:04x}',
-         [('ActorX32',x,ACTOR),('ds_2ACD',vx,ACTOR),('ActorY32',y,ACTOR),('ds_2C6D',vy,ACTOR)],actor='Data_78DC')
+         [('ActorX32',x,ACTOR),('ActorMotionWaitOrDemoRepeats',vx,ACTOR),('ActorY32',y,ACTOR),('ActorVerticalOrDemoPeriod',vy,ACTOR)],actor='Data_78DC')
 for height,left,right in ((39,0,200),(45,0,200),(41,105,200),(41,0,103),(41,104,104),
                           (40,104,104),(42,104,104)):
     case('UpdateThrownStone',f'stone platform {height}/{left}/{right}',
-         [('ActorY32',1152,ACTOR),('ds_2C6D',62,ACTOR),
+         [('ActorY32',1152,ACTOR),('ActorVerticalOrDemoPeriod',62,ACTOR),
           ('PlatformHeights',height,0),('PlatformLeftEdges',left,0),('PlatformRightEdges',right,0)],actor='Data_78DC')
 
 for n in ('UpdatePassengerResurfacing','UpdatePassengerSinking'):
@@ -186,18 +186,18 @@ for n in ('UpdatePassengerResurfacing','UpdatePassengerSinking'):
 for velocity in (0,1,0x175,0x1800,0x7fff,0x8000,0xe7d8,0xe800,0xffff):
     for py in (80,107,108,109):
         case('UpdatePassengerResurfacing',f'resurface acceleration v={velocity:04x} py={py}',
-             [('ds_2C6D',velocity,ACTOR),('ActorPixelY',py,ACTOR)],actor='Data_776A',controlled=True)
+             [('ActorVerticalOrDemoPeriod',velocity,ACTOR),('ActorPixelY',py,ACTOR)],actor='Data_776A',controlled=True)
 for y in (0,0xffff,0x17ff,0x1800,0x8000,3200,3300):
     for velocity in (0,0x17ff,0x7fff,0x8000,0xffff):
         case('UpdatePassengerSinking',f'sinking y={y:04x}/v={velocity:04x}',
-             [('ActorY32',y,ACTOR),('ds_2C6D',velocity,ACTOR)],actor='Data_776A',controlled=True)
+             [('ActorY32',y,ACTOR),('ActorVerticalOrDemoPeriod',velocity,ACTOR)],actor='Data_776A',controlled=True)
 case('UpdatePassengerResurfacing','resurface crossing into real floating initializer',
-     [('ActorY32',3000,ACTOR),('ds_2C6D',0xff00,ACTOR)],actor='Data_776A')
+     [('ActorY32',3000,ACTOR),('ActorVerticalOrDemoPeriod',0xff00,ACTOR)],actor='Data_776A')
 
 for desc in ('Data_776A','Data_77FE'):
     for count in (0,1,2,0xffff):
         case('UpdatePassengerFloating',f'floating real descriptor={desc} timer={count}',
-             [('ds_2ACD',count,ACTOR),('PlayerCarriedKinds',1,0),('PlayerCarriedKinds',1,2)],actor=desc)
+             [('ActorMotionWaitOrDemoRepeats',count,ACTOR),('PlayerCarriedKinds',1,0),('PlayerCarriedKinds',1,2)],actor=desc)
 for py,vel,kind,count,who in ((82,0,0,1,0),(81,0,0,2,0),(82,1,0,2,0),
                              (82,0,1,2,0),(82,0,0,2,2),(82,0,0,1,2)):
     case('UpdatePassengerFloating',f'floating eligibility y={py} v={vel} kind={kind} count={count} who={who}',
@@ -212,7 +212,7 @@ for n in ('UpdateFloatingDestinationDisplay','UpdateFloatingQuestionDisplay','Up
              [('ActorAnimationCountdowns',ticks,ACTOR),('ActorAnimationByteOffsets',off,ACTOR),
               ('ActorPixelY',100 if ticks==0 else 80,ACTOR),('PlayerYPixels',py,0),
               ('PlayerYPixels',py,2),('PlayerPixelX',x,0),('PlayerPixelX',x,2),
-              ('ds_2A2D',timeout,ACTOR)],actor='Data_776A',controlled=True)
+              ('ActorPhaseOrDemoLoopCursor',timeout,ACTOR)],actor='Data_776A',controlled=True)
 for n in ('UpdateFloatingDestinationDisplay','UpdateFloatingPassengerApproach'):
     for count,kind,first,second in ((1,0,100,82),(2,0,100,82),(2,1,82,82),(2,1,100,100)):
         case(n,f'{n} search count={count} kind={kind} y={first}/{second}',
@@ -253,12 +253,12 @@ for mode in ('sentinel','wrong descriptor','wrong state','ascending','below','ab
         m.ww('DGROUP:ActorDescriptors',m.off('DGROUP:Data_78DC'),i)
         m.ww('DGROUP:ActorDescriptors',0xffff,i+2)
         m.ww('DGROUP:ActorUpdateOrScriptCursor',m.off('GAME:UpdateThrownStone'),i)
-        m.ww('DGROUP:ds_2C6D',0,i)
+        m.ww('DGROUP:ActorVerticalOrDemoPeriod',0,i)
         m.ww('DGROUP:ActorX32',3200,i); m.ww('DGROUP:ActorY32',2560,i)
         if mode=='sentinel': m.ww('DGROUP:ActorDescriptors',0xffff,0)
         if mode=='wrong descriptor': m.ww('DGROUP:ActorDescriptors',0,i)
         if mode=='wrong state': m.ww('DGROUP:ActorUpdateOrScriptCursor',0,i)
-        if mode=='ascending': m.ww('DGROUP:ds_2C6D',0xffff,i)
+        if mode=='ascending': m.ww('DGROUP:ActorVerticalOrDemoPeriod',0xffff,i)
         if mode in ('below','above'): m.ww('DGROUP:ActorY32',1000 if mode=='below' else 4000,i)
         if mode in ('left','right'): m.ww('DGROUP:ActorX32',1000 if mode=='left' else 5000,i)
     case('FindThrownStoneHittingEnemy','stone enemy contact '+mode,actor_state=False,setup=stones)
@@ -306,7 +306,7 @@ for n in ('FindPlayerTouchingActor','FindPlayerTouchingEnemy','FindPlayerTouchin
 for height,left,right in ((46,0,200),(50,0,200),(48,109,200),(48,0,107),
                           (47,108,108),(48,108,108),(49,108,108)):
     case('UpdateThrownStone',f'stone foot crossing {height}/{left}/{right}',
-         [('ActorY32',1152,ACTOR),('ds_2C6D',62,ACTOR),
+         [('ActorY32',1152,ACTOR),('ActorVerticalOrDemoPeriod',62,ACTOR),
           ('PlatformHeights',height,0),('PlatformLeftEdges',left,0),('PlatformRightEdges',right,0)],actor='Data_78DC')
 for tick,off in ((0,4),(1,0xfffe),(1,2),(2,4)):
     case('UpdatePassengerFloating',f'floating sequence reset {tick}/{off}',
@@ -328,7 +328,7 @@ for n in ('StunBirdAndAwardScore','StunTriopterusAndAwardScore','StunDinoAndAwar
 case('UpdatePassengerResurfacing','resurface exactly at surface in cached pixels',
      [('ActorPixelY',103,ACTOR)],actor='Data_776A',controlled=True)
 case('UpdatePassengerResurfacing','resurface still below surface after upward motion',
-     [('ActorY32',5000,ACTOR),('ds_2C6D',0xff00,ACTOR)],actor='Data_776A',controlled=True)
+     [('ActorY32',5000,ACTOR),('ActorVerticalOrDemoPeriod',0xff00,ACTOR)],actor='Data_776A',controlled=True)
 case('UpdatePassengerFloating','floating cached pixels already at surface',
      [('ActorPixelY',100,ACTOR)],actor='Data_776A',controlled=True)
 
@@ -344,7 +344,7 @@ case('WaitForStoneRelease','stone real descriptor nonnegative action',actor='Dat
 for n in ('UpdateFloatingDestinationDisplay','UpdateFloatingQuestionDisplay'):
     case(n,n+' real timeout transition',
          [('ActorAnimationCountdowns',1,ACTOR),('ActorAnimationByteOffsets',0xfffe,ACTOR),
-          ('ds_2A2D',1,ACTOR)],actor='Data_776A')
+          ('ActorPhaseOrDemoLoopCursor',1,ACTOR)],actor='Data_776A')
 for px in (80,110):
     case('UpdateFloatingPassengerApproach',f'floating real movement toward x={px}',
          [('ActorAnimationCountdowns',1,ACTOR),('ActorAnimationByteOffsets',0xfffe,ACTOR),

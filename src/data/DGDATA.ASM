@@ -608,13 +608,13 @@ public ActorDescriptors
 public ActorInitialPlatformIndices
 public ActorJourneyCursors
 public ActorUpdateOrScriptCursor
-public ds_2A2D
+public ActorPhaseOrDemoLoopCursor
 public DemoCompletionScanBiasedBase
 public ActorPlatformOrScriptDone
 public ActorDestinationPlatforms
 public ActorSourcePlatformByteIndices
 public ActorDestinationPlatformByteIndices
-public ds_2ACD
+public ActorMotionWaitOrDemoRepeats
 public ActorX32
 public ActorY32
 public ActorPixelX
@@ -627,7 +627,7 @@ public ActorSpriteIds
 public ActorEraseSprite
 public ActorOverlayOrScriptCallbacks
 public ActorEraseOverlaySprite
-public ds_2C6D
+public ActorVerticalOrDemoPeriod
 public PassengerQuickDeliveryCountdowns
 public EnemyDescriptors
 public EnemyPlatformIndices
@@ -9352,9 +9352,10 @@ ActorUpdateOrScriptCursor label word ; @2A0D
     dw 16 dup (00h)
 
 ; 5C09:2A2D..2A4D [typed] Actor parallel array; base 2A2D, 16 u16 elements.
-; Polymorphic actor scratch: wait mode, state timer, carrier byte index, or demo loop cursor.
-; Effects: interpret per active callback/script; no single scalar role is established.
-ds_2A2D label word ; @2A2D
+; Actor phase word: waiting mode, state countdown or carrying player byte index in gameplay.
+; Demo view: saved bytecode loop cursor. Interpret through the active mode and handler.
+; Evidence: GAME:163B/168E/1A27/1C60 and demo interpreter 0A27/0A3F; parallel u16[16].
+ActorPhaseOrDemoLoopCursor label word ; @2A2D
     dw 15 dup (00h)
 ; Biased view two bytes before the demo completion-word array at 2A4D; no separate allocation.
 ; TestAllDemoScriptsFinished increments BX before testing this base+BX for the prior script slot.
@@ -9382,9 +9383,10 @@ ActorDestinationPlatformByteIndices label word ; @2AAD
     dw 16 dup (00h)
 
 ; 5C09:2ACD..2AED [typed] Actor parallel array; base 2ACD, 16 u16 elements.
-; Polymorphic actor scratch: journey delay, thrown X speed, floating lifetime, demo repeat count.
-; Effects: interpret per active callback/script; no single scalar role is established.
-ds_2ACD label word ; @2ACD
+; Actor phase word: journey wait, thrown horizontal step or floating lifetime in gameplay.
+; Demo view: repeat counter. Interpret through the active mode and handler; parallel u16[16].
+; Evidence: GAME:14F9/1CF2/1F3E and demo 0A23/0A39; keep original widths and wrapping.
+ActorMotionWaitOrDemoRepeats label word ; @2ACD
     dw 16 dup (00h)
 
 ; 5C09:2AED..2B0D [typed] Actor parallel array; base 2AED, 16 u16 elements.
@@ -9452,9 +9454,10 @@ ActorEraseOverlaySprite label word ; @2C4D
     dw 16 dup (00h)
 
 ; 5C09:2C6D..2C8D [typed] Actor parallel array; base 2C6D, 16 u16 elements.
-; Polymorphic actor scratch: vertical speed in gameplay but update period in demo scripts.
-; Effects: interpret per active callback/script; no single scalar role is established.
-ds_2C6D label word ; @2C6D
+; Actor phase word: gameplay vertical motion; demo view: update period copied from the header.
+; Evidence: thrown-stone/waterborne updates and GAME:0B1A/0B1D; parallel u16[16].
+; The physical word is shared across mode lifetimes, not a universal velocity or callback.
+ActorVerticalOrDemoPeriod label word ; @2C6D
     dw 16 dup (00h)
 
 ; 5C09:2C8D..2CAD [typed] Actor parallel array; base 2C8D, 16 u16 elements.

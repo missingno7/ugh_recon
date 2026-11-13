@@ -41363,10 +41363,10 @@
         },
         {
           "offset": 10797,
-          "name": "ds_2A2D",
+          "name": "ActorPhaseOrDemoLoopCursor",
           "type": "word",
           "public": true,
-          "comment": "Polymorphic actor scratch: wait mode, state timer, carrier byte index, or demo loop cursor.\nEffects: interpret per active callback/script; no single scalar role is established."
+          "comment": "Actor phase word: waiting mode, state countdown or carrying player byte index in gameplay.\nDemo view: saved bytecode loop cursor. Interpret through the active mode and handler.\nEvidence: GAME:163B/168E/1A27/1C60 and demo interpreter 0A27/0A3F; parallel u16[16]."
         },
         {
           "offset": 10827,
@@ -41405,10 +41405,10 @@
         },
         {
           "offset": 10957,
-          "name": "ds_2ACD",
+          "name": "ActorMotionWaitOrDemoRepeats",
           "type": "word",
           "public": true,
-          "comment": "Polymorphic actor scratch: journey delay, thrown X speed, floating lifetime, demo repeat count.\nEffects: interpret per active callback/script; no single scalar role is established."
+          "comment": "Actor phase word: journey wait, thrown horizontal step or floating lifetime in gameplay.\nDemo view: repeat counter. Interpret through the active mode and handler; parallel u16[16].\nEvidence: GAME:14F9/1CF2/1F3E and demo 0A23/0A39; keep original widths and wrapping."
         },
         {
           "offset": 10989,
@@ -41496,10 +41496,10 @@
         },
         {
           "offset": 11373,
-          "name": "ds_2C6D",
+          "name": "ActorVerticalOrDemoPeriod",
           "type": "word",
           "public": true,
-          "comment": "Polymorphic actor scratch: vertical speed in gameplay but update period in demo scripts.\nEffects: interpret per active callback/script; no single scalar role is established."
+          "comment": "Actor phase word: gameplay vertical motion; demo view: update period copied from the header.\nEvidence: thrown-stone/waterborne updates and GAME:0B1A/0B1D; parallel u16[16].\nThe physical word is shared across mode lifetimes, not a universal velocity or callback."
         },
         {
           "offset": 11405,

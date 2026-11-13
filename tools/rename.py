@@ -169,6 +169,8 @@ def prepare(pairs,evidence=None):
     """Return path -> complete bytes and old/new lookup; no disk mutation."""
     texts=S.read_sources();doc=copy.deepcopy(S.names());tables={};taken={};resolved=[]
     consumers={p:p.read_bytes().decode('utf-8') for p in S.consumer_sources()}
+    data_layout_doc=S.load_json('data-layout.json') if (ROOT/'metadata/data-layout.json').exists() else None
+    data_modules=[m['name'] for m in data_layout_doc['modules']] if data_layout_doc else []
     all_tokens={m[0].lower() for t in (*texts.values(),*consumers.values()) for m in S.IDENT.finditer(t)}
     for old,new in pairs:
         key,r=resolve_target(old,doc,texts)
@@ -192,7 +194,7 @@ def prepare(pairs,evidence=None):
             target=('_' if s.get('decorated') else '')+new
             if s.get('public'):
                 # All users of a public spelling share that binding, including ASM EXTRNs.
-                for module in (*S.MODULES,*(p.stem.upper() for p in texts),s['module']):
+                for module in (*S.MODULES,*(p.stem.upper() for p in texts),*data_modules,s['module']):
                     tables.setdefault(module,{})[s['name'].lower()]=target
             else:tables.setdefault(s['module'],{})[s['name'].lower()]=target
         if 'address' in r:
@@ -232,8 +234,8 @@ def prepare(pairs,evidence=None):
         amap['modules'][i]['bindings']={k.upper():v for k,v in amap['modules'][i]['bindings'].items()}
     updates[ROOT/'metadata/asm-map.json']=S.json_text(amap).encode()
     data_layout=ROOT/'metadata/data-layout.json'
-    if data_layout.exists():
-        data=json.loads(data_layout.read_text())
+    if data_layout_doc is not None:
+        data=data_layout_doc
         # Public tokens have one binding across every generated data module.
         # Apply each module's substitutions to its curated names/expressions too.
         for i,m in enumerate(data['modules']):

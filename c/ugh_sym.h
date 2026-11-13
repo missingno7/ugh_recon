@@ -4308,8 +4308,12 @@
 #define UGH_S_DGDATA_ActorInitialPlatformIndices (UGH_LOAD + 0x5C09u)
 #define UGH_O_DGDATA_ActorJourneyCursors 0x29EDu
 #define UGH_S_DGDATA_ActorJourneyCursors (UGH_LOAD + 0x5C09u)
+#define UGH_O_DGDATA_ActorMotionWaitOrDemoRepeats 0x2ACDu
+#define UGH_S_DGDATA_ActorMotionWaitOrDemoRepeats (UGH_LOAD + 0x5C09u)
 #define UGH_O_DGDATA_ActorOverlayOrScriptCallbacks 0x2C2Du
 #define UGH_S_DGDATA_ActorOverlayOrScriptCallbacks (UGH_LOAD + 0x5C09u)
+#define UGH_O_DGDATA_ActorPhaseOrDemoLoopCursor 0x2A2Du
+#define UGH_S_DGDATA_ActorPhaseOrDemoLoopCursor (UGH_LOAD + 0x5C09u)
 #define UGH_O_DGDATA_ActorPixelX 0x2B2Du
 #define UGH_S_DGDATA_ActorPixelX (UGH_LOAD + 0x5C09u)
 #define UGH_O_DGDATA_ActorPixelY 0x2B6Du
@@ -4326,6 +4330,8 @@
 #define UGH_S_DGDATA_ActorSpriteIds (UGH_LOAD + 0x5C09u)
 #define UGH_O_DGDATA_ActorUpdateOrScriptCursor 0x2A0Du
 #define UGH_S_DGDATA_ActorUpdateOrScriptCursor (UGH_LOAD + 0x5C09u)
+#define UGH_O_DGDATA_ActorVerticalOrDemoPeriod 0x2C6Du
+#define UGH_S_DGDATA_ActorVerticalOrDemoPeriod (UGH_LOAD + 0x5C09u)
 #define UGH_O_DGDATA_ActorX32 0x2AEDu
 #define UGH_S_DGDATA_ActorX32 (UGH_LOAD + 0x5C09u)
 #define UGH_O_DGDATA_ActorY32 0x2B0Du
@@ -6924,12 +6930,6 @@
 #define UGH_S_DGDATA_ds_2812 (UGH_LOAD + 0x5C09u)
 #define UGH_O_DGDATA_ds_2816 0x2816u
 #define UGH_S_DGDATA_ds_2816 (UGH_LOAD + 0x5C09u)
-#define UGH_O_DGDATA_ds_2A2D 0x2A2Du
-#define UGH_S_DGDATA_ds_2A2D (UGH_LOAD + 0x5C09u)
-#define UGH_O_DGDATA_ds_2ACD 0x2ACDu
-#define UGH_S_DGDATA_ds_2ACD (UGH_LOAD + 0x5C09u)
-#define UGH_O_DGDATA_ds_2C6D 0x2C6Du
-#define UGH_S_DGDATA_ds_2C6D (UGH_LOAD + 0x5C09u)
 #define UGH_O_DGDATA_ds_3321 0x3321u
 #define UGH_S_DGDATA_ds_3321 (UGH_LOAD + 0x5C09u)
 #define UGH_O_DGDATA_ds_3323 0x3323u
@@ -6970,8 +6970,12 @@
 #define UGH_S_DGROUP_ActorInitialPlatformIndices (UGH_LOAD + 0x5C09u)
 #define UGH_O_DGROUP_ActorJourneyCursors 0x29EDu
 #define UGH_S_DGROUP_ActorJourneyCursors (UGH_LOAD + 0x5C09u)
+#define UGH_O_DGROUP_ActorMotionWaitOrDemoRepeats 0x2ACDu
+#define UGH_S_DGROUP_ActorMotionWaitOrDemoRepeats (UGH_LOAD + 0x5C09u)
 #define UGH_O_DGROUP_ActorOverlayOrScriptCallbacks 0x2C2Du
 #define UGH_S_DGROUP_ActorOverlayOrScriptCallbacks (UGH_LOAD + 0x5C09u)
+#define UGH_O_DGROUP_ActorPhaseOrDemoLoopCursor 0x2A2Du
+#define UGH_S_DGROUP_ActorPhaseOrDemoLoopCursor (UGH_LOAD + 0x5C09u)
 #define UGH_O_DGROUP_ActorPixelX 0x2B2Du
 #define UGH_S_DGROUP_ActorPixelX (UGH_LOAD + 0x5C09u)
 #define UGH_O_DGROUP_ActorPixelY 0x2B6Du
@@ -6988,6 +6992,8 @@
 #define UGH_S_DGROUP_ActorSpriteIds (UGH_LOAD + 0x5C09u)
 #define UGH_O_DGROUP_ActorUpdateOrScriptCursor 0x2A0Du
 #define UGH_S_DGROUP_ActorUpdateOrScriptCursor (UGH_LOAD + 0x5C09u)
+#define UGH_O_DGROUP_ActorVerticalOrDemoPeriod 0x2C6Du
+#define UGH_S_DGROUP_ActorVerticalOrDemoPeriod (UGH_LOAD + 0x5C09u)
 #define UGH_O_DGROUP_ActorX32 0x2AEDu
 #define UGH_S_DGROUP_ActorX32 (UGH_LOAD + 0x5C09u)
 #define UGH_O_DGROUP_ActorY32 0x2B0Du
@@ -9436,12 +9442,6 @@
 #define UGH_S_DGROUP_ds_2812 (UGH_LOAD + 0x5C09u)
 #define UGH_O_DGROUP_ds_2816 0x2816u
 #define UGH_S_DGROUP_ds_2816 (UGH_LOAD + 0x5C09u)
-#define UGH_O_DGROUP_ds_2A2D 0x2A2Du
-#define UGH_S_DGROUP_ds_2A2D (UGH_LOAD + 0x5C09u)
-#define UGH_O_DGROUP_ds_2ACD 0x2ACDu
-#define UGH_S_DGROUP_ds_2ACD (UGH_LOAD + 0x5C09u)
-#define UGH_O_DGROUP_ds_2C6D 0x2C6Du
-#define UGH_S_DGROUP_ds_2C6D (UGH_LOAD + 0x5C09u)
 #define UGH_O_DGROUP_ds_3321 0x3321u
 #define UGH_S_DGROUP_ds_3321 (UGH_LOAD + 0x5C09u)
 #define UGH_O_DGROUP_ds_3323 0x3323u
@@ -9470,8 +9470,12 @@
 #define UGH_S_GAME_ActorInitialPlatformIndices (UGH_LOAD + 0x5C09u)
 #define UGH_O_GAME_ActorJourneyCursors 0x29EDu
 #define UGH_S_GAME_ActorJourneyCursors (UGH_LOAD + 0x5C09u)
+#define UGH_O_GAME_ActorMotionWaitOrDemoRepeats 0x2ACDu
+#define UGH_S_GAME_ActorMotionWaitOrDemoRepeats (UGH_LOAD + 0x5C09u)
 #define UGH_O_GAME_ActorOverlayOrScriptCallbacks 0x2C2Du
 #define UGH_S_GAME_ActorOverlayOrScriptCallbacks (UGH_LOAD + 0x5C09u)
+#define UGH_O_GAME_ActorPhaseOrDemoLoopCursor 0x2A2Du
+#define UGH_S_GAME_ActorPhaseOrDemoLoopCursor (UGH_LOAD + 0x5C09u)
 #define UGH_O_GAME_ActorPixelX 0x2B2Du
 #define UGH_S_GAME_ActorPixelX (UGH_LOAD + 0x5C09u)
 #define UGH_O_GAME_ActorPixelY 0x2B6Du
@@ -9488,6 +9492,8 @@
 #define UGH_S_GAME_ActorSpriteIds (UGH_LOAD + 0x5C09u)
 #define UGH_O_GAME_ActorUpdateOrScriptCursor 0x2A0Du
 #define UGH_S_GAME_ActorUpdateOrScriptCursor (UGH_LOAD + 0x5C09u)
+#define UGH_O_GAME_ActorVerticalOrDemoPeriod 0x2C6Du
+#define UGH_S_GAME_ActorVerticalOrDemoPeriod (UGH_LOAD + 0x5C09u)
 #define UGH_O_GAME_ActorX32 0x2AEDu
 #define UGH_S_GAME_ActorX32 (UGH_LOAD + 0x5C09u)
 #define UGH_O_GAME_ActorY32 0x2B0Du
@@ -10442,12 +10448,6 @@
 #define UGH_S_GAME_ds_2812 (UGH_LOAD + 0x5C09u)
 #define UGH_O_GAME_ds_2816 0x2816u
 #define UGH_S_GAME_ds_2816 (UGH_LOAD + 0x5C09u)
-#define UGH_O_GAME_ds_2A2D 0x2A2Du
-#define UGH_S_GAME_ds_2A2D (UGH_LOAD + 0x5C09u)
-#define UGH_O_GAME_ds_2ACD 0x2ACDu
-#define UGH_S_GAME_ds_2ACD (UGH_LOAD + 0x5C09u)
-#define UGH_O_GAME_ds_2C6D 0x2C6Du
-#define UGH_S_GAME_ds_2C6D (UGH_LOAD + 0x5C09u)
 #define UGH_O_GAME_ds_3321 0x3321u
 #define UGH_S_GAME_ds_3321 (UGH_LOAD + 0x5C09u)
 #define UGH_O_GAME_ds_3323 0x3323u

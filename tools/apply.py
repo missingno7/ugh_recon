@@ -14,10 +14,14 @@ All rename consumer propagation, regenerated interfaces and rollback use rename.
 import argparse
 import json
 import re
+import shutil
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 import symtab as S
 import rename as R
+import datagen
 
 def parse(text):
     lines=text.splitlines();ops=[];errors=[];i=0
@@ -173,7 +177,64 @@ def prepare(ops):
     for path,text in texts.items():
         new=R.source_result(path,text,tables).encode('latin1')
         if new!=path.read_bytes():updates[path]=new
+    # Generated data comments live in the curated layout. Store proposal comments there,
+    # then regenerate the checked-in ASM from that layout as part of the transaction.
+    data_comments=[]
+    for o in ops:
+        if o['op']!='comment':continue
+        key,rec,d=target(o['label'],ops,doc,defs)
+        if d['path'].parent==S.ROOT/'src/data':data_comments.append((d,o['block']))
+    if data_comments:
+        layout_path=S.ROOT/'metadata/data-layout.json'
+        layout=json.loads(updates.get(layout_path,layout_path.read_bytes()).decode('utf-8'))
+        for d,block in data_comments:
+            module=next(m for m in layout['modules'] if m['name']==d['module'])
+            label=next(l for l in module['labels'] if l['offset']==d['offset'])
+            label['comment']='\n'.join(line[1:].lstrip() for line in block)
+        updates[layout_path]=S.json_text(layout).encode()
+        image=S.original().image
+        affected={d['module'] for d,_ in data_comments}
+        for module in layout['modules']:
+            if module['name'] not in affected:continue
+            path=S.ROOT/'src/data'/(module['name']+'.ASM')
+            updates[path]=datagen.render(module,image)
     return updates
+
+def check_dry_data_generation(updates):
+    """Regenerate data in an isolated tree and compare it with the planned transaction."""
+    layout=S.ROOT/'metadata/data-layout.json'
+    if not layout.exists():return
+    report=S.ROOT/'build/workers/naming-infra/apply'
+    report.mkdir(parents=True,exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix='data-dry-',dir=report) as temp:
+        scratch=Path(temp)
+        for rel in ('tools/common.py','tools/datagen.py','metadata/oracle.json',
+                    'build/oracle/UGH_X.EXE'):
+            source=S.ROOT/rel; target=scratch/rel
+            target.parent.mkdir(parents=True,exist_ok=True)
+            shutil.copy2(source,target)
+        layout_target=scratch/'metadata/data-layout.json'
+        layout_target.parent.mkdir(parents=True,exist_ok=True)
+        layout_target.write_bytes(updates.get(layout,layout.read_bytes()))
+        current=json.loads(layout_target.read_text())
+        generated_paths=[]
+        for module in current['modules']:
+            rel=Path('src/data')/(module['name']+'.ASM')
+            source=S.ROOT/rel; target=scratch/rel
+            target.parent.mkdir(parents=True,exist_ok=True)
+            shutil.copy2(source,target)
+            generated_paths.append((rel,source,target))
+        tool=scratch/'tools/datagen.py'
+        run=subprocess.run([sys.executable,str(tool)],cwd=scratch,capture_output=True,text=True)
+        if run.returncode:
+            raise ValueError('dry data regeneration failed: '+(run.stdout+run.stderr).strip())
+        check=subprocess.run([sys.executable,str(tool),'--check'],cwd=scratch,capture_output=True,text=True)
+        if check.returncode:
+            raise ValueError('dry data staleness check failed: '+(check.stdout+check.stderr).strip())
+        for rel,source,target in generated_paths:
+            planned=updates.get(source,source.read_bytes())
+            if target.read_bytes()!=planned:
+                raise ValueError(f'dry regenerated {rel} differs from the planned transaction')
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('proposal',type=Path);p.add_argument('--dry',action='store_true')
@@ -182,6 +243,7 @@ def main():
         ops=parse(a.proposal.read_text());updates=prepare(ops)
         report=S.ROOT/'build/workers/naming-infra/apply'/a.proposal.stem
         if a.dry:
+            check_dry_data_generation(updates)
             print(f'Validated {len(ops)} directives; {len(updates)} files would change. No files written.')
             return
         R.commit(updates,True,report)

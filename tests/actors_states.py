@@ -29,7 +29,7 @@ def fixture(m,actor='Data_7720',enemy='Data_766C'):
               'ActorY32','ActorPixelX','ActorPixelY','ActorOverlayOrScriptCallbacks',
               'ActorSourcePlatformByteIndices','ActorDestinationPlatformByteIndices',
               'ActorDestinationPlatforms','ActorPlatformOrScriptDone','ActorJourneyCursors',
-              'ds_2ACD','ds_2A2D','ds_2C6D','PassengerQuickDeliveryCountdowns',
+              'ActorMotionWaitOrDemoRepeats','ActorPhaseOrDemoLoopCursor','ActorVerticalOrDemoPeriod','PassengerQuickDeliveryCountdowns',
               'EnemyDescriptors','EnemyStateCallbacks','EnemyAnimationByteOffsets',
               'EnemyAnimationCountdowns','EnemySpriteIds','EnemyX32','EnemyY32',
               'EnemyHorizontalSpeeds','EnemyStateCounters','EnemyDirectionOrTargetPlayer',
@@ -45,8 +45,8 @@ def fixture(m,actor='Data_7720',enemy='Data_766C'):
     for n,v in (('ActorAnimationByteOffsets',0),('ActorAnimationCountdowns',2),
                 ('ActorX32',3200),('ActorY32',1280),('ActorPixelX',100),('ActorPixelY',40),
                 ('ActorSourcePlatformByteIndices',2),('ActorDestinationPlatformByteIndices',4),
-                ('ActorDestinationPlatforms',3),('ActorPlatformOrScriptDone',3),('ds_2A2D',2),
-                ('ds_2ACD',2),('ds_2C6D',0),('PassengerQuickDeliveryCountdowns',0),
+                ('ActorDestinationPlatforms',3),('ActorPlatformOrScriptDone',3),('ActorPhaseOrDemoLoopCursor',2),
+                ('ActorMotionWaitOrDemoRepeats',2),('ActorVerticalOrDemoPeriod',0),('PassengerQuickDeliveryCountdowns',0),
                 ('ActorJourneyCursors',JOURNEY)):
         m.ww('DGROUP:'+n,v,ACTOR)
     for n,v in (('EnemyAnimationByteOffsets',0),('EnemyAnimationCountdowns',2),
@@ -140,7 +140,7 @@ for ticks in (0,1,2):
                   ('ActorAnimationByteOffsets',offset,ACTOR)])
 for scratch in (0,1,0xffff):
     case('UpdatePassengerPlatformWait',f'wait idle scratch={scratch:x}',
-         [('ActorAnimationCountdowns',1,ACTOR),('ActorPixelX',102,ACTOR),('ds_2A2D',scratch,ACTOR)])
+         [('ActorAnimationCountdowns',1,ACTOR),('ActorPixelX',102,ACTOR),('ActorPhaseOrDemoLoopCursor',scratch,ACTOR)])
 for player in (0,2):
     for carried in (0,4):
         case('UpdatePassengerPlatformWait',f'wait player={player} carried={carried}',
@@ -150,14 +150,14 @@ for n in ('UpdatePassengerDestinationDisplay','UpdatePassengerQuestionDisplay'):
     for ticks in (0,1,2):
         for count in (0,1,2):
             case(n,f'{n} ticks={ticks} countdown={count}',
-                 [('PlayerPlatformIndices',3,2),('ActorAnimationCountdowns',ticks,ACTOR),('ds_2A2D',count,ACTOR)])
+                 [('PlayerPlatformIndices',3,2),('ActorAnimationCountdowns',ticks,ACTOR),('ActorPhaseOrDemoLoopCursor',count,ACTOR)])
     for index in range(0,12,2):
         case(n,f'{n} sequence off={index}',
-             [('PlayerPlatformIndices',3,0),('ActorAnimationCountdowns',1,ACTOR),('ActorAnimationByteOffsets',index,ACTOR),('ds_2A2D',10,ACTOR)])
+             [('PlayerPlatformIndices',3,0),('ActorAnimationCountdowns',1,ACTOR),('ActorAnimationByteOffsets',index,ACTOR),('ActorPhaseOrDemoLoopCursor',10,ACTOR)])
     for platforms,carry in (((0xffff,0xffff),0),((3,3),4),((0xffff,3),4),((3,3),0)):
         case(n,f'{n} platform scan {platforms} carried={carry}',
              [('PlayerPlatformIndices',platforms[0],0),('PlayerPlatformIndices',platforms[1],2),
-              ('PlayerCarriedKinds',carry,0),('PlayerCarriedKinds',carry,2),('ds_2A2D',1,ACTOR)])
+              ('PlayerCarriedKinds',carry,0),('PlayerCarriedKinds',carry,2),('ActorPhaseOrDemoLoopCursor',1,ACTOR)])
 
 for ticks in (0,1,2):
     for x in (90,108,120):
@@ -188,7 +188,7 @@ def stone_hit(m,speed=31):
     m.ww('DGROUP:ActorDescriptors',m.off('DGROUP:Data_78DC'))
     m.ww('DGROUP:ActorDescriptors',0xffff,2)
     m.ww('DGROUP:ActorUpdateOrScriptCursor',m.off('GAME:UpdateThrownStone'))
-    m.ww('DGROUP:ds_2C6D',speed)
+    m.ww('DGROUP:ActorVerticalOrDemoPeriod',speed)
     m.ww('DGROUP:ActorX32',3200)
     m.ww('DGROUP:ActorY32',2560)
 
@@ -316,7 +316,7 @@ for n,x in (('UpdatePassengerPlatformWait',90),('UpdatePassengerPlatformWait',11
           ('ActorPixelX',x,ACTOR),('PlayerPlatformIndices',3,0)])
 case('UpdatePassengerPlatformWait','platform wait real idle sentinel',
      [('ActorAnimationCountdowns',1,ACTOR),('ActorAnimationByteOffsets',6,ACTOR),
-      ('ActorPixelX',102,ACTOR),('ds_2A2D',1,ACTOR)])
+      ('ActorPixelX',102,ACTOR),('ActorPhaseOrDemoLoopCursor',1,ACTOR)])
 for n in passenger:
     case(n,n+' contact on platform',
          [('PlayerY32',1280,0),('PlayerPlatformIndices',3,0)])

@@ -66,8 +66,8 @@ EXPORT int c_StopBirdFlightSound(Regs *r) {
 EXPORT int c_ThrowCarriedStone(Regs *r) {
     r->si=A(ActorDescriptors); r->ax=logic(r,0,16);
     W(PlayerCarriedKinds,r->di,r->ax); W(PlayerDestinationIcons,r->di,r->ax);
-    r->ax=shift(r,R(PlayerHorizontalVelocities,r->di),5,1); B(ds_2ACD,r->ax);
-    r->ax=shift(r,R(PlayerVerticalVelocities,r->di),5,1); B(ds_2C6D,r->ax);
+    r->ax=shift(r,R(PlayerHorizontalVelocities,r->di),5,1); B(ActorMotionWaitOrDemoRepeats,r->ax);
+    r->ax=shift(r,R(PlayerVerticalVelocities,r->di),5,1); B(ActorVerticalOrDemoPeriod,r->ax);
     r->ax=R(PlayerX32,r->di); r->bp=R(PlayerY32,r->di);
     r->ax=add16(r,r->ax,0x200,0); r->bp=add16(r,r->bp,0x140,0);
     r->di=shift(r,F(0),5,0); r->ax=sub16(r,r->ax,r->di,0); B(ActorX32,r->ax);
@@ -124,7 +124,7 @@ EXPORT int c_LaunchBirdTowardPlayer(Regs *r) {
 EXPORT int c_ReleaseTreeReward(Regs *r) {
     r->ax=F(0x1e); B(EnemyStateCallbacks,r->ax); B(EnemyStateCounters,210); B(EnemySpriteIds,0xe8);
     r->ax=R(ActorX32,r->di); r->bp=R(ActorY32,r->di);
-    r->cx=R(ds_2ACD,r->di); r->dx=shift(r,sub16(r,0,R(ds_2C6D,r->di),0),2,1);
+    r->cx=R(ActorMotionWaitOrDemoRepeats,r->di); r->dx=shift(r,sub16(r,0,R(ActorVerticalOrDemoPeriod,r->di),0),2,1);
     r->si=A(EnemyAnimationOrDropLists); r->si=rd16(r->ds,r->si);
     int st=ugh_call_near(F(4),G(ReleaseTreeReward)+0x31,r); if(st) return st;
     B(EnemyAnimationOrDropLists,add16(r,A(EnemyAnimationOrDropLists),2,0));
@@ -204,7 +204,7 @@ EXPORT int c_ReadPassengerJourneyLeg(Regs *r) {
     r->ax=shift(r,r->ax,1,0); B(ActorSourcePlatformByteIndices,r->ax);
     r->ax=rd16(r->ds,(uint16_t)(r->di+2));
     int status=ugh_call_near(G(ScaleLevelSpeedToThreeHalves),(uint16_t)(G(ReadPassengerJourneyLeg)+0x5d),r); if(status) return status;
-    B(ds_2ACD,r->ax); r->si=A(ActorDescriptors); r->ax=F(0x0a); B(ActorUpdateOrScriptCursor,r->ax); return UGH_OK;
+    B(ActorMotionWaitOrDemoRepeats,r->ax); r->si=A(ActorDescriptors); r->ax=F(0x0a); B(ActorUpdateOrScriptCursor,r->ax); return UGH_OK;
 }
 
 /* Platform-wait movement is tick gated; contact and empty-player scans run
@@ -216,11 +216,11 @@ EXPORT int c_UpdatePassengerPlatformWait(Regs *r) {
     if(actor_tick(r)) {
         r->ax=add16(r,A(ActorPixelX),F(0),0); sub16(r,r->ax,R(PlatformWaitingPointsX,r->di),0);
         if(!(r->flags&ZF)) {
-            B(ds_2A2D,0); int left=!lt(r), status=frame(r,0,left?0x32:0x34,0); if(status) return status;
+            B(ActorPhaseOrDemoLoopCursor,0); int left=!lt(r), status=frame(r,0,left?0x32:0x34,0); if(status) return status;
             B(ActorX32,left?sub16(r,A(ActorX32),32,0):add16(r,A(ActorX32),32,0));
         } else {
-            sub16(r,A(ds_2A2D),1,0); if(!(r->flags&ZF)) B(ActorAnimationByteOffsets,0);
-            int status=frame(r,0,0x2e,0); if(status) return status; B(ds_2A2D,1);
+            sub16(r,A(ActorPhaseOrDemoLoopCursor),1,0); if(!(r->flags&ZF)) B(ActorAnimationByteOffsets,0);
+            int status=frame(r,0,0x2e,0); if(status) return status; B(ActorPhaseOrDemoLoopCursor,1);
         }
     }
     int status=ugh_call_near(G(FindPlayerTouchingActor),(uint16_t)(G(UpdatePassengerPlatformWait)+0xe2),r); if(status) return status;
@@ -241,7 +241,7 @@ static int display(Regs *r,int question) {
         sub16(r,R(PlayerCarriedKinds,r->di),0,0); if(!(r->flags&ZF)) return tail(r,0x18);
     }
     if(actor_tick(r)) { status=frame(r,0,0x30,0); if(status) return status; }
-    uint16_t count=dec16(r,A(ds_2A2D)); B(ds_2A2D,count); if(count) return UGH_OK;
+    uint16_t count=dec16(r,A(ActorPhaseOrDemoLoopCursor)); B(ActorPhaseOrDemoLoopCursor,count); if(count) return UGH_OK;
     if(!question) return tail(r,0x1c);
     r->di=A(ActorSourcePlatformByteIndices);
     int found=platform_player(r,1); if(found<0) return UGH_BUDGET; return tail(r,found?0x14:0x10);
@@ -275,7 +275,7 @@ EXPORT int c_BoardWaterbornePassenger(Regs *r) {
     r->ax=F(0x42); W(PlayerMinimumFares,r->di,r->ax); r->si=F(0x48); B(ActorDescriptors,r->si);
     r->ax=F(0x22); B(ActorUpdateOrScriptCursor,r->ax); r->ax=F(0x46); W(PlayerCarriedKinds,r->di,r->ax);
     r->si=A(ActorDestinationPlatformByteIndices); r->ax=R(PlatformDestinationIcons,r->si); W(PlayerDestinationIcons,r->di,r->ax);
-    B(ds_2A2D,r->di); B(ActorSpriteIds,0xffff); B(PassengerQuickDeliveryCountdowns,200);
+    B(ActorPhaseOrDemoLoopCursor,r->di); B(ActorSpriteIds,0xffff); B(PassengerQuickDeliveryCountdowns,200);
     r->di=A(ActorSourcePlatformByteIndices); W(PlatformActorOccupants,r->di,0xffff); return UGH_OK;
 }
 
@@ -285,7 +285,7 @@ EXPORT int c_BoardWaterbornePassenger(Regs *r) {
 EXPORT int c_DeliverPassenger(Regs *r) {
     r->si=A(ActorDescriptors); r->ax=F(0x26); B(ActorUpdateOrScriptCursor,r->ax);
     r->ax=logic(r,0,16); W(PlayerCarriedKinds,r->di,r->ax); W(PlayerDestinationIcons,r->di,r->ax);
-    r->ax=sub16(r,16,F(0),0); r->ax=shift(r,r->ax,5,0); r->di=A(ds_2A2D);
+    r->ax=sub16(r,16,F(0),0); r->ax=shift(r,r->ax,5,0); r->di=A(ActorPhaseOrDemoLoopCursor);
     r->ax=add16(r,r->ax,R(PlayerX32,r->di),0); B(ActorX32,r->ax); r->ax=R(PlayerPassengerFares,r->di);
     uint32_t product=(uint32_t)r->ax*R(ScoreMultiplier,0); r->ax=(uint16_t)product; r->dx=(uint16_t)(product>>16);
     flag(r,CF,r->dx!=0); flag(r,OF,r->dx!=0);
@@ -321,7 +321,7 @@ EXPORT int c_UpdateStonePickupWait(Regs *r) {
 static int enemy_stone(Regs *r,uint16_t return_ip,int sprite) {
     int status=ugh_call_near(G(FindThrownStoneHittingEnemy),return_ip,r); if(status) return status;
     if(r->flags&SF) return UGH_OK;
-    W(ds_2C6D,r->di,sub16(r,0,R(ds_2C6D,r->di),0));
+    W(ActorVerticalOrDemoPeriod,r->di,sub16(r,0,R(ActorVerticalOrDemoPeriod,r->di),0));
     if(sprite) W(ActorSpriteIds,r->di,0x222);
     return tail(r,0x1c);
 }
@@ -369,7 +369,7 @@ EXPORT int c_UpdateTriopterusAlert(Regs *r) {
     r->si=A(EnemyDescriptors); uint16_t count=dec16(r,A(EnemyStateCounters)); B(EnemyStateCounters,count); if(!count) return tail(r,0x10);
     if(enemy_tick(r,5)) { int status=frame(r,1,0x2e,1); if(status) return status; }
     int status=ugh_call_near(G(FindThrownStoneHittingEnemy),(uint16_t)(G(UpdateTriopterusAlert)+0x49),r); if(status) return status;
-    if(!(r->flags&SF)) { W(ds_2C6D,r->di,sub16(r,0,R(ds_2C6D,r->di),0)); W(ActorSpriteIds,r->di,0x222); return tail(r,0x1c); }
+    if(!(r->flags&SF)) { W(ActorVerticalOrDemoPeriod,r->di,sub16(r,0,R(ActorVerticalOrDemoPeriod,r->di),0)); W(ActorSpriteIds,r->di,0x222); return tail(r,0x1c); }
     int found=enemy_player(r); if(found<0) return UGH_BUDGET; if(!found) return tail(r,8);
     face_player(r); return UGH_OK;
 }
@@ -380,7 +380,7 @@ EXPORT int c_UpdateTriopterusAlert(Regs *r) {
 EXPORT int c_UpdateTriopterusCharge(Regs *r) {
     r->si=A(EnemyDescriptors); if(enemy_tick(r,4)) { int status=frame(r,1,0x26,1); if(status) return status; }
     int status=ugh_call_near(G(FindThrownStoneHittingEnemy),(uint16_t)(G(UpdateTriopterusCharge)+0x3d),r); if(status) return status;
-    if(!(r->flags&SF)) { W(ds_2C6D,r->di,sub16(r,0,R(ds_2C6D,r->di),0)); W(ActorSpriteIds,r->di,0x222); return tail(r,0x1c); }
+    if(!(r->flags&SF)) { W(ActorVerticalOrDemoPeriod,r->di,sub16(r,0,R(ActorVerticalOrDemoPeriod,r->di),0)); W(ActorSpriteIds,r->di,0x222); return tail(r,0x1c); }
     int found=enemy_player(r); if(found<0) return UGH_BUDGET; if(!found) return tail(r,0x14);
     face_player(r); r->ax=dec16(r,A(EnemyDirectionOrTargetPlayer)); r->ax=add16(r,r->ax,A(EnemyStateCounters),0); B(EnemyStateCounters,r->ax);
     r->ax=add16(r,r->ax,A(EnemyHorizontalSpeeds),0); r->ax=add16(r,r->ax,A(EnemyX32),0); B(EnemyX32,r->ax);
@@ -427,7 +427,7 @@ EXPORT int c_UpdateBirdFlight(Regs *r) {
     B(EnemySpriteIds,r->ax); int status=ugh_call_near(G(FindThrownStoneHittingEnemy),(uint16_t)(G(UpdateBirdFlight)+0x5b),r); if(status) return status;
     if(!(r->flags&SF)) {
         status=ugh_call_near(G(StopBirdFlightSound),(uint16_t)(G(UpdateBirdFlight)+0x63),r); if(status) return status;
-        W(ds_2C6D,r->di,sub16(r,0,R(ds_2C6D,r->di),0)); W(ActorSpriteIds,r->di,0x222); return tail(r,0x1c);
+        W(ActorVerticalOrDemoPeriod,r->di,sub16(r,0,R(ActorVerticalOrDemoPeriod,r->di),0)); W(ActorSpriteIds,r->di,0x222); return tail(r,0x1c);
     }
     status=ugh_call_near(G(FindPlayerTouchingEnemy),(uint16_t)(G(UpdateBirdFlight)+0x73),r); if(status) return status; if(r->flags&SF) return UGH_OK;
     uint16_t old=r->di; r->di=(uint16_t)(old>>1); flag(r,CF,old&1); flag(r,OF,old&0x8000); szp(r,r->di,16);
@@ -472,7 +472,7 @@ EXPORT int c_UpdateFruitTreeAnimation(Regs *r) {
     int status=frame(r,1,0x22,0); if(status) return status;
     status=ugh_call_near(G(FindThrownStoneHittingEnemy),(uint16_t)(G(UpdateFruitTreeAnimation)+0x38),r); if(status) return status;
     if(r->flags&SF) return UGH_OK;
-    r->ax=sub16(r,0,R(ds_2C6D,r->di),0); r->ax=shift(r,r->ax,1,1); W(ds_2C6D,r->di,r->ax); W(ActorSpriteIds,r->di,0x222);
+    r->ax=sub16(r,0,R(ActorVerticalOrDemoPeriod,r->di),0); r->ax=shift(r,r->ax,1,1); W(ActorVerticalOrDemoPeriod,r->di,r->ax); W(ActorSpriteIds,r->di,0x222);
     r->si=A(EnemyDescriptors); return tail(r,0x1c);
 }
 

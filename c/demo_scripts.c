@@ -121,7 +121,7 @@ EXPORT int c_AdvanceDemoScripts(Regs *r) {
         uint16_t count=dec16(r,rd16(r->ds,tick));
         wr16(r->ds,tick,count);
         if(!count) {
-            r->ax=rd16(r->ds,(uint16_t)(D(ds_2C6D)+r->bx));
+            r->ax=rd16(r->ds,(uint16_t)(D(ActorVerticalOrDemoPeriod)+r->bx));
             wr16(r->ds,tick,r->ax);
             for(;;) {
                 if(!budget--) return UGH_BUDGET;
@@ -144,16 +144,16 @@ EXPORT int c_AdvanceDemoScripts(Regs *r) {
                 }
                 sub16(r,r->ax,0x8000,0);
                 if(r->ax!=0x8000) {
-                    wr16(r->ds,(uint16_t)(D(ds_2ACD)+r->bx),r->ax);
-                    wr16(r->ds,(uint16_t)(D(ds_2A2D)+r->bx),r->si);
+                    wr16(r->ds,(uint16_t)(D(ActorMotionWaitOrDemoRepeats)+r->bx),r->ax);
+                    wr16(r->ds,(uint16_t)(D(ActorPhaseOrDemoLoopCursor)+r->bx),r->si);
                     continue;
                 }
-                r->ax=logic(r,rd16(r->ds,(uint16_t)(D(ds_2ACD)+r->bx)),16);
+                r->ax=logic(r,rd16(r->ds,(uint16_t)(D(ActorMotionWaitOrDemoRepeats)+r->bx)),16);
                 if(r->ax) {
                     uint16_t cf=r->flags&CF;
                     r->ax=add16(r,r->ax,1,0); flag(r,CF,cf);
-                    wr16(r->ds,(uint16_t)(D(ds_2ACD)+r->bx),r->ax);
-                    if(r->ax) r->si=rd16(r->ds,(uint16_t)(D(ds_2A2D)+r->bx));
+                    wr16(r->ds,(uint16_t)(D(ActorMotionWaitOrDemoRepeats)+r->bx),r->ax);
+                    if(r->ax) r->si=rd16(r->ds,(uint16_t)(D(ActorPhaseOrDemoLoopCursor)+r->bx));
                 } else {
                     r->si=sub16(r,r->si,2,0);
                     wr16(r->ds,(uint16_t)(D(ActorPlatformOrScriptDone)+r->bx),0xffff);

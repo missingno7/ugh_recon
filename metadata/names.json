@@ -3275,20 +3275,20 @@
       ]
     },
     "5C09:2A2D/DGROUP/ds_2A2D": {
-      "name": "ds_2A2D",
+      "name": "ActorPhaseOrDemoLoopCursor",
       "kind": "data",
       "address": "5C09:2A2D",
-      "evidence": "Address and declaration in src/asm/GAME.ASM.",
+      "evidence": "Actor phase word: waiting mode, state countdown or carrying player byte index in gameplay.",
       "spellings": [
         {
           "module": "GAME",
-          "name": "ds_2A2D",
+          "name": "ActorPhaseOrDemoLoopCursor",
           "decorated": false,
           "public": true
         },
         {
           "module": "DGDATA",
-          "name": "ds_2A2D",
+          "name": "ActorPhaseOrDemoLoopCursor",
           "decorated": false,
           "public": true
         }
@@ -3395,20 +3395,20 @@
       ]
     },
     "5C09:2ACD/DGROUP/ds_2ACD": {
-      "name": "ds_2ACD",
+      "name": "ActorMotionWaitOrDemoRepeats",
       "kind": "data",
       "address": "5C09:2ACD",
-      "evidence": "Address and declaration in src/asm/GAME.ASM.",
+      "evidence": "Actor phase word: journey wait, thrown horizontal step or floating lifetime in gameplay.",
       "spellings": [
         {
           "module": "GAME",
-          "name": "ds_2ACD",
+          "name": "ActorMotionWaitOrDemoRepeats",
           "decorated": false,
           "public": true
         },
         {
           "module": "DGDATA",
-          "name": "ds_2ACD",
+          "name": "ActorMotionWaitOrDemoRepeats",
           "decorated": false,
           "public": true
         }
@@ -3655,20 +3655,20 @@
       ]
     },
     "5C09:2C6D/DGROUP/ds_2C6D": {
-      "name": "ds_2C6D",
+      "name": "ActorVerticalOrDemoPeriod",
       "kind": "data",
       "address": "5C09:2C6D",
-      "evidence": "Address and declaration in src/asm/GAME.ASM.",
+      "evidence": "Actor phase word: gameplay vertical motion; demo view: update period copied from the header.",
       "spellings": [
         {
           "module": "GAME",
-          "name": "ds_2C6D",
+          "name": "ActorVerticalOrDemoPeriod",
           "decorated": false,
           "public": true
         },
         {
           "module": "DGDATA",
-          "name": "ds_2C6D",
+          "name": "ActorVerticalOrDemoPeriod",
           "decorated": false,
           "public": true
         }

@@ -79,8 +79,8 @@ static void score(Regs *r) {
 
 /* TRANSLATES GAME:WaitForPassengerPlatform */
 EXPORT int c_WaitForPassengerPlatform(Regs *r) {
-    W(ActorSpriteIds,0xffff); r->ax=A(ds_2ACD); sub16(r,r->ax,0,0);
-    if(r->ax) { r->ax=dec16(r,r->ax); W(ds_2ACD,r->ax); if(r->ax) return UGH_OK; }
+    W(ActorSpriteIds,0xffff); r->ax=A(ActorMotionWaitOrDemoRepeats); sub16(r,r->ax,0,0);
+    if(r->ax) { r->ax=dec16(r,r->ax); W(ActorMotionWaitOrDemoRepeats,r->ax); if(r->ax) return UGH_OK; }
     r->di=A(ActorSourcePlatformByteIndices);
     sub16(r,READ(PlatformActorOccupants,r->di),0xffff,0);
     if(!(r->flags&ZF)) return UGH_OK;
@@ -113,19 +113,19 @@ EXPORT int c_AnimatePassengerArrival(Regs *r) {
 /* TRANSLATES GAME:BeginPassengerPlatformWait */
 EXPORT int c_BeginPassengerPlatformWait(Regs *r) {
     actor_init(r,0x12); r->ax=0xffff;
-    W(ds_2A2D,r->ax); W(ActorOverlayOrScriptCallbacks,r->ax); return UGH_OK;
+    W(ActorPhaseOrDemoLoopCursor,r->ax); W(ActorOverlayOrScriptCallbacks,r->ax); return UGH_OK;
 }
 
 /* TRANSLATES GAME:BeginPassengerDestinationDisplay */
 EXPORT int c_BeginPassengerDestinationDisplay(Regs *r) {
     actor_init(r,0x16); r->ax=add16(r,A(ActorDestinationPlatforms),0x10c,0);
     sub16(r,r->ax,0x112,0); if(!(r->flags&CF)) r->ax=0x111;
-    W(ActorOverlayOrScriptCallbacks,r->ax); W(ds_2A2D,140); return UGH_OK;
+    W(ActorOverlayOrScriptCallbacks,r->ax); W(ActorPhaseOrDemoLoopCursor,140); return UGH_OK;
 }
 
 /* TRANSLATES GAME:BeginPassengerQuestionDisplay */
 EXPORT int c_BeginPassengerQuestionDisplay(Regs *r) {
-    actor_init(r,0x1a); W(ActorOverlayOrScriptCallbacks,0x112); W(ds_2A2D,140); return UGH_OK;
+    actor_init(r,0x1a); W(ActorOverlayOrScriptCallbacks,0x112); W(ActorPhaseOrDemoLoopCursor,140); return UGH_OK;
 }
 
 /* TRANSLATES GAME:BeginPassengerApproach */
@@ -140,14 +140,14 @@ EXPORT int c_BoardPassenger(Regs *r) {
     r->ax=DESC(0x22); W(ActorUpdateOrScriptCursor,r->ax);
     r->ax=DESC(0x46); WRITE(PlayerCarriedKinds,r->di,r->ax);
     r->si=A(ActorDestinationPlatformByteIndices); r->ax=READ(PlatformDestinationIcons,r->si);
-    WRITE(PlayerDestinationIcons,r->di,r->ax); W(ds_2A2D,r->di);
+    WRITE(PlayerDestinationIcons,r->di,r->ax); W(ActorPhaseOrDemoLoopCursor,r->di);
     W(ActorSpriteIds,0xffff); W(PassengerQuickDeliveryCountdowns,200);
     r->di=A(ActorSourcePlatformByteIndices); WRITE(PlatformActorOccupants,r->di,0xffff); return UGH_OK;
 }
 
 /* TRANSLATES GAME:UpdateCarriedPassenger */
 EXPORT int c_UpdateCarriedPassenger(Regs *r) {
-    r->di=A(ds_2A2D); r->ax=READ(PlayerPassengerFares,r->di);
+    r->di=A(ActorPhaseOrDemoLoopCursor); r->ax=READ(PlayerPassengerFares,r->di);
     sub16(r,r->ax,READ(PlayerMinimumFares,r->di),0);
     if(!(r->flags&(CF|ZF))) { r->ax=dec16(r,r->ax); WRITE(PlayerPassengerFares,r->di,r->ax); }
     r->ax=A(PassengerQuickDeliveryCountdowns); sub16(r,r->ax,0,0);
@@ -198,22 +198,22 @@ EXPORT int c_BeginStonePickupWait(Regs *r) { actor_init(r,0x12); return UGH_OK; 
 EXPORT int c_AttachStoneToPlayer(Regs *r) {
     r->si=A(ActorDescriptors); r->ax=DESC(0x22); W(ActorUpdateOrScriptCursor,r->ax);
     r->ax=DESC(0x46); WRITE(PlayerCarriedKinds,r->di,r->ax); WRITE(PlayerDestinationIcons,r->di,7);
-    W(ds_2A2D,r->di); W(ActorSpriteIds,0xffff); return UGH_OK;
+    W(ActorPhaseOrDemoLoopCursor,r->di); W(ActorSpriteIds,0xffff); return UGH_OK;
 }
 
 /* TRANSLATES GAME:WaitForStoneRelease */
 EXPORT int c_WaitForStoneRelease(Regs *r) {
-    r->di=A(ds_2A2D); logic(r,rd8(r->ds,(uint16_t)(D(PlayerActionInput)+r->di)),8);
+    r->di=A(ActorPhaseOrDemoLoopCursor); logic(r,rd8(r->ds,(uint16_t)(D(PlayerActionInput)+r->di)),8);
     if(!(r->flags&SF)) return UGH_OK;
     r->si=A(ActorDescriptors); return tail(r,0x24);
 }
 
 /* TRANSLATES GAME:UpdateThrownStone */
 EXPORT int c_UpdateThrownStone(Regs *r) {
-    r->si=A(ActorDescriptors); r->ax=add16(r,A(ds_2ACD),A(ActorX32),0);
+    r->si=A(ActorDescriptors); r->ax=add16(r,A(ActorMotionWaitOrDemoRepeats),A(ActorX32),0);
     sub16(r,r->ax,0xfe00,0); if(less(r)||(r->flags&ZF)) goto gone;
     sub16(r,r->ax,0x2800,0); if(!less(r)) goto gone;
-    W(ActorX32,r->ax); r->ax=add16(r,A(ds_2C6D),2,0); W(ds_2C6D,r->ax);
+    W(ActorX32,r->ax); r->ax=add16(r,A(ActorVerticalOrDemoPeriod),2,0); W(ActorVerticalOrDemoPeriod,r->ax);
     logic(r,r->ax,16);
     if(r->flags&SF) { W(ActorY32,add16(r,A(ActorY32),r->ax,0)); return UGH_OK; }
     r->cx=A(ActorY32); r->ax=add16(r,r->ax,A(ActorY32),0);
@@ -241,7 +241,7 @@ EXPORT int c_BeginPassengerResurfacing(Regs *r) {
     r->si=A(ActorDescriptors); r->ax=DESC(0x0a); W(ActorUpdateOrScriptCursor,r->ax);
     r->di=A(ActorSourcePlatformByteIndices); r->ax=0xffff;
     WRITE(PlatformActorOccupants,r->di,r->ax); W(ActorOverlayOrScriptCallbacks,r->ax);
-    W(ActorAnimationByteOffsets,0xfffe); W(ActorAnimationCountdowns,1); W(ds_2C6D,0); return UGH_OK;
+    W(ActorAnimationByteOffsets,0xfffe); W(ActorAnimationCountdowns,1); W(ActorVerticalOrDemoPeriod,0); return UGH_OK;
 }
 
 /* TRANSLATES GAME:UpdatePassengerResurfacing */
@@ -250,14 +250,14 @@ EXPORT int c_UpdatePassengerResurfacing(Regs *r) {
     int status=actor_frame(r,0x2e); if(status) return status;
     r->cx=sub16(r,A(ActorPixelY),DESC(2),0); r->cx=sub16(r,r->cx,READ(WaterYPixels,0),0);
     if(!(r->flags&(SF|ZF))) r->cx=(uint16_t)((r->cx&255u)|0x100u);
-    r->ax=A(ds_2C6D); logic(r,r->cx>>8,8);
+    r->ax=A(ActorVerticalOrDemoPeriod); logic(r,r->cx>>8,8);
     if(r->flags&SF) r->ax=add16(r,r->ax,0x27,0);
     else { sub16(r,r->ax,0,0); r->ax=sub16(r,r->ax,greater(r)?0x175:0x5c,0); }
     logic(r,r->ax,16);
     if(r->flags&SF) { sub16(r,r->ax,0xe800,0); if(less(r)) r->ax=0xe800; }
     else { sub16(r,r->ax,0x1800,0); if(greater(r)) r->ax=0x1800; }
-    W(ds_2C6D,r->ax); r->ax=sar(r,r->ax,6); r->ax=add16(r,r->ax,A(ActorY32),0); W(ActorY32,r->ax);
-    sub16(r,A(ds_2C6D),0,0); if(!less(r)) return UGH_OK;
+    W(ActorVerticalOrDemoPeriod,r->ax); r->ax=sar(r,r->ax,6); r->ax=add16(r,r->ax,A(ActorY32),0); W(ActorY32,r->ax);
+    sub16(r,A(ActorVerticalOrDemoPeriod),0,0); if(!less(r)) return UGH_OK;
     r->ax=sar(r,r->ax,5); r->ax=sub16(r,r->ax,DESC(2),0);
     sub16(r,r->ax,READ(WaterYPixels,0),0); if(greater(r)) return UGH_OK;
     r->ax=sub16(r,READ(WaterYPixels,0),DESC(2),0); r->ax=shl(r,r->ax,5);
@@ -266,13 +266,13 @@ EXPORT int c_UpdatePassengerResurfacing(Regs *r) {
 
 /* TRANSLATES GAME:BeginPassengerSinking */
 EXPORT int c_BeginPassengerSinking(Regs *r) {
-    actor_init(r,0x0e); W(ActorOverlayOrScriptCallbacks,0xffff); W(ds_2C6D,0); return UGH_OK;
+    actor_init(r,0x0e); W(ActorOverlayOrScriptCallbacks,0xffff); W(ActorVerticalOrDemoPeriod,0); return UGH_OK;
 }
 
 /* TRANSLATES GAME:UpdatePassengerSinking */
 EXPORT int c_UpdatePassengerSinking(Regs *r) {
     r->si=A(ActorDescriptors); actor_tick(r); int status=actor_frame(r,0x2e); if(status) return status;
-    r->ax=add16(r,A(ds_2C6D),0x27,0); W(ds_2C6D,r->ax);
+    r->ax=add16(r,A(ActorVerticalOrDemoPeriod),0x27,0); W(ActorVerticalOrDemoPeriod,r->ax);
     r->ax=sar(r,r->ax,6); r->ax=add16(r,r->ax,A(ActorY32),0); sub16(r,r->ax,0x1800,0);
     if(r->flags&CF) W(ActorY32,r->ax);
     else { r->ax=DESC(0x2c); W(ActorUpdateOrScriptCursor,r->ax); W(ActorSpriteIds,0xffff); }
@@ -281,7 +281,7 @@ EXPORT int c_UpdatePassengerSinking(Regs *r) {
 
 /* TRANSLATES GAME:BeginPassengerFloating */
 EXPORT int c_BeginPassengerFloating(Regs *r) {
-    actor_init(r,0x12); r->ax=DESC(0x44); W(ds_2ACD,r->ax); return UGH_OK;
+    actor_init(r,0x12); r->ax=DESC(0x44); W(ActorMotionWaitOrDemoRepeats,r->ax); return UGH_OK;
 }
 
 static void surface_y(Regs *r) {
@@ -305,7 +305,7 @@ next:       r->di=add16(r,r->di,2,0); sub16(r,r->di,4,0); if(!(r->flags&CF)) bre
             sub16(r,READ(PlayerCount,0),2,0); if(!(r->flags&ZF)) break;
         }
     }
-    uint16_t count=dec16(r,A(ds_2ACD)); W(ds_2ACD,count);
+    uint16_t count=dec16(r,A(ActorMotionWaitOrDemoRepeats)); W(ActorMotionWaitOrDemoRepeats,count);
     return count?UGH_OK:tail(r,0x0c);
 }
 
@@ -319,14 +319,14 @@ EXPORT int c_UpdateFloatingDestinationDisplay(Regs *r) {
         if(!(r->flags&ZF)) return tail(r,0x18);
     }
     if(actor_tick(r)) { int status=actor_frame(r,0x30); if(status) return status; }
-    uint16_t count=dec16(r,A(ds_2A2D)); W(ds_2A2D,count); return count?UGH_OK:tail(r,0x1c);
+    uint16_t count=dec16(r,A(ActorPhaseOrDemoLoopCursor)); W(ActorPhaseOrDemoLoopCursor,count); return count?UGH_OK:tail(r,0x1c);
 }
 
 /* TRANSLATES GAME:UpdateFloatingQuestionDisplay */
 EXPORT int c_UpdateFloatingQuestionDisplay(Regs *r) {
     r->si=A(ActorDescriptors); surface_y(r);
     if(actor_tick(r)) { int status=actor_frame(r,0x30); if(status) return status; }
-    uint16_t count=dec16(r,A(ds_2A2D)); W(ds_2A2D,count); return count?UGH_OK:tail(r,0x0c);
+    uint16_t count=dec16(r,A(ActorPhaseOrDemoLoopCursor)); W(ActorPhaseOrDemoLoopCursor,count); return count?UGH_OK:tail(r,0x0c);
 }
 
 /* TRANSLATES GAME:UpdateFloatingPassengerApproach */
@@ -362,7 +362,7 @@ EXPORT int c_FindThrownStoneHittingEnemy(Regs *r) {
         if(r->flags&ZF) { r->di=0xffff; break; }
         sub16(r,r->ax,D(Data_78DC),0); if(!(r->flags&ZF)) goto next;
         sub16(r,READ(ActorUpdateOrScriptCursor,r->di),G(UpdateThrownStone),0); if(!(r->flags&ZF)) goto next;
-        logic(r,READ(ds_2C6D,r->di),16); if(r->flags&SF) goto next;
+        logic(r,READ(ActorVerticalOrDemoPeriod,r->di),16); if(r->flags&SF) goto next;
         r->ax=add16(r,READ(ActorY32,r->di),0x100,0); sub16(r,r->ax,A(EnemyY32),0); if(less(r)) goto next;
         r->ax=sub16(r,r->ax,0x380,0); sub16(r,r->ax,A(EnemyY32),0); if(greater(r)) goto next;
         r->ax=add16(r,READ(ActorX32,r->di),0x180,0); sub16(r,r->ax,A(EnemyX32),0); if(less(r)) goto next;

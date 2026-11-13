@@ -1,0 +1,337 @@
+{
+  "status": "migrated",
+  "status_reason": "Only the supervisor sets an accepted status; this work order proposes review statuses.",
+  "assumptions": [
+    "Serialized ordinary RAM and stack; no device aliases, asynchronous mutation or self-modifying resources.",
+    "Locked shipped resource bank, accessible initialized native storage, disjoint outputs and inputs, valid resource lifetimes.",
+    "L0 is untouched. Actual-C A/B properties concern L1 -> L2 only; L0 -> L1 remains C/D differential evidence."
+  ],
+  "amiga": {
+    "classification": "similar purpose with different implementation; script correspondence unresolved",
+    "finding": "docs/actor-storage.md and docs/architecture-model.md give actor/journey and paired land/water meaning. No Amiga field offsets, capacities, bytecode or cache lifetimes are imported."
+  },
+  "observation_chain": "L0 remains byte-exact under its existing gates; no L0 source was changed. This is a behavioural native closure, not an exact ASM/C contribution.",
+  "component": "demo_core",
+  "proposed_status": "migrated",
+  "proposed_status_reason": "Actual-C instruction-step and arithmetic proofs, full shipped-script enumeration, bounded full-tick proof, and C/D bridge integration. Full arbitrary-scene/initializer/shell equivalence is not mechanically proved, so no stronger whole-contract status is proposed.",
+  "original": {
+    "L0": [
+      "GAME:InitializeDemoScripts 013B:0AEB",
+      "GAME:AdvanceDemoScripts 013B:09D7",
+      "GAME:TestAllDemoScriptsFinished 013B:09BC"
+    ],
+    "L1": [
+      "c/scene.c:c_InitializeDemoScripts",
+      "c/demo_scripts.c:c_AdvanceDemoScripts",
+      "c/game_services.c:c_TestAllDemoScriptsFinished"
+    ],
+    "static_evidence": [
+      "docs/actor-storage.md closure unit 7 and complete callback table",
+      "src/asm/GAME.ASM actual entry/return sites and instruction readers/writers"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/demo_core.h",
+      "native/demo_core.c",
+      "native/bridge/demo_core_bridge.c"
+    ],
+    "header": "native/demo_core.h, shared native/actors.h",
+    "functions": [
+      "demo_initialize",
+      "demo_instruction",
+      "demo_advance_slot",
+      "demo_all_finished",
+      "demo_delta",
+      "demo_pixel_position"
+    ],
+    "bridge": [
+      "c_InitializeDemoScripts",
+      "c_AdvanceDemoScripts",
+      "c_TestAllDemoScriptsFinished"
+    ],
+    "build": "python verif/demo_build.py"
+  },
+  "purpose": "Initialize a motion scene, advance the demo bytecode interpreter and test sticky per-slot completion as one coherent core. Keep synchronous stored callback effects at their existing presentation boundary.",
+  "interface": {
+    "inputs": [
+      "Immutable registered script header/code resources, active prefix<=15, valid cursor/restart instruction boundaries, any repeat/countdown/position/sprite word and sticky completion bool.",
+      "Separate ActorRenderStorage supplied at initialization; it is imported from persistent RAM and never reconstructed from positions.",
+      "Bridge admits DS=DGROUP, CS=GAME, DF=0 and the registered reveal-width reference. Dynamic segments/reverse streams/unregistered resources/aliases/mutated periods use explicit L1 compatibility before publishing native state."
+    ],
+    "outputs": [
+      "Updated logical cursor/restart/repeat/countdown/completion/position/sprite and narrow DemoStep write/effect indicators.",
+      "Completion boolean; bridge preserves actual CF result and deterministic full L1 flag/register shell. Initialize immediately resets sprites then steps before its runner clears fade/exit values."
+    ],
+    "effects": [
+      "Initialize seeds active current/previous pixel caches through ActorRenderStorage, fixed positions/header controls; leaves loop-start word stale. Reset touches all sixteen actor current/erase sprite words, not overlay/pixel history. Enemy/item reset contributions remain the actual L1 reset service.",
+      "A due motion writes sprite, X, Y, invokes exactly its stored callback with original near return frame, then stores the cursor. Repeat/restart/done words are published only on paths that actually write them.",
+      "Callbacks retain width-byte writes and fade effects in original slot order. Native computes private slot results first; known callbacks cannot mutate later interpreter inputs under the registered-width contract."
+    ],
+    "preconditions": [
+      "Ordinary nonaliasing stable RAM/stack and immutable registered resource bank; native object storage accessible and separate from code.",
+      "Control walk must yield motion or stop within code_size+1 instructions; native rejects an overlong/out-of-range walk in private storage before bridge publication. Malformed/corrupt states outside this domain use retained L1.",
+      "No assumption that repeat_count is negative or countdown/period is positive. Bridge validates completed word as 0/FFFF; completion scan also supports arbitrary nonzero raw completion for compatibility.",
+      "demo_instruction is one bytecode transition, with accessible opcode/delta bytes; cursor/restart offsets are ordinary bounded buffer offsets. Its relational symbolic proof is independent of initialized/reachable script states."
+    ]
+  },
+  "callers": {
+    "initialize": "RunScriptedDemo G:08D5, near call; callback effects occur before G:08D8 clears exit/fade.",
+    "advance": "InitializeDemoScripts tail at G:0B4B and RunScriptedDemo G:0922 (erase -> interpret -> draw).",
+    "finished": "RunScriptedDemo G:092B consumes CF; no AX boolean is invented.",
+    "observations": "Advance/initialize: AX and callback CX/ES/DI flow through; BX=sentinel byte index, SI=FFFF, flags from final CMP. DX/BP/DS/CS/SS:SP and IF/DF survive admitted callbacks. Completion changes BX/CF/arith flags only. Routine suites compare full declared shell, including poisoned initial values."
+  },
+  "callees": {
+    "native": [
+      "demo_instruction",
+      "demo_delta",
+      "demo_pixel_position"
+    ],
+    "bridge": [
+      "actor projection and resources",
+      "ugh_call_near for actual reset and three actual stored callbacks",
+      "retained l1_* compatibility endpoints"
+    ]
+  },
+  "indirect": {
+    "site": "GAME 013B:0A15, near stored demo callback",
+    "targets": [
+      "GAME:StartDemoFadeWhenSpriteHidden 013B:0989 -> DEMO_EFFECT_FADE_ON_HIDDEN",
+      "GAME:SetDemoRevealSpriteWidth 013B:099F -> DEMO_EFFECT_REVEAL_WIDTH",
+      "GAME:IgnoreActorState 013B:1C0E -> DEMO_EFFECT_NONE"
+    ],
+    "classification": "Complete set from all 28 shipped headers. loc_0B4E is not a callback substitute; no new callback address is admitted. Actual handlers remain L1 presentation services, with the stored identity checked against header."
+  },
+  "memory": {
+    "read": [
+      "Cursor sentinel D:2A0D, countdown D:2BCD, copied period D:2C6D, repeat D:2ACD and live restart D:2A2D; position D:2AED/2B0D, sprite D:2BED, callback D:2C2D, completion D:2A4D.",
+      "Initialize reads header vector and header/code resources, imports all sixteen render histories; completion scan biased D:2A4B after BX+=2 is this slot D:2A4D."
+    ],
+    "write": [
+      "Initialize active X/Y caches and previous caches D:2B2D/2B4D/2B6D/2B8D; fixed position, period, callback, cursor, countdown=1, repeat=0, done=0; cursor sentinel only at first unused slot.",
+      "All sixteen current/erase sprites via reset; other histories untouched. Due step writes only described controls/position/sprite; callbacks may write ScreenFadeStep/Level or registered sprite-214 directory width byte, plus near-call stack scratch."
+    ],
+    "owners": [
+      "DemoMotionScene owns mode controls and sprite output; ActorRenderStorage owns persistent caches/erase words. Existing renderer/presentation owns width byte and fade. Gameplay view never flushes demo controls."
+    ],
+    "aliases": "No full slot dump. Inactive gameplay cells and dormant loop pointers stay unchanged; descriptor/itinerary/destination/platform indices, gameplay animation offset, quick timer and overlay erase are not demo outputs."
+  },
+  "eliminated": [
+    {
+      "detail": "Register model, segment pointers and code dispatch in native interpreter",
+      "evidence": "Ordinary resources, typed slots and returned DemoStep effects; only bridge binds original ABI and handlers."
+    },
+    {
+      "detail": "Array sentinel from ordinary core iteration",
+      "evidence": "Scene has explicit count; bridge separately validates and emits original in-array sentinel."
+    }
+  ],
+  "retained": [
+    {
+      "detail": "Predecrement countdown and period zero",
+      "reason": "Zero wraps to FFFF; a zero period reload is retained, not disabled."
+    },
+    {
+      "detail": "Signed-byte deltas x4 and word-shift initialization",
+      "reason": "Each position operation truncates to sixteen bits; negative odd/high-bound values are not normalized."
+    },
+    {
+      "detail": "Negative declaration, incrementing repeat encoding and sticky pinned stop",
+      "reason": "8000 increments nonzero repeat; zero repeats mark finished without removing the slot. Stopped slots still run cadence, and completion never means invisible."
+    },
+    {
+      "detail": "Callback order and actual near frame, width low byte/fade effects",
+      "reason": "Effects are synchronous after new sprite/position and before cursor store; reveal wrapper cleanup remains L1."
+    }
+  ],
+  "evidence": [
+    {
+      "property": "Complete initialized trajectories of all shipped scripts",
+      "level": "A",
+      "method": "Actual compiled L1 and bridged native code for each of the 28 scripts, from header state with poisoned dormant loop pointer, through first completion and five extra ticks. Full RAM and complete register shell compared every tick.",
+      "command": "python verif/demo_evidence.py enumerate --local-reference",
+      "result": "PASS: 62214 ticks across 28 scripts; complete header/opcode inventory in shipped-scripts.json. A only for this finite initialized trajectory domain, not every possible slot state.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Complete countdown/period/repeat scalar slices and helpers",
+      "level": "A",
+      "method": "Actual L1/native compiled code over all 65536 countdowns, all 65536 periods including zero, all 65536 repeat encodings (including positive/8000/FFFF); all 65536 pixel seeds and 256 signed-byte deltas.",
+      "command": "python verif/demo_evidence.py enumerate --local-reference",
+      "result": "PASS: 262400 scalar/helper comparisons. Other inputs fixed as stated in demo_word_cases; not a full Cartesian word-state enumeration.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Any admitted one-instruction slot transition",
+      "level": "B",
+      "method": "CBMC 6.11 actual production demo_instruction versus a verbatim extracted one-iteration L1 inner loop. Arbitrary opcode word, delta bytes, position/sprite/repeat words, sticky completion, restart offset; no initialized-state restriction. Normalized disjoint RAM and callback observation cut. Pointer/bounds/overflow/unwinding checks enabled.",
+      "command": "python verif/demo_evidence.py instruction --timeout 45",
+      "result": "PASS: all properties. One instruction is the inductive loop transition; this is not a monolithic arbitrary-bytecode termination proof.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Countdown gate and complete tick in a bounded control window",
+      "level": "B",
+      "method": "CBMC actual full L1 AdvanceDemoScripts and actual demo_advance_slot; all scalar slot states/periods, arbitrary first instruction, with accessible motion at fallthrough/restart. Full control walk bounded by structural window, not reachable initial states.",
+      "command": "python verif/demo_evidence.py tick --timeout 60",
+      "result": "PASS: all properties under the documented 16-byte canonical control-window assumption. General-script composition relies on the separately proved instruction transition plus finite/script C/A evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Small arithmetic for all bit patterns",
+      "level": "A",
+      "method": "CBMC actual demo_delta and demo_pixel_position against exact L1 byte-sign-extension/shift expressions, arbitrary byte/word inputs, no range assumptions.",
+      "command": "python verif/demo_evidence.py arithmetic --timeout 30",
+      "result": "PASS: all properties; compiled enumeration separately covers their complete finite domains.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Insufficient unwinding negative control",
+      "level": "C",
+      "method": "Run the tick harness with unwind one; the real setup loop is intentionally under-unwound and must fail.",
+      "command": "python verif/demo_evidence.py tick --negative --timeout 30",
+      "result": "PASS control: expected FAIL main.unwind.0, never a silently truncated success.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "L0 -> bridged L1 demo/caller regression",
+      "level": "C",
+      "method": "Maintained demo_scripts, scene and game_services suites with ordinary and poisoned register/flag inputs. Full memory/device/log observation model; synthetic/nonadmitted states use explicit L1 compatibility.",
+      "command": "python verif/demo_integration.py --whole --local-reference",
+      "result": "PASS: demo_scripts 260/260, scene 484/484, game_services 44/44. Routine native endpoint calls [48,130,36], compatibility counts [30,78,8]; this includes intentionally synthetic/DF/dynamic-segment/alias fixtures.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Whole-game composition and reaching demos",
+      "level": "D",
+      "method": "Actual wholegame.main with separately held bridged DLL reference, unchanged scenario fixtures/cached rebuilt-L0 observations and audited entry/fallback counts.",
+      "command": "python verif/demo_integration.py --whole --local-reference",
+      "result": "PASS: all 16 scenarios; initialize/advance/completion calls [22,574,568], fallbacks [0,0,0]. Attract/reveal/pregame reach this closure; completion also reaches it.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Explicit native-to-gameplay history handoff",
+      "level": "C",
+      "method": "Real L1 loader/bootstrap/reset/stone update and verbatim inline gameplay actor draw after native pre-game initialization, with renderer projection checks.",
+      "command": "python verif/demo_evidence.py enumerate --local-reference",
+      "result": "PASS: pre-game slot 2 (320,106) survives into first stone draw and becomes previous history before current cache replacement.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Seeded retained-semantics defects",
+      "level": "C",
+      "method": "Compile scratch native mutations and run the actual scalar, cross-mode and alias-table tests; maintained native/L1 inputs remain unchanged.",
+      "command": "python verif/demo_mutants.py",
+      "result": "PASS: unsigned delta, period-zero normalization, unpinned stop, cleared render history and all-aliases-live mutants all detected by compiled checks.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Host review with scratch certificate promotion",
+      "level": "D",
+      "method": "Copy maintained sources and checked plain build under worker scratch, set only scratch actor_types/demo_core status=migrated; run unchanged CLI commands without selection/generation monkeypatches.",
+      "command": "python verif/demo_host.py -> python tools/hostbuild.py; python host/check.py --variant native",
+      "result": "PASS: real native host build and unchanged host check in scratch; maintained status remains unanalyzed.",
+      "date": "2026-11-13"
+    }
+  ],
+  "uncertainty": [
+    "A/B proof levels are property-specific. Full arbitrary-script tick termination, arbitrary active-scene composition, bridge register shell and initializer are not monolithic CBMC proofs; their general integration evidence remains C/D.",
+    "Compatibility fallback is explicit for unregistered/malformed/corrupt streams, DF=1, dynamic segments, copied-period/callback mismatches and unregistered width references. No native proof is claimed for those paths.",
+    "Presentation wrappers/draw/erase/reset and callback implementations remain L1. Their established ordering is retained; this does not close closure unit 8 or all render_hud."
+  ],
+  "dependencies": {
+    "native/demo_core.h": {
+      "includes": [
+        "actors.h"
+      ],
+      "calls": []
+    },
+    "native/demo_core.c": {
+      "includes": [
+        "demo_core.h"
+      ],
+      "calls": [
+        "demo_delta",
+        "demo_instruction",
+        "demo_pixel_position"
+      ]
+    },
+    "native/bridge/demo_core_bridge.c": {
+      "includes": [
+        "../demo_core.h",
+        "actor_projection.h"
+      ],
+      "calls": [
+        "D",
+        "G",
+        "actor_bridge_demo_project",
+        "actor_bridge_render_project",
+        "actor_bridge_scripts",
+        "demo_advance_slot",
+        "demo_all_finished",
+        "demo_bridge_advance",
+        "demo_bridge_environment",
+        "demo_bridge_word",
+        "demo_initialize",
+        "flag",
+        "l1_AdvanceDemoScripts",
+        "l1_InitializeDemoScripts",
+        "l1_TestAllDemoScriptsFinished",
+        "logic",
+        "rd16",
+        "sub16",
+        "ugh_call_near",
+        "wr16"
+      ]
+    }
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "c/abi.c": "5f7c2c2fc015ca43e3786a7f96cb38113211da54acefce19564c1df78d74857a",
+    "c/actors.c": "d17c03c844f95780f0647b85aa854a87c3e566b0f56fe89ee0a95d6d689f3ff2",
+    "c/demo_scripts.c": "a19c7e52bc709a28f9be40bc66b60c6de82df888f8eb725b79f0b9556fe795d7",
+    "c/dispatch.c": "80a97f55a460a21dac9d6295939a8276c83b66cef886f814365e0a823814debf",
+    "c/dispatch_table.inc": "0bb8fddf7dc6c98acc2fb92cf042088d0165c128a98da7e894ca49eb499c1111",
+    "c/game_services.c": "e9301da5d7fae6f2aacce7dda8d4e6f0e86cbe8c40e736216185c4a8f792a7c5",
+    "c/memory.c": "97f59e3c343cd6911854d0bfc3ff624417de2844f712caa96ec6799d3a9783d9",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/scene.c": "0060ef52ee2cc8b4c98d1b04b6387cd809809a9226f4b4f71c01a75a99d5e460",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_adapters.h": "c18eafbbe16170d01fcfac6853deab651d3c2b54343b47bccd6ce0de4303ad38",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "host/check.py": "ae78b6b48e7c77aa4c513f8474d23d7ef9d26afe39ab55ea70e871473701e94c",
+    "metadata/oracle.json": "7db8024058b1a1e34c7b02058e49f331f30effb6f35927945abcafaf63f9033f",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
+    "native/actor_resources.c": "47e21228ee1d873fa5636e062a955e4a6b5a8f0522a7bde2cf223708c9880137",
+    "native/actor_resources.h": "212fe3bc958c74140f45b9e7a3745f650d22e7a853a2edf273eeacfd93f96247",
+    "native/actors.h": "b1c7653a6e566c7f0e3e18ad38fc3f63726d01b78a6fa6843df017d2d155a42c",
+    "native/bridge/actor_projection.h": "71e0476afe7c0b082b5eac20957028e58a61f6741ef11c7ca546fe8bbad8b483",
+    "native/bridge/actor_resources_bridge.c": "6941d649e3fb35d3898b35c3e461fedd0ceee0210861300ce674ac78aac0acc2",
+    "native/bridge/demo_core_bridge.c": "00a2eba3c7a2e6a8d449fd07aa51b1c9544ec3d97b0176d6cd59d99892803ce4",
+    "native/bridge/level_projection.h": "d463ba8829671479c3349435080eb7f16ae48551c7a7b0464d27dbc88257df83",
+    "native/bridge/level_view_bridge.c": "ff2db79ab215fd6bbf4ed99c5fb64dc39b8fdb060f3c57b07070158b998f4d11",
+    "native/demo_core.c": "028b9eaa6671c8219d69ad4f34d1fe5569b1ee69d4c4c3cb13f49c24616a4646",
+    "native/demo_core.h": "18d2dd79899671992f6e1f6e2fa2bce933e9eb56c1033a0e60229b7de23f38d6",
+    "native/geometry.h": "e630be5b080076dfd0f95ff07be51887e5c39d8caa3bdfae7271e06be37c6410",
+    "native/level.h": "d9d498993704f2b446d52fa1f3e3cc4b721d9344cfef8520ab4979c3395f45ca",
+    "native/level_view.c": "f0b3db5747f718d7c112c721735ca5a497a9b93a6ecb33096223b188b170353d",
+    "src/asm/GAME.ASM": "29c9ead3b191a744c59b465a3bd4de29f2e217b92492cf57edb8c13bc3494204",
+    "src/data/DGDATA.ASM": "9d46889e26434a597ed19b91c119029af3dbf3dbcfa9811c4ed5aa18dc157541",
+    "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
+    "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
+    "tools/wholegame.py": "ba6fff7d0f1583e734ab69435e801f2d101758078c36712744bc5b3e839fa65c",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
+    "verif/demo_build.py": "360aed4e78258cb0ef678c3ce8116a5e029dd1382d8a0457743656977703aea9",
+    "verif/demo_cbmc.c": "16b491347d3e8d99d236ad664a7bc57a644320c515fb1e853c730b30c444b457",
+    "verif/demo_certificate.py": "011b955233a03fd8ba7cc165f461c739d7ac1cef24a7893773589855114a30fe",
+    "verif/demo_evidence.py": "d6c6c41c9bd271ddfec2723c26f137011a4e802106e10e76087f68582142dbf8",
+    "verif/demo_harness.c": "bbc612b40b23de341cd440c2cd9b1b5c9065458b93dffa3fde828ab2c2ae7a66",
+    "verif/demo_host.py": "5fa785b68f32c4dacdd57b2142d681703ab702e099216fc9d7dd0279e9a84bbb",
+    "verif/demo_integration.py": "1585503914dc62e5678e6a1cb57da28ecff31db45f5c9768a3fe2cae9c147513",
+    "verif/demo_mutants.py": "9fcb1ae77620457c4c11fb85f8b8e643a71bdd8649652334e712e063484c7dfc",
+    "verif/demo_reference.py": "ac0d294dd45140b6a76a14fbc3040b3d05831047817da1a0032a5399eeaffb1c",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574"
+  }
+}

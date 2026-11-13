@@ -1,0 +1,335 @@
+{
+  "status": "migrated",
+  "status_reason": "Only the supervisor sets an accepted status; this work order proposes review statuses.",
+  "assumptions": [
+    "Serialized ordinary RAM and stack; no device aliases, asynchronous mutation or self-modifying resources.",
+    "Locked shipped resource bank, accessible initialized native storage, disjoint outputs and inputs, valid resource lifetimes.",
+    "L0 is untouched. Actual-C A/B properties concern L1 -> L2 only; L0 -> L1 remains C/D differential evidence."
+  ],
+  "amiga": {
+    "classification": "similar purpose with different implementation; script correspondence unresolved",
+    "finding": "docs/actor-storage.md and docs/architecture-model.md give actor/journey and paired land/water meaning. No Amiga field offsets, capacities, bytecode or cache lifetimes are imported."
+  },
+  "observation_chain": "L0 remains byte-exact under its existing gates; no L0 source was changed. This is a behavioural native closure, not an exact ASM/C contribution.",
+  "component": "actor_types",
+  "proposed_status": "verified-within-contract",
+  "proposed_status_reason": "Finite shipped immutable descriptors/animations/itineraries/scripts and complete 21-phase x 6-alias table are enumerated on actual compiled code. No passenger implementation, generalized corrupt reference graph or alias-disjoint lifetime theorem is claimed.",
+  "original": {
+    "L0": [
+      "DGROUP descriptors 5C09:7720..7970, animation/journey references in all 81 level records",
+      "DGROUP four demo vectors 5C09:1020/1792/1E40/24DE and 28 headers",
+      "GAME:InitializeDemoScripts 013B:0AEB resource readers, GAME passenger/stone readers 013B:149C..2195"
+    ],
+    "L1": [
+      "c/scene.c:c_InitializeDemoScripts",
+      "c/actors.c and c/actors_states.c phase-specific alias readers; remain L1"
+    ],
+    "static_evidence": [
+      "docs/actor-storage.md completely, including accepted design and supervisor condition",
+      "docs/architecture-model.md",
+      "src/asm/GAME.ASM and src/data/DGDATA.ASM"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/actors.h",
+      "native/actor_resources.h",
+      "native/actor_resources.c",
+      "native/bridge/actor_projection.h",
+      "native/bridge/actor_resources_bridge.c"
+    ],
+    "header": "native/actors.h; native/actor_resources.h",
+    "functions": [
+      "actor_phase_aliases",
+      "actor_alias_value",
+      "actor_type_resource",
+      "demo_script_boundary"
+    ],
+    "bridge": [
+      "actor_bridge_resources",
+      "actor_bridge_type",
+      "actor_bridge_journey",
+      "actor_bridge_level",
+      "actor_bridge_scripts",
+      "actor_bridge_script_cursor",
+      "actor_bridge_demo_project",
+      "actor_bridge_render_project",
+      "actor_bridge_alias_project",
+      "actor_bridge_alias_read"
+    ],
+    "build": "python verif/demo_build.py"
+  },
+  "purpose": "Adopt only the accepted actor-specific shared vocabulary. Resolve immutable actor descriptors, animations, journeys and demo scripts over the existing level view. Keep gameplay and demo simulation separate and renderer history persistent; mechanically gate semantic aliases by phase.",
+  "interface": {
+    "inputs": [
+      "Eight exact descriptor identities, six sentinel-terminated animations per descriptor, paired identities; all shipped passenger journeys and placements, 28 script headers/code spans.",
+      "Existing LevelDescription actor_count and the same source record for the additive ActorLevelStorage companion.",
+      "A known phase and in-range actor index for narrow semantic-alias projection; renderer history imports every word for all sixteen physical slots."
+    ],
+    "outputs": [
+      "ActorType stable identity/geometry/animations/known tail scalars/pair, PassengerJourney legs/count; ActorLevelEntry type/platform/typed itinerary, leaving stone opaque tail in existing level view.",
+      "DemoMotionScript ordinary code pointer/size/header scalars/effect, script-relative instruction offsets; DemoMotionScene active prefix with validated period and stored callback identity.",
+      "Per-phase valid alias mask and checked accessor; invalid alias reads return zero without touching output. Invalid fields are poisoned in debug or ACTOR_VERIFY builds. Carrier 1 requires PlayerCount==2."
+    ],
+    "effects": [
+      "Read-only RAM projection; writes only caller-owned storage. Failures can leave partial private storage but publish no scene to the demo bridge.",
+      "No level.h or level_projection.h change. New actor_projection.h is additive; actor_bridge_level enriches the same source level without altering its generic raw placement representation."
+    ],
+    "preconditions": [
+      "Contract is the finite shipped resource domain; no arbitrary synthetic pointer graphs. Bounded parser extensions reject unknown/capacity/malformed input.",
+      "Original active prefix reserves an in-array sentinel, count<=15. Cursor must be an instruction boundary in its registered script; nonzero repeats require a same-script valid restart. Zero repeats leave the stale loop pointer unprojected.",
+      "Copied demo period must equal header period; callback must match that header. Completion is 0/FFFF. Caller supplies the entry-known mode/phase, never infers one from sprite visibility."
+    ],
+    "alias_table": {
+      "ACTOR_WAIT_FOR_PLATFORM": [
+        "journey_wait"
+      ],
+      "ACTOR_PLATFORM_WAIT": [
+        "waiting_pose"
+      ],
+      "ACTOR_DESTINATION_REQUEST": [
+        "request_ticks"
+      ],
+      "ACTOR_QUESTION": [
+        "request_ticks"
+      ],
+      "ACTOR_CARRIED_PASSENGER": [
+        "carrier"
+      ],
+      "ACTOR_CARRIED_STONE": [
+        "carrier"
+      ],
+      "ACTOR_THROWN_STONE": [
+        "horizontal_step"
+      ],
+      "ACTOR_FLOATING": [
+        "floating_ticks"
+      ],
+      "ACTOR_FLOATING_DESTINATION_REQUEST": [
+        "request_ticks"
+      ],
+      "ACTOR_FLOATING_QUESTION": [
+        "request_ticks"
+      ],
+      "all_other_phases": []
+    },
+    "alias_enforcement": "actor_bridge_alias_project reads only members in actor_phase_aliases; debug/verification poisons the rest. actor_bridge_alias_read -> actor_alias_value validates before reading. Future passenger bridge readers must use this accessor. There is no passenger implementation in this unit."
+  },
+  "callers": [
+    "Demo core bridge imports scripts, typed scene and persistent renderer history.",
+    "Following passenger/stone closures can use the additive typed resource companion and checked alias projection."
+  ],
+  "callees": {
+    "native": [
+      "level_object_geometry; local decoding/mask helpers"
+    ],
+    "bridge": [
+      "rd8/rd16; resource/type/boundary helpers; no machine callbacks executed"
+    ]
+  },
+  "indirect": {
+    "sites": [],
+    "classification": "Stored descriptor code words deliberately remain in L1, outside ActorType. Demo callback identities map only to the complete three-valued effect enum, never one universal callback type."
+  },
+  "memory": {
+    "read": [
+      "Shipped descriptor data and referenced terminated animations; source level placements and passenger journeys; all 28 script headers/code bytes.",
+      "Mode-specific active cursor/control/position/sprite arrays; renderer cache arrays D:2B2D/2B4D/2B6D/2B8D/2C0D/2C4D for every physical slot.",
+      "Alias projection reads D:2A2D or D:2ACD only where phase-valid, plus PlayerCount for second carrier."
+    ],
+    "write": [
+      "Caller-owned projection storage only; no L1 RAM or devices."
+    ],
+    "owners": [
+      "Resources borrow immutable level ownership. ActorRenderStorage owns persistent history independent of GameplayActors and DemoMotionScene."
+    ],
+    "aliases": "Separate named gameplay scratch capacities are semantic aliases of retained cells. No whole-struct serialization. No union, mode reset or derived pixel-cache projection."
+  },
+  "eliminated": [
+    {
+      "detail": "Encoded pointers/code identities inside ordinary native types",
+      "evidence": "Only the bridge resolves machine identities; native APIs have pointers, resource indices and enums."
+    },
+    {
+      "detail": "Universal actor/demo record or union lifetime assumption",
+      "evidence": "Accepted three-object design, with cross-mode cached-pixel read tested on actual L1 gameplay draw."
+    }
+  ],
+  "retained": [
+    {
+      "detail": "Eight descriptor identities, including primary versus alternate stone and exact land/water pairs",
+      "reason": "Only primary stone participates in hazard queries; no family normalization."
+    },
+    {
+      "detail": "Animation words, journey waits, header periods and stale renderer history",
+      "reason": "Byte offsets/countdowns and old pixel values are observed by subsequent transitions/draw."
+    },
+    {
+      "detail": "Unknown descriptor +3A/+3C and placement tails",
+      "reason": "No established native meaning; skipped here and retained in existing immutable/raw level representation."
+    }
+  ],
+  "evidence": [
+    {
+      "property": "Complete shipped resource projection",
+      "level": "A",
+      "method": "Actual compiled bridge/native; compare every type geometry/tail/pair/animation word and sentinel; all 150 ordered records, 493 placements and their complete passenger journeys; source RAM remains unchanged.",
+      "command": "python verif/demo_evidence.py enumerate --local-reference",
+      "result": "PASS: 150 entries / 493 placements / eight descriptors and all their animations; 28 scripts fully enumerated in shipped-scripts.json.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Complete phase/member validity table",
+      "level": "A",
+      "method": "Actual compiled projection/accessor, independently tabulated expected masks for all 21 phases x six members; invalid output remains untouched and invalid carrier rejected.",
+      "command": "python verif/demo_evidence.py enumerate --local-reference",
+      "result": "PASS: 126 phase/member checks plus invalid carrier control.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Persistent render history across normal mode switch",
+      "level": "C",
+      "method": "Native pre-game initialization, actual L1 first level load/bootstrap/reset/stone update, then verbatim extracted inline gameplay actor draw. Check slot 2 demo cache survives and becomes previous history before new stone pixels.",
+      "command": "python verif/demo_evidence.py enumerate --local-reference",
+      "result": "PASS: slot 2 (320,106) persists through loader/bootstrap and is consumed by first gameplay draw; current cache then changes to stone position.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Demo integration uses the resource projection",
+      "level": "D",
+      "method": "All maintained whole-game scenarios with bridged L1, full observation model and no fallback counters in reaching scenarios.",
+      "command": "python verif/demo_integration.py --whole --local-reference",
+      "result": "PASS: 16 scenarios, native calls initialize/advance/completion = 22/574/568, fallback 0/0/0.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Seeded retained-semantics defects",
+      "level": "C",
+      "method": "Compile scratch native mutations and run the actual scalar, cross-mode and alias-table tests; maintained native/L1 inputs remain unchanged.",
+      "command": "python verif/demo_mutants.py",
+      "result": "PASS: unsigned delta, period-zero normalization, unpinned stop, cleared render history and all-aliases-live mutants all detected by compiled checks.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Host review with scratch certificate promotion",
+      "level": "D",
+      "method": "Copy maintained sources and checked plain build under worker scratch, set only scratch actor_types/demo_core status=migrated; run unchanged CLI commands without selection/generation monkeypatches.",
+      "command": "python verif/demo_host.py -> python tools/hostbuild.py; python host/check.py --variant native",
+      "result": "PASS: real native host build and unchanged host check in scratch; maintained status remains unanalyzed.",
+      "date": "2026-11-13"
+    }
+  ],
+  "uncertainty": [
+    "This introduces shared types, not a complete gameplay state projection or any passenger transition implementation. Phase input belongs to the eventual entry-specific bridge.",
+    "Projection rejection extensions and arbitrary malformed resource graphs are outside the finite shipped-domain A claim. No source layout is inferred from the reproducing linker layout."
+  ],
+  "dependencies": {
+    "native/actors.h": {
+      "includes": [
+        "geometry.h",
+        "stddef.h",
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/actor_resources.h": {
+      "includes": [
+        "actors.h",
+        "level.h"
+      ],
+      "calls": []
+    },
+    "native/actor_resources.c": {
+      "includes": [
+        "actor_resources.h"
+      ],
+      "calls": [
+        "actor_phase_aliases",
+        "actor_resource_word",
+        "level_object_geometry"
+      ]
+    },
+    "native/bridge/actor_projection.h": {
+      "includes": [
+        "../actor_resources.h",
+        "level_projection.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/actor_resources_bridge.c": {
+      "includes": [
+        "actor_projection.h"
+      ],
+      "calls": [
+        "D",
+        "G",
+        "actor_alias_value",
+        "actor_bridge_journey",
+        "actor_bridge_script_cursor",
+        "actor_bridge_type",
+        "actor_phase_aliases",
+        "actor_read",
+        "actor_type_identity",
+        "actor_type_resource",
+        "demo_script_boundary",
+        "rd16",
+        "rd8"
+      ]
+    }
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "c/abi.c": "5f7c2c2fc015ca43e3786a7f96cb38113211da54acefce19564c1df78d74857a",
+    "c/actors.c": "d17c03c844f95780f0647b85aa854a87c3e566b0f56fe89ee0a95d6d689f3ff2",
+    "c/demo_scripts.c": "a19c7e52bc709a28f9be40bc66b60c6de82df888f8eb725b79f0b9556fe795d7",
+    "c/dispatch.c": "80a97f55a460a21dac9d6295939a8276c83b66cef886f814365e0a823814debf",
+    "c/dispatch_table.inc": "0bb8fddf7dc6c98acc2fb92cf042088d0165c128a98da7e894ca49eb499c1111",
+    "c/game_services.c": "e9301da5d7fae6f2aacce7dda8d4e6f0e86cbe8c40e736216185c4a8f792a7c5",
+    "c/memory.c": "97f59e3c343cd6911854d0bfc3ff624417de2844f712caa96ec6799d3a9783d9",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/scene.c": "0060ef52ee2cc8b4c98d1b04b6387cd809809a9226f4b4f71c01a75a99d5e460",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_adapters.h": "c18eafbbe16170d01fcfac6853deab651d3c2b54343b47bccd6ce0de4303ad38",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "host/check.py": "ae78b6b48e7c77aa4c513f8474d23d7ef9d26afe39ab55ea70e871473701e94c",
+    "metadata/oracle.json": "7db8024058b1a1e34c7b02058e49f331f30effb6f35927945abcafaf63f9033f",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
+    "native/actor_resources.c": "47e21228ee1d873fa5636e062a955e4a6b5a8f0522a7bde2cf223708c9880137",
+    "native/actor_resources.h": "212fe3bc958c74140f45b9e7a3745f650d22e7a853a2edf273eeacfd93f96247",
+    "native/actors.h": "b1c7653a6e566c7f0e3e18ad38fc3f63726d01b78a6fa6843df017d2d155a42c",
+    "native/bridge/actor_projection.h": "71e0476afe7c0b082b5eac20957028e58a61f6741ef11c7ca546fe8bbad8b483",
+    "native/bridge/actor_resources_bridge.c": "6941d649e3fb35d3898b35c3e461fedd0ceee0210861300ce674ac78aac0acc2",
+    "native/bridge/demo_core_bridge.c": "00a2eba3c7a2e6a8d449fd07aa51b1c9544ec3d97b0176d6cd59d99892803ce4",
+    "native/bridge/level_projection.h": "d463ba8829671479c3349435080eb7f16ae48551c7a7b0464d27dbc88257df83",
+    "native/bridge/level_view_bridge.c": "ff2db79ab215fd6bbf4ed99c5fb64dc39b8fdb060f3c57b07070158b998f4d11",
+    "native/demo_core.c": "028b9eaa6671c8219d69ad4f34d1fe5569b1ee69d4c4c3cb13f49c24616a4646",
+    "native/demo_core.h": "18d2dd79899671992f6e1f6e2fa2bce933e9eb56c1033a0e60229b7de23f38d6",
+    "native/geometry.h": "e630be5b080076dfd0f95ff07be51887e5c39d8caa3bdfae7271e06be37c6410",
+    "native/level.h": "d9d498993704f2b446d52fa1f3e3cc4b721d9344cfef8520ab4979c3395f45ca",
+    "native/level_view.c": "f0b3db5747f718d7c112c721735ca5a497a9b93a6ecb33096223b188b170353d",
+    "src/asm/GAME.ASM": "29c9ead3b191a744c59b465a3bd4de29f2e217b92492cf57edb8c13bc3494204",
+    "src/data/DGDATA.ASM": "9d46889e26434a597ed19b91c119029af3dbf3dbcfa9811c4ed5aa18dc157541",
+    "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
+    "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
+    "tools/wholegame.py": "ba6fff7d0f1583e734ab69435e801f2d101758078c36712744bc5b3e839fa65c",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
+    "verif/demo_build.py": "360aed4e78258cb0ef678c3ce8116a5e029dd1382d8a0457743656977703aea9",
+    "verif/demo_cbmc.c": "16b491347d3e8d99d236ad664a7bc57a644320c515fb1e853c730b30c444b457",
+    "verif/demo_certificate.py": "011b955233a03fd8ba7cc165f461c739d7ac1cef24a7893773589855114a30fe",
+    "verif/demo_evidence.py": "d6c6c41c9bd271ddfec2723c26f137011a4e802106e10e76087f68582142dbf8",
+    "verif/demo_harness.c": "bbc612b40b23de341cd440c2cd9b1b5c9065458b93dffa3fde828ab2c2ae7a66",
+    "verif/demo_host.py": "5fa785b68f32c4dacdd57b2142d681703ab702e099216fc9d7dd0279e9a84bbb",
+    "verif/demo_integration.py": "1585503914dc62e5678e6a1cb57da28ecff31db45f5c9768a3fe2cae9c147513",
+    "verif/demo_mutants.py": "9fcb1ae77620457c4c11fb85f8b8e643a71bdd8649652334e712e063484c7dfc",
+    "verif/demo_reference.py": "ac0d294dd45140b6a76a14fbc3040b3d05831047817da1a0032a5399eeaffb1c",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574"
+  },
+  "review": [
+    {
+      "date": "2026-11-13",
+      "decision": "migrated, not verified-within-contract: persistence of renderer history across a mode switch is a contract property with level C evidence only"
+    }
+  ]
+}

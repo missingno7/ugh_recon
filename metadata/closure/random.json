@@ -282,7 +282,7 @@
     "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
     "c/video.c": "681732591d8efb11cf1d5d5816c999bca718560bd247d9c9cc6c0f36982b2fa2",
     "c/video.h": "35e4d6076edd69e2722cf7d52392871345f5e0eb78af7ce67e13c8ed0c02f192",
-    "docs/modernization.md": "f69f5e56410ec2d9a749c90054bc8cbaeb399d28d1d4aa682585f16f9c01ff3f",
+    "docs/modernization.md": "08b0d02b3681bcdef11483695cf95738b20011c05b28bdbdb9868ff546b07691",
     "docs/program-model.md": "8fc05fc5a2f34c271c1005075788dd485daca5380fd4b98ad8c91fb0bcda07c7",
     "metadata/oracle.json": "7db8024058b1a1e34c7b02058e49f331f30effb6f35927945abcafaf63f9033f",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
@@ -371,5 +371,12 @@
       "unowned native file: native/items.c",
       "unowned native file: native/items.h"
     ]
-  }
+  },
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-13",
+      "reason": "docs/modernization.md gained the host-check review rule; no code or evidence input changed",
+      "result": "certificate reviewed; evidence not affected"
+    }
+  ]
 }

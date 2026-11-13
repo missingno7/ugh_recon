@@ -199,20 +199,20 @@ def enemy_case(n,title,updates=(),**kwargs):
 
 for ticks in (0,1,2):
     for direction in (0,2):
-        enemy_case('UpdateDinosaurPatrol',f'patrol tick={ticks} dir={direction}',
+        enemy_case('UpdateTriopterusPatrol',f'patrol tick={ticks} dir={direction}',
                    [('EnemyAnimationCountdowns',ticks,ENEMY),('EnemyDirectionOrTargetPlayer',direction,ENEMY)])
 for x,speed in ((0,-32),(0,0),(3200,32),(5300,32),(0x7fff,32),(0x8000,-32)):
-    enemy_case('UpdateDinosaurPatrol',f'patrol bounds x={x} speed={speed}',
+    enemy_case('UpdateTriopterusPatrol',f'patrol bounds x={x} speed={speed}',
                [('EnemyAnimationCountdowns',1,ENEMY),('EnemyX32',x,ENEMY),('EnemyHorizontalSpeeds',speed,ENEMY)])
 for player in (0,2):
-    enemy_case('UpdateDinosaurPatrol',f'patrol notice player={player}', [('PlayerPlatformIndices',3,player)])
-enemy_case('UpdateDinosaurPatrol','patrol stone hit',setup=stone_hit)
+    enemy_case('UpdateTriopterusPatrol',f'patrol notice player={player}', [('PlayerPlatformIndices',3,player)])
+enemy_case('UpdateTriopterusPatrol','patrol stone hit',setup=stone_hit)
 
 for ticks in (0,1,2):
     for count in (0,1,2):
-        enemy_case('UpdateDinosaurAlert',f'alert tick={ticks} state={count}',
+        enemy_case('UpdateTriopterusAlert',f'alert tick={ticks} state={count}',
                    [('EnemyAnimationCountdowns',ticks,ENEMY),('EnemyStateCounters',count,ENEMY)])
-for n in ('UpdateDinosaurAlert','UpdateDinosaurCharge'):
+for n in ('UpdateTriopterusAlert','UpdateTriopterusCharge'):
     for player in (0,2):
         for x in (0,3200,6400,0x8000):
             for speed in (32,0xffe0):
@@ -225,10 +225,10 @@ for n in ('UpdateDinosaurAlert','UpdateDinosaurCharge'):
 
 for player in (0,2):
     for speed in (0,32,0xffe0,0x8000):
-        enemy_case('UpdateDinosaurCharge',f'charge impact player={player} speed={speed:x}',
+        enemy_case('UpdateTriopterusCharge',f'charge impact player={player} speed={speed:x}',
                    [('PlayerPlatformIndices',3,player),('PlayerY32',2560,player),('EnemyHorizontalSpeeds',speed,ENEMY)])
 
-for n,field in (('AnimateDinosaurRecovery',0x2a),('AnimateDinosaurImpactRecovery',0x32)):
+for n,field in (('AnimateTriopterusRecovery',0x2a),('AnimateTriopterusImpactRecovery',0x32)):
     for ticks in (0,1,2):
         for direction in (0,2):
             for offset in (0xfffe,0,2,4,6,8,10,12):
@@ -245,13 +245,13 @@ for ticks in (0,1,2):
     for offset in (0xfffe,0,2,4,6,8,10):
         # Offset 4 increments to 6 and reaches the missing C sound API.
         if ticks==1 and offset==4: continue
-        enemy_case('loc_2973',f'hazard tick={ticks} offset={offset:x}',enemy='Data_76A8',
+        enemy_case('UpdateDinoForce',f'hazard tick={ticks} offset={offset:x}',enemy='Data_76A8',
                    updates=[('EnemyAnimationCountdowns',ticks,ENEMY),('EnemyAnimationByteOffsets',offset,ENEMY)])
 for x,y in ((0,0),(3000,2304),(0,2304),(3300,2304),(100,0xffff),(100,0x8000)):
     for phase in (4,6):
-        enemy_case('loc_2973',f'hazard box x={x:x} y={y:x} phase={phase}',enemy='Data_76A8',
+        enemy_case('UpdateDinoForce',f'hazard box x={x:x} y={y:x} phase={phase}',enemy='Data_76A8',
                    updates=[('EnemyAnimationByteOffsets',phase,ENEMY),('PlayerX32',x,0),('PlayerY32',y,0)])
-enemy_case('loc_2973','hazard stone hit',enemy='Data_76A8',setup=stone_hit)
+enemy_case('UpdateDinoForce','hazard stone hit',enemy='Data_76A8',setup=stone_hit)
 
 for ticks in (0,1,2):
     for offset in (0xfffe,0,2,4,6,8):
@@ -303,7 +303,7 @@ for pending,phase,y32,pixels,step in ((0,0,3200,100,32),(0,1,3200,100,1),
 # Reproducible sign/wrap cases for native state arithmetic, with real tables.
 rng=random.Random(0x1992)
 for i in range(20):
-    n=('UpdateDinosaurPatrol','UpdateDinosaurAlert','UpdateDinosaurCharge')[i%3]
+    n=('UpdateTriopterusPatrol','UpdateTriopterusAlert','UpdateTriopterusCharge')[i%3]
     enemy_case(n,f'{n} seeded {i}',updates=[('EnemyX32',rng.randrange(65536),ENEMY),
                ('EnemyHorizontalSpeeds',rng.randrange(65536),ENEMY),('EnemyStateCounters',rng.randrange(65536),ENEMY),
                ('PlayerX32',rng.randrange(65536),0),('PlayerPlatformIndices',3,0)],df=bool(i&1))
@@ -320,12 +320,12 @@ case('UpdatePassengerPlatformWait','platform wait real idle sentinel',
 for n in passenger:
     case(n,n+' contact on platform',
          [('PlayerY32',1280,0),('PlayerPlatformIndices',3,0)])
-for n,descriptor,offset in (('UpdateDinosaurPatrol','Data_766C',10),
+for n,descriptor,offset in (('UpdateTriopterusPatrol','Data_766C',10),
         ('UpdateFruitTreeAnimation','Data_76E4',26),('UpdateBirdFlight','Data_7630',22),
-        ('loc_2973','Data_76A8',18)):
+        ('UpdateDinoForce','Data_76A8',18)):
     enemy_case(n,n+' real sequence sentinel',enemy=descriptor,
                updates=[('EnemyAnimationCountdowns',1,ENEMY),('EnemyAnimationByteOffsets',offset,ENEMY)])
-enemy_case('loc_2973','hazard lower horizontal miss',enemy='Data_76A8',
+enemy_case('UpdateDinoForce','hazard lower horizontal miss',enemy='Data_76A8',
            updates=[('PlayerX32',0xfe3f,0),('PlayerY32',2304,0)])
 
 # Independent known answers supplement full-state comparisons for narrow stores
@@ -360,14 +360,14 @@ for n,slot,actor,enemy in (
         ('BoardWaterbornePassenger',ACTOR,'Data_776A','Data_766C'),
         ('UpdateStonePickupWait',ACTOR,'Data_78DC','Data_766C'),
         ('DeliverPassenger',ACTOR,'Data_7720','Data_766C'),
-        ('UpdateDinosaurPatrol',ENEMY,'Data_7720','Data_766C'),
-        ('UpdateDinosaurAlert',ENEMY,'Data_7720','Data_766C'),
-        ('UpdateDinosaurCharge',ENEMY,'Data_7720','Data_766C'),
-        ('AnimateDinosaurRecovery',ENEMY,'Data_7720','Data_766C'),
-        ('AnimateDinosaurImpactRecovery',ENEMY,'Data_7720','Data_766C'),
+        ('UpdateTriopterusPatrol',ENEMY,'Data_7720','Data_766C'),
+        ('UpdateTriopterusAlert',ENEMY,'Data_7720','Data_766C'),
+        ('UpdateTriopterusCharge',ENEMY,'Data_7720','Data_766C'),
+        ('AnimateTriopterusRecovery',ENEMY,'Data_7720','Data_766C'),
+        ('AnimateTriopterusImpactRecovery',ENEMY,'Data_7720','Data_766C'),
         ('UpdateFruitTreeAnimation',ENEMY,'Data_7720','Data_76E4'),
         ('UpdateBirdFlight',ENEMY,'Data_7720','Data_7630'),
-        ('loc_2973',ENEMY,'Data_7720','Data_76A8'),
+        ('UpdateDinoForce',ENEMY,'Data_7720','Data_76A8'),
         ('ExpireOrCollectFallingItem',ITEM,'Data_7720','Data_766C')):
     def copy_bank(m): m.write(0x8500,0,m.read(DATA_SEG,0,65536))
     case(n,n+' dynamic DS bank',slot=slot,actor=actor,enemy=enemy,
@@ -385,7 +385,7 @@ def boundary(*args,**kwargs):
 
 boundary('DeliverPassenger','UNVERIFIED delivery reward -> C:PlayAdlibEffect',
          [('PassengerQuickDeliveryCountdowns',1,ACTOR),('ScoreMultiplier',1,0)])
-boundary('loc_2973','UNVERIFIED hazard frame six -> C:PlayAdlibEffect',slot=ENEMY,enemy='Data_76A8',
+boundary('UpdateDinoForce','UNVERIFIED hazard frame six -> C:PlayAdlibEffect',slot=ENEMY,enemy='Data_76A8',
          updates=[('EnemyAnimationCountdowns',1,ENEMY),('EnemyAnimationByteOffsets',4,ENEMY)])
 for x in (0xfc00,0x2800):
     boundary('UpdateBirdFlight',f'UNVERIFIED bird x={x:x} -> StopBirdFlightSound',slot=ENEMY,enemy='Data_7630',

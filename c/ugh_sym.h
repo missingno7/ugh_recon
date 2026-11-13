@@ -4334,14 +4334,14 @@
 #define UGH_S_DGDATA_AdvanceFallingItem (UGH_LOAD + 0x013Bu)
 #define UGH_O_DGDATA_AdvanceTreeRewardCooldown 0x2B58u
 #define UGH_S_DGDATA_AdvanceTreeRewardCooldown (UGH_LOAD + 0x013Bu)
-#define UGH_O_DGDATA_AnimateDinosaurImpactRecovery 0x28A3u
-#define UGH_S_DGDATA_AnimateDinosaurImpactRecovery (UGH_LOAD + 0x013Bu)
-#define UGH_O_DGDATA_AnimateDinosaurRecovery 0x2844u
-#define UGH_S_DGDATA_AnimateDinosaurRecovery (UGH_LOAD + 0x013Bu)
 #define UGH_O_DGDATA_AnimatePassengerArrival 0x1582u
 #define UGH_S_DGDATA_AnimatePassengerArrival (UGH_LOAD + 0x013Bu)
 #define UGH_O_DGDATA_AnimatePassengerDeparture 0x1BD6u
 #define UGH_S_DGDATA_AnimatePassengerDeparture (UGH_LOAD + 0x013Bu)
+#define UGH_O_DGDATA_AnimateTriopterusImpactRecovery 0x28A3u
+#define UGH_S_DGDATA_AnimateTriopterusImpactRecovery (UGH_LOAD + 0x013Bu)
+#define UGH_O_DGDATA_AnimateTriopterusRecovery 0x2844u
+#define UGH_S_DGDATA_AnimateTriopterusRecovery (UGH_LOAD + 0x013Bu)
 #define UGH_O_DGDATA_Animation_0D00 0x0D00u
 #define UGH_S_DGDATA_Animation_0D00 (UGH_LOAD + 0x5C09u)
 #define UGH_O_DGDATA_Animation_0D1A 0x0D1Au
@@ -4442,16 +4442,6 @@
 #define UGH_S_DGDATA_BeginBirdDelay (UGH_LOAD + 0x013Bu)
 #define UGH_O_DGDATA_BeginBirdWarning 0x23B0u
 #define UGH_S_DGDATA_BeginBirdWarning (UGH_LOAD + 0x013Bu)
-#define UGH_O_DGDATA_BeginDinosaurAlert 0x2667u
-#define UGH_S_DGDATA_BeginDinosaurAlert (UGH_LOAD + 0x013Bu)
-#define UGH_O_DGDATA_BeginDinosaurCharge 0x272Eu
-#define UGH_S_DGDATA_BeginDinosaurCharge (UGH_LOAD + 0x013Bu)
-#define UGH_O_DGDATA_BeginDinosaurImpactRecovery 0x288Fu
-#define UGH_S_DGDATA_BeginDinosaurImpactRecovery (UGH_LOAD + 0x013Bu)
-#define UGH_O_DGDATA_BeginDinosaurPatrol 0x25B1u
-#define UGH_S_DGDATA_BeginDinosaurPatrol (UGH_LOAD + 0x013Bu)
-#define UGH_O_DGDATA_BeginDinosaurRecovery 0x2830u
-#define UGH_S_DGDATA_BeginDinosaurRecovery (UGH_LOAD + 0x013Bu)
 #define UGH_O_DGDATA_BeginPassengerApproach 0x18C8u
 #define UGH_S_DGDATA_BeginPassengerApproach (UGH_LOAD + 0x013Bu)
 #define UGH_O_DGDATA_BeginPassengerDeparture 0x1BBEu
@@ -4470,6 +4460,16 @@
 #define UGH_S_DGDATA_BeginPassengerSinking (UGH_LOAD + 0x013Bu)
 #define UGH_O_DGDATA_BeginStonePickupWait 0x1C0Fu
 #define UGH_S_DGDATA_BeginStonePickupWait (UGH_LOAD + 0x013Bu)
+#define UGH_O_DGDATA_BeginTriopterusAlert 0x2667u
+#define UGH_S_DGDATA_BeginTriopterusAlert (UGH_LOAD + 0x013Bu)
+#define UGH_O_DGDATA_BeginTriopterusCharge 0x272Eu
+#define UGH_S_DGDATA_BeginTriopterusCharge (UGH_LOAD + 0x013Bu)
+#define UGH_O_DGDATA_BeginTriopterusImpactRecovery 0x288Fu
+#define UGH_S_DGDATA_BeginTriopterusImpactRecovery (UGH_LOAD + 0x013Bu)
+#define UGH_O_DGDATA_BeginTriopterusPatrol 0x25B1u
+#define UGH_S_DGDATA_BeginTriopterusPatrol (UGH_LOAD + 0x013Bu)
+#define UGH_O_DGDATA_BeginTriopterusRecovery 0x2830u
+#define UGH_S_DGDATA_BeginTriopterusRecovery (UGH_LOAD + 0x013Bu)
 #define UGH_O_DGDATA_BoardPassenger 0x19FBu
 #define UGH_S_DGDATA_BoardPassenger (UGH_LOAD + 0x013Bu)
 #define UGH_O_DGDATA_BoardWaterbornePassenger 0x19E0u
@@ -5608,6 +5608,8 @@
 #define UGH_S_DGDATA_IgnoreExhaustedTree (UGH_LOAD + 0x013Bu)
 #define UGH_O_DGDATA_IgnoreWaterbornePassengerState 0x2195u
 #define UGH_S_DGDATA_IgnoreWaterbornePassengerState (UGH_LOAD + 0x013Bu)
+#define UGH_O_DGDATA_InitializeDinoAnimation 0x295Bu
+#define UGH_S_DGDATA_InitializeDinoAnimation (UGH_LOAD + 0x013Bu)
 #define UGH_O_DGDATA_InitializeFruitTreeAnimation 0x2A87u
 #define UGH_S_DGDATA_InitializeFruitTreeAnimation (UGH_LOAD + 0x013Bu)
 #define UGH_O_DGDATA_JoystickButtonBits 0x331Du
@@ -6638,8 +6640,10 @@
 #define UGH_S_DGDATA_StartDemoFadeWhenSpriteHidden (UGH_LOAD + 0x013Bu)
 #define UGH_O_DGDATA_StunBirdAndAwardScore 0x252Bu
 #define UGH_S_DGDATA_StunBirdAndAwardScore (UGH_LOAD + 0x013Bu)
-#define UGH_O_DGDATA_StunDinosaurAndAwardScore 0x28EEu
-#define UGH_S_DGDATA_StunDinosaurAndAwardScore (UGH_LOAD + 0x013Bu)
+#define UGH_O_DGDATA_StunDinoAndAwardScore 0x2A53u
+#define UGH_S_DGDATA_StunDinoAndAwardScore (UGH_LOAD + 0x013Bu)
+#define UGH_O_DGDATA_StunTriopterusAndAwardScore 0x28EEu
+#define UGH_S_DGDATA_StunTriopterusAndAwardScore (UGH_LOAD + 0x013Bu)
 #define UGH_O_DGDATA_Text_091F 0x091Fu
 #define UGH_S_DGDATA_Text_091F (UGH_LOAD + 0x5C09u)
 #define UGH_O_DGDATA_Text_092B 0x092Bu
@@ -6820,12 +6824,8 @@
 #define UGH_S_DGDATA_UpdateBirdFlight (UGH_LOAD + 0x013Bu)
 #define UGH_O_DGDATA_UpdateCarriedPassenger 0x1A42u
 #define UGH_S_DGDATA_UpdateCarriedPassenger (UGH_LOAD + 0x013Bu)
-#define UGH_O_DGDATA_UpdateDinosaurAlert 0x2681u
-#define UGH_S_DGDATA_UpdateDinosaurAlert (UGH_LOAD + 0x013Bu)
-#define UGH_O_DGDATA_UpdateDinosaurCharge 0x2748u
-#define UGH_S_DGDATA_UpdateDinosaurCharge (UGH_LOAD + 0x013Bu)
-#define UGH_O_DGDATA_UpdateDinosaurPatrol 0x25C9u
-#define UGH_S_DGDATA_UpdateDinosaurPatrol (UGH_LOAD + 0x013Bu)
+#define UGH_O_DGDATA_UpdateDinoForce 0x2973u
+#define UGH_S_DGDATA_UpdateDinoForce (UGH_LOAD + 0x013Bu)
 #define UGH_O_DGDATA_UpdateFloatingDestinationDisplay 0x1FE2u
 #define UGH_S_DGDATA_UpdateFloatingDestinationDisplay (UGH_LOAD + 0x013Bu)
 #define UGH_O_DGDATA_UpdateFloatingPassengerApproach 0x20C1u
@@ -6852,10 +6852,18 @@
 #define UGH_S_DGDATA_UpdateStonePickupWait (UGH_LOAD + 0x013Bu)
 #define UGH_O_DGDATA_UpdateStunnedBird 0x255Eu
 #define UGH_S_DGDATA_UpdateStunnedBird (UGH_LOAD + 0x013Bu)
-#define UGH_O_DGDATA_UpdateStunnedDinosaur 0x2914u
-#define UGH_S_DGDATA_UpdateStunnedDinosaur (UGH_LOAD + 0x013Bu)
+#define UGH_O_DGDATA_UpdateStunnedDino 0x2A76u
+#define UGH_S_DGDATA_UpdateStunnedDino (UGH_LOAD + 0x013Bu)
+#define UGH_O_DGDATA_UpdateStunnedTriopterus 0x2914u
+#define UGH_S_DGDATA_UpdateStunnedTriopterus (UGH_LOAD + 0x013Bu)
 #define UGH_O_DGDATA_UpdateThrownStone 0x1CEEu
 #define UGH_S_DGDATA_UpdateThrownStone (UGH_LOAD + 0x013Bu)
+#define UGH_O_DGDATA_UpdateTriopterusAlert 0x2681u
+#define UGH_S_DGDATA_UpdateTriopterusAlert (UGH_LOAD + 0x013Bu)
+#define UGH_O_DGDATA_UpdateTriopterusCharge 0x2748u
+#define UGH_S_DGDATA_UpdateTriopterusCharge (UGH_LOAD + 0x013Bu)
+#define UGH_O_DGDATA_UpdateTriopterusPatrol 0x25C9u
+#define UGH_S_DGDATA_UpdateTriopterusPatrol (UGH_LOAD + 0x013Bu)
 #define UGH_O_DGDATA_VgaCumulativePlaneMasks 0x2618u
 #define UGH_S_DGDATA_VgaCumulativePlaneMasks (UGH_LOAD + 0x5C09u)
 #define UGH_O_DGDATA_VgaRowStrideBytes 0x00C3u
@@ -6940,14 +6948,6 @@
 #define UGH_S_DGDATA_ext_2BC6 (UGH_LOAD + 0x2BC6u)
 #define UGH_O_DGDATA_ext_5C09 0x0092u
 #define UGH_S_DGDATA_ext_5C09 (UGH_LOAD + 0x5C09u)
-#define UGH_O_DGDATA_loc_295B 0x295Bu
-#define UGH_S_DGDATA_loc_295B (UGH_LOAD + 0x013Bu)
-#define UGH_O_DGDATA_loc_2973 0x2973u
-#define UGH_S_DGDATA_loc_2973 (UGH_LOAD + 0x013Bu)
-#define UGH_O_DGDATA_loc_2A53 0x2A53u
-#define UGH_S_DGDATA_loc_2A53 (UGH_LOAD + 0x013Bu)
-#define UGH_O_DGDATA_loc_2A76 0x2A76u
-#define UGH_S_DGDATA_loc_2A76 (UGH_LOAD + 0x013Bu)
 #define UGH_O_DGDATA_loc_4681 0x4681u
 #define UGH_S_DGDATA_loc_4681 (UGH_LOAD + 0x013Bu)
 #define UGH_O_DGDATA_loc_4981 0x4981u
@@ -9504,14 +9504,14 @@
 #define UGH_S_GAME_AdvanceWaterSurface (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_AnimateAndDrawPlayer 0x418Du
 #define UGH_S_GAME_AnimateAndDrawPlayer (UGH_LOAD + 0x013Bu)
-#define UGH_O_GAME_AnimateDinosaurImpactRecovery 0x28A3u
-#define UGH_S_GAME_AnimateDinosaurImpactRecovery (UGH_LOAD + 0x013Bu)
-#define UGH_O_GAME_AnimateDinosaurRecovery 0x2844u
-#define UGH_S_GAME_AnimateDinosaurRecovery (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_AnimatePassengerArrival 0x1582u
 #define UGH_S_GAME_AnimatePassengerArrival (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_AnimatePassengerDeparture 0x1BD6u
 #define UGH_S_GAME_AnimatePassengerDeparture (UGH_LOAD + 0x013Bu)
+#define UGH_O_GAME_AnimateTriopterusImpactRecovery 0x28A3u
+#define UGH_S_GAME_AnimateTriopterusImpactRecovery (UGH_LOAD + 0x013Bu)
+#define UGH_O_GAME_AnimateTriopterusRecovery 0x2844u
+#define UGH_S_GAME_AnimateTriopterusRecovery (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_AttachStoneToPlayer 0x1C48u
 #define UGH_S_GAME_AttachStoneToPlayer (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_BackgroundPagePointer 0x4610u
@@ -9524,16 +9524,6 @@
 #define UGH_S_GAME_BeginBirdDelay (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_BeginBirdWarning 0x23B0u
 #define UGH_S_GAME_BeginBirdWarning (UGH_LOAD + 0x013Bu)
-#define UGH_O_GAME_BeginDinosaurAlert 0x2667u
-#define UGH_S_GAME_BeginDinosaurAlert (UGH_LOAD + 0x013Bu)
-#define UGH_O_GAME_BeginDinosaurCharge 0x272Eu
-#define UGH_S_GAME_BeginDinosaurCharge (UGH_LOAD + 0x013Bu)
-#define UGH_O_GAME_BeginDinosaurImpactRecovery 0x288Fu
-#define UGH_S_GAME_BeginDinosaurImpactRecovery (UGH_LOAD + 0x013Bu)
-#define UGH_O_GAME_BeginDinosaurPatrol 0x25B1u
-#define UGH_S_GAME_BeginDinosaurPatrol (UGH_LOAD + 0x013Bu)
-#define UGH_O_GAME_BeginDinosaurRecovery 0x2830u
-#define UGH_S_GAME_BeginDinosaurRecovery (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_BeginPassengerApproach 0x18C8u
 #define UGH_S_GAME_BeginPassengerApproach (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_BeginPassengerDeparture 0x1BBEu
@@ -9552,6 +9542,16 @@
 #define UGH_S_GAME_BeginPassengerSinking (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_BeginStonePickupWait 0x1C0Fu
 #define UGH_S_GAME_BeginStonePickupWait (UGH_LOAD + 0x013Bu)
+#define UGH_O_GAME_BeginTriopterusAlert 0x2667u
+#define UGH_S_GAME_BeginTriopterusAlert (UGH_LOAD + 0x013Bu)
+#define UGH_O_GAME_BeginTriopterusCharge 0x272Eu
+#define UGH_S_GAME_BeginTriopterusCharge (UGH_LOAD + 0x013Bu)
+#define UGH_O_GAME_BeginTriopterusImpactRecovery 0x288Fu
+#define UGH_S_GAME_BeginTriopterusImpactRecovery (UGH_LOAD + 0x013Bu)
+#define UGH_O_GAME_BeginTriopterusPatrol 0x25B1u
+#define UGH_S_GAME_BeginTriopterusPatrol (UGH_LOAD + 0x013Bu)
+#define UGH_O_GAME_BeginTriopterusRecovery 0x2830u
+#define UGH_S_GAME_BeginTriopterusRecovery (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_BlackenVgaPalette 0x4E9Bu
 #define UGH_S_GAME_BlackenVgaPalette (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_BoardPassenger 0x19FBu
@@ -9864,6 +9864,8 @@
 #define UGH_S_GAME_InitializeAdLibSound (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_InitializeDemoScripts 0x0AEBu
 #define UGH_S_GAME_InitializeDemoScripts (UGH_LOAD + 0x013Bu)
+#define UGH_O_GAME_InitializeDinoAnimation 0x295Bu
+#define UGH_S_GAME_InitializeDinoAnimation (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_InitializeDosVideoInputAndSound 0x4F5Eu
 #define UGH_S_GAME_InitializeDosVideoInputAndSound (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_InitializeFruitTreeAnimation 0x2A87u
@@ -10248,8 +10250,10 @@
 #define UGH_S_GAME_StopBirdFlightSound (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_StunBirdAndAwardScore 0x252Bu
 #define UGH_S_GAME_StunBirdAndAwardScore (UGH_LOAD + 0x013Bu)
-#define UGH_O_GAME_StunDinosaurAndAwardScore 0x28EEu
-#define UGH_S_GAME_StunDinosaurAndAwardScore (UGH_LOAD + 0x013Bu)
+#define UGH_O_GAME_StunDinoAndAwardScore 0x2A53u
+#define UGH_S_GAME_StunDinoAndAwardScore (UGH_LOAD + 0x013Bu)
+#define UGH_O_GAME_StunTriopterusAndAwardScore 0x28EEu
+#define UGH_S_GAME_StunTriopterusAndAwardScore (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_SwapAndDisplayVgaPage 0x4EBBu
 #define UGH_S_GAME_SwapAndDisplayVgaPage (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_TestAllDemoScriptsFinished 0x09BCu
@@ -10272,12 +10276,8 @@
 #define UGH_S_GAME_UpdateBirdFlight (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_UpdateCarriedPassenger 0x1A42u
 #define UGH_S_GAME_UpdateCarriedPassenger (UGH_LOAD + 0x013Bu)
-#define UGH_O_GAME_UpdateDinosaurAlert 0x2681u
-#define UGH_S_GAME_UpdateDinosaurAlert (UGH_LOAD + 0x013Bu)
-#define UGH_O_GAME_UpdateDinosaurCharge 0x2748u
-#define UGH_S_GAME_UpdateDinosaurCharge (UGH_LOAD + 0x013Bu)
-#define UGH_O_GAME_UpdateDinosaurPatrol 0x25C9u
-#define UGH_S_GAME_UpdateDinosaurPatrol (UGH_LOAD + 0x013Bu)
+#define UGH_O_GAME_UpdateDinoForce 0x2973u
+#define UGH_S_GAME_UpdateDinoForce (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_UpdateFloatingDestinationDisplay 0x1FE2u
 #define UGH_S_GAME_UpdateFloatingDestinationDisplay (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_UpdateFloatingPassengerApproach 0x20C1u
@@ -10304,10 +10304,18 @@
 #define UGH_S_GAME_UpdateStonePickupWait (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_UpdateStunnedBird 0x255Eu
 #define UGH_S_GAME_UpdateStunnedBird (UGH_LOAD + 0x013Bu)
-#define UGH_O_GAME_UpdateStunnedDinosaur 0x2914u
-#define UGH_S_GAME_UpdateStunnedDinosaur (UGH_LOAD + 0x013Bu)
+#define UGH_O_GAME_UpdateStunnedDino 0x2A76u
+#define UGH_S_GAME_UpdateStunnedDino (UGH_LOAD + 0x013Bu)
+#define UGH_O_GAME_UpdateStunnedTriopterus 0x2914u
+#define UGH_S_GAME_UpdateStunnedTriopterus (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_UpdateThrownStone 0x1CEEu
 #define UGH_S_GAME_UpdateThrownStone (UGH_LOAD + 0x013Bu)
+#define UGH_O_GAME_UpdateTriopterusAlert 0x2681u
+#define UGH_S_GAME_UpdateTriopterusAlert (UGH_LOAD + 0x013Bu)
+#define UGH_O_GAME_UpdateTriopterusCharge 0x2748u
+#define UGH_S_GAME_UpdateTriopterusCharge (UGH_LOAD + 0x013Bu)
+#define UGH_O_GAME_UpdateTriopterusPatrol 0x25C9u
+#define UGH_S_GAME_UpdateTriopterusPatrol (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_UploadBasePalette 0x4E68u
 #define UGH_S_GAME_UploadBasePalette (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_UploadChunkyImageToVgaPlanes 0x4634u
@@ -11390,10 +11398,6 @@
 #define UGH_S_GAME_loc_2956 (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_loc_295A 0x295Au
 #define UGH_S_GAME_loc_295A (UGH_LOAD + 0x013Bu)
-#define UGH_O_GAME_loc_295B 0x295Bu
-#define UGH_S_GAME_loc_295B (UGH_LOAD + 0x013Bu)
-#define UGH_O_GAME_loc_2973 0x2973u
-#define UGH_S_GAME_loc_2973 (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_loc_297B 0x297Bu
 #define UGH_S_GAME_loc_297B (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_loc_2990 0x2990u
@@ -11418,10 +11422,6 @@
 #define UGH_S_GAME_loc_2A3A (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_loc_2A52 0x2A52u
 #define UGH_S_GAME_loc_2A52 (UGH_LOAD + 0x013Bu)
-#define UGH_O_GAME_loc_2A53 0x2A53u
-#define UGH_S_GAME_loc_2A53 (UGH_LOAD + 0x013Bu)
-#define UGH_O_GAME_loc_2A76 0x2A76u
-#define UGH_S_GAME_loc_2A76 (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_loc_2A86 0x2A86u
 #define UGH_S_GAME_loc_2A86 (UGH_LOAD + 0x013Bu)
 #define UGH_O_GAME_loc_2ACD 0x2ACDu

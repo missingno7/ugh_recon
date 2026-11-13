@@ -17,9 +17,9 @@ for target in ('ReadPassengerJourneyLeg','UpdatePassengerPlatformWait','UpdatePa
         m.ww('DGROUP:ActorDescriptors',0xffff,8)
     CASES.append(replace(entry,routine='GAME:DispatchActorUpdates',title='composed actor dispatcher '+target,
                          setup=setup,check=None))
-for target in ('BeginBirdWarning','LaunchBirdTowardPlayer','UpdateBirdFlight','UpdateDinosaurPatrol',
-               'UpdateDinosaurAlert','UpdateDinosaurCharge','AnimateDinosaurRecovery',
-               'AnimateDinosaurImpactRecovery','loc_2973','UpdateFruitTreeAnimation','ReleaseTreeReward'):
+for target in ('BeginBirdWarning','LaunchBirdTowardPlayer','UpdateBirdFlight','UpdateTriopterusPatrol',
+               'UpdateTriopterusAlert','UpdateTriopterusCharge','AnimateTriopterusRecovery',
+               'AnimateTriopterusImpactRecovery','UpdateDinoForce','UpdateFruitTreeAnimation','ReleaseTreeReward'):
     entry=next(c for c in a.CASES if c.routine=='GAME:'+target)
     def setup(m,entry=entry,target=target):
         entry.setup(m)

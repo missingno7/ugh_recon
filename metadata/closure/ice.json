@@ -31,7 +31,7 @@
     ],
     "bridge": "c_UnpackIceStream",
     "build": "python tools/nbuild.py bridge",
-    "status_reason": "Proposed migrated status for supervisor review. Whole-contract A/B has not been earned. SMT models have a manual correspondence gap, and finite compiled-C enumeration is conservatively classified C under modernization.md."
+    "status_reason": "Accepted status remains migrated pending supervisor review. Proposed verified-under-assumptions for the exact CBMC domains below; full-window malformed semantics, native safety extensions and bridge integration do not acquire an unrestricted proof."
   },
   "interface": {
     "inputs": [
@@ -127,8 +127,13 @@
     "No asynchronous writer changes either buffer or the tables during decoding.",
     "A valid native result pointer and accessible storage; no source/output C alias.",
     "Compiler and ctypes ABI are trusted; build/native receipts record compiler and input hashes.",
-    "SMT obligations describe arithmetic/array models, not an automatically extracted C program; correspondence requires review and the separate compiled-C checks.",
-    "Finite one-iteration harness changes only the 2000000 guards in generated copies to 1. It proves no real-stream termination or arbitrary multi-token composition."
+    "Handwritten ice_smt.py queries prove only their models; installed z3 5.4.1 replaces the old scratch DLL. They do not raise C evidence levels.",
+    "CBMC whole domain: disjoint nondeterministic source/output buffers (16,6) or (32,4) bytes, header position zero, packed low word <= source storage and output low word <= output storage. Only L1 accesses assume in-range storage; native has no corresponding assume. Arbitrary magic, ignored high words, malformed bitstreams and output seed are included under those bounds.",
+    "CBMC step domain: source storage 16, output storage 8; arbitrary sentinel byte, equal initial cursors within their buffer or FFFF, equal immutable input and arbitrary output seed, no native error. Every L1 access of every composed step must remain in those buffers. Zero source/output alias and immutable L0 tables.",
+    "Whole proofs keep both production guards at 2000000. The checked progress bound is floor(output_storage/2)+1 outer iterations (4 for output 6, 3 for output 4). Each iteration can contain a literal run and a match; the token counters count outer iterations, not individual LZ symbols.",
+    "Step wrappers mechanically extract the actual C bodies and tag only their terminal branch. Prefix wrappers establish the initial relation. CBMC checks reader/environment preservation, an arbitrary observer output byte, and continuing-step progress. Induction applies only to executions satisfying the per-step storage assumption; it does not prove general full-window well-formedness.",
+    "Literal-parser CBMC query depends on the DEC/JNS count lemma, established by exhaustive enumeration of actual compiled L1 copy-count code for all literal encodings. The C parsers are checked, not replaced by handwritten SMT.",
+    "Old guard-limited executable family (guard changed to 1 in generated copies) is A for that finite prefix family only; it is separate from the new unchanged-production-code B proofs."
   ],
   "eliminated": [
     {
@@ -180,51 +185,44 @@
     {
       "property": "cursor wrap, refill, match-start arithmetic and copy-step models",
       "level": "A",
-      "method": "Z3 4.13.0.0 via Python ctypes; explicit bitvector/array counterexample queries",
+      "method": "z3 5.4.1 Python bindings from metadata/verif-tools.json; handwritten bitvector/array models only",
       "command": "python verif/ice_smt.py",
       "result": "PASS four UNSAT queries; applies to explicit models only, not an automatic C or whole-contract proof",
       "date": "2026-11-13",
-      "artifact": "build/workers/pilot-ice/smt.json",
-      "seconds": 0.0604497000167612,
+      "artifact": "build/workers/pilot-ice-2/smt.json",
+      "seconds": 0.03181790001690388,
       "scope": "all inputs of the stated arithmetic/array models; manual implementation correspondence",
       "tool": {
-        "version": "Z3 4.13.0.0",
-        "dll_sha256": "1a0efef3ddc1692aa22a7d687bf569b04b24ada3c574c92e23308d3a533af24c",
-        "archive": "C:\\tools\\ghidra_12.1_PUBLIC\\Extensions\\Ghidra\\ghidra_12.1_PUBLIC_20260513_SymbolicSummaryZ3.zip",
-        "archive_sha256": "8b6ba81939d2d00f1b9e247f1b1277a78d8534af25f397903c211852f1566ea2",
-        "source_url": "https://github.com/NationalSecurityAgency/ghidra/releases/tag/Ghidra_12.1_build",
-        "installed": "D:\\Prog\\ugh_recon\\build\\workers\\pilot-ice\\libz3.dll",
-        "note": "C:/tools is read-only in this session; extracted existing pinned bundle into worker directory"
+        "version": "5.4.1",
+        "source": "https://pypi.org/project/z3-solver/5.4.1.0/ (z3_solver-5.4.1.0-py3-none-win_amd64.whl)",
+        "download": "C:/tools/download/z3/z3_solver-5.4.1.0-py3-none-win_amd64.whl",
+        "download_sha256": "4e32027ebc2077d1bb518113e370a1798746c1e7e2719144712ddd39c4e87ea6",
+        "install": "wheel unpacked into C:/tools/z3-solver-5.4.1.0",
+        "usage": "PYTHONPATH=C:/tools/z3-solver-5.4.1.0 python -c \"import z3\"",
+        "actual_version": "5.4.1",
+        "manifest_sha256": "d50d082e61d0d1123586509ecdeb636e4c3d12b90741961387f524ab1b5b350b"
       }
     },
     {
       "property": "actual compiled primitive implementations and extracted L1 token statements",
-      "level": "C",
-      "method": "exhaustive finite token-code enumeration plus reader transition boundary checks; conservatively C under tests-never-more-than-C rule",
+      "level": "A",
+      "method": "Complete compiled-code enumeration of logical literal/length/offset encoding domains; reader byte pairs complete at three stated indices",
       "command": "python verif/ice_evidence.py",
       "result": "PASS 196608 bit transitions at 3 index representatives, 1032 length codes, 4520480 offset codes, 33040 literal probes including escape duplicates",
       "date": "2026-11-13",
       "artifact": "build/workers/pilot-ice/exhaustive.json",
-      "seconds": 0.42194020000169985
+      "seconds": 0.4247987999988254,
+      "scope": "All logical token encodings at sentinel=128/cursor=31 in a 32-byte encoding buffer. Match lengths 2..1033; every associated offset code; all literal codes including the signed boundary. Reader: all pending/refill byte pairs at indices 0,1,65535. Does not claim all physical reader indices/alignment states by enumeration."
     },
     {
       "property": "whole-decoder bounded prefix",
-      "level": "C",
-      "method": "fully enumerate payload byte 0..255 and output low word 0..4; one complete outer iteration, complete inner loops, full zero-seeded windows; compare status/registers/all output bytes",
+      "level": "A",
+      "method": "Complete finite enumeration of the two guard-limited generated C variants; domain packed=13, payload byte arbitrary, output low word=0..4, remaining storage zero, one outer iteration",
       "command": "python verif/ice_evidence.py",
-      "result": "PASS 1280/1280; 241 success, 1039 guarded. No SMT/CBMC whole-decoder proof; solver time not applicable",
+      "result": "PASS 1280/1280 finite prefix variants. This is not the production whole decoder; the unchanged-code CBMC proofs are separate.",
       "date": "2026-11-13",
       "artifact": "build/workers/pilot-ice/exhaustive.json",
-      "seconds": 1.6078185999940615
-    },
-    {
-      "property": "whole decoder for arbitrary streams under useful size/loop bounds",
-      "level": "B",
-      "method": "CBMC/KLEE feasibility evaluation",
-      "command": "python verif/ice_tool_probe.py",
-      "result": "BLOCKED: CBMC absent, release acquisition connection refused; WSL enumeration E_ACCESSDENIED; Python z3 package absent/download unavailable. Bundled Z3 works for explicit models, not an automated whole-C frontend.",
-      "date": "2026-11-13",
-      "artifact": "build/workers/pilot-ice/tool-probe.json"
+      "seconds": 1.6447730000072625
     },
     {
       "property": "real/generated/edge/mutated streams and defect evaluation",
@@ -234,8 +232,8 @@
       "result": "PASS 5 real + 3000 generated + 22 edges + 779 terminating accepted mutations + 1 source-wrap case. Python agrees on valid streams below 65536 and 569 mutations; rejects 210 mutations its stricter contract excludes. All 1000 mutations additionally agree for one outer iteration (2280 cases including finite family). All 5 defects detected by primitive checks; signed literal boundary missed by the ordinary stream corpus and tiny prefix family.",
       "date": "2026-11-13",
       "artifact": "build/workers/pilot-ice/generated.json",
-      "seconds": 98.27436950002448,
-      "bounded_mutation_seconds": 2.8914293000125326
+      "seconds": 98.02394800001639,
+      "bounded_mutation_seconds": 2.8861076000030152
     },
     {
       "property": "directed semantic regressions",
@@ -254,6 +252,544 @@
       "command": "python tools/wholegame.py (supervisor/whole worker integration pending)",
       "result": "PENDING: dedicated whole-worker matrix against the bridge is not claimed; existing two-frame check is recorded separately as C",
       "date": "2026-11-13"
+    },
+    {
+      "property": "whole decoder actual-C equivalence under bounded ordinary-buffer assumptions",
+      "level": "B",
+      "method": "CBMC 6.11.0, actual L1 logic + unchanged native/ice.c; nondeterministic source/seed; all output bytes via arbitrary observer; status/cursors/preserved registers/DF; unwinding/bounds/pointer/signed-overflow assertions",
+      "command": "python verif/ice_cbmc.py --stream 16 --output 6 --unwind 17 --timeout 120 --tag final; python verif/ice_cbmc.py --stream 32 --output 4 --unwind 17 --timeout 120 --tag final",
+      "result": "PASS both domains. Production 2000000 guards unchanged. Four / three outer iterations bounded by checked output progress; malformed streams admitted only while L1 accesses stay in available storage. Bounds do not cover the real 64768-byte resources.",
+      "date": "2026-11-13",
+      "artifact": "build/workers/pilot-ice-2/summary.json",
+      "profiles": [
+        {
+          "profile": "final_whole_s16_o6_u17",
+          "result": "PASS",
+          "seconds": 62.58758750002016,
+          "solver_times": [
+            "57.4955s"
+          ],
+          "decision_times": [
+            "59.0753s"
+          ],
+          "command": [
+            "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+            "D:\\Prog\\ugh_recon\\build\\workers\\pilot-ice-2\\final_whole_s16_o6_u17\\whole.i",
+            "--unwind",
+            "17",
+            "--unwindset",
+            "main.0:17,main.1:7,main.2:7,read_bits.0:16,c_UnpackIceStream.0:6,c_UnpackIceStream.1:8,c_UnpackIceStream.2:5,c_UnpackIceStream.3:3,c_UnpackIceStream.4:8,c_UnpackIceStream.5:5,ice_decode.0:8,ice_decode.1:8,ice_decode.2:5,take_bits.0:16,literal_length.0:6,match_length.0:5",
+            "--unwinding-assertions",
+            "--bounds-check",
+            "--pointer-check",
+            "--signed-overflow-check",
+            "--slice-formula",
+            "--trace",
+            "--verbosity",
+            "8"
+          ],
+          "loop_unwinds": {
+            "main.0": 17,
+            "main.1": 7,
+            "main.2": 7,
+            "read_bits.0": 16,
+            "c_UnpackIceStream.0": 6,
+            "c_UnpackIceStream.1": 8,
+            "c_UnpackIceStream.2": 5,
+            "c_UnpackIceStream.3": 3,
+            "c_UnpackIceStream.4": 8,
+            "c_UnpackIceStream.5": 5,
+            "ice_decode.0": 8,
+            "ice_decode.1": 8,
+            "ice_decode.2": 5,
+            "take_bits.0": 16,
+            "literal_length.0": 6,
+            "match_length.0": 5
+          },
+          "stream": 16,
+          "output": 6,
+          "iterations": 4,
+          "preprocessed_sha256": "447641d0221a62da1f45ce9de2f119d06778645b3e3a5d328b83e6bea567ab37",
+          "current_C_identical": true
+        },
+        {
+          "profile": "final_whole_s32_o4_u17",
+          "result": "PASS",
+          "seconds": 49.10299449999002,
+          "solver_times": [
+            "43.8053s"
+          ],
+          "decision_times": [
+            "46.2434s"
+          ],
+          "command": [
+            "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+            "D:\\Prog\\ugh_recon\\build\\workers\\pilot-ice-2\\final_whole_s32_o4_u17\\whole.i",
+            "--unwind",
+            "17",
+            "--unwindset",
+            "main.0:17,main.1:5,main.2:5,read_bits.0:16,c_UnpackIceStream.0:6,c_UnpackIceStream.1:6,c_UnpackIceStream.2:5,c_UnpackIceStream.3:3,c_UnpackIceStream.4:6,c_UnpackIceStream.5:4,ice_decode.0:6,ice_decode.1:6,ice_decode.2:4,take_bits.0:16,literal_length.0:6,match_length.0:5",
+            "--unwinding-assertions",
+            "--bounds-check",
+            "--pointer-check",
+            "--signed-overflow-check",
+            "--slice-formula",
+            "--trace",
+            "--verbosity",
+            "8"
+          ],
+          "loop_unwinds": {
+            "main.0": 17,
+            "main.1": 5,
+            "main.2": 5,
+            "read_bits.0": 16,
+            "c_UnpackIceStream.0": 6,
+            "c_UnpackIceStream.1": 6,
+            "c_UnpackIceStream.2": 5,
+            "c_UnpackIceStream.3": 3,
+            "c_UnpackIceStream.4": 6,
+            "c_UnpackIceStream.5": 4,
+            "ice_decode.0": 6,
+            "ice_decode.1": 6,
+            "ice_decode.2": 4,
+            "take_bits.0": 16,
+            "literal_length.0": 6,
+            "match_length.0": 5
+          },
+          "stream": 32,
+          "output": 4,
+          "iterations": 3,
+          "preprocessed_sha256": "47d1ce0551feaa10728930d75f026d6c82bcdd9fafe809b4ea2795f5727f1720",
+          "current_C_identical": true
+        }
+      ],
+      "tools": {
+        "note": "Verification tools for native/ evidence (docs/modernization.md). Installed by the supervisor on 2026-11-13; worker sandboxes cannot download or write C:/tools.",
+        "cbmc": {
+          "version": "6.11.0",
+          "source": "https://github.com/diffblue/cbmc/releases/download/cbmc-6.11.0/cbmc-6.11.0-win64.msi",
+          "download": "C:/tools/download/cbmc/cbmc-6.11.0-win64.msi",
+          "download_sha256": "8dcb29c2e91329898ecde5b79198dad2f4b5ebc5cb6b7d15e892c4fe26c6ea53",
+          "install": "msiexec /a (administrative extraction, no system install) into C:/tools/cbmc-6.11.0",
+          "exe": "C:/tools/cbmc-6.11.0/cbmc/bin/cbmc.exe",
+          "exe_sha256": "e2f6a110906b7c5998f31617c89220f9840735250333c90c56ef467c667d8bda",
+          "usage": "CBMC's default preprocessor on Windows is cl.exe (absent) and it cannot parse MinGW system headers. Preprocess with MinGW gcc against minimal shim headers instead: gcc -E -P -nostdinc -I<shim> file.c -o file.i, then cbmc file.i. Checked on a two-implementation uint16 equivalence harness: VERIFICATION SUCCESSFUL."
+        },
+        "z3": {
+          "version": "5.4.1",
+          "source": "https://pypi.org/project/z3-solver/5.4.1.0/ (z3_solver-5.4.1.0-py3-none-win_amd64.whl)",
+          "download": "C:/tools/download/z3/z3_solver-5.4.1.0-py3-none-win_amd64.whl",
+          "download_sha256": "4e32027ebc2077d1bb518113e370a1798746c1e7e2719144712ddd39c4e87ea6",
+          "install": "wheel unpacked into C:/tools/z3-solver-5.4.1.0",
+          "usage": "PYTHONPATH=C:/tools/z3-solver-5.4.1.0 python -c \"import z3\""
+        }
+      }
+    },
+    {
+      "property": "initialization and one-step actual-C invariant, conditional composition by induction",
+      "level": "B",
+      "method": "Mechanically extracted original C prefixes/bodies; arbitrary reader state and output seed; same terminal branch, cursor/sentinel/environment and output; progress and index invariant assertions",
+      "command": "python verif/ice_cbmc.py --mode init --stream 16 --output 8 --unwind 17 --timeout 30 --tag final; python verif/ice_cbmc.py --mode step --stream 16 --output 8 --unwind 17 --timeout 120 --tag final",
+      "result": "PASS. Source 16/output 8 bytes; all pending bytes; initial source index 0..15 or FFFF, output index 0..7 or FFFF. Relation initialized and preserved for all safe admitted steps; at most five outer iterations from a bounded header. Future storage safety remains a contract precondition, not a proved file-validity property.",
+      "date": "2026-11-13",
+      "artifact": "build/workers/pilot-ice-2/summary.json",
+      "profiles": [
+        {
+          "profile": "final_init_s16_o8_u17",
+          "result": "PASS",
+          "seconds": 0.07688179999240674,
+          "solver_times": [
+            "0.0060442s"
+          ],
+          "decision_times": [
+            "0.0089207s"
+          ],
+          "command": [
+            "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+            "D:\\Prog\\ugh_recon\\build\\workers\\pilot-ice-2\\final_init_s16_o8_u17\\whole.i",
+            "--unwind",
+            "17",
+            "--unwindset",
+            "read_bits.0:16,take_bits.0:16,literal_length.0:6,match_length.0:5,l1_length.0:5,l1_offset.0:3,l1_literal_code.0:6",
+            "--unwinding-assertions",
+            "--bounds-check",
+            "--pointer-check",
+            "--signed-overflow-check",
+            "--slice-formula",
+            "--trace",
+            "--verbosity",
+            "8"
+          ],
+          "loop_unwinds": {
+            "read_bits.0": 16,
+            "take_bits.0": 16,
+            "literal_length.0": 6,
+            "match_length.0": 5,
+            "l1_length.0": 5,
+            "l1_offset.0": 3,
+            "l1_literal_code.0": 6
+          },
+          "stream": 16,
+          "output": 8,
+          "iterations": 5,
+          "preprocessed_sha256": "13cd9e27d9cc171c4acba8ec04681d2dc76b5449ed285703012c8b0418ed3ac6",
+          "current_C_identical": true
+        },
+        {
+          "profile": "final_step_s16_o8_u17",
+          "result": "PASS",
+          "seconds": 64.30855240000528,
+          "solver_times": [
+            "63.3228s"
+          ],
+          "decision_times": [
+            "63.5512s"
+          ],
+          "command": [
+            "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+            "D:\\Prog\\ugh_recon\\build\\workers\\pilot-ice-2\\final_step_s16_o8_u17\\whole.i",
+            "--unwind",
+            "17",
+            "--unwindset",
+            "read_bits.0:16,take_bits.0:16,literal_length.0:6,match_length.0:5,l1_length.0:5,l1_offset.0:3,l1_literal_code.0:6,l1_step.0:6,l1_step.1:10,l1_step.2:5,l1_step.3:3,l1_step.4:10,native_step.0:10,native_step.1:10",
+            "--unwinding-assertions",
+            "--bounds-check",
+            "--pointer-check",
+            "--signed-overflow-check",
+            "--slice-formula",
+            "--trace",
+            "--verbosity",
+            "8"
+          ],
+          "loop_unwinds": {
+            "read_bits.0": 16,
+            "take_bits.0": 16,
+            "literal_length.0": 6,
+            "match_length.0": 5,
+            "l1_length.0": 5,
+            "l1_offset.0": 3,
+            "l1_literal_code.0": 6,
+            "l1_step.0": 6,
+            "l1_step.1": 10,
+            "l1_step.2": 5,
+            "l1_step.3": 3,
+            "l1_step.4": 10,
+            "native_step.0": 10,
+            "native_step.1": 10
+          },
+          "stream": 16,
+          "output": 8,
+          "iterations": 5,
+          "preprocessed_sha256": "8cd7846ef9fcf1c1072aa908c75f0cdc96514597ff60a6d420219aeb2672fd37",
+          "current_C_identical": true
+        }
+      ],
+      "tools": {
+        "note": "Verification tools for native/ evidence (docs/modernization.md). Installed by the supervisor on 2026-11-13; worker sandboxes cannot download or write C:/tools.",
+        "cbmc": {
+          "version": "6.11.0",
+          "source": "https://github.com/diffblue/cbmc/releases/download/cbmc-6.11.0/cbmc-6.11.0-win64.msi",
+          "download": "C:/tools/download/cbmc/cbmc-6.11.0-win64.msi",
+          "download_sha256": "8dcb29c2e91329898ecde5b79198dad2f4b5ebc5cb6b7d15e892c4fe26c6ea53",
+          "install": "msiexec /a (administrative extraction, no system install) into C:/tools/cbmc-6.11.0",
+          "exe": "C:/tools/cbmc-6.11.0/cbmc/bin/cbmc.exe",
+          "exe_sha256": "e2f6a110906b7c5998f31617c89220f9840735250333c90c56ef467c667d8bda",
+          "usage": "CBMC's default preprocessor on Windows is cl.exe (absent) and it cannot parse MinGW system headers. Preprocess with MinGW gcc against minimal shim headers instead: gcc -E -P -nostdinc -I<shim> file.c -o file.i, then cbmc file.i. Checked on a two-implementation uint16 equivalence harness: VERIFICATION SUCCESSFUL."
+        },
+        "z3": {
+          "version": "5.4.1",
+          "source": "https://pypi.org/project/z3-solver/5.4.1.0/ (z3_solver-5.4.1.0-py3-none-win_amd64.whl)",
+          "download": "C:/tools/download/z3/z3_solver-5.4.1.0-py3-none-win_amd64.whl",
+          "download_sha256": "4e32027ebc2077d1bb518113e370a1798746c1e7e2719144712ddd39c4e87ea6",
+          "install": "wheel unpacked into C:/tools/z3-solver-5.4.1.0",
+          "usage": "PYTHONPATH=C:/tools/z3-solver-5.4.1.0 python -c \"import z3\""
+        }
+      }
+    },
+    {
+      "property": "CBMC real reader/token parser code under storage assumptions",
+      "level": "B",
+      "method": "Actual helpers and extracted token statements; arbitrary source bytes, reader indices/pending byte; literal count lemma separately established by A enumeration",
+      "command": "python verif/ice_cbmc.py --mode reader --stream 8 --output 1 --unwind 17 --tag final; python verif/ice_cbmc.py --mode bits --stream 8 --output 1 --unwind 17 --tag final; python verif/ice_cbmc.py --mode literal --stream 8 --output 1 --unwind 17 --tag final; python verif/ice_cbmc.py --mode length --stream 8 --output 1 --unwind 17 --tag final; python verif/ice_cbmc.py --mode offset --stream 8 --output 1 --unwind 17 --tag final",
+      "result": "PASS five C queries. Source storage 8 bytes; index 0..7 or FFFF with in-range reads; pending 0..255; widths 1..15; match lengths 2..1033 and arbitrary offset codes. This strengthens alignment/state coverage beyond the finite encoding emitter.",
+      "date": "2026-11-13",
+      "artifact": "build/workers/pilot-ice-2/summary.json",
+      "profiles": [
+        {
+          "profile": "final_reader_s8_o1_u17",
+          "result": "PASS",
+          "seconds": 0.047563099971739575,
+          "solver_times": [
+            "0.0026129s"
+          ],
+          "decision_times": [
+            "0.0038775s"
+          ],
+          "command": [
+            "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+            "D:\\Prog\\ugh_recon\\build\\workers\\pilot-ice-2\\final_reader_s8_o1_u17\\whole.i",
+            "--unwind",
+            "17",
+            "--unwindset",
+            "read_bits.0:16,take_bits.0:16,literal_length.0:6,match_length.0:5,l1_length.0:5,l1_offset.0:3,l1_literal_code.0:6",
+            "--unwinding-assertions",
+            "--bounds-check",
+            "--pointer-check",
+            "--signed-overflow-check",
+            "--slice-formula",
+            "--trace",
+            "--verbosity",
+            "8"
+          ],
+          "loop_unwinds": {
+            "read_bits.0": 16,
+            "take_bits.0": 16,
+            "literal_length.0": 6,
+            "match_length.0": 5,
+            "l1_length.0": 5,
+            "l1_offset.0": 3,
+            "l1_literal_code.0": 6
+          },
+          "stream": 8,
+          "output": 1,
+          "iterations": 1,
+          "preprocessed_sha256": "923fdf038db5f00be8ecc7184c0d607359f8ea7d5287f3f40004e52529225d49",
+          "current_C_identical": true
+        },
+        {
+          "profile": "final_bits_s8_o1_u17",
+          "result": "PASS",
+          "seconds": 0.7369602000107989,
+          "solver_times": [
+            "0.589978s"
+          ],
+          "decision_times": [
+            "0.605686s"
+          ],
+          "command": [
+            "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+            "D:\\Prog\\ugh_recon\\build\\workers\\pilot-ice-2\\final_bits_s8_o1_u17\\whole.i",
+            "--unwind",
+            "17",
+            "--unwindset",
+            "read_bits.0:16,take_bits.0:16,literal_length.0:6,match_length.0:5,l1_length.0:5,l1_offset.0:3,l1_literal_code.0:6",
+            "--unwinding-assertions",
+            "--bounds-check",
+            "--pointer-check",
+            "--signed-overflow-check",
+            "--slice-formula",
+            "--trace",
+            "--verbosity",
+            "8"
+          ],
+          "loop_unwinds": {
+            "read_bits.0": 16,
+            "take_bits.0": 16,
+            "literal_length.0": 6,
+            "match_length.0": 5,
+            "l1_length.0": 5,
+            "l1_offset.0": 3,
+            "l1_literal_code.0": 6
+          },
+          "stream": 8,
+          "output": 1,
+          "iterations": 1,
+          "preprocessed_sha256": "4dcda0020aa3a4ac7b2ba880ad79bc557b0a6781065a63bb52db298738747752",
+          "current_C_identical": true
+        },
+        {
+          "profile": "final_literal_s8_o1_u17",
+          "result": "PASS",
+          "seconds": 1.1068524000002071,
+          "solver_times": [
+            "0.832668s"
+          ],
+          "decision_times": [
+            "0.86822s"
+          ],
+          "command": [
+            "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+            "D:\\Prog\\ugh_recon\\build\\workers\\pilot-ice-2\\final_literal_s8_o1_u17\\whole.i",
+            "--unwind",
+            "17",
+            "--unwindset",
+            "read_bits.0:16,take_bits.0:16,literal_length.0:6,match_length.0:5,l1_length.0:5,l1_offset.0:3,l1_literal_code.0:6",
+            "--unwinding-assertions",
+            "--bounds-check",
+            "--pointer-check",
+            "--signed-overflow-check",
+            "--slice-formula",
+            "--trace",
+            "--verbosity",
+            "8"
+          ],
+          "loop_unwinds": {
+            "read_bits.0": 16,
+            "take_bits.0": 16,
+            "literal_length.0": 6,
+            "match_length.0": 5,
+            "l1_length.0": 5,
+            "l1_offset.0": 3,
+            "l1_literal_code.0": 6
+          },
+          "stream": 8,
+          "output": 1,
+          "iterations": 1,
+          "preprocessed_sha256": "414135fbb8a325f9acba7bcef679db976fcbd198be0a05bc9197448c17292702",
+          "current_C_identical": true
+        },
+        {
+          "profile": "final_length_s8_o1_u17",
+          "result": "PASS",
+          "seconds": 0.508193100016797,
+          "solver_times": [
+            "0.317507s"
+          ],
+          "decision_times": [
+            "0.341609s"
+          ],
+          "command": [
+            "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+            "D:\\Prog\\ugh_recon\\build\\workers\\pilot-ice-2\\final_length_s8_o1_u17\\whole.i",
+            "--unwind",
+            "17",
+            "--unwindset",
+            "read_bits.0:16,take_bits.0:16,literal_length.0:6,match_length.0:5,l1_length.0:5,l1_offset.0:3,l1_literal_code.0:6",
+            "--unwinding-assertions",
+            "--bounds-check",
+            "--pointer-check",
+            "--signed-overflow-check",
+            "--slice-formula",
+            "--trace",
+            "--verbosity",
+            "8"
+          ],
+          "loop_unwinds": {
+            "read_bits.0": 16,
+            "take_bits.0": 16,
+            "literal_length.0": 6,
+            "match_length.0": 5,
+            "l1_length.0": 5,
+            "l1_offset.0": 3,
+            "l1_literal_code.0": 6
+          },
+          "stream": 8,
+          "output": 1,
+          "iterations": 1,
+          "preprocessed_sha256": "a70935b7b9a0c21b448434614058019d768fe31421c157d733d7a26e7465d051",
+          "current_C_identical": true
+        },
+        {
+          "profile": "final_offset_s8_o1_u17",
+          "result": "PASS",
+          "seconds": 2.192793399997754,
+          "solver_times": [
+            "1.85252s"
+          ],
+          "decision_times": [
+            "1.90488s"
+          ],
+          "command": [
+            "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+            "D:\\Prog\\ugh_recon\\build\\workers\\pilot-ice-2\\final_offset_s8_o1_u17\\whole.i",
+            "--unwind",
+            "17",
+            "--unwindset",
+            "read_bits.0:16,take_bits.0:16,literal_length.0:6,match_length.0:5,l1_length.0:5,l1_offset.0:3,l1_literal_code.0:6",
+            "--unwinding-assertions",
+            "--bounds-check",
+            "--pointer-check",
+            "--signed-overflow-check",
+            "--slice-formula",
+            "--trace",
+            "--verbosity",
+            "8"
+          ],
+          "loop_unwinds": {
+            "read_bits.0": 16,
+            "take_bits.0": 16,
+            "literal_length.0": 6,
+            "match_length.0": 5,
+            "l1_length.0": 5,
+            "l1_offset.0": 3,
+            "l1_literal_code.0": 6
+          },
+          "stream": 8,
+          "output": 1,
+          "iterations": 1,
+          "preprocessed_sha256": "ae2961a7cb99be342e5c7a7e9f369ed77b4a8745b533ed10444625bc3f9bb977",
+          "current_C_identical": true
+        }
+      ],
+      "tools": {
+        "note": "Verification tools for native/ evidence (docs/modernization.md). Installed by the supervisor on 2026-11-13; worker sandboxes cannot download or write C:/tools.",
+        "cbmc": {
+          "version": "6.11.0",
+          "source": "https://github.com/diffblue/cbmc/releases/download/cbmc-6.11.0/cbmc-6.11.0-win64.msi",
+          "download": "C:/tools/download/cbmc/cbmc-6.11.0-win64.msi",
+          "download_sha256": "8dcb29c2e91329898ecde5b79198dad2f4b5ebc5cb6b7d15e892c4fe26c6ea53",
+          "install": "msiexec /a (administrative extraction, no system install) into C:/tools/cbmc-6.11.0",
+          "exe": "C:/tools/cbmc-6.11.0/cbmc/bin/cbmc.exe",
+          "exe_sha256": "e2f6a110906b7c5998f31617c89220f9840735250333c90c56ef467c667d8bda",
+          "usage": "CBMC's default preprocessor on Windows is cl.exe (absent) and it cannot parse MinGW system headers. Preprocess with MinGW gcc against minimal shim headers instead: gcc -E -P -nostdinc -I<shim> file.c -o file.i, then cbmc file.i. Checked on a two-implementation uint16 equivalence harness: VERIFICATION SUCCESSFUL."
+        },
+        "z3": {
+          "version": "5.4.1",
+          "source": "https://pypi.org/project/z3-solver/5.4.1.0/ (z3_solver-5.4.1.0-py3-none-win_amd64.whl)",
+          "download": "C:/tools/download/z3/z3_solver-5.4.1.0-py3-none-win_amd64.whl",
+          "download_sha256": "4e32027ebc2077d1bb518113e370a1798746c1e7e2719144712ddd39c4e87ea6",
+          "install": "wheel unpacked into C:/tools/z3-solver-5.4.1.0",
+          "usage": "PYTHONPATH=C:/tools/z3-solver-5.4.1.0 python -c \"import z3\""
+        }
+      }
+    },
+    {
+      "property": "non-vacuity and too-small-unwind controls",
+      "level": "B",
+      "method": "Ordinary CBMC assertion counterexamples (not dedicated --cover mode)",
+      "command": "python verif/ice_cbmc.py --stream 16 --output 4 --unwind 17 --timeout 90 --tag reach --coverage; python verif/ice_cbmc.py --stream 16 --output 2 --unwind 1 --timeout 30 --tag negative",
+      "result": "PASS controls: four negated reachability assertions have witnesses (recognized magic, multiple iterations, seed references, malformed endpoint); unwind=1 yields genuine unwinding assertion failures. Controls are not equivalence proofs.",
+      "date": "2026-11-13",
+      "artifact": "build/workers/pilot-ice-2/summary.json"
+    },
+    {
+      "property": "defect seeding with real-C CBMC column",
+      "level": "B",
+      "method": "Same five native C mutants; each compared with actual L1 parser/reader and the production whole bounded harness",
+      "command": "python verif/ice_cbmc_defects.py; python verif/ice_fuzz.py --count 3000 --mutants",
+      "result": "PASS evaluation: CBMC helper queries catch all five via value/reader-state counterexamples. Whole source16/output2 catches refill and wrap, misses rare length, signed literal boundary and wide offset bit-order. Differential rerun unchanged: signed literal boundary still missed by ordinary stream corpus, caught by exhaustive compiled code.",
+      "date": "2026-11-13",
+      "artifact": "build/workers/pilot-ice-2/defects.json",
+      "tools": {
+        "note": "Verification tools for native/ evidence (docs/modernization.md). Installed by the supervisor on 2026-11-13; worker sandboxes cannot download or write C:/tools.",
+        "cbmc": {
+          "version": "6.11.0",
+          "source": "https://github.com/diffblue/cbmc/releases/download/cbmc-6.11.0/cbmc-6.11.0-win64.msi",
+          "download": "C:/tools/download/cbmc/cbmc-6.11.0-win64.msi",
+          "download_sha256": "8dcb29c2e91329898ecde5b79198dad2f4b5ebc5cb6b7d15e892c4fe26c6ea53",
+          "install": "msiexec /a (administrative extraction, no system install) into C:/tools/cbmc-6.11.0",
+          "exe": "C:/tools/cbmc-6.11.0/cbmc/bin/cbmc.exe",
+          "exe_sha256": "e2f6a110906b7c5998f31617c89220f9840735250333c90c56ef467c667d8bda",
+          "usage": "CBMC's default preprocessor on Windows is cl.exe (absent) and it cannot parse MinGW system headers. Preprocess with MinGW gcc against minimal shim headers instead: gcc -E -P -nostdinc -I<shim> file.c -o file.i, then cbmc file.i. Checked on a two-implementation uint16 equivalence harness: VERIFICATION SUCCESSFUL."
+        },
+        "z3": {
+          "version": "5.4.1",
+          "source": "https://pypi.org/project/z3-solver/5.4.1.0/ (z3_solver-5.4.1.0-py3-none-win_amd64.whl)",
+          "download": "C:/tools/download/z3/z3_solver-5.4.1.0-py3-none-win_amd64.whl",
+          "download_sha256": "4e32027ebc2077d1bb518113e370a1798746c1e7e2719144712ddd39c4e87ea6",
+          "install": "wheel unpacked into C:/tools/z3-solver-5.4.1.0",
+          "usage": "PYTHONPATH=C:/tools/z3-solver-5.4.1.0 python -c \"import z3\""
+        }
+      }
+    },
+    {
+      "property": "current-source replay of accepted proof receipts",
+      "level": "B",
+      "method": "Regenerate and preprocess current C into separate scratch folders; byte equality with each verified .i; validate counterexample classifications",
+      "command": "python verif/ice_cbmc_summary.py",
+      "result": "PASS 11 receipts regenerated identically; five primitive failures are observation counterexamples. Tool/driver/model results remain separately scoped.",
+      "date": "2026-11-13",
+      "artifact": "build/workers/pilot-ice-2/summary.json"
     }
   ],
   "amiga": {
@@ -261,11 +797,13 @@
     "finding": "No Amiga correspondence needed to derive this DOS codec boundary. This pilot makes no claim that JOKE resources or Amiga decoder behavior equal DOS."
   },
   "uncertainty": [
-    "No automatically verified whole-C equivalence or useful multi-token all-input bounded proof. Models must be reviewed for correct C correspondence.",
-    "No proof of termination of malformed full-ring streams; the L1 guard is retained.",
-    "No source/output alias, self-modifying tables/code, stack alias or device-buffer semantics in the bridge contract.",
-    "Native truncation/range errors extend the interface; they do not reproduce surrounding DOS-memory behavior with a short file allocation.",
-    "Whole-worker scenario matrix remains pending. Supervisor owns final status; proposed status stays migrated despite helper model proofs."
+    "General 64 KiB windows and real resource sizes still have C evidence, not whole-code A/B equivalence. Largest completed direct whole profiles were source16/output6 and source32/output4 bytes; source32/output8 timed out after 180 seconds. Source32/output6 and step source16/output16 also did not finish; initial timeout-cleanup bug extended their measured wall time and was fixed with Windows job ownership.",
+    "No malformed full-ring termination proof. Only bounded ordinary-buffer executions have checked progress; the original L1 guard is retained for other states.",
+    "No source/output, code-table, live-stack or device alias semantics in the native bridge contract; bridge integration remains differential evidence.",
+    "TRUNCATED/RANGE are native safety extensions and are excluded from L1-equivalence states by available-storage assumptions; their ordinary regression tests remain C.",
+    "Handwritten SMT models remain A only for models; no code-level promotion follows from them.",
+    "CBMC literal query uses the separately proven compiled-code copy-count lemma. Per-step induction is conditional on every composed L1 access remaining inside the bounded storage, not a parser validity proof.",
+    "Dedicated whole-worker D matrix remains pending. Accepted status stays migrated until supervisor reviews the proposed verified-under-assumptions status and its narrow domains."
   ],
   "dependencies": {
     "native/bridge/ice_bridge.c": {
@@ -311,5 +849,43 @@
     "native/ice.h": "9dae8b5a177d2d671ae2218035db0af8b83f30bf7b470c6bd5be3f068e26c756",
     "c/ice.c": "27e2898dd6a5e70af26bde84c0ba8cd6e8a045e40d94df21fd5b122f10a2242e",
     "src/asm/GAME.ASM": "f46f2ef8042b1d362cbb901414da84ef69a68d2659b7a204b5825b3c78aa1748"
+  },
+  "proposed_status": "verified-under-assumptions",
+  "proposal_scope": "Supervisor review requested. Actual-C B: whole decoder for the two explicitly bounded buffer domains, and initialization/one-step induction for 16-byte source / 8-byte output storage. The general 64 KiB API/bridge contract retains C evidence. No unrestricted A or D promotion.",
+  "verification_tools": {
+    "note": "Verification tools for native/ evidence (docs/modernization.md). Installed by the supervisor on 2026-11-13; worker sandboxes cannot download or write C:/tools.",
+    "cbmc": {
+      "version": "6.11.0",
+      "source": "https://github.com/diffblue/cbmc/releases/download/cbmc-6.11.0/cbmc-6.11.0-win64.msi",
+      "download": "C:/tools/download/cbmc/cbmc-6.11.0-win64.msi",
+      "download_sha256": "8dcb29c2e91329898ecde5b79198dad2f4b5ebc5cb6b7d15e892c4fe26c6ea53",
+      "install": "msiexec /a (administrative extraction, no system install) into C:/tools/cbmc-6.11.0",
+      "exe": "C:/tools/cbmc-6.11.0/cbmc/bin/cbmc.exe",
+      "exe_sha256": "e2f6a110906b7c5998f31617c89220f9840735250333c90c56ef467c667d8bda",
+      "usage": "CBMC's default preprocessor on Windows is cl.exe (absent) and it cannot parse MinGW system headers. Preprocess with MinGW gcc against minimal shim headers instead: gcc -E -P -nostdinc -I<shim> file.c -o file.i, then cbmc file.i. Checked on a two-implementation uint16 equivalence harness: VERIFICATION SUCCESSFUL."
+    },
+    "z3": {
+      "version": "5.4.1",
+      "source": "https://pypi.org/project/z3-solver/5.4.1.0/ (z3_solver-5.4.1.0-py3-none-win_amd64.whl)",
+      "download": "C:/tools/download/z3/z3_solver-5.4.1.0-py3-none-win_amd64.whl",
+      "download_sha256": "4e32027ebc2077d1bb518113e370a1798746c1e7e2719144712ddd39c4e87ea6",
+      "install": "wheel unpacked into C:/tools/z3-solver-5.4.1.0",
+      "usage": "PYTHONPATH=C:/tools/z3-solver-5.4.1.0 python -c \"import z3\""
+    }
+  },
+  "verification_sources": {
+    "verif/ice_cbmc.py": "e7c37e9ad4fe9abebe39c42425eb45e0d5c8c581615a47bef1e4b93f110042d1",
+    "verif/ice_cbmc_defects.py": "244a7367a9e934455307299dd94b153ad55df12cf06ba39c7b89e9b15bde4f56",
+    "verif/ice_cbmc_init.c": "f82603485002ae2159808665867ed9f7c6d895b06752c30e3f477e902375a79f",
+    "verif/ice_cbmc_primitive.c": "69c9b6b0dba8edfd671de2e82170efc8e8c89236ff73e8cf29354d109545e04f",
+    "verif/ice_cbmc_step.c": "0281a921d396bae314e259c18249f36ce3ea71161971724c8390af117290decf",
+    "verif/ice_cbmc_summary.py": "56b49ebd6eb4ef4faf58251116908acb353e58d2b878fb13c9f40f92921985d4",
+    "verif/ice_cbmc_whole.c": "25c8731d13559b73f48f95fc84193e351d5b634405617955893f07331fa23177",
+    "verif/cbmc_shim/stddef.h": "03e62ec5f7016e0582b92f016d7e4017b56746e2b216ae8d7fad236ae7e723e7",
+    "verif/cbmc_shim/stdint.h": "ff382e7cc9e8ac2ff6cef94767bb680b49944513ebff33b6d7e548fe12a5d7d0",
+    "verif/cbmc_shim/ugh.h": "d23d5fb7f8d14f5c03944d9cce971d6d21fdf32c28ebac1f2710842cd03d7e72",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
+    "verif/ice_smt.py": "457be083466bf6e715ca4a2d57db0a3ba9e9f7b4062351782be41f8d299721b3",
+    "metadata/verif-tools.json": "d50d082e61d0d1123586509ecdeb636e4c3d12b90741961387f524ab1b5b350b"
   }
 }

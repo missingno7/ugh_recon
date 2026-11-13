@@ -523,7 +523,7 @@ EXPORT int c_LoadCurrentLevelState(Regs *r) {
             lodsw(r); r->ax=(uint16_t)(r->ax*32u);
             CALL(ScaleLevelYToThreeQuarters,LoadCurrentLevelState,0x233);
             r->ax=sub16(r,r->ax,704,0); WI(EnemyY32,r->di,r->ax); r->si=(uint16_t)(r->si+4);
-            WI(EnemyStateCallbacks,r->di,G(loc_295B));
+            WI(EnemyStateCallbacks,r->di,G(InitializeDinoAnimation));
         } else {
             lodsw(r); WI(EnemyPlatformIndices,r->di,r->ax); r->bx=(uint16_t)(r->ax*2u);
             r->ax=(uint16_t)((RI(PlatformSpawnX,r->bx)-16u)*32u); WI(EnemyX32,r->di,r->ax);
@@ -531,7 +531,7 @@ EXPORT int c_LoadCurrentLevelState(Regs *r) {
             r->si=(uint16_t)(r->si+2); lodsw(r); r->ax=(uint16_t)-sar(r->ax,2);
             r->ax=(uint16_t)(r->ax+rd16(r->ds,(uint16_t)(r->si-2))); r->ax=(uint16_t)-r->ax;
             WI(EnemyHorizontalSpeeds,r->di,r->ax); WI(EnemyDirectionOrTargetPlayer,r->di,0);
-            WI(EnemyStateCallbacks,r->di,G(BeginDinosaurPatrol));
+            WI(EnemyStateCallbacks,r->di,G(BeginTriopterusPatrol));
         }
         r->di=(uint16_t)(r->di+2);
     }

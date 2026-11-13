@@ -4507,8 +4507,13 @@ loc_25A6:
 ; In: BX is enemy byte index; DS=DGROUP.
 ; Out: installs descriptor +0A and resets animation offset FFFE/ticks 1.
 ; END CONTRACT
-public BeginDinosaurPatrol
-BeginDinosaurPatrol:
+public BeginTriopterusPatrol
+; CONTRACT (tools/apply.py)
+; Initialize the ground Triopterus's patrol animation.
+; In: BX is enemy byte index; DS=DGROUP.
+; Out: installs descriptor +0A and resets animation offset FFFE/ticks 1.
+; END CONTRACT
+BeginTriopterusPatrol:
     mov si, word ptr [bx + EnemyDescriptors] ; @25B1
     mov ax, word ptr [si + 0Ah] ; @25B5
     mov word ptr [bx + EnemyStateCallbacks], ax ; @25B8
@@ -4521,8 +4526,14 @@ BeginDinosaurPatrol:
 ; Out: every four ticks moves, reverses at platform bounds, and loops directional animation.
 ; Effects: same-platform player selects +0C; stone hit reverses its Y speed and selects +1C.
 ; END CONTRACT
-public UpdateDinosaurPatrol
-UpdateDinosaurPatrol:
+public UpdateTriopterusPatrol
+; CONTRACT (tools/apply.py)
+; Patrol within the assigned platform and notice players or thrown stones.
+; In: BX is enemy byte index; DS=DGROUP.
+; Out: every four ticks moves, reverses at platform bounds, and loops directional animation.
+; Effects: same-platform player selects +0C; stone hit reverses its Y speed and selects +1C.
+; END CONTRACT
+UpdateTriopterusPatrol:
     mov si, word ptr [bx + EnemyDescriptors] ; @25C9
     dec word ptr [bx + EnemyAnimationCountdowns] ; @25CD
     jne loc_2636 ; @25D1
@@ -4577,8 +4588,13 @@ loc_2666:
 ; In: BX is enemy byte index; SI is its descriptor; DS=DGROUP.
 ; Out: installs descriptor +0E and resets animation offset FFFE/ticks 1.
 ; END CONTRACT
-public BeginDinosaurAlert
-BeginDinosaurAlert:
+public BeginTriopterusAlert
+; CONTRACT (tools/apply.py)
+; Start the Triopterus's 140-update alert state.
+; In: BX is enemy byte index; SI is its descriptor; DS=DGROUP.
+; Out: installs descriptor +0E and resets animation offset FFFE/ticks 1.
+; END CONTRACT
+BeginTriopterusAlert:
     mov ax, word ptr [si + 0Eh] ; @2667
     mov word ptr [bx + EnemyStateCallbacks], ax ; @266A
     mov word ptr [bx + EnemyAnimationByteOffsets], 0FFFEh ; @266E
@@ -4591,8 +4607,14 @@ BeginDinosaurAlert:
 ; Out: timer zero selects +10; player leaves platform selects +08; stone hit selects +1C.
 ; Effects: five-update animation; direction and speed sign track the first matching player.
 ; END CONTRACT
-public UpdateDinosaurAlert
-UpdateDinosaurAlert:
+public UpdateTriopterusAlert
+; CONTRACT (tools/apply.py)
+; Animate the alert Triopterus and face a player on its platform.
+; In: BX is enemy byte index; DS=DGROUP.
+; Out: timer zero selects +10; player leaves platform selects +08; stone hit selects +1C.
+; Effects: five-update animation; direction and speed sign track the first matching player.
+; END CONTRACT
+UpdateTriopterusAlert:
     mov si, word ptr [bx + EnemyDescriptors] ; @2681
     dec word ptr [bx + EnemyStateCounters] ; @2685
     jne loc_2691 ; @2689
@@ -4653,8 +4675,13 @@ loc_2725:
 ; In: BX is enemy byte index; SI is its descriptor; DS=DGROUP.
 ; Out: installs descriptor +12; resets animation and clears state acceleration.
 ; END CONTRACT
-public BeginDinosaurCharge
-BeginDinosaurCharge:
+public BeginTriopterusCharge
+; CONTRACT (tools/apply.py)
+; Initialize the Triopterus charge animation and acceleration.
+; In: BX is enemy byte index; SI is its descriptor; DS=DGROUP.
+; Out: installs descriptor +12; resets animation and clears state acceleration.
+; END CONTRACT
+BeginTriopterusCharge:
     mov ax, word ptr [si + 012h] ; @272E
     mov word ptr [bx + EnemyStateCallbacks], ax ; @2731
     mov word ptr [bx + EnemyAnimationByteOffsets], 0FFFEh ; @2735
@@ -4668,8 +4695,15 @@ BeginDinosaurCharge:
 ; Effects: acceleration adds direction-1 each update; X adds speed plus new acceleration.
 ; Effects: player X velocity=(speed+acceleration)<<5, Y velocity uses the same value <<4.
 ; END CONTRACT
-public UpdateDinosaurCharge
-UpdateDinosaurCharge:
+public UpdateTriopterusCharge
+; CONTRACT (tools/apply.py)
+; Charge toward a same-platform player and transfer impact motion on contact.
+; In: BX is enemy byte index; DS=DGROUP.
+; Out: no platform player selects +14; contact kicks player upward, clears platform, selects +18.
+; Effects: acceleration adds direction-1 each update; X adds speed plus new acceleration.
+; Effects: player X velocity=(speed+acceleration)<<5, Y velocity uses the same value <<4.
+; END CONTRACT
+UpdateTriopterusCharge:
     mov si, word ptr [bx + EnemyDescriptors] ; @2748
     dec word ptr [bx + EnemyAnimationCountdowns] ; @274C
     jne loc_2782 ; @2750
@@ -4747,8 +4781,13 @@ loc_282F:
 ; In: BX is enemy byte index; SI is its descriptor; DS=DGROUP.
 ; Out: installs descriptor +16 and resets animation offset FFFE/ticks 1.
 ; END CONTRACT
-public BeginDinosaurRecovery
-BeginDinosaurRecovery:
+public BeginTriopterusRecovery
+; CONTRACT (tools/apply.py)
+; Start the Triopterus recovery animation after losing its platform target.
+; In: BX is enemy byte index; SI is its descriptor; DS=DGROUP.
+; Out: installs descriptor +16 and resets animation offset FFFE/ticks 1.
+; END CONTRACT
+BeginTriopterusRecovery:
     mov ax, word ptr [si + 016h] ; @2830
     mov word ptr [bx + EnemyStateCallbacks], ax ; @2833
     mov word ptr [bx + EnemyAnimationByteOffsets], 0FFFEh ; @2837
@@ -4760,8 +4799,14 @@ BeginDinosaurRecovery:
 ; Out: sequence FFFF selects +08; a stone hit reverses stone Y speed and selects +1C.
 ; Effects: advances descriptor +2A/+2C sequence every four updates.
 ; END CONTRACT
-public AnimateDinosaurRecovery
-AnimateDinosaurRecovery:
+public AnimateTriopterusRecovery
+; CONTRACT (tools/apply.py)
+; Play the Triopterus's finite directional recovery sequence.
+; In: BX is enemy byte index; DS=DGROUP.
+; Out: sequence FFFF selects +08; a stone hit reverses stone Y speed and selects +1C.
+; Effects: advances descriptor +2A/+2C sequence every four updates.
+; END CONTRACT
+AnimateTriopterusRecovery:
     mov si, word ptr [bx + EnemyDescriptors] ; @2844
     dec word ptr [bx + EnemyAnimationCountdowns] ; @2848
     jne loc_2879 ; @284C
@@ -4790,8 +4835,14 @@ loc_288E:
 ; Out: installs descriptor +16, not +1A; resets animation offset FFFE/ticks 1.
 ; Effects: supplied descriptor therefore routes subsequent updates to 2844, not 28A3.
 ; END CONTRACT
-public BeginDinosaurImpactRecovery
-BeginDinosaurImpactRecovery:
+public BeginTriopterusImpactRecovery
+; CONTRACT (tools/apply.py)
+; Start the Triopterus recovery sequence following a player impact.
+; In: BX is enemy byte index; SI is its descriptor; DS=DGROUP.
+; Out: installs descriptor +16, not +1A; resets animation offset FFFE/ticks 1.
+; Effects: supplied descriptor therefore routes subsequent updates to 2844, not 28A3.
+; END CONTRACT
+BeginTriopterusImpactRecovery:
     mov ax, word ptr [si + 016h] ; @288F
     mov word ptr [bx + EnemyStateCallbacks], ax ; @2892
     mov word ptr [bx + EnemyAnimationByteOffsets], 0FFFEh ; @2896
@@ -4803,8 +4854,14 @@ BeginDinosaurImpactRecovery:
 ; Out: descriptor +32/+34 FFFF selects +08; a stone hit reverses stone Y speed/selects +1C.
 ; Effects: descriptor +1A points here, but initializer 288F installs +16 instead.
 ; END CONTRACT
-public AnimateDinosaurImpactRecovery
-AnimateDinosaurImpactRecovery:
+public AnimateTriopterusImpactRecovery
+; CONTRACT (tools/apply.py)
+; Play the alternate directional Triopterus recovery sequence.
+; In: BX is enemy byte index; DS=DGROUP.
+; Out: descriptor +32/+34 FFFF selects +08; a stone hit reverses stone Y speed/selects +1C.
+; Effects: descriptor +1A points here, but initializer 288F installs +16 instead.
+; END CONTRACT
+AnimateTriopterusImpactRecovery:
     mov si, word ptr [bx + EnemyDescriptors] ; @28A3
     dec word ptr [bx + EnemyAnimationCountdowns] ; @28A7
     jne loc_28D8 ; @28AB
@@ -4832,8 +4889,13 @@ loc_28ED:
 ; In: BX is enemy byte index; SI is its descriptor; DS=DGROUP.
 ; Out: installs descriptor +1E, adds +3A to 32-bit score, resets animation and stun timer.
 ; END CONTRACT
-public StunDinosaurAndAwardScore
-StunDinosaurAndAwardScore:
+public StunTriopterusAndAwardScore
+; CONTRACT (tools/apply.py)
+; Award Triopterus hit points and start its 350-update stun animation.
+; In: BX is enemy byte index; SI is its descriptor; DS=DGROUP.
+; Out: installs descriptor +1E, adds +3A to 32-bit score, resets animation and stun timer.
+; END CONTRACT
+StunTriopterusAndAwardScore:
     mov ax, word ptr [si + 01Eh] ; @28EE
     mov word ptr [bx + EnemyStateCallbacks], ax ; @28F1
     mov ax, word ptr [si + 03Ah] ; @28F5
@@ -4848,8 +4910,13 @@ StunDinosaurAndAwardScore:
 ; In: BX is enemy byte index; DS=DGROUP.
 ; Out: timer zero selects descriptor +08; animation +36/+38 advances every four updates.
 ; END CONTRACT
-public UpdateStunnedDinosaur
-UpdateStunnedDinosaur:
+public UpdateStunnedTriopterus
+; CONTRACT (tools/apply.py)
+; Loop the directional stunned Triopterus sequence until recovery.
+; In: BX is enemy byte index; DS=DGROUP.
+; Out: timer zero selects descriptor +08; animation +36/+38 advances every four updates.
+; END CONTRACT
+UpdateStunnedTriopterus:
     mov si, word ptr [bx + EnemyDescriptors] ; @2914
     dec word ptr [bx + EnemyStateCounters] ; @2918
     jne loc_2924 ; @291C
@@ -4877,8 +4944,13 @@ loc_295A:
 ; In: BX is enemy byte index; DS=DGROUP.
 ; Out: installs descriptor +12 and resets animation offset FFFE/ticks 1.
 ; END CONTRACT
-public loc_295B
-loc_295B:
+public InitializeDinoAnimation
+; CONTRACT (tools/apply.py)
+; Initialize Dino's stationary force animation (descriptor 76A8).
+; In: BX is enemy byte index; DS=DGROUP.
+; Out: installs descriptor +12 and resets animation offset FFFE/ticks 1.
+; END CONTRACT
+InitializeDinoAnimation:
     mov si, word ptr [bx + EnemyDescriptors] ; @295B
     mov ax, word ptr [si + 012h] ; @295F
     mov word ptr [bx + EnemyStateCallbacks], ax ; @2962
@@ -4892,8 +4964,15 @@ loc_295B:
 ; Effects: adds +29h or -29h to player X velocity by animation phase; stone hit selects +1C.
 ; Effects: player scan retries on DI=2 equal to player count; does not use player-array bytes.
 ; END CONTRACT
-public loc_2973
-loc_2973:
+public UpdateDinoForce
+; CONTRACT (tools/apply.py)
+; Animate Dino and push nearby players horizontally.
+; In: BX is enemy byte index; DS=DGROUP.
+; Out: loops +26 sequence every 15 updates; frame offset 6 plays effect 3265.
+; Effects: adds +29h or -29h to player X velocity by animation phase; stone hit selects +1C.
+; Effects: player scan retries on DI=2 equal to player count; does not use player-array bytes.
+; END CONTRACT
+UpdateDinoForce:
     mov si, word ptr [bx + EnemyDescriptors] ; @2973
     dec word ptr [bx + EnemyAnimationCountdowns] ; @2977
 loc_297B:
@@ -4977,8 +5056,13 @@ loc_2A52:
 ; In: BX is enemy byte index; SI is its descriptor; DS=DGROUP.
 ; Out: installs descriptor +1E, adds +3A to 32-bit score, and chooses first +36 sprite.
 ; END CONTRACT
-public loc_2A53
-loc_2A53:
+public StunDinoAndAwardScore
+; CONTRACT (tools/apply.py)
+; Award Dino's hit score and select its 350-update stun state.
+; In: BX is enemy byte index; SI is its descriptor; DS=DGROUP.
+; Out: installs descriptor +1E, adds +3A to 32-bit score, and chooses first +36 sprite.
+; END CONTRACT
+StunDinoAndAwardScore:
     mov ax, word ptr [si + 01Eh] ; @2A53
     mov word ptr [bx + EnemyStateCallbacks], ax ; @2A56
     mov ax, word ptr [si + 03Ah] ; @2A5A
@@ -4994,8 +5078,13 @@ loc_2A53:
 ; In: BX is enemy byte index; DS=DGROUP.
 ; Out: exactly-zero state countdown tail-jumps through descriptor +10.
 ; END CONTRACT
-public loc_2A76
-loc_2A76:
+public UpdateStunnedDino
+; CONTRACT (tools/apply.py)
+; Count down Dino's stun timer.
+; In: BX is enemy byte index; DS=DGROUP.
+; Out: exactly-zero state countdown tail-jumps through descriptor +10.
+; END CONTRACT
+UpdateStunnedDino:
     dec word ptr [bx + EnemyStateCounters] ; @2A76
     jne loc_2A86 ; @2A7A
     mov si, word ptr [bx + EnemyDescriptors] ; @2A7F
@@ -6678,7 +6767,7 @@ loc_3B92:
     sub ax, word ptr 02C0h ; @3BA9
     mov word ptr [di + EnemyY32], ax ; @3BAC
     add si, 4 ; @3BB0
-    mov word ptr [di + EnemyStateCallbacks], offset loc_295B ; @3BB3
+    mov word ptr [di + EnemyStateCallbacks], offset InitializeDinoAnimation ; @3BB3
     jmp short loc_3BFE ; @3BB9
 loc_3BBB:
     lodsw ; @3BBB
@@ -6701,7 +6790,7 @@ loc_3BBB:
     neg ax ; @3BEC
     mov word ptr [di + EnemyHorizontalSpeeds], ax ; @3BEE
     mov word ptr [di + EnemyDirectionOrTargetPlayer], 0 ; @3BF2
-    mov word ptr [di + EnemyStateCallbacks], offset BeginDinosaurPatrol ; @3BF8
+    mov word ptr [di + EnemyStateCallbacks], offset BeginTriopterusPatrol ; @3BF8
 loc_3BFE:
     add di, 2 ; @3BFE
     jmp near ptr loc_3B21 ; @3C01

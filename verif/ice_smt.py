@@ -1,29 +1,21 @@
-"""Small SMT-LIB obligations using the installed Ghidra Z3 through ctypes.
+"""Small SMT-LIB obligations using the supervisor-installed Python Z3.
 
 These are explicit arithmetic/array models, not automatic C verification.
 The compiled-C exhaustive harness checks the linkage to the actual helpers.
 """
-import ctypes as C,hashlib,json,time,zipfile
+import hashlib,json,re,sys,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-OUT=ROOT/'build/workers/pilot-ice'
-ARCHIVE=Path(r'C:\tools\ghidra_12.1_PUBLIC\Extensions\Ghidra\ghidra_12.1_PUBLIC_20260513_SymbolicSummaryZ3.zip')
+OUT=ROOT/'build/workers/pilot-ice-2'
 
 def solver():
     OUT.mkdir(parents=True,exist_ok=True)
-    data=zipfile.ZipFile(ARCHIVE).read('SymbolicSummaryZ3/os/win_x86_64/libz3.dll')
-    path=OUT/'libz3.dll'
-    if not path.exists():path.write_bytes(data)
-    z=C.CDLL(str(path))
-    z.Z3_mk_config.restype=C.c_void_p
-    z.Z3_mk_context.argtypes=[C.c_void_p];z.Z3_mk_context.restype=C.c_void_p
-    z.Z3_del_config.argtypes=[C.c_void_p];z.Z3_del_context.argtypes=[C.c_void_p]
-    z.Z3_eval_smtlib2_string.argtypes=[C.c_void_p,C.c_char_p];z.Z3_eval_smtlib2_string.restype=C.c_char_p
-    z.Z3_get_full_version.restype=C.c_char_p
-    return z,dict(version=z.Z3_get_full_version().decode(),dll_sha256=hashlib.sha256(data).hexdigest(),
-                  archive=str(ARCHIVE),archive_sha256=hashlib.sha256(ARCHIVE.read_bytes()).hexdigest(),
-                  source_url='https://github.com/NationalSecurityAgency/ghidra/releases/tag/Ghidra_12.1_build',
-                  installed=str(path),note='C:/tools is read-only in this session; extracted existing pinned bundle into worker directory')
+    info=json.loads((ROOT/'metadata/verif-tools.json').read_text())['z3']
+    sys.path.insert(0,re.search(r'[A-Za-z]:[/\\]\S+',info['install'])[0])
+    import z3
+    if z3.get_version_string()!=info['version']:raise RuntimeError('Z3 version differs from manifest')
+    return z3,dict(info,actual_version=z3.get_version_string(),
+                   manifest_sha256=hashlib.sha256((ROOT/'metadata/verif-tools.json').read_bytes()).hexdigest())
 
 OBLIGATIONS={
 'cursor_wrap':r'''
@@ -82,9 +74,9 @@ def main():
     for name,body in OBLIGATIONS.items():
         script='(set-option :timeout 30000)\n'+body+'\n(check-sat)\n'
         (OUT/f'{name}.smt2').write_text(script)
-        config=z.Z3_mk_config();context=z.Z3_mk_context(config);z.Z3_del_config(config)
-        start=time.perf_counter();result=z.Z3_eval_smtlib2_string(context,script.encode()).decode().strip()
-        elapsed=time.perf_counter()-start;z.Z3_del_context(context)
+        query=z.Solver();query.set(timeout=30000);query.from_string(body)
+        start=time.perf_counter();result=str(query.check())
+        elapsed=time.perf_counter()-start
         rows.append(dict(property=name,result=result,seconds=elapsed))
         if result!='unsat':raise AssertionError(rows[-1])
     result=dict(tool=info,properties=rows,scope='all inputs of the explicit SMT models; C correspondence requires review plus ice_primitives.c')

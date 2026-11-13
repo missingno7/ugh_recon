@@ -12531,40 +12531,40 @@
       ]
     },
     "013B:25B1/GAME/loc_25B1": {
-      "name": "BeginDinosaurPatrol",
+      "name": "BeginTriopterusPatrol",
       "kind": "code",
       "address": "013B:25B1",
-      "evidence": "Initialize the ground dinosaur's patrol animation.",
+      "evidence": "Initialize the ground Triopterus's patrol animation.",
       "spellings": [
         {
           "module": "GAME",
-          "name": "BeginDinosaurPatrol",
+          "name": "BeginTriopterusPatrol",
           "decorated": false,
           "public": true
         },
         {
           "module": "DGDATA",
-          "name": "BeginDinosaurPatrol",
+          "name": "BeginTriopterusPatrol",
           "decorated": false,
           "public": true
         }
       ]
     },
     "013B:25C9/GAME/loc_25C9": {
-      "name": "UpdateDinosaurPatrol",
+      "name": "UpdateTriopterusPatrol",
       "kind": "code",
       "address": "013B:25C9",
       "evidence": "Patrol within the assigned platform and notice players or thrown stones.",
       "spellings": [
         {
           "module": "GAME",
-          "name": "UpdateDinosaurPatrol",
+          "name": "UpdateTriopterusPatrol",
           "decorated": false,
           "public": true
         },
         {
           "module": "DGDATA",
-          "name": "UpdateDinosaurPatrol",
+          "name": "UpdateTriopterusPatrol",
           "decorated": false,
           "public": true
         }
@@ -12675,40 +12675,40 @@
       ]
     },
     "013B:2667/GAME/loc_2667": {
-      "name": "BeginDinosaurAlert",
+      "name": "BeginTriopterusAlert",
       "kind": "code",
       "address": "013B:2667",
-      "evidence": "Start the dinosaur's 140-update alert state.",
+      "evidence": "Start the Triopterus's 140-update alert state.",
       "spellings": [
         {
           "module": "GAME",
-          "name": "BeginDinosaurAlert",
+          "name": "BeginTriopterusAlert",
           "decorated": false,
           "public": true
         },
         {
           "module": "DGDATA",
-          "name": "BeginDinosaurAlert",
+          "name": "BeginTriopterusAlert",
           "decorated": false,
           "public": true
         }
       ]
     },
     "013B:2681/GAME/loc_2681": {
-      "name": "UpdateDinosaurAlert",
+      "name": "UpdateTriopterusAlert",
       "kind": "code",
       "address": "013B:2681",
-      "evidence": "Animate the alert dinosaur and face a player on its platform.",
+      "evidence": "Animate the alert Triopterus and face a player on its platform.",
       "spellings": [
         {
           "module": "GAME",
-          "name": "UpdateDinosaurAlert",
+          "name": "UpdateTriopterusAlert",
           "decorated": false,
           "public": true
         },
         {
           "module": "DGDATA",
-          "name": "UpdateDinosaurAlert",
+          "name": "UpdateTriopterusAlert",
           "decorated": false,
           "public": true
         }
@@ -12832,40 +12832,40 @@
       ]
     },
     "013B:272E/GAME/loc_272E": {
-      "name": "BeginDinosaurCharge",
+      "name": "BeginTriopterusCharge",
       "kind": "code",
       "address": "013B:272E",
-      "evidence": "Initialize the dinosaur charge animation and acceleration.",
+      "evidence": "Initialize the Triopterus charge animation and acceleration.",
       "spellings": [
         {
           "module": "GAME",
-          "name": "BeginDinosaurCharge",
+          "name": "BeginTriopterusCharge",
           "decorated": false,
           "public": true
         },
         {
           "module": "DGDATA",
-          "name": "BeginDinosaurCharge",
+          "name": "BeginTriopterusCharge",
           "decorated": false,
           "public": true
         }
       ]
     },
     "013B:2748/GAME/loc_2748": {
-      "name": "UpdateDinosaurCharge",
+      "name": "UpdateTriopterusCharge",
       "kind": "code",
       "address": "013B:2748",
       "evidence": "Charge toward a same-platform player and transfer impact motion on contact.",
       "spellings": [
         {
           "module": "GAME",
-          "name": "UpdateDinosaurCharge",
+          "name": "UpdateTriopterusCharge",
           "decorated": false,
           "public": true
         },
         {
           "module": "DGDATA",
-          "name": "UpdateDinosaurCharge",
+          "name": "UpdateTriopterusCharge",
           "decorated": false,
           "public": true
         }
@@ -12989,40 +12989,40 @@
       ]
     },
     "013B:2830/GAME/loc_2830": {
-      "name": "BeginDinosaurRecovery",
+      "name": "BeginTriopterusRecovery",
       "kind": "code",
       "address": "013B:2830",
-      "evidence": "Start the dinosaur recovery animation after losing its platform target.",
+      "evidence": "Start the Triopterus recovery animation after losing its platform target.",
       "spellings": [
         {
           "module": "GAME",
-          "name": "BeginDinosaurRecovery",
+          "name": "BeginTriopterusRecovery",
           "decorated": false,
           "public": true
         },
         {
           "module": "DGDATA",
-          "name": "BeginDinosaurRecovery",
+          "name": "BeginTriopterusRecovery",
           "decorated": false,
           "public": true
         }
       ]
     },
     "013B:2844/GAME/loc_2844": {
-      "name": "AnimateDinosaurRecovery",
+      "name": "AnimateTriopterusRecovery",
       "kind": "code",
       "address": "013B:2844",
-      "evidence": "Play the dinosaur's finite directional recovery sequence.",
+      "evidence": "Play the Triopterus's finite directional recovery sequence.",
       "spellings": [
         {
           "module": "GAME",
-          "name": "AnimateDinosaurRecovery",
+          "name": "AnimateTriopterusRecovery",
           "decorated": false,
           "public": true
         },
         {
           "module": "DGDATA",
-          "name": "AnimateDinosaurRecovery",
+          "name": "AnimateTriopterusRecovery",
           "decorated": false,
           "public": true
         }
@@ -13068,40 +13068,40 @@
       ]
     },
     "013B:288F/GAME/loc_288F": {
-      "name": "BeginDinosaurImpactRecovery",
+      "name": "BeginTriopterusImpactRecovery",
       "kind": "code",
       "address": "013B:288F",
-      "evidence": "Start the dinosaur recovery sequence following a player impact.",
+      "evidence": "Start the Triopterus recovery sequence following a player impact.",
       "spellings": [
         {
           "module": "GAME",
-          "name": "BeginDinosaurImpactRecovery",
+          "name": "BeginTriopterusImpactRecovery",
           "decorated": false,
           "public": true
         },
         {
           "module": "DGDATA",
-          "name": "BeginDinosaurImpactRecovery",
+          "name": "BeginTriopterusImpactRecovery",
           "decorated": false,
           "public": true
         }
       ]
     },
     "013B:28A3/GAME/loc_28A3": {
-      "name": "AnimateDinosaurImpactRecovery",
+      "name": "AnimateTriopterusImpactRecovery",
       "kind": "code",
       "address": "013B:28A3",
-      "evidence": "Play the alternate directional dinosaur recovery sequence.",
+      "evidence": "Play the alternate directional Triopterus recovery sequence.",
       "spellings": [
         {
           "module": "GAME",
-          "name": "AnimateDinosaurImpactRecovery",
+          "name": "AnimateTriopterusImpactRecovery",
           "decorated": false,
           "public": true
         },
         {
           "module": "DGDATA",
-          "name": "AnimateDinosaurImpactRecovery",
+          "name": "AnimateTriopterusImpactRecovery",
           "decorated": false,
           "public": true
         }
@@ -13147,40 +13147,40 @@
       ]
     },
     "013B:28EE/GAME/loc_28EE": {
-      "name": "StunDinosaurAndAwardScore",
+      "name": "StunTriopterusAndAwardScore",
       "kind": "code",
       "address": "013B:28EE",
-      "evidence": "Award dinosaur hit points and start its 350-update stun animation.",
+      "evidence": "Award Triopterus hit points and start its 350-update stun animation.",
       "spellings": [
         {
           "module": "GAME",
-          "name": "StunDinosaurAndAwardScore",
+          "name": "StunTriopterusAndAwardScore",
           "decorated": false,
           "public": true
         },
         {
           "module": "DGDATA",
-          "name": "StunDinosaurAndAwardScore",
+          "name": "StunTriopterusAndAwardScore",
           "decorated": false,
           "public": true
         }
       ]
     },
     "013B:2914/GAME/loc_2914": {
-      "name": "UpdateStunnedDinosaur",
+      "name": "UpdateStunnedTriopterus",
       "kind": "code",
       "address": "013B:2914",
-      "evidence": "Loop the directional stunned dinosaur sequence until recovery.",
+      "evidence": "Loop the directional stunned Triopterus sequence until recovery.",
       "spellings": [
         {
           "module": "GAME",
-          "name": "UpdateStunnedDinosaur",
+          "name": "UpdateStunnedTriopterus",
           "decorated": false,
           "public": true
         },
         {
           "module": "DGDATA",
-          "name": "UpdateStunnedDinosaur",
+          "name": "UpdateStunnedTriopterus",
           "decorated": false,
           "public": true
         }
@@ -13239,40 +13239,40 @@
       ]
     },
     "013B:295B/GAME/loc_295B": {
-      "name": "loc_295B",
+      "name": "InitializeDinoAnimation",
       "kind": "code",
       "address": "013B:295B",
-      "evidence": "Address and declaration in src/asm/GAME.ASM.",
+      "evidence": "Initialize Dino's stationary force animation (descriptor 76A8).",
       "spellings": [
         {
           "module": "GAME",
-          "name": "loc_295B",
+          "name": "InitializeDinoAnimation",
           "decorated": false,
           "public": true
         },
         {
           "module": "DGDATA",
-          "name": "loc_295B",
+          "name": "InitializeDinoAnimation",
           "decorated": false,
           "public": true
         }
       ]
     },
     "013B:2973/GAME/loc_2973": {
-      "name": "loc_2973",
+      "name": "UpdateDinoForce",
       "kind": "code",
       "address": "013B:2973",
-      "evidence": "Address and declaration in src/asm/GAME.ASM.",
+      "evidence": "Animate Dino and push nearby players horizontally.",
       "spellings": [
         {
           "module": "GAME",
-          "name": "loc_2973",
+          "name": "UpdateDinoForce",
           "decorated": false,
           "public": true
         },
         {
           "module": "DGDATA",
-          "name": "loc_2973",
+          "name": "UpdateDinoForce",
           "decorated": false,
           "public": true
         }
@@ -13435,40 +13435,40 @@
       ]
     },
     "013B:2A53/GAME/loc_2A53": {
-      "name": "loc_2A53",
+      "name": "StunDinoAndAwardScore",
       "kind": "code",
       "address": "013B:2A53",
-      "evidence": "Address and declaration in src/asm/GAME.ASM.",
+      "evidence": "Award Dino's hit score and select its 350-update stun state.",
       "spellings": [
         {
           "module": "GAME",
-          "name": "loc_2A53",
+          "name": "StunDinoAndAwardScore",
           "decorated": false,
           "public": true
         },
         {
           "module": "DGDATA",
-          "name": "loc_2A53",
+          "name": "StunDinoAndAwardScore",
           "decorated": false,
           "public": true
         }
       ]
     },
     "013B:2A76/GAME/loc_2A76": {
-      "name": "loc_2A76",
+      "name": "UpdateStunnedDino",
       "kind": "code",
       "address": "013B:2A76",
-      "evidence": "Address and declaration in src/asm/GAME.ASM.",
+      "evidence": "Count down Dino's stun timer.",
       "spellings": [
         {
           "module": "GAME",
-          "name": "loc_2A76",
+          "name": "UpdateStunnedDino",
           "decorated": false,
           "public": true
         },
         {
           "module": "DGDATA",
-          "name": "loc_2A76",
+          "name": "UpdateStunnedDino",
           "decorated": false,
           "public": true
         }

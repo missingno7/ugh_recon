@@ -346,8 +346,8 @@ static int enemy_tick(Regs *r,uint16_t period) {
 
 /* Moves only every fourth update; contact with a player is a platform equality
  * scan before the thrown-stone collision. Reversal doesn't clip position. */
-/* TRANSLATES GAME:UpdateDinosaurPatrol */
-EXPORT int c_UpdateDinosaurPatrol(Regs *r) {
+/* TRANSLATES GAME:UpdateTriopterusPatrol */
+EXPORT int c_UpdateTriopterusPatrol(Regs *r) {
     r->si=A(EnemyDescriptors);
     uint16_t count=dec16(r,A(EnemyAnimationCountdowns)); B(EnemyAnimationCountdowns,count);
     if(!count) {
@@ -359,16 +359,16 @@ EXPORT int c_UpdateDinosaurPatrol(Regs *r) {
         int status=frame(r,1,0x22,1); if(status) return status;
     }
     int found=enemy_player(r); if(found<0) return UGH_BUDGET; if(found) return tail(r,0x0c);
-    return enemy_stone(r,(uint16_t)(G(UpdateDinosaurPatrol)+0x8b),1);
+    return enemy_stone(r,(uint16_t)(G(UpdateTriopterusPatrol)+0x8b),1);
 }
 
 /* Alert timer is equality-only; five-tick animation and collision precede
  * platform loss. Facing compares signed wrapped x32 words. */
-/* TRANSLATES GAME:UpdateDinosaurAlert */
-EXPORT int c_UpdateDinosaurAlert(Regs *r) {
+/* TRANSLATES GAME:UpdateTriopterusAlert */
+EXPORT int c_UpdateTriopterusAlert(Regs *r) {
     r->si=A(EnemyDescriptors); uint16_t count=dec16(r,A(EnemyStateCounters)); B(EnemyStateCounters,count); if(!count) return tail(r,0x10);
     if(enemy_tick(r,5)) { int status=frame(r,1,0x2e,1); if(status) return status; }
-    int status=ugh_call_near(G(FindThrownStoneHittingEnemy),(uint16_t)(G(UpdateDinosaurAlert)+0x49),r); if(status) return status;
+    int status=ugh_call_near(G(FindThrownStoneHittingEnemy),(uint16_t)(G(UpdateTriopterusAlert)+0x49),r); if(status) return status;
     if(!(r->flags&SF)) { W(ds_2C6D,r->di,sub16(r,0,R(ds_2C6D,r->di),0)); W(ActorSpriteIds,r->di,0x222); return tail(r,0x1c); }
     int found=enemy_player(r); if(found<0) return UGH_BUDGET; if(!found) return tail(r,8);
     face_player(r); return UGH_OK;
@@ -376,15 +376,15 @@ EXPORT int c_UpdateDinosaurAlert(Regs *r) {
 
 /* Charge acceleration uses direction-1 plus counter, then speed and position.
  * Impact uses SHL5 horizontal and SHL4 vertical, preserving their word wraps. */
-/* TRANSLATES GAME:UpdateDinosaurCharge */
-EXPORT int c_UpdateDinosaurCharge(Regs *r) {
+/* TRANSLATES GAME:UpdateTriopterusCharge */
+EXPORT int c_UpdateTriopterusCharge(Regs *r) {
     r->si=A(EnemyDescriptors); if(enemy_tick(r,4)) { int status=frame(r,1,0x26,1); if(status) return status; }
-    int status=ugh_call_near(G(FindThrownStoneHittingEnemy),(uint16_t)(G(UpdateDinosaurCharge)+0x3d),r); if(status) return status;
+    int status=ugh_call_near(G(FindThrownStoneHittingEnemy),(uint16_t)(G(UpdateTriopterusCharge)+0x3d),r); if(status) return status;
     if(!(r->flags&SF)) { W(ds_2C6D,r->di,sub16(r,0,R(ds_2C6D,r->di),0)); W(ActorSpriteIds,r->di,0x222); return tail(r,0x1c); }
     int found=enemy_player(r); if(found<0) return UGH_BUDGET; if(!found) return tail(r,0x14);
     face_player(r); r->ax=dec16(r,A(EnemyDirectionOrTargetPlayer)); r->ax=add16(r,r->ax,A(EnemyStateCounters),0); B(EnemyStateCounters,r->ax);
     r->ax=add16(r,r->ax,A(EnemyHorizontalSpeeds),0); r->ax=add16(r,r->ax,A(EnemyX32),0); B(EnemyX32,r->ax);
-    status=ugh_call_near(G(FindPlayerTouchingEnemy),(uint16_t)(G(UpdateDinosaurCharge)+0xbc),r); if(status) return status; if(r->flags&SF) return UGH_OK;
+    status=ugh_call_near(G(FindPlayerTouchingEnemy),(uint16_t)(G(UpdateTriopterusCharge)+0xbc),r); if(status) return status; if(r->flags&SF) return UGH_OK;
     W(PlayerY32,r->di,sub16(r,R(PlayerY32,r->di),32,0)); r->ax=add16(r,A(EnemyHorizontalSpeeds),A(EnemyStateCounters),0);
     push(r,r->ax); r->ax=shift(r,r->ax,5,0); W(PlayerHorizontalVelocities,r->di,r->ax); r->ax=pop(r);
     r->ax=shift(r,r->ax,4,0); W(PlayerVerticalVelocities,r->di,r->ax); W(PlayerPlatformIndices,r->di,0xffff); return tail(r,0x18);
@@ -399,12 +399,12 @@ static int recover(Regs *r,int impact) {
         if(r->flags&ZF) return tail(r,8);
         B(EnemySpriteIds,r->ax);
     }
-    return enemy_stone(r,(uint16_t)(impact?G(AnimateDinosaurImpactRecovery)+0x38:G(AnimateDinosaurRecovery)+0x38),1);
+    return enemy_stone(r,(uint16_t)(impact?G(AnimateTriopterusImpactRecovery)+0x38:G(AnimateTriopterusRecovery)+0x38),1);
 }
-/* TRANSLATES GAME:AnimateDinosaurRecovery */
-EXPORT int c_AnimateDinosaurRecovery(Regs *r) { return recover(r,0); }
-/* TRANSLATES GAME:AnimateDinosaurImpactRecovery */
-EXPORT int c_AnimateDinosaurImpactRecovery(Regs *r) { return recover(r,1); }
+/* TRANSLATES GAME:AnimateTriopterusRecovery */
+EXPORT int c_AnimateTriopterusRecovery(Regs *r) { return recover(r,0); }
+/* TRANSLATES GAME:AnimateTriopterusImpactRecovery */
+EXPORT int c_AnimateTriopterusImpactRecovery(Regs *r) { return recover(r,1); }
 
 /* Bird contact happens only on animation expiry. Stop sound calls a package
  * routine left absent here because its C sound dependency is unavailable. */
@@ -438,13 +438,13 @@ EXPORT int c_UpdateBirdFlight(Regs *r) {
 
 /* Stationary hazard: scan retries on equality to PlayerCount, not array bytes.
  * Sound occurs only when a tick increments the animation offset to six. */
-/* TRANSLATES GAME:loc_2973 */
-EXPORT int c_loc_2973(Regs *r) {
+/* TRANSLATES GAME:UpdateDinoForce */
+EXPORT int c_UpdateDinoForce(Regs *r) {
     r->si=A(EnemyDescriptors);
     if(enemy_tick(r,15)) {
         sub16(r,A(EnemyAnimationByteOffsets),6,0);
         if(r->flags&ZF) {
-            push(r,r->bx); push(r,r->si); int status=effect(r,UGH_S_B3265_ext_3265,UGH_O_B3265_ext_3265,(uint16_t)(G(loc_2973)+0x34));
+            push(r,r->bx); push(r,r->si); int status=effect(r,UGH_S_B3265_ext_3265,UGH_O_B3265_ext_3265,(uint16_t)(G(UpdateDinoForce)+0x34));
             if(status) return status;
             r->si=pop(r); r->bx=pop(r);
         }
@@ -460,7 +460,7 @@ EXPORT int c_loc_2973(Regs *r) {
 next:   r->di=add16(r,r->di,2,0); sub16(r,r->di,R(PlayerCount,0),0); if(!(r->flags&ZF)) break;
         if(budget==32767) return UGH_BUDGET;
     }
-    return enemy_stone(r,(uint16_t)(G(loc_2973)+0xd3),0);
+    return enemy_stone(r,(uint16_t)(G(UpdateDinoForce)+0xd3),0);
 }
 
 /* Tree contacts only every sixth update; NEG then SAR rounds odd descending

@@ -91,9 +91,9 @@ def case(name,title,updates=(),*,actor='Data_7720',enemy='Data_766C',controlled=
         if name not in ('DispatchEnemyStates','IgnoreActorState','IgnoreWaterbornePassengerState'):
             values['BX']=ACTOR if actor_state else ENEMY
         if name in ('BoardPassenger','AttachStoneToPlayer'): values['DI']=2
-        if name in ('StunBirdAndAwardScore','StunDinosaurAndAwardScore','loc_2A53',
-                    'BeginDinosaurAlert','BeginDinosaurCharge','BeginDinosaurRecovery',
-                    'BeginDinosaurImpactRecovery','FindPlayerTouchingActor',
+        if name in ('StunBirdAndAwardScore','StunTriopterusAndAwardScore','StunDinoAndAwardScore',
+                    'BeginTriopterusAlert','BeginTriopterusCharge','BeginTriopterusRecovery',
+                    'BeginTriopterusImpactRecovery','FindPlayerTouchingActor',
                     'FindPlayerTouchingEnemy','FindPlayerTouchingFallingItem'):
             values['SI']=((CONTROL if actor_state else CONTROL+0x80) if controlled
                           else m.off('DGROUP:'+(actor if actor_state else enemy)))
@@ -121,9 +121,9 @@ for n in actor_initializers:
 for dest in (0,5,6,0x7fff,0x8000,0xfef3,0xfef4,0xffff):
     case('BeginPassengerDestinationDisplay',f'destination wrapping/cap {dest:04x}',
          [('ActorDestinationPlatforms',dest,ACTOR)])
-for n in ('BeginBirdDelay','BeginDinosaurPatrol','BeginDinosaurAlert','BeginDinosaurCharge',
-          'BeginDinosaurRecovery','BeginDinosaurImpactRecovery','StunBirdAndAwardScore',
-          'StunDinosaurAndAwardScore','loc_295B','loc_2A53','InitializeFruitTreeAnimation'):
+for n in ('BeginBirdDelay','BeginTriopterusPatrol','BeginTriopterusAlert','BeginTriopterusCharge',
+          'BeginTriopterusRecovery','BeginTriopterusImpactRecovery','StunBirdAndAwardScore',
+          'StunTriopterusAndAwardScore','InitializeDinoAnimation','StunDinoAndAwardScore','InitializeFruitTreeAnimation'):
     for alt in (False,True):
         enemy='Data_7630' if 'Bird' in n else 'Data_76A8' if n.startswith('loc_') else 'Data_76E4' if 'Fruit' in n else 'Data_766C'
         case(n,n+(' negative/overflow' if alt else ' built'),
@@ -263,7 +263,7 @@ for mode in ('sentinel','wrong descriptor','wrong state','ascending','below','ab
         if mode in ('left','right'): m.ww('DGROUP:ActorX32',1000 if mode=='left' else 5000,i)
     case('FindThrownStoneHittingEnemy','stone enemy contact '+mode,actor_state=False,setup=stones)
 
-for n in ('WaitForBirdFlight','WaitForBirdWarning','loc_2A76'):
+for n in ('WaitForBirdFlight','WaitForBirdWarning','UpdateStunnedDino'):
     for timer in (0,1,2,0x8000,0xffff):
         case(n,f'{n} equality timer {timer:04x}',[('EnemyStateCounters',timer,ENEMY)],
              actor_state=False,controlled=True)
@@ -276,7 +276,7 @@ for x,y,v,ticks in ((0xfc00,1000,0,0),(0xfc01,1000,0,0),(0x27ff,1000,0,0),
           ('EnemyStateCounters',ticks,ENEMY)],actor_state=False,enemy='Data_7630')
 for timer,ticks,offset,direction in ((0,1,0,0),(1,1,0,0),(2,0,0,0),
                                     (2,2,0,2),(2,1,0xfffe,0),(2,1,2,2)):
-    case('UpdateStunnedDinosaur',f'stunned dinosaur {timer}/{ticks}/{offset}/{direction}',
+    case('UpdateStunnedTriopterus',f'stunned dinosaur {timer}/{ticks}/{offset}/{direction}',
          [('EnemyStateCounters',timer,ENEMY),('EnemyAnimationCountdowns',ticks,ENEMY),
           ('EnemyAnimationByteOffsets',offset,ENEMY),('EnemyDirectionOrTargetPlayer',direction,ENEMY)],
          actor_state=False,controlled=True)
@@ -285,7 +285,7 @@ for count in (0,1,4):
     def enemies(m,count=count):
         for i in range(count):
             m.ww('DGROUP:EnemyDescriptors',m.off('DGROUP:Data_766C'),2*i)
-            m.ww('DGROUP:EnemyStateCallbacks',m.off('GAME:BeginDinosaurPatrol') if i%2 else m.off('GAME:IgnoreActorState'),2*i)
+            m.ww('DGROUP:EnemyStateCallbacks',m.off('GAME:BeginTriopterusPatrol') if i%2 else m.off('GAME:IgnoreActorState'),2*i)
         m.ww('DGROUP:EnemyDescriptors',0xffff,2*count)
     case('DispatchEnemyStates',f'enemy dispatch count={count}',actor_state=False,setup=enemies)
 
@@ -315,7 +315,7 @@ for tick,off in ((0,4),(1,0xfffe),(1,2),(2,4)):
 case('UpdateFloatingPassengerApproach','floating approach left sequence reset',
      [('ActorAnimationCountdowns',2,ACTOR),('ActorAnimationByteOffsets',4,ACTOR),
       ('PlayerPixelX',80,0)],actor='Data_776A',controlled=True)
-for n in ('StunBirdAndAwardScore','StunDinosaurAndAwardScore','loc_2A53'):
+for n in ('StunBirdAndAwardScore','StunTriopterusAndAwardScore','StunDinoAndAwardScore'):
     for low,high,points in ((0,0,0),(0xffff,0,1),(0xffff,0xffff,0xffff),(0x7fff,0x7fff,1)):
         def score_fields(m,low=low,high=high,points=points):
             m.ww('DGROUP:ScoreLowWord',low); m.ww('DGROUP:ScoreHighWord',high)
@@ -354,9 +354,9 @@ case('UpdateFloatingPassengerApproach','floating real vehicle search fails',
 
 # Fully MOV-only entry paths preserve arithmetic flags as well as IF/DF.
 preserving=set(actor_initializers)-{'PlacePassengerOnPlatform','BeginPassengerDestinationDisplay'}
-preserving.update(('BeginBirdDelay','BeginDinosaurPatrol','BeginDinosaurAlert',
-                  'BeginDinosaurCharge','BeginDinosaurRecovery','BeginDinosaurImpactRecovery',
-                  'loc_295B'))
+preserving.update(('BeginBirdDelay','BeginTriopterusPatrol','BeginTriopterusAlert',
+                  'BeginTriopterusCharge','BeginTriopterusRecovery','BeginTriopterusImpactRecovery',
+                  'InitializeDinoAnimation'))
 for c in CASES:
     if c.routine.split(':')[1] in preserving: c.out_regs=OUTPUT+('AF','OF')
 
@@ -406,10 +406,10 @@ boundary('UpdateFloatingPassengerApproach','native waterborne boarding edge',0x2
          'BoardWaterbornePassenger',[('PlayerPixelX',92,0)],actor='Data_776A')
 for target,descriptor in (
         ('BeginBirdWarning','Data_7630'),('LaunchBirdTowardPlayer','Data_7630'),
-        ('UpdateBirdFlight','Data_7630'),('UpdateDinosaurPatrol','Data_766C'),
-        ('UpdateDinosaurAlert','Data_766C'),('UpdateDinosaurCharge','Data_766C'),
-        ('AnimateDinosaurRecovery','Data_766C'),('AnimateDinosaurImpactRecovery','Data_766C'),
-        ('loc_2973','Data_76A8'),('UpdateFruitTreeAnimation','Data_76E4'),
+        ('UpdateBirdFlight','Data_7630'),('UpdateTriopterusPatrol','Data_766C'),
+        ('UpdateTriopterusAlert','Data_766C'),('UpdateTriopterusCharge','Data_766C'),
+        ('AnimateTriopterusRecovery','Data_766C'),('AnimateTriopterusImpactRecovery','Data_766C'),
+        ('UpdateDinoForce','Data_76A8'),('UpdateFruitTreeAnimation','Data_76E4'),
         ('ReleaseTreeReward','Data_76E4'),('AdvanceTreeRewardCooldown','Data_76E4'),
         ('IgnoreExhaustedTree','Data_76E4')):
     def native_enemy(m,target=target,descriptor=descriptor):

@@ -22,22 +22,22 @@ extrn LaunchBirdTowardPlayer:near
 extrn UpdateBirdFlight:near
 extrn StunBirdAndAwardScore:near
 extrn UpdateStunnedBird:near
-extrn BeginDinosaurPatrol:near
-extrn UpdateDinosaurPatrol:near
-extrn BeginDinosaurAlert:near
-extrn UpdateDinosaurAlert:near
-extrn BeginDinosaurCharge:near
-extrn UpdateDinosaurCharge:near
-extrn BeginDinosaurRecovery:near
-extrn AnimateDinosaurRecovery:near
-extrn BeginDinosaurImpactRecovery:near
-extrn AnimateDinosaurImpactRecovery:near
-extrn StunDinosaurAndAwardScore:near
-extrn UpdateStunnedDinosaur:near
-extrn loc_295B:near
-extrn loc_2973:near
-extrn loc_2A53:near
-extrn loc_2A76:near
+extrn BeginTriopterusPatrol:near
+extrn UpdateTriopterusPatrol:near
+extrn BeginTriopterusAlert:near
+extrn UpdateTriopterusAlert:near
+extrn BeginTriopterusCharge:near
+extrn UpdateTriopterusCharge:near
+extrn BeginTriopterusRecovery:near
+extrn AnimateTriopterusRecovery:near
+extrn BeginTriopterusImpactRecovery:near
+extrn AnimateTriopterusImpactRecovery:near
+extrn StunTriopterusAndAwardScore:near
+extrn UpdateStunnedTriopterus:near
+extrn InitializeDinoAnimation:near
+extrn UpdateDinoForce:near
+extrn StunDinoAndAwardScore:near
+extrn UpdateStunnedDino:near
 extrn InitializeFruitTreeAnimation:near
 extrn UpdateFruitTreeAnimation:near
 extrn ReleaseTreeReward:near
@@ -25925,29 +25925,29 @@ Data_7630 label word ; @7630
 Data_766C label word ; @766C
     dw 010h, 016h, 08h, 08h
 ; GAME callback slot 0
-    dw offset BeginDinosaurPatrol
+    dw offset BeginTriopterusPatrol
 ; GAME callback slot 1
-    dw offset UpdateDinosaurPatrol
+    dw offset UpdateTriopterusPatrol
 ; GAME callback slot 2
-    dw offset BeginDinosaurAlert
+    dw offset BeginTriopterusAlert
 ; GAME callback slot 3
-    dw offset UpdateDinosaurAlert
+    dw offset UpdateTriopterusAlert
 ; GAME callback slot 4
-    dw offset BeginDinosaurCharge
+    dw offset BeginTriopterusCharge
 ; GAME callback slot 5
-    dw offset UpdateDinosaurCharge
+    dw offset UpdateTriopterusCharge
 ; GAME callback slot 6
-    dw offset BeginDinosaurRecovery
+    dw offset BeginTriopterusRecovery
 ; GAME callback slot 7
-    dw offset AnimateDinosaurRecovery
+    dw offset AnimateTriopterusRecovery
 ; GAME callback slot 8
-    dw offset BeginDinosaurImpactRecovery
+    dw offset BeginTriopterusImpactRecovery
 ; GAME callback slot 9
-    dw offset AnimateDinosaurImpactRecovery
+    dw offset AnimateTriopterusImpactRecovery
 ; GAME callback slot 10
-    dw offset StunDinosaurAndAwardScore
+    dw offset StunTriopterusAndAwardScore
 ; GAME callback slot 11
-    dw offset UpdateStunnedDinosaur
+    dw offset UpdateStunnedTriopterus
 ; GAME callback slot 12
     dw offset IgnoreActorState
 ; Animation-vector near pointer; zero slots retained
@@ -25990,9 +25990,9 @@ Data_76A8 label word ; @76A8
 ; GAME callback slot 3
     dw offset IgnoreActorState
 ; GAME callback slot 4
-    dw offset loc_295B
+    dw offset InitializeDinoAnimation
 ; GAME callback slot 5
-    dw offset loc_2973
+    dw offset UpdateDinoForce
 ; GAME callback slot 6; null
     dw 00h
 ; GAME callback slot 7; null
@@ -26002,9 +26002,9 @@ Data_76A8 label word ; @76A8
 ; GAME callback slot 9; null
     dw 00h
 ; GAME callback slot 10
-    dw offset loc_2A53
+    dw offset StunDinoAndAwardScore
 ; GAME callback slot 11
-    dw offset loc_2A76
+    dw offset UpdateStunnedDino
 ; GAME callback slot 12
     dw offset IgnoreActorState
 ; Animation-vector near pointer; zero slots retained

@@ -1,0 +1,1177 @@
+{
+  "schema": 1,
+  "authority": "Static semantic evidence only; DOS is authoritative for DOS behaviour.",
+  "binary": {
+    "path": "t",
+    "size": 158228,
+    "sha256": "6826d1f7438e856367d2f78a6b546189517d1255e0f0ca526949d14e214355e7",
+    "disk_sha256": "d2418ca9a3ebceab358dd2c46f0d4df8d0992540c2f91b39a2a28cbfde2ec9fc"
+  },
+  "coordinates": "Amiga hunk index:hex byte offset, synthetic bases in build/amiga/t.hunks.json; DOS frame:hex offset.",
+  "classifications": [
+    "confirmed equivalent semantics",
+    "equivalent under stated assumptions",
+    "similar purpose with different implementation",
+    "confirmed behavioural difference",
+    "unresolved"
+  ],
+  "method": "Shared level order/title/placement anchors, descriptor consumers, DOS graph.py and ASM contracts; no execution.",
+  "entries": [
+    {
+      "id": "tile-map-assets",
+      "kind": "table",
+      "amiga": {
+        "binary": "t",
+        "address": "h1:00032"
+      },
+      "dos": [
+        {
+          "address": "1A38:0000",
+          "name": "ext_1A38"
+        }
+      ],
+      "classification": "confirmed equivalent semantics",
+      "evidence": "Raster is loaded at this buffer; 98 of its 100 decoded 20x16 maps equal DOS ICE output byte-for-byte, including every map referenced by both play orders."
+    },
+    {
+      "id": "attract-map-assets",
+      "kind": "table",
+      "amiga": {
+        "binary": "t",
+        "address": "h1:00032"
+      },
+      "dos": [
+        {
+          "address": "1A38:0000",
+          "name": "ext_1A38"
+        }
+      ],
+      "classification": "confirmed behavioural difference",
+      "evidence": "The same Raster comparison isolates all 78 unequal tile IDs to attract map 0 (18) and map 90 (60); no gameplay-map tile differs."
+    },
+    {
+      "id": "level-order-1p",
+      "kind": "table",
+      "amiga": {
+        "binary": "t",
+        "address": "h8:0b330"
+      },
+      "dos": [
+        {
+          "address": "5C09:3349",
+          "name": "Data_3349"
+        }
+      ],
+      "classification": "confirmed equivalent semantics",
+      "evidence": "All 69 entries select the same map IDs in the same order; amiga.py decodes both pointer tables independently."
+    },
+    {
+      "id": "level-order-2p",
+      "kind": "table",
+      "amiga": {
+        "binary": "t",
+        "address": "h8:0b446"
+      },
+      "dos": [
+        {
+          "address": "5C09:33D5",
+          "name": "Data_33D5"
+        }
+      ],
+      "classification": "confirmed equivalent semantics",
+      "evidence": "All 81 entries select the same map IDs in the same order; one title differs only in hyphenation."
+    },
+    {
+      "id": "level-records",
+      "kind": "table",
+      "amiga": {
+        "binary": "t",
+        "address": "h8:0b58c"
+      },
+      "dos": [
+        {
+          "address": "5C09:3479",
+          "name": "Data_3479"
+        }
+      ],
+      "classification": "equivalent under stated assumptions",
+      "evidence": "81 records: map, initial completion count, weather, four start coordinates, water and water increment agree; Amiga has 38 bytes, DOS 26.",
+      "assumptions": [
+        "Map absolute pointers to near offsets; ignore Amiga mutable completion word, retain DOS Y scaling; no runtime equivalence claim."
+      ]
+    },
+    {
+      "id": "platform-lists",
+      "kind": "table",
+      "amiga": {
+        "binary": "t",
+        "address": "h8:0c1ba"
+      },
+      "dos": [
+        {
+          "address": "5C09:3CC7",
+          "name": "Data_3CC7"
+        }
+      ],
+      "classification": "equivalent under stated assumptions",
+      "evidence": "Every ordered platform list has identical first eight u16 fields; Amiga stride 18 includes a second zero word for a long occupant pointer.",
+      "assumptions": [
+        "Pointer-to-index translation; compare stored level coordinates before DOS y-(y>>2)."
+      ]
+    },
+    {
+      "id": "level-load",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:0728a"
+      },
+      "dos": [
+        {
+          "address": "013B:3976",
+          "name": "LoadCurrentLevelState"
+        },
+        {
+          "address": "013B:3A67",
+          "name": null
+        },
+        {
+          "address": "013B:3AA9",
+          "name": "loc_3AA9"
+        },
+        {
+          "address": "013B:3B1B",
+          "name": "loc_3B1B"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Reads order-selected level record, copies tile map, platform/actor/enemy lists, initializes players and water; DOS performs the corresponding setup in parallel arrays."
+    },
+    {
+      "id": "platform-copy",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:06f76"
+      },
+      "dos": [
+        {
+          "address": "013B:3A67",
+          "name": null
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Amiga copies nine words per platform through FFFF; DOS reads eight, scales Y and initializes indexed arrays."
+    },
+    {
+      "id": "actor-placement",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:06ee2"
+      },
+      "dos": [
+        {
+          "address": "013B:3AA9",
+          "name": "loc_3AA9"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Amiga copies 12-byte actor placements into 32-byte runtime records; descriptor type/order and placement counts agree with DOS six-byte entries."
+    },
+    {
+      "id": "enemy-placement",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:06f30"
+      },
+      "dos": [
+        {
+          "address": "013B:3B1B",
+          "name": "loc_3B1B"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Amiga copies fixed 12-byte enemy placements into 26-byte state records; normalized types and all checked placement parameters agree with DOS variable tails."
+    },
+    {
+      "id": "password-content",
+      "kind": "table",
+      "amiga": {
+        "binary": "t",
+        "address": "h8:002fa"
+      },
+      "dos": [
+        {
+          "address": "5C09:00EE",
+          "name": "dg_text_00EE"
+        }
+      ],
+      "classification": "confirmed behavioural difference",
+      "evidence": "69 XOR-2A strings with explicit ordinal bytes; first is FREISCHTIEL, versus DOS CAVITY; the password sets are different."
+    },
+    {
+      "id": "password-content-2p",
+      "kind": "table",
+      "amiga": {
+        "binary": "t",
+        "address": "h8:00716"
+      },
+      "dos": [
+        {
+          "address": "5C09:0492",
+          "name": "dg_text_0492"
+        }
+      ],
+      "classification": "confirmed behavioural difference",
+      "evidence": "81 XOR-2A strings with ordinal bytes; first is NOTLOB, versus DOS ALONEINTOTHEALONE."
+    },
+    {
+      "id": "password-search",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:027fe"
+      },
+      "dos": [
+        {
+          "address": "013B:0C07",
+          "name": "RunGameFromPassword"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Decodes each compared byte with XOR 2A; matching ordinal selects a long level pointer; DOS searches clear NUL strings by ordinal."
+    },
+    {
+      "id": "password-display",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:027d6"
+      },
+      "dos": [
+        {
+          "address": "013B:06B5",
+          "name": null
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Copies a decoded password into display scratch; DOS directly draws the selected clear string."
+    },
+    {
+      "id": "menu",
+      "kind": "table",
+      "amiga": {
+        "binary": "t",
+        "address": "h8:0005e"
+      },
+      "dos": [
+        {
+          "address": "5C09:0AE4",
+          "name": "Text_0AE4"
+        }
+      ],
+      "classification": "confirmed behavioural difference",
+      "evidence": "Both contain F1 start/F2 password/F3 difficulty/F4 player count; DOS adds F5 controls and different menu labels."
+    },
+    {
+      "id": "credits",
+      "kind": "table",
+      "amiga": {
+        "binary": "t",
+        "address": "h8:00110"
+      },
+      "dos": [
+        {
+          "address": "5C09:091F",
+          "name": "Text_091F"
+        }
+      ],
+      "classification": "confirmed behavioural difference",
+      "evidence": "Amiga names Klinger/Roy and Rudolf Stember; DOS credits its port authors, PC graphics and different music/FX."
+    },
+    {
+      "id": "text-control",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:04876"
+      },
+      "dos": [
+        {
+          "address": "013B:0773",
+          "name": "loc_0773"
+        },
+        {
+          "address": "013B:077C",
+          "name": "DrawTextLine"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Shared CR-separated centered text content; Amiga embedded text uses 80 for centering, DOS FE and sprite-character rendering."
+    },
+    {
+      "id": "highscore-defaults",
+      "kind": "table",
+      "amiga": {
+        "binary": "t",
+        "address": "h8:001fe"
+      },
+      "dos": [
+        {
+          "address": "5C09:0C86",
+          "name": "HighScoreRows"
+        }
+      ],
+      "classification": "confirmed equivalent semantics",
+      "evidence": "FRED/BARNEY/WILMA/PEBBLES/DINO defaults and scores 20000/10000/5000/2500/1000 agree; storage/rendering differ."
+    },
+    {
+      "id": "route-elevator-action",
+      "kind": "table",
+      "amiga": {
+        "binary": "t",
+        "address": "h8:0b5fe"
+      },
+      "dos": [
+        {
+          "address": "5C09:34C7",
+          "name": "Data_34C7"
+        },
+        {
+          "address": "5C09:3F4A",
+          "name": "Passengeritinerary_3F4A"
+        }
+      ],
+      "classification": "confirmed behavioural difference",
+      "evidence": "First actor itinerary starts at platform 1 on Amiga, 0 on DOS; play positions 1P59/2P69; waits and remaining destinations agree."
+    },
+    {
+      "id": "route-dino-bird",
+      "kind": "table",
+      "amiga": {
+        "binary": "t",
+        "address": "h8:0b5d8"
+      },
+      "dos": [
+        {
+          "address": "5C09:34AD",
+          "name": "Data_34AD"
+        },
+        {
+          "address": "5C09:3E4F",
+          "name": "Passengeritinerary_3E4F"
+        }
+      ],
+      "classification": "confirmed behavioural difference",
+      "evidence": "First actor itinerary starts/ends at platform 1 on Amiga, 0 on DOS; play positions 1P60/2P70."
+    },
+    {
+      "id": "craft-motion",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:053ae"
+      },
+      "dos": [
+        {
+          "address": "013B:1095",
+          "name": "MovePlayerWithVgaCollisions"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Amiga changes position by direct 1/32 velocities and caps vx[-200,200],vy[-100,200]; DOS stores larger velocities and applies SAR 6."
+    },
+    {
+      "id": "craft-integration",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:05896"
+      },
+      "dos": [
+        {
+          "address": "013B:1095",
+          "name": "MovePlayerWithVgaCollisions"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Amiga adds velocity words directly to active 34-byte object positions; DOS integrates inside the player/actor routines over parallel arrays."
+    },
+    {
+      "id": "craft-thrust",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:05498"
+      },
+      "dos": [
+        {
+          "address": "013B:10F1",
+          "name": "loc_10F1"
+        },
+        {
+          "address": "013B:122A",
+          "name": "loc_122A"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Amiga horizontal controls add +/-2; airborne up adds -3 to vy and costs three timer units; DOS uses +/-63 and vertical thrust 70 with separate gravity."
+    },
+    {
+      "id": "craft-limits",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:05518"
+      },
+      "dos": [
+        {
+          "address": "013B:111D",
+          "name": "loc_111D"
+        },
+        {
+          "address": "013B:129E",
+          "name": "loc_129E"
+        }
+      ],
+      "classification": "confirmed behavioural difference",
+      "evidence": "Amiga has asymmetric vy cap -100..200 and vx -200..200; DOS clamps both raw velocity words to -6144..6144 then SAR 6; no exact common clamp transform."
+    },
+    {
+      "id": "craft-landing",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:05958"
+      },
+      "dos": [
+        {
+          "address": "013B:13FD",
+          "name": "loc_13FD"
+        }
+      ],
+      "classification": "equivalent under stated assumptions",
+      "evidence": "Downward crossing test scans platforms, requires X within inclusive bounds, and snaps Y/clears both velocity words on accepted landing.",
+      "assumptions": [
+        "Same platform geometry after coordinate/velocity conversion; Amiga rejects vy>80 first; DOS also consults impact and VGA collision results."
+      ]
+    },
+    {
+      "id": "craft-terrain-collision",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:07480"
+      },
+      "dos": [
+        {
+          "address": "013B:1095",
+          "name": "MovePlayerWithVgaCollisions"
+        },
+        {
+          "address": "013B:1457",
+          "name": "SamplePlayerCollisionPixels"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Amiga performs six blitter zero tests with a mask, slope response and squared-speed tests; DOS samples VGA index bit 7 and scans pixel steps."
+    },
+    {
+      "id": "craft-crash-thresholds",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:07782"
+      },
+      "dos": [
+        {
+          "address": "5C09:262E",
+          "name": "PlayerImpactLimits"
+        }
+      ],
+      "classification": "confirmed behavioural difference",
+      "evidence": "Amiga hard/medium/easy linear limits 10/40/80 and squared limits 225/2500/10000; DOS impact limits 1380/2300/3100 use a different magnitude."
+    },
+    {
+      "id": "passenger-descriptors",
+      "kind": "table",
+      "amiga": {
+        "binary": "t",
+        "address": "h8:05a86"
+      },
+      "dos": [
+        {
+          "address": "5C09:7720",
+          "name": "Data_7720"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Eight descriptor states at stride 126 versus DOS stride 74: 19 callback slots, six animation pointers, paired land/water types; some geometry/scalars differ."
+    },
+    {
+      "id": "passenger-dispatch",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:059fe"
+      },
+      "dos": [
+        {
+          "address": "013B:1486",
+          "name": "DispatchActorUpdates"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Descriptor long callback selected by state byte-offset, versus DOS near callback in actor parallel arrays."
+    },
+    {
+      "id": "passenger-journey",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:06e72"
+      },
+      "dos": [
+        {
+          "address": "013B:149C",
+          "name": "ReadPassengerJourneyLeg"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Advances (platform-pointer,wait) itinerary legs, uses negative sentinel and decrements completion count; DOS uses indices and wait+(wait SAR 1)."
+    },
+    {
+      "id": "passenger-wait",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:05a50"
+      },
+      "dos": [
+        {
+          "address": "013B:1509",
+          "name": "WaitForPassengerPlatform"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Counts down journey delay, then waits for source platform occupant pointer to clear; DOS compares its occupant word with FFFF."
+    },
+    {
+      "id": "passenger-approach",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:05c5a"
+      },
+      "dos": [
+        {
+          "address": "013B:18E6",
+          "name": "UpdatePassengerApproach"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Seeks an empty craft attached to the same source platform, walks toward it and selects boarding; motion/animation scheduling differ."
+    },
+    {
+      "id": "passenger-board",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:05d20"
+      },
+      "dos": [
+        {
+          "address": "013B:19FB",
+          "name": "BoardPassenger"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Releases source occupant, attaches actor to carrier, hides walking sprite and initializes fare from descriptor; DOS also starts a separate 200-tick bonus counter."
+    },
+    {
+      "id": "passenger-fare",
+      "kind": "table",
+      "amiga": {
+        "binary": "t",
+        "address": "h8:05afc"
+      },
+      "dos": [
+        {
+          "address": "5C09:7760",
+          "name": null
+        }
+      ],
+      "classification": "confirmed behavioural difference",
+      "evidence": "Adult male land maximum/floor 800/200 on Amiga versus 1100/300 on DOS; all three passenger families have retuned fare values."
+    },
+    {
+      "id": "passenger-fare-decay",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:07cda"
+      },
+      "dos": [
+        {
+          "address": "013B:1A42",
+          "name": "UpdateCarriedPassenger"
+        }
+      ],
+      "classification": "equivalent under stated assumptions",
+      "evidence": "Both decrement fare by one while above descriptor floor and pin at floor; full ride timing is not equated.",
+      "assumptions": [
+        "Unsigned nonnegative fare/floor and fare>=floor; compare logical decay step only."
+      ]
+    },
+    {
+      "id": "passenger-delivery",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:05d8c"
+      },
+      "dos": [
+        {
+          "address": "013B:1A7E",
+          "name": "DeliverPassenger"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Both release carrier and add fare*multiplier to 32-bit score; quick-delivery pickup predicate and departure scheduling differ."
+    },
+    {
+      "id": "passenger-quick-reward",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:05d9e"
+      },
+      "dos": [
+        {
+          "address": "013B:1AB7",
+          "name": null
+        }
+      ],
+      "classification": "confirmed behavioural difference",
+      "evidence": "Amiga tests initial_fare-current_fare <=200; DOS tests a separately decremented nonzero 200-tick boarding counter."
+    },
+    {
+      "id": "passenger-water-rescue-fare",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:0619e"
+      },
+      "dos": [
+        {
+          "address": "013B:19E0",
+          "name": "BoardWaterbornePassenger"
+        }
+      ],
+      "classification": "confirmed behavioural difference",
+      "evidence": "Amiga changes to land descriptor before state 38 invokes land boarding (800/200 for male); DOS reads water fare (300/300) before changing descriptor."
+    },
+    {
+      "id": "passenger-water-motion",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:05f36"
+      },
+      "dos": [
+        {
+          "address": "013B:1DD5",
+          "name": "UpdatePassengerResurfacing"
+        },
+        {
+          "address": "013B:1EC0",
+          "name": "UpdatePassengerSinking"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Amiga uses explicit downward crossing, vy/4 damping, then vy-=2 to resurface; DOS has different buoyancy/sinking paths and acceleration 27h/175h/5Ch."
+    },
+    {
+      "id": "passenger-floating",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:05fea"
+      },
+      "dos": [
+        {
+          "address": "013B:1F43",
+          "name": "UpdatePassengerFloating"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Both pin passenger to surface and seek an available surface craft; Amiga life expires by signed check, DOS uses equality countdown and cached pixel equality."
+    },
+    {
+      "id": "bird-descriptor",
+      "kind": "table",
+      "amiga": {
+        "binary": "t",
+        "address": "h8:05efa"
+      },
+      "dos": [
+        {
+          "address": "5C09:7630",
+          "name": "Data_7630"
+        }
+      ],
+      "classification": "equivalent under stated assumptions",
+      "evidence": "INTRODUCING BIRD selects this type in both orders; delay/speed placement values agree; shared 2500 score.",
+      "assumptions": [
+        "Type identity and stored parameters only; delays are scaled by DOS loader."
+      ]
+    },
+    {
+      "id": "triopterus-descriptor",
+      "kind": "table",
+      "amiga": {
+        "binary": "t",
+        "address": "h8:05f68"
+      },
+      "dos": [
+        {
+          "address": "5C09:766C",
+          "name": "Data_766C"
+        }
+      ],
+      "classification": "equivalent under stated assumptions",
+      "evidence": "INTRODUCING TRIOPTERUS selects this platform patrol/charge type; same platform/speed parameters and score 1400; DOS currently calls it Dinosaur.",
+      "assumptions": [
+        "Type identity only, not equal update traces."
+      ]
+    },
+    {
+      "id": "dino-descriptor",
+      "kind": "table",
+      "amiga": {
+        "binary": "t",
+        "address": "h8:05fd6"
+      },
+      "dos": [
+        {
+          "address": "5C09:76A8",
+          "name": "Data_76A8"
+        }
+      ],
+      "classification": "equivalent under stated assumptions",
+      "evidence": "INTRODUCING DINO selects this coordinate-placed stationary type; Dino.lo5 load/animation chain confirms identity; both score 800.",
+      "assumptions": [
+        "Name/type identity; geometry, force magnitude, stun duration and hit implementation differ."
+      ]
+    },
+    {
+      "id": "tree-descriptor",
+      "kind": "table",
+      "amiga": {
+        "binary": "t",
+        "address": "h8:06044"
+      },
+      "dos": [
+        {
+          "address": "5C09:76E4",
+          "name": "Data_76E4"
+        }
+      ],
+      "classification": "equivalent under stated assumptions",
+      "evidence": "Tree has platform pointer and reward-list pointer in every shared placement, corresponding to DOS platform index and reward near pointer.",
+      "assumptions": [
+        "Type identity and placement relation only."
+      ]
+    },
+    {
+      "id": "bird-warning-launch",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:065d4"
+      },
+      "dos": [
+        {
+          "address": "013B:2379",
+          "name": "BeginBirdDelay"
+        },
+        {
+          "address": "013B:23B0",
+          "name": "BeginBirdWarning"
+        },
+        {
+          "address": "013B:23EA",
+          "name": "LaunchBirdTowardPlayer"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Delay -> cry warning -> choose target craft -> fly from opposite edge; Amiga warning delay 100, DOS 150."
+    },
+    {
+      "id": "bird-flight",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:066b6"
+      },
+      "dos": [
+        {
+          "address": "013B:2493",
+          "name": "UpdateBirdFlight"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Checks end-of-flight target X and contact with selected craft; DOS also handles stone hit inside bird routine, Amiga centralizes stone/enemy contacts."
+    },
+    {
+      "id": "bird-stun",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:066ea"
+      },
+      "dos": [
+        {
+          "address": "013B:252B",
+          "name": "StunBirdAndAwardScore"
+        },
+        {
+          "address": "013B:255E",
+          "name": "UpdateStunnedBird"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Hit selects stunned/falling animation, score 2500; Amiga stun count 300 versus DOS 350 and distinct fall integration."
+    },
+    {
+      "id": "triopterus-patrol",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:0673e"
+      },
+      "dos": [
+        {
+          "address": "013B:25B1",
+          "name": "BeginDinosaurPatrol"
+        },
+        {
+          "address": "013B:25C9",
+          "name": "UpdateDinosaurPatrol"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Patrols platform endpoint +/-16, reverses direction, notices same-platform craft and enters alert."
+    },
+    {
+      "id": "triopterus-alert",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:067c6"
+      },
+      "dos": [
+        {
+          "address": "013B:2667",
+          "name": "BeginDinosaurAlert"
+        },
+        {
+          "address": "013B:2681",
+          "name": "UpdateDinosaurAlert"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Faces detected craft, plays warning and waits 100 Amiga updates versus 150 DOS updates before chase setup."
+    },
+    {
+      "id": "triopterus-charge",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:06876"
+      },
+      "dos": [
+        {
+          "address": "013B:2748",
+          "name": "UpdateDinosaurCharge"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Accelerates toward signed target speed, checks craft still on platform, transfers horizontal motion and kicks craft upward on contact."
+    },
+    {
+      "id": "triopterus-impact-routing",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:0696c"
+      },
+      "dos": [
+        {
+          "address": "013B:288F",
+          "name": "BeginDinosaurImpactRecovery"
+        },
+        {
+          "address": "013B:28A3",
+          "name": "AnimateDinosaurImpactRecovery"
+        }
+      ],
+      "classification": "confirmed behavioural difference",
+      "evidence": "Amiga writes state 2C, reaching its dedicated countdown handler 69A0; DOS loads descriptor+16 (2844), bypassing the nominal 28A3 impact handler."
+    },
+    {
+      "id": "dino-force",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:06a2c"
+      },
+      "dos": [
+        {
+          "address": "013B:2973",
+          "name": "loc_2973"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Stationary force source: Amiga acts when 0<=dinoX-craftX<=3200 and |dy|<=320, sign from animation auxiliary pointer; DOS uses geometry-adjusted rectangle and phase offset sign."
+    },
+    {
+      "id": "dino-stun",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:06a8a"
+      },
+      "dos": [
+        {
+          "address": "013B:2A53",
+          "name": "loc_2A53"
+        },
+        {
+          "address": "013B:2A76",
+          "name": "loc_2A76"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Both award descriptor score 800 and recover after a stun; Amiga 300 updates versus DOS 350; Amiga stone handler supplies the hit transition."
+    },
+    {
+      "id": "tree-release",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:06af4"
+      },
+      "dos": [
+        {
+          "address": "013B:2B0C",
+          "name": "ReleaseTreeReward"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Both consume next reward descriptor and spawn falling item; Amiga uses tree position, twice stone velocities with vy clamped -100..-20 and delay 100; DOS uses stone position and different velocity transform/delay 210."
+    },
+    {
+      "id": "tree-cooldown",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:06b72"
+      },
+      "dos": [
+        {
+          "address": "013B:2B58",
+          "name": "AdvanceTreeRewardCooldown"
+        },
+        {
+          "address": "013B:2B7E",
+          "name": "IgnoreExhaustedTree"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Cooldown resumes tree hit acceptance until reward-list FFFF sentinel; Amiga selects exhausted state immediately after last release; DOS tests at delay expiry."
+    },
+    {
+      "id": "tree-reward-order",
+      "kind": "table",
+      "amiga": {
+        "binary": "t",
+        "address": "h8:0c194"
+      },
+      "dos": [
+        {
+          "address": "5C09:3CB3",
+          "name": "Treerewardlist_3CB3"
+        }
+      ],
+      "classification": "confirmed equivalent semantics",
+      "evidence": "Nine reward pointers normalize to descriptor ordinal order [0,8,5,7,6,1,4,3,2] in both versions, ending FFFF."
+    },
+    {
+      "id": "stone-enemy-contact",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:064b2"
+      },
+      "dos": [
+        {
+          "address": "013B:2196",
+          "name": "FindThrownStoneHittingEnemy"
+        },
+        {
+          "address": "013B:2AB5",
+          "name": "UpdateFruitTreeAnimation"
+        },
+        {
+          "address": "013B:2973",
+          "name": "loc_2973"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Amiga stone physics centrally scans enemies and dispatches hit callback; DOS each enemy calls the descending-stone overlap helper."
+    },
+    {
+      "id": "falling-item-pool",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:07124"
+      },
+      "dos": [
+        {
+          "address": "013B:2B96",
+          "name": "SpawnFallingItem"
+        }
+      ],
+      "classification": "confirmed behavioural difference",
+      "evidence": "Amiga has five 18-byte item slots terminated at h8:0610C and returns on full pool; DOS has twelve slots and its full-pool RET consumes saved BX as IP."
+    },
+    {
+      "id": "falling-item-motion",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:06bc8"
+      },
+      "dos": [
+        {
+          "address": "013B:2BE4",
+          "name": "AdvanceFallingItem"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Boundary damping, water crossing, platform landing and gravity until collection/lifetime; Amiga direct velocities, DOS scaled integration."
+    },
+    {
+      "id": "falling-item-collection",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:06c82"
+      },
+      "dos": [
+        {
+          "address": "013B:2CA9",
+          "name": "ExpireOrCollectFallingItem"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Both disable pickup and branch by type to timer, multiplier or lives; Amiga timer cap 16300 (3FAC), DOS uses its own cap/word-byte rules."
+    },
+    {
+      "id": "water-rise",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:079bc"
+      },
+      "dos": [
+        {
+          "address": "013B:2D2F",
+          "name": "loc_2D2F"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Amiga adds stored water increment each call only if resulting signed Y>0; DOS toggles WaterStepPhase and applies it every second call, clamping negative to zero."
+    },
+    {
+      "id": "water-start",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:072d6"
+      },
+      "dos": [
+        {
+          "address": "013B:3976",
+          "name": "LoadCurrentLevelState"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Amiga uses original record water Y directly in 1/32 units; DOS transforms to 3/4 Y and caps display extent."
+    },
+    {
+      "id": "water-render",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:079bc"
+      },
+      "dos": [
+        {
+          "address": "013B:2DB9",
+          "name": "DrawWaterSurface"
+        },
+        {
+          "address": "013B:2DDA",
+          "name": "loc_2DDA"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Amiga water object/copper/animation pipeline versus DOS palette bit 6 and VGA scanline surface patterns; visual subsystem purpose only."
+    },
+    {
+      "id": "tfmx-adlib",
+      "kind": "table",
+      "amiga": {
+        "binary": "t",
+        "address": "h8:075ea"
+      },
+      "dos": [
+        {
+          "address": "0664:15D3",
+          "name": "RunMainAdlxEvents"
+        },
+        {
+          "address": "0664:176B",
+          "name": "RunEffectAdlxEvents"
+        },
+        {
+          "address": "0878:0F88",
+          "name": "StartMusicTrack"
+        }
+      ],
+      "classification": "similar purpose with different implementation",
+      "evidence": "Amiga dynamically loads TFMX.obj plus mdat/smpl, dispatching from loaded buffer; DOS plays independent ADLX/OPL tracks; no tune/event equivalence established."
+    },
+    {
+      "id": "loader-intro",
+      "kind": "routine",
+      "amiga": {
+        "binary": "t",
+        "address": "h0:00000"
+      },
+      "dos": [
+        {
+          "address": "013B:0008",
+          "name": "ext_013B"
+        }
+      ],
+      "classification": "unresolved",
+      "evidence": "This t entry follows separate compiled-C loader process; DOS embeds its startup/logos. Loader listing is available, no routine-level intro correspondence proved."
+    }
+  ]
+}

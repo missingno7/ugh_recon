@@ -458,32 +458,32 @@ EXPORT int c_UpdateStunnedBird(Regs *r) {
 gone: r->si=A(EnemyDescriptors); return tail(r,8);
 }
 
-/* TRANSLATES GAME:BeginDinosaurPatrol */
-EXPORT int c_BeginDinosaurPatrol(Regs *r) { enemy_init(r,0x0a,1); return UGH_OK; }
+/* TRANSLATES GAME:BeginTriopterusPatrol */
+EXPORT int c_BeginTriopterusPatrol(Regs *r) { enemy_init(r,0x0a,1); return UGH_OK; }
 
-/* TRANSLATES GAME:BeginDinosaurAlert */
-EXPORT int c_BeginDinosaurAlert(Regs *r) { enemy_init(r,0x0e,0); W(EnemyStateCounters,140); return UGH_OK; }
+/* TRANSLATES GAME:BeginTriopterusAlert */
+EXPORT int c_BeginTriopterusAlert(Regs *r) { enemy_init(r,0x0e,0); W(EnemyStateCounters,140); return UGH_OK; }
 
-/* TRANSLATES GAME:BeginDinosaurCharge */
-EXPORT int c_BeginDinosaurCharge(Regs *r) { enemy_init(r,0x12,0); W(EnemyStateCounters,0); return UGH_OK; }
+/* TRANSLATES GAME:BeginTriopterusCharge */
+EXPORT int c_BeginTriopterusCharge(Regs *r) { enemy_init(r,0x12,0); W(EnemyStateCounters,0); return UGH_OK; }
 
-/* TRANSLATES GAME:BeginDinosaurRecovery */
-EXPORT int c_BeginDinosaurRecovery(Regs *r) { enemy_init(r,0x16,0); return UGH_OK; }
+/* TRANSLATES GAME:BeginTriopterusRecovery */
+EXPORT int c_BeginTriopterusRecovery(Regs *r) { enemy_init(r,0x16,0); return UGH_OK; }
 
-/* TRANSLATES GAME:BeginDinosaurImpactRecovery */
-EXPORT int c_BeginDinosaurImpactRecovery(Regs *r) {
+/* TRANSLATES GAME:BeginTriopterusImpactRecovery */
+EXPORT int c_BeginTriopterusImpactRecovery(Regs *r) {
     /* Original installs +16 (ordinary recovery), despite its +18 caller. */
     enemy_init(r,0x16,0); return UGH_OK;
 }
 
-/* TRANSLATES GAME:StunDinosaurAndAwardScore */
-EXPORT int c_StunDinosaurAndAwardScore(Regs *r) {
+/* TRANSLATES GAME:StunTriopterusAndAwardScore */
+EXPORT int c_StunTriopterusAndAwardScore(Regs *r) {
     r->ax=DESC(0x1e); W(EnemyStateCallbacks,r->ax); score(r);
     W(EnemyAnimationByteOffsets,0xfffe); W(EnemyAnimationCountdowns,1); W(EnemyStateCounters,350); return UGH_OK;
 }
 
-/* TRANSLATES GAME:UpdateStunnedDinosaur */
-EXPORT int c_UpdateStunnedDinosaur(Regs *r) {
+/* TRANSLATES GAME:UpdateStunnedTriopterus */
+EXPORT int c_UpdateStunnedTriopterus(Regs *r) {
     r->si=A(EnemyDescriptors);
     uint16_t count=dec16(r,A(EnemyStateCounters)); W(EnemyStateCounters,count); if(!count) return tail(r,8);
     count=dec16(r,A(EnemyAnimationCountdowns)); W(EnemyAnimationCountdowns,count); if(count) return UGH_OK;
@@ -491,17 +491,17 @@ EXPORT int c_UpdateStunnedDinosaur(Regs *r) {
     return enemy_frame(r,0x36);
 }
 
-/* TRANSLATES GAME:loc_295B */
-EXPORT int c_loc_295B(Regs *r) { enemy_init(r,0x12,1); return UGH_OK; }
+/* TRANSLATES GAME:InitializeDinoAnimation */
+EXPORT int c_InitializeDinoAnimation(Regs *r) { enemy_init(r,0x12,1); return UGH_OK; }
 
-/* TRANSLATES GAME:loc_2A53 */
-EXPORT int c_loc_2A53(Regs *r) {
+/* TRANSLATES GAME:StunDinoAndAwardScore */
+EXPORT int c_StunDinoAndAwardScore(Regs *r) {
     r->ax=DESC(0x1e); W(EnemyStateCallbacks,r->ax); score(r); W(EnemyStateCounters,350);
     r->si=DESC(0x36); r->ax=rd16(r->ds,r->si); W(EnemySpriteIds,r->ax); return UGH_OK;
 }
 
-/* TRANSLATES GAME:loc_2A76 */
-EXPORT int c_loc_2A76(Regs *r) { return enemy_wait(r,0x10); }
+/* TRANSLATES GAME:UpdateStunnedDino */
+EXPORT int c_UpdateStunnedDino(Regs *r) { return enemy_wait(r,0x10); }
 
 /* TRANSLATES GAME:InitializeFruitTreeAnimation */
 EXPORT int c_InitializeFruitTreeAnimation(Regs *r) {

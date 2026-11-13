@@ -41,6 +41,13 @@ EXPORT void platform_bios_timer(void);
 typedef void (*EntryObserver)(uint16_t segment,uint16_t offset,Regs *r);
 EXPORT void ugh_set_entry_observer(EntryObserver observer);
 void platform_trace_entry(uint16_t segment,uint16_t offset,Regs *r);
+/* Optional host peripherals, outside Devices so fixture layout stays stable.
+ * NULL preserves the deterministic test backend. Interrupt hook returns -1
+ * to use that backend; otherwise it supplies the service's normal status. */
+typedef void (*OutputObserver)(uint16_t port,unsigned size,uint32_t value);
+typedef int (*InterruptService)(uint8_t number,Regs *r);
+EXPORT void ugh_set_output_observer(OutputObserver observer);
+EXPORT void ugh_set_interrupt_service(InterruptService service);
 typedef enum ServicePoint { SERVICE_RETRACE,SERVICE_TIMER_WAIT,SERVICE_IO } ServicePoint;
 int platform_service_point(ServicePoint point,Regs *r);
 EXPORT int platform_service_point_at(ServicePoint point,uint16_t segment,uint16_t offset,Regs *r);

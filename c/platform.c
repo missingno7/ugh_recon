@@ -4,6 +4,10 @@ Devices ugh_devices;
 static FrameObserver frame_observer;
 static ServiceObserver service_observer;
 static EntryObserver entry_observer;
+static OutputObserver output_observer;
+static InterruptService interrupt_service;
+EXPORT void ugh_set_output_observer(OutputObserver observer) { output_observer=observer; }
+EXPORT void ugh_set_interrupt_service(InterruptService service) { interrupt_service=service; }
 EXPORT void ugh_set_entry_observer(EntryObserver observer) { entry_observer=observer; }
 void platform_trace_entry(uint16_t segment,uint16_t offset,Regs *r) {
     if(entry_observer) entry_observer(segment,offset,r);
@@ -91,6 +95,7 @@ void platform_out(uint16_t port,unsigned size,uint32_t value) {
     log_event(LOG_OUT,port,size,value);
     if(size!=1 && size!=2) { ugh_devices.error=1; return; }
     for(unsigned i=0;i<size;i++) out_byte((uint16_t)(port+i),(uint8_t)(value>>(8*i)));
+    if(output_observer) output_observer(port,size,value);
 }
 /* Narrow deterministic BIOS fixture: day clock, midnight flag, PIC EOI. */
 void platform_bios_timer(void) {
@@ -115,6 +120,7 @@ static int dos_result(Regs *r,unsigned value,int error) { r->ax=(uint16_t)value;
 int platform_interrupt(uint8_t n,Regs *r) {
     Devices *d=&ugh_devices; uint16_t ax=r->ax; unsigned ah=ax>>8,al=ax&255,i; uint32_t v;
     log_event(LOG_DOS,n,0,ax);
+    if(interrupt_service) { int st=interrupt_service(n,r); if(st!=-1) return st; }
     if(n==0x21 && ah==0x35) { r->bx=rd16(0,(uint16_t)(4*al)); r->es=rd16(0,(uint16_t)(4*al+2)); return UGH_OK; }
     if(n==0x21 && ah==0x25) { wr16(0,(uint16_t)(4*al),r->dx); wr16(0,(uint16_t)(4*al+2),r->ds); return UGH_OK; }
     if(n==0x21 && ah==0x2c) { if(scripted(0xfffe,&v,0)) return UGH_UNSUPPORTED; r->cx=(uint16_t)(v>>16); r->dx=(uint16_t)v; return UGH_OK; }

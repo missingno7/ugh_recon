@@ -1,0 +1,311 @@
+{
+  "component": "adlx_sections",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "original": {
+    "L0": [
+      "C:ScanMusicEvents 0878:11AD",
+      "C:ApplyScannedMusicEvents 0878:1943",
+      "SOUND:TickAdlxPlayback 0664:1939"
+    ],
+    "L1": [
+      "c/sound_api.c:c_ScanMusicEvents,c_ApplyScannedMusicEvents",
+      "c/adlib.c:c_TickAdlxPlayback"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/adlx_sections.h",
+      "native/adlx_sections.c",
+      "native/bridge/adlx_sections_bridge.c"
+    ],
+    "header": "native/adlx_sections.h",
+    "functions": [
+      "audio_section_scan_begin",
+      "audio_section_scan_step",
+      "audio_section_scan",
+      "audio_section_classify",
+      "audio_section_apply",
+      "audio_section_tick_begin",
+      "audio_section_main_due",
+      "audio_section_apply_due",
+      "audio_section_effect_due",
+      "audio_section_main_context",
+      "audio_section_effects_begin",
+      "audio_section_effect_next",
+      "audio_section_tick_end"
+    ],
+    "build": "python verif/adlx_sections_build.py"
+  },
+  "purpose": "Independent C scan decoder,section snapshot application and live callback scheduler handoff,with exact partial clocks/state and ordered OPL programming.",
+  "interface": {
+    "inputs": [
+      "AudioState,raw device/threshold words,stable resource window,typed seven-row value/action table; tick callbacks observe and may mutate shared state."
+    ],
+    "outputs": [
+      "Two section cursors,scanned snapshot/duration and enable word or partial failure; main cursor/origin,live/saved voices and ordered OPL journal; clock/guard/current-slot and ordered callback handoffs."
+    ],
+    "effects": [
+      "Scan clears DF after successful gate,keys/gain/instrument captures pass0 only; apply preserves incoming copy direction through explicit compatibility; tick reprojects after every callback and increments raw current slot."
+    ],
+    "preconditions": [
+      "Serialized ordinary RAM and disjoint machine stack/SOUND; scan resource65537 bytes disjoint from SOUND,stack and VGA aperture.",
+      "Native scan seeding/apply require music count<=9; pass0 writes to scanned channels>=9 and backwards nonempty apply copies are audited literal boundaries.",
+      "Scanner budget5000000 is existing L1 diagnostic behavior,not a DOS termination guarantee.",
+      "Normal callback ABI/status behavior retained; no instruction-level IRQ/store observers or CPU-cycle-perfect audio claim."
+    ]
+  },
+  "callers": "Scan has no incoming known game calls. Tick is TIMER audio callback and AdvanceGuardedSoundClock callee; Apply called by Tick when due main cursor offset reaches enabled section end.",
+  "callees": {
+    "native": "Accepted audio_main_step for instrument/frequency; local independently checked volume helper,scan decoder and scheduler predicates.",
+    "boundary": "Tick invokes real Apply/main/effects endpoints through temporary bridge frames,reprojects before each later decision; AdvanceGuardedSoundClock/fade/init/TIMER remain outside. Explicit literal scan/apply compatibility only."
+  },
+  "indirect": "Scanner seven-row16-bit value table: first matched word chooses one of7 known target classifications; unmatched is default wait,unknown target returns existing BAD_CALLBACK diagnostic. Machine target offsets stay in bridge. Tick target set is Apply,RunMainAdlxEvents,RunEffectAdlxEvents.",
+  "memory": {
+    "owner": "Reuse accepted native/audio.h unchanged and canonical audio_projection.h. No duplicate persistent owner.",
+    "scan": "Main start/length/voice count,ticks/unit,master volume,scanned9 records,scanned clock,first/end cursors and loop flag.",
+    "apply": "Main cursor and time origin before copies; live/saved/scanned20-byte voices with raw current-slot/reservation/playing and mutable operator table.",
+    "tick": "32-bit clock always increments,even busy;guard becomes1 then0 on normal admitted entry;descriptor12/main and8..11/effects due checks. Current slot may be12 after C restoration and increments as raw word."
+  },
+  "assumptions": [
+    "Stable disjoint source/storage for ordinary typed copies; raw source/voice aliases remain explicit compatibility.",
+    "Final ordered list is emitted at deterministic routine boundary; no observations between serialized stores and I/O delivery.",
+    "Scalar/word memory bindings and normalized destinations in symbolic subproperties are assumptions,not a whole-machine proof."
+  ],
+  "eliminated": [
+    "C/ASM machine/frame notation from ordinary scan/apply/tick code.",
+    "Table code offsets replaced with named actions after bridge classification.",
+    "Shadow lifecycle execution: native data/decisions drive bridges and ordered writes; callbacks are real independent services."
+  ],
+  "retained": [
+    "Full32-bit long wait uses entire opcode,including modified-table high nibble; total wraps32.",
+    "Post-fetch unsigned offset-only end test precedes all payload handling; nominal payload skips and77 extension behavior stay separate from interpreters.",
+    "Two passes,threshold products,overshoot,pass0-only captures,owner12 and partial state on failure.",
+    "Saved apply path rereads final volume from live; current-slot-dependent loader/volume gates and exact register order retained.",
+    "Incoming DF is never repaired for apply: backwards copies use real literal implementation; scan gate success clears DF.",
+    "Tick unsigned high/low deadlines,offset-only section test,whole guard clear,live callback mutations and raw-current increments retained."
+  ],
+  "evidence": [
+    {
+      "property": "Generated actual-C composition",
+      "level": "C",
+      "method": "Real extracted scan/apply/tick,copy and voice code against native bridge; full SOUND window/caller stack/GP/flags/ordered writes and stateful callback replies",
+      "command": "python verif/adlx_sections_evidence.py",
+      "result": "PASS30000 cases,10000 each endpoint.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Compiled shipped section corpus",
+      "level": "C",
+      "method": "Every resource scanned at successive unit thresholds to first actual C rejection; apply snapshots and real scheduler to next section handoff,three reservation contexts",
+      "command": "python verif/adlx_sections_corpus.py",
+      "result": "PASS11 resources,1494 scan/apply/handoff configurations,2988 applies and7251 ticks; no scan/apply fallback.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Whole audio and maintained scenarios",
+      "level": "D",
+      "method": "Combined accepted audio units plus sections against checked rebuilt L0",
+      "command": "python verif/adlx_sections_integration.py --whole --local-reference",
+      "result": "PASS4924 direct L0 cases and19 whole-game scenarios. Direct Tick applies16 times; adlib/gameplay-adlib Tick1707/8109 times but scan/apply/handoff0 each.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Malformed/generated streams and mutation controls",
+      "level": "C",
+      "method": "Actual extracted C and native compiled with real copy and voice code; bounded no-wait and wrapped twelve-byte payload; live-volume and full32-bit-wait mutations must fail",
+      "command": "python verif/adlx_sections_evidence.py --budget; python verif/adlx_sections_evidence.py --wrap; python verif/adlx_sections_evidence.py --negative volume; python verif/adlx_sections_evidence.py --negative clock",
+      "result": "PASS bounded5000000 events and wrapped payload; both mutations detected as persistent SOUND mismatches. Mutants run only in generated scratch source.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Dispatch and scheduler outputs/frame/dependence",
+      "level": "B",
+      "method": "Actual literal C clock/deadline/offset/context expressions versus native; arbitrary16/32-bit inputs; separate whole AudioState frame and read-dependence; modified table first-match classification",
+      "command": "python verif/adlx_sections_proofs.py dispatch; python verif/adlx_sections_proofs.py tick; python verif/adlx_sections_proofs.py tick-frame; python verif/adlx_sections_proofs.py tick-dependence",
+      "result": "PASS4 profiles; dispatch skip-first-row mutation detected. Scalar SOUND bindings, effect8 normalized; four-effect/callback composition remains C.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "One scan event outputs/frame/dependence",
+      "level": "B",
+      "method": "Actual C loop body control-instrumented versus actual native step, nine target classifications and both passes; normalized ordinary source at100, arbitrary payload/record fields, full end-word and offset arithmetic",
+      "command": "python verif/adlx_sections_step.py outputs --arm N; python verif/adlx_sections_step.py frame --arm N; python verif/adlx_sections_step.py dependence --arm N (N=0..8)",
+      "result": "PASS27 profiles. Pass0 data destination normalized0, pass1 permits all channel nibbles; source13 bytes arbitrary, rest0, DF0. Long-opcode high-nibble mutation detected. No whole-loop induction/raw-alias proof.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Pass completion outputs/frame/dependence",
+      "level": "B",
+      "method": "Actual C pass-completion statements versus native helper; arbitrary totals/thresholds/units, both passes; normalized resource IDs and aligned word/DWORD binding for outputs",
+      "command": "python verif/adlx_sections_finish.py outputs --word-memory; python verif/adlx_sections_finish.py frame; python verif/adlx_sections_finish.py dependence",
+      "result": "PASS3 split profiles. Byte-memory output attempt timed out at180s; retained diagnostic, not counted. Dead threshold after terminal pass excluded.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Final live-volume reread and ordered level writes",
+      "level": "B",
+      "method": "Actual C volume driver/register writes versus native helper; arbitrary16-bit current/reservation/playing/gain/volume and operator/instrument bytes; normalized physical voice0; state-only finite delay contract",
+      "command": "python verif/adlx_sections_volume.py outputs; python verif/adlx_sections_volume.py frame; python verif/adlx_sections_volume.py dependence",
+      "result": "PASS3 split profiles. Full9-voice application plus instrument/frequency sequencing remains compiled C evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Actual scratch native host promotion",
+      "level": "D",
+      "method": "Copy sources and checked plain reference into worker scratch; promote only scratch adlx_sections certificate; unchanged hostbuild/check CLIs",
+      "command": "python verif/adlx_sections_host.py (runs python tools/hostbuild.py; python host/check.py --variant native)",
+      "result": "PASS20 linked units,19 scenarios and256-frame smoke; maintained status remains unanalyzed.",
+      "date": "2026-11-13"
+    }
+  ],
+  "amiga": "TFMX is meaning evidence only; no field/event/section equivalence with DOS ADLX claimed.",
+  "uncertainty": [
+    "Known model has no game caller of ScanMusicEvents; its enable writer is known, but writer analysis is incomplete. Existing music scenarios have zero scan/apply calls. No justified input-only positive section witness found; direct corpus setup is not one.",
+    "Full scanner/driver/callback composition remains C; symbolic step/decision domains are separate evidence.",
+    "Backwards apply/unchecked physical aliases remain explicit L1 compatibility; fade/AdvanceGuardedSoundClock/TIMER outside unit."
+  ],
+  "dependencies": {
+    "native/adlx_sections.h": {
+      "includes": [
+        "adlx_main.h"
+      ],
+      "calls": []
+    },
+    "native/adlx_sections.c": {
+      "includes": [
+        "adlx_sections.h"
+      ],
+      "calls": [
+        "audio_main_step",
+        "audio_section_action",
+        "audio_section_classify",
+        "audio_section_level",
+        "audio_section_scan_begin",
+        "audio_section_scan_finish",
+        "audio_section_scan_step",
+        "audio_section_voice",
+        "audio_section_volume",
+        "audio_section_word"
+      ]
+    },
+    "native/bridge/adlx_sections_bridge.c": {
+      "includes": [
+        "../adlx_sections.h",
+        "audio_projection.h",
+        "platform.h"
+      ],
+      "calls": [
+        "S",
+        "add16",
+        "arg16",
+        "audio_bridge_bank",
+        "audio_bridge_cursor",
+        "audio_bridge_pointer",
+        "audio_bridge_project",
+        "audio_bridge_publish_voice",
+        "audio_bridge_voice",
+        "audio_section_apply",
+        "audio_section_apply_due",
+        "audio_section_effect_due",
+        "audio_section_effect_next",
+        "audio_section_effects_begin",
+        "audio_section_main_context",
+        "audio_section_main_due",
+        "audio_section_scan",
+        "audio_section_tick_begin",
+        "audio_section_tick_end",
+        "flag",
+        "l1_ApplyScannedMusicEvents",
+        "l1_ScanMusicEvents",
+        "platform_out",
+        "rd16",
+        "rd32",
+        "rd8",
+        "section_call",
+        "section_delay",
+        "section_enter",
+        "section_inc",
+        "section_leave",
+        "section_overlap",
+        "section_push",
+        "section_source",
+        "section_table",
+        "set_al",
+        "ugh_dispatch",
+        "wr16",
+        "wr32",
+        "wr8"
+      ]
+    }
+  },
+  "proposed_status_reason": "Ordinary scan/apply and complete Tick handoff migrated on compiled full persistent RAM/ordered-write evidence, exhaustive shipped successive section boundaries, L0 suites and scratch native host. B covers independent dispatch/step/finish/volume/scheduler subproperties, not whole-loop composition. Positive input-only section-apply game witness remains missing; known call graph has no Scan caller and writer analysis is incomplete. No integration-validated claim for section apply. Administrative promotion belongs to supervisor.",
+  "solver_limits": {
+    "job_memory_bytes": 8000000000,
+    "max_seconds": 600,
+    "max_concurrent_jobs": 2,
+    "selected_profile_seconds": 180,
+    "method": "Accepted adlx_loader_solver Windows job wrapper; suspended CBMC before whole-tree job assignment; CBMC and Z3 share8GB cap and timeout kills owned tree. Split output/frame/dependence profiles."
+  },
+  "boundary_gate": {
+    "command": "python tools/closure.py",
+    "result": "21 certificates,4 errors confined to passenger_delivery in-progress certificate/native files; no adlx_sections errors.",
+    "date": "2026-11-13"
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "c/adlib.c": "2f4e551282f6ac33f8d24127f3cd5294e679f72ce28794c3ed295ce243c18bf0",
+    "c/game_services.c": "e9301da5d7fae6f2aacce7dda8d4e6f0e86cbe8c40e736216185c4a8f792a7c5",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/sound_api.c": "ba1c98bf3a03b5f48a71d4491bdebf3acfc17b0f6cce51db370a0e58c0507e4c",
+    "c/sound_engine.c": "5e4116c31806441e464de35d5649894ec4eea28025254a2edea616235e6e6881",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
+    "native/adlx_allocation.c": "4fd567bf96fd73d071073a7d70bd31ad5d0339df16fcea5dd083e87989bbc858",
+    "native/adlx_allocation.h": "e0e5c37e9612494d05042149f923bb0ed8acf223a8eb7f84bd8447ae68ffdc9b",
+    "native/adlx_effects.c": "0004628dd7cb88e6990c15b95c95c2f74e3cd8e17d7433375e9f39f637cd1f37",
+    "native/adlx_effects.h": "89fd75bd98516b98178986632b69ab0e1c58dc37d91ab0e08095ce5729e98be6",
+    "native/adlx_loader.c": "2a870c62e06869c3c6b590a5d72b246b68a16494a47d24b98f37687f6751e750",
+    "native/adlx_loader.h": "32cf42c1e9c2136f2ca2fdcbee3fa70b1e727453042aa8021b71afacd36b1539",
+    "native/adlx_main.c": "2e624d0ee0ea20d647b54d811671f52c50706e0cb34529c7bd8ac8c18e0dec42",
+    "native/adlx_main.h": "a67988ae0fa9f4d2c5d0451f02851385a900f96a6fba67c56e4764ffc10469f6",
+    "native/adlx_sections.c": "b046d562103d266375681d41df24ec7b21f6f9bd99ad8db901a17e7977dcb29f",
+    "native/adlx_sections.h": "d291ad1a7ca94580a327cba7b6f9810fec8bae288baddc30d67cd23351cefb35",
+    "native/audio.h": "e14ee8e39125b55ced910d17214acddfcd9fb0339192990487dca22dd3e04a5a",
+    "native/bridge/adlx_allocation_bridge.c": "ce1bbd8ff5cc2b57bb0ea50a8aa1b667a42cb3e379f5daf26df92de3a7ee6256",
+    "native/bridge/adlx_effects_bridge.c": "720a905d58d47e2c13f342fc2d174c964f17b09a69455dd3b2b34cac8ba8253e",
+    "native/bridge/adlx_loader_bridge.c": "1bbb03af7e750a0aa7834594a426342fabf1722b02815eb64b32e490493006ca",
+    "native/bridge/adlx_main_bridge.c": "91f38d4455d13917b3c7cf4a9fb89a02963be5cf509374e4570d81407f03c9c0",
+    "native/bridge/adlx_sections_bridge.c": "1f2a26248c08e00bddb80c11597ef38f9a19d9b5011632dccafd8f4883c8093e",
+    "native/bridge/audio_projection.h": "e15ee379c16623f0dfb9830e154c5c71b0f2d2a424a6073c3dec497c50cd8630",
+    "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
+    "verif/adlx_allocation_cases.py": "5780ee6d7b094dfe9cff0e8227043de2e340839890bff7a93edc3be5086ccab0",
+    "verif/adlx_effects_cases.py": "044edb8c6a25ecd2934c926cb9baea66c53f9ab9442744fc4c67495d69099bab",
+    "verif/adlx_effects_integration.py": "3cb136d4fdf1abe707c53801cc74d35f8fa036e59d1134a21ad9e86590ba8c5c",
+    "verif/adlx_loader_cases.py": "daf415a032afcf762ad7ad7e670556ad4ace633fb600e764b3a16106f349d4c6",
+    "verif/adlx_loader_corpus.py": "4e632cb829e3a13c061a16371535137c1d31e1b1f919e86d3a789edf3eb988b3",
+    "verif/adlx_loader_solver.py": "332c1a46957e398df5865fa5de14a73d259d464c621232f84976f8dfcc1f42d6",
+    "verif/adlx_sections_build.py": "0009ce2abd79bb5f57874d95801d2429aa569287183dc795ecdfa62af6c55c43",
+    "verif/adlx_sections_cases.py": "8fc1ba3a20e08a9dc3ebb7292d07bbe819923ab76b318e03415be0e7b50e8917",
+    "verif/adlx_sections_corpus.py": "6baa8f5171d949a9c012feeda3bdeb4e118e8f2366bd0c74a9926d8bce8c0cff",
+    "verif/adlx_sections_evidence.py": "0671e918a025612523919ff8be6a9a015a25828209cdbce6fcc442ac66d10a4b",
+    "verif/adlx_sections_finish.py": "bd66460bbd51861ff503fbafd081d406f1d8ab4be0b540aeebdd4251e305a6a3",
+    "verif/adlx_sections_harness.c": "37f006cd1934fe280f8fdfc3f71eb559f35ddc60237bd29cf02c57f5dbf8c637",
+    "verif/adlx_sections_host.py": "1065ff450ae9920d5319dfde4855bb44ad5d0118cf1a6dafbd9f48b96f10da52",
+    "verif/adlx_sections_integration.py": "5e87688f9baf021b0e92306551d19e1e4abd96f9fd0a72e08aff5430d73bd7bd",
+    "verif/adlx_sections_proofs.py": "d08c791cdd3c4790329577e9352f5ac74455ff157326e2a2a4957cb7d705e71e",
+    "verif/adlx_sections_reachability.py": "1c1efdc5db01a694e9b962012b95ea5b2f1ad70ebb1575ea99e62e65c4a7bff3",
+    "verif/adlx_sections_reproduce.py": "df8614e1c38e2bee380ced85fdd2a6a7a84344debbd13094652476bd79634d70",
+    "verif/adlx_sections_step.c": "008439d935e304800bb4d97a877f90e3321e4b551a4d72d414facfb80fa5976e",
+    "verif/adlx_sections_step.py": "9a55f15f412a68526f382386d8c3ae292c71c0823f4d2056be14bc550260b2f4",
+    "verif/adlx_sections_volume.py": "75d2f586c5dc8f7a9fb8fcb4b512f743dc58cabaf1db831656ecf4daa4ae45af",
+    "verif/cbmc_shim/stddef.h": "03e62ec5f7016e0582b92f016d7e4017b56746e2b216ae8d7fad236ae7e723e7",
+    "verif/cbmc_shim/stdint.h": "ff382e7cc9e8ac2ff6cef94767bb680b49944513ebff33b6d7e548fe12a5d7d0",
+    "verif/cbmc_shim/ugh.h": "d23d5fb7f8d14f5c03944d9cce971d6d21fdf32c28ebac1f2710842cd03d7e72",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574"
+  }
+}

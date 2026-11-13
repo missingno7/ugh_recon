@@ -1,0 +1,789 @@
+{
+  "component": "hazards",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "original": [
+    {
+      "identity": "GAME:BeginBirdDelay",
+      "address": "013B:2379",
+      "l1": "c_BeginBirdDelay"
+    },
+    {
+      "identity": "GAME:WaitForBirdFlight",
+      "address": "013B:239F",
+      "l1": "c_WaitForBirdFlight"
+    },
+    {
+      "identity": "GAME:BeginBirdWarning",
+      "address": "013B:23B0",
+      "l1": "c_BeginBirdWarning"
+    },
+    {
+      "identity": "GAME:WaitForBirdWarning",
+      "address": "013B:23D9",
+      "l1": "c_WaitForBirdWarning"
+    },
+    {
+      "identity": "GAME:LaunchBirdTowardPlayer",
+      "address": "013B:23EA",
+      "l1": "c_LaunchBirdTowardPlayer"
+    },
+    {
+      "identity": "GAME:UpdateBirdFlight",
+      "address": "013B:2493",
+      "l1": "c_UpdateBirdFlight"
+    },
+    {
+      "identity": "GAME:StunBirdAndAwardScore",
+      "address": "013B:252B",
+      "l1": "c_StunBirdAndAwardScore"
+    },
+    {
+      "identity": "GAME:UpdateStunnedBird",
+      "address": "013B:255E",
+      "l1": "c_UpdateStunnedBird"
+    },
+    {
+      "identity": "GAME:StopBirdFlightSound",
+      "address": "013B:25A0",
+      "l1": "c_StopBirdFlightSound"
+    },
+    {
+      "identity": "GAME:BeginTriopterusPatrol",
+      "address": "013B:25B1",
+      "l1": "c_BeginTriopterusPatrol"
+    },
+    {
+      "identity": "GAME:UpdateTriopterusPatrol",
+      "address": "013B:25C9",
+      "l1": "c_UpdateTriopterusPatrol"
+    },
+    {
+      "identity": "GAME:BeginTriopterusAlert",
+      "address": "013B:2667",
+      "l1": "c_BeginTriopterusAlert"
+    },
+    {
+      "identity": "GAME:UpdateTriopterusAlert",
+      "address": "013B:2681",
+      "l1": "c_UpdateTriopterusAlert"
+    },
+    {
+      "identity": "GAME:BeginTriopterusCharge",
+      "address": "013B:272E",
+      "l1": "c_BeginTriopterusCharge"
+    },
+    {
+      "identity": "GAME:UpdateTriopterusCharge",
+      "address": "013B:2748",
+      "l1": "c_UpdateTriopterusCharge"
+    },
+    {
+      "identity": "GAME:BeginTriopterusRecovery",
+      "address": "013B:2830",
+      "l1": "c_BeginTriopterusRecovery"
+    },
+    {
+      "identity": "GAME:AnimateTriopterusRecovery",
+      "address": "013B:2844",
+      "l1": "c_AnimateTriopterusRecovery"
+    },
+    {
+      "identity": "GAME:BeginTriopterusImpactRecovery",
+      "address": "013B:288F",
+      "l1": "c_BeginTriopterusImpactRecovery"
+    },
+    {
+      "identity": "GAME:AnimateTriopterusImpactRecovery",
+      "address": "013B:28A3",
+      "l1": "c_AnimateTriopterusImpactRecovery"
+    },
+    {
+      "identity": "GAME:StunTriopterusAndAwardScore",
+      "address": "013B:28EE",
+      "l1": "c_StunTriopterusAndAwardScore"
+    },
+    {
+      "identity": "GAME:UpdateStunnedTriopterus",
+      "address": "013B:2914",
+      "l1": "c_UpdateStunnedTriopterus"
+    },
+    {
+      "identity": "GAME:InitializeDinoAnimation",
+      "address": "013B:295B",
+      "l1": "c_InitializeDinoAnimation"
+    },
+    {
+      "identity": "GAME:UpdateDinoForce",
+      "address": "013B:2973",
+      "l1": "c_UpdateDinoForce"
+    },
+    {
+      "identity": "GAME:StunDinoAndAwardScore",
+      "address": "013B:2A53",
+      "l1": "c_StunDinoAndAwardScore"
+    },
+    {
+      "identity": "GAME:UpdateStunnedDino",
+      "address": "013B:2A76",
+      "l1": "c_UpdateStunnedDino"
+    },
+    {
+      "identity": "GAME:InitializeFruitTreeAnimation",
+      "address": "013B:2A87",
+      "l1": "c_InitializeFruitTreeAnimation"
+    },
+    {
+      "identity": "GAME:UpdateFruitTreeAnimation",
+      "address": "013B:2AB5",
+      "l1": "c_UpdateFruitTreeAnimation"
+    },
+    {
+      "identity": "GAME:ReleaseTreeReward",
+      "address": "013B:2B0C",
+      "l1": "c_ReleaseTreeReward"
+    },
+    {
+      "identity": "GAME:AdvanceTreeRewardCooldown",
+      "address": "013B:2B58",
+      "l1": "c_AdvanceTreeRewardCooldown"
+    },
+    {
+      "identity": "GAME:IgnoreExhaustedTree",
+      "address": "013B:2B7E",
+      "l1": "c_IgnoreExhaustedTree"
+    },
+    {
+      "identity": "GAME:DispatchEnemyStates",
+      "address": "013B:2363",
+      "l1": "c_DispatchEnemyStates"
+    }
+  ],
+  "native": {
+    "files": [
+      "native/hazards.h",
+      "native/hazards.c",
+      "native/bridge/hazards_bridge.c"
+    ],
+    "header": "native/hazards.h",
+    "functions": [
+      "hazard_step",
+      "hazards_next"
+    ]
+  },
+  "purpose": "Five-slot bird, Triopterus, Dino and finite reward-tree state machines; a single typed slot and ordered semantic effect projection.",
+  "interface": {
+    "inputs": [
+      "HazardEntry, HazardSlot, immutable HazardType geometry/handler identities and animation windows at the incoming cursor",
+      "HazardWorld: two craft views, up to sixteen stone views, ten borrowed LevelPlatform records, player counts, water, score and fade",
+      "Release entry receives a valid incoming stone index; audio completion supplies its opaque channel handle"
+    ],
+    "outputs": [
+      "Updated typed slot/shared state plus ordered semantic stores, typed tail, audio request and items_spawn arguments"
+    ],
+    "effects": [
+      "Score adds the unsigned descriptor score to a wrapping 32-bit score without multiplier",
+      "Stone vertical reflection and optional sprite; selected craft kill fade, signed wrapped kick or force",
+      "Tree release invokes the already-native item allocator through its bridge; audio stays an open L1 service"
+    ],
+    "preconditions": [
+      "Ordinary stable RAM; disjoint stack, immutable resources and mutable output spans; accessible operands",
+      "Five aligned slots and descriptor sentinel at or before the sixth word; immutable descriptor list during a dispatch",
+      "PlayerCount 0..2, PlayerArrayBytes 2 or 4; animation direction 0/2, launch target 0/1",
+      "At most sixteen sentinel-terminated actors; patrol platform <10; finite animations have non-FFFF first frame",
+      "Unknown descriptors/targets, output aliases, invalid indices and malformed sentinel walks use independent L1 compatibility",
+      "Native bridge animation cursor is FFFE or an even word 0..30; larger/odd cursors use L1. All shipped sequences have at most fourteen frames.",
+      "Tree release/cooldown use canonical finite reward-list ordinals 0..9. Bird flight uses one of the descriptor flight vectors."
+    ]
+  },
+  "callers": [
+    [
+      "GAME:InitializeLevelDisplay",
+      "GAME:DispatchEnemyStates"
+    ],
+    [
+      "GAME:RunGameFromPassword",
+      "GAME:DispatchEnemyStates"
+    ]
+  ],
+  "callees": [
+    "native contacts: contact_players/contact_stones",
+    "native falling items: items_spawn via c_SpawnFallingItem bridge",
+    "open L1 audio: C:PlayAdlibEffect and C:StopAdlibTrackChannel"
+  ],
+  "indirect": {
+    "dispatch_site": "013B:236F",
+    "classification": "complete under immutable descriptor identities and bounded slot-list contract",
+    "targets": [
+      "013B:0000",
+      "013B:1C0E",
+      "013B:2379",
+      "013B:239F",
+      "013B:23B0",
+      "013B:23D9",
+      "013B:23EA",
+      "013B:2493",
+      "013B:252B",
+      "013B:255E",
+      "013B:25B1",
+      "013B:25C9",
+      "013B:2667",
+      "013B:2681",
+      "013B:272E",
+      "013B:2748",
+      "013B:2830",
+      "013B:2844",
+      "013B:288F",
+      "013B:28A3",
+      "013B:28EE",
+      "013B:2914",
+      "013B:295B",
+      "013B:2973",
+      "013B:2A53",
+      "013B:2A76",
+      "013B:2A87",
+      "013B:2AB5",
+      "013B:2B0C",
+      "013B:2B58",
+      "013B:2B7E"
+    ],
+    "note": "Descriptor handler fields +08..20 all remain explicit, including zero and no-op entries. H_TRIO_IMPACT is callable but bypassed by the shipped impact initializer."
+  },
+  "memory": {
+    "owned": "Enemy counters/cadence/animation cursor/state and five-slot hazard simulation projection; descriptor, resource and placement storage borrowed",
+    "shared": "Actor stone motion/sprite, craft position/velocity/platform, score and fade are shared views. Rendering owns draw caches; tree initializer writes through the projection.",
+    "retained": "Unwritten stale fields, flight sound handle, and bird-list/tree-reward-list phase union remain explicit in the bridge. No lives write occurs in any hazard routine."
+  },
+  "assumptions": [
+    "No arbitrary interrupt interleaving during one semantic step; audio and item APIs obey their existing boundaries.",
+    "Animation windows describe the actual immutable first/next operands; coincident sample addresses must agree.",
+    "Bridge computes native stores once and consumes them in order. Instruction expressions reconstruct the complete register/flag shell and never supply persistent store values (except the external audio return)."
+  ],
+  "eliminated": [
+    "Machine addresses and register/flag state from the ordinary native module; typed handler enum replaces near addresses.",
+    "Parallel-array layout becomes one shared HazardSlot; contact predicates and level/geometry types are reused without extensions."
+  ],
+  "retained": [
+    "Equality-only predecrement timers wrap zero; DOS constants warning70, alert140, stun350, tree210, cadence4/5/6/15.",
+    "Triopterus impact initializes ordinary recovery, preserving the DOS routing difference.",
+    "Bird contact only on tick expiry, target toggle/clamps and signed wrapped boundaries; falling counter saturates only under signed <40.",
+    "Patrol tick-only movement, unclipped reversal; charge acceleration direction-1, wrapped SHL5/SHL4 kick and platform detachment.",
+    "Dino retries on byte-index equality to PlayerCount, origin-adjusted rectangle, +/-41 raw force and direction from animation cursor <5.",
+    "Tree cached-coordinate SHL5 bug, sixth-update contact, NEG/SAR reflection, stone-origin launch, reward advancement after successful allocation, delayed exhaustion."
+  ],
+  "evidence": [
+    {
+      "property": "Full dispatcher descriptor target set",
+      "level": "C",
+      "method": "Independent expanded oracle bytes against all program-model origin_words; every zero and no-op retained",
+      "command": "python verif/hazards_inventory.py",
+      "result": "PASS: 52 fields, 31 distinct targets",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Compiled finite and generated transitions",
+      "level": "A",
+      "method": "Actual L1 and native C; five full 16-bit countdown domains, three full low-score-word domains at high FFFF, complete Dino phase word domain; other inputs fixed in these finite domains",
+      "command": "python verif/hazards_evidence.py generated",
+      "result": "PASS: 589824 exhaustive-domain comparisons plus 30000 generated cases (generated subset is C, not A)",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Journal/register/flag shell and native contacts/items composition",
+      "level": "C",
+      "method": "Original L0 versus combined bridged L1, normal and poisoned register inputs",
+      "command": "python verif/hazards_integration.py --whole --local-reference",
+      "result": "PASS: 804 focused hazard cases; 940 wrapper entries with 26 out-of-contract fallback calls. Whole-game fallback count zero. Earlier broad run also passed 2754 item/actor/render cases",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Whole-game observations",
+      "level": "D",
+      "method": "All deterministic page-boundary RAM/device and ordered-log digests against the independent rebuilt original",
+      "command": "python verif/hazards_integration.py --whole --local-reference",
+      "result": "PASS all 16 maintained scenarios; enemy reaches bird, Triopterus and tree, not Dino",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Additional Dino witness",
+      "level": "D",
+      "method": "Exact input-only real-entry/password scenario; no simulation RAM edits",
+      "command": "python verif/hazards_scenario.py",
+      "result": "PASS 300 boundaries and 268 native Dino force updates, no fallback",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Actual scratch promotion and native host",
+      "level": "D",
+      "method": "Maintained sources copied into scratch; certificate status=migrated there; actual unmodified CLI builder/checker, no selection monkeypatch",
+      "command": "python verif/hazards_host.py -> python tools/hostbuild.py; python host/check.py --variant native",
+      "result": "PASS 17 scenarios including Dino and 256-frame attract smoke",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Exhaustive input-domain and routing defect controls",
+      "level": "C",
+      "method": "Scratch native timer70->71, impact ordinary->alternate, Dino +41->+40; comparison executable must reject each",
+      "command": "python verif/hazards_mutants.py",
+      "result": "PASS all three detected after adding an explicit complete Dino phase domain; first random-only force experiment missed its defect",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "BeginBirdDelay actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py BeginBirdDelay --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 1.732s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "WaitForBirdFlight actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py WaitForBirdFlight --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 1.704s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "BeginBirdWarning actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py BeginBirdWarning --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 1.740s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "WaitForBirdWarning actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py WaitForBirdWarning --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 1.725s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "LaunchBirdTowardPlayer actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py LaunchBirdTowardPlayer --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 2.649s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "UpdateBirdFlight actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py UpdateBirdFlight --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 43.188s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "StunBirdAndAwardScore actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py StunBirdAndAwardScore --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 3.668s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "UpdateStunnedBird actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py UpdateStunnedBird --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 2.152s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "StopBirdFlightSound actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py StopBirdFlightSound --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 1.837s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "BeginTriopterusPatrol actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py BeginTriopterusPatrol --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 1.829s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "UpdateTriopterusPatrol actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py UpdateTriopterusPatrol --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 37.086s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "BeginTriopterusAlert actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py BeginTriopterusAlert --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 1.818s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "UpdateTriopterusAlert actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py UpdateTriopterusAlert --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 30.731s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "BeginTriopterusCharge actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py BeginTriopterusCharge --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 1.746s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "UpdateTriopterusCharge actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py UpdateTriopterusCharge --timeout 300",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 131.058s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "BeginTriopterusRecovery actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py BeginTriopterusRecovery --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 1.734s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "AnimateTriopterusRecovery actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py AnimateTriopterusRecovery --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 25.382s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "BeginTriopterusImpactRecovery actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py BeginTriopterusImpactRecovery --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 1.729s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "AnimateTriopterusImpactRecovery actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py AnimateTriopterusImpactRecovery --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 24.357s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "StunTriopterusAndAwardScore actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py StunTriopterusAndAwardScore --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 1.873s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "UpdateStunnedTriopterus actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py UpdateStunnedTriopterus --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 4.367s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "InitializeDinoAnimation actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py InitializeDinoAnimation --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 1.768s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "UpdateDinoForce actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py UpdateDinoForce --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 16.848s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "StunDinoAndAwardScore actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py StunDinoAndAwardScore --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 1.840s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "UpdateStunnedDino actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py UpdateStunnedDino --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 1.809s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "InitializeFruitTreeAnimation actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py InitializeFruitTreeAnimation --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 1.807s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "UpdateFruitTreeAnimation actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py UpdateFruitTreeAnimation --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 18.863s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "ReleaseTreeReward actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py ReleaseTreeReward --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 1.752s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "AdvanceTreeRewardCooldown actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py AdvanceTreeRewardCooldown --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 1.940s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "IgnoreExhaustedTree actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py IgnoreExhaustedTree --timeout 60",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 1.640s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "dispatcher actual-C one-step equivalence",
+      "level": "B",
+      "method": "Actual extracted L1 and maintained native C; arbitrary scalar words under the harness assumptions (platform<10, valid direction/player-array sizes, even cursor0..30 or FFFE, immutable consistent animation windows). Actual contacts with one stone; direct release input index0. Compare resulting slot/shared craft/stone state, requests and ordered semantic stores. Dispatcher instead uses arbitrary count0..5 and observing no-op callbacks.",
+      "command": "python verif/hazards_evidence.py dispatcher --timeout 30",
+      "result": "PASS: unwind 17, per-loop unwind assertions, bounds/pointer/signed-overflow checks; 0.734s. One-stone footprint is an explicit B bound, not sixteen-stone composition.",
+      "date": "2026-11-13"
+    }
+  ],
+  "amiga": {
+    "classification": "Shared design with confirmed DOS differences; no DOS byte proof",
+    "findings": "Bird/Triopterus/Dino scores 2500/1400/800 and finite tree order correspond. DOS timers and flight/force/kick algorithms prevail; docs/amiga.md earlier 150-delay summary is contradicted by its later source correction and the actual 70/140 constants."
+  },
+  "uncertainty": [
+    "The earlier stale random documentation lock was refreshed externally during this round. This worker did not edit that certificate or bypass any lock; the final global gate is recorded in the report.",
+    "Small-footprint CBMC successes: BeginBirdDelay, WaitForBirdFlight, BeginBirdWarning, WaitForBirdWarning, LaunchBirdTowardPlayer, UpdateBirdFlight, StunBirdAndAwardScore, UpdateStunnedBird, StopBirdFlightSound, BeginTriopterusPatrol, UpdateTriopterusPatrol, BeginTriopterusAlert, UpdateTriopterusAlert, BeginTriopterusCharge, UpdateTriopterusCharge, BeginTriopterusRecovery, AnimateTriopterusRecovery, BeginTriopterusImpactRecovery, AnimateTriopterusImpactRecovery, StunTriopterusAndAwardScore, UpdateStunnedTriopterus, InitializeDinoAnimation, UpdateDinoForce, StunDinoAndAwardScore, UpdateStunnedDino, InitializeFruitTreeAnimation, UpdateFruitTreeAnimation, ReleaseTreeReward, AdvanceTreeRewardCooldown, IgnoreExhaustedTree, dispatcher. Missing/unproved standard profiles: none.",
+    "Sixteen-stone whole-transition profiles timed out; no proof is claimed for them. Relational contact-contract and semantic-only experiments are separate receipts, never silently substituted for full actual-contact composition.",
+    "The native module is therefore a migration candidate, not a completed level-B closure. Bridge malformed-index/resource/alias fallbacks are compatibility, not native proofs.",
+    "The normal-state bridge retains a detailed machine shell to preserve all deterministic register/flag outputs. Eliminating that shell requires caller liveness review outside this round.",
+    "Only the supervisor can promote status. Administrative status stays unanalyzed."
+  ],
+  "dependencies": {
+    "native/hazards.h": {
+      "includes": [
+        "contacts.h",
+        "level.h"
+      ],
+      "calls": []
+    },
+    "native/hazards.c": {
+      "includes": [
+        "hazards.h"
+      ],
+      "calls": [
+        "contact_players",
+        "contact_stones",
+        "hazard_begin",
+        "hazard_counter",
+        "hazard_face",
+        "hazard_frame",
+        "hazard_out",
+        "hazard_platform_player",
+        "hazard_player",
+        "hazard_sar",
+        "hazard_score",
+        "hazard_signed",
+        "hazard_state",
+        "hazard_stone",
+        "hazard_store",
+        "hazard_tail",
+        "hazard_tick"
+      ]
+    },
+    "native/bridge/hazards_bridge.c": {
+      "includes": [
+        "../hazards.h",
+        "ugh.h"
+      ],
+      "calls": [
+        "A",
+        "B",
+        "D",
+        "DESC",
+        "F",
+        "G",
+        "R",
+        "READ",
+        "W",
+        "WRITE",
+        "add16",
+        "dec16",
+        "flag",
+        "hazard_audio",
+        "hazard_entry",
+        "hazard_finish",
+        "hazard_near",
+        "hazard_position",
+        "hazard_project",
+        "hazard_step",
+        "hazard_tail_call",
+        "hazard_target",
+        "hazard_word",
+        "hazard_write",
+        "hazards_next",
+        "hs_0_enemy_frame",
+        "hs_0_enemy_init",
+        "hs_0_enemy_wait",
+        "hs_0_inc",
+        "hs_0_less",
+        "hs_0_score",
+        "hs_0_shl",
+        "hs_1_effect",
+        "hs_1_enemy_player",
+        "hs_1_enemy_stone",
+        "hs_1_enemy_tick",
+        "hs_1_face_player",
+        "hs_1_frame",
+        "hs_1_gt",
+        "hs_1_lt",
+        "hs_1_pop",
+        "hs_1_push",
+        "hs_1_recover",
+        "hs_1_shift",
+        "hs_2_cell",
+        "l1_AdvanceTreeRewardCooldown",
+        "l1_AnimateTriopterusImpactRecovery",
+        "l1_AnimateTriopterusRecovery",
+        "l1_BeginBirdDelay",
+        "l1_BeginBirdWarning",
+        "l1_BeginTriopterusAlert",
+        "l1_BeginTriopterusCharge",
+        "l1_BeginTriopterusImpactRecovery",
+        "l1_BeginTriopterusPatrol",
+        "l1_BeginTriopterusRecovery",
+        "l1_DispatchEnemyStates",
+        "l1_InitializeDinoAnimation",
+        "l1_InitializeFruitTreeAnimation",
+        "l1_LaunchBirdTowardPlayer",
+        "l1_ReleaseTreeReward",
+        "l1_StopBirdFlightSound",
+        "l1_StunBirdAndAwardScore",
+        "l1_StunDinoAndAwardScore",
+        "l1_StunTriopterusAndAwardScore",
+        "l1_UpdateBirdFlight",
+        "l1_UpdateDinoForce",
+        "l1_UpdateFruitTreeAnimation",
+        "l1_UpdateStunnedBird",
+        "l1_UpdateStunnedDino",
+        "l1_UpdateStunnedTriopterus",
+        "l1_UpdateTriopterusAlert",
+        "l1_UpdateTriopterusCharge",
+        "l1_UpdateTriopterusPatrol",
+        "l1_WaitForBirdFlight",
+        "l1_WaitForBirdWarning",
+        "lin",
+        "logic",
+        "rd16",
+        "shell_AdvanceTreeRewardCooldown",
+        "shell_AnimateTriopterusImpactRecovery",
+        "shell_AnimateTriopterusRecovery",
+        "shell_BeginBirdDelay",
+        "shell_BeginBirdWarning",
+        "shell_BeginTriopterusAlert",
+        "shell_BeginTriopterusCharge",
+        "shell_BeginTriopterusImpactRecovery",
+        "shell_BeginTriopterusPatrol",
+        "shell_BeginTriopterusRecovery",
+        "shell_InitializeDinoAnimation",
+        "shell_InitializeFruitTreeAnimation",
+        "shell_LaunchBirdTowardPlayer",
+        "shell_ReleaseTreeReward",
+        "shell_StopBirdFlightSound",
+        "shell_StunBirdAndAwardScore",
+        "shell_StunDinoAndAwardScore",
+        "shell_StunTriopterusAndAwardScore",
+        "shell_UpdateBirdFlight",
+        "shell_UpdateDinoForce",
+        "shell_UpdateFruitTreeAnimation",
+        "shell_UpdateStunnedBird",
+        "shell_UpdateStunnedDino",
+        "shell_UpdateStunnedTriopterus",
+        "shell_UpdateTriopterusAlert",
+        "shell_UpdateTriopterusCharge",
+        "shell_UpdateTriopterusPatrol",
+        "shell_WaitForBirdFlight",
+        "shell_WaitForBirdWarning",
+        "sub16",
+        "szp",
+        "tail",
+        "ugh_call_near",
+        "ugh_dispatch",
+        "wr16"
+      ]
+    }
+  },
+  "proposed_status_reason": "Native implementation and bridge pass C/D and an actual native-host scratch promotion. The general sixteen-stone contract and full bridge projection remain C; do not propose verified-under-assumptions or integration-validated for the whole contract.",
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "native/hazards.c": "590ad430fc32a4267004492dd602993de903618e7b4da6a79addc0746c692159",
+    "native/bridge/hazards_bridge.c": "586941b1aacbc6f942795033dd4b215ac9091bbbf1af6b754b1903628bba20ab",
+    "native/contacts.c": "f809c3af54ddb43b07b60be870e30e404f0b0456f4542585011cb5108dcc8b15",
+    "native/bridge/contacts_bridge.c": "ae0355b3a17443a2d39b41b9ac99656041ae63c9bebf3a399e207e6257b1bdab",
+    "native/items.c": "d3ede593a1249fc46da025fc304f90ed8f962a5145a81731c6dc70b2f384b8ec",
+    "native/bridge/items_bridge.c": "badddeb8758636e00216082cbb4e945fd11445c070f400db25b10ccf39506995",
+    "native/level_view.c": "f0b3db5747f718d7c112c721735ca5a497a9b93a6ecb33096223b188b170353d",
+    "native/bridge/level_view_bridge.c": "ff2db79ab215fd6bbf4ed99c5fb64dc39b8fdb060f3c57b07070158b998f4d11",
+    "native/hazards.h": "9c2086caf6c37a56b8da62cd7a843a13247f2f87d1c5da836158d6dfa0403331",
+    "native/contacts.h": "2d329a52985ea628a56afaee703e8b2f84ed9a328e58109c3be4dac3e90c1d29",
+    "native/items.h": "167ed4e4d1d4ff78201eb37144bd1b77d6f1d9a6b51b935f0f5ba2142eb55736",
+    "native/geometry.h": "e630be5b080076dfd0f95ff07be51887e5c39d8caa3bdfae7271e06be37c6410",
+    "native/level.h": "d9d498993704f2b446d52fa1f3e3cc4b721d9344cfef8520ab4979c3395f45ca",
+    "native/bridge/level_projection.h": "d463ba8829671479c3349435080eb7f16ae48551c7a7b0464d27dbc88257df83",
+    "verif/hazards_build.py": "3091b5a720e2bcb92481079b3f802532dfbf9e57d073088f74d333dff8e3fac6",
+    "verif/hazards_certificate.py": "baec46a7a562cb9aa68327c97d44eb8fc4fe92fdd16be1f7c58b426bba3c7e50",
+    "verif/hazards_dino.txt": "f5a6254be7b416bdf3da436c7b1907abe31e4a7b184bb7ac6636b72c7c166252",
+    "verif/hazards_evidence.py": "d208ec150d5fa7fd3d0d4b099bd45e4fc575eb395a80e74b8fcb37bb3e30fdfa",
+    "verif/hazards_harness.c": "8cbcbf879612fcafbf5fc57209bfd6dddabf108aa9324080c81eb0a9db8228c4",
+    "verif/hazards_host.py": "2c231cf97ee1bd53c70c0b224f86300c5cb4e17917ed3ae9bb40a8e8107edd24",
+    "verif/hazards_integration.py": "c3fcef50ab6ebeae643af3ed6af28712a8a1cb339996685a7476d98fb034b8ba",
+    "verif/hazards_inventory.py": "642c6cf1ad9dec4625ccb503862c10bfeb15e01000954dc9500cdd13fa63ef38",
+    "verif/hazards_mutants.py": "d1b494c0c1e89d852d87ee18fda04704bc5c4de41d919d0fff0f9258bfcca5e2",
+    "verif/hazards_pair.py": "ecd8696eccd7f6c181985133b3aaa8a69dbe9769ed9c894ae260a1437f51d3a9",
+    "verif/hazards_reproduce.py": "2f1d2788700a757099aab2cdc56c39223b7a87b677e50a763a640771adbb4c1f",
+    "verif/hazards_review.py": "17dd45889988358d160bffd374925f8dbd83e218eb7ce793ab3d4d25cfc25b87",
+    "verif/hazards_scenario.py": "1691669ea696ee653d94cbbe4d15fde8245b6bf604cbf3873d79dc649cf061ab",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
+    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
+    "host/check.py": "ae78b6b48e7c77aa4c513f8474d23d7ef9d26afe39ab55ea70e871473701e94c",
+    "c/actors.c": "d17c03c844f95780f0647b85aa854a87c3e566b0f56fe89ee0a95d6d689f3ff2",
+    "c/actors_states.c": "79a460a0436e773bdd795953f63c6765d71c0e346cdf8bbccbcf707817994447",
+    "c/items_water.c": "ab5c2c72096b5e6355a2575f9a58c321f91680d7cd97653581dcbab59033e2d9",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5"
+  }
+}

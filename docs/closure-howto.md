@@ -427,3 +427,55 @@ The isolated builder avoids changing historically source-locked shared tooling.
 for the proposed migrated unit and suppresses regeneration of protected L1
 files. It then runs the unchanged `host/check.py --variant native`. Certificate
 promotion remains the supervisor's decision.
+
+## Hazard transitions and the native host review
+
+`hazards.h` defines the five-slot record once. Its animation inputs are immutable
+first/next windows sampled at the incoming cursor; the native step owns cursor
+advancement, reset, state transitions and shared-state effects. The flight-side
+selector and reward-list ordinal preserve future resource selection. An ordered
+semantic store journal supports the temporary full-register bridge. The bridge
+consumes those native values, checks the write owner/index/order, and retains
+instruction expressions solely for register/flag reconstruction. It does not
+run a shadow L1 state machine and overwrite its result afterwards. The returned
+audio handle remains an explicit external service result.
+
+Reproduce from maintained files (generated sources/receipts stay under the worker):
+
+```
+python verif/hazards_inventory.py
+python verif/hazards_evidence.py generated
+python verif/hazards_evidence.py UpdateBirdFlight --timeout 120
+python verif/hazards_evidence.py UpdateTriopterusCharge --semantic --timeout 120
+python verif/hazards_evidence.py dispatcher --timeout 30
+python verif/hazards_evidence.py dispatcher --negative --timeout 30
+python verif/hazards_mutants.py
+python verif/hazards_integration.py --whole --local-reference
+python verif/hazards_scenario.py
+python verif/hazards_host.py
+```
+
+`python verif/hazards_reproduce.py` runs that chain and every standard entry
+profile, then the real repository-wide closure gate. `--skip-proofs` reruns the
+finite/C/D evidence. A pre-existing unrelated stale certificate still makes
+the final gate fail; the runner never bypasses or relocks it.
+
+Each exported entry except the dispatcher has its own proof profile, selected
+by its original routine name. Default `--stones 1` includes actual independent
+L1 contacts and actual native contacts. `--stones 16` attempts full composition;
+timeouts earn no proof. `--contracts --stones 16` instead gives the caller a
+relational contact contract: any shared selected index/miss, with equality of
+the full query arguments asserted. This is conditional B evidence for the actual
+caller C, not a proof of sixteen-entry contact selection. The contacts unit's
+separate evidence still determines that link's strength. `--semantic` checks
+the entire resulting slot/shared state and requests, plus store count, while
+omitting ordered journal-value comparison; the ordinary profile checks both.
+Safety and unwinding assertions remain enabled in every profile.
+
+`hazards_host.py` copies maintained source and the checked plain reference into
+an isolated scratch tree, sets only its hazard certificate to `migrated`, then
+runs the real `python tools/hostbuild.py` and
+`python host/check.py --variant native` there. It changes neither host selection
+nor generation functions. It includes all sixteen maintained scenarios and the
+additional input-only Dino witness in `verif/hazards_dino.txt`, plus the checker’s
+256-frame smoke. A scratch host pass does not promote the maintained certificate.

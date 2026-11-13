@@ -105,6 +105,9 @@ is the second unit, chosen to exercise state ownership and indirect control flow
 | Contact predicates | migrated: complete coordinate domains enumerated (A), arbitrary geometry and two-entry stone lists proved (B), scanning of up to 16 stones only tested (C) | `metadata/closure/contacts.json` |
 | Random number generator | integration-validated: one step proved over all 64-bit states, bounds and register shell (A); reduction enumerated over 2^32 pairs; 14 scenarios and a rainy level with 2,795 draws (D) | `metadata/closure/random.json` |
 | Falling items | migrated: every transition proved from any admitted slot state (B), finite domains enumerated (A), pickup scenarios for multiplier and timer items (D). Full pool: at most 11 occupied slots under the shipped spawn sources (bounded), abnormal return still reproduced. The lives item has no producer in the shipped game | `metadata/closure/falling_items.json` |
+| Actor types | migrated: projection over all shipped actor resources and the per-phase validity table proved (A); renderer history persistence across a mode switch tested (C). `native/actors.h` holds the accepted design (docs/actor-storage.md) | `metadata/closure/actor_types.json` |
+| Demo interpreter core | migrated: all 28 shipped scripts enumerated over 62,214 ticks (A), one-instruction steps from any admitted slot (B), demo-to-gameplay history handoff checked | `metadata/closure/demo_core.json` |
+| Hazards (bird, Triopterus, Dino, reward tree) | migrated: each of 31 handlers proved one step from any admitted slot state (B), finite and generated transitions enumerated (A); composition with all 16 stones only tested. DOS constants and the Triopterus impact routing retained | `metadata/closure/hazards.json` |
 | everything else | unanalyzed | |
 
 ## Tooling gaps

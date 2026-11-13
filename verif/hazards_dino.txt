@@ -1,0 +1,14 @@
+timing pit-quantum-at-polls
+# Input-only real-entry password trace; independently compared with L0.
+frames 300
+card none
+joystick f0 f0 ff ff ff ff ff ff ff ff f0 f0 f0 f0
+bios 0042 0055 0052 004e 0054 004f 0046 0046 0045 0052 0049 004e 0047 0053 000d
+1: esc -esc
+4: esc -esc
+9: f2 -f2
+26: f1 -f1
+29: enter -enter
+31: cycle=enter,-enter
+requires GAME:EditLevelPassword GAME:RunGameFromPassword GAME:InitializeDinoAnimation GAME:UpdateDinoForce
+expect CurrentLevelIndex 3

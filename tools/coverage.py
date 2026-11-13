@@ -116,6 +116,16 @@ def main():
                 entries_executed=sum(r['entry_executed'] for r in rows))
     report=dict(counts=counts,notes='Reachable-body instruction counts can overlap at shared tails. '
                 'Calls excluded; computed jumps unresolved. Execution is behavioural evidence only.',routines=rows)
+    whole_path=ROOT/'build/whole/call-edges.json'
+    if whole_path.exists():
+        whole=json.loads(whole_path.read_text())
+        stale=[p for p,digest in whole['inputs'].items() if not (ROOT/p).exists() or sha256((ROOT/p).read_bytes())!=digest]
+        if whole['passed'] and not stale:
+            report['whole_game']=dict(routines=len(whole['routines']),
+                previously_unverified=whole['previous_unverified'],closed=whole['closed'],
+                remaining=sum(not e['verified'] for e in whole['edges']))
+            print('whole-game edges:',report['whole_game'])
+        else: print('whole-game coverage is stale or failed; no additional edges accepted')
     (ROOT/'build/c/coverage.json').write_text(json.dumps(report,indent=2)+'\n')
     lines=['# Translation coverage', '', str(counts), '',report['notes'],'',
            '| Routine | C | Direct test | Entry ran | Instructions ran/body | Missing (image) |',

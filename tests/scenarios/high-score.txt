@@ -1,0 +1,9 @@
+timing pit-quantum-at-polls
+# Cold score editor integration: all glyphs, BIOS keys and modelled DOS save.
+entry GAME:InsertHighScoreAndClearScore
+frames 32
+end return
+score 999999
+bios 0061 0062 0008 0063 0031 000d
+card none
+requires GAME:SaveHighScores

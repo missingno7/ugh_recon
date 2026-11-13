@@ -1,0 +1,4 @@
+timing pit-quantum-at-polls
+entry GAME:PlayPreGameDemo
+frames 160
+card none

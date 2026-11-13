@@ -1,0 +1,4 @@
+timing pit-quantum-at-polls
+# Start at the program's assembly entry, without DOS runtime startup.
+frames 12
+card none

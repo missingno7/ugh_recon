@@ -28,6 +28,8 @@ EXPORT int c_TestAllDemoScriptsFinished(Regs *r) {
 
 /* TRANSLATES GAME:PollKeyboardScanChange */
 EXPORT int c_PollKeyboardScanChange(Regs *r) {
+    int st=platform_service_point_at(SERVICE_IO,r->cs,G(PollKeyboardScanChange),r);
+    if(st) return st;
     uint8_t old=rd8(r->ds,D(CurrentKeyboardScanCode));
     wr8(r->ds,D(PreviousPolledScanCode),old);
     uint8_t scan=rd8(GAME_SEG,G(LatestInterruptScanCode));

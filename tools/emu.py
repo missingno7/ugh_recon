@@ -105,29 +105,40 @@ class Devices:
         f.name[:len(name)]=name; f.data[:len(data)]=data; f.length=len(data); f.exists=1
 
     def read(self,off):
-        for p in range(4): self.latch[p]=self.planes[p*65536+(off&65535)]
-        if self.gc[5]&8:
+        d=self.raw; planes=d.planes; latch=d.latch; off&=65535
+        latch[0]=planes[off]; latch[1]=planes[65536+off]
+        latch[2]=planes[131072+off]; latch[3]=planes[196608+off]
+        gc=d.gc
+        if gc[5]&8:
             result=255
             for p in range(4):
-                if self.gc[7]&(1<<p): result &= self.latch[p] ^ (0 if self.gc[2]&(1<<p) else 255)
+                if gc[7]&(1<<p): result &= latch[p] ^ (0 if gc[2]&(1<<p) else 255)
             return result
-        return self.latch[self.read_map&3]
+        return latch[d.read_map&3]
 
     def write(self,off,value):
-        rotate=self.gc[3]&7; value&=255
+        d=self.raw; planes=d.planes; latches=d.latch; gc=d.gc; off&=65535
+        mode=gc[5]&3; map_mask=d.map_mask
+        # Latch copies dominate full-game rendering. Hoist ctypes/proxy lookups
+        # and preserve the four independent plane writes, including aliases.
+        if mode==1:
+            for p in range(4):
+                if map_mask&(1<<p): planes[p*65536+off]=latches[p]
+            return
+        rotate=gc[3]&7; value&=255
         rotated=((value>>rotate)|(value<<(8-rotate)))&255
-        mode=self.gc[5]&3; op=(self.gc[3]>>3)&3
+        op=(gc[3]>>3)&3
         for p in range(4):
-            if not self.map_mask&(1<<p): continue
-            latch=self.latch[p]; mask=self.gc[8]
-            if mode==1: result=latch
-            else:
-                if mode==0: source=(255 if self.gc[0]&(1<<p) else 0) if self.gc[1]&(1<<p) else rotated
-                elif mode==2: source=255 if value&(1<<p) else 0
-                else: source=255 if self.gc[0]&(1<<p) else 0; mask &= rotated
-                source=[source,source&latch,source|latch,source^latch][op]
-                result=(source&mask)|(latch&(~mask&255))
-            self.planes[p*65536+(off&65535)]=result
+            if not map_mask&(1<<p): continue
+            latch=latches[p]; mask=gc[8]
+            if mode==0: source=(255 if gc[0]&(1<<p) else 0) if gc[1]&(1<<p) else rotated
+            elif mode==2: source=255 if value&(1<<p) else 0
+            else: source=255 if gc[0]&(1<<p) else 0; mask &= rotated
+            if op==1: source &= latch
+            elif op==2: source |= latch
+            elif op==3: source ^= latch
+            result=(source&mask)|(latch&(~mask&255))
+            planes[p*65536+off]=result
 
     def out(self,port,size,value):
         self.log.append((1,port,size,value))
@@ -255,6 +266,14 @@ class Devices:
         off,seg=struct.unpack('<HH',m.read(0,4*(8+e.irq),4)); m.setreg('CS',seg); m.setreg('IP',off)
         return True
 
+    def bios_timer(self,m):
+        """Explicit test BIOS INT08 fixture, independent of the C boundary."""
+        ticks=(int.from_bytes(m.read(0x40,0x6c,4),'little')+1)&0xffffffff
+        if ticks>=0x1800b0:
+            ticks=0
+            m.write(0x40,0x70,bytes([(m.read(0x40,0x70,1)[0]+1)&255]))
+        m.write(0x40,0x6c,ticks.to_bytes(4,'little')); self.out(0x20,1,0x20)
+
 
 class Machine:
     def __init__(self, coverage=False):
@@ -268,17 +287,33 @@ class Machine:
         self.uc.mem_map(0,0xA0000)
         self.uc.mem_map(0xB0000,MEM_SIZE-0xB0000)
         self.uc.mmio_map(0xA0000,65536,self._vread,None,self._vwrite,None)
-        self.uc.hook_add(UC_HOOK_CODE,self._code)
+        self.code_hook = self.uc.hook_add(UC_HOOK_CODE,self._code)
         self.uc.hook_add(UC_HOOK_INSN,self._in,None,1,0,UC_X86_INS_IN)
         self.uc.hook_add(UC_HOOK_INSN,self._out,None,1,0,UC_X86_INS_OUT)
         self.uc.hook_add(UC_HOOK_INTR,self._intr)
+        self.uc.hook_add(UC_HOOK_CODE,self._bios,begin=0xf0100,end=0xf0100)
         self.coverage = coverage
         self.executed = set()
         self.call_edges = set()
         self.reset()
 
+    def ranged_hooks(self, sites=()):
+        """Long-run mode: no Python instruction callback. Budget via Unicorn.
+
+        Install after prepare/schedule. Only the sentinel and named IRQ polling
+        sites call _code; steps is consequently a hook count, not instructions.
+        Routine suites deliberately retain their instruction/edge census mode.
+        """
+        self.uc.hook_del(self.code_hook)
+        addresses = {self.stop_at, *sites}
+        addresses.update(e.segment*16+e.offset for e in self.device.irqs[:self.device.irq_count])
+        self.code_hook = None
+        for address in addresses:
+            self.uc.hook_add(UC_HOOK_CODE,self._code,begin=address,end=address)
+
     def reset(self):
         self.device = Devices()
+        if hasattr(self,'vga_accelerator'): self.vga_accelerator.attach(self)
         self.restore(bytes(MEM_SIZE))
         self.uc.mem_write(LOAD*16,bytes(self.image))
         self.steps = 0
@@ -334,6 +369,12 @@ class Machine:
             if self.expected_exit and self.device.exited:
                 self.terminal_exit=True; uc.emu_stop()
         except Exception as e: self.error=e; uc.emu_stop()
+    def _bios(self,uc,address,size,user):
+        self.device.bios_timer(self)
+        ip,cs,flags=struct.unpack('<HHH',self.read(self.reg('SS'),self.reg('SP'),6))
+        self.setreg('IP',ip); self.setreg('CS',cs); self.setreg('FLAGS',flags)
+        self.setreg('SP',self.reg('SP')+6)
+        self.resume_irq=True; uc.emu_stop()
     def _code(self,uc,address,size,user):
         if address==self.stop_at:
             self.returned=True; uc.emu_stop(); return
@@ -396,6 +437,103 @@ class Machine:
         if self.reg('SP')!=STACK_TOP:
             raise RuntimeError(f'return stack imbalance: SP={self.reg("SP"):04X}')
         return {k:self.reg(k) for k in REG_NAMES}
+
+
+class NativeVga:
+    """Optional independent MMIO accelerator, containing hardware only.
+
+    Unicorn calls these C callbacks directly. No Python callback runs on a VGA
+    access and no translated game routine is linked into this DLL. The portable
+    game's VGA implementation remains c/memory.c; Devices is the Python model
+    used for known-answer and randomized cross-checks. Scratch belongs to caller.
+    """
+    SOURCE = r'''
+#include <stdint.h>
+#include <stddef.h>
+#define DEVICE_ERROR_OFFSET @ERROR_OFFSET@
+static int bad_width(void *user,unsigned size) {
+    if(size && size<=8) return 0;
+    *(uint32_t *)((uint8_t *)user+DEVICE_ERROR_OFFSET)=1; return 1;
+}
+typedef struct Vga {
+    uint8_t plane[4][65536],latch[4];
+    uint8_t seq_index,map_mask,gc_index,read_map,gc[9];
+} Vga;
+__declspec(dllexport) unsigned vga_prefix_size(void) { return sizeof(Vga); }
+static uint8_t read_byte(Vga *d,unsigned offset) {
+    offset&=65535;
+    for(unsigned plane=0;plane<4;plane++) d->latch[plane]=d->plane[plane][offset];
+    if(!(d->gc[5]&8)) return d->latch[d->read_map&3];
+    uint8_t result=255;
+    for(unsigned plane=0;plane<4;plane++)
+        if(d->gc[7]&(1u<<plane))
+            result &= (uint8_t)(d->latch[plane] ^ ((d->gc[2]&(1u<<plane))?0:255));
+    return result;
+}
+static void write_byte(Vga *d,unsigned offset,uint8_t value) {
+    unsigned mode=d->gc[5]&3,rotate=d->gc[3]&7;
+    uint8_t rotated=(uint8_t)((value>>rotate)|(value<<((8-rotate)&7)));
+    offset&=65535;
+    for(unsigned plane=0;plane<4;plane++) {
+        unsigned bit=1u<<plane;
+        if(!(d->map_mask&bit)) continue;
+        if(mode==1) { d->plane[plane][offset]=d->latch[plane]; continue; }
+        uint8_t source,mask=d->gc[8],latch=d->latch[plane];
+        switch(mode) {
+        case 0: source=(d->gc[1]&bit)?((d->gc[0]&bit)?255:0):rotated; break;
+        case 2: source=(value&bit)?255:0; break;
+        default: source=(d->gc[0]&bit)?255:0; mask&=rotated; break;
+        }
+        switch((d->gc[3]>>3)&3) {
+        case 1: source&=latch; break;
+        case 2: source|=latch; break;
+        case 3: source^=latch; break;
+        }
+        d->plane[plane][offset]=(uint8_t)((source&mask)|(latch&~mask));
+    }
+}
+__declspec(dllexport) uint64_t vga_read(void *uc,uint64_t offset,unsigned size,void *user) {
+    (void)uc; uint64_t result=0;
+    if(bad_width(user,size)) return 0;
+    for(unsigned i=0;i<size && i<8;i++) result|=(uint64_t)read_byte(user,(unsigned)(offset+i))<<(8*i);
+    return result;
+}
+__declspec(dllexport) void vga_write(void *uc,uint64_t offset,unsigned size,uint64_t value,void *user) {
+    (void)uc;
+    if(bad_width(user,size)) return;
+    for(unsigned i=0;i<size && i<8;i++) write_byte(user,(unsigned)(offset+i),(uint8_t)(value>>(8*i)));
+}
+'''
+
+    def __init__(self,directory):
+        import os,subprocess,cbuild
+        from pathlib import Path
+        directory=Path(directory); source=directory/'vga.c'; target=directory/'vga.dll'
+        source.write_text(self.SOURCE.replace('@ERROR_OFFSET@',str(DeviceState.error.offset)))
+        env=dict(os.environ,PATH=str(cbuild.GCC.parent)+os.pathsep+os.environ.get('PATH',''))
+        subprocess.run([str(cbuild.GCC),'-shared','-O2','-std=c11','-Wall','-Wextra','-Werror',
+                        str(source),'-o',str(target)],check=True,capture_output=True,env=env)
+        self.dll=C.CDLL(str(target))
+        if self.dll.vga_prefix_size()!=DeviceState.gc.offset+9:
+            self.close(); raise ValueError('native VGA layout drift')
+        self.dll.vga_read.argtypes=[C.c_void_p,C.c_uint64,C.c_uint,C.c_void_p]
+        self.dll.vga_read.restype=C.c_uint64
+        self.dll.vga_write.argtypes=[C.c_void_p,C.c_uint64,C.c_uint,C.c_uint64,C.c_void_p]
+
+    def attach(self,machine):
+        # The public Python mmio_map wrapper wraps every callback in Python.
+        # Use the same pinned Unicorn C API to install native function pointers.
+        from unicorn.unicorn_py3.unicorn import uclib
+        machine.uc.mem_unmap(0xa0000,65536)
+        userdata=C.c_void_p(C.addressof(machine.device.raw))
+        status=uclib.uc_mmio_map(machine.uc._uch,0xa0000,65536,
+            C.cast(self.dll.vga_read,C.c_void_p),userdata,C.cast(self.dll.vga_write,C.c_void_p),userdata)
+        if status: raise UcError(status)
+        machine.vga_accelerator=self
+
+    def close(self):
+        import _ctypes
+        _ctypes.FreeLibrary(self.dll._handle)
 
 
 if __name__=='__main__':

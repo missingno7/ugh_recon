@@ -1,0 +1,8 @@
+timing pit-quantum-at-polls
+frames 16
+end exit
+card adlib
+1: esc -esc
+4: esc -esc
+9: q
+requires TIMER:HandleTimerInterrupt SOUND:TickAdlxPlayback C:ShutdownSoundSystem

@@ -44,9 +44,9 @@ class Case:
     cfunc: str = ''
 
 
-def load_dll():
+def load_dll(out=None, trace_dir=None):
     # Process-specific copy avoids loaded-DLL file locks without deleting other workers' files.
-    path=cbuild.build(ROOT/f'build/c/ughcore_{os.getpid()}.dll')
+    path=cbuild.build(out or ROOT/f'build/c/ughcore_{os.getpid()}.dll',trace_dir=trace_dir)
     dll=C.CDLL(str(path))
     dll.ugh_memory.restype=C.POINTER(C.c_uint8*MEM_SIZE)
     dll.ugh_device_state.restype=C.POINTER(DeviceState)

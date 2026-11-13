@@ -240,3 +240,21 @@ for flags in (2,0x202,0x602,0xcd7):
         m.ww('DGROUP:PreviousInt08Offset',off);m.ww('DGROUP:PreviousInt08Segment',seg)
     CASES.append(Case(f'chain accepted IRET target flags={flags:04X}',
         'TIMER:ChainSavedTimerInterrupt',setup=setup,regs=dict(DS=0x6c19),kind='far',flags=flags,out_regs=OUT))
+# Whole-game timing fixture: chain the real callback through an explicit BIOS
+# INT08 service, preserving its PUSHF/CALL FAR/IRET frame. No BIOS code is used.
+from emu import DATA_SEG
+for _ticks,_midnight in ((0,0),(0x1800af,0),(0x1800af,255),(0xffffffff,7)):
+    def _bios_setup(m,ticks=_ticks,midnight=_midnight):
+        m.ww('DGROUP:PreviousInt08Offset',0x100)
+        m.ww('DGROUP:PreviousInt08Segment',0xf000)
+        m.write(0x40,0x6c,ticks.to_bytes(4,'little'))
+        m.write(0x40,0x70,bytes([midnight]))
+    def _bios_check(m,r,ticks=_ticks,midnight=_midnight):
+        next_tick=(ticks+1)&0xffffffff
+        rollover=next_tick>=0x1800b0
+        assert int.from_bytes(m.read(0x40,0x6c,4),'little')==(0 if rollover else next_tick)
+        assert m.read(0x40,0x70,1)[0]==(midnight+rollover)&255
+        assert m.device.log==[(1,0x20,1,0x20)]
+    CASES.append(Case(f'BIOS timer chain { _ticks:08x}/{_midnight}',
+                      'TIMER:ChainSavedTimerInterrupt',setup=_bios_setup,check=_bios_check,
+                      regs=dict(DS=DATA_SEG),kind='far',out_regs=('AX','BX','CX','DX','SI','DI','BP','IF','DF')))

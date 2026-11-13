@@ -1,0 +1,4 @@
+timing pit-quantum-at-polls
+entry GAME:PlaySpriteRevealDemo
+frames 128
+card none

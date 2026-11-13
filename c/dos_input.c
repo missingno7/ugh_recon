@@ -100,7 +100,10 @@ static int retrace(Regs *r,int active) {
     return UGH_BUDGET;
 }
 /* TRANSLATES GAME:WaitVerticalRetraceActive */
-EXPORT int c_WaitVerticalRetraceActive(Regs *r) { return retrace(r,1); }
+EXPORT int c_WaitVerticalRetraceActive(Regs *r) {
+    int st=platform_service_point_at(SERVICE_RETRACE,r->cs,G(WaitVerticalRetraceActive),r);
+    return st?st:retrace(r,1);
+}
 /* TRANSLATES GAME:WaitVerticalRetraceInactive */
 EXPORT int c_WaitVerticalRetraceInactive(Regs *r) { return retrace(r,0); }
 

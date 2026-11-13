@@ -1,0 +1,14 @@
+timing pit-quantum-at-polls
+frames 160
+card none
+1: esc -esc
+4: esc -esc
+9: f4 -f4
+10: f1 -f1
+13: enter -enter
+15: enter -enter
+60: right 11
+100: -right 91 left
+140: -left
+requires GAME:RunGameFromPassword GAME:MovePlayerWithVgaCollisions GAME:PollPlayerControls
+expect PlayerCount 2

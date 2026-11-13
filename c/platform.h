@@ -34,6 +34,13 @@ EXPORT int platform_interrupt(uint8_t number,Regs *r);
 typedef int (*FrameObserver)(Regs *r);
 EXPORT void ugh_set_frame_observer(FrameObserver observer);
 int platform_frame_boundary(Regs *r);
+/* Harness-only input/IRQ scheduler. No callback means routine-test semantics. */
+typedef int (*ServiceObserver)(uint16_t segment,uint16_t offset,Regs *r);
+EXPORT void ugh_set_service_observer(ServiceObserver observer);
+EXPORT void platform_bios_timer(void);
+typedef void (*EntryObserver)(uint16_t segment,uint16_t offset,Regs *r);
+EXPORT void ugh_set_entry_observer(EntryObserver observer);
+void platform_trace_entry(uint16_t segment,uint16_t offset,Regs *r);
 typedef enum ServicePoint { SERVICE_RETRACE,SERVICE_TIMER_WAIT,SERVICE_IO } ServicePoint;
 int platform_service_point(ServicePoint point,Regs *r);
 EXPORT int platform_service_point_at(ServicePoint point,uint16_t segment,uint16_t offset,Regs *r);

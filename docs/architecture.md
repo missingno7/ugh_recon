@@ -203,6 +203,9 @@ IRQ handlers, and retains DX's original Begin-handler-offset bias. Tests verify
 both captured words and restoration of the prior vector. Retrace/input scripts
 advance at IN operations. The additional GAME:00E9 and 0D7B polling sites permit finite keyboard IRQ traces
 through main-menu/game composition. Main/ISR races elsewhere remain unverified.
+The maintained whole-game scheduler additionally delivers at retrace entry,
+keyboard polling entry and the existing sound waits; its explicit policy and
+BIOS fixture are described below and in `docs/whole-game.md`.
 
 ## Translation inventory and composition
 
@@ -239,8 +242,54 @@ finite certificate. Frame snapshots use a read-only observer at the real page
 flip RET (GAME:4EE5); diagnostic stops propagate a budget result. The observer
 does not change game RAM, clocks or platform logs. `tests/_whole_program.py`
 starts GAME:0008 (_main), stops after two flips and compares the original-address
-RAM, VGA/device state and ordered logs at each boundary. This is bounded
-composition evidence, not a DOS boot or a complete playthrough.
+RAM, VGA/device state and ordered logs at each boundary. That historical smoke
+check is superseded as a regression gate by `python tools/wholegame.py`, which
+checks fixed scenarios through gameplay, passenger delivery, deaths, game over,
+score saving and a later level. This remains finite composition evidence, not
+a DOS boot, every level, every possible input or every interrupt interleaving.
+
+### Whole-game deterministic delivery
+
+Scenario files explicitly select `timing pit-quantum-at-polls`. A presentation
+boundary is GAME:4EE5, the RET in SwapAndDisplayVgaPage. Inputs become eligible
+after that many page flips. IRQ1 delivers one raw make/break/prefix byte before
+each GAME:PollKeyboardScanChange entry, through the real installed vector and
+real handler. Multi-byte key sequences span polling visits. An optional repeated
+scan sequence permits input changes inside waits that do not flip pages. BIOS
+editor words remain a separate, finite INT16 fixture. Joystick commands select
+finite raw gameport discharge waveforms, read and calibrated by the game itself.
+Neither input path writes game variables.
+
+At GAME:WaitVerticalRetraceActive entry, SOUND:loc_1EA3, C:StopSoundChannel+53,
+C:StopMusicTrack+95 and C:LoadIffSample+4E7, the scheduler can deliver one IRQ0
+when the installed vector is TIMER:HandleTimerInterrupt. Delivery requires IF
+and an unmasked PIC line. Its integer clock increment is the programmed PIT
+divisor (zero means 65536). Calibration retains its two finite events at SOUND
+loc_1163/loc_116B, through the real temporary handlers. TIMER's slot countdowns,
+callbacks, AdLib music/effect work and PIT reprogramming run as original code
+or their translations. IRQs never depend on host time or instruction counts.
+No Sound Blaster scenario attempts to repair the known near-RET continuations.
+
+This is a chosen deterministic delivery policy, not a claim of cycle accuracy
+or one IRQ per physical CRT frame. Named waits, including sound-only polls,
+are the common service points. A future SDL host can pace these services with
+wall time while retaining this deterministic fixture backend for regression.
+
+The fixture's saved BIOS INT08 vector is F000:0100. Its explicit service
+increments the dword at 0040:006C, rolls over at 1800B0h, increments the midnight
+byte at 0040:0070 and sends PIC EOI, then consumes the actual six-byte IRET
+frame. Registers and saved FLAGS survive. Python and C implement this boundary
+independently; four new direct TIMER chain cases include rollover and wrapping.
+This models a narrow BIOS service, not original BIOS instructions or arbitrary
+external interrupt handlers. No runtime/library match attribution changes.
+
+Long reference runs have only address-ranged frame, service, routine-entry and
+unverified call-site hooks. Census/edge hooks retire after collecting their
+evidence, especially ICE bit readers. VGA MMIO can use a standalone native
+hardware helper in tools/emu.py: it contains no game adapters and operates
+directly on the same device planes/latches. Known answers compare it with the
+independent Python device model, including complete map/demo frame digests.
+Routine suites retain their existing Python model and instruction census.
 
 ## Direct interaction census
 

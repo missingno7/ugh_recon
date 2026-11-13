@@ -2,6 +2,13 @@
 #include <string.h>
 Devices ugh_devices;
 static FrameObserver frame_observer;
+static ServiceObserver service_observer;
+static EntryObserver entry_observer;
+EXPORT void ugh_set_entry_observer(EntryObserver observer) { entry_observer=observer; }
+void platform_trace_entry(uint16_t segment,uint16_t offset,Regs *r) {
+    if(entry_observer) entry_observer(segment,offset,r);
+}
+EXPORT void ugh_set_service_observer(ServiceObserver observer) { service_observer=observer; }
 EXPORT void ugh_set_frame_observer(FrameObserver observer) { frame_observer=observer; }
 int platform_frame_boundary(Regs *r) { return frame_observer?frame_observer(r):UGH_OK; }
 EXPORT Devices *ugh_device_state(void) { return &ugh_devices; }
@@ -85,6 +92,12 @@ void platform_out(uint16_t port,unsigned size,uint32_t value) {
     if(size!=1 && size!=2) { ugh_devices.error=1; return; }
     for(unsigned i=0;i<size;i++) out_byte((uint16_t)(port+i),(uint8_t)(value>>(8*i)));
 }
+/* Narrow deterministic BIOS fixture: day clock, midnight flag, PIC EOI. */
+void platform_bios_timer(void) {
+    uint32_t ticks=rd32(0x40,0x6c)+1;
+    if(ticks>=0x1800b0u) { ticks=0; wr8(0x40,0x70,(uint8_t)(rd8(0x40,0x70)+1)); }
+    wr32(0x40,0x6c,ticks); platform_out(0x20,1,0x20);
+}
 uint32_t platform_in(uint16_t port,unsigned size) {
     Devices *d=&ugh_devices; uint32_t v=0;
     if(size!=1) d->error=1;
@@ -153,6 +166,7 @@ int platform_interrupt(uint8_t n,Regs *r) {
 }
 int platform_service_point_at(ServicePoint point,uint16_t segment,uint16_t offset,Regs *r) {
     Devices *d=&ugh_devices; (void)point;
+    if(service_observer) { int st=service_observer(segment,offset,r); if(st) return st; }
     if(d->irq_cursor>=d->irq_count) return UGH_OK;
     IrqEvent *e=&d->irqs[d->irq_cursor];
     if(e->segment!=segment || e->offset!=offset) return UGH_OK;

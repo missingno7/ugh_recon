@@ -1,0 +1,5 @@
+timing pit-quantum-at-polls
+# Original recorded scripts, from a documented cold renderer fixture.
+entry GAME:PlayAttractDemo
+frames 96
+card none

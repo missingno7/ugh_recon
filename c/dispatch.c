@@ -1,4 +1,4 @@
-#include "ugh.h"
+#include "platform.h"
 typedef struct Target { uint16_t segment,offset; UghAdapter adapter; } Target;
 static const Target targets[]={
 #include "dispatch_table.inc"
@@ -23,6 +23,13 @@ int ugh_call_near(uint16_t target,uint16_t return_ip,Regs *r) {
 /* Entry after PUSHF/CALL FAR or IRQ frame creation. Only accepted IRET bodies
  * are legal. CALL FAR does not itself clear IF/TF. Unknown handlers fail. */
 int ugh_dispatch_interrupt(uint16_t segment,uint16_t offset,Regs *r) {
+    /* Explicit fixture BIOS INT08 service; no original BIOS code is claimed. */
+    if(segment==0xf000 && offset==0x100) {
+        platform_bios_timer();
+        r->ip=rd16(r->ss,r->sp); r->cs=rd16(r->ss,(uint16_t)(r->sp+2));
+        r->flags=rd16(r->ss,(uint16_t)(r->sp+4)); r->sp=(uint16_t)(r->sp+6);
+        return UGH_OK;
+    }
     if(!((segment==GAME_SEG && (offset==G(FailDosCriticalError) || offset==G(HandleKeyboardScanInterrupt))) ||
          (segment==TIMER_SEG && offset==T(HandleTimerInterrupt)) ||
          (segment==SOUND_SEG && (offset==S(HandleDspProbeInterrupt) ||

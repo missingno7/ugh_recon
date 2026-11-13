@@ -1,0 +1,375 @@
+{
+  "component": "random",
+  "status": "integration-validated",
+  "status_reason": "Administrative initial value; only the supervisor sets the accepted status.",
+  "proposed_status": "integration-validated",
+  "proposed_status_reason": "Full L1/native one-step and partial-seed contracts have A evidence. D covers seeding in the maintained scenarios and draws in the additional unmodified shipped rainy level. L0 linkage remains differential C/D, not a formal machine proof.",
+  "original": {
+    "L0": [
+      "GAME:SeedRandomFromDosSeconds 013B:4EFF",
+      "GAME:NextRandomBelowAx 013B:4F09"
+    ],
+    "L1": [
+      "c/dos_input.c:c_SeedRandomFromDosSeconds",
+      "c/dos_input.c:c_NextRandomBelowAx"
+    ],
+    "scope": "numeric has exactly seven routines: decimal's three and coordinate_scale's two are already closed; these two exhaust the remainder. The maintained name is NextRandomBelowAx, called NextRandomBelow in the work order.",
+    "static_evidence": [
+      "src/asm/GAME.ASM:4EFF..4F42",
+      "metadata/program-model.json:components.numeric",
+      "src/asm/GAME.ASM:RespawnRainParticle and InitializeDosVideoInputAndSound"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/random.c",
+      "native/random.h",
+      "native/bridge/random_bridge.c"
+    ],
+    "header": "native/random.h",
+    "functions": [
+      "random_seed",
+      "random_next_below"
+    ],
+    "bridge": [
+      "c_SeedRandomFromDosSeconds",
+      "c_NextRandomBelowAx"
+    ]
+  },
+  "purpose": "Retain the game's bound-dependent four-word additive generator and its partial DOS-seconds reseed, including the persistent state that determines future rain draws.",
+  "interface": {
+    "inputs": [
+      "RandomState.word[4]: every 64-bit pattern",
+      "uint16_t bound: all 65536 patterns, including zero",
+      "RandomDosTime: four byte fields; all 256 seconds values admitted, other fields ignored by native seed"
+    ],
+    "outputs": [
+      "next_below returns floor(new_word0 * bound / 65536)",
+      "seed returns void; only word0's high byte changes"
+    ],
+    "effects": [
+      "next_below updates all four words; bound zero and one still step",
+      "seed preserves low word0 byte and all three other words",
+      "bridge next preserves every register except AX and the defined arithmetic flags; also reproduces L1's retained MUL-undefined flags",
+      "bridge seed requests INT21 AH=2C once, retains service outputs/status/log and writes only the seconds byte on success"
+    ],
+    "preconditions": [
+      "State pointer denotes an ordinary writable RandomState object",
+      "Bridge state is ordinary stable RAM through incoming CS, disjoint from transient original stack, device apertures and executed instruction bytes",
+      "Serialized call; no asynchronous mutation of RNG state or DOS-time-service mutation of its RAM",
+      "The DOS time service preserves the current code segment"
+    ],
+    "projection": "CS:4EF7,4EF9,4EFB,4EFD little-endian words map in order to RandomState.word[0..3]. CS:4EF8 is word0's high byte.",
+    "recurrence": "M=65536; (c0,a)=divmod(bound+s0,M); (c1,b)=divmod(s1+a+c0,M); (c2,c)=divmod(s2+b+c1,M); (c3,d)=divmod(s3+c+c2,M); new=( (a+d+c3) mod M, b,c,d ). Final addition carry is discarded.",
+    "range_reduction": "Multiply-high, never modulo or rejection. Zero/one return zero. For nonzero B the result is <B, including B=65535. Conditional on a uniform new word, bucket k has ceil((k+1)*65536/B)-ceil(k*65536/B) preimages. Counts differ by at most one, equal only when B divides 65536. This states reduction bias, not uniformity of the bound-dependent generator.",
+    "seeding": "INT21 AH=2C supplies CH hours, CL minutes, DH seconds, DL hundredths. Only DH replaces the previous word0 high byte; no mixing, recurrence step, or reset of the remaining 56 state bits. Native takes the time record as a parameter."
+  },
+  "callers": [
+    {
+      "routine": "GAME:InitializeDosVideoInputAndSound",
+      "site": "013B:4F81",
+      "continuation": "CLD then MOV AX,0013 and INT10. Time outputs are not consumed there; bridge conservatively preserves the service shell."
+    },
+    {
+      "routine": "GAME:RespawnRainParticle",
+      "site": "013B:3C3C",
+      "continuation": "AX bound is (320+WaterYPixels) mod 65536; CMP AX,320 consumes the returned position and replaces flags. Random helper restores CX/DX. State is retained for every future respawn."
+    }
+  ],
+  "callees": {
+    "L0": [
+      "DOS INT21 AH=2C for seed only"
+    ],
+    "L2": "No application callees; next and seed are ordinary arithmetic/state operations."
+  },
+  "indirect": {
+    "sites": [],
+    "classification": "Neither routine has an indirect application transfer. Direct near calls/returns; DOS time is the bridge's external capability."
+  },
+  "memory": {
+    "read": [
+      "Four CS state words for next; previous word0 low byte for seed",
+      "Incoming AX bound; DOS time output DH"
+    ],
+    "write": [
+      "Next: CS:4EF9,4EFB,4EFD,4EF7 in that order",
+      "Seed: CS:4EF8 only",
+      "L0 PUSH CX/DX/AX transient stack words, excluded by the disjoint-stack contract"
+    ],
+    "owner": "RNG state is eight data bytes embedded in GAME's assembly-origin code segment, not DGROUP; initial image words are 7F03,8134,48BC,2347.",
+    "aliases": "RandomStateStorage aliases word0 at 4EF7; RandomSecondsSeedByte aliases word0+1 at 4EF8. The other word spans are disjoint. No additional named writer or direct caller is assigned by the program model; its general indexed-alias incompleteness remains acknowledged."
+  },
+  "assumptions": [
+    "No positive-bound, on-screen, nonzero-state, valid-clock-range, or reachable-state restriction in the native theorem.",
+    "The actual-C proof shim maps exactly eight state bytes plus two guards on each side to ordinary RAM; arbitrary CS selects this normalized window. It asserts every read/write footprint. It does not simulate arbitrary stack/device/self-modification aliases.",
+    "The seeding service stub allows arbitrary output registers and status, preserves CS, and does not mutate state RAM. Integration uses the actual maintained device service and ordered logs."
+  ],
+  "eliminated": [
+    {
+      "detail": "Registers, CS-addressed data and saved stack words inside native code",
+      "evidence": "Explicit state/value parameters; bridge retains projection. Actual-C proof compares all four words and all fourteen register/flag fields for every state and bound. Transient stack storage is excluded explicitly."
+    },
+    {
+      "detail": "Direct DOS clock call inside native code",
+      "evidence": "RandomDosTime parameter; bridge alone calls the existing service. Full symbolic seed proof and original DOS differential cases retain the byte write, service shell and failure status."
+    },
+    {
+      "detail": "Instruction flags inside native recurrence",
+      "evidence": "Unsigned wide sums explicitly propagate carries and wrap each word. The bridge reconstructs L1's final parity/sign/zero/auxiliary flags and MUL carry/overflow; the actual-C shell theorem checks them."
+    }
+  ],
+  "retained": [
+    {
+      "detail": "Bound enters the recurrence before range reduction",
+      "reason": "Changing bounds changes future state, even when the returned value is zero. A generic bound-independent PRNG replacement diverges."
+    },
+    {
+      "detail": "All intermediate carry inputs, word wraps and final discarded carry",
+      "reason": "The assembly ADD/ADC chain defines the exact sequence; carry omission is detected by compiled and symbolic negative controls."
+    },
+    {
+      "detail": "Multiply-high bias, zero/one stepping and partial seconds overwrite",
+      "reason": "Modulo, rejection sampling, zero-bound early return and full-state seeding each alter game behaviour or future state."
+    },
+    {
+      "detail": "L1 convention for MUL's undefined PF/AF/ZF/SF",
+      "reason": "These are not defined L0 outputs, but the adapter retains L1's final ADC values for conservative compatibility. CF/OF match the defined nonzero high product word."
+    }
+  ],
+  "evidence": [
+    {
+      "property": "L1/native/bridge step over all 64 state bits, all 16 bound bits and arbitrary shell",
+      "level": "A",
+      "method": "CBMC 6.11 on extracted maintained L1, native and bridge C, real ugh.h arithmetic, footprint/safety/unwind assertions. Two checked equalities canonicalize only the final-word/bound operands at the identical multiplication; no assumptions or handwritten arithmetic model.",
+      "command": "python verif/random_evidence.py next --timeout 30",
+      "result": "PASS, including all four state words, exact AX output, status, complete register/flag shell and all state/guard bytes. Unwind16 covers all fixed loops; every cutpoint equality itself is asserted.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Full partial-reseed value/preservation and service shell",
+      "level": "A",
+      "method": "Actual-C CBMC SMT2/Z3, all state bits and DOS time byte patterns, arbitrary service output shell/status with CS preserved; exact ordinary-RAM shim",
+      "command": "python verif/random_evidence.py seed --timeout 30",
+      "result": "PASS: exact byte replacement; all other native words/bytes preserved; one time request per invocation; failed service status forwarded without state writes; full shell and footprint retained.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Multiply-high range and exact reduction bias over complete domain",
+      "level": "A",
+      "method": "Actual native return expression extracted verbatim, compiled as separate TU without LTO; every word/bound pair checked against independent uint64 division and every bucket cardinality",
+      "command": "python verif/random_evidence.py reduction",
+      "result": "PASS all 4294967296 pairs; all 65536 bounds and 65536 word values, zero/one and maximum included. Complete bucket-count formula checked. This reduction domain is not an enumeration of the 64-bit generator state.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Finite compiled one-step/seed families",
+      "level": "C",
+      "method": "Actual L1/native/bridge C; complete bound sweeps at four states, complete single-word sweeps at four fixed environments, 100000 generated states, full word0/seconds Cartesian seed domain",
+      "command": "python verif/random_evidence.py enumerate --mutants",
+      "result": "PASS 624288 draws and16777216 seeds; all state and shell bytes compared. Seed word0/seconds subdomain is exhaustive A for that explicitly fixed-other-words domain; broader drawn families are C. Four mutants (carry, bound feedback, modulo reduction, seed low-byte clobber) detected.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Symbolic semantic negative control",
+      "level": "C",
+      "method": "Scratch native mutation removes first propagated carry; original L1 and proof assertions unchanged",
+      "command": "python verif/random_evidence.py next --negative --timeout 30",
+      "result": "PASS control: VERIFICATION FAILED at the checked L1 cutpoint, complete state and shell assertions. This confirms that cutpoints are obligations, not assumed equalities.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "L0 to bridged L1 routine suites",
+      "level": "C",
+      "method": "Maintained dos_input/render/items_water suites plus extra carry-edge and partial-reseed cases, ordinary and poisoned environments, original RAM/device/log observation model",
+      "command": "python verif/random_integration.py --whole --local-reference --fresh --uncached",
+      "result": "PASS: dos_input200/200, render526/526, items_water210/210, random_cases324/324 =1260 cases. Audit1774 native draws and42 native seeds. Fresh local pinned-tools L0 rebuilt and checked; full final receipt in build/workers/close-random/integration.json.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Whole-game scenarios and native RNG coverage",
+      "level": "D",
+      "method": "Actual wholegame.main against isolated bridge DLL; all14 maintained scenarios plus256-frame shipped AFTERTHERAIN level42 scenario; per-scenario native call counters; original references regenerated locally",
+      "command": "python verif/random_integration.py --whole --local-reference --fresh --uncached",
+      "result": "PASS with freshly regenerated local oracle references: all14 maintained scenarios,9963 frames plus terminal boundaries, and extra256-frame shipped rainy level (10219 frames total). Native audit: standard scenarios8 seeds/0 draws, including water0 draws; additional AFTERTHERAIN level2795 draws. Standard oracle comparisons241.08 seconds; rainy scenario8.81 seconds.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Cheap period diagnostics",
+      "level": "C",
+      "method": "Floyd cycle probes of actual native transition at each fixed bound0,1,320,65535, from original unseeded image state; no million-step truncation promoted to a period",
+      "command": "python verif/random_evidence.py enumerate --mutants",
+      "result": "No collision within1000000 Floyd iterations for any of the four fixed-bound profiles. Zero state with zero bound is verified fixed, period1. General periods not established; varying bounds define a driven process with no single autonomous-generator period.",
+      "date": "2026-11-13"
+    }
+  ],
+  "amiga": {
+    "classification": "unresolved",
+    "finding": "No Amiga comparison needed to resolve these DOS instructions; none used as proof."
+  },
+  "uncertainty": [
+    "General fixed-bound periods are unknown beyond the bounded diagnostics; no full-period or uniform-state-distribution claim.",
+    "Maintained water scenario does not exercise rain respawns; the additional shipped rainy-level scenario supplies draw integration evidence.",
+    "Direct all-properties solver profiles timed out at30/45/60 seconds; the passing proof uses explicitly asserted equalities to share the identical multiplication operands. See REPORT.md for failed commands/options.",
+    "No stack/device/concurrent-state alias theorem and no unrestricted gameplay equivalence claim.",
+    "Administrative status remains for supervisor review; formal native proof does not promote differential L0 linkage."
+  ],
+  "dependencies": {
+    "native/random.c": {
+      "includes": [
+        "random.h"
+      ],
+      "calls": []
+    },
+    "native/random.h": {
+      "includes": [
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/random_bridge.c": {
+      "includes": [
+        "../random.h",
+        "platform.h"
+      ],
+      "calls": [
+        "G",
+        "flag",
+        "platform_interrupt",
+        "random_next_below",
+        "random_project",
+        "random_seed",
+        "rd16",
+        "set_ah",
+        "szp",
+        "wr16",
+        "wr8"
+      ]
+    }
+  },
+  "observation_chain": "L0 ASM -> L1/native bridge: C routine plus selected D whole-game evidence. L1 -> native: full step/seed A on the explicit serialized ordinary-RAM contract; exact reduction A by complete expression-domain enumeration. Equality of projected one-step state/results composes for arbitrary serialized seed/bound sequences.",
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "c/actors.h": "00817c6f676f61811df11066fca3335c9757e0f59f7cad241dff762fee7b71bd",
+    "c/actors_states.h": "375dda6bd3fa6cd5552cc98df7f7c785dc5d70850a10f96207bd0894161cd5d8",
+    "c/adlib.h": "70f2c0d3f51dc49dd05918266b4de07d247a12909f11e8329244b8d9af56cdee",
+    "c/demo_scripts.h": "ea65090001ef64f26f31c39de2075c098949bcb9ca8448480cd1fccdf55a608b",
+    "c/dispatch_table.inc": "0bb8fddf7dc6c98acc2fb92cf042088d0165c128a98da7e894ca49eb499c1111",
+    "c/dos_input.c": "b6a086f3917441a23c4238f582e00605d8a239ded81b03a658ff308890601e53",
+    "c/dos_input.h": "8cee17811645a61424b6174e0213402b8c21defd5b4fa6d56511225c70e5193e",
+    "c/dsp.h": "9b2c2b95b0781caf3a96b7b0b19f8078601557f5e0a11bec889d109ef2755b63",
+    "c/game_services.h": "7a63f8bd05b2710c27c4c4247b00e0f1fc06a4ecdaa388bf47eb9fb1374965c5",
+    "c/ice.h": "925da59e4f3fb6cf278100578e56093dc7138040c98eb9f286acb9c867512578",
+    "c/items_water.h": "d18978433dcc966235010906984c13fcb76c3469bf4bc0f8e33345101099f148",
+    "c/menu.h": "eaa33e9e9db1f3caa44f60b4a0c862b1bc82855a6389e91f330606e27317b1de",
+    "c/menu_helpers.h": "9c5998717eec5a79122d91ca1d6a045f303baaf5b96dbf14cf6401b4df34e4e2",
+    "c/music_analysis.h": "3b2175241d1ced443d9463c6545232630cd4ccd20d907dab83296c8e4cd7fe23",
+    "c/music_clock.h": "5ffc27066dc1c8438e716850ce666daaa00421dec8be964337b43f75a936210e",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/render.c": "7620324caaff46b39094d4b8f7077f2a5426a728806e52f1c56a962771208b40",
+    "c/render.h": "bcac207ffd7130100008409d8b4069b9ac126b713c81bfb043f1eb1e9603c160",
+    "c/render_primitives.h": "92f16baae8b087d052e7ca713921fe74ad63e4f0a9f370190b2cc476c7a0ab09",
+    "c/scene.c": "0060ef52ee2cc8b4c98d1b04b6387cd809809a9226f4b4f71c01a75a99d5e460",
+    "c/scene.h": "77c02b56b44a4eb584da4d17cad94cc7f4be79ea3a2f70fd03d7ed2dc50f884a",
+    "c/sound_api.h": "b15efba9d9cf41053b3b818d4bb3a084936b6d3e15dafc05544648c88e4687c1",
+    "c/sound_engine.h": "bb288a280c6cf526e91718ccd7fd02a2762e9d58f3d0d53a2f2feef9472eabd1",
+    "c/sound_state.h": "bdbbef92b75c99c274bde293ec8bcb1f7a997ed1e8176dc5deda96806c6fbad4",
+    "c/timer.h": "4ae328394adb59216a373832fbf926a926ce9fe8f813bbe7c3927c9abaf10937",
+    "c/timer_stack.h": "e076aba16f8ee3dacbffcddbfa5b065a79a6e8000fa825244bffeb3771d1a514",
+    "c/timer_system.h": "f7204fef034e9f641f1f12ad9412efe80844d5be64b177300bdc5a9a20136a49",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_adapters.h": "c18eafbbe16170d01fcfac6853deab651d3c2b54343b47bccd6ce0de4303ad38",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "c/video.c": "681732591d8efb11cf1d5d5816c999bca718560bd247d9c9cc6c0f36982b2fa2",
+    "c/video.h": "35e4d6076edd69e2722cf7d52392871345f5e0eb78af7ce67e13c8ed0c02f192",
+    "docs/modernization.md": "f69f5e56410ec2d9a749c90054bc8cbaeb399d28d1d4aa682585f16f9c01ff3f",
+    "docs/program-model.md": "8fc05fc5a2f34c271c1005075788dd485daca5380fd4b98ad8c91fb0bcda07c7",
+    "metadata/oracle.json": "7db8024058b1a1e34c7b02058e49f331f30effb6f35927945abcafaf63f9033f",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "metadata/toolchain-lock.json": "1eac9bc406bec9f0a6dabb333025d4bef2c08e89cf2bb54b27a1e512aca8c660",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
+    "native/bridge/random_bridge.c": "fad64c9bce7435e60efa5e0ed5705ed1179ae9239ce85b724228e2754403d22c",
+    "native/random.c": "5f77b30dd26cc0e6bc5ce30ce05e1163335004530ed4be4ab07339d3da027f99",
+    "native/random.h": "b9f9cabcb38b54a6fec81590179f55aeb036dd21d9cb4eaeb670013dc411d419",
+    "src/asm/GAME.ASM": "29c9ead3b191a744c59b465a3bd4de29f2e217b92492cf57edb8c13bc3494204",
+    "src/asm/RECORDS.INC": "eec09ddd918eefb026d831885a8c04f91a29ae34b6efca61bc5d6bd5a12fd0dc",
+    "src/asm/SOUND.ASM": "70150219d03e52ec3ed5f6c96ca179fd3cf98b54ff68995a1ae264e8d368652d",
+    "src/asm/TIMER.ASM": "ef53f29ee97899bf538298d360f6979004f41abcd5e07e2d23ecfb6642f5ae2a",
+    "src/c/inventory.json": "278ca9179615f7e26e343f2d606833515293cb37f8a47d92cc18e692168a29ea",
+    "src/c/module.c": "e58e54aa3f44fdfd29bdbcbaa471de2a6405235cbe2b276df56ea7193d548ae1",
+    "src/data/B1A38.ASM": "cee1c1d9c10768b99a80fddac88ca59d15328d6a41c974d5f94f3e4d5d8f2fd9",
+    "src/data/B1E1F.ASM": "7a636195f4a69255778e03237e8d825eac6c7d59c284aea6256d796e470f91e7",
+    "src/data/B2BC6.ASM": "9033bee940948a91ef50290c23885e809227b469732397775e1dd73b8db4115e",
+    "src/data/B2BF6.ASM": "f907ada7611fd12120f8ddfcc8506a5edabcdb6a4ad64ca47e78e6de4bd89b10",
+    "src/data/B2D9A.ASM": "08f944ca5bcdca6a37bf37a59c6604405e09188de65f94b1aebd8c9137762e2f",
+    "src/data/B2F9E.ASM": "78799439375c1fd1ad4c872c20c3820ce76555bf116fe1c97f8b1b8f8607f20f",
+    "src/data/B2FB7.ASM": "53d151a6a2e6516d43e8f1ff2b6ac1bdab4d1b6b25d310b049b957c8eebb429e",
+    "src/data/B325B.ASM": "8fc019dbdf8477daf8a36f25cc0325f2a09056339b654937df94ed8cb41bdb42",
+    "src/data/B3260.ASM": "0f2ba84929670a7d12921dc8c992091b0b46151904cd02f66cf64953ebd8ea48",
+    "src/data/B3265.ASM": "3e77026d186bb67250b6a2bee4aac83022c213de1eca1dcd96aa22b8d163686a",
+    "src/data/B326B.ASM": "9ce2562596f9edbf6ddf602d811f3588199d55da3d3eeecae3c9893743a847e0",
+    "src/data/B3274.ASM": "5bade68151bf12c7ba884821a904e7b2db8e13cc40e59a98bb65093511abb11e",
+    "src/data/B3279.ASM": "f6d787407f05c8773b0b430a1e346254583cd5cddda9f88eaa4a2fc87f2ac6ac",
+    "src/data/B3444.ASM": "1e2f93e57f7e74b243642a7dae3cc6c8ce86b65532b155a95a099d6dc6e70032",
+    "src/data/B3629.ASM": "ac40d38334f8f7f80ddff4d512a210a22fba34b596fa7753f397f2dcaccfb0c7",
+    "src/data/B3632.ASM": "6f0521b79fd37be4edf513e6308159ec323b2c0f1e569f1c16beb1a7fddadb8e",
+    "src/data/B3637.ASM": "8e8eb760db1077a5f4b5061c5c2a72ebc2c3b31466a3b1fbe7b4314c99875cf4",
+    "src/data/B37A7.ASM": "91004f455c88e7a636b0e3d2e184ac1b9d804a1f94d95e45d45e46ab03a93e6d",
+    "src/data/B438A.ASM": "48f4d2ca558a3cfb8bcc3bd61f3732746dcbe1b5668a5a8e6076a3833675939f",
+    "src/data/B4E83.ASM": "8fab1aabe495f67335470d3cbd243946f9ac87cf2a9a39b37bc65c4a06f01c03",
+    "src/data/B5B63.ASM": "0530296b01750aa1a97dbafc6de71cba2159a647f9e5eedcf5bf819cf6069467",
+    "src/data/DGDATA.ASM": "9d46889e26434a597ed19b91c119029af3dbf3dbcfa9811c4ed5aa18dc157541",
+    "src/data/RESERVE.ASM": "815d23baf300dfe2bc7401f137dd6f25843c5bda86a1d3d2e9a7159f86483726",
+    "src/data/ZERO.ASM": "f27ad647c2b95789c51c97b0242f9eaa91bb1ac0a1c5318da731da95abfe9cf9",
+    "tests/dos_input.py": "d9f48959a7d4b5eff7eb57a0357c10b96c7b17dff35a8b3e8bb362522d7c40c4",
+    "tests/items_water.py": "ea1f63e28e3dbc63d89649e167f5677bdb3a13b542eb588c90e6ed34a1f6db30",
+    "tests/render.py": "ac899241858dd7dd0f2d175a7f5b7229257b5b59a24291c65078881281c86e7e",
+    "tests/scenarios/adlib.txt": "1db37ba320e4c3c85449c2f4a7f5ecd8543e6de6933e165e534b79adb3386f2f",
+    "tests/scenarios/attract.txt": "07339939be35779cc94094221155e97a11c6dec396ab6dce85f238a415896a01",
+    "tests/scenarios/completion.txt": "d898ad1f8abd49f7757303b562028cf7f0c10143dfb0358dad4e0a6fee7386bc",
+    "tests/scenarios/enemy.txt": "c5140aa9afe062e09cbefb949b78d06733c306518f315ba8f5448a0c2b8062a6",
+    "tests/scenarios/gameplay.txt": "b0be47d570408d44dc977faca40ef2a258c0686958f7fa68574cc411bb25a03a",
+    "tests/scenarios/high-score.txt": "5b698cb06b6d77d9a9d6f009cea71b8a1af9c16c8ecf3c344e33a9b8d93b1220",
+    "tests/scenarios/menu.txt": "3e8347d504ac0c13ced62c1befb26b59a353c46de397bb3ac79f5089b20ea8b1",
+    "tests/scenarios/passenger.txt": "e95f43a019615449dd142652ea837aaeb4a82e7bce9c6ecd72dd67411fe44922",
+    "tests/scenarios/password.txt": "fea4555e22daca6a5e4e154fd4d6c1b7871d80aa574c402363d5b3b938657bd2",
+    "tests/scenarios/pregame.txt": "6697f662ccf5791b57e14d5dcb0c216c7428312441c570f10b0e031a33a97cf8",
+    "tests/scenarios/reveal.txt": "8be34ff993316d7e099576cccd8af23d28267b02eee37df01a430f8e94418c84",
+    "tests/scenarios/startup.txt": "bddaf9054cfb6f1a4a5734e147c2481c28d0fa0768af141c311ddb13a38fbd7b",
+    "tests/scenarios/two-player.txt": "5c07be6ec944b7a38082d275633bba2ef26cc9e90828b673bb8434ad3ffa78e5",
+    "tests/scenarios/water.txt": "22aca0913b25142891f67c57f20d56cfef57c16df862269a377f924217e96f84",
+    "tools/build.py": "3ae697df519209c3128888eff38b4ef1dfa5684f47643a1316a5f8d5c32e64c6",
+    "tools/cgen.py": "c494a10b08145efeb0dfd7bcef4fa89b3902cebbdd69ee63bae89647026d9aff",
+    "tools/common.py": "1d9a28e45a491eed6e5154fea9fbd53a2aac9d6f772614fdf37f8dc3fae3483e",
+    "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
+    "tools/dos.py": "df2a7a83777a15d467bca6e32e5bd123b2c0886551512b95669b09ca89ecefc7",
+    "tools/emu.py": "c376f5a21f311b003d322b76fe23f39686c3a29f8f2d759dd5e5d82c66b2035c",
+    "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
+    "tools/wholegame.py": "ba6fff7d0f1583e734ab69435e801f2d101758078c36712744bc5b3e839fa65c",
+    "verif/cbmc_shim/stddef.h": "03e62ec5f7016e0582b92f016d7e4017b56746e2b216ae8d7fad236ae7e723e7",
+    "verif/cbmc_shim/stdint.h": "ff382e7cc9e8ac2ff6cef94767bb680b49944513ebff33b6d7e548fe12a5d7d0",
+    "verif/cbmc_shim/ugh.h": "d23d5fb7f8d14f5c03944d9cce971d6d21fdf32c28ebac1f2710842cd03d7e72",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/random_build.py": "c8f367af36161e6ddf79be2738f21479381cd1bce96f08f7fa0877e9d3fe14ad",
+    "verif/random_cases.py": "5daeb49e1a996c94276bd1745b9e948b80bf7ef97276cf2fe51d2afa830853cb",
+    "verif/random_cbmc.c": "0e31d1315634f42dcbcac0440c06492c0bb3e5c46c1c63db6dc5926fe814e321",
+    "verif/random_enumeration.c": "7591b83978501a4d6a2f88eb29c395fb087e7e01a17c65266520ff99d1280f97",
+    "verif/random_evidence.py": "005fb9e08acb8d75e1ebcf410cf0a04410a19defdca045f34db2fb19db6dab3e",
+    "verif/random_integration.py": "4046c1635e8165f383a806f394a1db006d7ad7ce38b7d5f9d4e06956c527bb77",
+    "verif/random_rain.txt": "817ae7a6551eba3de98b2318cea09a26f0e68f68d368595bd9f570efc9f82ed0",
+    "verif/random_reduction.c": "fa15d9600a4b1257881d191c227e782432877ee375d6551cf166f68d5322ab21",
+    "verif/random_reference.py": "5f39b49775bd2f30b35699b1b8a18738e86b96c0e3ffc9906eb7b233c8079292",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574"
+  },
+  "boundary_gate": {
+    "command": "python tools/closure.py",
+    "random_certificate": "PASS; no random certificate/native-boundary errors",
+    "global_result": "FAIL: 9 certificates, 3 errors, all unowned items files",
+    "blocking_owner": "close-items",
+    "errors": [
+      "unowned native file: native/bridge/items_bridge.c",
+      "unowned native file: native/items.c",
+      "unowned native file: native/items.h"
+    ]
+  }
+}

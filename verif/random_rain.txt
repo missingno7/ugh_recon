@@ -1,0 +1,8 @@
+# Real shipped level 42, selected by its password; no resource/state edits.
+timing pit-quantum-at-polls
+entry GAME:RunGameFromPassword
+password AFTERTHERAIN
+frames 256
+card none
+1: cycle=enter,-enter
+requires GAME:LoadCurrentLevelState GAME:RespawnRainParticle GAME:NextRandomBelowAx GAME:AdvanceRainParticles GAME:DrawRainParticles

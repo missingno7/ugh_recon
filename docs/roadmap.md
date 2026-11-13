@@ -77,8 +77,17 @@ is the second unit, chosen to exercise state ownership and indirect control flow
 
 | Component | Status | Certificate |
 |---|---|---|
-| Pack-Ice decoder | analyzed (in progress) | `metadata/closure/ice.json` (pending) |
+| Pack-Ice decoder | migrated: primitives level A by exhaustive enumeration; token composition level C (3,807 generated, mutated and real streams); integration level C (22 routine cases and two program frames through the bridge); level D pending | `metadata/closure/ice.json` |
 | everything else | unanalyzed | |
+
+## Tooling gaps
+
+- No C model checker on the machine (CBMC). It is the missing piece for level B on whole
+  algorithms: a bounded two-implementation harness over the actual C at multi-token sizes.
+- z3 is only available as a DLL extracted from a Ghidra extension into worker scratch; it
+  needs a proper, pinned install outside `build/`.
+- Worker sandboxes cannot reach the network or write `C:\tools`; tool installs are done by the
+  supervisor.
 
 ## Work in progress
 

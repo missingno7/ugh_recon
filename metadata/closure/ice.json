@@ -1,0 +1,315 @@
+{
+  "component": "ice",
+  "status": "migrated",
+  "purpose": "Expand the DOS Pack-Ice resource dialect: backward sentinel bits, literal runs, and overlapping backward LZ matches. This is a coherent leaf of resource loading, with no persistent decoder state or device operations.",
+  "original": {
+    "L0": [
+      "GAME:UnpackIceStream 013B:4CAD",
+      "GAME:UnpackIceToScratch 013B:4CA5",
+      "GAME:DecodeIceLiteralAndMatchStream 013B:4CE9 and shared tail 013B:4D4B..4DDD",
+      "GAME:ReadIceBitToCarry 013B:4D2A",
+      "GAME:ReadIceBitsToDx 013B:4D37"
+    ],
+    "L1": [
+      "c/ice.c:c_UnpackIceStream",
+      "c/dos_input.c:c_UnpackIceToScratch"
+    ],
+    "static_evidence": [
+      "src/asm/GAME.ASM @4C81..4E19",
+      "build/workers/model/ice-facts.md"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/ice.c",
+      "native/ice.h",
+      "native/bridge/ice_bridge.c"
+    ],
+    "header": "native/ice.h",
+    "functions": [
+      "ice_decode"
+    ],
+    "bridge": "c_UnpackIceStream",
+    "build": "python tools/nbuild.py bridge",
+    "status_reason": "Proposed migrated status for supervisor review. Whole-contract A/B has not been earned. SMT models have a manual correspondence gap, and finite compiled-C enumeration is conservatively classified C under modernization.md."
+  },
+  "interface": {
+    "inputs": [
+      "source byte buffer, available size, header at byte zero",
+      "output in/out byte buffer, available size",
+      "non-null IceResult pointer; accessible initialized storage for supplied lengths"
+    ],
+    "outputs": [
+      "IceStatus: OK, BAD_MAGIC, TRUNCATED, RANGE, LIMIT",
+      "partial output bytes, next backward cursors, write count and outer token count"
+    ],
+    "effects": [
+      "reads header low size words and backward source bytes",
+      "reads output seed/already written bytes for matches",
+      "writes only output indices below supplied output_size",
+      "no allocation, global mutable state, I/O, interrupts or callbacks"
+    ],
+    "preconditions": [
+      "source and output buffers do not alias",
+      "header begins at zero on the recognized decoding path",
+      "for exact full-ring L1 comparison provide both complete 65536-byte initialized windows",
+      "for smaller ordinary file buffers every L1 access must be within available storage; RANGE/TRUNCATED are native safety extensions, not DOS errors",
+      "bridge source-read and output-write physical footprints must not alias; no live stack, mutable code/table, device/VGA or concurrent mutation alias",
+      "IceResult storage is independent of source/output storage.",
+      "The bridge conservatively requires declared low-word source/output physical extents to be disjoint, treating a zero size as a 65536-byte extent; this is additional to the actual-footprint alias restriction."
+    ],
+    "projection": "Copy source window and output seed from ordinary RAM into byte buffers. Native step then copying output back equals the compared L1 RAM step on the stated boundary in tested cases. SI/DI diagnostics are retained by the bridge. No register or segment object enters L2.",
+    "bad_magic": "L0/L1 consume one or two little-endian words, advancing SI by 2 or 4 modulo 65536, preserve DI and clear DF. Bridge handles arbitrary incoming SI, including a contiguous word operand spanning FFFF. Native header-at-zero returns BAD_MAGIC with cursor 2/4 and no writes.",
+    "malformed": "L0 performs no validation and may loop forever or read/write the entire fixed windows. L1 adds a 2000000-outer-iteration guard. Native retains full-ring behavior and guard with full buffers; smaller buffers stop before unavailable access with partial writes retained. Native missing-byte errors cannot be compared to a DOS truncated file: DOS has surrounding memory, not a file-length parameter.",
+    "status_mapping": "Native OK/BAD_MAGIC map to UGH_OK, LIMIT to UGH_BUDGET; RANGE/TRUNCATED are safety extensions with no L1 short-allocation analogue. A recognized nonzero header position is unsupported by this bridge contract."
+  },
+  "callers": [
+    {
+      "site": "GAME:073A via UnpackIceToScratch (c/menu.c)",
+      "observations": "ES becomes DS for map copy; DF must be zero for MOVSW; returned SI/DI overwritten; saved working registers remain preserved. No arithmetic flag tested before overwrite."
+    },
+    {
+      "site": "GAME:39A1 via UnpackIceToScratch (c/render.c)",
+      "observations": "ES becomes DS for map copy; SI loaded from renderer scratch, DI/CX/DX replaced; DF drives MOVSW. Preserved registers kept by bridge; no arithmetic result flag consumed."
+    },
+    {
+      "site": "GAME:4C8C in UnpackPictureAndCopyPalette (c/video.c)",
+      "observations": "ES read at 4C94 then used as DS at 4C9B; SI overwritten with FA00, DI overwritten by LES at 4C96; DF drives REP MOVSW at 4CA0. No arithmetic flag branch."
+    },
+    {
+      "site": "c/dos_input.c wrapper/fallthrough 4CA5..4CAD",
+      "observations": "sets ES to scratch and DI=0; forwards all decoder effects. Existing L1 wrapper is linked unchanged."
+    }
+  ],
+  "callees": {
+    "L0": [
+      "DecodeIceLiteralAndMatchStream",
+      "ReadIceBitToCarry",
+      "ReadIceBitsToDx"
+    ],
+    "L2": [
+      "previous",
+      "take_byte",
+      "take_bit",
+      "take_bits",
+      "literal_length",
+      "match_length",
+      "match_distance"
+    ],
+    "external_L2": []
+  },
+  "indirect": {
+    "decoder_sites": [],
+    "classification": "No indirect transfer inside the component. Direct entry and wrapper fallthrough; L1 diagnostic dispatch resolves the same exported adapter. No stored code-pointer reference to 4CAD found in model facts."
+  },
+  "memory": {
+    "read": [
+      "DS:SI header; low BE16 fields at header+6/header+10; size high halves ignored",
+      "DS backward bytes with 16-bit SI wrap",
+      "ES match references, including seed bytes and overlap",
+      "GAME CS immutable mixed tables 4DDD..4E19",
+      "SS stack saved registers and near return frames in L0"
+    ],
+    "write": [
+      "ES backward output bytes with 16-bit DI wrap",
+      "L0 stack scratch from saves and helper CALLs; excluded only below incoming return frame by existing harness"
+    ],
+    "owners": [
+      "five immutable packed resources: frames 1A38,2BF6,2D9A,2F9E,2FB7",
+      "ZERO:IceDecodeWorkspace: declared 64768 bytes; real outputs 32000 or 64768",
+      "picture palette copy belongs to caller, not ice_decode"
+    ],
+    "layout": "Literal header magic ICE!, packed endpoint including header, unpacked size. Low words replace cursors absolutely, so initial DI and a recognized nonzero header position are not portable buffer offsets.",
+    "aliases": "Backward match overlap is required and preserved. Source/output alias, output/code tables, output/live stack, and device-aperture alias are outside the bridge contract. Full copied windows may overlap physically only if the actually accessed footprints do not."
+  },
+  "assumptions": [
+    "Immutable original ICE code tables equal rebuilt GAME tables; checked against actual L1 table reads in primitive harness.",
+    "No asynchronous writer changes either buffer or the tables during decoding.",
+    "A valid native result pointer and accessible storage; no source/output C alias.",
+    "Compiler and ctypes ABI are trusted; build/native receipts record compiler and input hashes.",
+    "SMT obligations describe arithmetic/array models, not an automatically extracted C program; correspondence requires review and the separate compiled-C checks.",
+    "Finite one-iteration harness changes only the 2000000 guards in generated copies to 1. It proves no real-stream termination or arbitrary multi-token composition."
+  ],
+  "eliminated": [
+    {
+      "detail": "register/segment objects, CF bit return, CS-addressed tables and machine dispatch",
+      "evidence": "native/ice.c has byte-buffer parameters, named constant tables, ordinary calls; python tools/closure.py checks boundary and dependency inventory"
+    },
+    {
+      "detail": "arithmetic scratch flags and instruction-level stack layout",
+      "evidence": "static return-site audit: no arithmetic flags consumed; bridge preserves L1 non-DF flags, all saved registers, SS/SP/CS and DS/ES. Stack scratch has no semantic decoder output under no-stack-alias assumption."
+    },
+    {
+      "detail": "returned cursors as application inputs",
+      "evidence": "all three application sites overwrite SI/DI before use; exposed in IceResult and preserved by bridge solely for diagnostics and existing L1 adapter tests"
+    }
+  ],
+  "retained": [
+    {
+      "detail": "16-bit fixed-window index wrap including zero-sized low words",
+      "reason": "observable malformed/edge behavior; previous() uses explicit modulo arithmetic, output size 65536 tested"
+    },
+    {
+      "detail": "high size words ignored, supplied destination cursor ignored",
+      "reason": "DOS header behavior; tests compare native output/cursors to L1"
+    },
+    {
+      "detail": "sentinel refill, MSB-first bit order, overlapping backward match copies",
+      "reason": "format and LZ semantics; exhaustively exercised at helper boundaries"
+    },
+    {
+      "detail": "literal DEC/JNS after decrement: initial DX=32768 copies 32769; DX>32768 copies once",
+      "reason": "rare original signed-loop quirk; exhaustive literal encodings catch a seeded regression that stream corpus misses"
+    },
+    {
+      "detail": "L1 2000000 token guard and partial writes on guard failure",
+      "reason": "harness compatibility; not claimed to be a property of unguarded DOS code"
+    }
+  ],
+  "evidence": [
+    {
+      "property": "L0 -> bridge routine observations and two-frame composition",
+      "level": "C",
+      "method": "existing independent Unicorn/L1 comparison through alternate DLL",
+      "command": "python verif/ice_integration.py",
+      "result": "PASS 22/22 existing ICE cases (11 ordinary + 11 poison); two whole-program frame boundaries have no RAM/device/log differences",
+      "date": "2026-11-13",
+      "artifact": "build/workers/pilot-ice/integration.json and whole-program.json",
+      "seconds": 17.013332999980776
+    },
+    {
+      "property": "cursor wrap, refill, match-start arithmetic and copy-step models",
+      "level": "A",
+      "method": "Z3 4.13.0.0 via Python ctypes; explicit bitvector/array counterexample queries",
+      "command": "python verif/ice_smt.py",
+      "result": "PASS four UNSAT queries; applies to explicit models only, not an automatic C or whole-contract proof",
+      "date": "2026-11-13",
+      "artifact": "build/workers/pilot-ice/smt.json",
+      "seconds": 0.0604497000167612,
+      "scope": "all inputs of the stated arithmetic/array models; manual implementation correspondence",
+      "tool": {
+        "version": "Z3 4.13.0.0",
+        "dll_sha256": "1a0efef3ddc1692aa22a7d687bf569b04b24ada3c574c92e23308d3a533af24c",
+        "archive": "C:\\tools\\ghidra_12.1_PUBLIC\\Extensions\\Ghidra\\ghidra_12.1_PUBLIC_20260513_SymbolicSummaryZ3.zip",
+        "archive_sha256": "8b6ba81939d2d00f1b9e247f1b1277a78d8534af25f397903c211852f1566ea2",
+        "source_url": "https://github.com/NationalSecurityAgency/ghidra/releases/tag/Ghidra_12.1_build",
+        "installed": "D:\\Prog\\ugh_recon\\build\\workers\\pilot-ice\\libz3.dll",
+        "note": "C:/tools is read-only in this session; extracted existing pinned bundle into worker directory"
+      }
+    },
+    {
+      "property": "actual compiled primitive implementations and extracted L1 token statements",
+      "level": "C",
+      "method": "exhaustive finite token-code enumeration plus reader transition boundary checks; conservatively C under tests-never-more-than-C rule",
+      "command": "python verif/ice_evidence.py",
+      "result": "PASS 196608 bit transitions at 3 index representatives, 1032 length codes, 4520480 offset codes, 33040 literal probes including escape duplicates",
+      "date": "2026-11-13",
+      "artifact": "build/workers/pilot-ice/exhaustive.json",
+      "seconds": 0.42194020000169985
+    },
+    {
+      "property": "whole-decoder bounded prefix",
+      "level": "C",
+      "method": "fully enumerate payload byte 0..255 and output low word 0..4; one complete outer iteration, complete inner loops, full zero-seeded windows; compare status/registers/all output bytes",
+      "command": "python verif/ice_evidence.py",
+      "result": "PASS 1280/1280; 241 success, 1039 guarded. No SMT/CBMC whole-decoder proof; solver time not applicable",
+      "date": "2026-11-13",
+      "artifact": "build/workers/pilot-ice/exhaustive.json",
+      "seconds": 1.6078185999940615
+    },
+    {
+      "property": "whole decoder for arbitrary streams under useful size/loop bounds",
+      "level": "B",
+      "method": "CBMC/KLEE feasibility evaluation",
+      "command": "python verif/ice_tool_probe.py",
+      "result": "BLOCKED: CBMC absent, release acquisition connection refused; WSL enumeration E_ACCESSDENIED; Python z3 package absent/download unavailable. Bundled Z3 works for explicit models, not an automated whole-C frontend.",
+      "date": "2026-11-13",
+      "artifact": "build/workers/pilot-ice/tool-probe.json"
+    },
+    {
+      "property": "real/generated/edge/mutated streams and defect evaluation",
+      "level": "C",
+      "method": "independent exact packer + L1/native; Python third opinion on its accepted subset; native safety extensions separated",
+      "command": "python verif/ice_fuzz.py --count 3000 --mutants",
+      "result": "PASS 5 real + 3000 generated + 22 edges + 779 terminating accepted mutations + 1 source-wrap case. Python agrees on valid streams below 65536 and 569 mutations; rejects 210 mutations its stricter contract excludes. All 1000 mutations additionally agree for one outer iteration (2280 cases including finite family). All 5 defects detected by primitive checks; signed literal boundary missed by the ordinary stream corpus and tiny prefix family.",
+      "date": "2026-11-13",
+      "artifact": "build/workers/pilot-ice/generated.json",
+      "seconds": 98.27436950002448,
+      "bounded_mutation_seconds": 2.8914293000125326
+    },
+    {
+      "property": "directed semantic regressions",
+      "level": "C",
+      "method": "L0/bridge, L1/native/Python and API boundary controls",
+      "command": "python verif/ice_regressions.py",
+      "result": "PASS 32769-literal boundary, ignored high size words, 6 short-header and 6 nonzero/wrapping bad-magic cases",
+      "date": "2026-11-13",
+      "seconds": 13.129750699998112,
+      "artifact": "build/workers/pilot-ice/regressions.json"
+    },
+    {
+      "property": "whole worker scenario matrix reaching ICE",
+      "level": "D",
+      "method": "whole-game observation model",
+      "command": "python tools/wholegame.py (supervisor/whole worker integration pending)",
+      "result": "PENDING: dedicated whole-worker matrix against the bridge is not claimed; existing two-frame check is recorded separately as C",
+      "date": "2026-11-13"
+    }
+  ],
+  "amiga": {
+    "classification": "unresolved",
+    "finding": "No Amiga correspondence needed to derive this DOS codec boundary. This pilot makes no claim that JOKE resources or Amiga decoder behavior equal DOS."
+  },
+  "uncertainty": [
+    "No automatically verified whole-C equivalence or useful multi-token all-input bounded proof. Models must be reviewed for correct C correspondence.",
+    "No proof of termination of malformed full-ring streams; the L1 guard is retained.",
+    "No source/output alias, self-modifying tables/code, stack alias or device-buffer semantics in the bridge contract.",
+    "Native truncation/range errors extend the interface; they do not reproduce surrounding DOS-memory behavior with a short file allocation.",
+    "Whole-worker scenario matrix remains pending. Supervisor owns final status; proposed status stays migrated despite helper model proofs."
+  ],
+  "dependencies": {
+    "native/bridge/ice_bridge.c": {
+      "includes": [
+        "../ice.h",
+        "string.h",
+        "ugh.h"
+      ],
+      "calls": [
+        "flag",
+        "ice_decode",
+        "lin",
+        "memcpy",
+        "rd16",
+        "rd8"
+      ]
+    },
+    "native/ice.c": {
+      "includes": [
+        "ice.h"
+      ],
+      "calls": [
+        "literal_length",
+        "match_distance",
+        "match_length",
+        "previous",
+        "take_bit",
+        "take_bits",
+        "take_byte"
+      ]
+    },
+    "native/ice.h": {
+      "includes": [
+        "stddef.h",
+        "stdint.h"
+      ],
+      "calls": []
+    }
+  },
+  "source_hashes": {
+    "native/bridge/ice_bridge.c": "2394fe3ef094db70ec8e550fdfe40d7a18801712f8b6253bddbaf47219acdd7c",
+    "native/ice.c": "f370f880688879b5ccff8825b4d904a00df77c5377b8763bfc73c7ee32cdbb5c",
+    "native/ice.h": "9dae8b5a177d2d671ae2218035db0af8b83f30bf7b470c6bd5be3f068e26c756",
+    "c/ice.c": "27e2898dd6a5e70af26bde84c0ba8cd6e8a045e40d94df21fd5b122f10a2242e",
+    "src/asm/GAME.ASM": "f46f2ef8042b1d362cbb901414da84ef69a68d2659b7a204b5825b3c78aa1748"
+  }
+}

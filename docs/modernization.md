@@ -75,6 +75,26 @@ A certificate names the level reached for each property, with the exact command 
 result. Tests passing never yield more than C. A bounded proof is never described as
 unrestricted.
 
+Two refinements from the Pack-Ice pilot:
+
+- **Exhaustive enumeration is a proof.** Running the actual compiled L1 and L2 code on *every*
+  element of a function's complete input domain (all token encodings, all byte pairs, all
+  16-bit values) is level A for that function and that domain. Sampling any part of the domain
+  is C. The certificate states the domain and why it is complete.
+- **A proof about a model is evidence about the model.** An SMT query over a hand-written
+  model of the code is level A for the model; its link to the C is a manual review, and the
+  certificate says so. It does not raise the C's level, and it goes stale silently when the
+  code changes. Prefer checks that run the real code (enumeration, or a model checker on the
+  C itself) over hand-written models.
+
+Properties carry their own levels; a component's status reflects the weakest property of its
+contract. In the pilot, the decoder's primitives are level A by enumeration while the
+composition of tokens into a whole stream is only level C, so the component is `migrated`.
+Experience so far: the defect that every differential test missed (a signed boundary at
+exactly 32768 in a rare literal class) was caught by exhaustive enumeration of one primitive,
+at negligible cost. Formal effort pays most on small encoding spaces and state transitions;
+whole-algorithm proofs need a C model checker, not hand-written SMT.
+
 ## Observation model
 
 L2 is compared with L1 on semantic observations at deterministic simulation boundaries, not on

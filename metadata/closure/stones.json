@@ -1,0 +1,338 @@
+{
+  "component": "stones",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "original": [
+    {
+      "identity": "GAME:BeginStonePickupWait",
+      "address": "013B:1C0F",
+      "l1": "c_BeginStonePickupWait"
+    },
+    {
+      "identity": "GAME:UpdateStonePickupWait",
+      "address": "013B:1C27",
+      "l1": "c_UpdateStonePickupWait"
+    },
+    {
+      "identity": "GAME:AttachStoneToPlayer",
+      "address": "013B:1C48",
+      "l1": "c_AttachStoneToPlayer"
+    },
+    {
+      "identity": "GAME:WaitForStoneRelease",
+      "address": "013B:1C6B",
+      "l1": "c_WaitForStoneRelease"
+    },
+    {
+      "identity": "GAME:ThrowCarriedStone",
+      "address": "013B:1C81",
+      "l1": "c_ThrowCarriedStone"
+    },
+    {
+      "identity": "GAME:UpdateThrownStone",
+      "address": "013B:1CEE",
+      "l1": "c_UpdateThrownStone"
+    }
+  ],
+  "native": {
+    "files": [
+      "native/stones.h",
+      "native/stones.c",
+      "native/bridge/stones_bridge.c"
+    ],
+    "header": "native/stones.h",
+    "functions": [
+      "stone_begin_wait",
+      "stone_pickup_wait",
+      "stone_attach",
+      "stone_release_requested",
+      "stone_throw",
+      "stone_flight",
+      "stone_contact_view"
+    ],
+    "build": "python verif/stones_build.py"
+  },
+  "purpose": "Stone lifecycle: waiting, first touching empty craft pickup, carrying, action-byte release, throw, flight, ordered platform landing and retirement. Borrow the same physical slots for hazard contact without resetting renderer history.",
+  "interface": {
+    "inputs": [
+      "Known primary or alternate stone descriptor; any word-valued slot state for the entry phase, any geometry/carried kind words, two craft records and player count.",
+      "Carry alias is player 0, or player 1 with count two. Direct attach/throw carrier is independently valid. Flight borrows up to ten platforms in original order; signed-negative left edge terminates."
+    ],
+    "outputs": [
+      "Typed slot/craft mutations, contact and platform selections, transition requests. The bridge preserves the deterministic full L1 machine shell and the real synchronous throw sound ABI."
+    ],
+    "effects": [
+      "No renderer-history writes. Positions/velocities and presentation sprite are committed before immediate landing initialization or sound callback.",
+      "The bridge projects fresh RAM per entry, publishes only actual stores, and uses existing phase-checked alias accessors."
+    ],
+    "preconditions": [
+      "Serialized ordinary nonaliasing RAM/stack and immutable descriptor/platform inputs during one call. DS=DGROUP, CS=GAME, aligned physical slot 0..15.",
+      "Descriptor callback words must be the known stone targets. Malformed indices/identities/targets, invalid carrier aliases and unterminated platform lists use explicit L1 compatibility. No native evidence is claimed for fallback.",
+      "Native carrier arguments must be below two. Hazard views must be borrowed immediately before query in physical slot order, and hazard bounce writes returned before the next actor step."
+    ]
+  },
+  "callers": [
+    "DispatchActorUpdates in ascending active-prefix order; loader bootstrap, stone descriptor tails; hazards run after actor updates and before drawing.",
+    "Routine direct-entry tests retain their live input/output register shell."
+  ],
+  "callees": {
+    "native": [
+      "actor_alias_value",
+      "contact_players"
+    ],
+    "bridge": [
+      "actor_bridge_alias_project",
+      "actor_bridge_alias_read",
+      "FindPlayerTouchingActor",
+      "PlayAdlibEffect",
+      "closed stone descriptor tails"
+    ]
+  },
+  "indirect": {
+    "targets": [
+      "BeginStonePickupWait",
+      "UpdateStonePickupWait",
+      "AttachStoneToPlayer",
+      "WaitForStoneRelease",
+      "ThrowCarriedStone",
+      "UpdateThrownStone",
+      "IgnoreActorState"
+    ],
+    "classification": "Known descriptor targets checked before projection; the original dispatcher retains explicit error/fallback behavior outside the contract."
+  },
+  "memory": {
+    "owned": [
+      "Actor update phase, animation offset/countdown, sprite, X32/Y32; carried alias, thrown horizontal and vertical motion; selected craft carried kind and destination icon."
+    ],
+    "borrowed": [
+      "Descriptor geometry, callbacks and carried kind; platform bounds/heights; craft position/raw velocity/action low byte."
+    ],
+    "aliases": "Only carrier in carried phase and horizontal_step in thrown phase are read through checked alias accessors. No table widening. All six renderer-history words remain persistent and untouched, including history seeded by the pre-game demo.",
+    "hazards": "Primary identity only, phase thrown, nonnegative vertical step; ascending first match. Current bridge RAM is the shared synchronization boundary, not a second cached native slot array."
+  },
+  "assumptions": [
+    "One step from any admitted scalar slot state, not a proof only from initializer-reachable states.",
+    "The full bridge formal profiles abstract a successful read-only sound callback; real sound, registers and device effects are differential/integration evidence.",
+    "L0 unchanged; L0 -> L1 remains C/D. Native A/B evidence never becomes an exact ASM/C byte-match contribution."
+  ],
+  "eliminated": [
+    "Ordinary native functions use typed slots, player numbers and borrowed resources; no machine addresses/registers/dispatch in native/stones.c.",
+    "Renderer history is neither reset nor derived from current position on entry."
+  ],
+  "retained": [
+    "16-bit wrapping addition/subtraction, explicit signed word comparisons and arithmetic right shift of raw craft velocities by five.",
+    "Only action low-byte bit seven releases; high byte and all action bits survive unchanged.",
+    "Inclusive X retirement at -512, right retirement at 10240, descending bottom retirement at 6144; rising Y has no bottom retirement.",
+    "Gravity adds two before sign test; inclusive old/new platform crossing and both horizontal edges, first platform wins.",
+    "Primary and alternate identities remain distinct; only primary thrown stones can hit hazards. Initializing wait leaves sprite, velocities and render history stale; retired slots keep their descriptor/order."
+  ],
+  "evidence": [
+    {
+      "property": "Finite complete scalar domains",
+      "level": "A",
+      "command": "python verif/stones_evidence.py enumerate",
+      "result": "PASS 334470 comparisons; exhaustive action/velocity/X/vertical domains, signed edges, 12000 arbitrary states x six entries, immediate ordered hazard views",
+      "method": "Complete 65536 action-word, joint velocity diagonal (horizontal=vertical=value), X-retirement and vertical-gravity slices with other inputs fixed. The velocity Cartesian product is not enumerated; arbitrary independent axes have separate B evidence. Generated states remain C, not A.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Bridge shell, phase projection and frame integration",
+      "level": "C",
+      "command": "python verif/stones_integration.py --whole --local-reference",
+      "result": "PASS 3238 routine cases, zero scenario fallbacks, cross-mode history regression",
+      "method": "Actual bridged L1 versus independently rebuilt L0, normal and poisoned register inputs; exact RAM/register/flag and device observations.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Whole-game observations",
+      "level": "D",
+      "command": "python verif/stones_integration.py --whole --local-reference",
+      "result": "PASS all seventeen maintained scenarios",
+      "method": "Page-boundary state/frame/device/log digests from independent L0 references.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Native host scratch promotion",
+      "level": "D",
+      "command": "python verif/stones_host.py -> python tools/hostbuild.py; python host/check.py --variant native",
+      "result": "PASS seventeen scenarios and 256-frame smoke",
+      "method": "Unchanged CLI commands on a real copied checkout with only scratch stone status promoted, including accepted native hazards/contacts/demo.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Live stone/hazard borrowing",
+      "level": "C",
+      "command": "python verif/stones_sync.py",
+      "result": "PASS actual native stone -> hazard -> hazard -> stone, alternate identity and ascending slot order",
+      "method": "Actual maintained native stone, hazard and contact implementations: alternate/primary identity, ascending selection, two hazards in one frame, bounce publication and following actor step.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Defect and unwind controls",
+      "level": "C",
+      "command": "python verif/stones_mutants.py; python verif/stones_evidence.py BeginStonePickupWait --platforms 0 --negative --timeout 30",
+      "result": "PASS: four scratch defects detected; insufficient production stone_project loop unwind fails, never truncates silently.",
+      "method": "High-byte action test, gravity +3, strict old-surface crossing and broadened alternate identity are each rejected by compiled actual-C cases.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "BeginStonePickupWait actual-C one-step",
+      "level": "B",
+      "command": "python verif/stones_evidence.py BeginStonePickupWait --timeout 180",
+      "result": "PASS 1.802s, unwind assertions and bounds/pointer/signed-overflow checks",
+      "method": "Full bridge state/register/flag/ordered-store relation. One arbitrary physical slot 0..15, arbitrary admitted scalar words and geometry, primary/alternate identity, exact targets; flight has one arbitrary platform (explicit B bound), successful observing sound callback.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "UpdateStonePickupWait actual-C one-step",
+      "level": "B",
+      "command": "python verif/stones_evidence.py UpdateStonePickupWait --semantic --timeout 180",
+      "result": "PASS 102.344s, unwind assertions and bounds/pointer/signed-overflow checks",
+      "method": "Semantic state and sound requests only; bridge shell/order remains C. One arbitrary physical slot 0..15, arbitrary admitted scalar words and geometry, primary/alternate identity, exact targets; flight has one arbitrary platform (explicit B bound), successful observing sound callback.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "AttachStoneToPlayer actual-C one-step",
+      "level": "B",
+      "command": "python verif/stones_evidence.py AttachStoneToPlayer --timeout 180",
+      "result": "PASS 2.506s, unwind assertions and bounds/pointer/signed-overflow checks",
+      "method": "Full bridge state/register/flag/ordered-store relation. One arbitrary physical slot 0..15, arbitrary admitted scalar words and geometry, primary/alternate identity, exact targets; flight has one arbitrary platform (explicit B bound), successful observing sound callback.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "WaitForStoneRelease actual-C one-step",
+      "level": "B",
+      "command": "python verif/stones_evidence.py WaitForStoneRelease --timeout 180",
+      "result": "PASS 30.462s, unwind assertions and bounds/pointer/signed-overflow checks",
+      "method": "Full bridge state/register/flag/ordered-store relation. One arbitrary physical slot 0..15, arbitrary admitted scalar words and geometry, primary/alternate identity, exact targets; flight has one arbitrary platform (explicit B bound), successful observing sound callback.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "ThrowCarriedStone actual-C one-step",
+      "level": "B",
+      "command": "python verif/stones_evidence.py ThrowCarriedStone --timeout 180",
+      "result": "PASS 4.772s, unwind assertions and bounds/pointer/signed-overflow checks",
+      "method": "Full bridge state/register/flag/ordered-store relation. One arbitrary physical slot 0..15, arbitrary admitted scalar words and geometry, primary/alternate identity, exact targets; flight has one arbitrary platform (explicit B bound), successful observing sound callback.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "UpdateThrownStone actual-C one-step",
+      "level": "B",
+      "command": "python verif/stones_evidence.py UpdateThrownStone --semantic --timeout 180",
+      "result": "PASS 20.326s, unwind assertions and bounds/pointer/signed-overflow checks",
+      "method": "Semantic state and sound requests only; bridge shell/order remains C. One arbitrary physical slot 0..15, arbitrary admitted scalar words and geometry, primary/alternate identity, exact targets; flight has one arbitrary platform (explicit B bound), successful observing sound callback.",
+      "date": "2026-11-13"
+    }
+  ],
+  "amiga": {
+    "classification": "similar purpose with different implementation",
+    "finding": "The shared carry/throw role supplies meaning only; DOS hazard scan placement, signed geometry and arithmetic prevail. No Amiga byte or behaviour equivalence claimed."
+  },
+  "uncertainty": [
+    "Only the supervisor sets administrative status.",
+    "Malformed resource/alias and device cases routed to L1 are compatibility evidence. Full bridge-shell profiles that time out are not proofs.",
+    "Full bridge-shell pickup and flight profiles timed out at 60 and 180 seconds. Semantic-only pickup timed out at 60 before passing at 180. No timeout is evidence of equivalence. The ten-platform semantic flight attempt is separately recorded and does not replace the one-platform B profile.",
+    "Unit 4 passenger itinerary is stopped at the static contract boundary, with its complete transition/effect checklist and continuation commands in build/workers/close-stones/REPORT.md. None of its handlers is replaced."
+  ],
+  "dependencies": {
+    "native/stones.h": {
+      "includes": [
+        "actor_resources.h",
+        "contacts.h",
+        "level.h"
+      ],
+      "calls": []
+    },
+    "native/stones.c": {
+      "includes": [
+        "stones.h"
+      ],
+      "calls": [
+        "actor_alias_value",
+        "contact_players",
+        "stone_sar",
+        "stone_signed"
+      ]
+    },
+    "native/bridge/stones_bridge.c": {
+      "includes": [
+        "../stones.h",
+        "actor_projection.h",
+        "ugh.h"
+      ],
+      "calls": [
+        "D",
+        "G",
+        "actor_bridge_alias_project",
+        "actor_bridge_alias_read",
+        "add16",
+        "flag",
+        "l1_AttachStoneToPlayer",
+        "l1_BeginStonePickupWait",
+        "l1_ThrowCarriedStone",
+        "l1_UpdateStonePickupWait",
+        "l1_UpdateThrownStone",
+        "l1_WaitForStoneRelease",
+        "logic",
+        "rd16",
+        "stone_attach",
+        "stone_begin_wait",
+        "stone_desc",
+        "stone_effect",
+        "stone_flight",
+        "stone_pickup_wait",
+        "stone_project",
+        "stone_push",
+        "stone_release_requested",
+        "stone_shift",
+        "stone_throw",
+        "stone_word",
+        "stone_write",
+        "sub16",
+        "szp",
+        "ugh_call_near",
+        "ugh_dispatch",
+        "wr16"
+      ]
+    }
+  },
+  "proposed_status_reason": "Actual-C per-entry evidence, finite exhaustive domains and C/D bridge integration plus actual native-host scratch promotion. Full up-to-ten-platform bridge contract retains C where formal profiles time out; propose migrated only.",
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "native/stones.h": "2ccce0eb2fa99a07617f18145eb4c3b965d823edc2840680a2944a7e2436e504",
+    "native/stones.c": "e66b5f40ab1a855ee6c759ce35f63aa9c6f2704d3e49dfadeb2da3a1692196ca",
+    "native/bridge/stones_bridge.c": "a58abe33b55fca0a973a97270751e1f7263bbbf8ac3b84e09896610dd199c037",
+    "native/actor_resources.c": "47e21228ee1d873fa5636e062a955e4a6b5a8f0522a7bde2cf223708c9880137",
+    "native/bridge/actor_resources_bridge.c": "6941d649e3fb35d3898b35c3e461fedd0ceee0210861300ce674ac78aac0acc2",
+    "native/level_view.c": "f0b3db5747f718d7c112c721735ca5a497a9b93a6ecb33096223b188b170353d",
+    "native/bridge/level_view_bridge.c": "ff2db79ab215fd6bbf4ed99c5fb64dc39b8fdb060f3c57b07070158b998f4d11",
+    "native/contacts.c": "f809c3af54ddb43b07b60be870e30e404f0b0456f4542585011cb5108dcc8b15",
+    "verif/stones_build.py": "6f8825fb3168d04c4b1305a2709cc26e12e074f75051d88a63d5e8b9de0516f0",
+    "verif/stones_certificate.py": "093bc09376c7ef39658f7bb79f9306a6ba3bfc21c951d185bdcbf8179ce1dfba",
+    "verif/stones_cross_mode.c": "afa86c1ca41b6dad05ee1f49aa99291517f9923a032b713d98a8fb7a1287a0f1",
+    "verif/stones_evidence.py": "089be8a696577f42a3b9902578852327dc786a1d52e1927ee83dbc7a476b0e3c",
+    "verif/stones_harness.c": "c0f85043a5d273100cdac4fc71ea23b19a04dac2608132921fa5284d97a3e35c",
+    "verif/stones_host.py": "494a1c79df2a350db565438ac8ff588b093908c9db2086380553d9fe128cc529",
+    "verif/stones_integration.py": "1ef1c7dfb60ef841dd8c62d9145c280a90167387e36ddc4daa511923dac1133e",
+    "verif/stones_mutants.py": "68dafaf0c2cd1b0105fa62d57888dd76846bdd5b1d42c9739cb2e35c0ac630f6",
+    "verif/stones_reproduce.py": "5ad60a89e6d7b193b11d66c923d5b19b3887321d6883a0ccdb8e2a8cf8e7bb1c",
+    "verif/stones_sync.c": "b774d7c1485e011b3ff1ac1a51424e4cbbd3d6767c16afdefe06bfac1b77a251",
+    "verif/stones_sync.py": "477a922f6118d9dcb026a0c46d84d9e5c03322f2c14fdbb0febcc5f522a3a595",
+    "native/actors.h": "b1c7653a6e566c7f0e3e18ad38fc3f63726d01b78a6fa6843df017d2d155a42c",
+    "native/actor_resources.h": "212fe3bc958c74140f45b9e7a3745f650d22e7a853a2edf273eeacfd93f96247",
+    "native/contacts.h": "2d329a52985ea628a56afaee703e8b2f84ed9a328e58109c3be4dac3e90c1d29",
+    "native/level.h": "d9d498993704f2b446d52fa1f3e3cc4b721d9344cfef8520ab4979c3395f45ca",
+    "native/geometry.h": "e630be5b080076dfd0f95ff07be51887e5c39d8caa3bdfae7271e06be37c6410",
+    "native/bridge/actor_projection.h": "71e0476afe7c0b082b5eac20957028e58a61f6741ef11c7ca546fe8bbad8b483",
+    "c/actors.c": "d17c03c844f95780f0647b85aa854a87c3e566b0f56fe89ee0a95d6d689f3ff2",
+    "c/actors_states.c": "79a460a0436e773bdd795953f63c6765d71c0e346cdf8bbccbcf707817994447",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
+    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
+    "host/check.py": "ae78b6b48e7c77aa4c513f8474d23d7ef9d26afe39ab55ea70e871473701e94c",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5"
+  }
+}

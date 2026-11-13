@@ -209,7 +209,7 @@
     "native/bridge/coordinate_scale_bridge.c": "601bd9cd7cc5ebb8875f076787fa7392d1085fa163dce431887dbbf2e18660e8",
     "c/render_primitives.c": "447a9f435f22cc46c9c30d8d11ee9046d57d57c48d6bbaa2e91768e32f9698c0",
     "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
-    "c/ugh_sym.h": "10449282002d400d44c555614d1a10e5ffc195544184925f8da7d9141644dff1",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
     "verif/small_units.py": "81ce77206e13bfe5dc9b78a4cba2f5d72b38a2fccad4535e5d21d9fc3eb195ec",
@@ -217,6 +217,13 @@
     "verif/coordinate_scale_cbmc.c": "6fda0af3b19f55250a8063514d603eeda5de7d667b766049d042e92fb9130c86",
     "verif/small_integration.py": "e576102460010a49cc6e987c50038b09f66fc30f6854a9a8ee870c7f251a6172",
     "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
-    "metadata/verif-tools.json": "d50d082e61d0d1123586509ecdeb636e4c3d12b90741961387f524ab1b5b350b"
-  }
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5"
+  },
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-13",
+      "reason": "symbol renames (architecture naming proposal) changed c/ugh_sym.h, metadata/verif-tools.json",
+      "result": "all evidence commands re-run, all passed; certificate reviewed by supervisor"
+    }
+  ]
 }

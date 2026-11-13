@@ -96,7 +96,10 @@ is the second unit, chosen to exercise state ownership and indirect control flow
 | Component | Status | Certificate |
 |---|---|---|
 | Pack-Ice decoder | migrated. Primitives: level A (exhaustive enumeration and CBMC on the actual C). Whole decoder: level B only for windows of 16/6 and 32/4 bytes and an inductive step proof for 16/8; level C at real sizes (3,807 streams). Integration: level C. The worker proposed `verified-under-assumptions`; not granted, because the proved domain is far smaller than the contract's (real streams are 32,000 and 64,768 bytes). | `metadata/closure/ice.json` |
-| far copy, decimal digits, coordinate scaling | in progress (`close-small`) | |
+| Coordinate scaling | integration-validated: whole 16-bit domain enumerated on compiled code (A), bridge register shell proved (A), 14 scenarios with the bridge (D) | `metadata/closure/coordinate_scale.json` |
+| Decimal digits | migrated: complete domains for the divisors the game uses (A), arbitrary divisors bounded (B) | `metadata/closure/decimal.json` |
+| Far copy | migrated: observed call lengths proved (B), general overlap and wrap tested (C) | `metadata/closure/far_copy.json` |
+| Timer service | migrated: each API operation proved from any admitted state (B), handle domains enumerated (A), tick accounting at 1/3/16 slots (B), interrupt interleavings open; both removal defects retained | `metadata/closure/timer.json` |
 | everything else | unanalyzed | |
 
 ## Tooling gaps
@@ -108,9 +111,12 @@ is the second unit, chosen to exercise state ownership and indirect control flow
 - Worker sandboxes cannot reach the network or write `C:\tools`; tool installs are done by the
   supervisor.
 
+## Running natively
+
+`python tools/hostbuild.py` builds `build/host/ugh.exe`: the literal C with SDL3 platform services
+(window, keyboard, AdLib through Nuked-OPL3). Its headless mode reproduces the whole-game digests
+of all 14 scenarios. Closed native units are not linked into the host yet.
+
 ## Work in progress
 
-| Work order | Writes | Purpose |
-|---|---|---|
-| `close-small` | `native/`, `verif/`, closure tooling | close far copy, decimal digits, coordinate scaling; factor the verification library |
-| `archmodel` | `docs/architecture-model.md`, byte-neutral `src/` edits, naming tools | architecture model with graded claims; STRUC records in L0; rename coverage for the whole tree |
+None.

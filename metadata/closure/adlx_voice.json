@@ -1,0 +1,336 @@
+{
+  "component": "adlx_voice",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "original": {
+    "L0": [
+      "SOUND:SetAdlibChannelVolume 0664:1211",
+      "SOUND:SetAdlibChannelGain 0664:1571",
+      "SOUND:KeyOffAdlibChannel 0664:14B1",
+      "SOUND:SetAdlibFrequency 0664:1503",
+      "SOUND:LoadAdlibInstrument 0664:1377",
+      "SOUND:WriteAdlibRegister 0664:11F2",
+      "SOUND:DelaySoundIo 0664:11B5"
+    ],
+    "L1": [
+      "c/adlib.c:c_SetAdlibChannelVolume,c_SetAdlibChannelGain,c_KeyOffAdlibChannel,c_SetAdlibFrequency,c_LoadAdlibInstrument,c_WriteAdlibRegister",
+      "c/sound_engine.c:c_DelaySoundIo"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/adlx_voice.h",
+      "native/adlx_voice.c",
+      "native/bridge/adlx_voice_bridge.c"
+    ],
+    "header": "native/adlx_voice.h",
+    "functions": [
+      "audio_voice_step",
+      "audio_voice_delay",
+      "audio_voice_register"
+    ],
+    "build": "python verif/adlx_voice_build.py"
+  },
+  "purpose": "Standalone AdLib voice ABI facade, ordered register programming, sequential twelve-byte aliases/post-copy source rereads, raw register packing and finite I/O-delay semantics.",
+  "interface": {
+    "inputs": [
+      "AudioState; operation,raw16-bit channel/value; twelve external source bytes plus per-byte live/saved instrument aliases; byte delay factor/calibration and packed raw register word."
+    ],
+    "outputs": [
+      "Exact voice mutations, primary saved/live result and ordered at-most14 register writes; delay iteration count and overflow; raw register event."
+    ],
+    "effects": [
+      "Low-byte volume/gain stores preserve high bytes. Instrument copies sequentially, then rereads source for programming; owner stamping and final refresh use the actual copied record. Raw channel9 rejects; effects caller stamp alias stays intact."
+    ],
+    "preconditions": [
+      "Serialized ordinary SOUND RAM, disjoint machine calling frame; no observations between individual stores and ordered hardware-list delivery.",
+      "Source description immutable/disjoint from native state, aliases in -1..23; external bytes stable during copy/program phase. Bridge binds all ordinary physical source/destination overlap and offset wrap.",
+      "MMIO/VGA source bytes use literal LoadAdlibInstrument compatibility before any source read. CPU busy-loop cycles are not host wall-clock scheduling; platform owns hardware timing."
+    ]
+  },
+  "callers": "All seven have known shipped static callers; none has outside-audio caller or is API-only by direct-call/indirect-target audit. Remaining L1 parents: InitializeAdlibPlayback->WriteAdlibRegister/DelaySoundIo, ResetSoundBlasterDsp->DelaySoundIo. Other source callers are accepted native entries or their explicit literal compatibility bodies.",
+  "callees": {
+    "native": "Accepted audio_main_step unchanged: gain semantics, forced-live key/frequency branch, twelve-write instrument-programming prefix in private working state; local volume helper handles copied destination independently.",
+    "boundary": "platform_out emits ordered writes; MMIO Load delegates full literal body, whose volume/register peers resolve through this facade. Initialization/probe/calibration/DSP/TIMER remain outside."
+  },
+  "indirect": "No indirect transfers in ordinary native code. Closed bridge endpoint set has seven original entries; literal load may call only SetAdlibChannelVolume. Global TIMER/open external callback capabilities remain outside this unit.",
+  "memory": {
+    "owner": "Reuse native/audio.h and canonical audio_projection.h unchanged; no new persistent owner or PCM view.",
+    "voice": "Selected live/saved20-byte records, operator byte, playing/current-slot/reserved context; instrument byte11 intentionally included. Other records/clock/guard/fades remain unchanged.",
+    "aliases": "Typed source byte references to same physical channel live/saved instrument cells preserve forward overlap smearing and post-copy rereads. All other ordinary bytes are captured stable; bank/offset/physical mapping exists only in bridge."
+  },
+  "assumptions": [
+    "Original/native16-bit word and unsigned byte wrap retained explicitly; ordinary serialized RAM excludes active transient frame/device observers.",
+    "Selected formal kernels normalize a physical channel and use explicit word/ordinary-source bindings; full bridge/other channels/wrapping aliases remain compiled C/L0 evidence.",
+    "Finite LOOP state/count contract is independently enumerated over all65536 byte pairs; no cycle-perfect OPL/DSP delay claim."
+  ],
+  "eliminated": [
+    "Machine-address/register notation from ordinary voice semantics.",
+    "Duplicate ordinary driver gain/frequency/key/instrument-prefix implementation: accepted helper reused without source change.",
+    "Shadow machine driver execution: native state/events drive adapters; only explicit MMIO source boundary calls L1."
+  ],
+  "retained": [
+    "Volume: playing bit0 and current>=12; gain: current>=12 without playing; load: current==12 without playing; all use reserved low nibble plus byte-wrapping threshold.",
+    "Standalone frequency/key always live, not main interpreter displacement. Key clears frequency high bit5; valid frequency forces IF1.",
+    "Valid load clears DF and copies12 regardless incoming DF; invalid byte channel>=9 preserves DF and all state. All channel/value high bytes ignored except frequency word.",
+    "Source program bytes after copy can differ from destination bytes; program flag and final-volume flag may disagree under overlap; owner stamp occurs after program source reads.",
+    "Carrier-before-optional-modulator level writes, twelve instrument writes in original order, frequency A0 then B0, byte register sums; stale high volume/gain bytes.",
+    "Raw packed register high/low byte order; delay zero product65536 iterations and byte MUL CF/OF."
+  ],
+  "evidence": [
+    {
+      "property": "Compiled independent standalone composition",
+      "level": "C",
+      "method": "Actual extracted original C versus native adapters, full SOUND/caller stack/all GP/flags and ordered ports/MMIO reads",
+      "command": "python verif/adlx_voice_evidence.py",
+      "result": "PASS70000 generated pairs; source/gain/delay mutations detected.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Shipped interpreter streams through new facade",
+      "level": "C",
+      "method": "Both actual C interpreters with only seven facade entries replaced; all eleven resources through END or two infinite-repeat passes,20000-burst bound; persistent RAM/ordered writes",
+      "command": "python verif/adlx_voice_tracks.py; python verif/adlx_voice_tracks.py --effects",
+      "result": "PASS77 main and66 effects stream configurations, zero MMIO fallback.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Complete bridge L0/scenario interoperability",
+      "level": "D",
+      "method": "All accepted audio bridges plus new facade, checked rebuilt L0 and19 maintained scenarios",
+      "command": "python verif/adlx_voice_integration.py --whole --local-reference",
+      "result": "PASS6508 L0 cases and all20 current scenarios (the required19 plus new water-physics). Working-tree host24 units/20 scenarios passes; isolated accepted-baseline host22 units/19 scenarios passes.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Finite delay complete byte-pair domain",
+      "level": "A",
+      "method": "Compiled actual C finite loop with observational counter added to its loop body versus actual native helper; every factor/calibration byte pair. Contract excludes physical CPU-cycle timing.",
+      "command": "python verif/adlx_voice_evidence.py --exhaustive-delay",
+      "result": "PASS65536 pairs for native iteration count and unsigned byte-product overflow flags. Zero product65536, otherwise exact product; calibration high byte ignored by actual C read.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Independent state/output/frame/dependence driver kernels",
+      "level": "B",
+      "method": "Actual original volume/gain/key/frequency bodies and actual post-copy programming statements versus native helpers/accepted actual audio_main_step. Physical channel0 normalized; arbitrary context/value/voice/operator words/bytes. Separate frame and dependence; finite LOOP state contract independently enumerated.",
+      "command": "python verif/adlx_voice_leaf.py MODE --role ROLE (MODE=outputs,frame,dependence; ROLE=volume,gain,key,frequency,program)",
+      "result": "PASS15 profiles. Program inputs are independent copied destination and post-copy source bytes. Full wrapper/other channels remain C evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Sequential copy and post-copy capture cuts",
+      "level": "B",
+      "method": "Actual original12-byte copy loop versus native copy/capture. Selected channel0; both destination views; all23 linear overlap deltas plus ordinary external and external wrapped source. Separate whole-state frame and dependence admit arbitrary valid alias tags -1..23.",
+      "command": "python verif/adlx_voice_proofs.py outputs --operation copy --kernel --word-memory --saved S --delta D (S=0,1; D=-11..11); --source external/wrap; frame/dependence --operation copy --kernel --saved S",
+      "result": "PASS54 profiles:50 outputs plus4 frame/dependence. Word bindings/constant source layouts explicit. Physical wrapped-overlap combinations are compiled/L0 evidence, not an unrestricted symbolic-layout claim. Snapshot-read mutant detected.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Instrument destination selection",
+      "level": "B",
+      "method": "Actual original C selector expression versus native getter, all valid channels0..8 and raw16-bit context/reservation fields. Separate read-only frame and omitted-input dependence.",
+      "command": "python verif/adlx_voice_proofs.py MODE --operation selector --kernel --word-memory (MODE=outputs,frame,dependence)",
+      "result": "PASS3 profiles. Equality12 rather than >=12 and absent playing gate retained.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Invalid-channel admission and frame",
+      "level": "B",
+      "method": "Actual C/adapter/native control prefixes with assertion cuts at entry to valid work. All16-bit words with low byte>=9; arbitrary caller argument words/registers; null borrowed state/source in native rejection path.",
+      "command": "python verif/adlx_voice_admission.py; python verif/adlx_voice_admission.py --negative",
+      "result": "PASS all five rejection prefixes and full L1 frame, no voice/source read or RAM store. >=9 to >9 mutation detected.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Raw register and delay frame/footprint",
+      "level": "B",
+      "method": "Actual C raw write/delay against native helpers, arbitrary packed/register values and calibration byte, exact ordered ports, calibration-only read, no RAM write and full register/flags frame; loop-state contract backed by A enumeration.",
+      "command": "python verif/adlx_voice_io.py register; python verif/adlx_voice_io.py delay",
+      "result": "PASS2 profiles, all other registers/flags preserved; CF/OF follow byte product.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Accepted music lifecycle interoperability",
+      "level": "C",
+      "method": "All seven native ADLX units versus full independent compiled C through real load/start/fade/volume/stop; real TIMER allocation/removal, explicit real Fade/Tick delivery contract.",
+      "command": "python verif/adlx_voice_pipeline.py",
+      "result": "PASS11 resources264 configurations (4 durations x3 reservations x2 clocks);594 stop deliveries per variant; full persistent RAM/registers/ordered device logs.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Clean accepted-baseline native host and closure",
+      "level": "D",
+      "method": "Read-only git archive cd48651 plus only this worker new files, LF-equivalent checked build input bytes restored for receipt freshness, only new certificate promoted. Actual host/check/closure CLIs executed in scratch.",
+      "command": "python verif/adlx_voice_host.py (python tools/hostbuild.py; python host/check.py --variant native; python tools/closure.py)",
+      "result": "PASS22 units,19 required scenarios and256-frame smoke;23 certificates0 errors. Working-tree host also passes20 scenarios but is not the isolated baseline claim.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Caller and remaining-component audit",
+      "level": "C",
+      "method": "Direct call edges excluding indirect sites, all target sets and source C mentions; ownership from accepted bridge exports plus proposed facade.",
+      "command": "python verif/adlx_voice_inventory.py",
+      "result": "PASS seven entries all have shipped callers, no caller outside audio; only remaining L1 parents InitializeAdlibPlayback and ResetSoundBlasterDsp.48 of75 entries owned after proposal,27 remaining.",
+      "date": "2026-11-13"
+    }
+  ],
+  "amiga": "TFMX meaning only; no byte/field/driver equivalence asserted.",
+  "uncertainty": [
+    "Whole facade remains C composition; selected B properties are explicit kernels/cuts and normalized channels, not arbitrary asynchronous machine proof.",
+    "MMIO source path remains literal compatibility. Packed-executable matching and active save-frame/source aliases are outside ordinary native interface."
+  ],
+  "dependencies": {
+    "native/adlx_voice.h": {
+      "includes": [
+        "adlx_main.h"
+      ],
+      "calls": []
+    },
+    "native/adlx_voice.c": {
+      "includes": [
+        "adlx_voice.h"
+      ],
+      "calls": [
+        "audio_main_step",
+        "voice_append",
+        "voice_capture_instrument",
+        "voice_copy_instrument",
+        "voice_gain",
+        "voice_instrument",
+        "voice_instrument_saved",
+        "voice_level",
+        "voice_live",
+        "voice_main_writes",
+        "voice_program_instrument",
+        "voice_source_byte",
+        "voice_volume"
+      ]
+    },
+    "native/bridge/adlx_voice_bridge.c": {
+      "includes": [
+        "../adlx_voice.h",
+        "audio_projection.h",
+        "platform.h"
+      ],
+      "calls": [
+        "S",
+        "arg16",
+        "audio_bridge_bank",
+        "audio_bridge_cursor",
+        "audio_bridge_pointer",
+        "audio_bridge_project",
+        "audio_bridge_publish_voice",
+        "audio_bridge_voice",
+        "audio_voice_delay",
+        "audio_voice_register",
+        "audio_voice_step",
+        "flag",
+        "l1_LoadAdlibInstrument",
+        "lin",
+        "platform_out",
+        "rd16",
+        "rd32",
+        "rd8",
+        "set_al",
+        "voice_delay_flags",
+        "voice_emit",
+        "voice_entry",
+        "voice_source",
+        "wr16",
+        "wr8"
+      ]
+    }
+  },
+  "accepted_sources_changed": [],
+  "evidence_refreshed": "None required: every accepted audio source/header/certificate remains byte-for-byte unchanged. Combined source/reference replay tests interoperability without relocking them.",
+  "proposed_status_reason": "Seven ordinary facade entries implemented over unchanged accepted semantics. Full compiled facade-only stream corpora and70000 ABI/alias pairs,6508 L0 cases, current20 scenarios and isolated cd48651 baseline native host22 units/19 scenarios plus smoke pass.75 positive B profiles cover explicit kernels/cuts/admission/I/O, not a whole asynchronous machine theorem. MMIO load compatibility explicit. Baseline closure23 certificates0 errors; working-tree actor-render files are foreign in progress. Supervisor promotion only.",
+  "solver_limits": {
+    "job_memory_bytes": 8000000000,
+    "max_seconds": 600,
+    "max_concurrent_jobs": 2,
+    "selected_profile_seconds": 180,
+    "method": "Unchanged accepted adlx_loader_solver suspended-process Windows job for CBMC+all solver descendants; whole-tree kill on close/timeout. Selected75 positive profiles plus2 negative controls. Timed-out broad profiles receive no credit."
+  },
+  "boundary_gate": {
+    "command": "python tools/closure.py",
+    "baseline": "cd48651ca064cd5e39b216a222fbe32627f50062 plus adlx_voice only",
+    "baseline_result": "23 certificates,0 errors",
+    "working_tree_result": "24 certificates,3 unowned actor-render files: native/actor_render.c,.h,native/bridge/actor_render_bridge.c; foreign in progress.",
+    "date": "2026-11-13"
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "c/adlib.c": "2f4e551282f6ac33f8d24127f3cd5294e679f72ce28794c3ed295ce243c18bf0",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/sound_api.c": "ba1c98bf3a03b5f48a71d4491bdebf3acfc17b0f6cce51db370a0e58c0507e4c",
+    "c/sound_engine.c": "5e4116c31806441e464de35d5649894ec4eea28025254a2edea616235e6e6881",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "metadata/closure/adlx_allocation.json": "2bfd85d5b12a91c863921b09cb7a953f02dcfb41e253bcff370e6b5d1af6bd46",
+    "metadata/closure/adlx_effects.json": "651957777857153fe9e1154e955ddfb0721872ce0c6a89ae73afed26a9369126",
+    "metadata/closure/adlx_loader.json": "c5d4479b8e11f93d9ac4207c731a9faeb435fa7c2958cbe9120ca5f690c9b6c8",
+    "metadata/closure/adlx_main.json": "2467936497a63454052195e4b2f8ee263c7476bc182e6fc790f502a2a6c1751b",
+    "metadata/closure/adlx_music.json": "72dbe9a05623b114d1b9d215dcde95db44fdfecb784536e1f35ca6eb9d3d1f29",
+    "metadata/closure/adlx_sections.json": "38bb47c545adce9e06b7b92b537344f24f77f1574447e802f08c70a6aeff0bb0",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
+    "native/adlx_allocation.c": "4fd567bf96fd73d071073a7d70bd31ad5d0339df16fcea5dd083e87989bbc858",
+    "native/adlx_allocation.h": "e0e5c37e9612494d05042149f923bb0ed8acf223a8eb7f84bd8447ae68ffdc9b",
+    "native/adlx_effects.c": "0004628dd7cb88e6990c15b95c95c2f74e3cd8e17d7433375e9f39f637cd1f37",
+    "native/adlx_effects.h": "89fd75bd98516b98178986632b69ab0e1c58dc37d91ab0e08095ce5729e98be6",
+    "native/adlx_loader.c": "2a870c62e06869c3c6b590a5d72b246b68a16494a47d24b98f37687f6751e750",
+    "native/adlx_loader.h": "32cf42c1e9c2136f2ca2fdcbee3fa70b1e727453042aa8021b71afacd36b1539",
+    "native/adlx_main.c": "2e624d0ee0ea20d647b54d811671f52c50706e0cb34529c7bd8ac8c18e0dec42",
+    "native/adlx_main.h": "a67988ae0fa9f4d2c5d0451f02851385a900f96a6fba67c56e4764ffc10469f6",
+    "native/adlx_music.c": "87780ecf6345c5dbdd8a37567e570df03e6d614f226e99f482128dd7fbc8fdec",
+    "native/adlx_music.h": "5cbc00c308886d499c9f786908f01d7cec00108050d23e392223d447005fdb74",
+    "native/adlx_sections.c": "b046d562103d266375681d41df24ec7b21f6f9bd99ad8db901a17e7977dcb29f",
+    "native/adlx_sections.h": "d291ad1a7ca94580a327cba7b6f9810fec8bae288baddc30d67cd23351cefb35",
+    "native/adlx_voice.c": "8061b763e6d2d3bbd68e383d6b3538ba84e49aee96cc5bb0c785c55472423090",
+    "native/adlx_voice.h": "d10d2b92ce7fbb9157d8eed291936ce119e1b99f130898587d6d4c95fa90e76d",
+    "native/audio.h": "e14ee8e39125b55ced910d17214acddfcd9fb0339192990487dca22dd3e04a5a",
+    "native/bridge/adlx_allocation_bridge.c": "ce1bbd8ff5cc2b57bb0ea50a8aa1b667a42cb3e379f5daf26df92de3a7ee6256",
+    "native/bridge/adlx_effects_bridge.c": "720a905d58d47e2c13f342fc2d174c964f17b09a69455dd3b2b34cac8ba8253e",
+    "native/bridge/adlx_loader_bridge.c": "1bbb03af7e750a0aa7834594a426342fabf1722b02815eb64b32e490493006ca",
+    "native/bridge/adlx_main_bridge.c": "91f38d4455d13917b3c7cf4a9fb89a02963be5cf509374e4570d81407f03c9c0",
+    "native/bridge/adlx_music_bridge.c": "1c1cfe6b1d0b1f04d8c38978896c8f8a070d3cf5508267e672b747a46b19edd9",
+    "native/bridge/adlx_sections_bridge.c": "1f2a26248c08e00bddb80c11597ef38f9a19d9b5011632dccafd8f4883c8093e",
+    "native/bridge/adlx_voice_bridge.c": "34f69a3adb235131bb703ef9b53f5b1778a20d00caccbfa669ecc085c2b89312",
+    "native/bridge/audio_projection.h": "e15ee379c16623f0dfb9830e154c5c71b0f2d2a424a6073c3dec497c50cd8630",
+    "src/c/module.c": "e58e54aa3f44fdfd29bdbcbaa471de2a6405235cbe2b276df56ea7193d548ae1",
+    "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
+    "verif/adlx_allocation_cases.py": "5780ee6d7b094dfe9cff0e8227043de2e340839890bff7a93edc3be5086ccab0",
+    "verif/adlx_effects_cases.py": "044edb8c6a25ecd2934c926cb9baea66c53f9ab9442744fc4c67495d69099bab",
+    "verif/adlx_effects_integration.py": "3cb136d4fdf1abe707c53801cc74d35f8fa036e59d1134a21ad9e86590ba8c5c",
+    "verif/adlx_loader_cases.py": "daf415a032afcf762ad7ad7e670556ad4ace633fb600e764b3a16106f349d4c6",
+    "verif/adlx_loader_corpus.py": "4e632cb829e3a13c061a16371535137c1d31e1b1f919e86d3a789edf3eb988b3",
+    "verif/adlx_loader_solver.py": "332c1a46957e398df5865fa5de14a73d259d464c621232f84976f8dfcc1f42d6",
+    "verif/adlx_music_cases.py": "872188a088b4aa246f41d6f80b504dab91f80092b6a30f6dbd4bce692f5b06bd",
+    "verif/adlx_music_corpus.py": "0e9dcc4d986fb43fa9ad70b4c9ecd7e476f1760caed07ba1d45720ece4ae8500",
+    "verif/adlx_sections_cases.py": "8fc1ba3a20e08a9dc3ebb7292d07bbe819923ab76b318e03415be0e7b50e8917",
+    "verif/adlx_sections_corpus.py": "6baa8f5171d949a9c012feeda3bdeb4e118e8f2366bd0c74a9926d8bce8c0cff",
+    "verif/adlx_voice_admission.py": "fc708f750021e575ef0391a62fa036da08113bace9c9e0be60801a8506e157c2",
+    "verif/adlx_voice_build.py": "6ef6e8eb7f412b2efc4d38fc878816e76143d802c065dba71d1ec02b47025bfa",
+    "verif/adlx_voice_cases.py": "d3d5db82d4c7b0255c76a0bf6ed3d9f0e2e1cb92efa43d3525389721e5ca3c02",
+    "verif/adlx_voice_evidence.py": "01184baf1cc9603f2dc4005f5bc8fffdadf009abd02d6c172e85d0990a045a7b",
+    "verif/adlx_voice_harness.c": "7f086fa0867b62c6c4405594d7bba33ee56a2c9b2fcdfbd46eab628117198ad0",
+    "verif/adlx_voice_host.py": "b1c9f7eab724dca04290d727e30e70ce2af2cdd53c197e222a5bc0a036e444c1",
+    "verif/adlx_voice_integration.py": "bfa370ac5fabdf7a3ec5da417a7e36366592e8568f0abc3f011220c5f0a35c3e",
+    "verif/adlx_voice_inventory.py": "7884efd6604060f5d0febc724f349319386a5635487b910d6cf3145b69e7e93e",
+    "verif/adlx_voice_io.py": "354e84da3ec649f85d0fdeb28cf650c25e51277be21d086c98272722062a7857",
+    "verif/adlx_voice_leaf.py": "f8c6333d4bbf75c1504c5f5559198f9eb88e7bd03ebe458a2d7a2d0214bfc2d5",
+    "verif/adlx_voice_pipeline.py": "938aaf6ce7541e49322e66342dca6344718261109cba998c41608e623d122019",
+    "verif/adlx_voice_proofs.py": "62025b46cba443e85a18d2265be2687186bfab99890e1cbb73850488fadabb80",
+    "verif/adlx_voice_reproduce.py": "35ac916984b9214877799fdeaa8656be03f6a55a1a570db79288acdd36867468",
+    "verif/adlx_voice_tracks.py": "8f468b77096e796b643354f2908d680caf45407a50ad9700df921771dac7a1a9",
+    "verif/adlx_voice_volume.py": "a6cf48770f3377376ebe3f0a0890917561607b5804c360ae2a8aa0b05b743a4d",
+    "verif/cbmc_shim/stddef.h": "03e62ec5f7016e0582b92f016d7e4017b56746e2b216ae8d7fad236ae7e723e7",
+    "verif/cbmc_shim/stdint.h": "ff382e7cc9e8ac2ff6cef94767bb680b49944513ebff33b6d7e548fe12a5d7d0",
+    "verif/cbmc_shim/ugh.h": "d23d5fb7f8d14f5c03944d9cce971d6d21fdf32c28ebac1f2710842cd03d7e72",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574"
+  }
+}

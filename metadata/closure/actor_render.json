@@ -1,0 +1,1226 @@
+{
+  "component": "actor_render",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "original": {
+    "gameplay": [
+      "GAME:RunGameFromPassword actor erase 013B:0CC2..0D0F, draw 013B:0DF3..0E39, overlay 013B:0F60..0F89"
+    ],
+    "demo": [
+      "GAME:EraseDemoSprites 013B:0AB1",
+      "GAME:DrawDemoSprites 013B:0A58"
+    ],
+    "reset": "GAME:ResetSpriteEraseState actor loop 013B:0B65..0B70; retained other contributions at013B:0B4F",
+    "l1": [
+      "c/scene.c",
+      "c/demo_scripts.c"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/actor_render.h",
+      "native/actor_render.c",
+      "native/bridge/actor_render_bridge.c"
+    ],
+    "header": "native/actor_render.h",
+    "functions": [
+      "actor_render_apply"
+    ],
+    "build": "python verif/render_history_build.py"
+  },
+  "purpose": "Persistent actor renderer history and ordered semantic erase/draw/overlay/reset decisions, shared by gameplay and demos. Pixel services and all surrounding frame work retain their existing owners.",
+  "interface": {
+    "inputs": [
+      "ActorRenderStorage persists across mode switches for all16 physical slots; one physical slot index, operation, raw fixed position, simulation sprite and gameplay overlay. All scalar history words and position words are admitted, including stale values.",
+      "No ActorType, ActorPhase, semantic scratch alias or page-derived replacement cache is read. Active-prefix/sentinel iteration stays in the literal bridge shell."
+    ],
+    "outputs": [
+      "Updated selected typed history; at most five ordered store/draw/restore events. Reset also emits the current simulation sprite hide."
+    ],
+    "effects": [
+      "Requests include exact sprite identity and wrapping pixel coordinates; they contain no pointer, register or VGA representation. Store and service events are interleaved, including main restore before overlay cache swap.",
+      "Pixel services are synchronous L1 calls with original near return words and actual register/flag/device effects. An abnormal return commits exactly the consumed prefix; normal return rejects any leftover request."
+    ],
+    "preconditions": [
+      "Ordinary disjoint data/resources/native outputs and stack; pixel services do not mutate actor arrays, preserve SI/DS/CS/SS:SP and retain their actual machine outputs. No asynchronous mutation within a slot operation.",
+      "Native API index<16. Bridge accepts canonical DS/CS and even SI<32; dynamic/corrupt segment/index cases execute the checked literal per-slot body as explicit compatibility, without partial native output.",
+      "Sentinel prefix has at most15 active actors for gameplay/demo scans, but reset visits all16 slots in descending order. No sign/initialized-state/timer/positive-coordinate assumptions.",
+      "All sprite/coordinate words are supported at the request boundary; executing arbitrary requests as pixels additionally requires valid original sprite/page resources. Malformed pixel resources are not made safe or normalized here."
+    ]
+  },
+  "callers": [
+    "RunGameFromPassword: erase before input/update, main draw after actor/enemy/item updates, then overlays after other sprite layers.",
+    "RunScriptedDemo: erase -> interpret -> draw -> page swap. ResetSpriteEraseState is called by demo and level initialization."
+  ],
+  "callees": {
+    "native": [
+      "render_signed",
+      "render_pixel",
+      "render_store",
+      "render_request",
+      "render_rotate"
+    ],
+    "bridge": [
+      "RestoreSpriteBackground",
+      "DrawTransparentSprite",
+      "All original nonactor frame callees remain verbatim in the checked shell."
+    ]
+  },
+  "indirect": {
+    "targets": [
+      "RestoreSpriteBackground",
+      "DrawTransparentSprite"
+    ],
+    "classification": "Named synchronous pixel requests only. Renderer introduces no stored actor callback. All unrelated indirect dispatch remains unchanged retained L1."
+  },
+  "memory": {
+    "owned": [
+      "ActorRenderStorage: current/previous pixel X/Y, erase sprite and erase-overlay sprite. Current simulation sprite only for reset."
+    ],
+    "borrowed": [
+      "Simulation fixed position and sprite/overlay outputs; no scratch aliases. Existing placement and scene initialization explicitly seed caches."
+    ],
+    "frame": [
+      "Every other actor byte and physical slot, position, gameplay overlay, animation/phase state, resources and renderer globals are unchanged by the native step.",
+      "Two rolling cache generations follow alternating pages; no invented page-indexed history or mode-entry clear."
+    ],
+    "projection": "Bridge imports persistent words directly. Each store and pre-service cut checks the published prefix in ACTOR_VERIFY; normal completion checks final typed history and complete request consumption."
+  },
+  "assumptions": [
+    "B compares actual maintained C at complete per-slot cuts. Output covers every register/flag, current-slot RAM word, ordered store and pixel-call parameters/return word, and normal/abnormal prefixes.",
+    "Word-normalized disjoint RAM plus fixed selected-slot normalization and arbitrary-other-slot byte frame. Compiled cases cover all16 physical slots. The complete original outer loop/guard/order and nonactor code are checked retained text, with C/D composition evidence.",
+    "Pixel-service bodies remain outside this unit, with their stated actor-array frame and synchronous register effects. Formal output profiles use arbitrary shared service results, including abnormal returns. Actual blits/devices are exercised by C/D and scratch host."
+  ],
+  "eliminated": [
+    "Native renderer has no machine registers, addresses, memory accessors, code dispatch or sprite-directory/VGA/page layout. Native events determine what is rendered and in what order.",
+    "No dead-register/flag claim is used: the complete retained shell is compared."
+  ],
+  "retained": [
+    "Gameplay draw skips FFFF before caches, rotates both generations before signed -11<Y<192 clipping, and never clips X. Demo skips7FFF, rotates before signed X<320/Y<192 upper bounds, with no lower bounds. FFFF is not substituted for the demo hidden value.",
+    "Erase always caches the current sprite. Demo restores neither oldFFFF nor old7FFF and has no actor Y clip. Gameplay only tests oldFFFF and signed previousY<192. Overlay swap happens only after that main restore; hidden/clipped cases leave stale overlay history.",
+    "Gameplay overlay draw checks current main and overlay sprites but performs no clipping; wrapping offsets X+11/Y-13 use current caches.",
+    "Reset touches current/erase sprites for all16, retaining all four pixel caches and erase-overlay history. Explicit demo seeds touch both generations; passenger placement seeds current only; stone placement leaves caches stale.",
+    "Raw SAR5 rounds negative coordinates downward. All offsets and seeds wrap as words. Pre-update simulation reads old cached pixels, including demo-to-gameplay history."
+  ],
+  "evidence": [
+    {
+      "property": "Complete checked source inventory",
+      "level": "B",
+      "command": "python verif/render_history_coverage.py",
+      "result": "PASS six actor bodies and all four retained shells",
+      "method": "Six complete per-slot actor bodies cover every history decision and event. Each output proof executes actual full native apply and retained C body, compares every current-slot word, every register/flag, ordered stores/pixel-call parameters/return words and abnormal prefixes. Independent native arbitrary-byte frame and dependence complete the observation set. No summarized tick/frame/append helper is substituted. Outer equality-only sentinel scans, ascending slot order, descending all16 reset, every nonactor statement and original call frames are checked literal retained code; their general shell composition remains C/D rather than a new monolithic B claim.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "GAME_ERASE outputs",
+      "level": "B",
+      "command": "python verif/render_history_proof.py GAME_ERASE outputs",
+      "result": "PASS 0.596s; peak private 58540032 bytes",
+      "method": "Actual maintained C, pointer/bounds/overflow/unwinding checks enabled. Per-slot outputs/frame/dependence, sequence seed/frame and actual accepted projector scopes are distinct as documented.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "GAME_ERASE native-frame",
+      "level": "B",
+      "command": "python verif/render_history_proof.py GAME_ERASE native-frame",
+      "result": "PASS 0.304s; peak private 51646464 bytes",
+      "method": "Actual maintained C, pointer/bounds/overflow/unwinding checks enabled. Per-slot outputs/frame/dependence, sequence seed/frame and actual accepted projector scopes are distinct as documented.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "GAME_ERASE dependencies",
+      "level": "B",
+      "command": "python verif/render_history_proof.py GAME_ERASE dependencies",
+      "result": "PASS 0.184s; peak private 36102144 bytes",
+      "method": "Actual maintained C, pointer/bounds/overflow/unwinding checks enabled. Per-slot outputs/frame/dependence, sequence seed/frame and actual accepted projector scopes are distinct as documented.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "GAME_DRAW outputs",
+      "level": "B",
+      "command": "python verif/render_history_proof.py GAME_DRAW outputs",
+      "result": "PASS 0.604s; peak private 59064320 bytes",
+      "method": "Actual maintained C, pointer/bounds/overflow/unwinding checks enabled. Per-slot outputs/frame/dependence, sequence seed/frame and actual accepted projector scopes are distinct as documented.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "GAME_DRAW native-frame",
+      "level": "B",
+      "command": "python verif/render_history_proof.py GAME_DRAW native-frame",
+      "result": "PASS 0.316s; peak private 54767616 bytes",
+      "method": "Actual maintained C, pointer/bounds/overflow/unwinding checks enabled. Per-slot outputs/frame/dependence, sequence seed/frame and actual accepted projector scopes are distinct as documented.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "GAME_DRAW dependencies",
+      "level": "B",
+      "command": "python verif/render_history_proof.py GAME_DRAW dependencies",
+      "result": "PASS 0.188s; peak private 36618240 bytes",
+      "method": "Actual maintained C, pointer/bounds/overflow/unwinding checks enabled. Per-slot outputs/frame/dependence, sequence seed/frame and actual accepted projector scopes are distinct as documented.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "GAME_OVERLAY outputs",
+      "level": "B",
+      "command": "python verif/render_history_proof.py GAME_OVERLAY outputs",
+      "result": "PASS 0.369s; peak private 48447488 bytes",
+      "method": "Actual maintained C, pointer/bounds/overflow/unwinding checks enabled. Per-slot outputs/frame/dependence, sequence seed/frame and actual accepted projector scopes are distinct as documented.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "GAME_OVERLAY native-frame",
+      "level": "B",
+      "command": "python verif/render_history_proof.py GAME_OVERLAY native-frame",
+      "result": "PASS 0.142s; peak private 46616576 bytes",
+      "method": "Actual maintained C, pointer/bounds/overflow/unwinding checks enabled. Per-slot outputs/frame/dependence, sequence seed/frame and actual accepted projector scopes are distinct as documented.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "GAME_OVERLAY dependencies",
+      "level": "B",
+      "command": "python verif/render_history_proof.py GAME_OVERLAY dependencies",
+      "result": "PASS 0.153s; peak private 33685504 bytes",
+      "method": "Actual maintained C, pointer/bounds/overflow/unwinding checks enabled. Per-slot outputs/frame/dependence, sequence seed/frame and actual accepted projector scopes are distinct as documented.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "DEMO_ERASE outputs",
+      "level": "B",
+      "command": "python verif/render_history_proof.py DEMO_ERASE outputs",
+      "result": "PASS 0.395s; peak private 48414720 bytes",
+      "method": "Actual maintained C, pointer/bounds/overflow/unwinding checks enabled. Per-slot outputs/frame/dependence, sequence seed/frame and actual accepted projector scopes are distinct as documented.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "DEMO_ERASE native-frame",
+      "level": "B",
+      "command": "python verif/render_history_proof.py DEMO_ERASE native-frame",
+      "result": "PASS 0.295s; peak private 50999296 bytes",
+      "method": "Actual maintained C, pointer/bounds/overflow/unwinding checks enabled. Per-slot outputs/frame/dependence, sequence seed/frame and actual accepted projector scopes are distinct as documented.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "DEMO_ERASE dependencies",
+      "level": "B",
+      "command": "python verif/render_history_proof.py DEMO_ERASE dependencies",
+      "result": "PASS 0.158s; peak private 34537472 bytes",
+      "method": "Actual maintained C, pointer/bounds/overflow/unwinding checks enabled. Per-slot outputs/frame/dependence, sequence seed/frame and actual accepted projector scopes are distinct as documented.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "DEMO_DRAW outputs",
+      "level": "B",
+      "command": "python verif/render_history_proof.py DEMO_DRAW outputs",
+      "result": "PASS 0.611s; peak private 58744832 bytes",
+      "method": "Actual maintained C, pointer/bounds/overflow/unwinding checks enabled. Per-slot outputs/frame/dependence, sequence seed/frame and actual accepted projector scopes are distinct as documented.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "DEMO_DRAW native-frame",
+      "level": "B",
+      "command": "python verif/render_history_proof.py DEMO_DRAW native-frame",
+      "result": "PASS 0.328s; peak private 53248000 bytes",
+      "method": "Actual maintained C, pointer/bounds/overflow/unwinding checks enabled. Per-slot outputs/frame/dependence, sequence seed/frame and actual accepted projector scopes are distinct as documented.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "DEMO_DRAW dependencies",
+      "level": "B",
+      "command": "python verif/render_history_proof.py DEMO_DRAW dependencies",
+      "result": "PASS 0.191s; peak private 36937728 bytes",
+      "method": "Actual maintained C, pointer/bounds/overflow/unwinding checks enabled. Per-slot outputs/frame/dependence, sequence seed/frame and actual accepted projector scopes are distinct as documented.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "RESET outputs",
+      "level": "B",
+      "command": "python verif/render_history_proof.py RESET outputs",
+      "result": "PASS 0.290s; peak private 42541056 bytes",
+      "method": "Actual maintained C, pointer/bounds/overflow/unwinding checks enabled. Per-slot outputs/frame/dependence, sequence seed/frame and actual accepted projector scopes are distinct as documented.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "RESET native-frame",
+      "level": "B",
+      "command": "python verif/render_history_proof.py RESET native-frame",
+      "result": "PASS 0.293s; peak private 52056064 bytes",
+      "method": "Actual maintained C, pointer/bounds/overflow/unwinding checks enabled. Per-slot outputs/frame/dependence, sequence seed/frame and actual accepted projector scopes are distinct as documented.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "RESET dependencies",
+      "level": "B",
+      "command": "python verif/render_history_proof.py RESET dependencies",
+      "result": "PASS 0.075s; peak private 8515584 bytes",
+      "method": "Actual maintained C, pointer/bounds/overflow/unwinding checks enabled. Per-slot outputs/frame/dependence, sequence seed/frame and actual accepted projector scopes are distinct as documented.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "pages",
+      "level": "B",
+      "command": "python verif/render_history_sequences.py pages",
+      "result": "PASS 3.796s; peak private 172134400 bytes",
+      "method": "Actual maintained C, pointer/bounds/overflow/unwinding checks enabled. Per-slot outputs/frame/dependence, sequence seed/frame and actual accepted projector scopes are distinct as documented.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "seeds",
+      "level": "B",
+      "command": "python verif/render_history_sequences.py seeds",
+      "result": "PASS 0.693s; peak private 63213568 bytes",
+      "method": "Actual maintained C, pointer/bounds/overflow/unwinding checks enabled. Per-slot outputs/frame/dependence, sequence seed/frame and actual accepted projector scopes are distinct as documented.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "initialize-frame",
+      "level": "B",
+      "command": "python verif/render_history_sequences.py initialize-frame",
+      "result": "PASS 2.924s; peak private 154275840 bytes",
+      "method": "Actual maintained C, pointer/bounds/overflow/unwinding checks enabled. Per-slot outputs/frame/dependence, sequence seed/frame and actual accepted projector scopes are distinct as documented.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "loader-frame",
+      "level": "B",
+      "command": "python verif/render_history_sequences.py loader-frame",
+      "result": "PASS 0.107s; peak private 38821888 bytes",
+      "method": "Actual maintained C, pointer/bounds/overflow/unwinding checks enabled. Per-slot outputs/frame/dependence, sequence seed/frame and actual accepted projector scopes are distinct as documented.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "verif/render_history_projection.py",
+      "level": "B",
+      "command": "python verif/render_history_projection.py",
+      "result": "PASS 0.370s; peak private 40247296 bytes",
+      "method": "Actual maintained C, pointer/bounds/overflow/unwinding checks enabled. Per-slot outputs/frame/dependence, sequence seed/frame and actual accepted projector scopes are distinct as documented.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Eight complete 16-bit scalar slices",
+      "level": "A",
+      "command": "python verif/render_history_cases.py",
+      "result": "PASS 524288 finite slice comparisons",
+      "method": "All65536 raw X/Y words for each draw mode, and previousY/erase-sprite words for each erase mode; every other input fixed within each slice. This covers the slices, not the Cartesian slot domain.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Small domains and generated slot states",
+      "level": "C",
+      "command": "python verif/render_history_cases.py",
+      "result": "PASS 695552 slot comparisons",
+      "method": "695552 total inclusive of finite slices: full small hidden/clip/overlay boundary grid and16000x6 generated all-slot cases, including abnormal service returns.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Behavioral and protocol controls",
+      "level": "C",
+      "command": "python verif/render_history_mutants.py; python verif/render_history_bound.py",
+      "result": "All19 mutants DETECTED; insufficient actual sequence unwind FAIL",
+      "method": "Private history, generation, signedness, hidden markers, overlay guard/order/offsets, reset and native-only request/store mutations are compiled and behaviorally rejected; compiler errors are not detection.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Real demo-to-gameplay handoff and both pages",
+      "level": "C",
+      "command": "python verif/render_history_cross_mode.py",
+      "result": "PASS26 actual native/literal boundaries and four page cycles; zero fallback",
+      "method": "Two independent DLLs, actual loader/bootstrap/reset/stone update and literal inline draw/erase/overlay, actual pixel blits/page swap. Full RAM, complete registers/flags and device structures agree.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "L0 -> composed routine suites",
+      "level": "C",
+      "command": "python verif/render_history_integration.py --whole --local-reference",
+      "result": "PASS3332 routine cases",
+      "method": "Maintained demo_scripts/game_services/actors_states/actors/render/scene normal and poisoned inputs; all accepted native units plus this bridge.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Maintained whole-game scenarios",
+      "level": "D",
+      "command": "python verif/render_history_integration.py --whole --local-reference",
+      "result": "PASS20 scenarios, zero actor-render compatibility",
+      "method": "Per-scenario six-operation slot counts and independent ASM caller coverage are recorded. high-score/password have zero entries; the other18 reach at least one operation.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Scratch host promotion",
+      "level": "D",
+      "command": "python verif/render_history_host.py",
+      "result": "PASS actual closure/build/native check,20 scenarios and256-frame smoke",
+      "method": "Clean committed baseline plus owned overlay, only scratch actor_render promoted; unchanged actual CLI tools.",
+      "date": "2026-11-14"
+    }
+  ],
+  "amiga": {
+    "classification": "Meaning only; no DOS pixel/cache equivalence asserted",
+    "finding": "Shared actor identity and presentation responsibilities are established in architecture-model/actor-storage. DOS capacity, hidden markers, cache generations and clip/overlay quirks remain authoritative."
+  },
+  "uncertainty": [
+    "Only the supervisor promotes status. This is the actor renderer boundary, not all render_hud, VGA, session/demo wrappers or a new passenger facade."
+  ],
+  "dependencies": {
+    "native/actor_render.h": {
+      "includes": [
+        "actors.h"
+      ],
+      "calls": []
+    },
+    "native/actor_render.c": {
+      "includes": [
+        "actor_render.h"
+      ],
+      "calls": [
+        "render_pixel",
+        "render_request",
+        "render_rotate",
+        "render_signed",
+        "render_store"
+      ]
+    },
+    "native/bridge/actor_render_bridge.c": {
+      "includes": [
+        "../actor_render.h",
+        "platform.h",
+        "stdlib.h"
+      ],
+      "calls": [
+        "AR_CALL",
+        "CALL",
+        "D",
+        "G",
+        "R",
+        "RX",
+        "W",
+        "WX",
+        "abort",
+        "actor_render_apply",
+        "add16",
+        "ar_address",
+        "ar_equal",
+        "ar_finish",
+        "ar_history",
+        "ar_next",
+        "ar_open",
+        "ar_projection",
+        "ar_require",
+        "ar_write",
+        "dec16",
+        "draw_enemy_layer",
+        "flag",
+        "logic",
+        "platform_service_point_at",
+        "push",
+        "rd16",
+        "rd8",
+        "sar",
+        "scene_far_call",
+        "set_al",
+        "step",
+        "sub16",
+        "szp",
+        "ugh_dispatch",
+        "wr16",
+        "wr8"
+      ]
+    }
+  },
+  "proposed_status_reason": "All23 current actual-C profiles, finite slices, generated/small-domain comparisons,19 mutation controls, full cross-mode/page trace, routine/scenario integration and actual scratch host promotion pass. Outer machine/pixel composition retains C/D scope.",
+  "scenario_native_counts": [
+    {
+      "scenario": "adlib",
+      "status": 0,
+      "entries": [
+        0,
+        0,
+        0,
+        4,
+        4,
+        16
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "attract",
+      "status": 0,
+      "entries": [
+        0,
+        0,
+        0,
+        470,
+        470,
+        16
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "completion",
+      "status": 0,
+      "entries": [
+        0,
+        0,
+        0,
+        2370,
+        2370,
+        16
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "departure",
+      "status": 0,
+      "entries": [
+        7155,
+        7155,
+        7155,
+        16,
+        16,
+        48
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "dino",
+      "status": 0,
+      "entries": [
+        804,
+        804,
+        804,
+        16,
+        16,
+        48
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "enemy",
+      "status": 0,
+      "entries": [
+        3216,
+        3216,
+        3216,
+        16,
+        16,
+        64
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "gameplay-adlib",
+      "status": 0,
+      "entries": [
+        2838,
+        2838,
+        2838,
+        20,
+        20,
+        96
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "gameplay",
+      "status": 0,
+      "entries": [
+        2838,
+        2838,
+        2838,
+        20,
+        20,
+        96
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "high-score",
+      "status": 0,
+      "entries": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "items-multiplier",
+      "status": 0,
+      "entries": [
+        3236,
+        3236,
+        3236,
+        16,
+        16,
+        48
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "items-timer",
+      "status": 0,
+      "entries": [
+        2394,
+        2394,
+        2394,
+        16,
+        16,
+        48
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "menu",
+      "status": 0,
+      "entries": [
+        0,
+        0,
+        0,
+        4,
+        4,
+        16
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "passenger",
+      "status": 0,
+      "entries": [
+        4905,
+        4905,
+        4905,
+        16,
+        16,
+        48
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "password",
+      "status": 0,
+      "entries": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "pregame",
+      "status": 0,
+      "entries": [
+        0,
+        0,
+        0,
+        948,
+        948,
+        16
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "reveal",
+      "status": 0,
+      "entries": [
+        0,
+        0,
+        0,
+        252,
+        252,
+        16
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "startup",
+      "status": 0,
+      "entries": [
+        0,
+        0,
+        0,
+        8,
+        8,
+        16
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "two-player",
+      "status": 0,
+      "entries": [
+        432,
+        432,
+        432,
+        16,
+        16,
+        48
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "water-physics",
+      "status": 0,
+      "entries": [
+        7155,
+        7155,
+        7155,
+        16,
+        16,
+        48
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "water",
+      "status": 0,
+      "entries": [
+        16371,
+        16371,
+        16371,
+        16,
+        16,
+        64
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "coverage_inventory": [
+    {
+      "operation": "GAME_ERASE",
+      "actual_l1_stores": [
+        "WX(ActorEraseSprite,r->si,r->ax);",
+        "WX(ActorEraseOverlaySprite,r->si,r->ax);"
+      ],
+      "actual_l1_pixel_calls": [
+        [
+          "RestoreSpriteBackground",
+          "G(RunGameFromPassword)+0xe3"
+        ],
+        [
+          "RestoreSpriteBackground",
+          "G(RunGameFromPassword)+0x108"
+        ]
+      ],
+      "proofs": [
+        "outputs",
+        "native-frame",
+        "dependencies"
+      ]
+    },
+    {
+      "operation": "GAME_DRAW",
+      "actual_l1_stores": [
+        "WX(ActorPreviousDrawX,r->si,r->bx);",
+        "WX(ActorPreviousDrawY,r->si,r->cx);",
+        "WX(ActorPixelX,r->si,r->bx);",
+        "WX(ActorPixelY,r->si,r->cx);"
+      ],
+      "actual_l1_pixel_calls": [
+        [
+          "DrawTransparentSprite",
+          "G(RunGameFromPassword)+0x232"
+        ]
+      ],
+      "proofs": [
+        "outputs",
+        "native-frame",
+        "dependencies"
+      ]
+    },
+    {
+      "operation": "GAME_OVERLAY",
+      "actual_l1_stores": [],
+      "actual_l1_pixel_calls": [
+        [
+          "DrawTransparentSprite",
+          "G(RunGameFromPassword)+0x382"
+        ]
+      ],
+      "proofs": [
+        "outputs",
+        "native-frame",
+        "dependencies"
+      ]
+    },
+    {
+      "operation": "DEMO_ERASE",
+      "actual_l1_stores": [
+        "WX(ActorEraseSprite,r->si,r->ax);"
+      ],
+      "actual_l1_pixel_calls": [
+        [
+          "RestoreSpriteBackground",
+          "G(EraseDemoSprites)+0x34"
+        ]
+      ],
+      "proofs": [
+        "outputs",
+        "native-frame",
+        "dependencies"
+      ]
+    },
+    {
+      "operation": "DEMO_DRAW",
+      "actual_l1_stores": [
+        "WX(ActorPreviousDrawX,r->si,r->bx);",
+        "WX(ActorPreviousDrawY,r->si,r->cx);",
+        "WX(ActorPixelX,r->si,r->bx);",
+        "WX(ActorPixelY,r->si,r->cx);"
+      ],
+      "actual_l1_pixel_calls": [
+        [
+          "DrawTransparentSprite",
+          "(uint16_t)(G(DrawDemoSprites)+0x53)"
+        ]
+      ],
+      "proofs": [
+        "outputs",
+        "native-frame",
+        "dependencies"
+      ]
+    },
+    {
+      "operation": "RESET",
+      "actual_l1_stores": [
+        "wr16(r->ds,(uint16_t)(D(ActorSpriteIds)+r->si),r->ax);",
+        "wr16(r->ds,(uint16_t)(D(ActorEraseSprite)+r->si),r->ax);"
+      ],
+      "actual_l1_pixel_calls": [],
+      "proofs": [
+        "outputs",
+        "native-frame",
+        "dependencies"
+      ]
+    }
+  ],
+  "maximum_solver_overlap": 2,
+  "actor_types_review": {
+    "finding": "The previously C-only local history obligation now has B: actual six-field/all16 projector, arbitrary-header explicit seed/reset/first-draw handoff, native initialized prefix/all16 reset frame and actual loader actor contribution. Actual normal path remains independently C/D.",
+    "recommendation": "This removes the C-only renderer-history reason for holding actor_types. Supervisor may review verified-under-assumptions after importing the B properties/source locks and explicit service/frame assumptions. It does not justify the old verified-within-contract proposal by aggregation.",
+    "stronger": "A for the complete admitted persistence/composition property requires a fully discharged all-slot/all-prefix addressing and write-frame link through every normal mode-entry/placement/bootstrap path and pixel-service frame (or explicit contracted platform ownership), with actual projection/caller seams and source locks. Finite resource A and sample cross-mode C do not establish that whole property.",
+    "status_changed": false
+  },
+  "negative_results": [
+    {
+      "receipt": "build\\workers\\close-stones-6\\negative\\1794609978894481900-63364-FAIL\\result.json",
+      "result": "FAIL",
+      "seconds": 0.2399532999843359,
+      "peak_private_bytes": 37187584,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-6\\proofs\\GAME_DRAW-dependencies\\harness.i",
+        "--unwind",
+        "18",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-6\\negative\\1794609981195512300-61612-FAIL\\result.json",
+      "result": "FAIL",
+      "seconds": 0.24668410001322627,
+      "peak_private_bytes": 37163008,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-6\\proofs\\DEMO_DRAW-dependencies\\harness.i",
+        "--unwind",
+        "18",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-6\\negative\\1794610446824457700-67156-FAIL\\result.json",
+      "result": "FAIL",
+      "seconds": 0.1448547999607399,
+      "peak_private_bytes": 35893248,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-6\\negative-bound\\harness.i",
+        "--unwind",
+        "1",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-6\\negative\\1794611040734775200-71424-MEMORY_CAP\\result.json",
+      "result": "MEMORY_CAP",
+      "seconds": 0.01616599998669699,
+      "peak_private_bytes": 6606848,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-6\\cap-control\\harness.i",
+        "--unwind",
+        "1",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-6\\negative\\1794611050980253700-74784-FAIL\\result.json",
+      "result": "FAIL",
+      "seconds": 0.14764500001911074,
+      "peak_private_bytes": 35938304,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-6\\negative-bound\\harness.i",
+        "--unwind",
+        "1",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe"
+      ]
+    }
+  ],
+  "scratch_acceptance": {
+    "baseline": "33e2320f92e2d48dfa8591ea93881fdc708be68f",
+    "linked_units": [
+      "actor_render",
+      "actor_types",
+      "adlx_allocation",
+      "adlx_effects",
+      "adlx_loader",
+      "adlx_main",
+      "adlx_music",
+      "adlx_sections",
+      "adlx_voice",
+      "contacts",
+      "coordinate_scale",
+      "decimal",
+      "demo_core",
+      "falling_items",
+      "far_copy",
+      "hazards",
+      "ice",
+      "level_view",
+      "music_clock",
+      "passenger_delivery",
+      "passenger_itinerary",
+      "passenger_water",
+      "random",
+      "stones",
+      "timer"
+    ],
+    "scenarios": [
+      "adlib",
+      "attract",
+      "completion",
+      "departure",
+      "dino",
+      "enemy",
+      "gameplay-adlib",
+      "gameplay",
+      "high-score",
+      "items-multiplier",
+      "items-timer",
+      "menu",
+      "passenger",
+      "password",
+      "pregame",
+      "reveal",
+      "startup",
+      "two-player",
+      "water-physics",
+      "water"
+    ]
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "native/actor_render.h": "9b68b08b34200616669b59c5c939c2da1dbbaa623fa57c67e3f6372d3ff34015",
+    "native/actor_render.c": "f14a0f219a8a9a056a975ad38d74527512bc48634e0b388bd7aa929d846fd110",
+    "native/bridge/actor_render_bridge.c": "6739b219c89fc1c1fd0f62f8d548bb6cd29cdf5f59fd4fc375150a6641fbfaae",
+    "verif/render_history_bound.py": "4f23cb26b2583a82a6890bac41440513a99e53d0595f5f99eb762d5850fad18e",
+    "verif/render_history_build.py": "8b41ec27c3d3029ae750533a8073660701e0fdfd1dffad26cd026f42dc6c2e06",
+    "verif/render_history_cases.py": "fb785370c0997ab015e8aa323c69f43323d580646a8372f2c0a7eb0cb2b6b779",
+    "verif/render_history_certificate.py": "15811e1b52555a446ea8d6fda68ca3a7038bbe25cb0e3fda84d56e2e7ccf6aa5",
+    "verif/render_history_coverage.py": "e6bbed10838485678c6a5c90f1f33eff24366f35a969951abb781bed58504e8f",
+    "verif/render_history_cross_mode.py": "a7ecd1ca67e9d31566c378312e5342282e257199de72158b409557eb5cc8135c",
+    "verif/render_history_harness.c": "f3187bd87fdc6f7a5954cad2110c05ed19c9c93bd8d1884cf196243561c17723",
+    "verif/render_history_host.py": "da4faa6609a14291553d069cb1e9cd7caba13a91edfbfa6231a89aa27d620f55",
+    "verif/render_history_integration.py": "3b41152b6821cc0fb60d208ed292e9fa876b6d13e69f28243bd67879b82da481",
+    "verif/render_history_limits.py": "0a708e102088636f09e857326b996a1551fbe475cb8738d2b04fd77c88f6a79b",
+    "verif/render_history_mutants.py": "5c36859ee860f7c10df084bcada6b523f45dbdd339a3151f3f9ae613e17d6264",
+    "verif/render_history_projection.py": "ef49c753abd7c8bf367b06674a75cb2c832aa8f588931f0d6c543e1177a95561",
+    "verif/render_history_proof.py": "b1f659434a82a13b835bf527614a137ac7590e7009f6e6e071f737c56cd74a96",
+    "verif/render_history_proofs.py": "4de5ad34867a756a971fa9071f1fb398b422d97d8a47af43ac6f3813c7b31b90",
+    "verif/render_history_reproduce.py": "17d9bcf134c16772232169e6e5ccef30375537144f117384d2dd862b2a3b7d8f",
+    "verif/render_history_sequences.py": "6b41eecb3362f70972ced38540067ce4942936f49c9d6502de3c6fee3b3e55d0",
+    "verif/render_history_shells.py": "06e45bca17a43d9a5196f384dd67aa9af926622ee2f0d443bbc4ad3fe903b8ef",
+    "tests/scenarios/adlib.txt": "1db37ba320e4c3c85449c2f4a7f5ecd8543e6de6933e165e534b79adb3386f2f",
+    "tests/scenarios/attract.txt": "07339939be35779cc94094221155e97a11c6dec396ab6dce85f238a415896a01",
+    "tests/scenarios/completion.txt": "d898ad1f8abd49f7757303b562028cf7f0c10143dfb0358dad4e0a6fee7386bc",
+    "tests/scenarios/departure.txt": "dd7cb186974803ed7436b99600394606594109283d668f7ee5a893a90f89f705",
+    "tests/scenarios/dino.txt": "f5a6254be7b416bdf3da436c7b1907abe31e4a7b184bb7ac6636b72c7c166252",
+    "tests/scenarios/enemy.txt": "c5140aa9afe062e09cbefb949b78d06733c306518f315ba8f5448a0c2b8062a6",
+    "tests/scenarios/gameplay-adlib.txt": "5f0e1e3ea3f5f9e735c5a7ab2eda9ddee8a33d8d290bbd81e27fd9cbb1ddb3cd",
+    "tests/scenarios/gameplay.txt": "b0be47d570408d44dc977faca40ef2a258c0686958f7fa68574cc411bb25a03a",
+    "tests/scenarios/high-score.txt": "5b698cb06b6d77d9a9d6f009cea71b8a1af9c16c8ecf3c344e33a9b8d93b1220",
+    "tests/scenarios/items-multiplier.txt": "aea8dc889e0a1777e2c3f8b37525375e939656a91577759030523a8aca88ca8d",
+    "tests/scenarios/items-timer.txt": "1fc3cde57a7aed7acfe67e015af95c852a6dc681b7492d3464ffe5e7d5af39b1",
+    "tests/scenarios/menu.txt": "3e8347d504ac0c13ced62c1befb26b59a353c46de397bb3ac79f5089b20ea8b1",
+    "tests/scenarios/passenger.txt": "e95f43a019615449dd142652ea837aaeb4a82e7bce9c6ecd72dd67411fe44922",
+    "tests/scenarios/password.txt": "fea4555e22daca6a5e4e154fd4d6c1b7871d80aa574c402363d5b3b938657bd2",
+    "tests/scenarios/pregame.txt": "6697f662ccf5791b57e14d5dcb0c216c7428312441c570f10b0e031a33a97cf8",
+    "tests/scenarios/reveal.txt": "8be34ff993316d7e099576cccd8af23d28267b02eee37df01a430f8e94418c84",
+    "tests/scenarios/startup.txt": "bddaf9054cfb6f1a4a5734e147c2481c28d0fa0768af141c311ddb13a38fbd7b",
+    "tests/scenarios/two-player.txt": "5c07be6ec944b7a38082d275633bba2ef26cc9e90828b673bb8434ad3ffa78e5",
+    "tests/scenarios/water-physics.txt": "33853e24a477c60ab0dbecf9057a034a01fa2ec6ab6c9f6e873d463006754e6c",
+    "tests/scenarios/water.txt": "22aca0913b25142891f67c57f20d56cfef57c16df862269a377f924217e96f84",
+    "tests/demo_scripts.py": "b71d2044f43b58e9b79cce9039e1a3a8d71a7ca96a6f385abcbdc47edefa95be",
+    "tests/game_services.py": "f107e1dafead13ec0b397a12474b52d821fde5415a2783f5ebad4477b309a6e5",
+    "tests/actors_states.py": "94ec4f7e880e6d717c5fc1a645f6f2dfebab18150f915e9ee0009789f5126de6",
+    "tests/actors.py": "80b0aed22ae70e2b8eeead4a4176ce5b5935ac93ee517869df14035ffa9ea7ad",
+    "tests/render.py": "ac899241858dd7dd0f2d175a7f5b7229257b5b59a24291c65078881281c86e7e",
+    "tests/scene.py": "1eb8b5d2a3fb51b9eaa123d3f5d9efe2637ef131f333f696b71dc1f3a9069a81",
+    "tests/menu.py": "968fb180e88fe43264642f12a21650663f31c79df511290879d476d3bd0f5d08",
+    "docs/closure-howto.md": "e7a870d78ca38574572fd346eb9f04f8580f8cd2e4e2235421dd0aefd3c7bb47",
+    "native/actors.h": "b1c7653a6e566c7f0e3e18ad38fc3f63726d01b78a6fa6843df017d2d155a42c",
+    "native/demo_core.c": "028b9eaa6671c8219d69ad4f34d1fe5569b1ee69d4c4c3cb13f49c24616a4646",
+    "native/demo_core.h": "18d2dd79899671992f6e1f6e2fa2bce933e9eb56c1033a0e60229b7de23f38d6",
+    "native/bridge/actor_resources_bridge.c": "6941d649e3fb35d3898b35c3e461fedd0ceee0210861300ce674ac78aac0acc2",
+    "native/bridge/actor_projection.h": "71e0476afe7c0b082b5eac20957028e58a61f6741ef11c7ca546fe8bbad8b483",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
+    "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
+    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
+    "tools/wholegame.py": "ba6fff7d0f1583e734ab69435e801f2d101758078c36712744bc5b3e839fa65c",
+    "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
+    "host/check.py": "ae78b6b48e7c77aa4c513f8474d23d7ef9d26afe39ab55ea70e871473701e94c",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
+    "c/abi.c": "5f7c2c2fc015ca43e3786a7f96cb38113211da54acefce19564c1df78d74857a",
+    "c/actors.c": "d17c03c844f95780f0647b85aa854a87c3e566b0f56fe89ee0a95d6d689f3ff2",
+    "c/actors.h": "00817c6f676f61811df11066fca3335c9757e0f59f7cad241dff762fee7b71bd",
+    "c/actors_states.c": "79a460a0436e773bdd795953f63c6765d71c0e346cdf8bbccbcf707817994447",
+    "c/actors_states.h": "375dda6bd3fa6cd5552cc98df7f7c785dc5d70850a10f96207bd0894161cd5d8",
+    "c/adlib.c": "2f4e551282f6ac33f8d24127f3cd5294e679f72ce28794c3ed295ce243c18bf0",
+    "c/adlib.h": "70f2c0d3f51dc49dd05918266b4de07d247a12909f11e8329244b8d9af56cdee",
+    "c/demo_scripts.c": "a19c7e52bc709a28f9be40bc66b60c6de82df888f8eb725b79f0b9556fe795d7",
+    "c/demo_scripts.h": "ea65090001ef64f26f31c39de2075c098949bcb9ca8448480cd1fccdf55a608b",
+    "c/dispatch.c": "80a97f55a460a21dac9d6295939a8276c83b66cef886f814365e0a823814debf",
+    "c/dos_input.c": "b6a086f3917441a23c4238f582e00605d8a239ded81b03a658ff308890601e53",
+    "c/dos_input.h": "8cee17811645a61424b6174e0213402b8c21defd5b4fa6d56511225c70e5193e",
+    "c/dsp.c": "a2f4dc144514ed9ea8cdca8a75c9813718342a5ed5c26176ff6d691f89d651b5",
+    "c/dsp.h": "9b2c2b95b0781caf3a96b7b0b19f8078601557f5e0a11bec889d109ef2755b63",
+    "c/game_services.c": "e9301da5d7fae6f2aacce7dda8d4e6f0e86cbe8c40e736216185c4a8f792a7c5",
+    "c/game_services.h": "7a63f8bd05b2710c27c4c4247b00e0f1fc06a4ecdaa388bf47eb9fb1374965c5",
+    "c/ice.c": "27e2898dd6a5e70af26bde84c0ba8cd6e8a045e40d94df21fd5b122f10a2242e",
+    "c/ice.h": "925da59e4f3fb6cf278100578e56093dc7138040c98eb9f286acb9c867512578",
+    "c/items_water.c": "ab5c2c72096b5e6355a2575f9a58c321f91680d7cd97653581dcbab59033e2d9",
+    "c/items_water.h": "d18978433dcc966235010906984c13fcb76c3469bf4bc0f8e33345101099f148",
+    "c/memory.c": "97f59e3c343cd6911854d0bfc3ff624417de2844f712caa96ec6799d3a9783d9",
+    "c/menu.c": "b2ea585a4cb2b40c349fd7a017642534ea2b4982140a25a6dcacd12ce3b418b0",
+    "c/menu.h": "eaa33e9e9db1f3caa44f60b4a0c862b1bc82855a6389e91f330606e27317b1de",
+    "c/menu_helpers.c": "48125ab011a2ab29cd7936aa61e9889c8715ee843090c6ddd00f9d14dddbb6ad",
+    "c/menu_helpers.h": "9c5998717eec5a79122d91ca1d6a045f303baaf5b96dbf14cf6401b4df34e4e2",
+    "c/music_analysis.c": "604fc3c80dec56a6740444b908da8baeff325357760ab8b82e9db72f5e022fe5",
+    "c/music_analysis.h": "3b2175241d1ced443d9463c6545232630cd4ccd20d907dab83296c8e4cd7fe23",
+    "c/music_clock.c": "2583d53f81c50bc148d423866cbd8f0fa14ff6bb3e5f8320a60e02b35a7d82fa",
+    "c/music_clock.h": "5ffc27066dc1c8438e716850ce666daaa00421dec8be964337b43f75a936210e",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/render.c": "7620324caaff46b39094d4b8f7077f2a5426a728806e52f1c56a962771208b40",
+    "c/render.h": "bcac207ffd7130100008409d8b4069b9ac126b713c81bfb043f1eb1e9603c160",
+    "c/render_primitives.c": "447a9f435f22cc46c9c30d8d11ee9046d57d57c48d6bbaa2e91768e32f9698c0",
+    "c/render_primitives.h": "92f16baae8b087d052e7ca713921fe74ad63e4f0a9f370190b2cc476c7a0ab09",
+    "c/scene.c": "0060ef52ee2cc8b4c98d1b04b6387cd809809a9226f4b4f71c01a75a99d5e460",
+    "c/scene.h": "77c02b56b44a4eb584da4d17cad94cc7f4be79ea3a2f70fd03d7ed2dc50f884a",
+    "c/sound_api.c": "ba1c98bf3a03b5f48a71d4491bdebf3acfc17b0f6cce51db370a0e58c0507e4c",
+    "c/sound_api.h": "b15efba9d9cf41053b3b818d4bb3a084936b6d3e15dafc05544648c88e4687c1",
+    "c/sound_engine.c": "5e4116c31806441e464de35d5649894ec4eea28025254a2edea616235e6e6881",
+    "c/sound_engine.h": "bb288a280c6cf526e91718ccd7fd02a2762e9d58f3d0d53a2f2feef9472eabd1",
+    "c/sound_state.c": "c57e5874b9a7b761faf49dd0bf6da4338ffaea31af1cea5c91a2f13e8ea9ded2",
+    "c/sound_state.h": "bdbbef92b75c99c274bde293ec8bcb1f7a997ed1e8176dc5deda96806c6fbad4",
+    "c/timer.c": "49e56856d56bb1ae68b62fa9112ce294f77182bebfc8e2cd5392737f1c06080b",
+    "c/timer.h": "4ae328394adb59216a373832fbf926a926ce9fe8f813bbe7c3927c9abaf10937",
+    "c/timer_stack.c": "512cfb5332569f32adffed22e5211db5772440428369cc9cc808be931631c98d",
+    "c/timer_stack.h": "e076aba16f8ee3dacbffcddbfa5b065a79a6e8000fa825244bffeb3771d1a514",
+    "c/timer_system.c": "89ead348d18a649f37dca6f44c94c309c3d50b7b6d0877411064f9ac0129d92b",
+    "c/timer_system.h": "f7204fef034e9f641f1f12ad9412efe80844d5be64b177300bdc5a9a20136a49",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_adapters.h": "c18eafbbe16170d01fcfac6853deab651d3c2b54343b47bccd6ce0de4303ad38",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "c/video.c": "681732591d8efb11cf1d5d5816c999bca718560bd247d9c9cc6c0f36982b2fa2",
+    "c/video.h": "35e4d6076edd69e2722cf7d52392871345f5e0eb78af7ce67e13c8ed0c02f192"
+  }
+}

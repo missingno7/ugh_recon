@@ -570,3 +570,31 @@ search, while forced direct request/approach entry remains admitted. The water
 no-op2195 is only at descriptor+24/+26; rescue pairs to land before those phases,
 and sinking retires through +2C=common1C0E. Do not fabricate a whole-game witness
 for2195 or broaden a normal-entry invariant into a direct-entry restriction.
+
+## Inline actor rendering as an ordered boundary
+
+`python verif/render_history_reproduce.py --fresh` closes the actor portions of
+gameplay erase/draw/overlay, demo erase/draw and reset. The native step operates
+on persistent `ActorRenderStorage` and emits interleaved stores and pixel requests.
+Pixel services stay synchronous L1 calls. Their parameters come from the native
+request; the bridge checks order, values, complete consumption and the published
+history prefix after stores and before each service. An abnormal service return
+commits only the consumed prefix. No mode-entry clear or cache recomputation is
+part of projection.
+
+`render_history_shells.py` checks complete retained session/demo/reset shells and
+six literal actor-body partitions. Each small actual-C profile covers a complete
+slot operation, with independent frame and dependence properties. Separate
+sequence profiles cover alternating histories, explicit demo seeds, initialization
+and loader frames; the accepted all-slot history projector is checked directly.
+The outer scans and unrelated frame code remain literal; their composition and
+actual blits receive C/D evidence, not an invented whole-session formal claim.
+`render_history_cross_mode.py` compares independent native and literal DLLs through
+real initialization, loader/bootstrap/reset/stone update, first draw and four
+actual page cycles, including complete registers, RAM and devices.
+
+Keep the distinction between new B history obligations and the complete A contract
+when reviewing actor_types. Import exact commands, assumptions and source locks;
+finite resource enumeration plus a sampled mode switch does not establish an
+unrestricted composition theorem. Per-scenario counters also show that high-score
+and password currently reach no actor-render operation; the other eighteen do.

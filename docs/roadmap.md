@@ -30,18 +30,36 @@ statuses defined there; only the supervisor changes them.
 6. **Hardware.** Planar VGA with latches, AdLib, a DMA sample mixer, joystick timing.
 7. **Thin composition evidence.** 76 call edges without a composed case.
 
-## Decomposition (provisional)
+## Decomposition
 
-To be replaced by the dependency analysis (program model work order). Layers from the bottom:
+The program model (`docs/program-model.md`, `metadata/program-model.json`) partitions all 284
+routines into 20 components by ownership and dependency: audio (75 routines, owning the storage
+the C module and the SOUND driver share), passenger/stone (37), hazards (31), front end (23),
+video/DOS (20), render/HUD (19), demo (13), timer (10), water/weather (9), input (8), numeric (7),
+sequencing (6), falling items (5), ice (5), contacts (4), external hooks (4), pictures (3),
+level loader (2), player physics (2), far copy (1). Measured facts that shape the order:
 
-1. Pure leaves: Pack-Ice decoder, byte and number conversions, decimal formatting.
-2. Platform services: VGA, keyboard, joystick, DOS files, AdLib, DSP/DMA, PIT/IRQ.
-3. Timer service (16 callback slots).
-4. Sound engine: the C module (ADLX music, IFF samples) and the SOUND driver.
-5. Resources and levels: level records, maps, sprite banks, palettes.
-6. Rendering: tiles, sprites, background restore, HUD, page flipping.
-7. Simulation: player craft, passengers, animals, items, water, collisions.
-8. Sequencing: menus, demos, scenes, high scores, game flow.
+- 67 indirect transfer sites: 4 fully resolved, 61 resolved under stated invariants, 1 partial,
+  1 external. Most dispatch is closable with recorded invariants, not open-ended.
+- The call graph is shallow: two 8-routine cycles, everything else acyclic.
+- No routine has an unrestricted complete register interface yet, because some callers are
+  reached only through conditionally resolved sites. Interfaces are complete under the stated
+  invariants.
+- Passenger/stone state and demo state share one DGROUP range by mode; timer and audio call each
+  other through callbacks; the level loader initialises several components' state.
+
+## Evidence from the Amiga original
+
+`docs/amiga.md`, `metadata/amiga-map.json` (65 correspondences: 5 confirmed equivalent, 8
+equivalent under assumptions, 37 same purpose with different implementation, 14 confirmed
+behavioural differences, 1 unresolved). Findings so far:
+
+- The patrolling animal is the Triopterus, not a dinosaur; the stationary hazard is Dino.
+  Renamed in L0, L1 and tests (16 symbols).
+- Hazard phases, scores and the Triopterus impact-routing quirk's context correspond closely,
+  with different timer constants (for example 150 versus 100 updates of warning delay).
+- Craft physics was reimplemented for DOS with a different fixed-point scale (velocity words
+  shifted by 6, clamps of 6144), not translated from the Amiga code.
 
 ## Architecture model
 
@@ -77,7 +95,8 @@ is the second unit, chosen to exercise state ownership and indirect control flow
 
 | Component | Status | Certificate |
 |---|---|---|
-| Pack-Ice decoder | migrated: primitives level A by exhaustive enumeration; token composition level C (3,807 generated, mutated and real streams); integration level C (22 routine cases and two program frames through the bridge); level D pending | `metadata/closure/ice.json` |
+| Pack-Ice decoder | migrated. Primitives: level A (exhaustive enumeration and CBMC on the actual C). Whole decoder: level B only for windows of 16/6 and 32/4 bytes and an inductive step proof for 16/8; level C at real sizes (3,807 streams). Integration: level C. The worker proposed `verified-under-assumptions`; not granted, because the proved domain is far smaller than the contract's (real streams are 32,000 and 64,768 bytes). | `metadata/closure/ice.json` |
+| far copy, decimal digits, coordinate scaling | in progress (`close-small`) | |
 | everything else | unanalyzed | |
 
 ## Tooling gaps
@@ -93,7 +112,5 @@ is the second unit, chosen to exercise state ownership and indirect control flow
 
 | Work order | Writes | Purpose |
 |---|---|---|
-| `whole` | `c/`, `tests/`, emulator and test tools | whole-game scenarios L0 vs L1 (level D base) |
-| `model` | program model tool and data | call graph, indirect targets, effects, SCCs, candidate ranking |
-| `amiga` | Amiga analysis tool and docs | static disassembly of the Amiga original and a correspondence map |
-| `pilot-ice` | `native/`, closure tooling, verification tooling | the pilot through the full pipeline |
+| `close-small` | `native/`, `verif/`, closure tooling | close far copy, decimal digits, coordinate scaling; factor the verification library |
+| `archmodel` | `docs/architecture-model.md`, byte-neutral `src/` edits, naming tools | architecture model with graded claims; STRUC records in L0; rename coverage for the whole tree |

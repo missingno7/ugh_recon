@@ -1,0 +1,356 @@
+{
+  "component": "adlx_lifetime",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "original": {
+    "L0": [
+      "SOUND:ClearSoundState 0664:112B",
+      "SOUND:InitializeAdlibPlayback 0664:1A89",
+      "SOUND:ShutdownAdlibPlayback 0664:1A65",
+      "SOUND:CalibrateSoundDelay 0664:113F",
+      "SOUND:BeginSoundDelayMeasurement 0664:1179",
+      "SOUND:FinishSoundDelayMeasurement 0664:1193"
+    ],
+    "L1": [
+      "c/sound_state.c:c_ClearSoundState",
+      "c/adlib.c:c_InitializeAdlibPlayback,c_ShutdownAdlibPlayback",
+      "c/sound_engine.c:c_CalibrateSoundDelay,c_BeginSoundDelayMeasurement,c_FinishSoundDelayMeasurement"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/adlx_lifetime.c",
+      "native/adlx_lifetime.h",
+      "native/bridge/adlx_lifetime_bridge.c"
+    ],
+    "header": "native/adlx_lifetime.h",
+    "functions": [
+      "audio_lifetime_reset",
+      "audio_lifetime_begin",
+      "audio_lifetime_next",
+      "audio_calibration_begin",
+      "audio_calibration_resume",
+      "audio_calibration_started",
+      "audio_calibration_finished"
+    ],
+    "build": "python verif/adlx_lifetime_build.py",
+    "bridge": "All six original endpoints; no L1 fallback. Serialized ordinary-RAM adapters, exact original polling service locations, DOS vector and TIMER peers remain services."
+  },
+  "purpose": "Reset the existing common music/sample owner, probe and initialize AdLib playback, shut it down, and preserve the original CPU-loop calibration/IRQ measurement protocol without implementing DOS interrupt delivery or TIMER.",
+  "interface": {
+    "inputs": [
+      "Reset: borrowed AudioState and transient AudioResetCells expansion of the same owner. No independent persistent PCM object.",
+      "Lifetime: fresh borrowed attempted byte and timer handle; success-only resumption of a fresh work record; raw status bytes and opaque TIMER results.",
+      "Calibration: external progress bias, live marker/counter/progress after each delivered service; one-million-visit L1 diagnostic budget.",
+      "Handlers: actual interrupted CX/DX measurements, DOS vector service outputs/status."
+    ],
+    "outputs": [
+      "Reset clears exactly the 1160 bytes common owner; outside fields including operator indices, handles, attempted, calibration and resident PCM buffers survive.",
+      "Init AX=1 on successful or cached attempt,0 on probe failure; attempted remains set even on failure. Shutdown conditionally removes the possibly stale handle, unconditionally restores TIMER, clears attempted and silences.",
+      "Calibration stores raw interrupted CX and DX words. Only multiplier low byte is consumed by accepted I/O delay. It performs no divide, speed conversion, saturation, rounding or zero-divisor test.",
+      "Per-poll native arithmetic decrements the 16-bit remainder, increments wrapping progress once per exhausted 65536-iteration block, and examines high marker byte while waiting for Begin, low byte only at a completed block."
+    ],
+    "effects": [
+      "Ordered OPL writes/status reads, PIC EOI, DOS INT08 vector get/set/restore, explicit calibration IRQ waits and TIMER install/register/remove/restore requests.",
+      "Begin acknowledges PIC before installing Finish and returns live marker0100. Finish acknowledges PIC before restoring previous vector, then stores CX and interrupted DX, sets CX=1 and AL=1 while retaining AH from DOS. IRET flags restoration is delivery service responsibility.",
+      "Bridge preserves all L1 normal/error prefix registers, stack protocol and flags. Clear forces DF=0; other entries preserve incoming DF through their peers. No physical CPU-time spin is performed by ordinary native code."
+    ],
+    "preconditions": [
+      "Serialized ordinary RAM. Caller frame and live code disjoint from reset/state; service inputs bound to the original ABI. No instruction-level observation between a typed reset and its publication.",
+      "Resume lifetime work only after requested service success; stop at DONE. Error statuses return without invented restoration or later steps.",
+      "Native port must supply measurement progress/remainder or implement the virtual polling/interrupt service with original word units and progress bias. DOS elapsed time is not provided by portable code."
+    ]
+  },
+  "callers": {
+    "audit": "python verif/adlx_lifetime_inventory.py checks static calls, all indirect target sets, original-C mentions and explicit DOS AH25 installations. None is API-only.",
+    "direct": [
+      "C:InitializeSoundSystem -> ClearSoundState,InitializeAdlibPlayback",
+      "C:ShutdownSoundSystem -> ShutdownAdlibPlayback",
+      "SOUND:InitializeAdlibPlayback,InitializeDspPlayback -> CalibrateSoundDelay"
+    ],
+    "interrupts": "Begin and Finish are installed INT08 handlers, despite empty static caller and indirect-target sets. Do not classify them as unused.",
+    "outside_audio": "None; the C sound facade and SOUND DSP lifetime caller belong to audio."
+  },
+  "callees": {
+    "accepted_audio": [
+      "WriteAdlibRegister",
+      "DelaySoundIo",
+      "SilenceAdlibOperators"
+    ],
+    "services": [
+      "DOS vector INT21 AH35/AH25",
+      "platform_service_point_at SERVICE_TIMER_WAIT",
+      "TIMER InstallTimerInterrupt,RegisterTimerCallback,RemoveTimerCallback,RestoreTimerInterrupt"
+    ],
+    "registration": "Playback callback TickAdlxPlayback at interval0000:1843; TABLE allocation/delivery remains TIMER, including its admitted defects."
+  },
+  "indirect": {
+    "classification": "Service boundary, not a new dispatcher in ordinary native code.",
+    "targets": [
+      "BeginSoundDelayMeasurement",
+      "FinishSoundDelayMeasurement",
+      "saved external INT08 vector (restoration only)",
+      "TickAdlxPlayback (registered TIMER callback)"
+    ],
+    "delivery": "DOS/IRQ platform chooses when/how to deliver; bridge polls only the two original locations and uses real interrupt adapters. No calibration busy-loop time is assumed to equal native CPU cycles."
+  },
+  "memory": {
+    "owner": "Existing shared C/SOUND audio storage, canonical AudioState projection unchanged. AudioResetCells is a one-call borrowed expansion, not a second persistent owner.",
+    "reset": "SOUND:000C..0493 inclusive: timer/mixer/DSP configuration,13*42 channel bytes (samples0..7,effects8..11,main12), common clocks/guards/fade/bank/map/device/allocation fields, two spare words and3*9*20 voice bytes.",
+    "survives": "Resident DMA buffers and DSP/IRQ cells at0494 onward, all calibration/vector scratch/operator offsets, playback/fade handles, attempted byte. Clear does not stop already-registered services.",
+    "aliases": "Main record12 aliases appear once through channels[12]; channel9 live owner alias into saved0 remains unchanged by non-reset lifetime operations.",
+    "calibration": "Previous vector at10CB/10CD; raw loop remainder1127 and multiplier1129; attempted1126 and handle1122. Vector addresses remain bridge/service data; no ordinary native field stores a machine address."
+  },
+  "assumptions": [
+    "Native CPU speed is not DOS timing. The host supplies virtual delivery/measurement values and platform owns real I/O timing; DelaySoundIo uses the separately accepted exact finite product contract, including zero product65536.",
+    "Symbolic startup/shutdown composition contracts the separately accepted silence child and calibration service. Full real peers and full ordered port lists are compiled/L0/scenario evidence.",
+    "Symbolic composed calibration delivers Begin and Finish within two visits per polling phase, with all word values and explicit service failures admitted. Arbitrary counter/marker/budget transitions have separate actual polling-body-cut profiles.",
+    "No Amiga equivalence, hardware detection on real OPL cards or instruction-cycle accuracy is claimed."
+  ],
+  "eliminated": [
+    {
+      "dependency": "Native register/segment/call stack emulation",
+      "evidence": "Ordinary module uses typed borrowed state and work/request/result types. Bridge retains machine outputs."
+    },
+    {
+      "dependency": "Physical busy-loop calibration time",
+      "evidence": "Native transition computes exact word operations on service-provided measurements; timing and IRQ delivery explicit."
+    }
+  ],
+  "retained": [
+    "Failed-init attempted cache and stale handle cleanup.",
+    "First OPL read status&E0 must be zero; second merely nonzero, not equalityC0.",
+    "Raw interrupted DX contains the installed Begin-offset bias plus wrapping completed-block count; stored before final foreground increment.",
+    "Finish stores raw CX before forcing1; LOOP then decrements1 to0 and increments foreground DX once.",
+    "Word wrapping, byte-only multiplier consumption, incoming DF, saved external vector, ordered writes and error-prefix state are preserved.",
+    "Reset intentionally leaves resident buffers, attempted/calibration cells and handles untouched; shared PCM reset belongs here without transferring mixer/DMA execution."
+  ],
+  "evidence": [
+    {
+      "property": "Compiled complete boundary and failure prefixes",
+      "level": "C",
+      "method": "Actual six literal C bodies and actual native module/bridge; full RAM, all registers/flags, ordered port/DOS/TIMER calls, poll counts; generated service errors, missing IRQ and wrap cases.",
+      "command": "python verif/adlx_lifetime_evidence.py",
+      "result": "PASS12000 pairs; three native mutations detected by --negative reset/probe/measure.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Probe-byte domain",
+      "level": "A",
+      "method": "Actual compiled init versus actual adapter over every first/second status-byte pair, under successful calibration/TIMER contracts. Other words/operator bytes use deterministic generated fixtures; this is not A for arbitrary persistent state or peer behaviours.",
+      "command": "python verif/adlx_lifetime_evidence.py --exhaustive-probe",
+      "result": "PASS65536 byte pairs with full RAM/registers/ordered I/O.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Reset/handler/calibration/lifetime split properties",
+      "level": "B",
+      "method": "Actual independent C and maintained native/bridge, outputs/full RAM witness/frame/read dependence. Child silence and calibration contracts on lifetime composition; bounded2-visit composed calibration plus separate arbitrary-word polling-body cuts.",
+      "command": "python verif/adlx_lifetime_proofs.py ENTRY MODE; python verif/adlx_lifetime_scalar.py MODE",
+      "result": "PASS21 selected profiles (18 endpoint properties plus3 arbitrary-word poll properties);3 symbolic negative controls detected. Every job capped8,000,000,000 bytes/180s, at most2 at once. Broad attempts archived without credit.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Every shipped resource through lifecycle",
+      "level": "C",
+      "method": "All11 ADLX resources through actual shared reset, calibration/IRQ, OPL probe, load/start/fade/stop/shutdown, full persistent RAM/registers and ordered logs. Decoder is census only.",
+      "command": "python verif/adlx_lifetime_corpus.py",
+      "result": "PASS88 pipelines,198 fade delivery-contract calls per variant.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "L0 and whole-game chain",
+      "level": "D",
+      "method": "Audio suites and all20 current maintained scenarios. Per-entry audits distinguish startup from actual shutdown.",
+      "command": "python verif/adlx_lifetime_integration.py --whole --local-reference",
+      "result": "PASS6594 direct cases and20 scenarios. adlib reaches all6 entries; startup/gameplay-adlib reach reset/init/calibration/handlers but not shutdown.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Clean current-baseline promoted host",
+      "level": "D",
+      "method": "Read-only git archive33e2320 plus only this unit, own scratch certificate promoted; actual hostbuild/native check/closure CLIs.",
+      "command": "python verif/adlx_lifetime_host.py",
+      "result": "PASS25 linked units,20 scenarios plus256-frame smoke;25 certificates,0 errors. Working-tree closure may still report other workers unowned demo-presentation files.",
+      "date": "2026-11-14"
+    }
+  ],
+  "amiga": {
+    "classification": "Unresolved; no new equivalence claim.",
+    "finding": "CPU busy-loop/DOS INT08 calibration is a DOS platform mechanism. Amiga audio model is only general architectural context."
+  },
+  "uncertainty": [
+    "Physical OPL/DOS cycle timing and native port measurement policy remain platform decisions; this unit preserves virtual instruction-boundary semantics.",
+    "DSP lifetime/probe/protocol, samples/mixer/DMA and top-level sound facade remain L1;21 of75 canonical audio entries remain.",
+    "Broad whole-state CBMC attempts are archived as failures/timeouts, not promoted to proof."
+  ],
+  "dependencies": {
+    "native/adlx_lifetime.c": {
+      "includes": [
+        "adlx_lifetime.h"
+      ],
+      "calls": []
+    },
+    "native/adlx_lifetime.h": {
+      "includes": [
+        "audio.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/adlx_lifetime_bridge.c": {
+      "includes": [
+        "../adlx_lifetime.h",
+        "audio_projection.h",
+        "platform.h"
+      ],
+      "calls": [
+        "S",
+        "T",
+        "add16",
+        "audio_bridge_bank",
+        "audio_bridge_cursor",
+        "audio_bridge_pointer",
+        "audio_bridge_project",
+        "audio_bridge_publish_voice",
+        "audio_bridge_voice",
+        "audio_calibration_begin",
+        "audio_calibration_finished",
+        "audio_calibration_resume",
+        "audio_calibration_started",
+        "audio_lifetime_begin",
+        "audio_lifetime_next",
+        "audio_lifetime_reset",
+        "c_DelaySoundIo",
+        "c_SilenceAdlibOperators",
+        "c_WriteAdlibRegister",
+        "flag",
+        "lifetime_call",
+        "lifetime_pointer",
+        "lifetime_publish_reset",
+        "lifetime_push",
+        "lifetime_run",
+        "logic",
+        "platform_in",
+        "platform_interrupt",
+        "platform_out",
+        "platform_service_point_at",
+        "rd16",
+        "rd32",
+        "rd8",
+        "set_al",
+        "sub16",
+        "ugh_dispatch",
+        "wr16",
+        "wr32",
+        "wr8"
+      ]
+    }
+  },
+  "accepted_sources_changed": [],
+  "evidence_refreshed": "No accepted source/header/certificate changed; no accepted relock required. native/audio.h and canonical projection remain byte-identical.",
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "c/abi.c": "5f7c2c2fc015ca43e3786a7f96cb38113211da54acefce19564c1df78d74857a",
+    "c/actors.c": "d17c03c844f95780f0647b85aa854a87c3e566b0f56fe89ee0a95d6d689f3ff2",
+    "c/actors.h": "00817c6f676f61811df11066fca3335c9757e0f59f7cad241dff762fee7b71bd",
+    "c/actors_states.c": "79a460a0436e773bdd795953f63c6765d71c0e346cdf8bbccbcf707817994447",
+    "c/actors_states.h": "375dda6bd3fa6cd5552cc98df7f7c785dc5d70850a10f96207bd0894161cd5d8",
+    "c/adlib.c": "2f4e551282f6ac33f8d24127f3cd5294e679f72ce28794c3ed295ce243c18bf0",
+    "c/adlib.h": "70f2c0d3f51dc49dd05918266b4de07d247a12909f11e8329244b8d9af56cdee",
+    "c/demo_scripts.c": "a19c7e52bc709a28f9be40bc66b60c6de82df888f8eb725b79f0b9556fe795d7",
+    "c/demo_scripts.h": "ea65090001ef64f26f31c39de2075c098949bcb9ca8448480cd1fccdf55a608b",
+    "c/dispatch.c": "80a97f55a460a21dac9d6295939a8276c83b66cef886f814365e0a823814debf",
+    "c/dos_input.c": "b6a086f3917441a23c4238f582e00605d8a239ded81b03a658ff308890601e53",
+    "c/dos_input.h": "8cee17811645a61424b6174e0213402b8c21defd5b4fa6d56511225c70e5193e",
+    "c/dsp.c": "a2f4dc144514ed9ea8cdca8a75c9813718342a5ed5c26176ff6d691f89d651b5",
+    "c/dsp.h": "9b2c2b95b0781caf3a96b7b0b19f8078601557f5e0a11bec889d109ef2755b63",
+    "c/game_services.c": "e9301da5d7fae6f2aacce7dda8d4e6f0e86cbe8c40e736216185c4a8f792a7c5",
+    "c/game_services.h": "7a63f8bd05b2710c27c4c4247b00e0f1fc06a4ecdaa388bf47eb9fb1374965c5",
+    "c/ice.c": "27e2898dd6a5e70af26bde84c0ba8cd6e8a045e40d94df21fd5b122f10a2242e",
+    "c/ice.h": "925da59e4f3fb6cf278100578e56093dc7138040c98eb9f286acb9c867512578",
+    "c/items_water.c": "ab5c2c72096b5e6355a2575f9a58c321f91680d7cd97653581dcbab59033e2d9",
+    "c/items_water.h": "d18978433dcc966235010906984c13fcb76c3469bf4bc0f8e33345101099f148",
+    "c/memory.c": "97f59e3c343cd6911854d0bfc3ff624417de2844f712caa96ec6799d3a9783d9",
+    "c/menu.c": "b2ea585a4cb2b40c349fd7a017642534ea2b4982140a25a6dcacd12ce3b418b0",
+    "c/menu.h": "eaa33e9e9db1f3caa44f60b4a0c862b1bc82855a6389e91f330606e27317b1de",
+    "c/menu_helpers.c": "48125ab011a2ab29cd7936aa61e9889c8715ee843090c6ddd00f9d14dddbb6ad",
+    "c/menu_helpers.h": "9c5998717eec5a79122d91ca1d6a045f303baaf5b96dbf14cf6401b4df34e4e2",
+    "c/music_analysis.c": "604fc3c80dec56a6740444b908da8baeff325357760ab8b82e9db72f5e022fe5",
+    "c/music_analysis.h": "3b2175241d1ced443d9463c6545232630cd4ccd20d907dab83296c8e4cd7fe23",
+    "c/music_clock.c": "2583d53f81c50bc148d423866cbd8f0fa14ff6bb3e5f8320a60e02b35a7d82fa",
+    "c/music_clock.h": "5ffc27066dc1c8438e716850ce666daaa00421dec8be964337b43f75a936210e",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/render.c": "7620324caaff46b39094d4b8f7077f2a5426a728806e52f1c56a962771208b40",
+    "c/render.h": "bcac207ffd7130100008409d8b4069b9ac126b713c81bfb043f1eb1e9603c160",
+    "c/render_primitives.c": "447a9f435f22cc46c9c30d8d11ee9046d57d57c48d6bbaa2e91768e32f9698c0",
+    "c/render_primitives.h": "92f16baae8b087d052e7ca713921fe74ad63e4f0a9f370190b2cc476c7a0ab09",
+    "c/scene.c": "0060ef52ee2cc8b4c98d1b04b6387cd809809a9226f4b4f71c01a75a99d5e460",
+    "c/scene.h": "77c02b56b44a4eb584da4d17cad94cc7f4be79ea3a2f70fd03d7ed2dc50f884a",
+    "c/sound_api.c": "ba1c98bf3a03b5f48a71d4491bdebf3acfc17b0f6cce51db370a0e58c0507e4c",
+    "c/sound_api.h": "b15efba9d9cf41053b3b818d4bb3a084936b6d3e15dafc05544648c88e4687c1",
+    "c/sound_engine.c": "5e4116c31806441e464de35d5649894ec4eea28025254a2edea616235e6e6881",
+    "c/sound_engine.h": "bb288a280c6cf526e91718ccd7fd02a2762e9d58f3d0d53a2f2feef9472eabd1",
+    "c/sound_state.c": "c57e5874b9a7b761faf49dd0bf6da4338ffaea31af1cea5c91a2f13e8ea9ded2",
+    "c/sound_state.h": "bdbbef92b75c99c274bde293ec8bcb1f7a997ed1e8176dc5deda96806c6fbad4",
+    "c/timer.c": "49e56856d56bb1ae68b62fa9112ce294f77182bebfc8e2cd5392737f1c06080b",
+    "c/timer.h": "4ae328394adb59216a373832fbf926a926ce9fe8f813bbe7c3927c9abaf10937",
+    "c/timer_stack.c": "512cfb5332569f32adffed22e5211db5772440428369cc9cc808be931631c98d",
+    "c/timer_stack.h": "e076aba16f8ee3dacbffcddbfa5b065a79a6e8000fa825244bffeb3771d1a514",
+    "c/timer_system.c": "89ead348d18a649f37dca6f44c94c309c3d50b7b6d0877411064f9ac0129d92b",
+    "c/timer_system.h": "f7204fef034e9f641f1f12ad9412efe80844d5be64b177300bdc5a9a20136a49",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_adapters.h": "c18eafbbe16170d01fcfac6853deab651d3c2b54343b47bccd6ce0de4303ad38",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "c/video.c": "681732591d8efb11cf1d5d5816c999bca718560bd247d9c9cc6c0f36982b2fa2",
+    "c/video.h": "35e4d6076edd69e2722cf7d52392871345f5e0eb78af7ce67e13c8ed0c02f192",
+    "host/check.py": "ae78b6b48e7c77aa4c513f8474d23d7ef9d26afe39ab55ea70e871473701e94c",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "native/adlx_lifetime.c": "c24aa540552a69020f3ad3b446fdda23d46b260669c4f1d8855e4d381fce7b7c",
+    "native/adlx_lifetime.h": "34078b03e4b54b19a758204c40b0be2ec70ef73aa099366a5082b4a1a438e67b",
+    "native/audio.h": "e14ee8e39125b55ced910d17214acddfcd9fb0339192990487dca22dd3e04a5a",
+    "native/bridge/adlx_lifetime_bridge.c": "f720e4a6ff37af82a637f82bbaa761206f597def90a747bb785d7b7d0865f8c2",
+    "native/bridge/audio_projection.h": "e15ee379c16623f0dfb9830e154c5c71b0f2d2a424a6073c3dec497c50cd8630",
+    "tests/scenarios/adlib.txt": "1db37ba320e4c3c85449c2f4a7f5ecd8543e6de6933e165e534b79adb3386f2f",
+    "tests/scenarios/attract.txt": "07339939be35779cc94094221155e97a11c6dec396ab6dce85f238a415896a01",
+    "tests/scenarios/completion.txt": "d898ad1f8abd49f7757303b562028cf7f0c10143dfb0358dad4e0a6fee7386bc",
+    "tests/scenarios/departure.txt": "dd7cb186974803ed7436b99600394606594109283d668f7ee5a893a90f89f705",
+    "tests/scenarios/dino.txt": "f5a6254be7b416bdf3da436c7b1907abe31e4a7b184bb7ac6636b72c7c166252",
+    "tests/scenarios/enemy.txt": "c5140aa9afe062e09cbefb949b78d06733c306518f315ba8f5448a0c2b8062a6",
+    "tests/scenarios/gameplay-adlib.txt": "5f0e1e3ea3f5f9e735c5a7ab2eda9ddee8a33d8d290bbd81e27fd9cbb1ddb3cd",
+    "tests/scenarios/gameplay.txt": "b0be47d570408d44dc977faca40ef2a258c0686958f7fa68574cc411bb25a03a",
+    "tests/scenarios/high-score.txt": "5b698cb06b6d77d9a9d6f009cea71b8a1af9c16c8ecf3c344e33a9b8d93b1220",
+    "tests/scenarios/items-multiplier.txt": "aea8dc889e0a1777e2c3f8b37525375e939656a91577759030523a8aca88ca8d",
+    "tests/scenarios/items-timer.txt": "1fc3cde57a7aed7acfe67e015af95c852a6dc681b7492d3464ffe5e7d5af39b1",
+    "tests/scenarios/menu.txt": "3e8347d504ac0c13ced62c1befb26b59a353c46de397bb3ac79f5089b20ea8b1",
+    "tests/scenarios/passenger.txt": "e95f43a019615449dd142652ea837aaeb4a82e7bce9c6ecd72dd67411fe44922",
+    "tests/scenarios/password.txt": "fea4555e22daca6a5e4e154fd4d6c1b7871d80aa574c402363d5b3b938657bd2",
+    "tests/scenarios/pregame.txt": "6697f662ccf5791b57e14d5dcb0c216c7428312441c570f10b0e031a33a97cf8",
+    "tests/scenarios/reveal.txt": "8be34ff993316d7e099576cccd8af23d28267b02eee37df01a430f8e94418c84",
+    "tests/scenarios/startup.txt": "bddaf9054cfb6f1a4a5734e147c2481c28d0fa0768af141c311ddb13a38fbd7b",
+    "tests/scenarios/two-player.txt": "5c07be6ec944b7a38082d275633bba2ef26cc9e90828b673bb8434ad3ffa78e5",
+    "tests/scenarios/water-physics.txt": "33853e24a477c60ab0dbecf9057a034a01fa2ec6ab6c9f6e873d463006754e6c",
+    "tests/scenarios/water.txt": "22aca0913b25142891f67c57f20d56cfef57c16df862269a377f924217e96f84",
+    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
+    "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
+    "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
+    "tools/wholegame.py": "ba6fff7d0f1583e734ab69435e801f2d101758078c36712744bc5b3e839fa65c",
+    "verif/adlx_lifetime_build.py": "bea68149e9207df753a0bde0bd1f11b5d29b5ef6c9dcab02be8d915bb0de301c",
+    "verif/adlx_lifetime_cases.py": "6966f52f7e025bfa3ad125e39bb976c6d5bfe3e827da5d8579710ab5bd5f46f2",
+    "verif/adlx_lifetime_corpus.py": "906951c99230ac9450da35737daeace2198ee9020d697ffad7b6b0a143317164",
+    "verif/adlx_lifetime_evidence.py": "899e7e0eaba71fc096123348440326b29c90d417640d58429f7ff0ccdd3ff7fe",
+    "verif/adlx_lifetime_harness.c": "e4bd2b7a36088beb757a3ca6832226ed829d6cbaaeb44e71673455c9861973f6",
+    "verif/adlx_lifetime_host.py": "bd6861dd335ce89e871fe4518809c8c9d19d1755a7b9906813067d552b8db43b",
+    "verif/adlx_lifetime_integration.py": "8d577d28cd1ede5a21270e3e0072d2a06667312126dfdaff5ebbdc4000410a3e",
+    "verif/adlx_lifetime_inventory.py": "d7da20c75717d11b3aff8f03fa757fc7a579909f22920f9dd62ce6e92bb5fdf0",
+    "verif/adlx_lifetime_proofs.py": "db41558ac3162110298927f3a4b043962107f4180922b6e7fae81fe7fbf291dc",
+    "verif/adlx_lifetime_reproduce.py": "fdc06a29db9954784f8120b5645b751bacf18b062a0b57057aec0dc23fd768e8",
+    "verif/adlx_lifetime_scalar.py": "3830ed409dca4821ebf9d20a9f10b6d897cf98622cc47d3e7f6ed53a1da8b448",
+    "verif/adlx_lifetime_symbolic.c": "c4e2a3ccae046480c9696af38ab46db1061bd83684e96c9ec2246be4477421ae",
+    "verif/adlx_loader_solver.py": "332c1a46957e398df5865fa5de14a73d259d464c621232f84976f8dfcc1f42d6",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574"
+  }
+}

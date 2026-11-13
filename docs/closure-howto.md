@@ -543,3 +543,30 @@ log. Timeouts, caps and source changes are negative results, never proof. A
 successful caller theorem with abstract child effects remains conditional on
 the contacts/items/audio owners' contracts; the compiled differential and
 scratch native-host runs exercise the actual children.
+
+## Water continuation and observed reachability
+
+`water_reproduce.py --fresh` applies the same method to water passengers.
+`water_coverage.py` checks every literal updating-body span and the native
+orchestration; `water_scalar.py` separates output, native/RAM/full-slot frame
+and dependence. The complete projection and append/consume/selected-tail
+protocol have independent actual-C properties. `water_limits.py` enforces
+two owned solver permits,8GiB private per job and600s; all negative results
+are archived. The unchanged phase alias table defines floating/request reads.
+
+`water_composition.py` compares actual three-unit bridges with L0, including
+dispatch chains from water boarding through carried delivery, departure and
+itinerary exhaustion. It audits all three bridges' fallback counters. There
+are no simulation-memory writes between dispatch calls in those chains.
+`water_integration.py` records counters per scenario, not only a grand total.
+Compare these with the independent ASM coverage before claiming that a named
+scenario reaches an entry. Current `water`, `passenger` and `departure` traces
+reach no water-passenger entry; `items-timer` reaches resurfacing. The extended
+input-only `verif/water_witness.txt` additionally exercises floating and sinking.
+
+Unreached entries first get the static-plus-indirect check in
+`water_reachability.py`. In particular77FE excludes its normal floating rescue
+search, while forced direct request/approach entry remains admitted. The water
+no-op2195 is only at descriptor+24/+26; rescue pairs to land before those phases,
+and sinking retires through +2C=common1C0E. Do not fabricate a whole-game witness
+for2195 or broaden a normal-entry invariant into a direct-entry restriction.

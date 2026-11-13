@@ -1,0 +1,317 @@
+{
+  "component": "adlx_main",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "purpose": "Execute the main ADLX event interpreter, its wait exits and its OPL voice operations over the shared C/SOUND audio owner. Produce ordered register-write events; retain timer scheduling, section restoration, effects allocation and hardware in their existing boundaries.",
+  "original": {
+    "L0": [
+      "SOUND:RunMainAdlxEvents 0664:15D3",
+      "SOUND:HandleMainAdlxLongWait 0664:15E8",
+      "SOUND:HandleMainAdlxShortWait 0664:1737",
+      "SOUND:HandleMainAdlxFrequency 0664:1607",
+      "SOUND:HandleMainAdlxKeyOff 0664:1649",
+      "SOUND:HandleMainAdlxGain 0664:167D",
+      "SOUND:HandleMainAdlxInstrument 0664:1696",
+      "SOUND:HandleMainAdlxNoOp 0664:16AF",
+      "SOUND:HandleMainAdlxTimerPeriod 0664:16B2",
+      "SOUND:HandleMainAdlxControl 0664:16CE"
+    ],
+    "L1": [
+      "c/sound_engine.c:c_RunMainAdlxEvents,c_HandleMainAdlxLongWait,c_HandleMainAdlxShortWait",
+      "c/adlib.c:c_HandleMainAdlxFrequency,c_HandleMainAdlxKeyOff,c_HandleMainAdlxGain,c_HandleMainAdlxInstrument,c_HandleMainAdlxNoOp,c_HandleMainAdlxTimerPeriod,c_HandleMainAdlxControl"
+    ],
+    "classification": "Behavioral L1-to-L2 migration of assembly-origin code. No exact ASM/C byte claim or alteration to L0. L0-to-L1 link remains differential.",
+    "voice_services": "Native main semantics include SetAdlibChannelVolume/KeyOffAdlibChannel/SetAdlibFrequency/SetAdlibChannelGain/LoadAdlibInstrument and ordered WriteAdlibRegister behavior; global L1 driver endpoints remain for effects/C callers."
+  },
+  "native": {
+    "files": [
+      "native/audio.h",
+      "native/adlx_main.h",
+      "native/adlx_main.c",
+      "native/bridge/audio_projection.h",
+      "native/bridge/adlx_main_bridge.c"
+    ],
+    "header": "native/adlx_main.h",
+    "functions": [
+      "audio_main_operation",
+      "audio_main_step"
+    ],
+    "build": "python verif/adlx_main_build.py",
+    "bridge": "All ten main interpreter entries replaced together. Native step owns persistent values and ordered OPL events. Bridge retains scratch registers/flags, wrapping fetch, timer capability call and platform output. Explicit L1 fallback for modified dispatch table or instrument source overlapping the live/displaced voice arrays; audits distinguish these."
+  },
+  "interface": {
+    "inputs": [
+      "AudioState: all raw words/bytes admitted, including noncanonical flags, reserved counts and slot words",
+      "Already-fetched opcode and twelve stable operand bytes; AudioCursor points past the opcode",
+      "Operation enum permits the direct wait/handler entries as well as decoded opcode entry"
+    ],
+    "outputs": [
+      "Updated typed shared audio state and cursor; CONTINUE, WAIT or END",
+      "Ordered list of at most fourteen OPL register/value writes, not a final register map",
+      "Optional BE16 timer-period request; bridge delivers the real TIMER interval call"
+    ],
+    "effects": [
+      "Frequency/key-off/gain/instrument affect the selected live or displaced voice, with deliberately distinct routing gates",
+      "Wait advances the main deadline and publishes only cursor index, leaving its resource half untouched",
+      "END decrements signed repeats or retains infinite-repeat state; expires descriptor active bit or resets cursor/deadline/time-origin; never clears playing",
+      "No sample mixer, DMA, allocation, scanning, section application or scheduler replacement"
+    ],
+    "preconditions": [
+      "Serialized ordinary RAM; no mid-event IRQ or observation of individual RAM stores",
+      "Immutable disjoint event operands. Instrument source overlapping voice destinations uses explicit bridge fallback",
+      "Canonical event dispatch table for native interpreter control; modified tables use L1 fallback",
+      "Borrowed bridge event windows refer to accessible machine RAM, not memory-mapped VGA; canonical dedicated disjoint stack",
+      "Finite interpreter burst or explicit bridge budget of 1000000 events; malformed endless no-wait streams are outside termination claims"
+    ]
+  },
+  "callers": {
+    "normal": "SOUND:TickAdlxPlayback loads ES:DI from descriptor12, preserves ES/DI/BX around the far interpreter call and later restores AX/BX/DX. CX/SI/DS and IF/DF can flow; bridge preserves the complete existing L1 register shell as well.",
+    "section_boundary": "Before calling main interpreter, Tick compares cursor OFFSET ONLY against MainAdlxSectionEnd when loop-enable bit0 is set, calls C:ApplyScannedMusicEvents, and reloads the cursor. That C service restores scanned voices and advances origin. No section comparison occurs inside an event burst.",
+    "direct": "Nine reconstructed handler entries remain callable for existing direct differential tests; their opcode has already been fetched."
+  },
+  "callees": {
+    "native": "Internal volume/level/write helpers only. Original OPL service behavior is implemented inside the native step, not called through L1.",
+    "boundary": "TIMER:SetTimerCallbackInterval, platform_out. L1 DelaySoundIo state contract is reconstructed in bridge; CPU busy-loop elapsed time has no deterministic service points.",
+    "other_interpreter": "Effects interpreter remains L1: RunEffectAdlxEvents plus seven looping handlers and long/short waits; END expires through C:StopAdlibTrackChannel -> RestoreAdlibVoiceAllocation, including voice compaction and ordered restoration. It requires record8..11, current record selector, first_voice, step_q8 and shared live/displaced voices."
+  },
+  "indirect": {
+    "main_dispatch": "Fixed complete 16-entry target set: long wait, frequency, key off, gain, instrument, no-op, timer period, control, then eight copies of short wait. Native enum removes the machine jump table; bridge validates all entries.",
+    "external": "Only TIMER interval setter; no callback invocation inside a native event. Effects C stop/allocation boundary is not closed."
+  },
+  "memory": {
+    "owner": "Common C/SOUND audio storage. native/audio.h is one typed borrowed view, not independent copies for original C and driver.",
+    "channels": "13 records, original base0014 stride002A. All scalar cells retained; sample-only meanings remain opaque to this closure. start/cursor become borrowed-window cursors. Record12 occupies020C..0235. Main start0212, length0216, cursor021C, deadline022A, voice_count022E, control0234 are aliases of channels[12]. No duplicated absolute main fields in AudioState.",
+    "voices": "Three nine-entry views live0278, displaced032C, scanned03E0, stride20. Twelve instrument working bytes, volume+0C, gain+0E, owner+10, frequency+12. SOUND symbol consumers establish these names; architecture-model prose reverses gain/volume. Opcode3 writes gain+0E; two-stage high-byte scaling applies gain before volume+0C. High stale bytes preserved on byte writes.",
+    "clocks": "Guard0236, rate0238, ticks023A dword, origin023E dword, scanned_ticks0242 dword; upper-word aliases are interior views. playing0256 and section_loop_enabled025C are distinct raw words outside record12. No conflation of descriptor active, playing, repeat and section enable.",
+    "fade_and_sections": "Fade step/duration/start/target0246..024C, scheduled0258 and handle1124; section start025E and end0262 far cursors. Projection retains all; interpreter does not advance fade or apply sections. PIT period000C and playback handle1122 retained separately from ticks and rate.",
+    "writes": "Main deadline/cursor/repeat/control/origin and selected voice values; timer period on6n. Bridge republishes equal retained voice bytes in ordinary RAM. No raw-memory-store-journal equivalence is claimed. Ordered OPL writes are compared exactly."
+  },
+  "assumptions": [
+    "No canonical boolean, reserved-count<=9, on-screen or shipped-state restriction on a one-event state",
+    "One-event symbolic cut terminates at the next fetch; induction requires valid stable operands and the same external TIMER contract on each step",
+    "TIMER request observer proves request equivalence, not scheduler internals; compiled differential/scenario/host checks use the real maintained timer",
+    "Delay busy loops have no state/device effects beyond the retained CF/OF product flags; exact CPU-cycle timing is not an observation",
+    "Shipped-stream exhaustion is finite corpus coverage C; it is not exhaustive over every possible byte stream"
+  ],
+  "eliminated": [
+    "Machine register/segment/stack spelling from ordinary native C; bridge preserves existing ABI",
+    "Recursive table-tail control replaced with native enum step and iterative bridge fetch",
+    "Original hardware register access replaced with ordered semantic events delivered by platform layer"
+  ],
+  "retained": [
+    "16-bit long-wait delta truncation before 32-bit deadline addition",
+    "Main displaced key-off clears LOW word bit5, live key-off clears B0 key bit",
+    "Distinct frequency/key, gain, instrument and volume reservation gates; byte-width 9-reserved threshold",
+    "Invalid1n/4n channel>=9 consumes no operand; invalid3n still consumes one;5n consumes none",
+    "Instrument copies12 bytes but advances11;12th byte is the next opcode and is retained",
+    "Instrument write order includes01=20 between carrier80 andE0, before feedback and final level refresh",
+    "77 signed old repeat<=1 expires, including8000; repeat copies clock and cursor without advancing current fetch cursor",
+    "70 consumes length plus two bytes irrespective of length; other7n except77 skips length bytes",
+    "No section check inside event loop; caller offset-only boundary and original scanner quirks remain"
+  ],
+  "evidence": [
+    {
+      "property": "L0/L1-to-bridge audio routines",
+      "level": "C",
+      "method": "Unchanged audio suites, ordinary and poisoned registers; original rebuilt routines vs compiled bridge; full persistent RAM/device/ordered port list",
+      "command": "python verif/adlx_main_integration.py --whole --local-reference",
+      "result": "PASS1966/1966 cases; no instrument/table fallback",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Whole-game regression",
+      "level": "D",
+      "method": "Unchanged whole-game runner and all maintained scenarios",
+      "command": "python verif/adlx_main_integration.py --whole --local-reference",
+      "result": "PASS17/17 scenarios; native main steps reached; effects and sections remain explicit boundaries",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "All shipped resources",
+      "level": "C",
+      "method": "Actual compiled independent L1 and native main interpreter, every tune/effect toEND, seven state configurations including two passes",
+      "command": "python verif/adlx_main_corpus.py",
+      "result": "PASS77 complete runs,all11 resources,15456 bursts,90280 actual native events=8*11285 shipped events,96144 ordered register writes; zero fallback.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Any admitted one-event channel state, all nine operations",
+      "level": "B",
+      "method": "39 CBMC profiles on actual extracted L1 handlers/drivers and maintained native/bridge; arbitrary1280 state bytes, operators, operands, clocks, words and cursor; sixteen complete channel identities for Gain/Instrument. Next-fetch cut, state-only delay contract and TIMER request observer explicit.",
+      "command": "python verif/adlx_main_evidence.py prove --op N --timeout 60 (N=0,1,2,5,6,7,8); python verif/adlx_main_evidence.py prove --op 3 --channels --timeout 45; python verif/adlx_main_evidence.py prove --op 4 --channels --timeout 45",
+      "result": "PASS39/39; unwind30, bounds/pointer/signed-overflow/unwinding assertions enabled; arrays-uf-never. Full persistent bytes, ordered ports, timer requests, complete L1 shell. No audio-value assumptions.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Generated actual-C step composition and shell",
+      "level": "C",
+      "method": "Compile extracted real L1 handlers/drivers with native/bridge and normalized ordinary RAM; deterministic arbitrary states",
+      "command": "python verif/adlx_main_evidence.py samples",
+      "result": "PASS180000 cases:20000 per operation, all persistent bytes and ordered writes; delay/TIMER contracts same as symbolic harness. Full DLL corpus and suites separately execute real delay/timer.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Native semantic defect control",
+      "level": "B",
+      "method": "Scratch mutation changes displaced key-off low bit5 to the live high key bit",
+      "command": "python verif/adlx_main_evidence.py prove --op 2 --negative --timeout 45",
+      "result": "Expected FAIL compare_memory.assertion.1; symbolic counterexample. This is a successful defect control, not a passing proof of mutated code.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "All eight effects at their existing interpreter boundary",
+      "level": "C",
+      "method": "Compiled actual effects/C-stop/voice-restoration path in independent L1 and audio-bridged DLLs; three complete configurations",
+      "command": "python verif/adlx_main_corpus.py --effects",
+      "result": "PASS24/24 runs,164 bursts,1512 ordered register writes. Effects remain L1; regression evidence only.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "AdLib music during real gameplay",
+      "level": "D",
+      "method": "Input-only maintained gameplay sequence with card adlib, separate rebuilt L0 reference and compiled bridge",
+      "command": "python verif/adlx_main_scenario.py",
+      "result": "PASS979/979 boundaries,469 native steps, zero fallback. Maintained gameplay uses card none; unchanged17-scenario audit reaches native main only in adlib.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Actual scratch host promotion",
+      "level": "D",
+      "method": "Copy maintained tree and checked plain reference; only scratch audio status set migrated; unchanged host CLI builder/checker",
+      "command": "python verif/adlx_main_host.py",
+      "result": "PASS18 scenarios (all17 maintained plus979-frame input-only AdLib gameplay) and256-frame smoke; actual unchanged hostbuild.py/check.py in scratch. Only scratch audio certificate status promoted.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Clean build-product reproduction",
+      "level": "C",
+      "method": "Force fresh worker-local plain reconstruction and locked original expansion/repack, then rerun all finite evidence, routine/scenario suites, extra gameplay witness, scratch host and global closure gate",
+      "command": "python verif/adlx_main_reproduce.py --fresh-reference --skip-proofs",
+      "result": "PASS exit0; finite/1966 routine cases/17 scenarios/979-frame AdLib gameplay/18 host scenarios/smoke256; global15 certificates0 errors. CBMC39 positive profiles and negative control were run separately with their exact commands above.",
+      "date": "2026-11-13"
+    }
+  ],
+  "amiga": "Similar audio purpose with different representation: TFMX is meaning evidence only. No ADLX/TFMX field or write equivalence claimed.",
+  "uncertainty": [
+    "Effects interpreter and C allocation/restoration remain unclosed",
+    "Source aliases/modified dispatch tables use literal fallback, not native proof",
+    "Instruction-level IRQ timing and real-time busy-delay duration are outside the serialized observation model",
+    "Status remains supervisor-owned; full-stream composition is C despite all admitted single-event state transitions having B evidence."
+  ],
+  "dependencies": {
+    "native/audio.h": {
+      "includes": [
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/adlx_main.h": {
+      "includes": [
+        "audio.h"
+      ],
+      "calls": []
+    },
+    "native/adlx_main.c": {
+      "includes": [
+        "adlx_main.h"
+      ],
+      "calls": [
+        "audio_level",
+        "audio_volume",
+        "audio_write"
+      ]
+    },
+    "native/bridge/audio_projection.h": {
+      "includes": [
+        "../audio.h",
+        "ugh.h"
+      ],
+      "calls": [
+        "S",
+        "audio_bridge_cursor",
+        "audio_bridge_pointer",
+        "audio_bridge_voice",
+        "rd16",
+        "rd32",
+        "rd8",
+        "wr16",
+        "wr8"
+      ]
+    },
+    "native/bridge/adlx_main_bridge.c": {
+      "includes": [
+        "../adlx_main.h",
+        "audio_projection.h",
+        "platform.h"
+      ],
+      "calls": [
+        "S",
+        "T",
+        "add16",
+        "audio_bridge_bank",
+        "audio_bridge_cursor",
+        "audio_bridge_delay",
+        "audio_bridge_entry",
+        "audio_bridge_event",
+        "audio_bridge_inc",
+        "audio_bridge_low_b",
+        "audio_bridge_pointer",
+        "audio_bridge_project",
+        "audio_bridge_publish_voice",
+        "audio_bridge_timer",
+        "audio_bridge_voice",
+        "audio_main_operation",
+        "audio_main_step",
+        "c_RunMainAdlxEvents",
+        "dec16",
+        "flag",
+        "l1_HandleMainAdlxInstrument",
+        "l1_RunMainAdlxEvents",
+        "lin",
+        "logic",
+        "platform_out",
+        "rd16",
+        "rd32",
+        "rd8",
+        "set_ah",
+        "set_al",
+        "ugh_dispatch",
+        "wr16",
+        "wr32",
+        "wr8"
+      ]
+    }
+  },
+  "proposed_status_reason": "Single-event B under explicit delay/TIMER/tail and ordinary-RAM contracts; full-stream composition remains finite-corpus C. D and actual scratch host promotion pass. Supervisor status decision required.",
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "c/adlib.c": "2f4e551282f6ac33f8d24127f3cd5294e679f72ce28794c3ed295ce243c18bf0",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/sound_engine.c": "5e4116c31806441e464de35d5649894ec4eea28025254a2edea616235e6e6881",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "native/adlx_main.c": "2e624d0ee0ea20d647b54d811671f52c50706e0cb34529c7bd8ac8c18e0dec42",
+    "native/adlx_main.h": "a67988ae0fa9f4d2c5d0451f02851385a900f96a6fba67c56e4764ffc10469f6",
+    "native/audio.h": "846cf7d4ec0ea8ea19b1f76df33b603ca5d75ff2c13e8b5bd8f0d1d771e1d24a",
+    "native/bridge/adlx_main_bridge.c": "91f38d4455d13917b3c7cf4a9fb89a02963be5cf509374e4570d81407f03c9c0",
+    "native/bridge/audio_projection.h": "e15ee379c16623f0dfb9830e154c5c71b0f2d2a424a6073c3dec497c50cd8630",
+    "verif/adlx_main_build.py": "2143340b0898aba2015f42fd30a652e5aeff438a583489b4a0e7501693d30442",
+    "verif/adlx_main_corpus.py": "a6a838ef8c80c8bd52428b2d4a0f5206e653ff72ff7253fe1c1df5deacc39672",
+    "verif/adlx_main_evidence.py": "c7dfe3da0dd30af6e526aea5216cb04c6ce6168fc600964943617ccf1be10a94",
+    "verif/adlx_main_gameplay.txt": "b8c06e44fb3079942f829dafc596a31fc8a3e572a1be1d15f09ab3594412fa4f",
+    "verif/adlx_main_harness.c": "5d8f7aba6468ab2791ea2147fc347496df91191451b36876ecda40c2708f7185",
+    "verif/adlx_main_host.py": "7c8bf0ad79027db87b728364501779e71bb786d633cf2907200c5989152655c9",
+    "verif/adlx_main_integration.py": "90207571612dd85e4fda1d8c1bac1ff64043151e2655dc4724dbbb58ce8b15d8",
+    "verif/adlx_main_reproduce.py": "0afb8c95412e75878abca7843bf68a0b3f920bb07841443fa12c46da0ade43b1",
+    "verif/adlx_main_scenario.py": "455b799538760d84810e8d673f69fbe6ed8320bac7f0c4d385131dc06064e907"
+  },
+  "boundary_gate": {
+    "command": "python tools/closure.py",
+    "own_result": "PASS: audio certificate, source locks, dependencies and native boundary",
+    "global_result": "FAIL unowned native file: native/passenger_itinerary.c\nFAIL unowned native file: native/passenger_itinerary.h\n15 certificate(s), 2 error(s)",
+    "external_files": [
+      "native/passenger_itinerary.c",
+      "native/passenger_itinerary.h"
+    ]
+  }
+}

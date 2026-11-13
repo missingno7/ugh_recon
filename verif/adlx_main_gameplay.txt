@@ -1,0 +1,20 @@
+timing pit-quantum-at-polls
+frames 979
+card adlib
+scores blank
+1: esc -esc
+4: esc -esc
+9: f1 -f1
+12: enter -enter
+14: cycle=enter,-enter
+60: right
+150: -right down
+250: -down left
+350: -left up
+450: -up right
+550: -right
+requires GAME:RunGameFromPassword GAME:MovePlayerWithVgaCollisions GAME:DispatchActorUpdates GAME:DispatchEnemyStates SOUND:RunMainAdlxEvents
+bios 0057 0048 004f 004c 0045 000d
+requires GAME:InsertHighScoreAndClearScore GAME:SaveHighScores
+death crash
+expect LivesRemaining 0

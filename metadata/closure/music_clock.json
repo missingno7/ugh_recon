@@ -1,0 +1,384 @@
+{
+  "component": "music_clock",
+  "status": "verified-within-contract",
+  "proposed_status": "verified-within-contract",
+  "proposed_status_reason": "Supervisor decision requested: A for all scalar input domains and the serialized ordinary-RAM L1/bridge projection. Original matched C is also checked symbolically after explicit width adaptation. L0 machine linkage remains C, with D reaching only byte swap; do not promote the whole chain to A or claim D reaches the two unused public entries.",
+  "original": {
+    "L0": [
+      "C:SwapDwordByteOrder 0878:0A70",
+      "C:DisableMusicSectionLoop 0878:1491",
+      "C:GetElapsedMusicTime 0878:1A50"
+    ],
+    "L1": [
+      "c/music_clock.c:c_SwapDwordByteOrder",
+      "c/music_clock.c:c_DisableMusicSectionLoop",
+      "c/music_clock.c:c_GetElapsedMusicTime"
+    ],
+    "provenance": "The original functions remain in src/c/module.c, Borland C++ 3.0 -mh -2. Fresh isolated cjudge.compare verifies all 23 functions (7074 bytes) and ordered TU relocations against the locked expanded oracle. This is a C contribution proof, not a new full packed-file proof."
+  },
+  "native": {
+    "files": [
+      "native/music_clock.c",
+      "native/music_clock.h",
+      "native/bridge/music_clock_bridge.c"
+    ],
+    "header": "native/music_clock.h",
+    "functions": [
+      "music_clock_swap_bytes",
+      "music_clock_disable_section_loop",
+      "music_clock_elapsed"
+    ],
+    "build": "python verif/music_clock_build.py",
+    "bridge": "All three canonical L1 endpoints replaced together, with no L1 fallback. Original definitions remain renamed l1_* in generated copies under this worker's build directory. No shared audio state type introduced."
+  },
+  "purpose": "Reverse a container size's byte order, disable recurring main-track section restoration while the C playing word is nonzero, and report elapsed ADLX timing units using unsigned wrapped clock difference. No playback, scanning, timer or device ownership is transferred.",
+  "interface": {
+    "inputs": [
+      "Byte swap: any uint32_t value.",
+      "Disable: arbitrary uint16_t playing and enabled words; returns the next enabled word.",
+      "Elapsed: arbitrary uint32_t ticks and origin, arbitrary uint16_t rate. No device, playing, loaded-track or positive-clock invariant."
+    ],
+    "outputs": [
+      "Byte swap: uint32_t with reversed bytes.",
+      "Disable: zero iff playing is nonzero, otherwise original enabled word. Bridge always returns AX=1.",
+      "Elapsed: MUSIC_CLOCK_OK plus ((ticks-origin) modulo 2^32)/rate when rate!=0. MUSIC_CLOCK_DIVIDE_BY_ZERO with no meaningful units when rate==0. Bridge returns UGH_UNSUPPORTED on fault and leaves AX/DX unchanged; this represents the L0 fault rather than simulating fault-handler execution."
+    ],
+    "effects": [
+      "Ordinary native functions have no persistent storage, allocation, devices or indirect calls.",
+      "Disable bridge reads only the playing word; only while nonzero does it write the two loop-enable bytes to zero. It does not read the old enable word or write on the inactive path.",
+      "Elapsed bridge reads the two dwords and rate, writes no RAM; byte swap bridge reads four argument bytes and writes no RAM.",
+      "Bridge retains SOUND ES output for disable and elapsed, AX/DX value convention, all other L1 registers/flags, and the untouched input argument/return frame."
+    ],
+    "preconditions": [
+      "Serialized operation over ordinary RAM; no instruction-level IRQ delivery inside an operation.",
+      "Bridge cdecl arguments and return/save scratch do not overlap SOUND storage, devices or live code. Symbolic shell proof uses disjoint canonical SS:SP; arbitrary register values otherwise.",
+      "Original Borland unsigned long is 32 bits and unsigned/int are 16 bits; little-endian byte-object representation for the original swap C proof. Native swap itself is host-endian independent.",
+      "Arithmetic flags and compiler-volatile scratch beyond the existing L1 ABI are not semantic C results. Arbitrary external machine-code callers depending on them are outside this closure contract."
+    ]
+  },
+  "callers": {
+    "SwapDwordByteOrder": [
+      "C:LoadAdlibTrackData, calls at 0878:0B5A, 0BA9, 0C57. Each PUSH CS/near CALL is a far cdecl frame. ADD SP,4 immediately follows each call, replacing arithmetic flags; only AX of the result is consumed. DX is redefined before use. All 32 output bits are retained anyway.",
+      "First two calls reverse BE32 AHDR/IMAP sizes then use low 16 bits to advance a far offset. Third reverses BE32 ADLX root size, subtracts 34 and stores low 16-bit event extent. TRCK's duplicate LE32 length is not consumed by these functions."
+    ],
+    "DisableMusicSectionLoop": "No named in-image call sites in metadata/program-model.json or maintained L0 source. Public reconstructed entry; no vacuous claim that all potential callers ignore ES or other ABI state.",
+    "GetElapsedMusicTime": "No named in-image call sites in metadata/program-model.json or maintained L0 source. Public reconstructed entry; direct tests establish its observable C return and ES output."
+  },
+  "callees": {
+    "L0": [
+      "GetElapsedMusicTime compiler-emitted F_LUDIV@ at 0000:039D, original CH.LIB unsigned long division runtime (docs/runtime.md). Other two are leaves."
+    ],
+    "L2": "No callees except bridge accessors and the three native entry points. Native unsigned C division replaces compiler-specific helper ABI; this is a behavioral migration, not replacement of L0 library code."
+  },
+  "indirect": {
+    "sites": "None inside the three functions or native API.",
+    "incoming": "L1 canonical dispatch is a migration boundary. Unknown external or malformed machine continuations are not proved absent; known caller set above is conditional, as in the program model."
+  },
+  "memory": {
+    "owner": "Common C/SOUND audio engine, borrowed by these scalar services; not three newly independent global owners.",
+    "projection": [
+      {
+        "storage": "SOUND:0238..0239 MusicTicksPerUnit",
+        "type": "uint16_t",
+        "read": "elapsed",
+        "write": "none",
+        "producer": "C:LoadAdlibTrackData(x==12), AHDR payload+6 (container+22); all decoded assets use 420",
+        "alias": "One word, not part of AudioChannelStates[12]. Zero remains admitted."
+      },
+      {
+        "storage": "SOUND:023A..023D AdlxTickCount",
+        "type": "uint32_t",
+        "read": "elapsed",
+        "write": "none",
+        "producer": "SOUND:TickAdlxPlayback and AdvanceGuardedSoundClock increment low word with high carry, including while playback guard inhibits events",
+        "alias": "AdlxTickHighWord at 023C is the high half of the same value, never an independent clock."
+      },
+      {
+        "storage": "SOUND:023E..0241 MainAdlxTimeOrigin",
+        "type": "uint32_t",
+        "read": "elapsed",
+        "write": "none",
+        "producer": "C:StartMusicTrack and SOUND whole-track repeat copy current clock; C:ApplyScannedMusicEvents adds ScannedMusicClockTicks",
+        "alias": "MainAdlxTimeOriginHigh at 0240 is the same dword's upper half. Origin is not the main event deadline."
+      },
+      {
+        "storage": "SOUND:0256..0257 MainAdlxPlaying",
+        "type": "uint16_t raw word",
+        "read": "disable",
+        "write": "none",
+        "producer": "C main-track start/stop and ClearSoundState",
+        "alias": "Separate from AudioChannelStates[12].f28/MainAdlxFlags at 0234. C tests the whole word; driver dispatch tests bit zero. Preserve raw bits for future audio units."
+      },
+      {
+        "storage": "SOUND:025C..025D MainAdlxSectionLoopEnabled",
+        "type": "uint16_t raw word",
+        "read": "No L0/L1 read by disable; its inactive-path value is persistent",
+        "write": "disable writes zero only if playing!=0",
+        "producer": "C:ScanMusicEvents enables, disable clears, ClearSoundState clears",
+        "alias": "SOUND:TickAdlxPlayback tests bit zero to decide section restore; ApplyScannedMusicEvents leaves it enabled. Do not conflate with playing or descriptor repeat flags."
+      }
+    ],
+    "record_12_analysis": "AudioChannelStates base 0014, stride 002A: slot 12 occupies 020C..0235 inclusive. Its +06 start pointer=0212, +0A stream length=0216, +10 cursor=021C, +1E deadline=022A/022C, +22 voice count=022E, +28 flags=0234. All five projected fields are OUTSIDE that record. Guard at 0236 separates it from rate/clock/origin. These functions do not read/write a descriptor, instrument map, scan cursor, voice array, bank pointer, fade state or timer period. Any future record-12 view must alias these main descriptor fields once, not duplicate them alongside SOUND globals. No blanket 42-byte sample struct should absorb the clock fields.",
+    "proposed_typed_view_analysis_only": "A borrowed music-clock/control view with raw uint16_t playing, section_loop_enabled, ticks_per_unit and uint32_t ticks, time_origin. Map high-word names onto the two dwords; give all five one common audio storage owner. Pass snapshots as scalar inputs to this unit; publish only the conditional enable-word write. Keep this proposed view distinct from the main-track descriptor overlay, fade clock and PIT period. This is analysis only; no shared native audio types are introduced.",
+    "alias_and_order_limits": "The five spans do not overlap each other. SOUND bulk clears alias them, and unchecked malformed record indices could reach adjacent globals; these services impose no false independence invariant on their values. L0 elapsed reads rate first, tick HIGH then LOW, origin LOW then HIGH, without CLI. L1/bridge read ticks, origin, rate. Arbitrary observed scalar values (including torn values) are admitted, but equivalence for identical mid-instruction IRQ schedules is not asserted. Stable serialized snapshots commute; no stronger coherence protocol is inferred."
+  },
+  "assumptions": [
+    "No positivity or reachability restriction on elapsed clock/origin/rate, nor canonical boolean restriction on playing/loop words.",
+    "The original C byte-swap object accesses use a 4-byte little-endian uint32_t in the harness, adapting only the historical unsigned-long width and function names.",
+    "No live-stack alias or device-backed SOUND storage; existing routine observation excludes transient save scratch below entry frame.",
+    "No instruction-level asynchronous IRQ proof. There are no internal callbacks, service points, event acknowledgements or synchronization operations in this unit."
+  ],
+  "eliminated": [
+    {
+      "detail": "Far globals, segment arithmetic, register pairs and cdecl stack layout in ordinary native C",
+      "evidence": "Matched L0 C already names exactly five far scalar lvalues and value parameters/results. Scalar API and actual-C proofs remove the storage spelling; bridge preserves its observable effects and ABI, including ES."
+    },
+    {
+      "detail": "Compiler-specific F_LUDIV@ call/stack protocol",
+      "evidence": "L0 source is an unsigned long subtraction/division expression, not an application runtime service. Fresh byte match binds its compiler-emitted helper. Actual-C CBMC covers every 32+32+16-bit scalar input; zero domain explicit. Known caller set of elapsed is empty; arbitrary external consumers of compiler-volatile scratch are not a claimed theorem."
+    },
+    {
+      "detail": "Swap's byte-addressed local object and low/high return assembly",
+      "evidence": "CBMC compares actual extracted L0 byte-object assignments, actual L1 shifts, native shifts and bridge over all 2^32 values. Three known continuations use AX and overwrite DX/flags. Native retains full uint32_t output anyway."
+    },
+    {
+      "detail": "C data-segment setup/restore and transient compiler save area",
+      "evidence": "They implement storage access and automatic locals, with DS restored on return. Existing L0 comparisons include DS, ES, return/argument memory, preserved registers and persistent RAM; live-stack aliases are explicitly excluded."
+    }
+  ],
+  "retained": [
+    {
+      "detail": "Modulo-2^32 subtraction before unsigned division",
+      "reason": "ticks may precede origin or wrap. Divide-before-subtract and widened signed arithmetic change output; both compiled and CBMC mutation controls detect the former."
+    },
+    {
+      "detail": "Zero-rate division fault",
+      "reason": "No guard exists in original elapsed C. Native explicit fault status maps to existing L1 UGH_UNSUPPORTED, not elapsed zero. Four original INT 0 cases confirm the fault; continuation inside an installed INT 0 handler is not emulated."
+    },
+    {
+      "detail": "Full-word playing gate, conditional loop write, inactive stale flag",
+      "reason": "C nonzero test differs from SOUND bit-zero tests. Flags such as playing=8000 must still disable; playing=0 leaves every loop bit untouched."
+    },
+    {
+      "detail": "SOUND ES output at the machine boundary",
+      "reason": "No known callers proves no liveness conclusion for these public entries. Existing L1 explicitly preserves Borland's far-global ES result; bridge does likewise, checked symbolically and by L0 cases."
+    },
+    {
+      "detail": "Timing units and distinct shared states",
+      "reason": "AHDR ticks/unit scales an ADLX counter. PIT period events change real duration; playing, descriptor active/repeat bits, loop enable, origin and deadline cannot be collapsed into one boolean or wall-clock time."
+    }
+  ],
+  "evidence": [
+    {
+      "property": "Fresh original C provenance",
+      "level": "C",
+      "method": "Pinned BCC 3.0 via shared cjudge.compare; full TU function bytes and relocation order against locked original",
+      "command": "python verif/music_clock_evidence.py l0",
+      "result": "PASS 23/23 functions, 7074 bytes, ordered TU relocations exact. This is byte proof, classified separately from semantic levels; no packed-file reproof claimed here.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Byte swap, all uint32_t inputs",
+      "level": "A",
+      "method": "CBMC actual extracted original byte-object C (width adapted), L1 function, maintained native/bridge; no arithmetic model or input assumptions",
+      "command": "python verif/music_clock_evidence.py swap --timeout 60",
+      "result": "PASS all 2^32 inputs; complete L1 register/flag shell and ordinary SOUND RAM preservation; unwind40 fully covers fixed loops, pointer/bounds/overflow/unwind checks on.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Disable, all playing/enable word pairs",
+      "level": "A",
+      "method": "CBMC actual original/L1/native/bridge, arbitrary SOUND bytes and register shell with canonical disjoint stack",
+      "command": "python verif/music_clock_evidence.py disable --timeout 60",
+      "result": "PASS all 2^32 word pairs, original return1, native next flag, exact conditional bridge write and all projected/adjacent bytes. All symbolic state admitted; fixed unwind40 checked.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Elapsed arithmetic and exact fault domain",
+      "level": "A",
+      "method": "CBMC 6.11.0 SMT2/Z3 on actual extracted original C and native C, every 80-bit ticks/origin/rate combination; guard only prevents invoking undefined L0 C division when rate0",
+      "command": "python verif/music_clock_evidence.py elapsed --timeout 60",
+      "result": "PASS including division-by-zero safety assertions. Native status fault iff rate==0; exact original C result for every nonzero rate. No positive/well-formed/reachable-state assumption.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Elapsed serialized L1/native bridge projection",
+      "level": "A",
+      "method": "CBMC SMT2/Z3 actual C, all bytes in 38-byte ordinary SOUND window, arbitrary register shell with canonical disjoint stack",
+      "command": "python verif/music_clock_evidence.py elapsed_bridge --timeout 60",
+      "result": "PASS every ticks/origin/rate state, complete L1 shell including fault AX/DX preservation and ES output, all 38 SOUND bytes unchanged. Not an L0 interrupt-interleaving theorem.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Finite compiled disable families",
+      "level": "A",
+      "method": "Compile actual original C/L1/native/bridge; enabled ranges all65536 for playing0,8000,FFFF; playing ranges all65536 at enabled5AA5",
+      "command": "python verif/music_clock_evidence.py enumerate --mutants",
+      "result": "PASS 262144 cases in this complete finite family. Full pair domain is separately established by CBMC.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Compiled arithmetic differential families and independent references",
+      "level": "C",
+      "method": "Four 65536-value swap families with byte-loop reference; three clock/origin families at all65536 rates plus20000 deterministic random states; independent 64-bit modulo reference",
+      "command": "python verif/music_clock_evidence.py enumerate --mutants",
+      "result": "PASS 262144 swaps and216608 elapsed states, including rate0. Four semantic mutations (wrong byte shift, playing bit0 test, divide-before-subtract, zero-rate success) detected. These families do not enumerate all32-bit swaps or all80-bit elapsed states.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Symbolic proof semantic negative control",
+      "level": "C",
+      "method": "Scratch native divide-before-subtract mutation, unchanged original C and full arithmetic assertions",
+      "command": "python verif/music_clock_evidence.py elapsed --negative --timeout 30",
+      "result": "PASS control: CBMC reports VERIFICATION FAILED specifically at original/native arithmetic assertion, with counterexample. Production proof is not based on this mutant.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "L0 to bridged L1 routine observations",
+      "level": "C",
+      "method": "Existing music_clock and sound_api suites plus new isolated-bit/full-word/inactive-clock cases, ordinary and poisoned environments; four separate original fault probes",
+      "command": "python verif/music_clock_integration.py --whole",
+      "result": "PASS music_clock42/42, sound_api546/546, extra110/110 =698; original INT0 and bridge explicit fault4/4. Bridge audit swap272/disable44/elapsed32 includes fault probes. ES always compared; full persistent RAM/device/log observation retained.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Whole-game observation model",
+      "level": "D",
+      "method": "Actual wholegame.main with separate DLL loader reference, 14 maintained scenarios and unchanged oracle reference keys; reports isolated under worker directory",
+      "command": "python verif/music_clock_integration.py --whole",
+      "result": "PASS all14 scenarios,9963 frames plus terminal boundaries. Audit swap3/disable0/elapsed0: D exercises swap through track loading only; no D coverage claim for the two unused public APIs.",
+      "date": "2026-11-13"
+    }
+  ],
+  "amiga": {
+    "classification": "similar purpose with different implementation",
+    "finding": "Architecture/data model identifies TFMX audio with a different representation. No field-level or arithmetic correspondence is asserted or used as proof."
+  },
+  "uncertainty": [
+    "Unknown external machine callers may depend on compiler-volatile outputs; no in-image callers for disable/elapsed and no closed-world claim for public entries.",
+    "Mid-instruction IRQ delivery and torn-read schedule equivalence are outside the serialized contract. Original read order differs from L1; no hidden atomic-read repair is introduced.",
+    "Zero rate preserves the fault outcome, not arbitrary installed divide-exception-handler execution or its saved machine frame.",
+    "No shared audio ownership/type is implemented here; the proposed projection needs supervisor review before use by later units.",
+    "Default CBMC SAT backend timed out at120 seconds on full elapsed proof; arithmetic refinement also timed out. SMT2 with the installed Z3 binary completes; exact successful commands and executable hashes are in receipts.",
+    "Status remains administrative unanalyzed until supervisor review; proposed_status refers to the explicit L1/native contract, not a formal L0 machine proof."
+  ],
+  "dependencies": {
+    "native/music_clock.c": {
+      "includes": [
+        "music_clock.h"
+      ],
+      "calls": []
+    },
+    "native/music_clock.h": {
+      "includes": [
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/music_clock_bridge.c": {
+      "includes": [
+        "../music_clock.h",
+        "ugh.h"
+      ],
+      "calls": [
+        "S",
+        "arg16",
+        "music_clock_disable_section_loop",
+        "music_clock_elapsed",
+        "music_clock_swap_bytes",
+        "rd16",
+        "rd32",
+        "wr16"
+      ]
+    }
+  },
+  "observation_chain": "Matched original compiled C gives more direct source-level evidence than an assembly translation. L0/bridged-L1 remains C routine and D swap-composition evidence. Original width-adapted C/L1/native scalar and bridge contracts have A; this never upgrades the whole L0 machine chain.",
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "c/actors.h": "00817c6f676f61811df11066fca3335c9757e0f59f7cad241dff762fee7b71bd",
+    "c/actors_states.h": "375dda6bd3fa6cd5552cc98df7f7c785dc5d70850a10f96207bd0894161cd5d8",
+    "c/adlib.h": "70f2c0d3f51dc49dd05918266b4de07d247a12909f11e8329244b8d9af56cdee",
+    "c/demo_scripts.h": "ea65090001ef64f26f31c39de2075c098949bcb9ca8448480cd1fccdf55a608b",
+    "c/dispatch_table.inc": "0bb8fddf7dc6c98acc2fb92cf042088d0165c128a98da7e894ca49eb499c1111",
+    "c/dos_input.h": "8cee17811645a61424b6174e0213402b8c21defd5b4fa6d56511225c70e5193e",
+    "c/dsp.h": "9b2c2b95b0781caf3a96b7b0b19f8078601557f5e0a11bec889d109ef2755b63",
+    "c/game_services.h": "7a63f8bd05b2710c27c4c4247b00e0f1fc06a4ecdaa388bf47eb9fb1374965c5",
+    "c/ice.h": "925da59e4f3fb6cf278100578e56093dc7138040c98eb9f286acb9c867512578",
+    "c/items_water.h": "d18978433dcc966235010906984c13fcb76c3469bf4bc0f8e33345101099f148",
+    "c/menu.h": "eaa33e9e9db1f3caa44f60b4a0c862b1bc82855a6389e91f330606e27317b1de",
+    "c/menu_helpers.h": "9c5998717eec5a79122d91ca1d6a045f303baaf5b96dbf14cf6401b4df34e4e2",
+    "c/music_analysis.h": "3b2175241d1ced443d9463c6545232630cd4ccd20d907dab83296c8e4cd7fe23",
+    "c/music_clock.c": "2583d53f81c50bc148d423866cbd8f0fa14ff6bb3e5f8320a60e02b35a7d82fa",
+    "c/music_clock.h": "5ffc27066dc1c8438e716850ce666daaa00421dec8be964337b43f75a936210e",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/render.h": "bcac207ffd7130100008409d8b4069b9ac126b713c81bfb043f1eb1e9603c160",
+    "c/render_primitives.h": "92f16baae8b087d052e7ca713921fe74ad63e4f0a9f370190b2cc476c7a0ab09",
+    "c/scene.h": "77c02b56b44a4eb584da4d17cad94cc7f4be79ea3a2f70fd03d7ed2dc50f884a",
+    "c/sound_api.c": "ba1c98bf3a03b5f48a71d4491bdebf3acfc17b0f6cce51db370a0e58c0507e4c",
+    "c/sound_api.h": "b15efba9d9cf41053b3b818d4bb3a084936b6d3e15dafc05544648c88e4687c1",
+    "c/sound_engine.h": "bb288a280c6cf526e91718ccd7fd02a2762e9d58f3d0d53a2f2feef9472eabd1",
+    "c/sound_state.h": "bdbbef92b75c99c274bde293ec8bcb1f7a997ed1e8176dc5deda96806c6fbad4",
+    "c/timer.h": "4ae328394adb59216a373832fbf926a926ce9fe8f813bbe7c3927c9abaf10937",
+    "c/timer_stack.h": "e076aba16f8ee3dacbffcddbfa5b065a79a6e8000fa825244bffeb3771d1a514",
+    "c/timer_system.h": "f7204fef034e9f641f1f12ad9412efe80844d5be64b177300bdc5a9a20136a49",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_adapters.h": "c18eafbbe16170d01fcfac6853deab651d3c2b54343b47bccd6ce0de4303ad38",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "c/video.h": "35e4d6076edd69e2722cf7d52392871345f5e0eb78af7ce67e13c8ed0c02f192",
+    "docs/architecture-model.md": "c6599b7ddac1558a695cd66bce840f5f3d92a44a97c15fcbdb65200817ae046f",
+    "docs/data.md": "9485aacdc4b31ce4159648241c52472c2dd387fe30e815c6f06237a823d4e523",
+    "docs/program-model.md": "8fc05fc5a2f34c271c1005075788dd485daca5380fd4b98ad8c91fb0bcda07c7",
+    "docs/runtime.md": "9403308f0a3710db573bd4b64b61e906866c7fddee4cbba8b7912018c78e18fd",
+    "metadata/oracle.json": "7db8024058b1a1e34c7b02058e49f331f30effb6f35927945abcafaf63f9033f",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "metadata/toolchain-lock.json": "1eac9bc406bec9f0a6dabb333025d4bef2c08e89cf2bb54b27a1e512aca8c660",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
+    "native/bridge/music_clock_bridge.c": "656185f05df191c57d6e179effb3a830f9c7a53e0402a2c99438a03d21cfd27c",
+    "native/music_clock.c": "e89620aaff7554c7fc05dac70a4c1c4404bb0dd755f9b06281069b02920580e4",
+    "native/music_clock.h": "1916c309a59fc9fc5216459efeacdc2c347a814ad96f003e39fd97f96c2b637a",
+    "src/asm/SOUND.ASM": "70150219d03e52ec3ed5f6c96ca179fd3cf98b54ff68995a1ae264e8d368652d",
+    "src/c/inventory.json": "278ca9179615f7e26e343f2d606833515293cb37f8a47d92cc18e692168a29ea",
+    "src/c/module.c": "e58e54aa3f44fdfd29bdbcbaa471de2a6405235cbe2b276df56ea7193d548ae1",
+    "tests/music_clock.py": "440aed46727e7128a8dd4a2980d33a6eb6b5646da912dbcec626da6421105037",
+    "tests/scenarios/adlib.txt": "1db37ba320e4c3c85449c2f4a7f5ecd8543e6de6933e165e534b79adb3386f2f",
+    "tests/scenarios/attract.txt": "07339939be35779cc94094221155e97a11c6dec396ab6dce85f238a415896a01",
+    "tests/scenarios/completion.txt": "d898ad1f8abd49f7757303b562028cf7f0c10143dfb0358dad4e0a6fee7386bc",
+    "tests/scenarios/enemy.txt": "c5140aa9afe062e09cbefb949b78d06733c306518f315ba8f5448a0c2b8062a6",
+    "tests/scenarios/gameplay.txt": "b0be47d570408d44dc977faca40ef2a258c0686958f7fa68574cc411bb25a03a",
+    "tests/scenarios/high-score.txt": "5b698cb06b6d77d9a9d6f009cea71b8a1af9c16c8ecf3c344e33a9b8d93b1220",
+    "tests/scenarios/menu.txt": "3e8347d504ac0c13ced62c1befb26b59a353c46de397bb3ac79f5089b20ea8b1",
+    "tests/scenarios/passenger.txt": "e95f43a019615449dd142652ea837aaeb4a82e7bce9c6ecd72dd67411fe44922",
+    "tests/scenarios/password.txt": "fea4555e22daca6a5e4e154fd4d6c1b7871d80aa574c402363d5b3b938657bd2",
+    "tests/scenarios/pregame.txt": "6697f662ccf5791b57e14d5dcb0c216c7428312441c570f10b0e031a33a97cf8",
+    "tests/scenarios/reveal.txt": "8be34ff993316d7e099576cccd8af23d28267b02eee37df01a430f8e94418c84",
+    "tests/scenarios/startup.txt": "bddaf9054cfb6f1a4a5734e147c2481c28d0fa0768af141c311ddb13a38fbd7b",
+    "tests/scenarios/two-player.txt": "5c07be6ec944b7a38082d275633bba2ef26cc9e90828b673bb8434ad3ffa78e5",
+    "tests/scenarios/water.txt": "22aca0913b25142891f67c57f20d56cfef57c16df862269a377f924217e96f84",
+    "tests/sound_api.py": "f2ff7e547e026136ecb3abbc2abf139dcdfbd7fa4a5d026d5c19d1ed804b8650",
+    "tools/cgen.py": "c494a10b08145efeb0dfd7bcef4fa89b3902cebbdd69ee63bae89647026d9aff",
+    "tools/cjudge.py": "42e8c965812e188f8281adbea466072863ec0a6660353ee39883c28d0ecd7a0e",
+    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/common.py": "1d9a28e45a491eed6e5154fea9fbd53a2aac9d6f772614fdf37f8dc3fae3483e",
+    "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
+    "tools/dos.py": "df2a7a83777a15d467bca6e32e5bd123b2c0886551512b95669b09ca89ecefc7",
+    "tools/emu.py": "c376f5a21f311b003d322b76fe23f39686c3a29f8f2d759dd5e5d82c66b2035c",
+    "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
+    "tools/wholegame.py": "ba6fff7d0f1583e734ab69435e801f2d101758078c36712744bc5b3e839fa65c",
+    "verif/cbmc_shim/stddef.h": "03e62ec5f7016e0582b92f016d7e4017b56746e2b216ae8d7fad236ae7e723e7",
+    "verif/cbmc_shim/stdint.h": "ff382e7cc9e8ac2ff6cef94767bb680b49944513ebff33b6d7e548fe12a5d7d0",
+    "verif/cbmc_shim/ugh.h": "d23d5fb7f8d14f5c03944d9cce971d6d21fdf32c28ebac1f2710842cd03d7e72",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/music_clock_build.py": "9b4c40a4e48d5726fe1f182fb1f87fe00537fc432d8034c7437e350a4f1c92ad",
+    "verif/music_clock_cases.py": "2957539d9ac07858f05c8cc4990d1c514d3bf7a975766aa72824e9ef0d2ec3e6",
+    "verif/music_clock_cbmc.c": "c6e4f91bdc0b28409f2ac4f38ce1574509e07a4e37b955984a51b7d68d46b056",
+    "verif/music_clock_enumeration.c": "76df914db9de4f122597bcf770645a2aecd49239c3b685a57eb824410320c860",
+    "verif/music_clock_evidence.py": "83fe1e100b35c4b607241582097de429ec776886d8212cbcc574730f77aa649f",
+    "verif/music_clock_integration.py": "415597b218ff5218f6570394b2aea3b4f25d95c73d1b3fadea25507e60fe29c2",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574"
+  },
+  "boundary_gate": {
+    "command": "python tools/closure.py",
+    "result": "Music-clock certificate validates. Global gate currently fails only eight concurrently added contacts/level files without ownership certificates; see REPORT.md.",
+    "blocking_owner": "close-contacts; outside authorized music-clock writes"
+  }
+}

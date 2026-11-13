@@ -1,0 +1,97 @@
+"""Existing maintained suites and wholegame.main against the selected L1 variant.
+
+No edits to c/, tests/, or wholegame.py. References are copied read-only from
+the ordinary gate cache; all report/reference writes belong to this worker.
+"""
+import argparse,ctypes as C,json,shutil,sys,time
+from pathlib import Path
+from closure_support import ROOT,receipt,save
+sys.path.insert(0,str(ROOT/'tools'))
+import difftest,nbuild
+OUT=ROOT/'build/workers/close-musicclock'
+from music_clock_build import build
+
+def zero_rate_cases(dll):
+    rows=[]
+    for ticks,origin in [(0,0),(0xffffffff,0),(0,1),(16,0xfffffff0)]:
+        machine=difftest.Machine() # Fresh Unicorn CPU after each trapped divide exception.
+        machine.reset()
+        for name,value in [('AdlxTickCount',ticks),('MainAdlxTimeOrigin',origin)]:
+            machine.ww('SOUND:'+name,value&65535);machine.ww('SOUND:'+name,value>>16,2)
+        machine.ww('SOUND:MusicTicksPerUnit',0)
+        initial_regs=machine.prepare('C:GetElapsedMusicTime',difftest.POISON,'far',(),0x602)
+        initial=machine.snapshot()
+        try:machine.run()
+        except RuntimeError as error:
+            assert 'unsupported INT 00' in str(error),str(error)
+            diagnostic=str(error)
+        else:raise AssertionError('original zero rate unexpectedly returned')
+        C.memmove(dll.ugh_memory().contents,initial,difftest.MEM_SIZE)
+        r=difftest.Regs(**{n.lower():v for n,v in initial_regs.items()})
+        fn=dll.c_GetElapsedMusicTime;fn.argtypes=[C.POINTER(difftest.Regs)];fn.restype=C.c_int
+        assert fn(C.byref(r))==1
+        assert r.ax==initial_regs['AX'] and r.dx==initial_regs['DX']
+        assert bytes(dll.ugh_memory().contents)==initial
+        s,_=machine.address('SOUND:AdlxTickCount');assert r.es==s
+        rows.append(dict(ticks=ticks,origin=origin,original=diagnostic,bridge='UGH_UNSUPPORTED; no result, RAM unchanged'))
+    return rows
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--whole',action='store_true')
+    parser.add_argument('--suites',nargs='+',default=['music_clock','sound_api','music_clock_cases'])
+    args=parser.parse_args();OUT.mkdir(parents=True,exist_ok=True)
+    start=time.perf_counter();path=build()
+    dll=nbuild.load_l1(path);machine=difftest.Machine();rows=[]
+    audit=(C.c_uint32*3).in_dll(dll,"music_clock_audit")
+    for suite in args.suites:
+        module=__import__(suite) if suite=='music_clock_cases' else difftest.load_suite(suite)
+        for poison in (False,True):
+            for case in module.CASES:
+                problems=difftest.run(case,machine,dll,poison)
+                rows.append(dict(suite=suite,case=case.title,routine=case.routine,poison=poison,problems=problems))
+                if problems:print(rows[-1],flush=True)
+        selected=[r for r in rows if r['suite']==suite]
+        print(f'{suite}: {sum(not r["problems"] for r in selected)}/{len(selected)}',flush=True)
+    zero_rows=zero_rate_cases(dll)
+    print(f'zero-rate INT 0/fault outcomes: {len(zero_rows)}/{len(zero_rows)}',flush=True)
+    routine_counts=list(audit)
+    routine_seconds=time.perf_counter()-start;whole_status=None
+    if args.whole:
+        import wholegame
+        folder=OUT/'whole';folder.mkdir(exist_ok=True)
+        for cached in (ROOT/'build/whole').glob('*.ref.json'):shutil.copyfile(cached,folder/cached.name)
+        wholegame.OUT=folder
+        # wholegame's prior edge-attribution ledger is an optional build-worker
+        # artifact, not an oracle. Isolate that read too; a clean checkout starts
+        # without prior attribution. Scenario checks and reference keys are intact.
+        prior=ROOT/'build/workers/c-close/call-edges.json';ledger=folder/'prior-edges.json'
+        if prior.exists():shutil.copyfile(prior,ledger)
+        else:ledger.write_text('[]\n')
+        class ReadRoot(type(ROOT)):
+            def __truediv__(self,value):
+                if str(value)=='build/workers/c-close/call-edges.json':return ledger
+                return super().__truediv__(value)
+        wholegame.ROOT=ReadRoot(ROOT)
+        def variant(out=None,trace_dir=None):
+            if trace_dir is not None:raise RuntimeError('variant trace instrumentation requires a separate build hook')
+            # main owns and unloads this separate Windows LoadLibrary reference.
+            return nbuild.load_l1(path)
+        wholegame.load_dll=variant
+        # Invoke the actual tool entry point with its full maintained scenario set.
+        previous=sys.argv;sys.argv=['tools/wholegame.py']
+        try:whole_status=wholegame.main()
+        finally:sys.argv=previous
+    inputs=[ROOT/'verif/music_clock_integration.py',ROOT/'tools/nbuild.py',ROOT/'tools/wholegame.py',
+            ROOT/'tools/difftest.py',ROOT/'tools/emu.py',*sorted((ROOT/'native').rglob('*.[ch]')),
+            *sorted((ROOT/'c').glob('*.[ch]')),*[ROOT/('verif' if s=='music_clock_cases' else 'tests')/f'{s}.py' for s in args.suites],
+            *sorted((ROOT/'tests/scenarios').glob('*.txt'))]
+    result=receipt(['python','verif/music_clock_integration.py',*(['--whole'] if args.whole else [])],inputs,
+        dll=str(path),build_receipt=json.loads((OUT/'build.json').read_text()),
+        cases=rows,zero_rate=zero_rows,audit_order=["swap bridge","disable bridge","elapsed bridge"],
+        routine_counts=routine_counts,whole_counts=[audit[i]-routine_counts[i] for i in range(3)],
+        routine_seconds=routine_seconds,whole_status=whole_status,seconds=time.perf_counter()-start)
+    save(OUT/'integration.json',result)
+    print('bridge call audit:',result['routine_counts'],result['whole_counts'],flush=True)
+    return int(any(r['problems'] for r in rows) or bool(whole_status))
+
+if __name__=='__main__':raise SystemExit(main())

@@ -8,6 +8,8 @@ data LABEL byte|word|dword|string [count]
 note free text (report only)
 
 --dry validates every directive without writing. Labels may use old or new names.
+STRUC names use RECORD:Type or FIELD:Type.Field (renames and comments only).
+All rename consumer propagation, regenerated interfaces and rollback use rename.py.
 """
 import argparse
 import json
@@ -47,12 +49,20 @@ def parse(text):
     return ops
 
 def target(label,ops,doc,defs):
-    try:key,rec=S.resolve_symbol(label,doc)
+    try:key,rec=R.resolve_target(label,doc)
     except ValueError as first:
         # NEW can refer to a rename within this proposal.
-        hits=[o for o in ops if o['op']=='rename' and o['new'].lower()==label.split(':')[-1].lower()]
+        leaf=label.split(':')[-1].split('.')[-1]
+        hits=[o for o in ops if o['op']=='rename' and o['new'].lower()==leaf.lower()]
         if len(hits)!=1:raise first
-        key,rec=S.resolve_symbol(hits[0]['old'],doc)
+        if label.upper().startswith('FIELD:'):
+            if not hits[0]['old'].upper().startswith('FIELD:') or '.' not in label:raise first
+            owner=label[6:].split('.',1)[0]
+            old_owner=hits[0]['old'][6:].split('.',1)[0]
+            owners={old_owner.lower()}|{o['new'].lower() for o in ops if o['op']=='rename'
+                and o['old'].upper()=='RECORD:'+old_owner.upper()}
+            if owner.lower() not in owners:raise first
+        key,rec=R.resolve_target(hits[0]['old'],doc)
     matches=[d for d in defs if any(s['module']==d['module'] and s['name']==d['name'] for s in rec['spellings'])]
     # Prefer the physical local label, then a C definition, then an EQU constant.
     rank=lambda d:(d['form'] not in ('equ',),d['name']==rec['name'],not d['name'].startswith('_'))
@@ -127,7 +137,7 @@ def typed_data(text,d,kind,count):
     return ''.join(lines)
 
 def prepare(ops):
-    errors=[];doc=S.names();defs=S.definitions();pairs=[(o['old'],o['new']) for o in ops if o['op']=='rename']
+    errors=[];doc=S.names();defs=S.definitions()+S.structure_definitions();pairs=[(o['old'],o['new']) for o in ops if o['op']=='rename']
     evidence={}
     for o in ops:
         try:
@@ -148,12 +158,12 @@ def prepare(ops):
             marker=(key,o['op'])
             if marker in seen:raise ValueError('duplicate '+o['op']+' for the same identity')
             seen.add(marker)
-            current_defs=S.definitions(texts)
+            current_defs=S.definitions(texts)+S.structure_definitions(texts)
             d=next(x for x in current_defs if x['path']==d['path'] and x['name']==d['name'])
             if o['op']=='comment':
                 texts[d['path']]=contract(texts[d['path']],d,o['block'])
                 for rename in ops:
-                    if rename['op']=='rename' and S.resolve_symbol(rename['old'],doc)[0]==key:
+                    if rename['op']=='rename' and R.resolve_target(rename['old'],doc)[0]==key:
                         evidence[rename['old']]=o['block'][0].lstrip('; ')
             else:texts[d['path']]=typed_data(texts[d['path']],d,o['kind'],o['count'])
         except (ValueError,StopIteration) as e:errors.append(f"line {o['line']}: {e}")
@@ -161,8 +171,7 @@ def prepare(ops):
     # Re-run the rename planner with contract evidence, then combine the edited source texts.
     if pairs:updates,tables=R.prepare(pairs,evidence)
     for path,text in texts.items():
-        module='C' if path.suffix.lower() in ('.c','.h') else path.stem.upper()
-        new=R.substitute(text,tables.get(module,{}),'c' if module=='C' else 'asm').encode('latin1')
+        new=R.source_result(path,text,tables).encode('latin1')
         if new!=path.read_bytes():updates[path]=new
     return updates
 

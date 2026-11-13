@@ -4,6 +4,13 @@ Usage: rename.py [--check] OLD NEW [OLD NEW ...] | --file pairs.txt
 Ambiguous local names require MODULE:OLD. All writes run the three proof gates;
 --check explicitly requests this default. On failure maintained files are restored.
 --dry validates without writing or building.
+
+Consumers in c/, tests/ (recursively), native/ and verif/, the translation plan
+and closure certificates are updated in the same transaction. L1 c_Label and
+UGH_[OS]_MODULE_Label aliases are recognized. cgen runs after the proof gates;
+its generated files roll back too. Ambiguous bare consumer names are refused.
+Non-address STRUC targets use RECORD:Type or FIELD:Type.Field; fields must have
+unique flat TASM identifiers. L0 quoted data remains immutable.
 """
 import argparse
 import copy
@@ -103,17 +110,79 @@ def external_bindings(mod,texts):
         bindings[up]=[frame,off]
     return bindings
 
+def resolve_target(query,doc=None,texts=None):
+    if query.upper().startswith(('FIELD:','RECORD:')):return S.resolve_structure(query,texts)
+    return S.resolve_symbol(query,doc)
+
+def consumer_table(doc,tables):
+    """Unambiguous bare names plus explicit module macros and L1 adapters.
+
+    A local loc_XXXX may exist in several modules. Its module-qualified reference
+    can be renamed, but an unqualified ambiguous consumer must be resolved by a
+    human; guessing from its containing filename is unsafe.
+    """
+    owners={}
+    for key,rec in doc['symbols'].items():
+        for s in rec['spellings']:owners.setdefault(s['name'].lower(),set()).add(key)
+    result={}; ambiguous=set()
+    def add(old,new):
+        old=old.lower()
+        if old in result and result[old]!=new:raise ValueError('ambiguous consumer spelling '+old)
+        result[old]=new
+    for module,table in tables.items():
+        for old,new in table.items():
+            if len(owners.get(old,()))<=1:add(old,new)
+            else:ambiguous.add(old)
+            for prefix in (f'UGH_O_{module}_',f'UGH_S_{module}_'):
+                add(prefix+old,prefix+new)
+            if not old.startswith('_'):
+                if len(owners.get(old,()))<=1:add('c_'+old,'c_'+new)
+                else:ambiguous.add('c_'+old)
+    return result,ambiguous
+
+def consumer_substitute(text,table,tables,ambiguous):
+    # Qualified identities also occur in Python/JSON strings and C TRANSLATES comments.
+    protected={}
+    def qualified(m):
+        module,old=m[1].upper(),m[2]
+        new=tables.get(module,{}).get(old.lower())
+        if new is None:return m[0]
+        marker=f'__RENAME_QUALIFIED_{len(protected)}__'
+        protected[marker]=m[1]+':'+new
+        return marker
+    text=re.sub(r'\b([A-Za-z][A-Za-z0-9_]*)\s*:\s*('+S.IDENT.pattern+r')',qualified,text)
+    for token in S.IDENT.findall(text):
+        if token.lower() in ambiguous and token.lower() not in table:
+            raise ValueError('ambiguous consumer token '+token+'; qualify its module before renaming')
+    text=S.IDENT.sub(lambda m:table.get(m[0].lower(),m[0]),text)
+    for marker,value in protected.items():text=text.replace(marker,value)
+    return text
+
+def source_result(path,text,tables):
+    module='C' if path.suffix.lower() in ('.c','.h') else path.stem.upper()
+    table=dict(tables.get(module,{}))
+    # Include declarations and their users share TASM's flat type/field namespace.
+    table.update(tables.get('FIELD',{}));table.update(tables.get('RECORD',{}))
+    return substitute(text,table,'c' if module=='C' else 'asm')
+
 def prepare(pairs,evidence=None):
     """Return path -> complete bytes and old/new lookup; no disk mutation."""
     texts=S.read_sources();doc=copy.deepcopy(S.names());tables={};taken={};resolved=[]
-    all_tokens={m[0].lower() for t in texts.values() for m in S.IDENT.finditer(t)}
+    consumers={p:p.read_bytes().decode('utf-8') for p in S.consumer_sources()}
+    all_tokens={m[0].lower() for t in (*texts.values(),*consumers.values()) for m in S.IDENT.finditer(t)}
     for old,new in pairs:
-        key,r=S.resolve_symbol(old,doc)
+        key,r=resolve_target(old,doc,texts)
         if key in taken:raise ValueError(f'{old}: symbol renamed twice in one transaction')
         validate_name(new,r,doc)
         existing={s['name'].lower() for s in r['spellings']}
         # Collisions are refused even if the existing symbol is renamed away.
         targets={('_' if s.get('decorated') else '')+new for s in r['spellings']}
+        targets.update('c_'+new for s in r['spellings'] if not s.get('decorated'))
+        targets.update(prefix+s['module']+'_'+new for s in r['spellings']
+                       for prefix in ('UGH_O_','UGH_S_'))
+        existing.update('c_'+s['name'].lower() for s in r['spellings'] if not s.get('decorated'))
+        existing.update((prefix+s['module']+'_'+s['name']).lower() for s in r['spellings']
+                        for prefix in ('UGH_O_','UGH_S_'))
         for target in targets:
             if target.lower() in all_tokens and target.lower() not in existing:raise ValueError(f'{new}: collision with existing token {target}')
             if target.lower() in taken:raise ValueError(f'{new}: collision between proposed names')
@@ -123,16 +192,28 @@ def prepare(pairs,evidence=None):
             target=('_' if s.get('decorated') else '')+new
             if s.get('public'):
                 # All users of a public spelling share that binding, including ASM EXTRNs.
-                for module in (*S.MODULES,*(p.stem.upper() for p in texts if p.parent.name=='data')):
+                for module in (*S.MODULES,*(p.stem.upper() for p in texts),s['module']):
                     tables.setdefault(module,{})[s['name'].lower()]=target
             else:tables.setdefault(s['module'],{})[s['name'].lower()]=target
+        if 'address' in r:
+            # cgen adds a frame-owner alias as well as source spellings. DGROUP,
+            # ZERO and CDATA often have no same-named source module.
+            frame=int(r['address'].split(':')[0],16)
+            owners={0x13B:'GAME',0x664:'SOUND',0x878:'C',0xA32:'TIMER',
+                    0x5C09:'DGROUP',0xA67:'ZERO',0x1A37:'CDATA'}
+            owner=owners.get(frame,f'B{frame:04X}')
+            tables.setdefault(owner,{})[r['name'].lower()]=new
         resolved.append((key,old,new))
     updates={}
     for path,text in texts.items():
-        module='C' if path.suffix.lower() in ('.c','.h') else path.stem.upper()
-        result=substitute(text,tables.get(module,{}),'c' if module=='C' else 'asm')
+        result=source_result(path,text,tables)
         if result!=text:updates[path]=result.encode('latin1')
+    table,ambiguous=consumer_table(doc,tables)
+    for path,text in consumers.items():
+        result=consumer_substitute(text,table,tables,ambiguous)
+        if result!=text:updates[path]=result.encode('utf-8')
     for key,old,new in resolved:
+        if key not in doc['symbols']:continue # STRUC symbols have no address identity.
         r=doc['symbols'][key];r['name']=new
         r['evidence']=(evidence or {}).get(old,r['evidence'])
         for s in r['spellings']:s['name']=tables.get(s['module'],{}).get(s['name'].lower(),s['name'])
@@ -180,16 +261,30 @@ def gates(logdir):
 
 def commit(updates,check=False,logdir=None):
     before={p:p.read_bytes() if p.exists() else None for p in updates}
+    # cgen runs only after the fresh proof build. Its derived outputs belong to
+    # this same rollback boundary, including headers it might create for a package.
+    generated=set()
+    if check and (ROOT/'c').is_dir():
+        generated={ROOT/'c/ugh_sym.h',ROOT/'c/ugh_adapters.h',ROOT/'c/dispatch_table.inc',
+                   ROOT/'build/c/symbols.json'}|{p.with_suffix('.h') for p in (ROOT/'c').glob('*.c')}
+        for p in generated:before.setdefault(p,p.read_bytes() if p.exists() else None)
     try:
         for p,b in updates.items():p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b)
         if check:gates(logdir or ROOT/'build/workers/naming-infra/rename-check')
+        if generated:
+            p=subprocess.run([sys.executable,str(ROOT/'tools/cgen.py')],cwd=ROOT,capture_output=True,text=True)
+            out=logdir or ROOT/'build/workers/naming-infra/rename-check'
+            (out/'cgen.txt').write_text(p.stdout+p.stderr)
+            print(f'cgen.py -> {p.returncode}',flush=True)
+            if p.returncode:raise ValueError('cgen.py failed; see '+str(out/'cgen.txt'))
     except BaseException:
         for p,b in before.items():
             if b is None:p.unlink(missing_ok=True)
             else:p.write_bytes(b)
         print('Transaction restored all maintained files.',file=sys.stderr)
         raise
-    for p in updates:print('touched '+str(p.relative_to(ROOT)).replace('\\','/'))
+    for p in sorted(set(updates)|generated):
+        if p.exists() and p.read_bytes()!=before.get(p):print('touched '+str(p.relative_to(ROOT)).replace('\\','/'))
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)

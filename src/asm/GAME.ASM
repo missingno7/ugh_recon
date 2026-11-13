@@ -2,6 +2,7 @@
 ; Image contribution 013B8..0664C (end exclusive).
 .286
 JUMPS
+include RECORDS.INC
 ; Real DGROUP storage; independent addresses are bound in asm-map.json.
 extrn SavedBiosVideoMode:byte
 extrn PreviousKeyboardVector:byte
@@ -1632,7 +1633,7 @@ loc_0982:
 ; END CONTRACT
 public StartDemoFadeWhenSpriteHidden
 StartDemoFadeWhenSpriteHidden:
-    cmp word ptr [bx + ActorSpriteIds], word ptr 07FFFh ; @0989
+    cmp word ptr [bx + ActorSpriteIds], DemoHiddenSprite ; @0989
     jne loc_099E ; @098F
     mov ax, 0FFFCh ; @0994
     mov word ptr ds:[ScreenFadeStep], ax ; @0997
@@ -1748,7 +1749,7 @@ loc_0A5A:
     cmp word ptr [si + ActorUpdateOrScriptCursor], -1 ; @0A5A
     je loc_0AB0 ; @0A5F
     mov ax, word ptr [si + ActorSpriteIds] ; @0A64
-    cmp ax, word ptr 07FFFh ; @0A68
+    cmp ax, DemoHiddenSprite ; @0A68
     je loc_0AAB ; @0A6B
     mov bx, word ptr [si + ActorPixelX] ; @0A70
     mov cx, word ptr [si + ActorPixelY] ; @0A74
@@ -1786,7 +1787,7 @@ loc_0AB3:
     mov word ptr [si + ActorEraseSprite], ax ; @0AC5
     cmp cx, -1 ; @0AC9
     je loc_0AE5 ; @0ACC
-    cmp cx, word ptr 07FFFh ; @0AD1
+    cmp cx, DemoHiddenSprite ; @0AD1
     je loc_0AE5 ; @0AD5
     mov ax, word ptr [si + ActorPreviousDrawX] ; @0ADA
     mov bx, word ptr [si + ActorPreviousDrawY] ; @0ADE
@@ -1811,21 +1812,21 @@ loc_0AED:
     mov di, word ptr [bx + si] ; @0AED
     cmp di, -1 ; @0AEF
     je loc_0B44 ; @0AF2
-    mov ax, word ptr [di] ; @0AF7
+    mov ax, word ptr [di + DemoHeaderX] ; @0AF7
     mov word ptr [bx + ActorPixelX], ax ; @0AF9
     mov word ptr [bx + ActorPreviousDrawX], ax ; @0AFD
     shl ax, 5 ; @0B01
     mov word ptr [bx + ActorX32], ax ; @0B04
-    mov ax, word ptr [di + 2] ; @0B08
+    mov ax, word ptr [di + DemoHeaderY] ; @0B08
     mov word ptr [bx + ActorPixelY], ax ; @0B0B
     mov word ptr [bx + ActorPreviousDrawY], ax ; @0B0F
     shl ax, 5 ; @0B13
     mov word ptr [bx + ActorY32], ax ; @0B16
-    mov ax, word ptr [di + 4] ; @0B1A
+    mov ax, word ptr [di + DemoHeaderPeriod] ; @0B1A
     mov word ptr [bx + ds_2C6D], ax ; @0B1D
-    mov ax, word ptr [di + 6] ; @0B21
+    mov ax, word ptr [di + DemoHeaderCallback] ; @0B21
     mov word ptr [bx + ActorOverlayOrScriptCallbacks], ax ; @0B24
-    add di, 8 ; @0B28
+    add di, size DemoMotionHeader ; @0B28
     mov word ptr [bx + ActorUpdateOrScriptCursor], di ; @0B2B
     mov word ptr [bx + ActorAnimationCountdowns], 1 ; @0B2F
     xor ax, ax ; @0B35
@@ -2738,7 +2739,7 @@ loc_149B:
 public ReadPassengerJourneyLeg
 ReadPassengerJourneyLeg:
     mov di, word ptr [bx + ActorJourneyCursors] ; @149C
-    mov ax, word ptr [di + 4] ; @14A0
+    mov ax, word ptr [di + size PassengerJourneyLeg + JourneyLegPlatform] ; @14A0
     cmp ax, word ptr 0FFFFh ; @14A3
     jne loc_14DD ; @14A6
     mov al, byte ptr ds:[RemainingPassengerJourneys] ; @14AB
@@ -2760,11 +2761,11 @@ loc_14DD:
     mov word ptr [bx + ActorDestinationPlatforms], ax ; @14DD
     shl ax, 1 ; @14E1
     mov word ptr [bx + ActorDestinationPlatformByteIndices], ax ; @14E3
-    mov ax, word ptr [di] ; @14E7
+    mov ax, word ptr [di + JourneyLegPlatform] ; @14E7
     mov word ptr [bx + ActorPlatformOrScriptDone], ax ; @14E9
     shl ax, 1 ; @14ED
     mov word ptr [bx + ActorSourcePlatformByteIndices], ax ; @14EF
-    mov ax, word ptr [di + 2] ; @14F3
+    mov ax, word ptr [di + JourneyLegWait] ; @14F3
     call ScaleLevelSpeedToThreeHalves ; @14F6
     mov word ptr [bx + ds_2ACD], ax ; @14F9
     mov si, word ptr [bx + ActorDescriptors] ; @14FD
@@ -5346,7 +5347,7 @@ LandFallingItem:
     mov si, word ptr [bx + FallingItemDescriptors] ; @2C97
     mov ax, word ptr [si + 0Ah] ; @2C9B
     mov word ptr [bx + FallingItemCallbacks], ax ; @2C9E
-    mov word ptr [bx + FallingItemMotionOrLifetime], 0230h ; @2CA2
+    mov word ptr [bx + FallingItemMotionOrLifetime], ItemLandedLifetime ; @2CA2
     ret ; @2CA8
 ; CONTRACT (tools/apply.py)
 ; Expire a landed item, or award its descriptor-selected benefit on player overlap.
@@ -5370,7 +5371,7 @@ loc_2CBA:
     call FindPlayerTouchingFallingItem ; @2CBE
     js loc_2D1B ; @2CC1
     mov ax, word ptr [si + 012h] ; @2CC6
-    cmp ax, word ptr 00h ; @2CC9
+    cmp ax, word ptr ItemBenefitTimer ; @2CC9
     jne loc_2CE8 ; @2CCC
     mov ax, word ptr [si + 0Eh] ; @2CD1
     add ax, word ptr ds:[LevelTimer] ; @2CD4
@@ -5381,7 +5382,7 @@ loc_2CE3:
     mov word ptr ds:[LevelTimer], ax ; @2CE3
     jmp short loc_2CB2 ; @2CE6
 loc_2CE8:
-    cmp ax, word ptr 01h ; @2CE8
+    cmp ax, word ptr ItemBenefitLives ; @2CE8
     jne loc_2D05 ; @2CEB
     mov ax, word ptr [si + 0Eh] ; @2CF0
     add al, byte ptr ds:[LivesRemaining] ; @2CF3
@@ -7544,8 +7545,8 @@ loc_421E:
     shl bx, 1 ; @4258
     lds si, dword ptr cs:[SpriteDirectoryPointer] ; @425A
     add si, bx ; @425F
-    mov bx, word ptr [si] ; @4261
-    mov cx, word ptr [si + 2] ; @4263
+    mov bx, word ptr [si + SpriteEntryBankOffset] ; @4261
+    mov cx, word ptr [si + SpriteEntryWidth] ; @4263
     pop ds ; @4266
     push ds ; @4267
     lds si, dword ptr cs:[SpritePixels0To216Pointer] ; @4268
@@ -7731,8 +7732,8 @@ RestoreSpriteBackground:
     lds si, dword ptr cs:[SpriteDirectoryPointer] ; @43BC
     mov si, cx ; @43C1
     shl si, 2 ; @43C3
-    mov cl, byte ptr [si + 2] ; @43C6
-    mov dl, byte ptr [si + 3] ; @43C9
+    mov cl, byte ptr [si + SpriteEntryWidth] ; @43C6
+    mov dl, byte ptr [si + SpriteEntryHeight] ; @43C9
     xor ch, ch ; @43CC
     xor dh, dh ; @43CE
     call RestoreBackgroundRectangle ; @43D0

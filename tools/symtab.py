@@ -24,6 +24,64 @@ def sources():
 def read_sources():
     return {p:p.read_bytes().decode('latin1') for p in sources()}
 
+def consumer_sources():
+    """Maintained semantic users, excluding caches and generated build output.
+
+    Keep this separate from sources(): these files have no L0 address identities.
+    Generated interfaces are included in the transaction and regenerated after proof.
+    """
+    extensions={'.c','.h','.inc','.py','.json','.md','.txt','.cmake','.in','.yaml','.yml'}
+    paths=[]
+    for folder in ('c','tests','native','verif'):
+        paths.extend(p for p in (ROOT/folder).rglob('*') if p.is_file()
+                     and '__pycache__' not in p.parts
+                     and (p.suffix.lower() in extensions or p.name in ('Makefile','CMakeLists.txt')))
+    plan=ROOT/'metadata/translation-plan.json'
+    if plan.exists():paths.append(plan)
+    paths.extend((ROOT/'metadata/closure').glob('*.json'))
+    return sorted(set(paths))
+
+def structure_definitions(texts=None):
+    """Non-address STRUC types/fields; never add these to names.json.
+
+    MASM-mode TASM exposes fields as flat identifiers. Require qualified queries
+    (FIELD:Type.Field, RECORD:Type), and reject duplicate declarations rather than
+    silently assigning a field to the wrong record. No binary layout is inferred.
+    """
+    out=[]
+    for path,text in (read_sources() if texts is None else texts).items():
+        owner=None
+        for n,line in enumerate(text.splitlines(),1):
+            code=statement(line)
+            start=re.fullmatch(r'(\w+)\s+struc',code,re.I)
+            if start:
+                if owner:raise ValueError('nested STRUC is unsupported: '+str(path))
+                owner=start[1]
+                out.append(dict(module='RECORD',name=owner,kind='record-type',form='struc',path=path,line=n))
+            elif owner and re.fullmatch(re.escape(owner)+r'\s+ends',code,re.I):owner=None
+            elif owner:
+                field=re.match(r'(\w+)\s+(db|dw|dd|df|dq|dt)\b',code,re.I)
+                if field:out.append(dict(module='FIELD',owner=owner,name=field[1],kind='record-field',
+                                         form='field',path=path,line=n))
+    return out
+
+def resolve_structure(query,texts=None):
+    fields=structure_definitions(texts)
+    if query.upper().startswith('RECORD:'):
+        matches=[d for d in fields if d['module']=='RECORD' and d['name'].lower()==query[7:].lower()]
+    elif query.upper().startswith('FIELD:') and '.' in query:
+        owner,name=query[6:].split('.',1)
+        matches=[d for d in fields if d['module']=='FIELD' and d['owner'].lower()==owner.lower()
+                 and d['name'].lower()==name.lower()]
+    else:raise ValueError(query+': use RECORD:Type or FIELD:Type.Field for STRUC symbols')
+    if len(matches)!=1:raise ValueError(query+': unknown or duplicate STRUC symbol')
+    d=matches[0]
+    # Flat field identifiers must be unique across maintained include files.
+    if sum(x['name'].lower()==d['name'].lower() for x in fields)!=1:
+        raise ValueError(query+': duplicate flat TASM identifier')
+    return query,dict(name=d['name'],kind=d['kind'],evidence='STRUC declaration',
+                      spellings=[dict(module=d['module'],name=d['name'],public=True,decorated=False)])
+
 def json_text(obj):
     return json.dumps(obj,indent=2,ensure_ascii=True)+'\n'
 

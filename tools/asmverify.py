@@ -83,7 +83,13 @@ def source_audit(source, listing, mod, size):
     src=source.read_text().splitlines();rows=[]
     if any(re.match(r'\s*(incbin|org)\b',s.split(';',1)[0],re.I) for s in src):
         raise ValueError('forbidden source directive')
+    in_structure=False
     for line in listing.read_text().splitlines():
+        declaration=line.expandtabs(8)[37:].split(';',1)[0].strip()
+        if re.match(r'\w+\s+struc\b',declaration,re.I):in_structure=True;continue
+        if in_structure:
+            if re.match(r'\w+\s+ends\b',declaration,re.I):in_structure=False
+            continue
         match=re.match(r'\s*(?:1\s+)?(\d+)\s+([0-9A-F]{4})\s',line)
         if not match:continue
         num,off=match.groups();num=int(num);off=int(off,16)
@@ -237,6 +243,7 @@ def main():
     if {p.stem.upper() for p in (ROOT/'src/asm').glob('*.ASM')}!=set(EXTENTS):
         raise ValueError('unmapped or missing assembly source')
     out=BUILD/'asm';out.mkdir(parents=True,exist_ok=True);okay=True
+    for include in sorted((ROOT/'src/asm').glob('*.INC')):shutil.copyfile(include,out/include.name)
     for mod in doc['modules']:
         if args.module and mod['name']!=args.module:continue
         name=mod['name'];src=ROOT/'src/asm'/(name+'.ASM')

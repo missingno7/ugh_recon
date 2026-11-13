@@ -29,6 +29,8 @@ def build_variant(variant):
     from asmverify import validate_map, source_audit
     asm_map=load_json('asm-map.json');validate_map(asm_map)
     mapped={m['name']:m for m in asm_map['modules']}
+    includes=sorted((ROOT/'src/asm').glob('*.INC'))
+    for include in includes:shutil.copyfile(include,directory/include.name)
     sources=list((ROOT/'src/asm').glob('*.ASM'))+list((ROOT/'src/data').glob('*.ASM'))
     if {p.stem for p in sources}!=set(OBJECTS)-{'C0H','MODULE'}:
         raise ValueError('missing or unlisted assembly/data source')
@@ -70,6 +72,7 @@ def build_variant(variant):
     (directory/'LINK.RSP').write_bytes((command+'\r\n').encode('ascii'))
     log=dos('TLINK',['@LINK.RSP'],directory)
     (directory/'TLINK.log').write_text(log)
+    sources.extend(includes)
     sources.append(ROOT/'src/c/module.c')
     sources.extend([ROOT/'tools/fragment.py',ROOT/'metadata/reloc-layout.json'])
     (directory/'build.json').write_text(json.dumps({'variant':variant,'objects':objects,'tlink':command,

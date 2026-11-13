@@ -1,0 +1,292 @@
+{
+  "component": "adlx_loader",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "original": {
+    "L0": [
+      "C:LoadAdlibTrackData 0878:0AA9",
+      "C:LoadAdlibChannel 0878:0691",
+      "C:ResetAdlibTrackChannelCursor 0878:0F2D"
+    ],
+    "L1": [
+      "c/sound_api.c:c_LoadAdlibTrackData,c_LoadAdlibChannel",
+      "c/music_analysis.c:c_ResetAdlibTrackChannelCursor"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/adlx_loader.h",
+      "native/adlx_loader.c",
+      "native/bridge/adlx_loader_bridge.c"
+    ],
+    "header": "native/adlx_loader.h",
+    "functions": [
+      "audio_adlx_load",
+      "audio_adlx_reset",
+      "audio_adlx_loaded_volume"
+    ],
+    "build": "python verif/adlx_loader_build.py"
+  },
+  "purpose": "Native ADLX container loader and reset, partial input-cursor mutation, header capacity check, descriptor/repeat initialization and main instrument-map setup; preserve parser -1 as truth in wrapper.",
+  "interface": {
+    "inputs": [
+      "AudioState reservations and destination record, fixed borrowed resource window/cursor, raw slot,repeat word,device bits. Wrapper borrows volume and parser result; reset borrows a record."
+    ],
+    "outputs": [
+      "Updated input index on each error/success path; typed map setup,stage/status and byte-swap high-word observation; loaded record,ticks/unit,reset cursor or wrapper volume."
+    ],
+    "effects": [
+      "Writes exactly selected loader fields; zero repeat leaves old count; wrapper writes volume even for parser FFFF and arbitrary unsigned slot>=8.",
+      "Instrument map is a typed output published at SOUND0266/0268,not an independent copy of persistent state. Existing AudioState/header layout stays unchanged."
+    ],
+    "preconditions": [
+      "Serialized stable ordinary resource window65537 bytes; offset wrap before operand,contiguous word crossingFFFF. No resource file-bound check is invented.",
+      "Native parser input disjoint from SOUND and machine stack windows and VGA aperture; explicit audited literal path for aliases/aperture.",
+      "Wrapper/reset raw aliases are adapted as borrowed fields,not native array indices; signed reset allows negative identities and excludes only>12.",
+      "Machine stack and SOUND storage are disjoint ordinary windows; arbitrary stack/SOUND aliases are outside this adapter contract."
+    ]
+  },
+  "callers": "Native PlayAdlibEffect -> LoadAdlibChannel -> LoadAdlibTrackData; main StartMusicTrack orchestrator and direct/reset APIs. Accepted allocation/interpreter dispatch resolves loader/reset endpoints to this native unit.",
+  "callees": {
+    "native": "Typed tag/word/BE32 reads and direct field updates; wrapper volume truth helper.",
+    "boundary": "Wrapper calls accepted native StopAdlibTrackChannel and parser endpoints through bridge ABI; endian helper inlined into native values. No parser hardware writes or external resource hooks."
+  },
+  "indirect": "Only STOP/parser service addresses in wrapper. Parser has no native indirect calls. Literal parser alias fallback remains explicit. Scan/section application and main fade/scheduler orchestration are outside unit.",
+  "memory": {
+    "shared": "Reuse native/audio.h unchanged; parser bridge reads reservations and publishes its explicit selected words,retaining all other RAM in place.",
+    "records": "42-byte records8..12,step+26,length+0A,voice-count+22,start+06,cursor+10,control+28,repeat+04. Reset source/cursor and wrapper volume+1C accept raw wrapping SOUND record aliases.",
+    "map": "SOUND0266 far instrument map,0238 ticks/unit; main12 aliases canonical existing record. Map output uses AudioCursor.",
+    "resource": "ADLX/AHDR/IMAP/TRCK tag bytes; AHDR/IMAP sizes BE32 low word skip; rootBE32 lowword-34 length; header+10 voice byte,+14 LE16 rate; TRCK size and version not read."
+  },
+  "assumptions": [
+    "Deterministic routine-boundary observations; no mid-store IRQ/alias observer.",
+    "Forward stable ordinary reads; a full window means malformed/truncated files read their actual neighboring RAM rather than a new validation error.",
+    "Accepted allocation/voice/interpreter contracts determine later playback; no new whole-audio proof inferred from parser proof.",
+    "Formal effect record binding normalized to8,main to12. Canonical output profile uses input offset0,AHDR size10,IMAP size0 and old resource identities normalized to0/source6000. Compiled matrix covers all five slots,raw pointer words and other layouts."
+  ],
+  "eliminated": [
+    "Machine registers/segments/stack from ordinary loader/reset C.",
+    "Parser endian dispatch replaced with ordinary byte/word operations retaining high-word scratch observation.",
+    "L1 parsing from ordinary play-to-OPL path; accepted lifecycle and interpreters reused unchanged."
+  ],
+  "retained": [
+    "Device bit0 and signed8..12 parser gate; rejected gates do not mutate pointer.",
+    "Input pointer advances before every tag check and after low-word chunk skips; source window unchanged.",
+    "No version,root extent,TRCK size or event validation. AHDR fixed field offsets ignore declared payload extent.",
+    "Word capacity threshold WORD(9-reserved),including underflow/wrap; main12 skips capacity.",
+    "Repeat0 sets control6 and retains stale repeat count; nonzero stores repeat/control4.",
+    "LoadAdlibChannel tests parser result for truth,soFFFF succeeds and writes volume; no upper unsigned slot bound.",
+    "Reset rejects signed>12 only; raw negative offsets retain wrapping aliases and segment-first cursor publication."
+  ],
+  "evidence": [
+    {
+      "property": "Generated actual-C loader composition",
+      "level": "C",
+      "method": "Extracted actual L1 parser/wrapper/reset and native bridge; entire SOUND window plus boundary byte,caller arguments,full GP/flags; observing STOP capability with canary/volatile outputs",
+      "command": "python verif/adlx_loader_evidence.py",
+      "result": "PASS30000 cases,10000 per entry; native header stages cover gate,all four tags,capacity and success.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Compiled L0 audio suites and direct malformed/alias cases",
+      "level": "C",
+      "method": "Combined native main/effects/allocation/loader DLL vs checked rebuilt L0,including malformed/truncated header cases",
+      "command": "python verif/adlx_loader_integration.py --whole --local-reference",
+      "result": "PASS3526/3526 cases,including460 new cases; all19 maintained scenarios pass. Final fresh replay also passes these suites.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Every shipped ADLX object and complete playback",
+      "level": "C",
+      "method": "Independent full L1 vs combined native audio; all persistent RAM,full GP/flags/caller frame,byte-exact loaded record/map and complete ordered writes. Decoder supplies inventory only.",
+      "command": "python verif/adlx_loader_corpus.py",
+      "result": "PASS11 resources,5280 load comparisons plus5280 reset comparisons;22 main/effect load/start/playback pipelines reach END. All5302 parser entries native,zero parser/allocation fallback.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Whole-game native composition",
+      "level": "D",
+      "method": "Maintained19 scenarios versus checked rebuilt L0,including gameplay-adlib requiring effects reach",
+      "command": "python verif/adlx_loader_integration.py --whole --local-reference",
+      "result": "PASS19/19. Loader audit597 parser entries443 native154 explicit literal source-window cases,110 wrappers114 resets;163 native loads99 native main-map setups. Counts include routines and scenarios.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Actual scratch host promotion",
+      "level": "D",
+      "method": "Promote only scratch loader certificate,execute real unchanged hostbuild.py and host/check.py --variant native",
+      "command": "python verif/adlx_loader_host.py",
+      "result": "PASS19 linked units,19 maintained scenarios and256-frame smoke. Maintained status unchanged.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Wrapper negative control",
+      "level": "C",
+      "method": "Scratch mutation changes parser FFFF from true to rejected; actual independent L1 reference remains unchanged",
+      "command": "python verif/adlx_loader_evidence.py --negative",
+      "result": "Expected FAIL persistent shared audio state/map comparison during wrapper cases. No passing mutated-code claim.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Canonical header output relation",
+      "level": "B",
+      "method": "Actual extracted L1 parser/swap and actual native C; ordinary aligned-word/stack binding,normalized effect8/main12,offset0,AHDR10/IMAP0,old resource identities0/source6000; arbitrary tag/root/voice/rate/reservation/repeat/device/prior output words",
+      "command": "python verif/adlx_loader_proofs.py outputs --slot 8 --canonical --timeout 180; python verif/adlx_loader_proofs.py outputs --slot 12 --canonical --timeout 180",
+      "result": "PASS2 profiles in26.812/26.759s; all changed/retained output words,cursors,map,input mutation,status,ES,last swap high word and swap count.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Arbitrary-layout native frame",
+      "level": "B",
+      "method": "Actual native parser,arbitrary full AudioState and source65537-byte window/index; universal byte probe excludes only possible loader outputs,including repeat count in the preserved frame when repeat input0",
+      "command": "python verif/adlx_loader_proofs.py frame --slot 8 --timeout 180; python verif/adlx_loader_proofs.py frame --slot 12 --timeout 180",
+      "result": "PASS2 profiles in55.646/57.462s. Every other native byte unchanged; not a general L1/L2 output proof.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Arbitrary-context native output dependence",
+      "level": "B",
+      "method": "Two actual native parser calls with independent arbitrary state; share only reservations and prior output fields/ticks. Selected record non-output fields and all other state vary independently; arbitrary source bytes/index shared",
+      "command": "python verif/adlx_loader_proofs.py dependence --slot 8 --timeout 180; python verif/adlx_loader_proofs.py dependence --slot 12 --timeout 180",
+      "result": "PASS2 profiles in108.763/114.545s. No omitted selected-record/global state affects declared outputs.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Complete slot/device rejection gate",
+      "level": "B",
+      "method": "Actual L1/native callers over arbitrary slot/device words in rejected-gate domain; assert source reads/native tag helper unreachable rather than assuming their results",
+      "command": "python verif/adlx_loader_proofs.py gate --timeout 120",
+      "result": "PASS1.610s; unchanged pointer/state,FFFF/SOUND/retained DX and no byte-swap/header read.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Endian operand/read-boundary primitives",
+      "level": "B",
+      "method": "Actual native LE16/BE32 helpers and actual L1 byte-swap,ordinary stack/window; arbitrary four-byte read footprint at each fixed offset0,1,FFFE,FFFF,zero background elsewhere. No unrestricted symbolic-offset claim",
+      "command": "python verif/adlx_loader_words.py --offset 0; python verif/adlx_loader_words.py --offset 1; python verif/adlx_loader_words.py --offset 65534; python verif/adlx_loader_words.py --offset 65535",
+      "result": "PASS4 profiles in0.067/0.064/0.067/0.067s. Includes independent contiguous byte10000 and wrapping next-word offset.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Capacity negative control",
+      "level": "B",
+      "method": "Scratch native mutation9-reserved to8-reserved,unchanged actual L1 reference; canonical effect output profile",
+      "command": "python verif/adlx_loader_proofs.py outputs --slot 8 --canonical --negative --timeout 180",
+      "result": "Expected FAIL in72.811s: loaded scalar/cursor outputs,parser result and byte-swap observations. Successful defect control,not passing mutated code.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Fresh-reference complete replay",
+      "level": "C",
+      "method": "Checked plain rebuild and locked scratch expansion/repack; all finite,C/D and selected symbolic evidence,actual scratch host,and real global closure gate. All owned source unchanged from run",
+      "command": "python verif/adlx_loader_reproduce.py --fresh-reference",
+      "result": "17/18 commands return0 in431.788s. All own evidence/host passes; final tools/closure.py returns1 only for concurrent passenger_delivery stale native/passenger_delivery.c input and its3 consequent unowned-file errors. Runner honestly records FAIL for that global failure.",
+      "date": "2026-11-13"
+    }
+  ],
+  "amiga": "TFMX has a different container/state/driver design; no ADLX loader field or byte equivalence is claimed.",
+  "uncertainty": [
+    "Arbitrary-layout output profiles timed out at600s; they earn no proof. Native non-output frame and input dependence are separate properties,not an unrestricted general parser theorem.",
+    "Source aliases/aperture parsing remains audited L1 compatibility. Wrapper/reset raw SOUND aliases are retained through native borrowed-field adapters.",
+    "Scan/section application and main start/stop/fade/clock scheduling remain separate boundaries. Ordinary shipped load/start/interpreter/END path composes native; no mid-event IRQ/CPU-cycle theorem claimed."
+  ],
+  "dependencies": {
+    "native/adlx_loader.h": {
+      "includes": [
+        "audio.h"
+      ],
+      "calls": []
+    },
+    "native/adlx_loader.c": {
+      "includes": [
+        "adlx_loader.h"
+      ],
+      "calls": [
+        "audio_adlx_size",
+        "audio_adlx_tag",
+        "audio_adlx_word"
+      ]
+    },
+    "native/bridge/adlx_loader_bridge.c": {
+      "includes": [
+        "../adlx_loader.h",
+        "platform.h"
+      ],
+      "calls": [
+        "S",
+        "arg16",
+        "audio_adlx_load",
+        "audio_adlx_loaded_volume",
+        "audio_adlx_reset",
+        "l1_LoadAdlibTrackData",
+        "loader_bank",
+        "loader_call",
+        "loader_cursor",
+        "loader_enter",
+        "loader_leave",
+        "loader_ordinary",
+        "loader_overlap",
+        "loader_pointer",
+        "loader_push",
+        "rd16",
+        "ugh_dispatch",
+        "wr16"
+      ]
+    }
+  },
+  "proposed_status_reason": "Parser/bridge composition and noncanonical layouts remain C plus D/actual scratch host. Formal properties cover canonical header outputs and separately scoped frame/dependence/gate/word domains; no unrestricted full-layout proof proposed. Supervisor decision required.",
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "c/music_analysis.c": "604fc3c80dec56a6740444b908da8baeff325357760ab8b82e9db72f5e022fe5",
+    "c/music_clock.c": "2583d53f81c50bc148d423866cbd8f0fa14ff6bb3e5f8320a60e02b35a7d82fa",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/sound_api.c": "ba1c98bf3a03b5f48a71d4491bdebf3acfc17b0f6cce51db370a0e58c0507e4c",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "native/adlx_allocation.c": "4fd567bf96fd73d071073a7d70bd31ad5d0339df16fcea5dd083e87989bbc858",
+    "native/adlx_allocation.h": "e0e5c37e9612494d05042149f923bb0ed8acf223a8eb7f84bd8447ae68ffdc9b",
+    "native/adlx_effects.c": "0004628dd7cb88e6990c15b95c95c2f74e3cd8e17d7433375e9f39f637cd1f37",
+    "native/adlx_effects.h": "89fd75bd98516b98178986632b69ab0e1c58dc37d91ab0e08095ce5729e98be6",
+    "native/adlx_loader.c": "2a870c62e06869c3c6b590a5d72b246b68a16494a47d24b98f37687f6751e750",
+    "native/adlx_loader.h": "32cf42c1e9c2136f2ca2fdcbee3fa70b1e727453042aa8021b71afacd36b1539",
+    "native/adlx_main.c": "2e624d0ee0ea20d647b54d811671f52c50706e0cb34529c7bd8ac8c18e0dec42",
+    "native/adlx_main.h": "a67988ae0fa9f4d2c5d0451f02851385a900f96a6fba67c56e4764ffc10469f6",
+    "native/audio.h": "e14ee8e39125b55ced910d17214acddfcd9fb0339192990487dca22dd3e04a5a",
+    "native/bridge/adlx_allocation_bridge.c": "ce1bbd8ff5cc2b57bb0ea50a8aa1b667a42cb3e379f5daf26df92de3a7ee6256",
+    "native/bridge/adlx_effects_bridge.c": "720a905d58d47e2c13f342fc2d174c964f17b09a69455dd3b2b34cac8ba8253e",
+    "native/bridge/adlx_loader_bridge.c": "1bbb03af7e750a0aa7834594a426342fabf1722b02815eb64b32e490493006ca",
+    "native/bridge/adlx_main_bridge.c": "91f38d4455d13917b3c7cf4a9fb89a02963be5cf509374e4570d81407f03c9c0",
+    "verif/adlx_allocation_cases.py": "5780ee6d7b094dfe9cff0e8227043de2e340839890bff7a93edc3be5086ccab0",
+    "verif/adlx_effects_cases.py": "044edb8c6a25ecd2934c926cb9baea66c53f9ab9442744fc4c67495d69099bab",
+    "verif/adlx_effects_integration.py": "3cb136d4fdf1abe707c53801cc74d35f8fa036e59d1134a21ad9e86590ba8c5c",
+    "verif/adlx_loader_build.py": "e9e63706660bdbaead58e348ee277a6eb1e0a6c5326de4fd77083a57db4fcf7d",
+    "verif/adlx_loader_cases.py": "daf415a032afcf762ad7ad7e670556ad4ace633fb600e764b3a16106f349d4c6",
+    "verif/adlx_loader_corpus.py": "4e632cb829e3a13c061a16371535137c1d31e1b1f919e86d3a789edf3eb988b3",
+    "verif/adlx_loader_evidence.py": "00746e1b6aa3af5f3816f7e9c9b4bb6345b9e584715ac95a9ed05cd3cd9e5b1f",
+    "verif/adlx_loader_harness.c": "c7be18a92027fad7a3edd6b66cf9aa92782d503aef3e0cfb93e264883088814c",
+    "verif/adlx_loader_host.py": "888e34ce19c255c25bd1bc0edf6b46a5031b510f4a8e87a0be3f943b207e5c4e",
+    "verif/adlx_loader_integration.py": "64a091d3c0c1684b99a1d8ad5319a819ba5bcfd04c74006adadcb4a1bf5326f9",
+    "verif/adlx_loader_proof.c": "4e896f6baef0746da6b746d0e179827ba06226f5afeb814f161aaba4b8dfba63",
+    "verif/adlx_loader_proofs.py": "856714e564701fe3e71a15d88a9bf48494672c3362d56f2f1675f45c39735055",
+    "verif/adlx_loader_reproduce.py": "e968fdc84997a158eae2491b2b823400986df0030e0fb683a666e25564b71fd2",
+    "verif/adlx_loader_solver.py": "332c1a46957e398df5865fa5de14a73d259d464c621232f84976f8dfcc1f42d6",
+    "verif/adlx_loader_words.py": "b6cbcb03cb70e32f34ffcb0d4062ab10b58537325d36870807a461464115f78a",
+    "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde"
+  },
+  "solver_limits": {
+    "job_memory_bytes": 8000000000,
+    "max_seconds": 600,
+    "max_concurrent_jobs": 2,
+    "actual_selected_seconds": [
+      120,
+      180
+    ],
+    "max_observed_peak_job_memory_bytes": 1537691648,
+    "method": "Windows job memory limit before suspended process resume; CBMC plus all solver descendants share cap; timeout/close kills whole owned tree."
+  },
+  "boundary_gate": {
+    "command": "python tools/closure.py",
+    "result": "20 certificates,4 errors,all passenger_delivery: stale native/passenger_delivery.c verification input; consequent unowned native/passenger_delivery.c,.h and native/bridge/passenger_delivery_bridge.c. No adlx_loader errors.",
+    "date": "2026-11-13"
+  }
+}

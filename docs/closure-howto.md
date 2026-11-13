@@ -479,3 +479,18 @@ runs the real `python tools/hostbuild.py` and
 nor generation functions. It includes all sixteen maintained scenarios and the
 additional input-only Dino witness in `verif/hazards_dino.txt`, plus the checker’s
 256-frame smoke. A scratch host pass does not promote the maintained certificate.
+
+## ADLX interpreters and borrowed channel records
+
+Effects ADLX uses the accepted main voice API and a borrowed effect record.
+Run `adlx_effects_proofs.py` for the logical caller contract, the three
+`adlx_effects_timer_scalar.py` modes for timer output/frame/dependence, and the
+compiled corpus/integration/host runners for real driver/C-stop composition.
+Physical channel 9 instrument stamps saved voice 0 owner before loader rejection.
+Never publish a cached audio snapshot after C stop/restoration returns.
+
+Where a whole-handler proof times out, split it as the effects closure did:
+separate output, frame (everything else unchanged) and dependence (no other
+input matters) properties over the actual code, each its own CBMC profile. A
+timeout earns nothing; a set of split properties that together cover the
+handler's whole observable state is B.

@@ -1,0 +1,546 @@
+{
+  "component": "passenger_delivery",
+  "status": "boundary-established",
+  "proposed_status": "boundary-established",
+  "original": [
+    {
+      "identity": "GAME:BeginPassengerPlatformWait",
+      "address": "013B:15B4",
+      "l1": "c_BeginPassengerPlatformWait"
+    },
+    {
+      "identity": "GAME:UpdatePassengerPlatformWait",
+      "address": "013B:15D7",
+      "l1": "c_UpdatePassengerPlatformWait"
+    },
+    {
+      "identity": "GAME:BeginPassengerDestinationDisplay",
+      "address": "013B:16F6",
+      "l1": "c_BeginPassengerDestinationDisplay"
+    },
+    {
+      "identity": "GAME:UpdatePassengerDestinationDisplay",
+      "address": "013B:172A",
+      "l1": "c_UpdatePassengerDestinationDisplay"
+    },
+    {
+      "identity": "GAME:BeginPassengerQuestionDisplay",
+      "address": "013B:17E6",
+      "l1": "c_BeginPassengerQuestionDisplay"
+    },
+    {
+      "identity": "GAME:UpdatePassengerQuestionDisplay",
+      "address": "013B:180A",
+      "l1": "c_UpdatePassengerQuestionDisplay"
+    },
+    {
+      "identity": "GAME:BeginPassengerApproach",
+      "address": "013B:18C8",
+      "l1": "c_BeginPassengerApproach"
+    },
+    {
+      "identity": "GAME:UpdatePassengerApproach",
+      "address": "013B:18E6",
+      "l1": "c_UpdatePassengerApproach"
+    },
+    {
+      "identity": "GAME:BoardWaterbornePassenger",
+      "address": "013B:19E0",
+      "l1": "c_BoardWaterbornePassenger"
+    },
+    {
+      "identity": "GAME:BoardPassenger",
+      "address": "013B:19FB",
+      "l1": "c_BoardPassenger"
+    },
+    {
+      "identity": "GAME:UpdateCarriedPassenger",
+      "address": "013B:1A42",
+      "l1": "c_UpdateCarriedPassenger"
+    },
+    {
+      "identity": "GAME:DeliverPassenger",
+      "address": "013B:1A7E",
+      "l1": "c_DeliverPassenger"
+    }
+  ],
+  "native": {
+    "files": [
+      "native/passenger_delivery.h",
+      "native/passenger_delivery.c",
+      "native/bridge/passenger_delivery_bridge.c"
+    ],
+    "header": "native/passenger_delivery.h",
+    "functions": [
+      "passenger_delivery_apply",
+      "passenger_delivery_finish"
+    ],
+    "build": "python verif/delivery_build.py"
+  },
+  "purpose": "Coupled passenger platform waiting, timed destination/question requests, exact cached-pixel approach, land/water boarding, carried fare countdown and delivery with real native item allocation and deferred completion.",
+  "interface": {
+    "inputs": [
+      "PassengerStoneSlot and immutable current/paired ActorType, separate persistent ActorRenderHistory, borrowed ten-platform geometry and two craft records.",
+      "Player count, water line, score, multiplier/cap and HUD low byte. Incoming boarding/delivery craft is separate from the stored carrier."
+    ],
+    "outputs": [
+      "Ordered semantic field/index/value journal, immediate-tail request and selected craft; typed item launch and bonus sound requests.",
+      "Bonus delivery publishes score then returns a pending continuation. Only successful item allocation AND audio permit passenger_delivery_finish to update Y, cursor, countdown and HUD."
+    ],
+    "effects": [
+      "Initializers seed phase, cursor FFFE, countdown 1 and phase-specific overlay/pose/request. Updating land handlers may move, display, board, or pair to water and call L1 BeginPassengerResurfacing.",
+      "Boarding publishes fare/floor, phase, carried kind, destination icon, carrier alias, hidden sprite, quick countdown 200, then frees source occupancy. Rescue reads both fares from the water descriptor before switching to its land pair.",
+      "Carried step unsigned-decrements fare above floor, signed-positive-decrements quick countdown, then may deliver immediately. Delivery clears the incoming craft, uses the stored carrier for position/fare, adds wrapping 32-bit fare*multiplier to score, and may request an item/audio before finishing."
+    ],
+    "preconditions": [
+      "Ordinary disjoint accessible RAM, stack and immutable finite descriptors/animation banks. Physical actor slot below sixteen; native fields are ordinary indices, not doubled offsets.",
+      "Bridge admits DS=DGROUP, CS=GAME, even actor index below32, one of the six exact passenger descriptors and checked pair/callback identities. Land-only handlers reject water; rescue requires water; the three request/approach initializers admit both.",
+      "PlayerCount is one or two and PlayerArrayBytes is twice that value. Incoming craft is valid for boarding/rescue/delivery; active stored carrier is checked by the existing alias projection. Malformed state retains explicit L1 compatibility before native publication.",
+      "Live source is below ten with its paired doubled index for waiting/request/approach/boarding/rescue. Live destination is below ten and paired for approach/boarding/rescue/carried/delivery. Initializer destination words remain arbitrary, including wrapped icon arithmetic.",
+      "Four immutable nonempty live animation vectors terminate with FFFF inside the registered bank [Animation_0E20,1020h), at most256 live words. Due animation cursors and approach current cursors must address an available live/sentinel word; malformed vectors/cursors retain L1.",
+      "Native caller consumes each output once, applies internal tail after the journal, routes contact/audio through existing entries and bonus allocation through the actual native items bridge. Full-pool abnormal transfer does not run the continuation.",
+      "The fixed multiplier item resource retains its registered spawn/update/landing/expiry callback identities. Its other scalar fields remain arbitrary in B; arbitrary callback corruption of that service descriptor is outside this native proof."
+    ]
+  },
+  "callers": [
+    "DispatchActorUpdates iterates physical active slots in order; accepted itinerary placement initializes platform wait through the existing exported entry.",
+    "Land and floating request handlers call the shared initializers; floating approach calls the water-boarding entry. Water dynamics remain L1 unit six. No register/flag liveness elimination is assumed."
+  ],
+  "callees": {
+    "native": [
+      "actor_alias_value",
+      "contact_players",
+      "passenger_delivery_finish"
+    ],
+    "bridge": [
+      "actor_bridge_alias_project",
+      "FindPlayerTouchingActor (native contact bridge)",
+      "SpawnFallingItem (native items API/bridge)",
+      "PlayAdlibEffect (existing audio entry)",
+      "BeginPassengerResurfacing (L1 unit six)",
+      "internal closed initializer/board/deliver tails"
+    ]
+  },
+  "indirect": {
+    "targets": [
+      "BeginPassengerPlatformWait",
+      "BeginPassengerDestinationDisplay",
+      "BeginPassengerQuestionDisplay",
+      "BeginPassengerApproach",
+      "BoardPassenger",
+      "DeliverPassenger",
+      "BeginPassengerResurfacing"
+    ],
+    "classification": "Descriptor identities checked before execution; every immediate target and complete consumed journal checked at transfer. Native result requests the target; retained machine shell preserves full registers/flags/stack and original service return sites."
+  },
+  "memory": {
+    "owned": [
+      "Actor phase, current type pair, active pose/request/carrier alias, current sprite/overlay, X/Y, animation cursor/countdown and quick-delivery word.",
+      "Craft fare/floor/kind/icon, source platform occupancy clear, score words and HUD low byte."
+    ],
+    "borrowed": [
+      "Current cached pixel X/Y and all renderer history survive; craft positions/platforms/pixel X and immutable platform geometry/icons.",
+      "Current/paired descriptor geometry, period, fare/floor/kind and animation resources. Item allocation/benefits and audio retain their existing owners."
+    ],
+    "aliases": "Existing per-phase table unchanged. Wait reads waiting_pose only; destination/question read request_ticks only; carried/delivery read carrier only. Approach reads none. Delivery snapshots the valid carrier before changing phase to walk; finish reads no inactive alias. ACTOR_VERIFY poisons inactive aliases.",
+    "renderer": "No renderer histories or pixel caches are recomputed, cleared or serialized; previous coordinates, erase sprites and cached pixels remain untouched.",
+    "representation": "Only bridge code knows original addresses, doubled identities, callback targets, stack/register/flag effects. Ordinary native code contains typed phases, resources, craft indices, arithmetic and effects."
+  },
+  "assumptions": [
+    "Actual-C proofs are one step from arbitrary admitted scalar state, rather than initialization-reachable states. Resource sizes and disjointness are explicit bounded assumptions.",
+    "L0-to-L1 remains independently rebuilt differential C/D evidence. L1-to-native proofs do not establish matching DOS bytes.",
+    "Audio is a successful observing callback in the symbolic harness; actual existing audio entries run in routine/scenario/native-host checks. The items allocator and its bridge are actual maintained C in the harness, including full pool."
+  ],
+  "eliminated": [
+    "Native API has no machine registers, addresses, dispatch or flag model. An ordered typed journal retains every observable passenger/global store and the bridge validates its values/order.",
+    "Source/destination/carrier doubled byte indices are inverse-projected only under checked paired-index admission; malformed states keep L1."
+  ],
+  "retained": [
+    "140-call request countdown; predecrement zero wraps to FFFF. Animation countdown/period zero wraps; frame terminal resets only on FFFF.",
+    "Wait skips busy craft to find an empty platform match; destination rejects its first busy match even when a later craft is empty; approach selects first platform match regardless of kind.",
+    "Approach equality uses stale cached pixel X plus anchor minus16 exactly, even between ticks; unequal cases animate between ticks and move only when due. No snap/overshoot tolerance.",
+    "Submersion uses the sign of the wrapped half-height+cachedY-water subtraction. First touching airborne craft triggers water pairing; water dynamics stay L1.",
+    "Fare floor comparison is unsigned across 8000. Quick countdown decrements only when signed-positive, but delivery bonus tests any nonzero quick word, including negative stale values.",
+    "Rescue publishes water fare/floor before pairing, then uses land carried kind. Delivery clears incoming DI craft but positions/scores using stored carrier, even if they differ.",
+    "Score is wrapping uint32 fare*multiplier addition. Bonus compares full unsigned multiplier/cap; actual native allocator scans twelve slots in reverse and retains negative-sprite allocation and full-pool pending transfer quirks.",
+    "Full pool preserves post-service Y/animation/HUD and performs no audio. HUD writes only its low byte after normal completion; all stale adjacent bytes/histories survive."
+  ],
+  "evidence": [
+    {
+      "property": "Bridged published effects on complete finite scalar slices",
+      "level": "A",
+      "command": "python verif/delivery_evidence.py enumerate",
+      "result": "PASS 531163 comparisons: seven complete word slices, boundary pairs, rescue pairs, full pool and 6000 x twelve generated states",
+      "method": "Seven 65536-word slices: destination icon input; destination/question request counter; carried fare and quick words; cached approach X; delivery fare. Other inputs fixed. Observations are published machine state, registers/flags, calls and caller store order; this does not prove unconsumed native selected/control or all private working-slot fields. Eleven-by-eleven boundary grids and 6000x12 generated states are C, not A.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "BeginPassengerPlatformWait actual-C bridged published effects",
+      "level": "B",
+      "command": "python verif/delivery_evidence.py BeginPassengerPlatformWait --tag compact --compact --timeout 600",
+      "result": "PASS 72.376s with bounds/pointer/signed-overflow/unwind assertions",
+      "method": "Actual extracted L1 versus actual native core and complete bridge, real contact code and native item allocator/bridge. Arbitrary slot0..15, scalar/register/flag/history/platform/craft/item state; ten platforms, paired live indices, valid incoming/stored carriers; two live arbitrary non-FFFF frame words per vector and terminal. Due cursors FFFE/0/2; approach non-due current0/2/4; otherwise dormant cursors any word. First passenger pair, symbolic geometry/fares/period/kind; shared initializers symbolic land/water. Difficulty0 with arbitrary cap. Other two pairs/difficulties/general vector sizes remain C. No reachability or pool-availability assumption. Item-internal store order belongs to existing allocator closure; all item words, calls, full machine state and caller/global/stack store order are compared.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "BeginPassengerDestinationDisplay actual-C bridged published effects",
+      "level": "B",
+      "command": "python verif/delivery_evidence.py BeginPassengerDestinationDisplay --tag compact --compact --timeout 600",
+      "result": "PASS 118.107s with bounds/pointer/signed-overflow/unwind assertions",
+      "method": "Actual extracted L1 versus actual native core and complete bridge, real contact code and native item allocator/bridge. Arbitrary slot0..15, scalar/register/flag/history/platform/craft/item state; ten platforms, paired live indices, valid incoming/stored carriers; two live arbitrary non-FFFF frame words per vector and terminal. Due cursors FFFE/0/2; approach non-due current0/2/4; otherwise dormant cursors any word. First passenger pair, symbolic geometry/fares/period/kind; shared initializers symbolic land/water. Difficulty0 with arbitrary cap. Other two pairs/difficulties/general vector sizes remain C. No reachability or pool-availability assumption. Item-internal store order belongs to existing allocator closure; all item words, calls, full machine state and caller/global/stack store order are compared.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "BeginPassengerQuestionDisplay actual-C bridged published effects",
+      "level": "B",
+      "command": "python verif/delivery_evidence.py BeginPassengerQuestionDisplay --tag compact --compact --timeout 600",
+      "result": "PASS 100.893s with bounds/pointer/signed-overflow/unwind assertions",
+      "method": "Actual extracted L1 versus actual native core and complete bridge, real contact code and native item allocator/bridge. Arbitrary slot0..15, scalar/register/flag/history/platform/craft/item state; ten platforms, paired live indices, valid incoming/stored carriers; two live arbitrary non-FFFF frame words per vector and terminal. Due cursors FFFE/0/2; approach non-due current0/2/4; otherwise dormant cursors any word. First passenger pair, symbolic geometry/fares/period/kind; shared initializers symbolic land/water. Difficulty0 with arbitrary cap. Other two pairs/difficulties/general vector sizes remain C. No reachability or pool-availability assumption. Item-internal store order belongs to existing allocator closure; all item words, calls, full machine state and caller/global/stack store order are compared.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "BeginPassengerApproach actual-C bridged published effects",
+      "level": "B",
+      "command": "python verif/delivery_evidence.py BeginPassengerApproach --tag compact --compact --timeout 600",
+      "result": "PASS 95.194s with bounds/pointer/signed-overflow/unwind assertions",
+      "method": "Actual extracted L1 versus actual native core and complete bridge, real contact code and native item allocator/bridge. Arbitrary slot0..15, scalar/register/flag/history/platform/craft/item state; ten platforms, paired live indices, valid incoming/stored carriers; two live arbitrary non-FFFF frame words per vector and terminal. Due cursors FFFE/0/2; approach non-due current0/2/4; otherwise dormant cursors any word. First passenger pair, symbolic geometry/fares/period/kind; shared initializers symbolic land/water. Difficulty0 with arbitrary cap. Other two pairs/difficulties/general vector sizes remain C. No reachability or pool-availability assumption. Item-internal store order belongs to existing allocator closure; all item words, calls, full machine state and caller/global/stack store order are compared.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "BoardWaterbornePassenger actual-C bridged published effects",
+      "level": "B",
+      "command": "python verif/delivery_evidence.py BoardWaterbornePassenger --tag compact --compact --timeout 600",
+      "result": "PASS 143.690s with bounds/pointer/signed-overflow/unwind assertions",
+      "method": "Actual extracted L1 versus actual native core and complete bridge, real contact code and native item allocator/bridge. Arbitrary slot0..15, scalar/register/flag/history/platform/craft/item state; ten platforms, paired live indices, valid incoming/stored carriers; two live arbitrary non-FFFF frame words per vector and terminal. Due cursors FFFE/0/2; approach non-due current0/2/4; otherwise dormant cursors any word. First passenger pair, symbolic geometry/fares/period/kind; shared initializers symbolic land/water. Difficulty0 with arbitrary cap. Other two pairs/difficulties/general vector sizes remain C. No reachability or pool-availability assumption. Item-internal store order belongs to existing allocator closure; all item words, calls, full machine state and caller/global/stack store order are compared.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "BoardPassenger actual-C bridged published effects",
+      "level": "B",
+      "command": "python verif/delivery_evidence.py BoardPassenger --tag compact --compact --timeout 600",
+      "result": "PASS 166.226s with bounds/pointer/signed-overflow/unwind assertions",
+      "method": "Actual extracted L1 versus actual native core and complete bridge, real contact code and native item allocator/bridge. Arbitrary slot0..15, scalar/register/flag/history/platform/craft/item state; ten platforms, paired live indices, valid incoming/stored carriers; two live arbitrary non-FFFF frame words per vector and terminal. Due cursors FFFE/0/2; approach non-due current0/2/4; otherwise dormant cursors any word. First passenger pair, symbolic geometry/fares/period/kind; shared initializers symbolic land/water. Difficulty0 with arbitrary cap. Other two pairs/difficulties/general vector sizes remain C. No reachability or pool-availability assumption. Item-internal store order belongs to existing allocator closure; all item words, calls, full machine state and caller/global/stack store order are compared.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Routine bridge/device observations",
+      "level": "C",
+      "command": "python verif/delivery_integration.py --whole --local-reference",
+      "result": "PASS 3238 normal/poisoned cases",
+      "method": "Five maintained suites, actual L0 independent reference, full observations. Receipt separates native entries from explicit malformed/resource fallback; compiled finite/generated harness additionally asserts zero fallback.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Whole-game observations",
+      "level": "D",
+      "command": "python verif/delivery_integration.py --whole --local-reference",
+      "result": "PASS all 19 maintained scenarios",
+      "method": "Frame/state/device/log digests; zero passenger fallback in whole-game audit. Receipt identifies entries reached; question/rescue are not claimed reached when audit is zero.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Independent carrier and resource matrices",
+      "level": "C",
+      "command": "python verif/delivery_cases.py",
+      "result": "PASS 531457 comparisons: seven complete word slices, boundary pairs, rescue pairs, full pool and 6000 x twelve generated states",
+      "method": "Original finite/generated corpus plus independent native candidate fixture (four handlers x two player counts x sixteen match/busy combinations), all2x2 incoming/stored carriers, twelve one-player entries, all three difficulties/two carriers, animation timer/period/cursor and craft-competition matrices; four live words per vector.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Native selected output fixture control",
+      "level": "C",
+      "command": "python verif/delivery_cases.py --selection-mutant",
+      "result": "DETECTED selected-only defect independently of retained machine DI",
+      "method": "The finite semantic fixture observes result.selected itself. The separate selection-gap diagnostic records whether the production bridge binds that value; a machine-only miss is not positive evidence.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Real scratch promotion/native host",
+      "level": "D",
+      "command": "python verif/delivery_host.py",
+      "result": "PASS actual tools/closure.py; tools/hostbuild.py; host/check.py --variant native",
+      "method": "Pinned clean committed baseline with only owned files overlaid, only scratch passenger_delivery promoted; all 19 maintained scenarios and attract smoke pass.",
+      "date": "2026-11-13"
+    },
+    {
+      "property": "Defect and production-unwind controls",
+      "level": "C",
+      "command": "python verif/delivery_mutants.py; python verif/delivery_evidence.py BeginPassengerPlatformWait --tag compact --compact --negative --timeout 180",
+      "result": "PASS 7 defects detected; actual delivery_prepare insufficient unwind fails",
+      "method": "Private native source mutants, maintained files unchanged; bounds/unwinding assertions enabled.",
+      "date": "2026-11-13"
+    }
+  ],
+  "amiga": {
+    "classification": "Meaning only; DOS-specific behavior retained",
+    "finding": "Accepted actor-storage/architecture model supplies names and ownership. No Amiga timing, equality, fares, layout or ordering is imported as equivalence evidence."
+  },
+  "uncertainty": [
+    "Only the supervisor promotes administrative status. Explicit malformed-state L1 fallback is compatibility, not a native proof for malformed inputs.",
+    "Recorded selected-craft composition gap: native result.selected is not consumed by the current bridge at BOARD/DELIVER immediate tails. Current native selection matches the direct finite fixture, but the original bridge comparison cannot certify this output. See verif/delivery_selection_gap.py.",
+    "No B claim for UpdatePassengerPlatformWait, UpdatePassengerDestinationDisplay, UpdatePassengerQuestionDisplay, UpdatePassengerApproach, UpdateCarriedPassenger, DeliverPassenger. Their broad scalar/state behavior currently has A finite slices and C/D evidence only. The coupled unit remains unclosed.",
+    "Early duplicated-log/general-dispatch profiles timed out at300/600s or were canceled after replacement; diagnostic receipts earn no proof. Final streaming store comparator preserves the same exact ordered caller/global/stack observations while avoiding a redundant symbolic log copy. Per-entry COMPLETE target sets and immediate-tail depth are asserted, never assumed.",
+    "Unit-six water state updates remain L1. The shared initializers and water-boarding entry are closed here; no closure claim for the water state machine."
+  ],
+  "dependencies": {
+    "native/passenger_delivery.h": {
+      "includes": [
+        "actor_resources.h",
+        "contacts.h",
+        "level.h"
+      ],
+      "calls": []
+    },
+    "native/passenger_delivery.c": {
+      "includes": [
+        "passenger_delivery.h"
+      ],
+      "calls": [
+        "actor_alias_value",
+        "contact_players",
+        "pd_begin",
+        "pd_board",
+        "pd_contact",
+        "pd_emit",
+        "pd_finish",
+        "pd_frame",
+        "pd_platform",
+        "pd_signed",
+        "pd_submerged",
+        "pd_tick",
+        "pd_water"
+      ]
+    },
+    "native/bridge/passenger_delivery_bridge.c": {
+      "includes": [
+        "../passenger_delivery.h",
+        "actor_projection.h",
+        "ugh.h"
+      ],
+      "calls": [
+        "A",
+        "B",
+        "D",
+        "DESC",
+        "F",
+        "G",
+        "R",
+        "READ",
+        "W",
+        "WRITE",
+        "actor_bridge_alias_project",
+        "add16",
+        "dec16",
+        "delivery_consume",
+        "delivery_dispatch",
+        "delivery_id",
+        "delivery_identity",
+        "delivery_near",
+        "delivery_phase",
+        "delivery_prepare",
+        "delivery_sound",
+        "delivery_vector",
+        "delivery_word",
+        "delivery_write8",
+        "flag",
+        "l1_BeginPassengerApproach",
+        "l1_BeginPassengerDestinationDisplay",
+        "l1_BeginPassengerPlatformWait",
+        "l1_BeginPassengerQuestionDisplay",
+        "l1_BoardPassenger",
+        "l1_BoardWaterbornePassenger",
+        "l1_DeliverPassenger",
+        "l1_UpdateCarriedPassenger",
+        "l1_UpdatePassengerApproach",
+        "l1_UpdatePassengerDestinationDisplay",
+        "l1_UpdatePassengerPlatformWait",
+        "l1_UpdatePassengerQuestionDisplay",
+        "logic",
+        "passenger_delivery_apply",
+        "passenger_delivery_finish",
+        "pd_shell0_actor_init",
+        "pd_shell0_greater",
+        "pd_shell0_less",
+        "pd_shell0_state_jump",
+        "pd_shell0_tail",
+        "pd_shell1_actor_tick",
+        "pd_shell1_display",
+        "pd_shell1_effect",
+        "pd_shell1_frame",
+        "pd_shell1_gt",
+        "pd_shell1_inc",
+        "pd_shell1_lt",
+        "pd_shell1_platform_player",
+        "pd_shell1_pop",
+        "pd_shell1_push",
+        "pd_shell1_shift",
+        "pd_shell1_submerged",
+        "pd_shell1_tail",
+        "pd_shell1_water_swap",
+        "rd16",
+        "rd8",
+        "shell_BeginPassengerApproach",
+        "shell_BeginPassengerDestinationDisplay",
+        "shell_BeginPassengerPlatformWait",
+        "shell_BeginPassengerQuestionDisplay",
+        "shell_BoardPassenger",
+        "shell_BoardWaterbornePassenger",
+        "shell_DeliverPassenger",
+        "shell_UpdateCarriedPassenger",
+        "shell_UpdatePassengerApproach",
+        "shell_UpdatePassengerDestinationDisplay",
+        "shell_UpdatePassengerPlatformWait",
+        "shell_UpdatePassengerQuestionDisplay",
+        "sub16",
+        "szp",
+        "ugh_call_near",
+        "ugh_dispatch",
+        "wr16",
+        "wr8"
+      ]
+    }
+  },
+  "proposed_status_reason": "Recorded stop at boundary-established: implementation, finite/C/D checks and scratch host pass, but full-domain actual-C proofs for six coupled updating handlers remain open. Do not promote to migrated on the passing tests. The native selected-craft result must also be bound to the immediate boarding/delivery tail; its diagnostic mutation currently escapes the machine-only harness.",
+  "recorded_stop": {
+    "proved_entries": [
+      "BeginPassengerPlatformWait",
+      "BeginPassengerDestinationDisplay",
+      "BeginPassengerQuestionDisplay",
+      "BeginPassengerApproach",
+      "BoardWaterbornePassenger",
+      "BoardPassenger"
+    ],
+    "pending_entries": [
+      "UpdatePassengerPlatformWait",
+      "UpdatePassengerDestinationDisplay",
+      "UpdatePassengerQuestionDisplay",
+      "UpdatePassengerApproach",
+      "UpdateCarriedPassenger",
+      "DeliverPassenger"
+    ],
+    "cause": "Large whole-domain bridge formulas exceed practical solver memory/time. No reachability, scalar-boundary, full-pool or machine-observation restriction is introduced to make them pass.",
+    "continuation": "Keep the actual-C harness and complete compared state. Optimize exact array/log/dispatch encoding or prove an equivalent composition before replaying all six open entries. Finish only after every profile and the final scratch host gate pass.",
+    "command": "python verif/delivery_reproduce.py --fresh --record-stop --working-tree-lint",
+    "native_projection": "The six B rows prove the actual C bridged published effects, not a standalone equivalence of every native in/out slot/world/control field. Before native closure, compare the active native working-state projection with the L1 step and enforce complete next/pending/selected request consumption. Do not infer those properties from correct journal publication.",
+    "selected_tail_binding": "Open: delivery_dispatch checks target and journal but does not bind result.selected to incoming craft for BOARD/DELIVER tails. A selected-only mutation passes the original 531163-case machine harness, while the new direct finite selected-output fixture detects it. Add checked native-selected DI publication and replay all affected proofs before migration."
+  },
+  "scratch_acceptance": {
+    "baseline_revision": "5be6a2c095f9236a9d4bd14ac114b7600010d879",
+    "linked_components": [
+      "actor_types",
+      "adlx_effects",
+      "adlx_main",
+      "contacts",
+      "coordinate_scale",
+      "decimal",
+      "demo_core",
+      "falling_items",
+      "far_copy",
+      "hazards",
+      "ice",
+      "level_view",
+      "music_clock",
+      "passenger_delivery",
+      "passenger_itinerary",
+      "random",
+      "stones",
+      "timer"
+    ],
+    "scenarios": [
+      "adlib",
+      "attract",
+      "completion",
+      "departure",
+      "dino",
+      "enemy",
+      "gameplay-adlib",
+      "gameplay",
+      "high-score",
+      "items-multiplier",
+      "items-timer",
+      "menu",
+      "passenger",
+      "password",
+      "pregame",
+      "reveal",
+      "startup",
+      "two-player",
+      "water"
+    ],
+    "smoke": {
+      "passed": true,
+      "stderr": "audio: 0 register writes, 179434 stereo frames, 0 nonzero samples\nhost: status=2 error=0 flips=256 retraces=262 timer_irqs=0 terminal=0 wall=0.301s\n"
+    }
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "native/passenger_delivery.h": "e01d99b23879eb69ad449d6c25a82f44f1a80d800a424f1e7539b951cd166657",
+    "native/passenger_delivery.c": "0908cda5be2fd60dc43b71da198a3071be438d3c435801f375787618d3a35af3",
+    "native/bridge/passenger_delivery_bridge.c": "2e491d562dc5644c19723c09424094beac6485abaf577155bfa0ae492a262595",
+    "native/actor_resources.c": "47e21228ee1d873fa5636e062a955e4a6b5a8f0522a7bde2cf223708c9880137",
+    "native/bridge/actor_resources_bridge.c": "6941d649e3fb35d3898b35c3e461fedd0ceee0210861300ce674ac78aac0acc2",
+    "native/level_view.c": "f0b3db5747f718d7c112c721735ca5a497a9b93a6ecb33096223b188b170353d",
+    "native/bridge/level_view_bridge.c": "ff2db79ab215fd6bbf4ed99c5fb64dc39b8fdb060f3c57b07070158b998f4d11",
+    "native/contacts.c": "f809c3af54ddb43b07b60be870e30e404f0b0456f4542585011cb5108dcc8b15",
+    "native/bridge/contacts_bridge.c": "ae0355b3a17443a2d39b41b9ac99656041ae63c9bebf3a399e207e6257b1bdab",
+    "native/items.c": "d3ede593a1249fc46da025fc304f90ed8f962a5145a81731c6dc70b2f384b8ec",
+    "native/bridge/items_bridge.c": "badddeb8758636e00216082cbb4e945fd11445c070f400db25b10ccf39506995",
+    "verif/delivery_build.py": "2aa35853b161e046ab087bdb750d010413cb9f1be69d125d81f84fc1bfc410dd",
+    "verif/delivery_cases.py": "6200a672b218de414209454eb893223a4d58a4713871dde20899316f32b811d6",
+    "verif/delivery_certificate.py": "c78d51eae9367668b2821d4d3984d2487eeb2418c136d43ac2c53f9bce6129a8",
+    "verif/delivery_evidence.py": "c248cb7d2a69aa54abc3420db8055136b2cd9af77de169cc7596fe36f72be8c3",
+    "verif/delivery_harness.c": "a35666afbfa4fb32faaa1c333755f7b1a1ac7165d4a5981697ca591d1d9e9e73",
+    "verif/delivery_host.py": "354a90cf63a4be3c535758f1667e566ec0d72d48ac37135c5cce0893cfa98cb3",
+    "verif/delivery_integration.py": "f515df5595241465b9dd016870759b8a86aaa28f04bed528421d3492552f4b9e",
+    "verif/delivery_mutants.py": "2bf527e9a921bf24f4e1892e5f01f20d712a0d5838636aa5b16bd62c7c831334",
+    "verif/delivery_reproduce.py": "636821d3768cf8b52b72be0898e09fe02fc5965389282ee2d0eb39820b5ecb04",
+    "verif/delivery_selection_gap.py": "ff995cd474710f0500c7176087f749bb90ae180548cc0942e43864cf198459cd",
+    "verif/delivery_shells.py": "8b1dc1b4afbae92ab9222c29eeb446224113737e30a6cbd5e388c0b9875a8aa2",
+    "native/actors.h": "b1c7653a6e566c7f0e3e18ad38fc3f63726d01b78a6fa6843df017d2d155a42c",
+    "native/actor_resources.h": "212fe3bc958c74140f45b9e7a3745f650d22e7a853a2edf273eeacfd93f96247",
+    "native/contacts.h": "2d329a52985ea628a56afaee703e8b2f84ed9a328e58109c3be4dac3e90c1d29",
+    "native/items.h": "167ed4e4d1d4ff78201eb37144bd1b77d6f1d9a6b51b935f0f5ba2142eb55736",
+    "native/level.h": "d9d498993704f2b446d52fa1f3e3cc4b721d9344cfef8520ab4979c3395f45ca",
+    "native/geometry.h": "e630be5b080076dfd0f95ff07be51887e5c39d8caa3bdfae7271e06be37c6410",
+    "native/bridge/actor_projection.h": "71e0476afe7c0b082b5eac20957028e58a61f6741ef11c7ca546fe8bbad8b483",
+    "c/actors.c": "d17c03c844f95780f0647b85aa854a87c3e566b0f56fe89ee0a95d6d689f3ff2",
+    "c/actors_states.c": "79a460a0436e773bdd795953f63c6765d71c0e346cdf8bbccbcf707817994447",
+    "c/items_water.c": "ab5c2c72096b5e6355a2575f9a58c321f91680d7cd97653581dcbab59033e2d9",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
+    "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
+    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
+    "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
+    "tools/wholegame.py": "ba6fff7d0f1583e734ab69435e801f2d101758078c36712744bc5b3e839fa65c",
+    "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
+    "host/check.py": "ae78b6b48e7c77aa4c513f8474d23d7ef9d26afe39ab55ea70e871473701e94c",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
+    "tests/scenarios/adlib.txt": "1db37ba320e4c3c85449c2f4a7f5ecd8543e6de6933e165e534b79adb3386f2f",
+    "tests/scenarios/attract.txt": "07339939be35779cc94094221155e97a11c6dec396ab6dce85f238a415896a01",
+    "tests/scenarios/completion.txt": "d898ad1f8abd49f7757303b562028cf7f0c10143dfb0358dad4e0a6fee7386bc",
+    "tests/scenarios/departure.txt": "dd7cb186974803ed7436b99600394606594109283d668f7ee5a893a90f89f705",
+    "tests/scenarios/dino.txt": "f5a6254be7b416bdf3da436c7b1907abe31e4a7b184bb7ac6636b72c7c166252",
+    "tests/scenarios/enemy.txt": "c5140aa9afe062e09cbefb949b78d06733c306518f315ba8f5448a0c2b8062a6",
+    "tests/scenarios/gameplay-adlib.txt": "5f0e1e3ea3f5f9e735c5a7ab2eda9ddee8a33d8d290bbd81e27fd9cbb1ddb3cd",
+    "tests/scenarios/gameplay.txt": "b0be47d570408d44dc977faca40ef2a258c0686958f7fa68574cc411bb25a03a",
+    "tests/scenarios/high-score.txt": "5b698cb06b6d77d9a9d6f009cea71b8a1af9c16c8ecf3c344e33a9b8d93b1220",
+    "tests/scenarios/items-multiplier.txt": "aea8dc889e0a1777e2c3f8b37525375e939656a91577759030523a8aca88ca8d",
+    "tests/scenarios/items-timer.txt": "1fc3cde57a7aed7acfe67e015af95c852a6dc681b7492d3464ffe5e7d5af39b1",
+    "tests/scenarios/menu.txt": "3e8347d504ac0c13ced62c1befb26b59a353c46de397bb3ac79f5089b20ea8b1",
+    "tests/scenarios/passenger.txt": "e95f43a019615449dd142652ea837aaeb4a82e7bce9c6ecd72dd67411fe44922",
+    "tests/scenarios/password.txt": "fea4555e22daca6a5e4e154fd4d6c1b7871d80aa574c402363d5b3b938657bd2",
+    "tests/scenarios/pregame.txt": "6697f662ccf5791b57e14d5dcb0c216c7428312441c570f10b0e031a33a97cf8",
+    "tests/scenarios/reveal.txt": "8be34ff993316d7e099576cccd8af23d28267b02eee37df01a430f8e94418c84",
+    "tests/scenarios/startup.txt": "bddaf9054cfb6f1a4a5734e147c2481c28d0fa0768af141c311ddb13a38fbd7b",
+    "tests/scenarios/two-player.txt": "5c07be6ec944b7a38082d275633bba2ef26cc9e90828b673bb8434ad3ffa78e5",
+    "tests/scenarios/water.txt": "22aca0913b25142891f67c57f20d56cfef57c16df862269a377f924217e96f84",
+    "tests/items_water.py": "ea1f63e28e3dbc63d89649e167f5677bdb3a13b542eb588c90e6ed34a1f6db30",
+    "tests/actors_states.py": "94ec4f7e880e6d717c5fc1a645f6f2dfebab18150f915e9ee0009789f5126de6",
+    "tests/actors.py": "80b0aed22ae70e2b8eeead4a4176ce5b5935ac93ee517869df14035ffa9ea7ad",
+    "tests/render.py": "ac899241858dd7dd0f2d175a7f5b7229257b5b59a24291c65078881281c86e7e",
+    "tests/scene.py": "1eb8b5d2a3fb51b9eaa123d3f5d9efe2637ef131f333f696b71dc1f3a9069a81"
+  }
+}

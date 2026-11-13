@@ -111,14 +111,13 @@ is the second unit, chosen to exercise state ownership and indirect control flow
 | Stone lifecycle | migrated: six handlers proved one step from any admitted slot (B), scalar domains enumerated (A), live borrowing by hazards checked; out-of-contract inputs fall back to L1 in the bridge (zero fallbacks in scenarios) | `metadata/closure/stones.json` |
 | Passenger itinerary, appearance, departure | migrated: eight handlers proved one step (B), scalar slices enumerated (A); waiting, request, approach and delivery handlers stay L1 | `metadata/closure/passenger_itinerary.json` |
 | Main ADLX music interpreter | migrated: nine event operations proved one step from any admitted channel state (B); all 11 shipped resources produce identical ordered AdLib writes (96,144). Introduces `native/audio.h` | `metadata/closure/adlx_main.json` |
+| AdLib effects ADLX interpreter | migrated: eight event operations and the timer step proved one step from any admitted state (B); all 11 shipped resources replayed as effects (90,280 events, 118,912 ordered writes); `gameplay-adlib` scenario (D). Channel 9 instrument stamps the aliased saved-voice owner (retained); END still calls the L1 stop/restoration code | `metadata/closure/adlx_effects.json` |
 | everything else | unanalyzed | |
 
 ## Tooling gaps
 
-- No C model checker on the machine (CBMC). It is the missing piece for level B on whole
-  algorithms: a bounded two-implementation harness over the actual C at multi-token sizes.
-- z3 is only available as a DLL extracted from a Ghidra extension into worker scratch; it
-  needs a proper, pinned install outside `build/`.
+- CBMC 6.11.0 and z3 are installed and pinned in `metadata/verif-tools.json`. Whole-routine
+  byte-RAM bridge proofs still time out; level B is reached per operation on typed state.
 - Worker sandboxes cannot reach the network or write `C:\tools`; tool installs are done by the
   supervisor.
 
@@ -126,7 +125,7 @@ is the second unit, chosen to exercise state ownership and indirect control flow
 
 `python tools/hostbuild.py` builds `build/host/ugh.exe`: the literal C with SDL3 platform services
 (window, keyboard, AdLib through Nuked-OPL3). Its headless mode reproduces the whole-game digests
-of all 14 scenarios. The host links every unit at status `migrated` or stronger through its bridge (`--literal` builds the pure translation); both variants reproduce all 14 scenarios.
+of all 19 scenarios. The host links every unit at status `migrated` or stronger through its bridge (`--literal` builds the pure translation); both variants reproduce all 19 scenarios.
 
 ## Work in progress
 

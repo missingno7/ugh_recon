@@ -3,6 +3,8 @@
 #include <stdint.h>
 
 enum { AUDIO_CHANNEL_COUNT=13, AUDIO_MAIN_CHANNEL=12, AUDIO_VOICE_COUNT=9 };
+/* Allocation remains at the C boundary; interpreters borrow these records. */
+enum { AUDIO_FIRST_EFFECT_CHANNEL=8, AUDIO_EFFECT_CHANNEL_COUNT=4 };
 
 /* A borrowed event window and its wrapping byte index. The bridge alone binds
  * windows to DOS resources. No native field contains a machine address. */

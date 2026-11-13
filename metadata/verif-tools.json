@@ -17,5 +17,14 @@
     "download_sha256": "4e32027ebc2077d1bb518113e370a1798746c1e7e2719144712ddd39c4e87ea6",
     "install": "wheel unpacked into C:/tools/z3-solver-5.4.1.0",
     "usage": "PYTHONPATH=C:/tools/z3-solver-5.4.1.0 python -c \"import z3\""
+  },
+  "nuked_opl3": {
+    "version": "commit 765ec962e473aeb767e4cba74ffdc8f588ffbfe8",
+    "license": "LGPL-2.1-or-later",
+    "source": "https://github.com/nukeykt/Nuked-OPL3 (tarball of that commit)",
+    "download": "C:/tools/download/nuked-opl3/nuked-opl3-765ec962e473aeb767e4cba74ffdc8f588ffbfe8.tar.gz",
+    "download_sha256": "f401d087e686637c52e70d7f175d23ee2d405b6032ae94d094ae0cc41c813969",
+    "install": "C:/tools/nuked-opl3-765ec962e473",
+    "usage": "OPL2/OPL3 emulator for the SDL3 host's AdLib output; host code, not verification"
   }
 }

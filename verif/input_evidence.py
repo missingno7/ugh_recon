@@ -12,14 +12,20 @@ def main():
  def pair(name,regs=None,flags=None,failure_poll=0):
   initial=m.prepare('GAME:'+name,{**difftest.POISON,'DS':m.seg('DGROUP:PlayerCount'),**(regs or {})},'iret' if name=='HandleKeyboardScanInterrupt' else 'near',(),rng.choice([2,0x202,0x602,0xed7]) if flags is None else flags);memory=m.snapshot();device=m.device.state();results=[]
   for dll in dlls:
-   C.memmove(dll.ugh_memory().contents,memory,len(memory));dll.ugh_devices_reset();dev=dll.ugh_device_state().contents;C.memmove(C.addressof(dev),device,len(device));r=difftest.Regs(**{n.lower():v for n,v in initial.items()});callback_type=C.CFUNCTYPE(C.c_int,C.c_uint16,C.c_uint16,C.POINTER(difftest.Regs));calls=[0]
+   C.memmove(dll.ugh_memory().contents,memory,len(memory));dll.ugh_devices_reset();dev=dll.ugh_device_state().contents;C.memmove(C.addressof(dev),device,len(device));r=difftest.Regs(**{n.lower():v for n,v in initial.items()});callback_type=C.CFUNCTYPE(C.c_int,C.c_uint16,C.c_uint16,C.POINTER(difftest.Regs));calls=[0];service_log=[];entries=[];entry_type=C.CFUNCTYPE(None,C.c_uint16,C.c_uint16,C.POINTER(difftest.Regs));entry_callback=entry_type(lambda seg,off,rp:entries.append((seg,off,bytes(rp.contents))));dll.ugh_set_entry_observer.argtypes=[entry_type];dll.ugh_set_entry_observer(entry_callback if failure_poll else entry_type())
    def service(segment,offset,rp):
-    if segment==m.seg('GAME:PollKeyboardScanChange') and offset==m.off('GAME:PollKeyboardScanChange'):
-     calls[0]+=1
+    if segment==m.seg('GAME:loc_44DE') and offset==m.off('GAME:loc_44DE')+11:
+     calls[0]+=1;service_log.append((segment,offset,bytes(rp.contents)))
      if failure_poll and calls[0]==failure_poll:rp.contents.ax=0x81a5;rp.contents.flags=0x8d7;return 1
     return 0
-   callback=callback_type(service) if failure_poll else callback_type();dll.ugh_set_service_observer.argtypes=[callback_type];dll.ugh_set_service_observer(callback);f=getattr(dll,'c_'+name);f.argtypes=[C.POINTER(difftest.Regs)];status=f(C.byref(r));dll.ugh_set_service_observer(callback_type());ram=bytes(dll.ugh_memory().contents);events=C.string_at(C.addressof(dev.log),dev.count*C.sizeof(difftest.IoEvent)) if hasattr(difftest,'IoEvent') else C.string_at(C.addressof(dev.log),dev.count*16);results.append((status,bytes(r),ram,events,dev.error))
-  a,b=results;assert a[0]==b[0] and a[4]==b[4],(len(rows),name,'status/error',a[0],b[0],a[4],b[4]);assert a[1]==b[1],(len(rows),name,'ABI',struct.unpack('<14H',a[1]),struct.unpack('<14H',b[1]));lo=initial['SS']*16;hi=lo+initial['SP'];assert a[2][:lo]==b[2][:lo] and a[2][hi:]==b[2][hi:],(len(rows),name,'RAM',next((i for i,(x,y) in enumerate(zip(a[2],b[2])) if x!=y and not lo<=i<hi),None));assert a[3]==b[3],(len(rows),name,'ordered I/O');rows.append(dict(name=name,status=a[0],error=a[4],events=len(a[3])//16,RAM_sha256=hashlib.sha256(a[2]).hexdigest(),ports_sha256=hashlib.sha256(a[3]).hexdigest()))
+   callback=callback_type(service) if failure_poll else callback_type();dll.ugh_set_service_observer.argtypes=[callback_type];dll.ugh_set_service_observer(callback);f=getattr(dll,'c_'+name);f.argtypes=[C.POINTER(difftest.Regs)];status=f(C.byref(r));dll.ugh_set_service_observer(callback_type());dll.ugh_set_entry_observer(entry_type());ram=bytes(dll.ugh_memory().contents);events=C.string_at(C.addressof(dev.log),dev.count*C.sizeof(difftest.IoEvent)) if hasattr(difftest,'IoEvent') else C.string_at(C.addressof(dev.log),dev.count*16);results.append((status,bytes(r),ram,events,dev.error,calls[0],service_log,entries))
+  a,b=results
+  if failure_poll:
+   assert a[0]==b[0]==1 and a[5]==b[5]==failure_poll,(len(rows),name,'requested failure must be delivered',failure_poll,a[0],b[0],a[5],b[5])
+   assert a[6]==b[6] and a[6],(len(rows),name,'nonempty ordered wait service prefixes')
+   assert len(a[7])==len(b[7])==4*failure_poll,(len(rows),name,'known dispatched prefix count',len(a[7]),len(b[7]))
+   assert a[7]==b[7],(len(rows),name,'ordered entry-service ABI prefix')
+  assert a[0]==b[0] and a[4]==b[4],(len(rows),name,'status/error',a[0],b[0],a[4],b[4]);assert a[1]==b[1],(len(rows),name,'ABI',struct.unpack('<14H',a[1]),struct.unpack('<14H',b[1]));lo=initial['SS']*16;hi=lo+initial['SP'];assert a[2][:lo]==b[2][:lo] and a[2][hi:]==b[2][hi:],(len(rows),name,'RAM',next((i for i,(x,y) in enumerate(zip(a[2],b[2])) if x!=y and not lo<=i<hi),None));assert a[3]==b[3],(len(rows),name,'ordered I/O');rows.append(dict(name=name,status=a[0],error=a[4],events=len(a[3])//16,RAM_sha256=hashlib.sha256(a[2]).hexdigest(),ports_sha256=hashlib.sha256(a[3]).hexdigest(),requested_failure=failure_poll,entry_services=len(a[7]),entry_sha256=hashlib.sha256(repr(a[7]).encode()).hexdigest(),service_points=a[5],service_sha256=hashlib.sha256(repr(a[6]).encode()).hexdigest()))
  for i in range(800):
   m.reset();ds=m.seg('DGROUP:PlayerCount');m.device.script(0x60,[rng.randrange(256)]);m.wb('DGROUP:KeyboardSequenceIndex',rng.randrange(256));m.ww('DGROUP:PlayerOneControlMode',rng.randrange(65536));m.ww('DGROUP:PlayerTwoControlMode',rng.randrange(65536))
   for slot in range(34):m.wb('DGROUP:KeyboardSequenceCandidateState',rng.choice([0,1,254,255]),6*slot)
@@ -61,6 +67,6 @@ def main():
  for name in ['SampleJoystickAxesAndButtons','DetectAndCalibrateJoysticks']:
   m.reset();pair(name)
  for failure in [1,2]:
-  m.reset();video.input_setup(m);m.device.script(0x3da,[0,8],cycles=0xffffffff);pair('WaitForScanChangeOrJoystickButton',failure_poll=failure)
+  m.reset();video.input_setup(m);m.device.script_count-=1;m.device.script(0x201,[255],cycles=0xffffffff);m.device.script(0x3da,[0,8],cycles=0xffffffff);pair('WaitForScanChangeOrJoystickButton',failure_poll=failure)
  save(OUT/'cases.json',receipt([sys.executable,'verif/input_evidence.py'],[Path(__file__),ROOT/'verif/input_build.py',ROOT/'native/input.c',ROOT/'native/input.h',ROOT/'native/bridge/input_bridge.c',ROOT/'c/dos_input.c',ROOT/'c/scene.c',ROOT/'c/game_services.c',ROOT/'c/video.c',plain],result='PASS',cases=rows,seconds=time.perf_counter()-start));print('PASS',len(rows),'compiled complete input pairs',flush=True)
 if __name__=='__main__':main()

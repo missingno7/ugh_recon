@@ -277,9 +277,9 @@
     {
       "property": "Compiled complete entry contracts",
       "level": "C",
-      "method": "Independent all-L1 and20-entry native DLLs; full RAM including every stack byte, complete device state including planes/DAC, all14 register/flag words and exact raw ordered port bytes.",
+      "method": "Independent all-L1 and20-entry native DLLs; full RAM including every stack byte, complete device state including planes/DAC, all14 register/flag words and exact raw ordered port bytes. Evidence repair: raw port/device comparison unchanged. Wait-failure fixtures now use the actual post-sampling/input SERVICE_IO site and assert delivery/status; both generated dispatchers trace the failed prefixes, with ordered full ABI comparisons.",
       "command": "python verif/video_dos_evidence.py",
-      "result": "PASS1551 pairs, including aliases, wrapping cursors/counts, non-default VGA modes, missing/constant status scripts, DOS errors and input-service failures.",
+      "result": "PASS1551 pairs, including aliases, wrapping cursors/counts, non-default VGA modes, missing/constant status scripts, DOS errors and input-service failures. Refreshed failure prefixes: [{\"requested\":1,\"delivered\":1,\"entries\":1,\"status\":1},{\"requested\":2,\"delivered\":2,\"entries\":5,\"status\":1},{\"requested\":3,\"delivered\":3,\"entries\":9,\"status\":1}]; all delivered and compared, no native mismatch.",
       "date": "2026-11-14"
     },
     {
@@ -436,15 +436,63 @@
     "verif/adlx_loader_solver.py": "332c1a46957e398df5865fa5de14a73d259d464c621232f84976f8dfcc1f42d6",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
-    "verif/video_dos_build.py": "b3caa6b4953b549bd39e8104bda6567671dd8bcad3b7093c22e080d7a11d088e",
+    "verif/video_dos_build.py": "0cf006db7e346fa9eae1d48b8540e6b63f6cb3b2f75619a0fd506c4f9ad63f55",
     "verif/video_dos_certificate.py": "5d4b6a20754b888adf094bc1453f7fa28f20028e2947d50f8e1670d4d63c2239",
     "verif/video_dos_enumerate.py": "c1573a2b07c7ed0a6fe0e581232fb98991ff236a7c55f249405d656fc00a6451",
-    "verif/video_dos_evidence.py": "52311e9fbeafafe129452e76167a701e769c717da5583ade3a5279678795a72f",
+    "verif/video_dos_evidence.py": "fc9e96380d502da8f726b667d475ce2b3a2e86cb346d1d36d929156d300afe43",
     "verif/video_dos_host.py": "e2b88c859c2372cb8c9e9aab056554eefac849f4a410b3dc03215a1c1f37b556",
     "verif/video_dos_integration.py": "cea83b47a36184d795f139c346f4698dbb05bdc1257f4f74648fa5b7574ad443",
     "verif/video_dos_inventory.py": "7838c2670c54bda5fa791099fc2c7cd5c875f5dc36a2aa1d43c2b9b7f04cd5e7",
     "verif/video_dos_limits.py": "69aa893ea6809001be397a77d4d3cec12f81923d0922bc7514c6162a78014702",
     "verif/video_dos_proofs.py": "2cb8df96a9d2a5136e34c3ea2f1e4f5d22ae9715d7327c641d85880cf092ef7a",
-    "verif/video_dos_reproduce.py": "60038283a58fc54bacacea0b1b6493acaa1795815042cdfe0e58c60b71f57ba7"
-  }
+    "verif/video_dos_reproduce.py": "60038283a58fc54bacacea0b1b6493acaa1795815042cdfe0e58c60b71f57ba7",
+    "c/dispatch.c": "80a97f55a460a21dac9d6295939a8276c83b66cef886f814365e0a823814debf"
+  },
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-14",
+      "reason": "Instrumented generated dispatcher for failed-prefix checks; corrected previously undelivered explicit SERVICE_IO wait-failure fixtures. Original port/device traces were unaffected.",
+      "commands": [
+        "python verif/video_dos_evidence.py"
+      ],
+      "results": {
+        "pairs": 1551,
+        "failure_cases": [
+          {
+            "requested": 1,
+            "delivered": 1,
+            "entries": 1,
+            "status": 1
+          },
+          {
+            "requested": 2,
+            "delivered": 2,
+            "entries": 5,
+            "status": 1
+          },
+          {
+            "requested": 3,
+            "delivered": 3,
+            "entries": 9,
+            "status": 1
+          }
+        ]
+      },
+      "inputs": {
+        "verif/video_dos_build.py": "0cf006db7e346fa9eae1d48b8540e6b63f6cb3b2f75619a0fd506c4f9ad63f55",
+        "verif/video_dos_evidence.py": "fc9e96380d502da8f726b667d475ce2b3a2e86cb346d1d36d929156d300afe43",
+        "c/dispatch.c": "80a97f55a460a21dac9d6295939a8276c83b66cef886f814365e0a823814debf",
+        "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+        "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc"
+      },
+      "receipts": {
+        "build/workers/close-adlx-12/cases.json": {
+          "sha256": "ba364118aeb93bcf6b3ead02c2e989103b7a6cdad4acfa4b0e505a570459ae46",
+          "result": "PASS"
+        }
+      },
+      "native_sources_changed": false,
+      "status": "migrated"
+    }
+  ]
 }

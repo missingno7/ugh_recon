@@ -131,9 +131,9 @@
     {
       "property": "Compiled complete entry boundary",
       "level": "C",
-      "method": "Independent complete L1 DLL versus actual8-entry bridge, full persistent RAM, registers/flags, ordered raw event bytes including service/DOS/budget/error prefixes.",
+      "method": "Independent complete L1 DLL versus actual8-entry bridge, full persistent RAM, registers/flags, ordered raw event bytes including service/DOS/budget/error prefixes. Evidence repair: raw port/device comparison unchanged. Wait-failure fixtures now use the actual post-sampling/input SERVICE_IO site and assert delivery/status; both generated dispatchers trace the failed prefixes, with ordered full ABI comparisons.",
       "command": "python verif/input_evidence.py",
-      "result": "PASS3791 generated pairs, including raw modes, malformed tables/destinations, high-byte poison, timeout masks, wrapping calibration and failing wait/IRQ-vector services.",
+      "result": "PASS3791 generated pairs, including raw modes, malformed tables/destinations, high-byte poison, timeout masks, wrapping calibration and failing wait/IRQ-vector services. Refreshed failure prefixes: [{\"requested\":1,\"delivered\":1,\"entries\":4,\"status\":1},{\"requested\":2,\"delivered\":2,\"entries\":8,\"status\":1}]; all delivered and compared, no native mismatch.",
       "date": "2026-11-14"
     },
     {
@@ -300,10 +300,10 @@
     "verif/adlx_loader_solver.py": "332c1a46957e398df5865fa5de14a73d259d464c621232f84976f8dfcc1f42d6",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
-    "verif/input_build.py": "df6c160d0c29c7fd82e987714406d3407629da5732857ca4139695a1f2f5833c",
+    "verif/input_build.py": "106fc5b7c65a9591f24307c1be970ad5b947d36e020f16c15887d4024e35095b",
     "verif/input_certificate.py": "ed8d007c9f4a9ab7bade4ac62a921239a2e11ce2b63703784b705f36b08770ad",
     "verif/input_enumerate.py": "90dcdbacbcb0b4688670ef015156aec5a09aaf89f92aa7939e3470b125202786",
-    "verif/input_evidence.py": "7cf4f8089634e28d1ba1c29c2457e8dc7e733641bcfb92946435598daa2eb046",
+    "verif/input_evidence.py": "e84fc96097884dabc2904783c50a1b0dd8b324953008b160c9ed94e81793c897",
     "verif/input_host.py": "19fd6be83131d641967616d374a5dfd03bca415a0ae0fafbfc7b2f2159e43dc7",
     "verif/input_integration.py": "a81129b645d60c2e7000427f3b1deced03255269c553e5423d9016b7ea741021",
     "verif/input_inventory.py": "3d6a896a12e35eaf4f698e6047f5a57a95edc302c0f9a3e7571ca4196980939e",
@@ -312,6 +312,48 @@
     "verif/input_proofs.py": "0531e4013a48adc076774e5e6d7636deea75ecb4492bef9396639bf4c8eaa792",
     "verif/input_reproduce.py": "17c1ffd5f65d66fa638feb67885a54628b1c05fbb43d3c538200dfaf0a7bf9d0",
     "verif/input_two_joysticks.txt": "01ca97f51201d68b5f3059f3794bbfbc1500aa33b2811575b717eec513f373b0",
-    "verif/input_witness.py": "32c16d6ccfe9c4ab82ceb2cf965e2fb5b2e10b74f94a2a9e6e8b0932ba097230"
-  }
+    "verif/input_witness.py": "32c16d6ccfe9c4ab82ceb2cf965e2fb5b2e10b74f94a2a9e6e8b0932ba097230",
+    "c/dispatch.c": "80a97f55a460a21dac9d6295939a8276c83b66cef886f814365e0a823814debf"
+  },
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-14",
+      "reason": "Instrumented generated dispatcher for failed-prefix checks; corrected previously undelivered explicit SERVICE_IO wait-failure fixtures. Original port/device traces were unaffected.",
+      "commands": [
+        "python verif/input_evidence.py"
+      ],
+      "results": {
+        "pairs": 3791,
+        "failure_cases": [
+          {
+            "requested": 1,
+            "delivered": 1,
+            "entries": 4,
+            "status": 1
+          },
+          {
+            "requested": 2,
+            "delivered": 2,
+            "entries": 8,
+            "status": 1
+          }
+        ]
+      },
+      "inputs": {
+        "verif/input_build.py": "106fc5b7c65a9591f24307c1be970ad5b947d36e020f16c15887d4024e35095b",
+        "verif/input_evidence.py": "e84fc96097884dabc2904783c50a1b0dd8b324953008b160c9ed94e81793c897",
+        "c/dispatch.c": "80a97f55a460a21dac9d6295939a8276c83b66cef886f814365e0a823814debf",
+        "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+        "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc"
+      },
+      "receipts": {
+        "build/workers/close-adlx-11/cases.json": {
+          "sha256": "2f106d3d7213060cc4af18ce431900c73748880072ba50fcac7d0ff5da1e6771",
+          "result": "PASS"
+        }
+      },
+      "native_sources_changed": false,
+      "status": "migrated"
+    }
+  ]
 }

@@ -19,7 +19,16 @@ def main():
      if failure_poll and calls[0]==failure_poll:rp.contents.ax=0x81a5;rp.contents.flags=0x8d7;return 1
     return 0
    callback=callback_type(service) if failure_poll else callback_type();dll.ugh_set_service_observer.argtypes=[callback_type];dll.ugh_set_service_observer(callback);f=getattr(dll,'c_'+name);f.argtypes=[C.POINTER(difftest.Regs)];status=f(C.byref(r));dll.ugh_set_service_observer(callback_type());dll.ugh_set_entry_observer(entry_type());ram=bytes(dll.ugh_memory().contents);events=C.string_at(C.addressof(dev.log),dev.count*C.sizeof(difftest.IoEvent)) if hasattr(difftest,'IoEvent') else C.string_at(C.addressof(dev.log),dev.count*16);device_observation=C.string_at(C.addressof(dev),type(dev).log.offset);results.append((status,bytes(r),ram,events,dev.error,device_observation,entries))
-  a,b=results;assert a[0]==b[0] and a[4]==b[4],(len(rows),name,'status/error',a[0],b[0],a[4],b[4]);assert a[1]==b[1],(len(rows),name,'ABI',struct.unpack('<14H',a[1]),struct.unpack('<14H',b[1]));assert a[2]==b[2],(len(rows),name,'full RAM including all stack bytes',next((i for i,(x,y) in enumerate(zip(a[2],b[2])) if x!=y),None));assert a[3]==b[3],(len(rows),name,'ordered I/O');assert a[5]==b[5],(len(rows),name,'complete device state',next(i for i,(x,y) in enumerate(zip(a[5],b[5])) if x!=y));assert a[6]==b[6],(len(rows),name,'ordered service entries',next((i for i,(x,y) in enumerate(zip(a[6],b[6])) if x!=y),None));rows.append(dict(name=name,status=a[0],error=a[4],events=len(a[3])//16,RAM_sha256=hashlib.sha256(a[2]).hexdigest(),ports_sha256=hashlib.sha256(a[3]).hexdigest(),devices_sha256=hashlib.sha256(a[5]).hexdigest(),services=len(a[6]),service_sha256=hashlib.sha256(repr(a[6]).encode()).hexdigest()))
+  a,b=results
+  if name=='CopyIndexedMenuString':assert len(a[6])==len(b[6])==0,(len(rows),name,'direct leaf has no child entry')
+  elif name=='DrawTextLine':
+   first=m.read(initial['DS'],initial['SI'],1)[0]
+   if first==254:first=m.read(initial['DS'],(initial['SI']+(-1 if initial['FLAGS']&0x400 else 1))&65535,1)[0]
+   if first in [0,13,253]:assert len(a[6])==len(b[6])==0,(len(rows),name,'empty line has no glyph service')
+   else:assert a[6] and b[6],(len(rows),name,'nonempty glyph service stream')
+  elif name=='DrawMenuHeaderSprites':assert len(a[6])==len(b[6])==3,(len(rows),name,'exact three header sprite calls')
+  else:assert a[6] and b[6],(len(rows),name,'nonempty ordered entry stream')
+  assert a[0]==b[0] and a[4]==b[4],(len(rows),name,'status/error',a[0],b[0],a[4],b[4]);assert a[1]==b[1],(len(rows),name,'ABI',struct.unpack('<14H',a[1]),struct.unpack('<14H',b[1]));assert a[2]==b[2],(len(rows),name,'full RAM including all stack bytes',next((i for i,(x,y) in enumerate(zip(a[2],b[2])) if x!=y),None));assert a[3]==b[3],(len(rows),name,'ordered I/O');assert a[5]==b[5],(len(rows),name,'complete device state',next(i for i,(x,y) in enumerate(zip(a[5],b[5])) if x!=y));assert a[6]==b[6],(len(rows),name,'ordered service entries',next((i for i,(x,y) in enumerate(zip(a[6],b[6])) if x!=y),None));rows.append(dict(name=name,status=a[0],error=a[4],events=len(a[3])//16,RAM_sha256=hashlib.sha256(a[2]).hexdigest(),ports_sha256=hashlib.sha256(a[3]).hexdigest(),devices_sha256=hashlib.sha256(a[5]).hexdigest(),services=len(a[6]),service_sha256=hashlib.sha256(repr(a[6]).encode()).hexdigest()))
 
 
 
@@ -59,5 +68,6 @@ def main():
   m.reset();menu.composition_fixture(m);m.device.script_count=0;m.device.script(0x3da,[0,8],cycles=0xffffffff);m.device.script(0x201,[255],cycles=0xffffffff)
   if pages is not None:m.write(m.seg('DGROUP:PlayerCount'),m.off('DGROUP:Text_091F'),pages)
   pair('ShowCreditsPages',flags=0x202)
+ assert sum(row['services'] for row in rows)>0,'entry trace instrumentation missing'
  save(OUT/'menus-cases.json',receipt([sys.executable,'verif/menus_evidence.py'],[Path(__file__),ROOT/'verif/menus_build.py',ROOT/'native/menus.c',ROOT/'native/menus.h',ROOT/'native/high_scores.c',ROOT/'native/high_scores.h',ROOT/'native/front_end.h',ROOT/'native/bridge/menus_bridge.c',ROOT/'native/bridge/high_scores_bridge.c',ROOT/'native/bridge/front_end_support.h',ROOT/'c/menu.c',ROOT/'c/menu_helpers.c',ROOT/'c/scene.c',plain],result='PASS',cases=rows,seconds=time.perf_counter()-start));print('PASS',len(rows),'menus full RAM/device/service pairs',flush=True)
 if __name__=='__main__':main()

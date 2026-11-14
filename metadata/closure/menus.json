@@ -128,9 +128,9 @@
     {
       "property": "Whole compiled entries",
       "level": "C",
-      "method": "Independent complete L1 and23-entry native DLLs, full RAM including stack, full device state,14 register/flag words, ordered ports and full entry-service ABI streams.",
+      "method": "Independent complete L1 and23-entry native DLLs, full RAM including stack, full device state,14 register/flag words, ordered ports and full entry-service ABI streams. Evidence repair: both generated dispatcher copies invoke platform_trace_entry; compare ordered dispatched child-entry identities and all14 register/flag words. Direct C calls/root entries are not dispatcher events; legitimate leaf/early-return empties are checked separately.",
       "command": "python verif/menus_evidence.py",
-      "result": "PASS805 generated pairs: strings/DF/aliases, font and raw text, all256 BIOS bytes, control cases, all150 introductions, both attract maps and credits.",
+      "result": "PASS805 generated pairs: strings/DF/aliases, font and raw text, all256 BIOS bytes, control cases, all150 introductions, both attract maps and credits. Refreshed: 164865 dispatched entries; 123 legitimate empty cases. Nonempty assertions and known row/header counts pass; no new mismatch.",
       "date": "2026-11-14"
     },
     {
@@ -302,13 +302,43 @@
     "verif/front_end_inventory.py": "206607c126da32eee66750ebbac62ac0f668674c7e4495d7093cbd334708be05",
     "verif/front_end_limits.py": "e5bb448b12c8a755757c8fca9cbccc483eb3c5e65dee87987652be6c88c591c8",
     "verif/front_end_reproduce.py": "26073e964b373f6560d1ec54944fb5a6188f04178c0026f92943525ae64d30ef",
-    "verif/menus_build.py": "3a1c1cefb03e407d6606ca976c399ffbe3d232878e90ada910de1a8ba0985ef9",
+    "verif/menus_build.py": "bf2a5391af743bf0a7d2289bf7e39307216a3595fff7ea62fa339d5d8568a305",
     "verif/menus_certificate.py": "c6719945cd5006f139dc8b3475cfcf7d832cf2dcc45f93fada44ef9756721955",
     "verif/menus_enumerate.py": "efb612848da8b44398d5b902112f5c83ef89884e22e3f698c21e6b285beda215",
-    "verif/menus_evidence.py": "76566b66c97e328daecdcb6c722ead759f1ca96292e89849b3bdb96e80935f4e",
+    "verif/menus_evidence.py": "69465298a02387ce2eb961cdecd3971e6375a2bfa576808eba603ec97d0c0922",
     "verif/menus_integration.py": "5530f9b35a1bbba24ce7a5680216562793516f53322e6da7f9f9d794adfb10fe",
     "verif/menus_passwords.py": "f2034d9d4b8b308860eef4b828a844342a5766f070ec1789964e12fc274e07d5",
     "verif/menus_proofs.py": "823468218f96e5357e0f8785d16feb836ad8971da1ec0b2b54dc6cc81faa7c64",
-    "verif/menus_spans.py": "eea16813bdfe496eec5f292090b414e19595501b443a96e93b3368280f930dec"
-  }
+    "verif/menus_spans.py": "eea16813bdfe496eec5f292090b414e19595501b443a96e93b3368280f930dec",
+    "c/dispatch.c": "80a97f55a460a21dac9d6295939a8276c83b66cef886f814365e0a823814debf"
+  },
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-14",
+      "reason": "Instrumented generated dispatcher on both sides; repaired vacuous dispatched-entry comparisons.",
+      "commands": [
+        "python verif/menus_evidence.py"
+      ],
+      "results": {
+        "pairs": 805,
+        "dispatched_entries": 164865,
+        "legitimate_empty_cases": 123
+      },
+      "inputs": {
+        "verif/menus_build.py": "bf2a5391af743bf0a7d2289bf7e39307216a3595fff7ea62fa339d5d8568a305",
+        "verif/menus_evidence.py": "69465298a02387ce2eb961cdecd3971e6375a2bfa576808eba603ec97d0c0922",
+        "c/dispatch.c": "80a97f55a460a21dac9d6295939a8276c83b66cef886f814365e0a823814debf",
+        "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+        "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc"
+      },
+      "receipts": {
+        "build/workers/close-adlx-13/menus-cases.json": {
+          "sha256": "55439ad2f73aa36ac7627c3fa8583f087a148d2f6e2bc02788027e804d278f97",
+          "result": "PASS"
+        }
+      },
+      "native_sources_changed": false,
+      "status": "migrated"
+    }
+  ]
 }

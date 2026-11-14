@@ -122,9 +122,9 @@
     {
       "property": "Whole compiled entries",
       "level": "C",
-      "method": "Independent complete L1 and10-entry native DLLs; all RAM including stack, all14 register/flag words, full device state, exact ordered ports and entry-service ABI streams.",
+      "method": "Independent complete L1 and10-entry native DLLs; all RAM including stack, all14 register/flag words, full device state, exact ordered ports and entry-service ABI streams. Evidence repair: both generated dispatcher copies invoke platform_trace_entry; compare ordered dispatched child-entry identities and all14 register/flag words. Direct C calls/root entries are not dispatcher events; legitimate leaf/early-return empties are checked separately.",
       "command": "python verif/high_scores_evidence.py",
-      "result": "PASS757 generated pairs; ranks0..reject, full/empty/edited names, score boundaries, raw strides and file lengths/errors.",
+      "result": "PASS757 generated pairs; ranks0..reject, full/empty/edited names, score boundaries, raw strides and file lengths/errors. Refreshed: 48345 dispatched entries; 252 legitimate empty cases. Nonempty assertions and known row/header counts pass; no new mismatch.",
       "date": "2026-11-14"
     },
     {
@@ -296,12 +296,42 @@
     "verif/front_end_host.py": "f4b4a1909459dc4fb812ddf30f6022ae58a39c1a9e3e85d56f99cf19b8447b77",
     "verif/front_end_inventory.py": "206607c126da32eee66750ebbac62ac0f668674c7e4495d7093cbd334708be05",
     "verif/front_end_limits.py": "e5bb448b12c8a755757c8fca9cbccc483eb3c5e65dee87987652be6c88c591c8",
-    "verif/high_scores_build.py": "e261a63c053da46491bdd297a743639b5e033c165c88da6bbfc05af03d87e280",
+    "verif/high_scores_build.py": "3ee6a1e25ad6912fa194651ee07ead007479090a5ae4736ef8ee8cbeb17f8800",
     "verif/high_scores_certificate.py": "2999857d24b8d16367b91151f712f7f28fbca3da834238d9d961b8efe8de0c31",
     "verif/high_scores_enumerate.py": "e347395cae50dbe8539b1b56ee9f7db2a5201bd510e0157a93e6f440f9e209d3",
-    "verif/high_scores_evidence.py": "f75ede8659ec066b0356b731247c0b93faa6befedb4682e3b4a43cce82027eb6",
+    "verif/high_scores_evidence.py": "45a5c1dea9c7a53935e6a4a95f5200aa7e2f1b274ea7715f5da721151f5f4801",
     "verif/high_scores_integration.py": "15813519c1e3326072fb6886ce0bfaa493b39787f4b399af881afda0442d8dd5",
     "verif/high_scores_proofs.py": "2b76c786bbfe4ea43a956391fc339ac7a5b86b57bd86814fb5d2853fdc40a4fa",
-    "verif/high_scores_spans.py": "e7adbf016d1eee3dcbfe152f1f1bcb80d5f4b0aca82eee763a1deca2b6502805"
-  }
+    "verif/high_scores_spans.py": "e7adbf016d1eee3dcbfe152f1f1bcb80d5f4b0aca82eee763a1deca2b6502805",
+    "c/dispatch.c": "80a97f55a460a21dac9d6295939a8276c83b66cef886f814365e0a823814debf"
+  },
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-14",
+      "reason": "Instrumented generated dispatcher on both sides; repaired vacuous dispatched-entry comparisons.",
+      "commands": [
+        "python verif/high_scores_evidence.py"
+      ],
+      "results": {
+        "pairs": 757,
+        "dispatched_entries": 48345,
+        "legitimate_empty_cases": 252
+      },
+      "inputs": {
+        "verif/high_scores_build.py": "3ee6a1e25ad6912fa194651ee07ead007479090a5ae4736ef8ee8cbeb17f8800",
+        "verif/high_scores_evidence.py": "45a5c1dea9c7a53935e6a4a95f5200aa7e2f1b274ea7715f5da721151f5f4801",
+        "c/dispatch.c": "80a97f55a460a21dac9d6295939a8276c83b66cef886f814365e0a823814debf",
+        "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+        "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc"
+      },
+      "receipts": {
+        "build/workers/close-adlx-13/high-cases.json": {
+          "sha256": "897aeb3c2e8647eddfb29604d22536400b14cc8e097c9d9b6c220ad39ad332e3",
+          "result": "PASS"
+        }
+      },
+      "native_sources_changed": false,
+      "status": "migrated"
+    }
+  ]
 }

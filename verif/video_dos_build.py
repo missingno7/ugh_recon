@@ -10,6 +10,9 @@ def build(reference=False):
   source=p.read_text();changed=source
   if not reference:
    for n in NAMES:changed=re.sub(r'(EXPORT int )c_'+n+r'(?=\()',r'\1l1_'+n,changed)
+  if p.name=='dispatch.c':
+   assert changed.count('int status=fn(r);')==2
+   changed=changed.replace('int status=fn(r);','platform_trace_entry(segment,offset,r); int status=fn(r);')
   if changed!=source:target=folder/p.name;target.write_text(changed);sources.append(target)
   else:sources.append(p)
   inputs.append(p)

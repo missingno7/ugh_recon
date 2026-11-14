@@ -160,6 +160,12 @@ actor pass and terminal tail entries are retired too. The standalone census now 
 entry body executing and no fallback taken. The only `c/` code still running is the machine:
 `dispatch.c`, `memory.c`, `platform.c` and the `ugh.h` helpers.
 
+The optional level suite (`tests/levels/`, `python verif/level_suite.py --all`, about two minutes
+with cached references) enters all 81 physical level records through their shipped passwords.
+Each runs 160 frames against the rebuilt original. Both hosts pass 81/81. The suite covers
+loading, seeding, terrain and the opening simulation of every level. It does not cover every
+gameplay branch, and it runs without audio.
+
 ### The Sound Blaster path is unreachable in the shipped DOS program
 
 Recorded 2026-11-14 from close-adlx-9's run and checked in the source:

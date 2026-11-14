@@ -1,0 +1,2044 @@
+{
+  "component": "render_primitives",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "original": {
+    "owned": [
+      {
+        "identity": "GAME:DrawTransparentSprite",
+        "address": "013B:41FD",
+        "l1": "c_DrawTransparentSprite"
+      },
+      {
+        "identity": "GAME:DrawMapTile",
+        "address": "013B:4454",
+        "l1": "c_DrawMapTile"
+      },
+      {
+        "identity": "GAME:DrawTileMap",
+        "address": "013B:4172",
+        "l1": "c_DrawTileMap"
+      },
+      {
+        "identity": "GAME:SaveDrawPageBackground",
+        "address": "013B:446F",
+        "l1": "c_SaveDrawPageBackground"
+      },
+      {
+        "identity": "GAME:RestorePlayfieldBackground",
+        "address": "013B:43A5",
+        "l1": "c_RestorePlayfieldBackground"
+      },
+      {
+        "identity": "GAME:RestoreBackgroundRectangle",
+        "address": "013B:43EA",
+        "l1": "c_RestoreBackgroundRectangle"
+      },
+      {
+        "identity": "GAME:RestoreSpriteBackground",
+        "address": "013B:43B9",
+        "l1": "c_RestoreSpriteBackground"
+      },
+      {
+        "identity": "GAME:RestoreTileBackground",
+        "address": "013B:43D7",
+        "l1": "c_RestoreTileBackground"
+      },
+      {
+        "identity": "GAME:RestorePlayerBackground",
+        "address": "013B:436D",
+        "l1": "c_RestorePlayerBackground"
+      },
+      {
+        "identity": "GAME:AnimateAndDrawPlayer",
+        "address": "013B:418D",
+        "l1": "c_AnimateAndDrawPlayer"
+      },
+      {
+        "identity": "GAME:CachePlayerDrawState",
+        "address": "013B:4352",
+        "l1": "c_CachePlayerDrawState"
+      }
+    ],
+    "l1": [
+      "c/render.c",
+      "c/render_primitives.c"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/render_primitives.h",
+      "native/render_primitives.c",
+      "native/bridge/render_primitives_support.h",
+      "native/bridge/render_primitives_bridge.c"
+    ],
+    "header": "native/render_primitives.h",
+    "functions": [
+      "render_sprite_place",
+      "render_sprite_begin",
+      "render_sprite_pixel",
+      "render_sprite_column",
+      "render_rectangle",
+      "render_next_row",
+      "render_save",
+      "render_map_tile",
+      "render_map_cell",
+      "render_tile_rectangle",
+      "render_playfield_rectangle",
+      "render_sprite_rectangle",
+      "render_restore_sprite_index",
+      "render_player_visible",
+      "render_player_restore",
+      "render_player_animation",
+      "render_cache_store"
+    ],
+    "build": "python verif/render_primitives_build.py"
+  },
+  "purpose": "Decide ordered sprite, map, background copy/restore and player-animation requests over borrowed resources and canonical rendering caches. Keep the physical VGA operations as precise synchronous services.",
+  "interface": {
+    "inputs": [
+      "Raw16-bit sprite IDs, signed coordinates/height/surface and all wrapping page/resource cell words; all dimensions bytes including zero; arbitrary source bytes, incoming DF and inherited VGA controls.",
+      "Selected physical player0/2 animation/countdown/rate/cycle words and current/cached sprite/pixel words. No phase, initialization or finite-delay restriction. Cache-copy entry retains arbitrary wrapping index and ordered reads.",
+      "Full pointer segments remain backend bindings: water/page selection uses existing pointers exactly; sprite and rectangle output deliberately use physical A000 with page offsets only."
+    ],
+    "outputs": [
+      "Ordered native placement, metadata index/bank, masks and per-byte draw/skip decisions; rectangle row-copy requests and exact REP endpoints.",
+      "Ordered selected-player animation stores and conditional draw/restore, followed by the original cache tail. Matching cuts consume the native value before each real service."
+    ],
+    "effects": [
+      "copy_mode exact ordered IO/read-modify-write",
+      "sprite resource-byte reads and physical A000 pixel writes",
+      "rectangle ascending live read/write pairs with DF clear on each row",
+      "save live reads/writes with incoming DF and REP zero semantics"
+    ],
+    "preconditions": [
+      "Ordinary disjoint code/data, stack and borrowed resources. Pixel services are synchronous and do not mutate player simulation/caches or resource descriptors while the primitive executes.",
+      "One selected physical player0/2 for animation/restore native projection; malformed indices retain the full literal shell. No clipping or safe-pointer promise for malformed resources.",
+      "Scalar native cursor continuations are constructed by the initializer; byte row/column counters use do/decrement semantics. Source direction is Boolean in normal construction. All arithmetic kernels additionally admit arbitrary scalar words/bytes."
+    ]
+  },
+  "callers": {
+    "DrawTransparentSprite": [
+      {
+        "source": "c/menu.c",
+        "function": "c_DrawMenuHeaderSprites"
+      },
+      {
+        "source": "c/menu.c",
+        "function": "c_DrawTextLine"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_DrawHudBorders"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_DrawHudDigit"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_AnimateAndDrawPlayer"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_DrawMapTile"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_RefreshHudAndTimerBar"
+      },
+      {
+        "source": "c/scene.c",
+        "function": "draw_enemy_layer"
+      },
+      {
+        "source": "c/scene.c",
+        "function": "c_RunGameFromPassword"
+      },
+      {
+        "source": "c/scene.c",
+        "function": "c_DrawDemoSprites"
+      }
+    ],
+    "DrawMapTile": [
+      {
+        "source": "c/render.c",
+        "function": "c_DrawMapTile"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_DrawTileMap"
+      }
+    ],
+    "DrawTileMap": [
+      {
+        "source": "c/render.c",
+        "function": "c_InitializeLevelDisplay"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_DrawTileMap"
+      }
+    ],
+    "SaveDrawPageBackground": [
+      {
+        "source": "c/render.c",
+        "function": "c_InitializeLevelDisplay"
+      },
+      {
+        "source": "c/scene.c",
+        "function": "c_ShowCreditsPages"
+      }
+    ],
+    "RestorePlayfieldBackground": [
+      {
+        "source": "c/render.c",
+        "function": "c_InitializeLevelDisplay"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_RestorePlayfieldBackground"
+      },
+      {
+        "source": "c/scene.c",
+        "function": "c_ShowCreditsPages"
+      }
+    ],
+    "RestoreBackgroundRectangle": [
+      {
+        "source": "c/actors_states.c",
+        "function": "c_AdvanceWaterSurface"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_RestoreSpriteBackground"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_RestorePlayfieldBackground"
+      },
+      {
+        "source": "c/render_primitives.c",
+        "function": "c_RestoreTileBackground"
+      }
+    ],
+    "RestoreSpriteBackground": [
+      {
+        "source": "c/render.c",
+        "function": "c_RestoreSpriteBackground"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_RestorePlayerBackground"
+      },
+      {
+        "source": "c/scene.c",
+        "function": "c_EraseDemoSprites"
+      },
+      {
+        "source": "c/scene.c",
+        "function": "c_RunGameFromPassword"
+      }
+    ],
+    "RestoreTileBackground": [],
+    "RestorePlayerBackground": [
+      {
+        "source": "c/render.c",
+        "function": "c_RestorePlayerBackground"
+      },
+      {
+        "source": "c/scene.c",
+        "function": "c_RunGameFromPassword"
+      }
+    ],
+    "AnimateAndDrawPlayer": [
+      {
+        "source": "c/render.c",
+        "function": "c_AnimateAndDrawPlayer"
+      },
+      {
+        "source": "c/scene.c",
+        "function": "c_RunGameFromPassword"
+      }
+    ],
+    "CachePlayerDrawState": [
+      {
+        "source": "c/render.c",
+        "function": "c_RestorePlayerBackground"
+      }
+    ]
+  },
+  "callees": {
+    "native": [
+      "render_primitives API"
+    ],
+    "services": [
+      "VGA sequencer/graphics-controller port transactions and live aperture reads/writes",
+      "DrawTransparentSprite from map/player wrappers",
+      "RestoreBackgroundRectangle from restore wrappers; CachePlayerDrawState immediate tail"
+    ]
+  },
+  "indirect": {
+    "targets": [
+      "Existing dispatch to DrawTransparentSprite, RestoreBackgroundRectangle, CachePlayerDrawState and DrawMapTile"
+    ],
+    "classification": "Named original near calls/tails, with exact saved words and returns; no new indirect callback or session body."
+  },
+  "memory": {
+    "owned": [
+      "Working rendering requests/cursors only; player cached sprite/pixel arrays and animation updates project to their existing persistent arrays. No second image, player or water owner.",
+      "RendererScratchWord and SpritePlaneStateScratch remain the existing code-segment scratch words."
+    ],
+    "borrowed": [
+      "Sprite directory, four pixel banks, map pointer/data, playfield/surface Y, pages/copy count and live VGA latch/control state. Current player motion/thrust state remains with its accepted owner."
+    ],
+    "cache_writers": [
+      {
+        "source": "c/actors.c",
+        "function": "c_InitializeFruitTreeAnimation",
+        "fields": [
+          "EnemyDrawX"
+        ],
+        "statement": "r->ax=shl(r,A(EnemyX32),5); W(EnemyDrawX,r->ax);"
+      },
+      {
+        "source": "c/actors.c",
+        "function": "c_InitializeFruitTreeAnimation",
+        "fields": [
+          "EnemyDrawY"
+        ],
+        "statement": "r->ax=shl(r,A(EnemyY32),5); W(EnemyDrawY,r->ax); return UGH_OK;"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_InitializeLevelDisplay",
+        "fields": [
+          "HudCachedLives"
+        ],
+        "statement": "WB(HudCachedLives,r->ax);"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_InitializeLevelDisplay",
+        "fields": [
+          "HudCachedMultiplier"
+        ],
+        "statement": "WB(HudCachedMultiplier,r->ax);"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_InitializeLevelDisplay",
+        "fields": [
+          "HudCachedFare",
+          "HudCachedLevelCounter"
+        ],
+        "statement": "WB(HudCachedLevelCounter,99); W(HudCachedFare,9999);"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_InitializeLevelDisplay",
+        "fields": [
+          "HudCachedScoreHigh",
+          "HudCachedScoreLow",
+          "HudDigitCursorY"
+        ],
+        "statement": "W(HudCachedScoreLow,r->ax); W(HudCachedScoreHigh,r->dx); W(HudDigitCursorY,194);"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_DrawHudDigitAndAdvance",
+        "fields": [
+          "HudDigitCursorX"
+        ],
+        "statement": "W(HudDigitCursorX,add16(r,R(HudDigitCursorX),6,0)); return UGH_OK;"
+      },
+      {
+        "source": "c/render.c",
+        "function": "changed_digits",
+        "fields": [
+          "HudDigitCursorX"
+        ],
+        "statement": "W(HudDigitCursorX,add16(r,R(HudDigitCursorX),6,0));"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_RefreshHudAndTimerBar",
+        "fields": [
+          "HudDigitCursorY"
+        ],
+        "statement": "W(HudDigitCursorY,194);"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_RefreshHudAndTimerBar",
+        "fields": [
+          "HudCachedLives",
+          "HudDigitCursorX"
+        ],
+        "statement": "WB(HudCachedLives,r->ax); r->bp=R(HudLivesX); W(HudDigitCursorX,r->bp);"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_RefreshHudAndTimerBar",
+        "fields": [
+          "HudCachedScoreHigh",
+          "HudCachedScoreLow"
+        ],
+        "statement": "W(HudCachedScoreLow,r->ax); W(HudCachedScoreHigh,r->dx);"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_RefreshHudAndTimerBar",
+        "fields": [
+          "HudDigitCursorX"
+        ],
+        "statement": "r->bp=R(HudScoreX); W(HudDigitCursorX,r->bp);"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_RefreshHudAndTimerBar",
+        "fields": [
+          "HudCachedLevelCounter",
+          "HudDigitCursorX"
+        ],
+        "statement": "WB(HudCachedLevelCounter,r->ax); r->bp=R(HudLevelCounterX); W(HudDigitCursorX,r->bp);"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_RefreshHudAndTimerBar",
+        "fields": [
+          "HudCachedPlayerOneIconState"
+        ],
+        "statement": "W(HudCachedPlayerOneIconState,r->ax); r->ax=add16(r,r->ax,0xb2,0);"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_RefreshHudAndTimerBar",
+        "fields": [
+          "HudCachedPlayerTwoIconState"
+        ],
+        "statement": "W(HudCachedPlayerTwoIconState,r->ax); r->ax=add16(r,r->ax,0xbf,0);"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_RefreshHudAndTimerBar",
+        "fields": [
+          "HudDigitCursorX"
+        ],
+        "statement": "r->bp=R(HudFareX); W(HudDigitCursorX,r->bp);"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_RefreshHudAndTimerBar",
+        "fields": [
+          "HudCachedFare"
+        ],
+        "statement": "if(r->ax!=r->bx) { W(HudCachedFare,r->ax); CALL(RedrawChangedFourDigitNumber,RefreshHudAndTimerBar,0x143); }"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_RefreshHudAndTimerBar",
+        "fields": [
+          "HudCachedMultiplier",
+          "HudDigitCursorX"
+        ],
+        "statement": "WB(HudCachedMultiplier,r->ax); r->bp=R(HudMultiplierX); W(HudDigitCursorX,r->bp);"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_RefreshHudAndTimerBar",
+        "fields": [
+          "CachedTimerBarWidth"
+        ],
+        "statement": "r->ax=pop(r); r->ds=pop(r); W(CachedTimerBarWidth,r->ax); return UGH_OK;"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_LoadCurrentLevelState",
+        "fields": [
+          "RendererScratchWord"
+        ],
+        "statement": "wr16(r->cs,G(RendererScratchWord),r->ax); push(r,r->ds);"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_LoadCurrentLevelState",
+        "fields": [
+          "PlayerCachedPixelX"
+        ],
+        "statement": "r->ax=sar(r->ax,5); W(PlayerPixelX,r->ax); W(PlayerCachedPixelX,r->ax);"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_LoadCurrentLevelState",
+        "fields": [
+          "PlayerCachedPixelY"
+        ],
+        "statement": "W(PlayerYPixels,r->ax); W(PlayerCachedPixelY,r->ax);"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_LoadCurrentLevelState",
+        "fields": [
+          "PlayerTwoCachedPixelX",
+          "PlayerTwoCachedPixelX"
+        ],
+        "statement": "r->ax=sar(r->ax,5); W(PlayerTwoPixelX,r->ax); W(PlayerTwoCachedPixelX,r->ax);"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_LoadCurrentLevelState",
+        "fields": [
+          "PlayerTwoCachedPixelY",
+          "PlayerTwoCachedPixelY"
+        ],
+        "statement": "W(SecondPlayerYPixels,r->ax); W(PlayerTwoCachedPixelY,r->ax);"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_LoadCurrentLevelState",
+        "fields": [
+          "HudCachedPlayerOneIconState",
+          "HudCachedPlayerTwoIconState"
+        ],
+        "statement": "W(HudCachedPlayerOneIconState,r->ax); W(HudCachedPlayerTwoIconState,r->ax); WB(HudFareClearPending,r->ax);"
+      },
+      {
+        "source": "c/render_primitives.c",
+        "function": "c_CachePlayerDrawState",
+        "fields": [
+          "PlayerCachedSpriteIds"
+        ],
+        "statement": "wr16(r->ds,(uint16_t)(D(PlayerCachedSpriteIds)+r->bx),"
+      },
+      {
+        "source": "c/render_primitives.c",
+        "function": "c_CachePlayerDrawState",
+        "fields": [
+          "PlayerCachedPixelX"
+        ],
+        "statement": "wr16(r->ds,(uint16_t)(D(PlayerCachedPixelX)+r->bx),"
+      },
+      {
+        "source": "c/render_primitives.c",
+        "function": "c_CachePlayerDrawState",
+        "fields": [
+          "PlayerCachedPixelY"
+        ],
+        "statement": "wr16(r->ds,(uint16_t)(D(PlayerCachedPixelY)+r->bx),"
+      },
+      {
+        "source": "c/render_primitives.c",
+        "function": "c_DrawTransparentSprite",
+        "fields": [
+          "RendererScratchWord"
+        ],
+        "statement": "wr16(r->cs,G(RendererScratchWord),water);"
+      },
+      {
+        "source": "c/render_primitives.c",
+        "function": "c_DrawTransparentSprite",
+        "fields": [
+          "SpritePlaneStateScratch"
+        ],
+        "statement": "wr16(r->cs,G(SpritePlaneStateScratch),(uint16_t)((uint16_t)plane*256u+2));"
+      },
+      {
+        "source": "c/scene.c",
+        "function": "draw_enemy_layer",
+        "fields": [
+          "EnemyPreviousDrawX",
+          "EnemyPreviousDrawY"
+        ],
+        "statement": "WX(EnemyPreviousDrawX,r->si,r->bx); WX(EnemyPreviousDrawY,r->si,r->cx);"
+      },
+      {
+        "source": "c/scene.c",
+        "function": "draw_enemy_layer",
+        "fields": [
+          "EnemyDrawX"
+        ],
+        "statement": "r->bx=sar(RX(EnemyX32,r->si),5); WX(EnemyDrawX,r->si,r->bx);"
+      },
+      {
+        "source": "c/scene.c",
+        "function": "draw_enemy_layer",
+        "fields": [
+          "EnemyDrawY"
+        ],
+        "statement": "r->cx=sar(RX(EnemyY32,r->si),5); WX(EnemyDrawY,r->si,r->cx);"
+      },
+      {
+        "source": "c/scene.c",
+        "function": "c_RunGameFromPassword",
+        "fields": [
+          "ActorPreviousDrawX",
+          "ActorPreviousDrawY"
+        ],
+        "statement": "r->bx=RX(ActorPixelX,r->si); r->cx=RX(ActorPixelY,r->si); WX(ActorPreviousDrawX,r->si,r->bx); WX(ActorPreviousDrawY,r->si,r->cx);"
+      },
+      {
+        "source": "c/scene.c",
+        "function": "c_RunGameFromPassword",
+        "fields": [
+          "FallingItemDrawX",
+          "FallingItemDrawY",
+          "FallingItemPreviousDrawX",
+          "FallingItemPreviousDrawY"
+        ],
+        "statement": "r->bx=RX(FallingItemDrawX,r->si); r->cx=RX(FallingItemDrawY,r->si); WX(FallingItemPreviousDrawX,r->si,r->bx); WX(FallingItemPreviousDrawY,r->si,r->cx);"
+      },
+      {
+        "source": "c/scene.c",
+        "function": "c_RunGameFromPassword",
+        "fields": [
+          "FallingItemDrawX",
+          "FallingItemDrawY"
+        ],
+        "statement": "r->bx=sar(RX(FallingItemX,r->si),5); WX(FallingItemDrawX,r->si,r->bx); r->cx=sar(RX(FallingItemY,r->si),5); WX(FallingItemDrawY,r->si,r->cx);"
+      },
+      {
+        "source": "c/scene.c",
+        "function": "c_InitializeDemoScripts",
+        "fields": [
+          "ActorPreviousDrawX"
+        ],
+        "statement": "WX(ActorPixelX,r->bx,r->ax); WX(ActorPreviousDrawX,r->bx,r->ax);"
+      },
+      {
+        "source": "c/scene.c",
+        "function": "c_InitializeDemoScripts",
+        "fields": [
+          "ActorPreviousDrawY"
+        ],
+        "statement": "WX(ActorPixelY,r->bx,r->ax); WX(ActorPreviousDrawY,r->bx,r->ax);"
+      },
+      {
+        "source": "c/scene.c",
+        "function": "c_DrawDemoSprites",
+        "fields": [
+          "ActorPreviousDrawX",
+          "ActorPreviousDrawY"
+        ],
+        "statement": "WX(ActorPreviousDrawX,r->si,r->bx); WX(ActorPreviousDrawY,r->si,r->cx);"
+      },
+      {
+        "source": "c/render.c",
+        "function": "c_InitializeLevelDisplay",
+        "fields": [
+          "HUD caches within normal D:2648..27CF"
+        ],
+        "statement": "196 STOS words through LevelWorkspacePointer (normal CoordinateScaleScratch binding). Includes cached bar width and HUD caches; excludes all player arrays at27D0 and later. Incoming DF retained; arbitrary pointer/DF changes the actual footprint."
+      }
+    ],
+    "projection": "Animation stores consumed in order with matching selected field/address and value before draw; restore request consumed before immediate sprite tail, then cache tail reads live values in original order. Existing migrated actor/demo/water request streams and bridges are unchanged; dispatch resolves their original service entries to this module."
+  },
+  "assumptions": [
+    "B normalizes ordinary resource/selected-slot RAM; all16-bit scalar boundaries remain symbolic. Service pixel values and read results are arbitrary at the cut, with resource/stack frames.",
+    "B is split by actual C branch structure as listed in coverage. Other native bytes, padding and inactive cursor inputs have separate properties. Save-copy endpoint uses the actual REP base and one-step invariant, not a bounded whole-page proof.",
+    "Full RAM, device state, exact register/defined-flag ABI, service prefix and session composition have independent C/D evidence. No formal claim about arbitrary malformed overlapping machine resources or the VGA controller internals."
+  ],
+  "eliminated": [
+    "Ordinary native code contains no machine registers, memory accessors, ports, segments, stack layout or dispatch.",
+    "Pixel byte selection and where/how much to draw/copy/restore come from native results; the bridge checks and consumes them. Native-only value/selection changes are mutation controls."
+  ],
+  "retained": [
+    "No sprite clipping; signed Y>=PlayfieldHeight selects fixed page and subtracts192, irrespective of the height value. X uses SAR2. Directory index and page/source/destination additions wrap as words; banks compare IDs unsigned at217/298/547.",
+    "Zero sprite dimension bytes mean256, unlike rectangle restore where width remains the wrapped whole-cell formula and zero height means65536 rows. Transparent zero performs no destination read or write. Water equality==height does not shade; threshold0 shades rows only after the first. Shade OR40h happens only for a nonzero source.",
+    "Rectangle restore copies whole cells without edge masking, clears DF on every row, uses physical A000 and page offsets, sets write mode1 while preserving other GC5 bits, then clears only write-mode bits. Reads refresh live latches; do not substitute snapshot memcpy.",
+    "Save honors full page segments, incoming DF, raw count including zero, and individual word wrapping. It retains read/write ordering for overlaps and inherited plane/read/write controls.",
+    "RestoreSpriteBackground discards the loaded directory offset before reading raw dimensions from id*4. DrawTileMap leaves DS as the map resource segment, so sprite water reads use that live segment.",
+    "Player signed visibility uses strict x>-32,y>-20 and x<320,y<192. Rate caps only when signed>90; negative raw rates remain negative. Wrapped countdown<0 adds200 once and advances once, with signed cycle-end compare. Cache copying is three ordered source reads/stores, including malformed wrapping indices."
+  ],
+  "evidence": [
+    {
+      "property": "Checked inventory",
+      "level": "B",
+      "command": "python verif/render_primitives_inventory.py",
+      "result": "PASS",
+      "method": "Actual-C placement/constructor, one pixel/column, rectangle setup/row successor, REP base/step invariant, wrapper parameters, visibility, animation stores and ordered cache copy form the B decision boundary. Every scalar is a raw word/byte; map ordinal<320 and one selected physical player0/2 are the only index restrictions. Native cursor frame/dependence properties cover all other native bytes and inactive inputs. Complete source-checked outer loops, ABI/flags/stack, immediate service tails, live pixel/latch transactions and arbitrary-alias machine bindings retain literal implementations and independent C/D evidence; no B theorem for VGA internals or the entire session is claimed.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "placement output",
+      "level": "B",
+      "command": "python verif/render_primitives_proof.py placement output",
+      "result": "PASS",
+      "method": "Actual-C placement/constructor, one pixel/column, rectangle setup/row successor, REP base/step invariant, wrapper parameters, visibility, animation stores and ordered cache copy form the B decision boundary. Every scalar is a raw word/byte; map ordinal<320 and one selected physical player0/2 are the only index restrictions. Native cursor frame/dependence properties cover all other native bytes and inactive inputs. Complete source-checked outer loops, ABI/flags/stack, immediate service tails, live pixel/latch transactions and arbitrary-alias machine bindings retain literal implementations and independent C/D evidence; no B theorem for VGA internals or the entire session is claimed.",
+      "date": "2026-11-14",
+      "profile": {
+        "unwind": 8,
+        "preprocessed_sha256": "8908cbfdd9b784d2ef935165ff8ec72e752b9b8844db06d295d96643eb2da687",
+        "seconds": 0.10285060002934188,
+        "peak_private_bytes": 12517376,
+        "hard_private_limit_bytes": 8589934592,
+        "receipt": "build\\workers\\close-stones-11\\proofs\\placement-output\\result.json"
+      }
+    },
+    {
+      "property": "begin output",
+      "level": "B",
+      "command": "python verif/render_primitives_proof.py begin output",
+      "result": "PASS",
+      "method": "Actual-C placement/constructor, one pixel/column, rectangle setup/row successor, REP base/step invariant, wrapper parameters, visibility, animation stores and ordered cache copy form the B decision boundary. Every scalar is a raw word/byte; map ordinal<320 and one selected physical player0/2 are the only index restrictions. Native cursor frame/dependence properties cover all other native bytes and inactive inputs. Complete source-checked outer loops, ABI/flags/stack, immediate service tails, live pixel/latch transactions and arbitrary-alias machine bindings retain literal implementations and independent C/D evidence; no B theorem for VGA internals or the entire session is claimed.",
+      "date": "2026-11-14",
+      "profile": {
+        "unwind": 8,
+        "preprocessed_sha256": "602e40ece4d2950eee6232345f393683c54576d910ef9086c4b0bf830015a5e5",
+        "seconds": 0.042507900041528046,
+        "peak_private_bytes": 10076160,
+        "hard_private_limit_bytes": 8589934592,
+        "receipt": "build\\workers\\close-stones-11\\proofs\\begin-output\\result.json"
+      }
+    },
+    {
+      "property": "pixel output",
+      "level": "B",
+      "command": "python verif/render_primitives_proof.py pixel output",
+      "result": "PASS",
+      "method": "Actual-C placement/constructor, one pixel/column, rectangle setup/row successor, REP base/step invariant, wrapper parameters, visibility, animation stores and ordered cache copy form the B decision boundary. Every scalar is a raw word/byte; map ordinal<320 and one selected physical player0/2 are the only index restrictions. Native cursor frame/dependence properties cover all other native bytes and inactive inputs. Complete source-checked outer loops, ABI/flags/stack, immediate service tails, live pixel/latch transactions and arbitrary-alias machine bindings retain literal implementations and independent C/D evidence; no B theorem for VGA internals or the entire session is claimed.",
+      "date": "2026-11-14",
+      "profile": {
+        "unwind": 8,
+        "preprocessed_sha256": "dfe5f708e9354a1e64971d98a822c75d1f8066e35cab62feaa900395747d691f",
+        "seconds": 0.04953620000742376,
+        "peak_private_bytes": 10637312,
+        "hard_private_limit_bytes": 8589934592,
+        "receipt": "build\\workers\\close-stones-11\\proofs\\pixel-output\\result.json"
+      }
+    },
+    {
+      "property": "pixel frame",
+      "level": "B",
+      "command": "python verif/render_primitives_proof.py pixel frame",
+      "result": "PASS",
+      "method": "Actual-C placement/constructor, one pixel/column, rectangle setup/row successor, REP base/step invariant, wrapper parameters, visibility, animation stores and ordered cache copy form the B decision boundary. Every scalar is a raw word/byte; map ordinal<320 and one selected physical player0/2 are the only index restrictions. Native cursor frame/dependence properties cover all other native bytes and inactive inputs. Complete source-checked outer loops, ABI/flags/stack, immediate service tails, live pixel/latch transactions and arbitrary-alias machine bindings retain literal implementations and independent C/D evidence; no B theorem for VGA internals or the entire session is claimed.",
+      "date": "2026-11-14",
+      "profile": {
+        "unwind": 8,
+        "preprocessed_sha256": "78240583dcf1ac42418777399671a9a170af3b11ba8dfbf64cd890ad31a4bade",
+        "seconds": 0.047020900005009025,
+        "peak_private_bytes": 10092544,
+        "hard_private_limit_bytes": 8589934592,
+        "receipt": "build\\workers\\close-stones-11\\proofs\\pixel-frame\\result.json"
+      }
+    },
+    {
+      "property": "pixel dependence",
+      "level": "B",
+      "command": "python verif/render_primitives_proof.py pixel dependence",
+      "result": "PASS",
+      "method": "Actual-C placement/constructor, one pixel/column, rectangle setup/row successor, REP base/step invariant, wrapper parameters, visibility, animation stores and ordered cache copy form the B decision boundary. Every scalar is a raw word/byte; map ordinal<320 and one selected physical player0/2 are the only index restrictions. Native cursor frame/dependence properties cover all other native bytes and inactive inputs. Complete source-checked outer loops, ABI/flags/stack, immediate service tails, live pixel/latch transactions and arbitrary-alias machine bindings retain literal implementations and independent C/D evidence; no B theorem for VGA internals or the entire session is claimed.",
+      "date": "2026-11-14",
+      "profile": {
+        "unwind": 8,
+        "preprocessed_sha256": "dbc0f70239a1b5f35404d29017846b01b4207dc00c2de78276f03728dd82ccbc",
+        "seconds": 0.04030900000361726,
+        "peak_private_bytes": 8900608,
+        "hard_private_limit_bytes": 8589934592,
+        "receipt": "build\\workers\\close-stones-11\\proofs\\pixel-dependence\\result.json"
+      }
+    },
+    {
+      "property": "column output",
+      "level": "B",
+      "command": "python verif/render_primitives_proof.py column output",
+      "result": "PASS",
+      "method": "Actual-C placement/constructor, one pixel/column, rectangle setup/row successor, REP base/step invariant, wrapper parameters, visibility, animation stores and ordered cache copy form the B decision boundary. Every scalar is a raw word/byte; map ordinal<320 and one selected physical player0/2 are the only index restrictions. Native cursor frame/dependence properties cover all other native bytes and inactive inputs. Complete source-checked outer loops, ABI/flags/stack, immediate service tails, live pixel/latch transactions and arbitrary-alias machine bindings retain literal implementations and independent C/D evidence; no B theorem for VGA internals or the entire session is claimed.",
+      "date": "2026-11-14",
+      "profile": {
+        "unwind": 8,
+        "preprocessed_sha256": "24b91cce8f58819b3cd39c43304e905c0bac5acb270368056c5803097c519878",
+        "seconds": 0.04680349997943267,
+        "peak_private_bytes": 10354688,
+        "hard_private_limit_bytes": 8589934592,
+        "receipt": "build\\workers\\close-stones-11\\proofs\\column-output\\result.json"
+      }
+    },
+    {
+      "property": "column frame",
+      "level": "B",
+      "command": "python verif/render_primitives_proof.py column frame",
+      "result": "PASS",
+      "method": "Actual-C placement/constructor, one pixel/column, rectangle setup/row successor, REP base/step invariant, wrapper parameters, visibility, animation stores and ordered cache copy form the B decision boundary. Every scalar is a raw word/byte; map ordinal<320 and one selected physical player0/2 are the only index restrictions. Native cursor frame/dependence properties cover all other native bytes and inactive inputs. Complete source-checked outer loops, ABI/flags/stack, immediate service tails, live pixel/latch transactions and arbitrary-alias machine bindings retain literal implementations and independent C/D evidence; no B theorem for VGA internals or the entire session is claimed.",
+      "date": "2026-11-14",
+      "profile": {
+        "unwind": 8,
+        "preprocessed_sha256": "b749144c71420a8ed2b5216272c730ff596c18b4f4b4c5add21733d196ec7c0b",
+        "seconds": 0.05017750000115484,
+        "peak_private_bytes": 10391552,
+        "hard_private_limit_bytes": 8589934592,
+        "receipt": "build\\workers\\close-stones-11\\proofs\\column-frame\\result.json"
+      }
+    },
+    {
+      "property": "column dependence",
+      "level": "B",
+      "command": "python verif/render_primitives_proof.py column dependence",
+      "result": "PASS",
+      "method": "Actual-C placement/constructor, one pixel/column, rectangle setup/row successor, REP base/step invariant, wrapper parameters, visibility, animation stores and ordered cache copy form the B decision boundary. Every scalar is a raw word/byte; map ordinal<320 and one selected physical player0/2 are the only index restrictions. Native cursor frame/dependence properties cover all other native bytes and inactive inputs. Complete source-checked outer loops, ABI/flags/stack, immediate service tails, live pixel/latch transactions and arbitrary-alias machine bindings retain literal implementations and independent C/D evidence; no B theorem for VGA internals or the entire session is claimed.",
+      "date": "2026-11-14",
+      "profile": {
+        "unwind": 8,
+        "preprocessed_sha256": "439f7b29694ead306717f9b86ebb97e6c58d54875e5c05855dd46e3ebccc8308",
+        "seconds": 0.036941399972420186,
+        "peak_private_bytes": 8589312,
+        "hard_private_limit_bytes": 8589934592,
+        "receipt": "build\\workers\\close-stones-11\\proofs\\column-dependence\\result.json"
+      }
+    },
+    {
+      "property": "rectangle output",
+      "level": "B",
+      "command": "python verif/render_primitives_proof.py rectangle output",
+      "result": "PASS",
+      "method": "Actual-C placement/constructor, one pixel/column, rectangle setup/row successor, REP base/step invariant, wrapper parameters, visibility, animation stores and ordered cache copy form the B decision boundary. Every scalar is a raw word/byte; map ordinal<320 and one selected physical player0/2 are the only index restrictions. Native cursor frame/dependence properties cover all other native bytes and inactive inputs. Complete source-checked outer loops, ABI/flags/stack, immediate service tails, live pixel/latch transactions and arbitrary-alias machine bindings retain literal implementations and independent C/D evidence; no B theorem for VGA internals or the entire session is claimed.",
+      "date": "2026-11-14",
+      "profile": {
+        "unwind": 8,
+        "preprocessed_sha256": "0325270fc7cadb6b4bcdf721095c62e09c230d793a105694854c99249df4334c",
+        "seconds": 0.06780350004555658,
+        "peak_private_bytes": 11239424,
+        "hard_private_limit_bytes": 8589934592,
+        "receipt": "build\\workers\\close-stones-11\\proofs\\rectangle-output\\result.json"
+      }
+    },
+    {
+      "property": "next-row output",
+      "level": "B",
+      "command": "python verif/render_primitives_proof.py next-row output",
+      "result": "PASS",
+      "method": "Actual-C placement/constructor, one pixel/column, rectangle setup/row successor, REP base/step invariant, wrapper parameters, visibility, animation stores and ordered cache copy form the B decision boundary. Every scalar is a raw word/byte; map ordinal<320 and one selected physical player0/2 are the only index restrictions. Native cursor frame/dependence properties cover all other native bytes and inactive inputs. Complete source-checked outer loops, ABI/flags/stack, immediate service tails, live pixel/latch transactions and arbitrary-alias machine bindings retain literal implementations and independent C/D evidence; no B theorem for VGA internals or the entire session is claimed.",
+      "date": "2026-11-14",
+      "profile": {
+        "unwind": 8,
+        "preprocessed_sha256": "9442d3c227128474a8bffbd604f56a9b571b1d4c606dad730da2d50c2f295370",
+        "seconds": 0.039477999962400645,
+        "peak_private_bytes": 9994240,
+        "hard_private_limit_bytes": 8589934592,
+        "receipt": "build\\workers\\close-stones-11\\proofs\\next-row-output\\result.json"
+      }
+    },
+    {
+      "property": "next-row frame",
+      "level": "B",
+      "command": "python verif/render_primitives_proof.py next-row frame",
+      "result": "PASS",
+      "method": "Actual-C placement/constructor, one pixel/column, rectangle setup/row successor, REP base/step invariant, wrapper parameters, visibility, animation stores and ordered cache copy form the B decision boundary. Every scalar is a raw word/byte; map ordinal<320 and one selected physical player0/2 are the only index restrictions. Native cursor frame/dependence properties cover all other native bytes and inactive inputs. Complete source-checked outer loops, ABI/flags/stack, immediate service tails, live pixel/latch transactions and arbitrary-alias machine bindings retain literal implementations and independent C/D evidence; no B theorem for VGA internals or the entire session is claimed.",
+      "date": "2026-11-14",
+      "profile": {
+        "unwind": 8,
+        "preprocessed_sha256": "1976c636777733bd7f31841675cafa3bf8ea9093a37a5a69e125aecb88dc90aa",
+        "seconds": 0.03663990000495687,
+        "peak_private_bytes": 9043968,
+        "hard_private_limit_bytes": 8589934592,
+        "receipt": "build\\workers\\close-stones-11\\proofs\\next-row-frame\\result.json"
+      }
+    },
+    {
+      "property": "next-row dependence",
+      "level": "B",
+      "command": "python verif/render_primitives_proof.py next-row dependence",
+      "result": "PASS",
+      "method": "Actual-C placement/constructor, one pixel/column, rectangle setup/row successor, REP base/step invariant, wrapper parameters, visibility, animation stores and ordered cache copy form the B decision boundary. Every scalar is a raw word/byte; map ordinal<320 and one selected physical player0/2 are the only index restrictions. Native cursor frame/dependence properties cover all other native bytes and inactive inputs. Complete source-checked outer loops, ABI/flags/stack, immediate service tails, live pixel/latch transactions and arbitrary-alias machine bindings retain literal implementations and independent C/D evidence; no B theorem for VGA internals or the entire session is claimed.",
+      "date": "2026-11-14",
+      "profile": {
+        "unwind": 8,
+        "preprocessed_sha256": "59f0a0db723c8439f75b8ce165286b117f38b1c7c6897aa1f9cda997e8b2fbd1",
+        "seconds": 0.029743899998720735,
+        "peak_private_bytes": 8290304,
+        "hard_private_limit_bytes": 8589934592,
+        "receipt": "build\\workers\\close-stones-11\\proofs\\next-row-dependence\\result.json"
+      }
+    },
+    {
+      "property": "save output",
+      "level": "B",
+      "command": "python verif/render_primitives_proof.py save output",
+      "result": "PASS",
+      "method": "Actual-C placement/constructor, one pixel/column, rectangle setup/row successor, REP base/step invariant, wrapper parameters, visibility, animation stores and ordered cache copy form the B decision boundary. Every scalar is a raw word/byte; map ordinal<320 and one selected physical player0/2 are the only index restrictions. Native cursor frame/dependence properties cover all other native bytes and inactive inputs. Complete source-checked outer loops, ABI/flags/stack, immediate service tails, live pixel/latch transactions and arbitrary-alias machine bindings retain literal implementations and independent C/D evidence; no B theorem for VGA internals or the entire session is claimed.",
+      "date": "2026-11-14",
+      "profile": {
+        "unwind": 8,
+        "preprocessed_sha256": "b321d99364cfc61da251da62bc2fe10e2516df715dbce4f1f3cfd0e832904f86",
+        "seconds": 0.09001889999490231,
+        "peak_private_bytes": 11075584,
+        "hard_private_limit_bytes": 8589934592,
+        "receipt": "build\\workers\\close-stones-11\\proofs\\save-output\\result.json"
+      }
+    },
+    {
+      "property": "map-tile output",
+      "level": "B",
+      "command": "python verif/render_primitives_proof.py map-tile output",
+      "result": "PASS",
+      "method": "Actual-C placement/constructor, one pixel/column, rectangle setup/row successor, REP base/step invariant, wrapper parameters, visibility, animation stores and ordered cache copy form the B decision boundary. Every scalar is a raw word/byte; map ordinal<320 and one selected physical player0/2 are the only index restrictions. Native cursor frame/dependence properties cover all other native bytes and inactive inputs. Complete source-checked outer loops, ABI/flags/stack, immediate service tails, live pixel/latch transactions and arbitrary-alias machine bindings retain literal implementations and independent C/D evidence; no B theorem for VGA internals or the entire session is claimed.",
+      "date": "2026-11-14",
+      "profile": {
+        "unwind": 8,
+        "preprocessed_sha256": "42b66d220da219ba78ba3a5a90b22209c497826992323abc2e4ea892a59042fa",
+        "seconds": 0.0426183000090532,
+        "peak_private_bytes": 10092544,
+        "hard_private_limit_bytes": 8589934592,
+        "receipt": "build\\workers\\close-stones-11\\proofs\\map-tile-output\\result.json"
+      }
+    },
+    {
+      "property": "map-cell output",
+      "level": "B",
+      "command": "python verif/render_primitives_proof.py map-cell output",
+      "result": "PASS",
+      "method": "Actual-C placement/constructor, one pixel/column, rectangle setup/row successor, REP base/step invariant, wrapper parameters, visibility, animation stores and ordered cache copy form the B decision boundary. Every scalar is a raw word/byte; map ordinal<320 and one selected physical player0/2 are the only index restrictions. Native cursor frame/dependence properties cover all other native bytes and inactive inputs. Complete source-checked outer loops, ABI/flags/stack, immediate service tails, live pixel/latch transactions and arbitrary-alias machine bindings retain literal implementations and independent C/D evidence; no B theorem for VGA internals or the entire session is claimed.",
+      "date": "2026-11-14",
+      "profile": {
+        "unwind": 8,
+        "preprocessed_sha256": "8348d471642916657fd75a5059c4b5c9d0b306bb2bdc664679cbdbad1f1e0d9b",
+        "seconds": 0.04470729996683076,
+        "peak_private_bytes": 10711040,
+        "hard_private_limit_bytes": 8589934592,
+        "receipt": "build\\workers\\close-stones-11\\proofs\\map-cell-output\\result.json"
+      }
+    },
+    {
+      "property": "tile-rectangle output",
+      "level": "B",
+      "command": "python verif/render_primitives_proof.py tile-rectangle output",
+      "result": "PASS",
+      "method": "Actual-C placement/constructor, one pixel/column, rectangle setup/row successor, REP base/step invariant, wrapper parameters, visibility, animation stores and ordered cache copy form the B decision boundary. Every scalar is a raw word/byte; map ordinal<320 and one selected physical player0/2 are the only index restrictions. Native cursor frame/dependence properties cover all other native bytes and inactive inputs. Complete source-checked outer loops, ABI/flags/stack, immediate service tails, live pixel/latch transactions and arbitrary-alias machine bindings retain literal implementations and independent C/D evidence; no B theorem for VGA internals or the entire session is claimed.",
+      "date": "2026-11-14",
+      "profile": {
+        "unwind": 8,
+        "preprocessed_sha256": "61135475dccd31506470da6de9db647b4bed3ea749e69eeae420af8f4cdf6903",
+        "seconds": 0.039596399990841746,
+        "peak_private_bytes": 9957376,
+        "hard_private_limit_bytes": 8589934592,
+        "receipt": "build\\workers\\close-stones-11\\proofs\\tile-rectangle-output\\result.json"
+      }
+    },
+    {
+      "property": "playfield output",
+      "level": "B",
+      "command": "python verif/render_primitives_proof.py playfield output",
+      "result": "PASS",
+      "method": "Actual-C placement/constructor, one pixel/column, rectangle setup/row successor, REP base/step invariant, wrapper parameters, visibility, animation stores and ordered cache copy form the B decision boundary. Every scalar is a raw word/byte; map ordinal<320 and one selected physical player0/2 are the only index restrictions. Native cursor frame/dependence properties cover all other native bytes and inactive inputs. Complete source-checked outer loops, ABI/flags/stack, immediate service tails, live pixel/latch transactions and arbitrary-alias machine bindings retain literal implementations and independent C/D evidence; no B theorem for VGA internals or the entire session is claimed.",
+      "date": "2026-11-14",
+      "profile": {
+        "unwind": 8,
+        "preprocessed_sha256": "aae4c5953fc8b980df22eceddc23c635d60a1596f25b16c0e492f53e1d2343b7",
+        "seconds": 0.04518420004751533,
+        "peak_private_bytes": 10461184,
+        "hard_private_limit_bytes": 8589934592,
+        "receipt": "build\\workers\\close-stones-11\\proofs\\playfield-output\\result.json"
+      }
+    },
+    {
+      "property": "sprite-rectangle output",
+      "level": "B",
+      "command": "python verif/render_primitives_proof.py sprite-rectangle output",
+      "result": "PASS",
+      "method": "Actual-C placement/constructor, one pixel/column, rectangle setup/row successor, REP base/step invariant, wrapper parameters, visibility, animation stores and ordered cache copy form the B decision boundary. Every scalar is a raw word/byte; map ordinal<320 and one selected physical player0/2 are the only index restrictions. Native cursor frame/dependence properties cover all other native bytes and inactive inputs. Complete source-checked outer loops, ABI/flags/stack, immediate service tails, live pixel/latch transactions and arbitrary-alias machine bindings retain literal implementations and independent C/D evidence; no B theorem for VGA internals or the entire session is claimed.",
+      "date": "2026-11-14",
+      "profile": {
+        "unwind": 8,
+        "preprocessed_sha256": "eaf88124084a2222993ab709fc05dfad0f10e8accf7e639af01359a478b7f04d",
+        "seconds": 0.04611540003679693,
+        "peak_private_bytes": 10432512,
+        "hard_private_limit_bytes": 8589934592,
+        "receipt": "build\\workers\\close-stones-11\\proofs\\sprite-rectangle-output\\result.json"
+      }
+    },
+    {
+      "property": "visible output",
+      "level": "B",
+      "command": "python verif/render_primitives_proof.py visible output",
+      "result": "PASS",
+      "method": "Actual-C placement/constructor, one pixel/column, rectangle setup/row successor, REP base/step invariant, wrapper parameters, visibility, animation stores and ordered cache copy form the B decision boundary. Every scalar is a raw word/byte; map ordinal<320 and one selected physical player0/2 are the only index restrictions. Native cursor frame/dependence properties cover all other native bytes and inactive inputs. Complete source-checked outer loops, ABI/flags/stack, immediate service tails, live pixel/latch transactions and arbitrary-alias machine bindings retain literal implementations and independent C/D evidence; no B theorem for VGA internals or the entire session is claimed.",
+      "date": "2026-11-14",
+      "profile": {
+        "unwind": 8,
+        "preprocessed_sha256": "6cd6ee436a6b8e74f1819d5842fb6cba576c0d5d71fc2596ac97946aeb669888",
+        "seconds": 0.06777909997617826,
+        "peak_private_bytes": 12922880,
+        "hard_private_limit_bytes": 8589934592,
+        "receipt": "build\\workers\\close-stones-11\\proofs\\visible-output\\result.json"
+      }
+    },
+    {
+      "property": "animation output",
+      "level": "B",
+      "command": "python verif/render_primitives_proof.py animation output",
+      "result": "PASS",
+      "method": "Actual-C placement/constructor, one pixel/column, rectangle setup/row successor, REP base/step invariant, wrapper parameters, visibility, animation stores and ordered cache copy form the B decision boundary. Every scalar is a raw word/byte; map ordinal<320 and one selected physical player0/2 are the only index restrictions. Native cursor frame/dependence properties cover all other native bytes and inactive inputs. Complete source-checked outer loops, ABI/flags/stack, immediate service tails, live pixel/latch transactions and arbitrary-alias machine bindings retain literal implementations and independent C/D evidence; no B theorem for VGA internals or the entire session is claimed.",
+      "date": "2026-11-14",
+      "profile": {
+        "unwind": 8,
+        "preprocessed_sha256": "fbf47eb7e3428be6a78c2df96073863175dde35d21fa3a4dbf47a9c1b4b34791",
+        "seconds": 0.10237009997945279,
+        "peak_private_bytes": 15237120,
+        "hard_private_limit_bytes": 8589934592,
+        "receipt": "build\\workers\\close-stones-11\\proofs\\animation-output\\result.json"
+      }
+    },
+    {
+      "property": "cache output",
+      "level": "B",
+      "command": "python verif/render_primitives_proof.py cache output",
+      "result": "PASS",
+      "method": "Actual-C placement/constructor, one pixel/column, rectangle setup/row successor, REP base/step invariant, wrapper parameters, visibility, animation stores and ordered cache copy form the B decision boundary. Every scalar is a raw word/byte; map ordinal<320 and one selected physical player0/2 are the only index restrictions. Native cursor frame/dependence properties cover all other native bytes and inactive inputs. Complete source-checked outer loops, ABI/flags/stack, immediate service tails, live pixel/latch transactions and arbitrary-alias machine bindings retain literal implementations and independent C/D evidence; no B theorem for VGA internals or the entire session is claimed.",
+      "date": "2026-11-14",
+      "profile": {
+        "unwind": 8,
+        "preprocessed_sha256": "caaf4cb7d17c8c31153013c3ac8efa1d33709fcfbb155a394e0aa0b1918a0e40",
+        "seconds": 0.05538650002563372,
+        "peak_private_bytes": 11280384,
+        "hard_private_limit_bytes": 8589934592,
+        "receipt": "build\\workers\\close-stones-11\\proofs\\cache-output\\result.json"
+      }
+    },
+    {
+      "property": "cache frame",
+      "level": "B",
+      "command": "python verif/render_primitives_proof.py cache frame",
+      "result": "PASS",
+      "method": "Actual-C placement/constructor, one pixel/column, rectangle setup/row successor, REP base/step invariant, wrapper parameters, visibility, animation stores and ordered cache copy form the B decision boundary. Every scalar is a raw word/byte; map ordinal<320 and one selected physical player0/2 are the only index restrictions. Native cursor frame/dependence properties cover all other native bytes and inactive inputs. Complete source-checked outer loops, ABI/flags/stack, immediate service tails, live pixel/latch transactions and arbitrary-alias machine bindings retain literal implementations and independent C/D evidence; no B theorem for VGA internals or the entire session is claimed.",
+      "date": "2026-11-14",
+      "profile": {
+        "unwind": 8,
+        "preprocessed_sha256": "0f4dbc9e548a6ec5fac388b9a81153d8cab24a87b3d5eb1b826ce7bb555495ba",
+        "seconds": 0.03543069999432191,
+        "peak_private_bytes": 9019392,
+        "hard_private_limit_bytes": 8589934592,
+        "receipt": "build\\workers\\close-stones-11\\proofs\\cache-frame\\result.json"
+      }
+    },
+    {
+      "property": "cache dependence",
+      "level": "B",
+      "command": "python verif/render_primitives_proof.py cache dependence",
+      "result": "PASS",
+      "method": "Actual-C placement/constructor, one pixel/column, rectangle setup/row successor, REP base/step invariant, wrapper parameters, visibility, animation stores and ordered cache copy form the B decision boundary. Every scalar is a raw word/byte; map ordinal<320 and one selected physical player0/2 are the only index restrictions. Native cursor frame/dependence properties cover all other native bytes and inactive inputs. Complete source-checked outer loops, ABI/flags/stack, immediate service tails, live pixel/latch transactions and arbitrary-alias machine bindings retain literal implementations and independent C/D evidence; no B theorem for VGA internals or the entire session is claimed.",
+      "date": "2026-11-14",
+      "profile": {
+        "unwind": 8,
+        "preprocessed_sha256": "8c5c955279b352c6d2283d5134c0309c9fb2cd5fde204fbb2c04adfd2642970c",
+        "seconds": 0.02978169999551028,
+        "peak_private_bytes": 8458240,
+        "hard_private_limit_bytes": 8589934592,
+        "receipt": "build\\workers\\close-stones-11\\proofs\\cache-dependence\\result.json"
+      }
+    },
+    {
+      "property": "Full scalar slices",
+      "level": "C",
+      "command": "python verif/render_primitives_cases.py",
+      "result": "PASS 23592960 actual-C scalar-slice comparisons; full word and byte primary domains",
+      "method": "Complete individual 16-bit primary slices with other inputs generated independently, not a Cartesian input enumeration. VGA transactions remain services; full physical image/RAM is compared independently.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Consumption mutants",
+      "level": "C",
+      "command": "python verif/render_primitives_mutants.py",
+      "result": "PASS12/12 DETECTED_BY_BRIDGE",
+      "method": "Private native requests changed; original consuming ABI shell must reject. Compiler failures never count.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "L0/RAM/device and whole scenarios",
+      "level": "D",
+      "command": "python verif/render_primitives_integration.py --whole --local-reference",
+      "result": "PASS",
+      "method": "3338 complete routine comparisons;20 maintained scenarios plus rainy witness; all entry counts and zeros attached.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Scratch actual promotion",
+      "level": "D",
+      "command": "python verif/render_primitives_host.py",
+      "result": "PASS",
+      "method": "Unchanged closure/build/native check on committed baseline plus owned files only;20 scenarios and smoke.",
+      "date": "2026-11-14"
+    }
+  ],
+  "amiga": {
+    "classification": "Meaning only",
+    "finding": "DOS four-plane wrapping/latch transactions and its raw dimensions, water shade, cache timing and animation arithmetic are authoritative. No Amiga pixel/timing equivalence is claimed."
+  },
+  "uncertainty": [
+    "Only supervisor review changes administrative status. Existing actor_render/demo/water certificates and request streams are not edited.",
+    "B covers the declared native decisions and branch-stage seams; physical transactions and whole-session composition remain C/D."
+  ],
+  "coverage": {
+    "DrawTransparentSprite": [
+      "placement",
+      "begin",
+      "pixel",
+      "column"
+    ],
+    "DrawMapTile": [
+      "map-tile"
+    ],
+    "DrawTileMap": [
+      "map-cell",
+      "map-tile"
+    ],
+    "SaveDrawPageBackground": [
+      "save"
+    ],
+    "RestoreBackgroundRectangle": [
+      "rectangle",
+      "next-row"
+    ],
+    "RestorePlayfieldBackground": [
+      "playfield",
+      "rectangle",
+      "next-row"
+    ],
+    "RestoreSpriteBackground": [
+      "sprite-rectangle",
+      "rectangle",
+      "next-row"
+    ],
+    "RestoreTileBackground": [
+      "tile-rectangle",
+      "rectangle",
+      "next-row"
+    ],
+    "RestorePlayerBackground": [
+      "visible",
+      "cache",
+      "sprite-rectangle",
+      "rectangle",
+      "next-row"
+    ],
+    "AnimateAndDrawPlayer": [
+      "animation",
+      "visible",
+      "placement",
+      "begin",
+      "pixel",
+      "column"
+    ],
+    "CachePlayerDrawState": [
+      "cache"
+    ]
+  },
+  "dependencies": {
+    "native/render_primitives.h": {
+      "includes": [
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/render_primitives.c": {
+      "includes": [
+        "render_primitives.h"
+      ],
+      "calls": [
+        "render_player_visible",
+        "render_quarter"
+      ]
+    },
+    "native/bridge/render_primitives_support.h": {
+      "includes": [
+        "../render_primitives.h",
+        "platform.h",
+        "stdlib.h"
+      ],
+      "calls": [
+        "D",
+        "abort",
+        "rd16",
+        "render_cache_store",
+        "render_player_animation",
+        "render_player_restore",
+        "rp_draw",
+        "rp_require",
+        "rp_word",
+        "wr16"
+      ]
+    },
+    "native/bridge/render_primitives_bridge.c": {
+      "includes": [
+        "render_primitives_support.h"
+      ],
+      "calls": [
+        "CALL",
+        "D",
+        "G",
+        "R",
+        "RI",
+        "abort",
+        "add16",
+        "c_RestoreBackgroundRectangle",
+        "cmp8",
+        "copy_mode",
+        "dec_byte",
+        "flag",
+        "inc8",
+        "logic",
+        "platform_in",
+        "platform_out",
+        "pop",
+        "push",
+        "rd16",
+        "rd8",
+        "render_cache_store",
+        "render_map_cell",
+        "render_map_tile",
+        "render_next_row",
+        "render_player_animation",
+        "render_player_restore",
+        "render_playfield_rectangle",
+        "render_rectangle",
+        "render_restore_sprite_index",
+        "render_save",
+        "render_sprite_begin",
+        "render_sprite_column",
+        "render_sprite_pixel",
+        "render_sprite_place",
+        "render_sprite_rectangle",
+        "render_tile_rectangle",
+        "rp_animation_begin",
+        "rp_animation_complete",
+        "rp_animation_draw",
+        "rp_animation_write",
+        "rp_byte",
+        "rp_cache_write",
+        "rp_draw",
+        "rp_rectangle",
+        "rp_require",
+        "rp_restore_begin",
+        "rp_restore_complete",
+        "rp_restore_request",
+        "rp_word",
+        "sar_word",
+        "set_ah",
+        "set_al",
+        "step",
+        "sub16",
+        "szp",
+        "wr16",
+        "wr8"
+      ]
+    }
+  },
+  "scenario_entry_counts": [
+    {
+      "scenario": "adlib",
+      "status": 0,
+      "entries": [
+        442,
+        320,
+        1,
+        2,
+        3,
+        5,
+        2,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "attract",
+      "status": 0,
+      "entries": [
+        396,
+        320,
+        1,
+        1,
+        1,
+        94,
+        93,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "completion",
+      "status": 0,
+      "entries": [
+        636,
+        320,
+        1,
+        1,
+        1,
+        315,
+        314,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "departure",
+      "status": 0,
+      "entries": [
+        12387,
+        960,
+        3,
+        4,
+        5,
+        10510,
+        10505,
+        0,
+        2385,
+        2385,
+        2385
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "dino",
+      "status": 0,
+      "entries": [
+        2880,
+        960,
+        3,
+        4,
+        8,
+        1211,
+        1188,
+        0,
+        268,
+        268,
+        268
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "enemy",
+      "status": 0,
+      "entries": [
+        7206,
+        1280,
+        4,
+        5,
+        9,
+        5144,
+        5120,
+        0,
+        1072,
+        1072,
+        1072
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "gameplay-adlib",
+      "status": 0,
+      "entries": [
+        5863,
+        1920,
+        6,
+        8,
+        9,
+        3340,
+        3324,
+        0,
+        946,
+        946,
+        946
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "gameplay",
+      "status": 0,
+      "entries": [
+        5863,
+        1920,
+        6,
+        8,
+        9,
+        3340,
+        3324,
+        0,
+        946,
+        946,
+        946
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "high-score",
+      "status": 0,
+      "entries": [
+        276,
+        0,
+        0,
+        1,
+        1,
+        8,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "items-multiplier",
+      "status": 0,
+      "entries": [
+        5665,
+        960,
+        3,
+        4,
+        8,
+        3988,
+        3965,
+        0,
+        809,
+        809,
+        809
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "items-timer",
+      "status": 0,
+      "entries": [
+        4170,
+        960,
+        3,
+        4,
+        5,
+        3020,
+        3015,
+        0,
+        798,
+        798,
+        798
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "menu",
+      "status": 0,
+      "entries": [
+        807,
+        320,
+        1,
+        3,
+        7,
+        9,
+        2,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "passenger",
+      "status": 0,
+      "entries": [
+        8943,
+        960,
+        3,
+        4,
+        5,
+        7094,
+        7089,
+        0,
+        1635,
+        1635,
+        1635
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "password",
+      "status": 0,
+      "entries": [
+        219,
+        0,
+        0,
+        0,
+        2,
+        7,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "pregame",
+      "status": 0,
+      "entries": [
+        636,
+        320,
+        1,
+        1,
+        1,
+        629,
+        628,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "reveal",
+      "status": 0,
+      "entries": [
+        442,
+        320,
+        1,
+        1,
+        1,
+        251,
+        250,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "startup",
+      "status": 0,
+      "entries": [
+        320,
+        320,
+        1,
+        1,
+        1,
+        7,
+        6,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "two-player",
+      "status": 0,
+      "entries": [
+        1857,
+        960,
+        3,
+        4,
+        6,
+        584,
+        578,
+        0,
+        288,
+        288,
+        288
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "water-physics",
+      "status": 0,
+      "entries": [
+        9791,
+        960,
+        3,
+        4,
+        5,
+        8643,
+        8638,
+        0,
+        2385,
+        2385,
+        2385
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "water",
+      "status": 0,
+      "entries": [
+        28209,
+        1280,
+        4,
+        5,
+        6,
+        26677,
+        26671,
+        0,
+        5457,
+        5457,
+        5457
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "random-rain",
+      "status": 0,
+      "entries": [
+        1429,
+        640,
+        2,
+        2,
+        2,
+        726,
+        708,
+        0,
+        250,
+        250,
+        250
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "entry_order": [
+    "DrawTransparentSprite",
+    "DrawMapTile",
+    "DrawTileMap",
+    "SaveDrawPageBackground",
+    "RestorePlayfieldBackground",
+    "RestoreBackgroundRectangle",
+    "RestoreSpriteBackground",
+    "RestoreTileBackground",
+    "RestorePlayerBackground",
+    "AnimateAndDrawPlayer",
+    "CachePlayerDrawState"
+  ],
+  "scratch_acceptance": {
+    "baseline": "008149c31234344ca1a34f44b9c7f03b1744f0dc",
+    "linked_units": [
+      "actor_render",
+      "actor_types",
+      "adlx_allocation",
+      "adlx_digital",
+      "adlx_effects",
+      "adlx_facade",
+      "adlx_lifetime",
+      "adlx_loader",
+      "adlx_main",
+      "adlx_music",
+      "adlx_samples",
+      "adlx_sections",
+      "adlx_voice",
+      "contacts",
+      "coordinate_scale",
+      "decimal",
+      "demo_core",
+      "demo_presentation",
+      "falling_items",
+      "far_copy",
+      "hazards",
+      "ice",
+      "level_view",
+      "music_clock",
+      "passenger_delivery",
+      "passenger_itinerary",
+      "passenger_water",
+      "player_physics",
+      "random",
+      "render_primitives",
+      "stones",
+      "timer",
+      "water_weather"
+    ]
+  },
+  "negative_results": {
+    "reachability": "15/15 deliberately false end-of-comparison assertions fail as required; see reachability.json.",
+    "ordinary": [
+      {
+        "receipt": "build\\workers\\close-stones-11\\negative\\1794629924334512800-82472-ERROR\\result.json",
+        "result": "ERROR",
+        "command": [
+          "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+          "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-11\\proofs\\map-cell-output\\harness.i",
+          "--unwind",
+          "8",
+          "--unwinding-assertions",
+          "--bounds-check",
+          "--pointer-check",
+          "--signed-overflow-check",
+          "--slice-formula",
+          "--trace"
+        ]
+      }
+    ]
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "native/render_primitives.h": "00384fd765781b6cfef3568aba6a2641ddedb7064e0730b41284e7612aeb32d1",
+    "native/render_primitives.c": "a18ecef8c5f203a8b881fd35169c5914cab2033af6531584831b2fa53c9b0bad",
+    "native/bridge/render_primitives_support.h": "4ae8825ab95bac042cb5d44542e9192adcf3d0a2cc9909452b116fc784bb52a9",
+    "native/bridge/render_primitives_bridge.c": "c705219bab9b74ca99d9f463fd4443bb92887158a7aa454f5d1315d48e027fcd",
+    "verif/render_primitives_baseline.py": "40ef32004caed417661a96557983643ba18c32fe548c39f1857534554a445d67",
+    "verif/render_primitives_build.py": "97481cd0b035622706cd7fd846d40f810367d820425a7c1e52892d664d92955c",
+    "verif/render_primitives_cases.py": "cd62915980fe1f79514a4a7f3d596bf3805d07697689928da6699ec6170835a1",
+    "verif/render_primitives_certificate.py": "9197212b732407358ed96aedbadeddaef3d9b1a38dd60202ac718509ba9d8149",
+    "verif/render_primitives_host.py": "664480fba312dcf5971f0b86b15762d434946f1047ec2d4f3f2e599ebec81eec",
+    "verif/render_primitives_integration.py": "910e083a837f2398d57e955de509048c715801318bfcc6378943ff3a45443651",
+    "verif/render_primitives_inventory.py": "04f02134adab67ed3e53145d228689d80c3cf6ca2a2183cba50c180b49829b02",
+    "verif/render_primitives_limits.py": "23b894897a641ef9e05062f0112bb77791f66ea2fdc84832852f84932679abf6",
+    "verif/render_primitives_mutants.py": "5d47b7dd7ace91a069f4df98399b9f9085e5194389266cba3e5484233801e3d7",
+    "verif/render_primitives_proof.py": "da10fb4d032d53c83c2c420d41da107c6af0274fe2941eda693f5ef7fb938563",
+    "verif/render_primitives_proofs.py": "c2d7804b24838dc1130c582355a0fc15776c7f609402c48f90fc7703bb79a2aa",
+    "verif/render_primitives_reproduce.py": "721ec1d20f8fce65dbbe2e897ecaf916db57722d4ba917e8946af5e8b0965b4d",
+    "verif/render_primitives_shells.py": "7a13d7e96318e7812c46abf1964f56f5e6fc847df9107deb88fc79075cc396b4",
+    "c/abi.c": "5f7c2c2fc015ca43e3786a7f96cb38113211da54acefce19564c1df78d74857a",
+    "c/actors.c": "d17c03c844f95780f0647b85aa854a87c3e566b0f56fe89ee0a95d6d689f3ff2",
+    "c/actors.h": "00817c6f676f61811df11066fca3335c9757e0f59f7cad241dff762fee7b71bd",
+    "c/actors_states.c": "79a460a0436e773bdd795953f63c6765d71c0e346cdf8bbccbcf707817994447",
+    "c/actors_states.h": "375dda6bd3fa6cd5552cc98df7f7c785dc5d70850a10f96207bd0894161cd5d8",
+    "c/adlib.c": "2f4e551282f6ac33f8d24127f3cd5294e679f72ce28794c3ed295ce243c18bf0",
+    "c/adlib.h": "70f2c0d3f51dc49dd05918266b4de07d247a12909f11e8329244b8d9af56cdee",
+    "c/demo_scripts.c": "a19c7e52bc709a28f9be40bc66b60c6de82df888f8eb725b79f0b9556fe795d7",
+    "c/demo_scripts.h": "ea65090001ef64f26f31c39de2075c098949bcb9ca8448480cd1fccdf55a608b",
+    "c/dispatch.c": "80a97f55a460a21dac9d6295939a8276c83b66cef886f814365e0a823814debf",
+    "c/dos_input.c": "b6a086f3917441a23c4238f582e00605d8a239ded81b03a658ff308890601e53",
+    "c/dos_input.h": "8cee17811645a61424b6174e0213402b8c21defd5b4fa6d56511225c70e5193e",
+    "c/dsp.c": "a2f4dc144514ed9ea8cdca8a75c9813718342a5ed5c26176ff6d691f89d651b5",
+    "c/dsp.h": "9b2c2b95b0781caf3a96b7b0b19f8078601557f5e0a11bec889d109ef2755b63",
+    "c/game_services.c": "e9301da5d7fae6f2aacce7dda8d4e6f0e86cbe8c40e736216185c4a8f792a7c5",
+    "c/game_services.h": "7a63f8bd05b2710c27c4c4247b00e0f1fc06a4ecdaa388bf47eb9fb1374965c5",
+    "c/ice.c": "27e2898dd6a5e70af26bde84c0ba8cd6e8a045e40d94df21fd5b122f10a2242e",
+    "c/ice.h": "925da59e4f3fb6cf278100578e56093dc7138040c98eb9f286acb9c867512578",
+    "c/items_water.c": "ab5c2c72096b5e6355a2575f9a58c321f91680d7cd97653581dcbab59033e2d9",
+    "c/items_water.h": "d18978433dcc966235010906984c13fcb76c3469bf4bc0f8e33345101099f148",
+    "c/memory.c": "97f59e3c343cd6911854d0bfc3ff624417de2844f712caa96ec6799d3a9783d9",
+    "c/menu.c": "b2ea585a4cb2b40c349fd7a017642534ea2b4982140a25a6dcacd12ce3b418b0",
+    "c/menu.h": "eaa33e9e9db1f3caa44f60b4a0c862b1bc82855a6389e91f330606e27317b1de",
+    "c/menu_helpers.c": "48125ab011a2ab29cd7936aa61e9889c8715ee843090c6ddd00f9d14dddbb6ad",
+    "c/menu_helpers.h": "9c5998717eec5a79122d91ca1d6a045f303baaf5b96dbf14cf6401b4df34e4e2",
+    "c/music_analysis.c": "604fc3c80dec56a6740444b908da8baeff325357760ab8b82e9db72f5e022fe5",
+    "c/music_analysis.h": "3b2175241d1ced443d9463c6545232630cd4ccd20d907dab83296c8e4cd7fe23",
+    "c/music_clock.c": "2583d53f81c50bc148d423866cbd8f0fa14ff6bb3e5f8320a60e02b35a7d82fa",
+    "c/music_clock.h": "5ffc27066dc1c8438e716850ce666daaa00421dec8be964337b43f75a936210e",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/render.c": "7620324caaff46b39094d4b8f7077f2a5426a728806e52f1c56a962771208b40",
+    "c/render.h": "bcac207ffd7130100008409d8b4069b9ac126b713c81bfb043f1eb1e9603c160",
+    "c/render_primitives.c": "447a9f435f22cc46c9c30d8d11ee9046d57d57c48d6bbaa2e91768e32f9698c0",
+    "c/render_primitives.h": "92f16baae8b087d052e7ca713921fe74ad63e4f0a9f370190b2cc476c7a0ab09",
+    "c/scene.c": "0060ef52ee2cc8b4c98d1b04b6387cd809809a9226f4b4f71c01a75a99d5e460",
+    "c/scene.h": "77c02b56b44a4eb584da4d17cad94cc7f4be79ea3a2f70fd03d7ed2dc50f884a",
+    "c/sound_api.c": "ba1c98bf3a03b5f48a71d4491bdebf3acfc17b0f6cce51db370a0e58c0507e4c",
+    "c/sound_api.h": "b15efba9d9cf41053b3b818d4bb3a084936b6d3e15dafc05544648c88e4687c1",
+    "c/sound_engine.c": "5e4116c31806441e464de35d5649894ec4eea28025254a2edea616235e6e6881",
+    "c/sound_engine.h": "bb288a280c6cf526e91718ccd7fd02a2762e9d58f3d0d53a2f2feef9472eabd1",
+    "c/sound_state.c": "c57e5874b9a7b761faf49dd0bf6da4338ffaea31af1cea5c91a2f13e8ea9ded2",
+    "c/sound_state.h": "bdbbef92b75c99c274bde293ec8bcb1f7a997ed1e8176dc5deda96806c6fbad4",
+    "c/timer.c": "49e56856d56bb1ae68b62fa9112ce294f77182bebfc8e2cd5392737f1c06080b",
+    "c/timer.h": "4ae328394adb59216a373832fbf926a926ce9fe8f813bbe7c3927c9abaf10937",
+    "c/timer_stack.c": "512cfb5332569f32adffed22e5211db5772440428369cc9cc808be931631c98d",
+    "c/timer_stack.h": "e076aba16f8ee3dacbffcddbfa5b065a79a6e8000fa825244bffeb3771d1a514",
+    "c/timer_system.c": "89ead348d18a649f37dca6f44c94c309c3d50b7b6d0877411064f9ac0129d92b",
+    "c/timer_system.h": "f7204fef034e9f641f1f12ad9412efe80844d5be64b177300bdc5a9a20136a49",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_adapters.h": "c18eafbbe16170d01fcfac6853deab651d3c2b54343b47bccd6ce0de4303ad38",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "c/video.c": "681732591d8efb11cf1d5d5816c999bca718560bd247d9c9cc6c0f36982b2fa2",
+    "c/video.h": "35e4d6076edd69e2722cf7d52392871345f5e0eb78af7ce67e13c8ed0c02f192",
+    "tests/scenarios/adlib.txt": "1db37ba320e4c3c85449c2f4a7f5ecd8543e6de6933e165e534b79adb3386f2f",
+    "tests/scenarios/attract.txt": "07339939be35779cc94094221155e97a11c6dec396ab6dce85f238a415896a01",
+    "tests/scenarios/completion.txt": "d898ad1f8abd49f7757303b562028cf7f0c10143dfb0358dad4e0a6fee7386bc",
+    "tests/scenarios/departure.txt": "dd7cb186974803ed7436b99600394606594109283d668f7ee5a893a90f89f705",
+    "tests/scenarios/dino.txt": "f5a6254be7b416bdf3da436c7b1907abe31e4a7b184bb7ac6636b72c7c166252",
+    "tests/scenarios/enemy.txt": "c5140aa9afe062e09cbefb949b78d06733c306518f315ba8f5448a0c2b8062a6",
+    "tests/scenarios/gameplay-adlib.txt": "5f0e1e3ea3f5f9e735c5a7ab2eda9ddee8a33d8d290bbd81e27fd9cbb1ddb3cd",
+    "tests/scenarios/gameplay.txt": "b0be47d570408d44dc977faca40ef2a258c0686958f7fa68574cc411bb25a03a",
+    "tests/scenarios/high-score.txt": "5b698cb06b6d77d9a9d6f009cea71b8a1af9c16c8ecf3c344e33a9b8d93b1220",
+    "tests/scenarios/items-multiplier.txt": "aea8dc889e0a1777e2c3f8b37525375e939656a91577759030523a8aca88ca8d",
+    "tests/scenarios/items-timer.txt": "1fc3cde57a7aed7acfe67e015af95c852a6dc681b7492d3464ffe5e7d5af39b1",
+    "tests/scenarios/menu.txt": "3e8347d504ac0c13ced62c1befb26b59a353c46de397bb3ac79f5089b20ea8b1",
+    "tests/scenarios/passenger.txt": "e95f43a019615449dd142652ea837aaeb4a82e7bce9c6ecd72dd67411fe44922",
+    "tests/scenarios/password.txt": "fea4555e22daca6a5e4e154fd4d6c1b7871d80aa574c402363d5b3b938657bd2",
+    "tests/scenarios/pregame.txt": "6697f662ccf5791b57e14d5dcb0c216c7428312441c570f10b0e031a33a97cf8",
+    "tests/scenarios/reveal.txt": "8be34ff993316d7e099576cccd8af23d28267b02eee37df01a430f8e94418c84",
+    "tests/scenarios/startup.txt": "bddaf9054cfb6f1a4a5734e147c2481c28d0fa0768af141c311ddb13a38fbd7b",
+    "tests/scenarios/two-player.txt": "5c07be6ec944b7a38082d275633bba2ef26cc9e90828b673bb8434ad3ffa78e5",
+    "tests/scenarios/water-physics.txt": "33853e24a477c60ab0dbecf9057a034a01fa2ec6ab6c9f6e873d463006754e6c",
+    "tests/scenarios/water.txt": "22aca0913b25142891f67c57f20d56cfef57c16df862269a377f924217e96f84",
+    "tests/actors_states.py": "94ec4f7e880e6d717c5fc1a645f6f2dfebab18150f915e9ee0009789f5126de6",
+    "tests/items_water.py": "ea1f63e28e3dbc63d89649e167f5677bdb3a13b542eb588c90e6ed34a1f6db30",
+    "tests/render.py": "ac899241858dd7dd0f2d175a7f5b7229257b5b59a24291c65078881281c86e7e",
+    "tests/render_primitives.py": "a3c0e339395fc75e8e4e472eade67d6881374453fdfdd0cf957c8c376f2f8bd0",
+    "tests/scene.py": "1eb8b5d2a3fb51b9eaa123d3f5d9efe2637ef131f333f696b71dc1f3a9069a81",
+    "tests/menu.py": "968fb180e88fe43264642f12a21650663f31c79df511290879d476d3bd0f5d08",
+    "tests/demo_scripts.py": "b71d2044f43b58e9b79cce9039e1a3a8d71a7ca96a6f385abcbdc47edefa95be",
+    "verif/water_weather_l0_cases.py": "e620b99e61d78aa407458d080fbeabcff8c9958992a4b9b11f6f94d33a6942e0",
+    "verif/random_rain.txt": "817ae7a6551eba3de98b2318cea09a26f0e68f68d368595bd9f570efc9f82ed0",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
+    "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
+    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
+    "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
+    "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
+    "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
+    "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
+    "host/check.py": "ae78b6b48e7c77aa4c513f8474d23d7ef9d26afe39ab55ea70e871473701e94c"
+  }
+}

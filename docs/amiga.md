@@ -393,7 +393,7 @@ DOS has its own cap and byte/word effects. Equal reward names/order do not certi
 the numeric rewards, pool behaviour or physics.
 
 Water `079BC` adds the record increment every call, only storing a signed-positive
-result. DOS `2D2F` toggles a phase, applies its increment every second call, and
+result. DOS `2D1C` toggles a phase, applies its increment every second call, and
 clamps a negative result to zero. Amiga uses original Y32 geometry; DOS applies
 its 3/4 transform and display cap. Both provide a moving surface for craft and
 passengers. Copper/blitter/animation rendering versus DOS bit-6 tinting and VGA

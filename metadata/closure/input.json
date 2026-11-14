@@ -1,0 +1,317 @@
+{
+  "component": "input",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "original": {
+    "L0": [
+      "GAME:DetectAndCalibrateJoysticks 013B:50C6",
+      "GAME:SampleJoystickAxesAndButtons 013B:51EC",
+      "GAME:HandleKeyboardScanInterrupt 013B:4567",
+      "GAME:InstallKeyboardSequenceInterrupt 013B:450A",
+      "GAME:RestoreKeyboardInterrupt 013B:454C",
+      "GAME:PollKeyboardScanChange 013B:44F1",
+      "GAME:WaitForScanChangeOrJoystickButton 013B:44DB",
+      "GAME:PollPlayerControls 013B:0FE8"
+    ],
+    "L1": [
+      "c/dos_input.c:keyboard install/restore/IRQ and joystick sampler",
+      "c/game_services.c:PollKeyboardScanChange",
+      "c/scene.c:PollPlayerControls",
+      "c/video.c:DetectAndCalibrateJoysticks,WaitForScanChangeOrJoystickButton"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/input.c",
+      "native/input.h",
+      "native/bridge/input_bridge.c"
+    ],
+    "header": "native/input.h",
+    "functions": [
+      "input_axis_begin",
+      "input_axis_count",
+      "input_axis_delivery",
+      "input_axis_direction",
+      "input_button_bits",
+      "input_calibration_apply",
+      "input_calibration_detect",
+      "input_calibration_limit",
+      "input_calibration_start",
+      "input_control_map",
+      "input_control_source",
+      "input_controls_need_sample",
+      "input_joystick_present",
+      "input_key_begin",
+      "input_key_next",
+      "input_player_visits",
+      "input_scan_change",
+      "input_state_scan",
+      "input_thresholds",
+      "input_wait_next"
+    ],
+    "build": "python verif/input_build.py",
+    "bridge": "Eight endpoints, no L1 endpoint fallback. Raw ports/vector/BIOS queue/near frames/flags and wait delivery stay explicit services."
+  },
+  "purpose": "Native game input decisions: raw scan changes, mutable make/break sequence matching, measured-count calibration, signed direction classification and five word-valued commands per player, with explicit DOS hardware services.",
+  "interface": {
+    "inputs": [
+      "One borrowed InputState plus mutable InputKeyRecord storage. Control modes/player count are the same front-end/session cells, not independently persistent copies.",
+      "Port supplies raw scan byte deliveries, two active-high button-mask groups and x/y counts per controller, with presence information. Counts share a consistent calibration/sample unit; directions are decided natively.",
+      "DOS adapter optionally derives those counts from exact port201 status deliveries. Indexed keyboard-byte requests retain all256 index bytes, wrapping record traversal and writable table aliases."
+    ],
+    "outputs": [
+      "Previous/current/change scan bytes and packed AX result; candidate states/index and a byte action store on completed record.",
+      "Calibrated presence/modes/axes, thresholds ceil(n/2),low16(n+floor(n/2)),low16(2*n), unsigned maximum timeout. Raw word-valued up/down/left/right/action.",
+      "Exact ordered IN/OUT/DOS events, BIOS head=tail, installed/restored vectors, preserved/clobbered registers and error/budget prefixes through bridge."
+    ],
+    "effects": [
+      "Keyboard record requests read/rebind after every write, retaining mutable sentinel/source/action aliases. Byte actions preserve stale high bytes.",
+      "Mapped source words cannot overlap command words for any admitted shifted mode. Their ordinary-RAM reads may be grouped; selected command stores retain original order.",
+      "Hardware timing and IRQ/vector delivery are services, with no original code identities or segmented pointers in ordinary native code."
+    ],
+    "preconditions": [
+      "Serialized ordinary input/source RAM and disjoint active code/call frame; no claim for MMIO input records or mid-instruction asynchronous IRQ equivalence.",
+      "Mapping state/player count remains stable during the call: its command stores do not target count or source words. Explicit event delivery remains at original service points.",
+      "Work state starts with native begin functions and resumes only after successful synchronous services. A service error terminates its caller, preserving the returned prefix.",
+      "Portable normal modes are FFFF/0/1; bridge also retains raw16-bit shift/sign and unchecked indexed source reads. No bounds clamp is inserted."
+    ]
+  },
+  "callers": {
+    "audit": "python verif/input_inventory.py; complete static callers plus all indirect target sets; actual whole-game counters.",
+    "outside": "Front-end/menu/high-score, session, demos and video wrappers; IRQ1 handler selected through KeyboardHandlerVector.",
+    "unused": "None of the8 entries is API-only: all are reached in the20 maintained scenarios."
+  },
+  "callees": {
+    "native": "Scan-change, matcher and reset requests, threshold/maximum, timer step, source/sample/player selection, typed joystick command mapping and wait planner.",
+    "services": [
+      "Raw60/201 IN and201 trigger OUT; PIC EOI20; DOS21 vector35/25, BIOS40:head/tail queue flush; old-vector restoration only.",
+      "WaitNextVerticalRetrace remains an external existing service. SERVICE_IO at actual scan/wait sites delivers keyboard events; exact near-call return frames stay in bridge."
+    ]
+  },
+  "indirect": {
+    "keyboard": "KeyboardHandlerVector is initialized to HandleKeyboardScanInterrupt and has no discovered shipped writer. High-score/password entry restores the saved BIOS handler and later reinstalls the game handler. Raw API vector mutations remain platform inputs, not native function pointers.",
+    "chaining": "The shipped scan ISR never calls the saved handler. It reads60, processes records and emits PIC EOI; there is no port61/8042 toggle.",
+    "records": "A mutable data grammar, not a cheat program or callback table. Record destinations/values select action byte stores; known targets0,2,...18 and unused20."
+  },
+  "memory": {
+    "owner": "Existing input owner in GAME/DGROUP. InputState and companion mutable InputKeyRecord storage are views of that owner; no native persistent global copy.",
+    "shared": "SelectPlayerControls writes both control modes via indexed PlayerOneControlMode+BX. RunMainMenuAndAttractLoop toggles the PlayerCount word with XOR3; KeyboardHandlerVector is statically initialized to the scan ISR, with no discovered shipped writer. Native input projects these fresh.",
+    "views": "Player-physics/actor code borrows the five command words. actors.h and those units are unchanged.",
+    "layout": "34 six-byte records plusFF; three scan/FF bytes,destination,value,candidate. CandidateFF rejects; every other byte is active. Offset/index arithmetic wraps at16/8 bits respectively.",
+    "aliases": "Action offset20 is an unused word sink; original table can target/overwrite its own bytes when malformed. Raw request binding preserves this. Five commands remain uint16 words: keyboard byte release does not erase old high bytes."
+  },
+  "assumptions": [
+    "The13 positive symbolic profiles are primitive/step properties, not a blanket full-handler proof. Whole matcher, sampler/calibration/wait and complete bridge composition are C/D.",
+    "Candidate-step B contract normalizes current record at0, allows arbitrary8-bit index/scan/candidate/match count, lookahead bytes, modes and value; action targets0..20 exclude table-destination aliases. API cases cover raw destinations0..255 and full34-record composition.",
+    "Complete scan fixture enumerations do not cover all2^34 candidate combinations. The shipped table has exactly reset and E0-prefix matcher states, independently of the held-action words; rejected/single-candidate slices and arbitrary raw index states are additional finite fixtures.",
+    "Port201 high-mask/non-sentinel cases retain the L1 diagnostic budgets:1,000,000 timing polls and32,768 record visits. No assertion that original malformed hardware loops terminate is inferred.",
+    "Amiga corroborates a keyboard/key-state input role only; its CIA handler and joystick mapping differ. No Amiga/DOS byte or ABI equality claim."
+  ],
+  "eliminated": [
+    {
+      "dependency": "Host CPU timing and already-classified direction policy",
+      "evidence": "Hardware delivers counts/buttons/raw scans; native code computes calibration, classification and mapping. DOS raw timing adapter remains independently exact."
+    },
+    {
+      "dependency": "Machine representation in ordinary input code",
+      "evidence": "Typed state, normal scalar functions and data requests; only bridge binds ports, vectors, frames and raw indexed lvalues."
+    }
+  ],
+  "retained": [
+    "IRQ raw prefixes/breaks are bytes; no BIOS queueing/scan translation or old-handler chain. Only60 IN then20 EOI.",
+    "Matcher checks first candidate before any initial sentinel check, uses shared byte index, rejects byFF, wraps survivor count, resets all candidates on completion/no survivors, and does not retry a mismatch as a fresh first byte.",
+    "Destination bit1 gates player mode sign; destination/value reread after the mode test. Completed matches reset even when the mode suppresses their action. High action bytes remain stale.",
+    "Independent button reads yield masks30/C0. Axis priority1,2,4,else8; a detected axis does not decrementCX. Zero limit means65536 empty decrements, disabled/unlatched axes return the live limit. IncomingIF/DF restored only on normal sample exit.",
+    "Calibration forcesIF on, startslimitFFFF and resets only the specified presence/mask/doubled/scratch cells; absent modes, counts and thresholds remain stale. Both axes must discharge for presence. The second sample can overwrite first-stick counts after first-stick thresholds were already stored.",
+    "Unsigned doubled-center max after word wrap; signed inclusive low/high classification, low direction wins overlaps. Any nonzero button WORD requests action.",
+    "Sampling uses original mode sign; mapping uses sign after low16(mode*2). Thus8000 maps stale stick0 while4000 maps as keyboard despite triggering sampling. Exact count2 visits player1; malformed counts still visit player0.",
+    "Wait discards the first scan change, waits a complete retrace, tests buttons before the post-retrace keyboard change, and propagates failure before testing returnedAH. Install/restore flush BIOS head to tail and forceIF on only at their original completion points."
+  ],
+  "evidence": [
+    {
+      "property": "Compiled complete entry boundary",
+      "level": "C",
+      "method": "Independent complete L1 DLL versus actual8-entry bridge, full persistent RAM, registers/flags, ordered raw event bytes including service/DOS/budget/error prefixes.",
+      "command": "python verif/input_evidence.py",
+      "result": "PASS3791 generated pairs, including raw modes, malformed tables/destinations, high-byte poison, timeout masks, wrapping calibration and failing wait/IRQ-vector services.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Finite whole-IRQ slices",
+      "level": "A",
+      "method": "Real compiled L1 and bridge in one image with separate restored memory; complete RAM/register/flag/port comparison.",
+      "command": "python verif/input_enumerate.py",
+      "result": "PASS149248 IRQ pairs:131072 single-record/index/scan/enabled-state slice;768 shipped reset/E0-prefix/rejected;17408 single-candidate slices. A only for these fixed remaining-state fixtures.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Complete word and byte-pair scalar domains",
+      "level": "A",
+      "method": "Actual compiled L1 threshold helper and scan-change entry versus maintained native/bridge.",
+      "command": "python verif/input_enumerate.py",
+      "result": "PASS65536 center words and65536 old/new scan-byte pairs; full loaded RAM/ABI for scan-change pairs.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Symbolic scalar and mapped-source properties",
+      "level": "B",
+      "method": "Actual literal C spans/bindings, all admitted words/bytes. Includes all48 classifier and sample-gate bits, all64 maximum bits, all16 centers/modes/player-count values; timing/reset steps and mapped command outputs.",
+      "command": "python verif/input_proofs.py threshold; python verif/input_proofs.py direction; python verif/input_proofs.py maximum; python verif/input_proofs.py timer; python verif/input_proofs.py sample-gate; python verif/input_proofs.py reset; python verif/input_proofs.py source; python verif/input_proofs.py mapping-domain; python verif/input_proofs.py mapping; python verif/input_proofs.py players",
+      "result": "PASS10 scalar/source profiles. Precise command for each is python verif/input_proofs.py <entry>; ordinary mapped reads proven disjoint from commands.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Matcher candidate output/frame/dependence",
+      "level": "B",
+      "method": "Actual L1 candidate span and actual native request/binding code up to reset/index/next-record handoff. Arbitrary index, scan, candidate, survivor count, modes, values and lookahead;60s/8GB jobs.",
+      "command": "python verif/input_keyboard_step.py outputs; python verif/input_keyboard_step.py frame; python verif/input_keyboard_step.py dependence",
+      "result": "PASS3 split profiles. Complete IRQ attempts at120s timed out and earn no proof.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Non-vacuity controls",
+      "level": "C",
+      "method": "Deliberate changes to threshold endpoint, inclusive comparison, axis priority and player gate.",
+      "command": "python verif/input_proofs.py threshold --negative; python verif/input_proofs.py direction --negative; python verif/input_proofs.py timer --negative; python verif/input_keyboard_step.py outputs --negative",
+      "result": "PASS detection of4 mutants (expectedFAIL solver results).",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "L0 and maintained whole game",
+      "level": "D",
+      "method": "Unchanged routine suites and20 maintained references; native per-entry and per-player/controller-mode counters.",
+      "command": "python verif/input_integration.py --whole",
+      "result": "PASS174 direct L0 cases and20 scenarios; all8 entries reached. Keyboard player1 reached bytwo-player; physical joystick1 needs the separate witness.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Both physical joystick selectors",
+      "level": "D",
+      "method": "Input-only two-player fixture adds the existing201 script; actual L0/native comparison, no state/code patches.",
+      "command": "python verif/input_witness.py",
+      "result": "PASS160 frames,144 mappings each of physical joystick0/player0 and joystick1/player1. Witness stays inverif.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Scratch native host",
+      "level": "D",
+      "method": "Committed baseline archive plus only input files, own certificate promoted in scratch; actual hostbuild/check/closure.",
+      "command": "python verif/input_host.py --baseline 2dff5890152e2bc7213fc4657b784d18c9cb5610",
+      "result": "PASS31 linked units,20 maintained scenarios and256-frame smoke;31 certificates,0 errors in starting-baseline archive scratch.",
+      "date": "2026-11-14"
+    }
+  ],
+  "amiga": "python verif/input_inventory.py checks the pinned extracted Amiga t hash and disassembles h0:05192..0523E: CIA serial read/invert/shift, key-state set/clear and translation; no matching six-byte DOS scheme or cheat effect.",
+  "uncertainty": [
+    "Proposed migrated on C/D composition and explicitly scoped A/B properties; no complete asynchronous hardware/whole-matcher formal theorem.",
+    "Hardware service must choose consistent virtual count units on a native port; the DOS loop count is neither a timestamp nor a number of all port reads.",
+    "Administrative status remains unanalyzed until supervisor promotion."
+  ],
+  "dependencies": {
+    "native/input.c": {
+      "includes": [
+        "input.h"
+      ],
+      "calls": [
+        "input_axis_direction",
+        "input_scan_change",
+        "input_thresholds"
+      ]
+    },
+    "native/input.h": {
+      "includes": [
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/input_bridge.c": {
+      "includes": [
+        "../input.h",
+        "platform.h"
+      ],
+      "calls": [
+        "D",
+        "G",
+        "INPUT_CALL",
+        "INPUT_READ",
+        "INPUT_READ_AT",
+        "add16",
+        "call",
+        "dec16",
+        "flag",
+        "input_axis_begin",
+        "input_axis_count",
+        "input_axis_delivery",
+        "input_button_bits",
+        "input_calibration_apply",
+        "input_calibration_detect",
+        "input_calibration_limit",
+        "input_calibration_start",
+        "input_control_map",
+        "input_control_source",
+        "input_controls_need_sample",
+        "input_joystick_present",
+        "input_key_begin",
+        "input_key_next",
+        "input_key_run",
+        "input_player_visits",
+        "input_project",
+        "input_state_scan",
+        "input_threshold_binding",
+        "input_thresholds",
+        "input_wait_next",
+        "logic",
+        "platform_in",
+        "platform_interrupt",
+        "platform_out",
+        "platform_service_point_at",
+        "pop",
+        "push",
+        "rd16",
+        "rd8",
+        "set_ah",
+        "set_al",
+        "sub16",
+        "ugh_call_near",
+        "wr16",
+        "wr8"
+      ]
+    }
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "c/dos_input.c": "b6a086f3917441a23c4238f582e00605d8a239ded81b03a658ff308890601e53",
+    "c/game_services.c": "e9301da5d7fae6f2aacce7dda8d4e6f0e86cbe8c40e736216185c4a8f792a7c5",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/scene.c": "0060ef52ee2cc8b4c98d1b04b6387cd809809a9226f4b4f71c01a75a99d5e460",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "c/video.c": "681732591d8efb11cf1d5d5816c999bca718560bd247d9c9cc6c0f36982b2fa2",
+    "host/check.py": "ae78b6b48e7c77aa4c513f8474d23d7ef9d26afe39ab55ea70e871473701e94c",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "native/bridge/input_bridge.c": "76deeec792abe5c142c7e46cdda831d4b8df85b0cd39291fa7795ac44053992b",
+    "native/input.c": "56550496ffde02a0f1b9625922783721e20fa455e5d1be9c8dc5c3467569b8f9",
+    "native/input.h": "3e1278c1c7218615a3813263dd19fbc6a15c7a8e073b0bf96c4cb2aa5415bf1e",
+    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
+    "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
+    "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
+    "verif/adlx_loader_solver.py": "332c1a46957e398df5865fa5de14a73d259d464c621232f84976f8dfcc1f42d6",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
+    "verif/input_build.py": "df6c160d0c29c7fd82e987714406d3407629da5732857ca4139695a1f2f5833c",
+    "verif/input_certificate.py": "ed8d007c9f4a9ab7bade4ac62a921239a2e11ce2b63703784b705f36b08770ad",
+    "verif/input_enumerate.py": "90dcdbacbcb0b4688670ef015156aec5a09aaf89f92aa7939e3470b125202786",
+    "verif/input_evidence.py": "7cf4f8089634e28d1ba1c29c2457e8dc7e733641bcfb92946435598daa2eb046",
+    "verif/input_host.py": "19fd6be83131d641967616d374a5dfd03bca415a0ae0fafbfc7b2f2159e43dc7",
+    "verif/input_integration.py": "a81129b645d60c2e7000427f3b1deced03255269c553e5423d9016b7ea741021",
+    "verif/input_inventory.py": "3d6a896a12e35eaf4f698e6047f5a57a95edc302c0f9a3e7571ca4196980939e",
+    "verif/input_keyboard_step.py": "e7be764530b0a1de834e454db473ad5125a6bf499bd299f76b1977a5ef137238",
+    "verif/input_limits.py": "26dff7052a5274bb52985cd2f15326594e71e52dab8d85ccc2f1039f3aea55c6",
+    "verif/input_proofs.py": "0531e4013a48adc076774e5e6d7636deea75ecb4492bef9396639bf4c8eaa792",
+    "verif/input_reproduce.py": "17c1ffd5f65d66fa638feb67885a54628b1c05fbb43d3c538200dfaf0a7bf9d0",
+    "verif/input_two_joysticks.txt": "01ca97f51201d68b5f3059f3794bbfbc1500aa33b2811575b717eec513f373b0",
+    "verif/input_witness.py": "32c16d6ccfe9c4ab82ceb2cf965e2fb5b2e10b74f94a2a9e6e8b0932ba097230"
+  }
+}

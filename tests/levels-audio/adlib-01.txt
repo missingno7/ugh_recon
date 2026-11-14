@@ -1,0 +1,21 @@
+# Real program entry, AdLib initialization, shipped password; record 3479.
+timing pit-quantum-at-polls
+password CAVITY
+frames 360
+card adlib
+bios 0043 0041 0056 0049 0054 0059 000d
+1: esc -esc
+4: esc -esc
+9: f2 -f2
+18: f1 -f1
+21: enter -enter
+23: cycle=enter,-enter
+104: up
+130: -up right
+160: -right down
+184: -down left
+210: -left up
+236: -up
+260: 52
+261: -52
+requires GAME:RunGameFromPassword GAME:LoadCurrentLevelState SOUND:RunMainAdlxEvents SOUND:RunEffectAdlxEvents

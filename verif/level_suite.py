@@ -2,17 +2,20 @@
 
 python verif/level_suite.py --generate
 python verif/level_suite.py --all
+python verif/level_suite.py --group audio --all
+python verif/level_suite.py --group deep --all
 
 References use tools.wholegame.fixture/original/identity and the reconstructed
 ASM image, never a native executable. Cached data lives in build/levels, separate
 from build/whole. --all pins committed HEAD plus this suite and runs serially;
-every child has an owned 8-GiB/600-s Windows Job. No game state is injected after
-the ordinary cold/password fixture. Extra hooks only read state/count entries.
+every child has an owned 8-GiB/600-s Windows Job. New groups start at the program
+entry; the original openings use the cold/password fixture. Extra hooks only
+read state/count entries. New scenario directories pin their script bytes to LF.
 """
 import argparse,ctypes as C,gc,hashlib,io,json,os,re,shutil,subprocess,sys,tarfile,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-OUT=ROOT/'build/workers/close-stones-16'
+OUT=ROOT/'build/workers/close-stones-17'
 CACHE=ROOT/'build/levels'
 SUITE=ROOT/'tests/levels'
 sys.path.insert(0,str(ROOT/'tools'))
@@ -20,7 +23,17 @@ from closure_support import hashes,save
 import ice_scratch as runner
 runner.OUT=OUT
 bounded=runner.bounded
-SCHEMA=1
+SCHEMA=2
+GROUP="openings"
+
+def set_group(group):
+    global GROUP,SUITE,CACHE,OUT,SCHEMA
+    GROUP=group;SCHEMA=1 if group=="openings" else 2;suffix={"openings":"","audio":"-audio","deep":"-deep"}[group]
+    SUITE=ROOT/("tests/levels"+suffix);CACHE=ROOT/("build/levels"+suffix)
+    OUT=ROOT/"build/workers/close-stones-17"/group;runner.OUT=OUT
+
+def suite_files():
+    return [Path(__file__),*[p for folder in ROOT.glob("tests/levels*") if folder.is_dir() for p in sorted(folder.iterdir()) if p.is_file()]]
 
 def resources():
     import cgen,dataprobe
@@ -64,7 +77,7 @@ card none
 requires GAME:LoadCurrentLevelState GAME:InitializeLevelDisplay GAME:DrawTileMap GAME:DispatchActorUpdates GAME:DrawWaterSurface GAME:MovePlayerWithVgaCollisions
 '''
         (SUITE/(name+'.txt')).write_text(text,encoding='utf-8')
-    (SUITE/'README.md').write_text('''# Optional level coverage
+    if not (SUITE/'README.md').exists():(SUITE/'README.md').write_text('''# Optional level coverage
 
 This suite is separate from the default twenty scenarios. It covers all 69
 one-player positions, followed by the 12 two-player positions whose physical
@@ -90,8 +103,26 @@ simulated; a listed password alone is not credited as level coverage.
 def expected(path,orders=None):
     import wholegame
     s=wholegame.scenario(path);orders=orders or resources()[3]
-    matches=[r for r in orders if r['players']==s.get('players',1) and r['password']==s['password']]
+    matches=[r for r in orders if r['players']==s.get('players',1) and r['password']==s.get('password','CAVITY')]
     assert len(matches)==1,(path.name,'password identity');return s,matches[0]
+
+def coverage_contract(path,data):
+    manifest=SUITE/'coverage.json'
+    if not manifest.exists():return
+    goal=json.loads(manifest.read_text()).get(path.stem,{})
+    observed=data['inventory']
+    for name,minimum in goal.get('calls',{}).items():
+        assert observed['calls'].get(name,0)>=minimum,(path.stem,'unreached',name)
+    for name,minimum in goal.get('cuts',{}).items():
+        assert observed.get('cuts',{}).get(name,{}).get('count',0)>=minimum,(path.stem,'unreached branch cut',name)
+    for wanted in goal.get('loads',[]):
+        assert any(all(load.get(k)==v for k,v in wanted.items()) for load in observed['loads']),(path.stem,'missing load',wanted)
+    for name,value in goal.get('final',{}).items():
+        assert data['frames'][-1]['scalars'][name]==value,(path.stem,'final scalar',name)
+    for wanted in goal.get('audio',[]):
+        from emu import LOAD
+        assert any(event['entry']==wanted['entry'] and event['arguments'][:2]==[int(wanted['offset'],16),LOAD+int(wanted['frame'],16)] and event['device']&1 for event in observed.get('audio',[])),(path.stem,'missing active AdLib request',wanted)
+
 
 def reference(names,refresh=False):
     import wholegame as whole
@@ -116,8 +147,8 @@ def reference(names,refresh=False):
             m,initial=whole.fixture(s);key=whole.identity(path,m);cache=CACHE/(name+'.ref.json')
             old=json.loads(cache.read_text()) if cache.exists() else {}
             if not refresh and old.get('key')==key and old.get('suite_version')==SCHEMA:
-                assert old['target']['record']==target['record'];rows.append(dict(scenario=name,mode='cached',seconds=time.perf_counter()-started));continue
-            frame=[0];loads=[];calls={};first={};ticks=[]
+                assert old['target']['record']==target['record'];coverage_contract(path,old);rows.append(dict(scenario=name,mode='cached',seconds=time.perf_counter()-started));continue
+            frame=[0];loads=[];calls={};first={};ticks=[];audio=[];cuts={}
             names_to_count=['InitializeLevelDisplay','LoadCurrentLevelState','MovePlayerWithVgaCollisions',
                 'DispatchActorUpdates','DrawTileMap','DrawWaterSurface','AdvanceRainParticles','DrawRainParticles',
                 'Passenger_Wait','Passenger_Request','Passenger_Approach','Passenger_Carried',
@@ -125,7 +156,7 @@ def reference(names,refresh=False):
             # Include every real actor handler, without guessing labels from prose.
             import re
             native_exports=set()
-            for component in ['passenger_delivery','passenger_water','passenger_itinerary','stones']:
+            for component in ['passenger_delivery','passenger_water','passenger_itinerary','stones','hazards']:
                 cert=json.loads((ROOT/'metadata/closure'/f'{component}.json').read_text())
                 for p in cert['native']['files']:
                     if '/bridge/' in p:native_exports.update(re.findall(r'\bEXPORT\s+int\s+c_(\w+)\s*\(', (ROOT/p).read_text()))
@@ -137,6 +168,28 @@ def reference(names,refresh=False):
                 def entry(uc,address,size,user):
                     calls[user]=calls.get(user,0)+1;first.setdefault(user,frame[0])
                 m.uc.hook_add(UC_HOOK_CODE,entry,user_data=n,begin=seg*16+off,end=seg*16+off)
+            # Far cdecl API entries: arguments start after the four-byte return.
+            for symbol in ['C:StartMusicTrack','C:PlayAdlibEffect','C:ScanMusicEvents']:
+                aseg,aoff=m.address(symbol)
+                def audio_entry(uc,address,size,user):
+                    sp=m.reg('SP');ss=m.reg('SS')
+                    args=[int.from_bytes(m.read(ss,(sp+4+2*i)&65535,2),'little') for i in range(4)]
+                    audio.append(dict(entry=user,frame=frame[0],arguments=args,caller=[int.from_bytes(m.read(ss,sp,2),'little'),int.from_bytes(m.read(ss,(sp+2)&65535,2),'little')],device=m.rw('SOUND:SoundDeviceBits')))
+                m.uc.hook_add(UC_HOOK_CODE,audio_entry,user_data=symbol,begin=aseg*16+aoff,end=aseg*16+aoff)
+            if name=='dino-adlib':
+                # Count the real ADD to player velocity, not just its handler.
+                from capstone import Cs,CS_ARCH_X86,CS_MODE_16
+                cseg,coff=m.address('GAME:loc_2A36')
+                instruction=next(Cs(CS_ARCH_X86,CS_MODE_16).disasm(m.read(cseg,coff,8),coff))
+                assert instruction.mnemonic=='add' and 'di' in instruction.op_str and instruction.op_str.endswith(', ax')
+                assert hex(m.off('DGROUP:PlayerHorizontalVelocities')) in instruction.op_str
+                cuts['GAME:loc_2A36']=dict(count=0,first_frame=None,addends={})
+                def dino_force(uc,address,size,user):
+                    ax=m.reg('AX');assert ax in (41,65495)
+                    item=cuts['GAME:loc_2A36'];item['count']+=1
+                    if item['first_frame'] is None:item['first_frame']=frame[0]
+                    key=f'{ax:04X}';item['addends'][key]=item['addends'].get(key,0)+1
+                m.uc.hook_add(UC_HOOK_CODE,dino_force,begin=cseg*16+coff,end=cseg*16+coff)
             def loaded(uc,address,size,user):
                 players=m.rw('DGROUP:PlayerCount');index=m.rw('DGROUP:CurrentLevelIndex')
                 table=int.from_bytes(m.read(m.seg('DGROUP:LevelOrderTables'),m.off('DGROUP:LevelOrderTables')+(players-1)*2,2),'little')
@@ -158,20 +211,24 @@ def reference(names,refresh=False):
             swap_seg,swap_off=m.address(whole.FRAME)
             def boundary(uc,address,size,user):
                 frame[0]+=1
+                if os.environ.get('LEVEL_SUITE_PROGRESS'):(OUT/('progress-'+name+'.txt')).write_text(str(frame[0])+' '+str(m.reg('CS'))+':'+str(m.reg('IP')))
                 if calls.get('MovePlayerWithVgaCollisions',0):
                     ticks.append(dict(frame=frame[0],x=m.rw('DGROUP:PlayerPixelX'),y=m.rw('DGROUP:PlayerYPixels'),
                         carried=m.rw('DGROUP:PlayerCarriedKinds'),water=m.rw('DGROUP:WaterYPixels')))
             m.uc.hook_add(UC_HOOK_CODE,boundary,begin=swap_seg*16+swap_off+0x2a,end=swap_seg*16+swap_off+0x2a)
-            frames,coverage,snapshots=whole.original(s,m,initial)
-            assert any(l['record']==target['record'] and l['players']==target['players'] and l['number']==target['number'] for l in loads),(name,loads,'wrong level')
-            missing=set(s['requires'])-set(coverage['routines']);assert not missing,(name,missing)
+            frames,coverage,snapshots=whole.original(s,m,initial,progress=bool(os.environ.get("LEVEL_SUITE_PROGRESS")))
+            reached=any(l['record']==target['record'] and l['players']==target['players'] and l['number']==target['number'] for l in loads)
+            missing=set(s['requires'])-set(coverage['routines'])
+            if not reached or missing:save(OUT/(name+'-coverage-negative.json'),dict(scenario=name,loads=loads,calls=calls,first=first,audio=audio,missing=sorted(missing),target_reached=reached,final=frames[-1]))
+            assert reached,(name,loads,'wrong level')
+            assert not missing,(name,missing)
             data=dict(key=key,version=whole.VERSION,suite_version=SCHEMA,frames=frames,coverage=coverage,
                 target={k:target[k] for k in ['record','players','number','password','map','title','weather','water','water_delta']},
-                inventory=dict(loads=loads,calls=calls,first=first,movement=ticks,
+                inventory=dict(loads=loads,calls=calls,first=first,movement=ticks,audio=audio,cuts=cuts,
                                successful_load_cut=f'{seg:04X}:{matches[0]:04X}'),
                 provenance=dict(source='reconstructed-ASM via tools.wholegame.original',image_sha256=hashlib.sha256(m.raw_image).hexdigest(),
                     tools=hashes([ROOT/'tools/wholegame.py',ROOT/'tools/emu.py',Path(__file__)])))
-            save(cache,data);snapshots.clear();rows.append(dict(scenario=name,mode='reference',seconds=time.perf_counter()-started))
+            coverage_contract(path,data);save(cache,data);snapshots.clear();rows.append(dict(scenario=name,mode='reference',seconds=time.perf_counter()-started))
             print('REF',name,target['record'],len(frames),'frames',round(rows[-1]['seconds'],3),'s',flush=True)
             del m,snapshots;gc.collect()
     finally:whole.VGA_ACCELERATOR=None;accelerator.close()
@@ -191,6 +248,7 @@ def check(variant,names):
     for name in names:
         path=SUITE/(name+'.txt');s,target=expected(path,orders)
         ref=json.loads((CACHE/(name+'.ref.json')).read_text())
+        coverage_contract(path,ref)
         assert ref['key']==wholegame.identity(path,SimpleNamespace(raw_image=mz.image)),name+' stale reference'
         command=[exe,'--headless',str(s['frames']),'--script',path,'--timeout','30']
         result=bounded(command,variant+'-'+name,ok=range(-2**32,2**32))
@@ -244,6 +302,38 @@ def controls():
     save(OUT/'comparison-controls.json',dict(result='PASS',mutations=rows,actual_host_outputs_rechecked=rechecked))
     print('Controls PASS',len(rows),'negative cases;',rechecked,'actual host outputs rechecked',flush=True)
 
+def branch_report():
+    from emu import LOAD
+    refs={p.stem:json.loads((CACHE/(p.stem+'.ref.json')).read_text()) for p in sorted(SUITE.glob('*.txt'))}
+    entries=set()
+    for component in ['passenger_delivery','passenger_water','passenger_itinerary','stones','hazards']:
+        cert=json.loads((ROOT/'metadata/closure'/f'{component}.json').read_text())
+        for file in cert['native']['files']:
+            if '/bridge/' in file:entries.update(re.findall(r'\bEXPORT\s+int\s+c_(\w+)\s*\(', (ROOT/file).read_text()))
+    lines=['Counts are reference routine entries, including zero calls. Frames are completed page flips.',
+        '', '| Entry | '+' | '.join(refs)+' |','|---|'+'---:|'*len(refs)]
+    for name in sorted(entries):
+        lines.append('| '+name+' | '+' | '.join(str(r['inventory']['calls'].get(name,0)) for r in refs.values())+' |')
+    audio=[]
+    for name,r in refs.items():
+        groups={}
+        for event in r['inventory'].get('audio',[]):
+            args=event['arguments'];entry=event['entry']
+            key=(entry,args[0],args[1],*args[2:],*event['caller'],event['device'])
+            if key not in groups:groups[key]=dict(scenario=name,entry=entry,arguments=args,caller=event['caller'],device=event['device'],count=0,first_frame=event['frame'])
+            groups[key]['count']+=1
+        audio.extend(groups.values())
+    save(OUT/'audio-requests.json',audio)
+    lines+=['','| Scenario | Audio entry | Resource / scan bounds | Remaining args | Caller | Device bits | Count | First flip |','|---|---|---|---|---|---:|---:|---:|']
+    for e in audio:
+        a=e['arguments'];resource=f'{a[1]-LOAD:04X}:{a[0]:04X}' if e['entry']!='C:ScanMusicEvents' else str(a[:2])
+        lines.append(f"| {e['scenario']} | {e['entry']} | {resource} | {a[2:]} | {e['caller'][1]-LOAD:04X}:{e['caller'][0]:04X} | {e['device']} | {e['count']} | {e['first_frame']} |")
+    lines+=['','Additional branch cuts (only instrumented cases are listed):']
+    for name,r in refs.items():
+        for cut,counts in r['inventory'].get('cuts',{}).items():lines.append(f"- {name}, {cut}: {counts}")
+    (OUT/'BRANCHES.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
+
+
 def inventory():
     orders=resources()[3];records={r['record']:dict(record=r['record'],title=r['title'],map=r['map'],weather=r['weather'],orders=[],observed=[]) for r in orders}
     for r in orders:records[r['record']]['orders'].append(dict(players=r['players'],number=r['number'],password=r['password']))
@@ -266,6 +356,8 @@ def inventory():
            ', '.join(l['scenario'] for l in r['observed'])+' | '+
            ', '.join(('PASS' if l['native'] else 'DIVERGED')+' / '+('PASS' if l['literal'] else 'DIVERGED') for l in r['observed'])+' |')
     (OUT/'LEVELS.md').write_text(str(result['covered_records'])+'/81 physical records initialized.\n\n'+'\n'.join(lines)+'\n',encoding='utf-8')
+    save(OUT/'branch-counts.json',{p.stem:json.loads((CACHE/(p.stem+'.ref.json')).read_text())['inventory'] for p in sorted(SUITE.glob('*.txt'))})
+    if GROUP!='openings':branch_report()
     print('Inventory',result['covered_records'],'/81',flush=True)
 
 def snapshot():
@@ -282,18 +374,19 @@ def snapshot():
                 if current.is_file() and current.read_bytes().replace(b'\r\n',b'\n')==data.replace(b'\r\n',b'\n'):data=current.read_bytes()
                 p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(data)
         save(pin,dict(revision=revision,purpose='Committed baseline plus optional level-suite files only.'))
-    for p in [Path(__file__),*sorted(SUITE.iterdir())]:
+    for p in suite_files():
         if not p.is_file():continue
         dest=target/p.relative_to(ROOT);dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(p,dest)
-    dest=target/'build/levels';dest.mkdir(parents=True,exist_ok=True)
+    dest=target/CACHE.relative_to(ROOT);dest.mkdir(parents=True,exist_ok=True)
     for p in CACHE.glob('*.ref.json'):shutil.copyfile(p,dest/p.name)
-    save(OUT/'baseline.json',dict(revision=revision,path=str(target.relative_to(ROOT)),overlay=hashes([Path(__file__),*sorted(SUITE.glob('*'))])))
+    save(OUT/'baseline.json',dict(revision=revision,path=str(target.relative_to(ROOT)),overlay=hashes(suite_files())))
     return target
 
 def all_runs():
     target=snapshot();bounded([sys.executable,'tools/build.py'],'build-original',cwd=target)
     names=[p.stem for p in sorted(SUITE.glob('*.txt'))]
-    for start in range(0,len(names),8):bounded([sys.executable,'verif/level_suite.py','--reference',*names[start:start+8],'--internal'],'references-'+str(start),cwd=target)
+    batch=8 if GROUP=="openings" else 1
+    for start in range(0,len(names),batch):bounded([sys.executable,'verif/level_suite.py','--group',GROUP,'--reference',*names[start:start+batch],'--internal'],'references-'+str(start),cwd=target)
     inner=target/OUT.relative_to(ROOT)
     for label in ['native','literal']:
         bounded([sys.executable,'tools/hostbuild.py',*(['--literal'] if label=='literal' else [])],'build-'+label,cwd=target)
@@ -301,27 +394,30 @@ def all_runs():
         for start in range(0,len(names),8):
             group=names[start:start+8]
             result_path=inner/('check-'+label+'-'+group[0]+'.json');result_path.unlink(missing_ok=True)
-            bounded([sys.executable,'verif/level_suite.py','--check',label,*group,'--internal'],'check-'+label+'-'+str(start),cwd=target,ok=(0,1))
+            bounded([sys.executable,'verif/level_suite.py','--group',GROUP,'--check',label,*group,'--internal'],'check-'+label+'-'+str(start),cwd=target,ok=(0,1))
             rows.extend(json.loads(result_path.read_text())['scenarios'])
         save(inner/('check-'+label+'.json'),dict(result='PASS' if all(r['passed'] for r in rows) else 'DIVERGENCES',scenarios=rows))
-    bounded([sys.executable,'verif/level_suite.py','--inventory','--internal'],'inventory',cwd=target)
+    bounded([sys.executable,'verif/level_suite.py','--group',GROUP,'--inventory','--internal'],'inventory',cwd=target)
     CACHE.mkdir(parents=True,exist_ok=True)
-    for p in (target/'build/levels').glob('*.ref.json'):shutil.copyfile(p,CACHE/p.name)
-    for n in ['check-native.json','check-literal.json','inventory.json','LEVELS.md']:shutil.copyfile(inner/n,OUT/n)
+    for p in (target/CACHE.relative_to(ROOT)).glob('*.ref.json'):shutil.copyfile(p,CACHE/p.name)
+    for n in ['check-native.json','check-literal.json','inventory.json','LEVELS.md','branch-counts.json',*(['BRANCHES.md','audio-requests.json'] if GROUP!='openings' else [])]:shutil.copyfile(inner/n,OUT/n)
     save(OUT/'acceptance.json',dict(result='PASS' if all(json.loads((OUT/('check-'+v+'.json')).read_text())['result']=='PASS' for v in ['native','literal']) else 'DIVERGENCES',
          baseline=json.loads((OUT/'baseline.json').read_text()),cache_inputs=hashes(list(CACHE.glob('*.ref.json'))),scope='Both actual host binaries vs reconstructed-ASM references, serial 8-GiB/600-s children.'))
-    bounded([sys.executable,__file__,'--controls','--internal'],'controls')
+    if GROUP=='openings':bounded([sys.executable,__file__,'--controls','--internal'],'controls')
     return json.loads((OUT/'acceptance.json').read_text())['result']=='PASS'
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--generate',action='store_true');p.add_argument('--all',action='store_true')
     p.add_argument('--reference',nargs='+');p.add_argument('--refresh',action='store_true');p.add_argument('--check',nargs='+');p.add_argument('--inventory',action='store_true');p.add_argument('--controls',action='store_true')
+    p.add_argument('--group',choices=['openings','audio','deep'],default='openings')
     p.add_argument('--internal',action='store_true',help=argparse.SUPPRESS)
-    a=p.parse_args();OUT.mkdir(parents=True,exist_ok=True)
+    a=p.parse_args();set_group(a.group);OUT.mkdir(parents=True,exist_ok=True)
     if (a.reference or a.check or a.inventory or a.controls) and not a.internal:
         row=bounded([sys.executable,__file__,*sys.argv[1:],'--internal'],'child-'+('reference' if a.reference else 'check' if a.check else 'inventory' if a.inventory else 'controls'),ok=(0,1))
         raise SystemExit(row['returncode'])
-    if a.generate:generate()
+    if a.generate:
+        if GROUP!="openings":p.error("--generate regenerates only the 81 opening scripts")
+        generate()
     if a.reference:reference(a.reference,a.refresh)
     if a.check and not check(a.check[0],a.check[1:]):raise SystemExit(1)
     if a.inventory:inventory()

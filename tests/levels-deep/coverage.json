@@ -1,0 +1,93 @@
+{
+  "completion-next": {
+    "calls": {
+      "BoardPassenger": 3,
+      "DeliverPassenger": 3,
+      "BeginPassengerDeparture": 3
+    },
+    "loads": [
+      {
+        "players": 1,
+        "number": 1
+      },
+      {
+        "players": 1,
+        "number": 2
+      }
+    ],
+    "final": {
+      "CurrentLevelIndex": 1,
+      "LivesRemaining": 3
+    }
+  },
+  "stone-adlib": {
+    "calls": {
+      "AttachStoneToPlayer": 1,
+      "WaitForStoneRelease": 1,
+      "ThrowCarriedStone": 1,
+      "UpdateThrownStone": 1
+    },
+    "audio": [
+      {
+        "entry": "C:PlayAdlibEffect",
+        "frame": "3632",
+        "offset": "0000"
+      }
+    ]
+  },
+  "triopterus-adlib": {
+    "calls": {
+      "BeginTriopterusAlert": 1,
+      "UpdateTriopterusAlert": 1,
+      "BeginTriopterusCharge": 1,
+      "UpdateTriopterusCharge": 1,
+      "BeginTriopterusImpactRecovery": 1
+    }
+  },
+  "tree-adlib": {
+    "calls": {
+      "ReleaseTreeReward": 1,
+      "ThrowCarriedStone": 1
+    },
+    "audio": [
+      {
+        "entry": "C:PlayAdlibEffect",
+        "frame": "3274",
+        "offset": "0000"
+      }
+    ]
+  },
+  "enemy-adlib": {
+    "calls": {
+      "LaunchBirdTowardPlayer": 1,
+      "UpdateBirdFlight": 1
+    },
+    "audio": [
+      {
+        "entry": "C:PlayAdlibEffect",
+        "frame": "325b",
+        "offset": "0000"
+      },
+      {
+        "entry": "C:PlayAdlibEffect",
+        "frame": "3260",
+        "offset": "0000"
+      }
+    ]
+  },
+  "dino-adlib": {
+    "calls": {
+      "UpdateDinoForce": 1
+    },
+    "audio": [
+      {
+        "entry": "C:PlayAdlibEffect",
+        "frame": "3265",
+        "offset": "0000"
+      }
+    ],
+    "cuts": {
+      "GAME:loc_2A36": 1
+    }
+  }
+}

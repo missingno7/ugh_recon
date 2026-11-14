@@ -1,0 +1,100 @@
+{
+  "adlib-01": {
+    "audio": [
+      {
+        "entry": "C:StartMusicTrack",
+        "frame": "3444",
+        "offset": "0000"
+      },
+      {
+        "entry": "C:PlayAdlibEffect",
+        "frame": "3629",
+        "offset": "0000"
+      }
+    ]
+  },
+  "adlib-02": {
+    "audio": [
+      {
+        "entry": "C:StartMusicTrack",
+        "frame": "3444",
+        "offset": "0000"
+      },
+      {
+        "entry": "C:PlayAdlibEffect",
+        "frame": "3629",
+        "offset": "0000"
+      }
+    ]
+  },
+  "adlib-04": {
+    "audio": [
+      {
+        "entry": "C:StartMusicTrack",
+        "frame": "3444",
+        "offset": "0000"
+      },
+      {
+        "entry": "C:PlayAdlibEffect",
+        "frame": "3629",
+        "offset": "0000"
+      }
+    ]
+  },
+  "adlib-05": {
+    "audio": [
+      {
+        "entry": "C:StartMusicTrack",
+        "frame": "3444",
+        "offset": "0000"
+      },
+      {
+        "entry": "C:PlayAdlibEffect",
+        "frame": "3629",
+        "offset": "0000"
+      }
+    ]
+  },
+  "adlib-31": {
+    "audio": [
+      {
+        "entry": "C:StartMusicTrack",
+        "frame": "3444",
+        "offset": "0000"
+      },
+      {
+        "entry": "C:PlayAdlibEffect",
+        "frame": "3629",
+        "offset": "0000"
+      }
+    ]
+  },
+  "adlib-43": {
+    "audio": [
+      {
+        "entry": "C:StartMusicTrack",
+        "frame": "3444",
+        "offset": "0000"
+      },
+      {
+        "entry": "C:PlayAdlibEffect",
+        "frame": "3629",
+        "offset": "0000"
+      }
+    ]
+  },
+  "adlib-64": {
+    "audio": [
+      {
+        "entry": "C:StartMusicTrack",
+        "frame": "3444",
+        "offset": "0000"
+      },
+      {
+        "entry": "C:PlayAdlibEffect",
+        "frame": "3629",
+        "offset": "0000"
+      }
+    ]
+  }
+}

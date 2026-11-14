@@ -18,3 +18,14 @@ and action bursts. Two-player extras also move player two. Coverage reports
 successful loader returns and actual routine-entry counts (including presentation
 calls). Gameplay requirements establish that the selected record was drawn and
 simulated; a listed password alone is not credited as level coverage.
+
+The optional extensions have separate commands:
+
+- `python verif/level_suite.py --group audio --all` enables AdLib on selected
+  openings; see `tests/levels-audio/README.md`.
+- `python verif/level_suite.py --group deep --all` runs longer measured gameplay
+  witnesses; see `tests/levels-deep/README.md`.
+
+They use separate caches and receipts. The default twenty-scenario gate is
+unchanged. The driver also reports positive and zero actor/hazard entry counts
+for the extensions and checks their explicit `coverage.json` obligations.

@@ -1,0 +1,21 @@
+# Real program entry, AdLib initialization, shipped password; record 38BD.
+timing pit-quantum-at-polls
+password FACE
+frames 360
+card adlib
+bios 0046 0041 0043 0045 000d
+1: esc -esc
+4: esc -esc
+9: f2 -f2
+16: f1 -f1
+19: enter -enter
+21: cycle=enter,-enter
+104: up
+130: -up right
+160: -right down
+184: -down left
+210: -left up
+236: -up
+260: 52
+261: -52
+requires GAME:RunGameFromPassword GAME:LoadCurrentLevelState SOUND:RunMainAdlxEvents SOUND:RunEffectAdlxEvents

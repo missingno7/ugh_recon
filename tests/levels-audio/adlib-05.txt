@@ -1,0 +1,21 @@
+# Real program entry, AdLib initialization, shipped password; record 3493.
+timing pit-quantum-at-polls
+password MYSTERIUMINQUITATIS
+frames 360
+card adlib
+bios 004d 0059 0053 0054 0045 0052 0049 0055 004d 0049 004e 0051 0055 0049 0054 0041 0054 0049 0053 000d
+1: esc -esc
+4: esc -esc
+9: f2 -f2
+31: f1 -f1
+34: enter -enter
+36: cycle=enter,-enter
+104: up
+130: -up right
+160: -right down
+184: -down left
+210: -left up
+236: -up
+260: 52
+261: -52
+requires GAME:RunGameFromPassword GAME:LoadCurrentLevelState SOUND:RunMainAdlxEvents SOUND:RunEffectAdlxEvents

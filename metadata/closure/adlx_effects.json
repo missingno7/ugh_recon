@@ -57,7 +57,7 @@
   "callers": "TickAdlxPlayback visits all four effect records when reserved&15 and byte(control)&5==5, using unsigned deadline comparison. It preserves ES/DI/BX around the interpreter and AX/BX/DX across the callback. Direct handler entries retain already-fetched-opcode ABI.",
   "callees": {
     "native": "audio_main_step for accepted voice operations. Effects frequency/key use live voices with reservation routing temporarily disabled/restored; gain/instrument retain driver gates.",
-    "external": "TIMER:SetTimerCallbackInterval and C:StopAdlibTrackChannel -> RestoreAdlibVoiceAllocation stay L1. Their real ordered hardware effects run through the bridge in compiled integration/corpus/host checks."
+    "external": "TIMER:SetTimerCallbackInterval remains a synchronous dispatch service; timer.json owns its admitted native scheduler semantics. C:StopAdlibTrackChannel -> RestoreAdlibVoiceAllocation is migrated in adlx_allocation.json, with no L1 END endpoint use in the admitted domain; that certificate retains explicit compatibility boundaries for unsupported allocation aliases and backwards copies. Ordered port delivery remains a platform service. Their real ordered hardware effects run through the bridge in compiled integration/corpus/host checks."
   },
   "indirect": "Canonical16-entry table has long wait/frequency/key-off/gain/instrument/no-op/period/control and eight short-wait entries. Only TIMER interval and C stop external targets. Modified tables and unknown record aliases use explicit audited literal fallback.",
   "memory": {
@@ -291,5 +291,16 @@
     "command": "python tools/closure.py",
     "result": "PASS18 certificates,0 errors; includes concurrently owned passenger_delivery without absorbing its files.",
     "date": "2026-11-13"
-  }
+  },
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-14",
+      "reason": "boundary text reconciled after later units migrated; claims unchanged",
+      "field": "callees.external",
+      "inputs": [
+        "metadata/closure/timer.json",
+        "metadata/closure/adlx_allocation.json"
+      ]
+    }
+  ]
 }

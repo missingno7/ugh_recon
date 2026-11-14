@@ -243,7 +243,18 @@
     }
   },
   "accepted_sources_changed": [],
-  "evidence_refreshed": "None required: every accepted audio source/header/certificate remains byte-for-byte unchanged. Combined source/reference replay tests interoperability without relocking them.",
+  "evidence_refreshed": [
+    "None required: every accepted audio source/header/certificate remains byte-for-byte unchanged. Combined source/reference replay tests interoperability without relocking them.",
+    {
+      "date": "2026-11-14",
+      "reason": "cascade relock: only the locked certificates' boundary wording changed",
+      "inputs": [
+        "metadata/closure/adlx_allocation.json",
+        "metadata/closure/adlx_effects.json",
+        "metadata/closure/adlx_main.json"
+      ]
+    }
+  ],
   "proposed_status_reason": "Seven ordinary facade entries implemented over unchanged accepted semantics. Full compiled facade-only stream corpora and70000 ABI/alias pairs,6508 L0 cases, current20 scenarios and isolated cd48651 baseline native host22 units/19 scenarios plus smoke pass.75 positive B profiles cover explicit kernels/cuts/admission/I/O, not a whole asynchronous machine theorem. MMIO load compatibility explicit. Baseline closure23 certificates0 errors; working-tree actor-render files are foreign in progress. Supervisor promotion only.",
   "solver_limits": {
     "job_memory_bytes": 8000000000,
@@ -268,10 +279,10 @@
     "c/sound_engine.c": "5e4116c31806441e464de35d5649894ec4eea28025254a2edea616235e6e6881",
     "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
     "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
-    "metadata/closure/adlx_allocation.json": "2bfd85d5b12a91c863921b09cb7a953f02dcfb41e253bcff370e6b5d1af6bd46",
-    "metadata/closure/adlx_effects.json": "651957777857153fe9e1154e955ddfb0721872ce0c6a89ae73afed26a9369126",
+    "metadata/closure/adlx_allocation.json": "c45e571ab17e15943d104f28e1495f42ab5e590693bb4fee6e0fb15c2f1453f3",
+    "metadata/closure/adlx_effects.json": "6e9d698dcde2e9d4c56721c1cb78f9a31bba1f8deabed6a4066d605408aac6ca",
     "metadata/closure/adlx_loader.json": "c5d4479b8e11f93d9ac4207c731a9faeb435fa7c2958cbe9120ca5f690c9b6c8",
-    "metadata/closure/adlx_main.json": "2467936497a63454052195e4b2f8ee263c7476bc182e6fc790f502a2a6c1751b",
+    "metadata/closure/adlx_main.json": "68730d926562833a283006e9036d6e4ddf46a1e8870f43786f3e8260c8ec018d",
     "metadata/closure/adlx_music.json": "72dbe9a05623b114d1b9d215dcde95db44fdfecb784536e1f35ca6eb9d3d1f29",
     "metadata/closure/adlx_sections.json": "38bb47c545adce9e06b7b92b537344f24f77f1574447e802f08c70a6aeff0bb0",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",

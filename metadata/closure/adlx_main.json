@@ -72,7 +72,7 @@
   "callees": {
     "native": "Internal volume/level/write helpers only. Original OPL service behavior is implemented inside the native step, not called through L1.",
     "boundary": "TIMER:SetTimerCallbackInterval, platform_out. L1 DelaySoundIo state contract is reconstructed in bridge; CPU busy-loop elapsed time has no deterministic service points.",
-    "other_interpreter": "Effects interpreter remains L1: RunEffectAdlxEvents plus seven looping handlers and long/short waits; END expires through C:StopAdlibTrackChannel -> RestoreAdlibVoiceAllocation, including voice compaction and ordered restoration. It requires record8..11, current record selector, first_voice, step_q8 and shared live/displaced voices."
+    "other_interpreter": "Effects interpreter RunEffectAdlxEvents, its seven looping handlers and long/short waits are migrated in adlx_effects.json. END stop/restoration/allocation, including voice compaction and ordered restoration, is owned by adlx_allocation.json in its admitted domain. TIMER:SetTimerCallbackInterval remains a synchronous dispatch service with admitted scheduler semantics owned by timer.json; physical PIT/IRQ and ordered OPL delivery remain platform services. Record8..11, current record selector, first_voice, step_q8 and shared live/displaced voices remain the shared boundary."
   },
   "indirect": {
     "main_dispatch": "Fixed complete 16-entry target set: long wait, frequency, key off, gain, instrument, no-op, timer period, control, then eight copies of short wait. Native enum removes the machine jump table; bridge validates all entries.",
@@ -321,5 +321,17 @@
       "native/passenger_itinerary.c",
       "native/passenger_itinerary.h"
     ]
-  }
+  },
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-14",
+      "reason": "boundary text reconciled after later units migrated; claims unchanged",
+      "field": "callees.other_interpreter",
+      "inputs": [
+        "metadata/closure/adlx_effects.json",
+        "metadata/closure/adlx_allocation.json",
+        "metadata/closure/timer.json"
+      ]
+    }
+  ]
 }

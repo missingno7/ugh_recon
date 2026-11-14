@@ -181,7 +181,7 @@
   },
   "uncertainty": [
     "Physical OPL/DOS cycle timing and native port measurement policy remain platform decisions; this unit preserves virtual instruction-boundary semantics.",
-    "DSP lifetime/probe/protocol, samples/mixer/DMA and top-level sound facade remain L1;21 of75 canonical audio entries remain.",
+    "DSP lifetime/probe/protocol, DMA and digital bank endpoints are migrated in adlx_digital.json; sample import/cursor/mixer in adlx_samples.json; top-level sound facade in adlx_facade.json. Port I/O, vector/IRQ delivery, DMA delivery and resource bindings remain services. The Sound Blaster digital path is unreachable in the shipped program: startup always requests AdLib1; no sample resource ships and bank hooks are lone near RETs; the DSP probe far call transfers through a lone near RET. The broken hook transfers remain explicit L1 boundaries, not repaired resource or probe services.",
     "Broad whole-state CBMC attempts are archived as failures/timeouts, not promoted to proof."
   ],
   "dependencies": {
@@ -255,6 +255,16 @@
       "result": "python tools/wholegame.py rerun by the supervisor: all 20 scenarios pass and every reference frame and coverage list equals the pre-change references; host check passes in both variants; no native or proof source changed",
       "inputs": [
         "tools/wholegame.py"
+      ]
+    },
+    {
+      "date": "2026-11-14",
+      "reason": "boundary text reconciled after later units migrated; claims unchanged",
+      "field": "uncertainty.1",
+      "inputs": [
+        "metadata/closure/adlx_digital.json",
+        "metadata/closure/adlx_samples.json",
+        "metadata/closure/adlx_facade.json"
       ]
     }
   ],

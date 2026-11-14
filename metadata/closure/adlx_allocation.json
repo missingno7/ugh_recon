@@ -156,7 +156,7 @@
   "uncertainty": [
     "Full allocation/voice/bridge composition has C evidence; wider arbitrary-state actual-C CBMC profiles,including scalar capacity attempt,timed out at120s and earn no proof.",
     "Incoming backwards record copies and unsupported physical allocation aliases remain explicit audited L1 compatibility. Ordinary shipped END corpus needs no fallback.",
-    "Resource parsing/container loading stays L1. Complete Play external-service exceptions and instruction-level asynchronous observations are outside the normal-return serialized contract.",
+    "ADLX resource parsing/container loading is migrated in adlx_loader.json; resource-byte and identity bindings remain services. Complete Play external-service exceptions and instruction-level asynchronous observations are outside the normal-return serialized contract.",
     "Tick/guard/clock/fade scheduling,scan/section application and PCM/DMA remain outside this unit."
   ],
   "dependencies": {
@@ -265,5 +265,15 @@
     "verif/adlx_effects_harness.c": "e55ad7c704673730bc0a968724b7fa946df37a032724addcfb052b761a059849",
     "verif/adlx_effects_integration.py": "3cb136d4fdf1abe707c53801cc74d35f8fa036e59d1134a21ad9e86590ba8c5c",
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde"
-  }
+  },
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-14",
+      "reason": "boundary text reconciled after later units migrated; claims unchanged",
+      "field": "uncertainty.2",
+      "inputs": [
+        "metadata/closure/adlx_loader.json"
+      ]
+    }
+  ]
 }

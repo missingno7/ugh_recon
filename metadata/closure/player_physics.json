@@ -1,0 +1,1783 @@
+{
+  "component": "player_physics",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "original": {
+    "owned": [
+      {
+        "identity": "GAME:MovePlayerWithVgaCollisions",
+        "address": "013B:1095",
+        "l1": "c/scene.c:c_MovePlayerWithVgaCollisions"
+      },
+      {
+        "identity": "GAME:SamplePlayerCollisionPixels",
+        "address": "013B:1457",
+        "l1": "c/demo_scripts.c:c_SamplePlayerCollisionPixels"
+      }
+    ]
+  },
+  "native": {
+    "files": [
+      "native/player_physics.h",
+      "native/player_physics.c",
+      "native/bridge/player_physics_bridge.c"
+    ],
+    "header": "native/player_physics.h",
+    "functions": [
+      "player_physics_begin",
+      "player_physics_poll",
+      "player_physics_reply",
+      "player_collision_sample",
+      "player_physics_sar",
+      "player_physics_limit",
+      "player_physics_reflect"
+    ],
+    "build": "python verif/player_physics_build.py"
+  },
+  "purpose": "One player craft update over a borrowed typed player/world projection, with ordered publication, read-plane selection and collision-neighbourhood requests. The existing player arrays remain the persistent owner.",
+  "interface": {
+    "inputs": [
+      "Selected PlayerPhysicsView: raw X32/Y32, cached pixel X/Y, platform word, raw velocity words, impact/thrust and four raw nonzero input words. Both physical players are supported; no cache/position consistency restriction.",
+      "World timer, water pixel word, selected impact-limit word, fade words and rain byte; readonly platform prefix. Every scalar word/byte pattern is admitted; signedness is explicit.",
+      "Ordered sample replies contain ten full bytes. Physics tests bit7; the exported sampler retains the OR of all80 input bits and its complete AL/flags ABI."
+    ],
+    "outputs": [
+      "Interleaved named state writes, plane-register selection/read-plane requests, probes from cached pixel origins with wrapping four-pixel-column/96-cell-row displacements, and normal completion.",
+      "Position, current pixel caches, platform, velocities, greater reflected-component impact, thrust rate, shared timer and conditional fade writes. Private continuation and outstanding sample reply are observable protocol state."
+    ],
+    "effects": [
+      "Publish each native write before the following physical sample. Requests are consumed in order, exact native plane and location are bound, and the full working projection agrees at sampling and normal completion.",
+      "The retained checked shell preserves every register/flag, the saved water-state stack word, all four near return words and ordered ports/reads. Pixel services synchronously refresh physical VGA latches; no early-out sampling."
+    ],
+    "preconditions": [
+      "Ordinary disjoint RAM/resources/stack and native player/world/process/platform storage, stable resource inputs, synchronous reads with no player/world mutation; accessible ten-byte sample input.",
+      "Bridge native admission: canonical data/code segments, even player byte index0 or2, a negative platform-left sentinel within10 entries, and selected difficulty index0..2. All raw threshold values remain full16bit. Other bindings/indices/malformed prefixes execute the exact checked literal shell as compatibility.",
+      "The difficulty guard is necessary: an invalid wrapping lookup can alias live player writes, so entry-time limit import would be unsound. This is recorded rather than a hidden domain reduction.",
+      "L0 sampler observations exclude AF, which OR leaves undefined, matching the maintained sampler suite; movement consumes SF only. L1/native proofs and compiled cases still compare the entire flag word. No AF-zero input restriction was introduced.",
+      "Native continuations come from begin/poll/reply; a pending sample must receive exactly one reply. Platform count is at most10 and the ordinary borrowed prefix includes its negative sentinel. No normalized velocities, positive timers, positive coordinates or initialized caches are assumed."
+    ]
+  },
+  "callers": [
+    "Only RunGameFromPassword calls movement, at original GAME:0DD2. Its equality-only player-loop bug remains in the accepted literal session shell.",
+    "Movement calls the sampler at11C1,11EB,1366,1383. Direct sampler entry admits arbitrary ES:SI, including physical aliases and non-VGA memory."
+  ],
+  "callees": {
+    "native": [
+      "player_physics_begin",
+      "player_physics_poll",
+      "player_physics_reply",
+      "player_collision_sample"
+    ],
+    "services": [
+      "Synchronous selected-background collision image reads; existing platform_out and physical aperture read implementation. No item, actor, audio or score service is introduced."
+    ]
+  },
+  "indirect": {
+    "targets": [
+      "SamplePlayerCollisionPixels"
+    ],
+    "classification": "Four fixed near sample calls, bound to the exact native request and retained return word. No stored callback, actor handler or new session caller."
+  },
+  "memory": {
+    "owned": [
+      "Working projection only: existing selected PlayerX32/Y32, PlayerPixelX/YPixels, PlayerPlatformIndices, PlayerHorizontal/VerticalVelocities, PlayerImpactMagnitude and PlayerThrustAnimationRate words; LevelTimer and conditional ScreenFadeStep/Level writes.",
+      "No second persistent player allocation. No previous-page PlayerCachedPixelX/Y, cached sprite, carried passenger/stone, fare/HUD, actor alias or actor render history is written."
+    ],
+    "borrowed": [
+      "Four input words, water/weather, selected impact resource and platform left/right/height prefix; cached pixels are imported at pre-update cuts.",
+      "The platform supplies the BackgroundPagePointer resource, raw signed row-stride word and current VGA read configuration. Native code contains no segment, address, port number, register model or aperture access."
+    ],
+    "projection": "Actual constructor and full working-state equality predicate have independent actual-C properties. Stores use native values; planes/probe origins are bound even for private-only mutants. Every other native/resource byte is framed, and all literal RAM stores are confined by the proved consuming helper and checked source inventory."
+  },
+  "assumptions": [
+    "B combines nine actual-C branch output pieces, independent arbitrary-byte native/resource frame and inactive-input dependence, actual sampler/primitive properties, and bridge constructor/consume/completion/append/poll properties. Zero-event paths retain unconditional control/dependence checks.",
+    "Address construction splits at the actual signed multiply expression: inputs are asserted equal, its complete operand-pair domain and exact range are exhaustively enumerated, and arbitrary shared product results discharge the parent. No stride or coordinate slice restriction is substituted for the full domain.",
+    "Platform search uses the actual one-candidate stop/pass/match property at an arbitrary physical index plus the actual byte-index increment seam. Ascending source-loop inventory, immutable resources and a negative sentinel within10 entries compose the first-hit search by induction; the failed combined array profile is not credited.",
+    "Loop backedges assert cursor/candidate/direction and plane/displacement equality; every retained private continuation field is checked. Literal operation inventory includes every original assignment, call, arithmetic/comparison and unary operation with at least its original multiplicity.",
+    "Sampler byte services have the existing physical-aperture read contract. Only the endpoint CPU register/flag state is observable during these synchronous reads; the physical reader does not inspect Regs. Full device/RAM/ABI/service composition is independently exercised against L0 by routine and whole-game evidence."
+  ],
+  "eliminated": [
+    "Ordinary native code contains no original addresses, machine registers/flags, memory accessors, segment arithmetic or dispatch. A borrowed player view and resumable ordered requests replace their semantic roles.",
+    "No dead-register claim, recomputed cache, collision RGB threshold, speed normalization, clipping, friction or timer saturation is introduced."
+  ],
+  "retained": [
+    "Word wrapping before signed comparisons, raw velocity SAR6 and clamps[-6144,6144]; X32 clamps[-512,9728], Y32[-608,6112] after wrapping integration. There is no horizontal screen-edge wrap. The water surface snap is a further wrapping expression without a second clamp.",
+    "Left beats right. Down beats up only in the airborne negative-water-byte branch. Thrust contributions are3Fh/5Ah, while vertical acceleration is70; weather adds a signed horizontal32-multiple and absolute SAR1 vertical contribution. Timer subtraction wraps per craft.",
+    "Water classification uses cached Y-water+18: signed positive forces high byte1; zero and wrapped/signed negative words retain their high byte. Submerged positive velocity subtracts193; nonpositive subtracts21 and releases platform. Surface crossing uses <=0.",
+    "Reflection is SAR1 of wrapped negation. Magnitude is the absolute doubled reflected word, with signed greater-component comparison, odd-speed rounding and8000h behaviour retained. Landing requires negative reflected vertical velocity and signed impact strictly below the raw difficulty limit.",
+    "Landing scans ascending, stops on negative left, compares raw height equality and inclusive signed bounds for wrapping cached X+16. First match stores platform then zeroes horizontal/vertical velocities. Attached players skip the horizontal block for the entire current call.",
+    "Horizontal left decrements/selects once and repeatedly samples one address; right advances read plane and cell per probe. Vertical up subtracts96 once and reuses it; down advances96 per probe. Cached X is updated before vertical address construction; cached Y remains pre-update.",
+    "Sampler offsets0,3,5,720h,723h,725h,240h,245h,480h,485h wrap individually as16-bit effective offsets. No clipping. Physical A0000..AFFFF reads refresh all four latches, using selected read plane in mode0 or existing compare/care state in mode1; the last physical VGA read owns final latches. Masks for writes do not affect reads.",
+    "Plane selection is never restored. BackgroundPagePointer, not display/draw page, is sampled. Initial signed IMUL uses the raw row-stride word; footprint/scan96-cell rows remain fixed even for another stride. Physical aliases/non-VGA direct sampler inputs retain their literal meaning."
+  ],
+  "evidence": [
+    {
+      "property": "Literal operation and branch inventory",
+      "level": "B",
+      "command": "python verif/player_physics_coverage.py",
+      "result": "PASS299 operations, nine native branch stages",
+      "method": "All assignments, calls, arithmetic/comparison and unary operations in the actual handler occur with at least their original multiplicity in checked literal pieces. Loop break/backedge edges become explicit continuation values; per-iteration proofs assert equality of cursor/candidate/direction and plane/displacement seams. Address construction and first-platform lookup are separate actual-C children with arbitrary shared outputs and equality assertions in parents. Per-stage outputs, arbitrary native/resource byte frames and inactive-input dependence cover all typed outputs, retained words, ordered writes/ports/sample requests and replies, and control state. The complete retained ABI shell is regenerated from actual C; no register/flag deadness claim is used. Ordinary disjoint RAM/resources/stack, valid selected physical slot and a negative platform-left sentinel within ten borrowed entries are explicit B assumptions; all scalar words and cached histories are arbitrary.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "sar outputs",
+      "level": "B",
+      "command": "python verif/player_physics_proof.py sar outputs",
+      "result": "PASS 0.088s; peak private 15413248 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\sar-outputs\\result.json",
+        "unwind": 35,
+        "backend": "SAT",
+        "preprocessed_sha256": "dd659551d0abe7aa742c60c6dda301733461c4362a5918918fb892fc53e83398",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "limit outputs",
+      "level": "B",
+      "command": "python verif/player_physics_proof.py limit outputs",
+      "result": "PASS 0.079s; peak private 13492224 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\limit-outputs\\result.json",
+        "unwind": 35,
+        "backend": "SAT",
+        "preprocessed_sha256": "9f67eaeb67270e257f5c37e33102991d538597bcaead5979bbabcec0342e7870",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "reflect outputs",
+      "level": "B",
+      "command": "python verif/player_physics_proof.py reflect outputs",
+      "result": "PASS 0.088s; peak private 13885440 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\reflect-outputs\\result.json",
+        "unwind": 35,
+        "backend": "SAT",
+        "preprocessed_sha256": "8b8a04239c24645ec9d4db346fe5f96014dc8e51898665594925ad4ff35114a1",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "sample outputs",
+      "level": "B",
+      "command": "python verif/player_physics_proof.py sample outputs",
+      "result": "PASS 0.195s; peak private 19664896 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\sample-outputs\\result.json",
+        "unwind": 35,
+        "backend": "SAT",
+        "preprocessed_sha256": "6fe052b65f05ba8a137b97276b52b94a586233f0e48d08aaed93ab7da62e316c",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "sample frame",
+      "level": "B",
+      "command": "python verif/player_physics_proof.py sample frame",
+      "result": "PASS 0.197s; peak private 19570688 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\sample-frame\\result.json",
+        "unwind": 35,
+        "backend": "SAT",
+        "preprocessed_sha256": "a5c5af52a145aba0d58b12ae1f7d32aeea3b34c1f356311a7794fa1abaa81977",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "sample dependence",
+      "level": "B",
+      "command": "python verif/player_physics_proof.py sample dependence",
+      "result": "PASS 0.194s; peak private 19734528 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\sample-dependence\\result.json",
+        "unwind": 35,
+        "backend": "SAT",
+        "preprocessed_sha256": "cb683d8575a6583290b6164da42dfaa4180239cc852fe09e22897fc61d54acd3",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "initial frame",
+      "level": "B",
+      "command": "python verif/player_physics_proof.py initial frame",
+      "result": "PASS 0.121s; peak private 17633280 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\initial-frame\\result.json",
+        "unwind": 35,
+        "backend": "SAT",
+        "preprocessed_sha256": "ec603264afc295a71791e33f705baa709407db0cd04ed16979dd0d4ab0235a9f",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "initial dependence",
+      "level": "B",
+      "command": "python verif/player_physics_proof.py initial dependence",
+      "result": "PASS 0.198s; peak private 27230208 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\initial-dependence\\result.json",
+        "unwind": 35,
+        "backend": "SAT",
+        "preprocessed_sha256": "0b23c0a7ebeb34498cee0fbb621ab03c9e3c556a4f3dc999c2f9adb5182281c9",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "horizontal frame",
+      "level": "B",
+      "command": "python verif/player_physics_proof.py horizontal frame",
+      "result": "PASS 0.155s; peak private 19824640 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\horizontal-frame\\result.json",
+        "unwind": 35,
+        "backend": "SAT",
+        "preprocessed_sha256": "5ac49875855b5c07dab272bba76fb32e0cd17594215e77fe6a887106ad1f86aa",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "horizontal dependence",
+      "level": "B",
+      "command": "python verif/player_physics_proof.py horizontal dependence",
+      "result": "PASS 2.391s; peak private 88453120 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\horizontal-dependence\\result.json",
+        "unwind": 35,
+        "backend": "SAT",
+        "preprocessed_sha256": "1f80d9f921f7a9a1622cb6d0da30f33a1a070513ce89a7c142ead6e6a98b2fc8",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "horizontal-scan frame",
+      "level": "B",
+      "command": "python verif/player_physics_proof.py horizontal-scan frame",
+      "result": "PASS 0.104s; peak private 17027072 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\horizontal-scan-frame\\result.json",
+        "unwind": 35,
+        "backend": "SAT",
+        "preprocessed_sha256": "d81326d1d1ed6ffbb293419ef24c787f09eac2fb00d55a9e08ebcc1193926471",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "horizontal-scan dependence",
+      "level": "B",
+      "command": "python verif/player_physics_proof.py horizontal-scan dependence",
+      "result": "PASS 0.189s; peak private 28958720 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\horizontal-scan-dependence\\result.json",
+        "unwind": 35,
+        "backend": "SAT",
+        "preprocessed_sha256": "747be4c1b603ad0b976e7dfdfbc3a02a72cac56c168edf5f62dcb0581e487137",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "horizontal-hit frame",
+      "level": "B",
+      "command": "python verif/player_physics_proof.py horizontal-hit frame",
+      "result": "PASS 0.127s; peak private 17620992 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\horizontal-hit-frame\\result.json",
+        "unwind": 35,
+        "backend": "SAT",
+        "preprocessed_sha256": "243d309019b3cf09770816616c31ec2ca70290ef4c39d61f7cc16771718b5637",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "horizontal-hit dependence",
+      "level": "B",
+      "command": "python verif/player_physics_proof.py horizontal-hit dependence",
+      "result": "PASS 0.203s; peak private 28729344 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\horizontal-hit-dependence\\result.json",
+        "unwind": 35,
+        "backend": "SAT",
+        "preprocessed_sha256": "aa6117137740d7c9ae698e4f477c2ed0ef5a6e5b03859f734af794b611a7dbce",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "horizontal-end frame",
+      "level": "B",
+      "command": "python verif/player_physics_proof.py horizontal-end frame",
+      "result": "PASS 0.112s; peak private 17330176 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\horizontal-end-frame\\result.json",
+        "unwind": 35,
+        "backend": "SAT",
+        "preprocessed_sha256": "fb4d616050c8e791714a809f0003796597154d07358e442e719e8710e5d86d0d",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "horizontal-end dependence",
+      "level": "B",
+      "command": "python verif/player_physics_proof.py horizontal-end dependence",
+      "result": "PASS 0.181s; peak private 26521600 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\horizontal-end-dependence\\result.json",
+        "unwind": 35,
+        "backend": "SAT",
+        "preprocessed_sha256": "9939093e6acba2c718db64ae3fd991db3bf1b104d30b457917f0decbe40aa1eb",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "vertical frame",
+      "level": "B",
+      "command": "python verif/player_physics_proof.py vertical frame",
+      "result": "PASS 0.181s; peak private 21704704 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\vertical-frame\\result.json",
+        "unwind": 35,
+        "backend": "SAT",
+        "preprocessed_sha256": "c15ce6f8d0267830a75747f170f7bb002e5ffe65d3b2a0f20913f066836e5aac",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "vertical dependence",
+      "level": "B",
+      "command": "python verif/player_physics_proof.py vertical dependence",
+      "result": "PASS 3.619s; peak private 140427264 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\vertical-dependence\\result.json",
+        "unwind": 35,
+        "backend": "SAT",
+        "preprocessed_sha256": "f4835f68ac2d7e48b7daba36d6fc51c8a09b5a329d95c4cf350a33bd6c6e81b7",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "vertical-scan frame",
+      "level": "B",
+      "command": "python verif/player_physics_proof.py vertical-scan frame",
+      "result": "PASS 0.103s; peak private 16670720 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\vertical-scan-frame\\result.json",
+        "unwind": 35,
+        "backend": "SAT",
+        "preprocessed_sha256": "2be6092aaacab9092d86cbbd6ccbe5113e36c5b0617063338fdd330ff47fb996",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "vertical-scan dependence",
+      "level": "B",
+      "command": "python verif/player_physics_proof.py vertical-scan dependence",
+      "result": "PASS 0.178s; peak private 26423296 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\vertical-scan-dependence\\result.json",
+        "unwind": 35,
+        "backend": "SAT",
+        "preprocessed_sha256": "73438337359a77f48430f43294cf06426f38b674907f7b23639548411db86aa0",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "vertical-hit frame",
+      "level": "B",
+      "command": "python verif/player_physics_proof.py vertical-hit frame",
+      "result": "PASS 0.360s; peak private 35835904 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\vertical-hit-frame\\result.json",
+        "unwind": 35,
+        "backend": "SAT",
+        "preprocessed_sha256": "bdfcc9b68884e00fbf362def4a27053b5ba1e5b7cb0455155de53b14d8be7094",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "vertical-hit dependence",
+      "level": "B",
+      "command": "python verif/player_physics_proof.py vertical-hit dependence",
+      "result": "PASS 116.960s; peak private 164978688 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\vertical-hit-dependence\\result.json",
+        "unwind": 35,
+        "backend": "SAT",
+        "preprocessed_sha256": "433f2f8bfdcce620cf439ea9c6a6c95f9c150534cfb34d3841c654044807268d",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "vertical-end frame",
+      "level": "B",
+      "command": "python verif/player_physics_proof.py vertical-end frame",
+      "result": "PASS 0.122s; peak private 17870848 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\vertical-end-frame\\result.json",
+        "unwind": 35,
+        "backend": "SAT",
+        "preprocessed_sha256": "09f59a2bb0507755f745ae34ddefdcfb766d86b8cb2f09b483cd3b3dde95b9f6",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "vertical-end dependence",
+      "level": "B",
+      "command": "python verif/player_physics_proof.py vertical-end dependence",
+      "result": "PASS 0.204s; peak private 28594176 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\vertical-end-dependence\\result.json",
+        "unwind": 35,
+        "backend": "SAT",
+        "preprocessed_sha256": "43bae6fc01725cb3dacea9c5946d4391f8f0da377b6bb44d59e3ae2e2c8c4df9",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "initial",
+      "level": "B",
+      "command": "python verif/player_physics_stage.py initial",
+      "result": "PASS 0.896s; peak private 65273856 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\stages\\initial\\result.json",
+        "unwind": 40,
+        "backend": "SAT",
+        "preprocessed_sha256": "6fec197d64bd6c405d98fae874d876fdff24d90c882a9d28b0c49cbbd3b243e1",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "horizontal",
+      "level": "B",
+      "command": "python verif/player_physics_stage.py horizontal",
+      "result": "PASS 3.733s; peak private 107040768 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\stages\\horizontal\\result.json",
+        "unwind": 40,
+        "backend": "SAT",
+        "preprocessed_sha256": "846063903902fc6ac125469d7ab5393d41947e8a0f818182a66f4cb3e5095f14",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "horizontal-scan",
+      "level": "B",
+      "command": "python verif/player_physics_stage.py horizontal-scan",
+      "result": "PASS 1.403s; peak private 94248960 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\stages\\horizontal-scan\\result.json",
+        "unwind": 40,
+        "backend": "SAT",
+        "preprocessed_sha256": "32f74f872fcf82c5a88e473cbadd132f1620ca7431166029afe342fd83193385",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "horizontal-hit",
+      "level": "B",
+      "command": "python verif/player_physics_stage.py horizontal-hit",
+      "result": "PASS 0.800s; peak private 62885888 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\stages\\horizontal-hit\\result.json",
+        "unwind": 40,
+        "backend": "SAT",
+        "preprocessed_sha256": "db3ac2469275565c8ef8fefd0c3a421e74e441c083e11b22ce8896a08cf42df8",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "horizontal-end",
+      "level": "B",
+      "command": "python verif/player_physics_stage.py horizontal-end",
+      "result": "PASS 0.754s; peak private 59813888 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\stages\\horizontal-end\\result.json",
+        "unwind": 40,
+        "backend": "SAT",
+        "preprocessed_sha256": "0bd2015c13823e847de4b85d9374df1df8234930ea6ce7e1e3584024028611a8",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "vertical",
+      "level": "B",
+      "command": "python verif/player_physics_stage.py vertical",
+      "result": "PASS 3.039s; peak private 118702080 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\stages\\vertical\\result.json",
+        "unwind": 40,
+        "backend": "SAT",
+        "preprocessed_sha256": "596b3d7fbf558dc683b638648f88a142c280f584edfdfe309ec3415288408095",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "vertical-scan",
+      "level": "B",
+      "command": "python verif/player_physics_stage.py vertical-scan",
+      "result": "PASS 1.472s; peak private 92528640 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\stages\\vertical-scan\\result.json",
+        "unwind": 40,
+        "backend": "SAT",
+        "preprocessed_sha256": "f6a5df2d4c6231dd4e6d9fa0f4d3c48f4d7cd2beba8024ac898d2c10566b6bbf",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "vertical-hit",
+      "level": "B",
+      "command": "python verif/player_physics_stage.py vertical-hit",
+      "result": "PASS 1.173s; peak private 77217792 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\stages\\vertical-hit\\result.json",
+        "unwind": 40,
+        "backend": "SAT",
+        "preprocessed_sha256": "0fe8855128cef6d7b2b1a0858384918220e6437d0ea42f9ef665088ffb22428c",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "vertical-end",
+      "level": "B",
+      "command": "python verif/player_physics_stage.py vertical-end",
+      "result": "PASS 1.156s; peak private 76369920 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\stages\\vertical-end\\result.json",
+        "unwind": 40,
+        "backend": "SAT",
+        "preprocessed_sha256": "df9f712fdca7b12bc4d378f092e2fc32689399bb9f7c2d52d923b83e80d4a320",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "address",
+      "level": "B",
+      "command": "python verif/player_physics_children.py address",
+      "result": "PASS 0.191s; peak private 15826944 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\children\\address\\result.json",
+        "unwind": 15,
+        "backend": "SAT",
+        "preprocessed_sha256": "fd1bd3b5c7494a36dfa840fe68a599d833859efb174750fdbfb7c1a42ca90428",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "landing",
+      "level": "B",
+      "command": "python verif/player_physics_children.py landing",
+      "result": "PASS 0.098s; peak private 15704064 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\children\\landing\\result.json",
+        "unwind": 15,
+        "backend": "SAT",
+        "preprocessed_sha256": "3dd56e4df792ae3d93662676acadea9d3a60112b3a4b93021c7a2e7523425b88",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "scan-index",
+      "level": "B",
+      "command": "python verif/player_physics_children.py scan-index",
+      "result": "PASS 0.021s; peak private 8613888 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\children\\scan-index\\result.json",
+        "unwind": 15,
+        "backend": "SAT",
+        "preprocessed_sha256": "680f213951876b67f103212639c2125e1f4e37fbc91e14d36933b23eacdcfdc3",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "open",
+      "level": "B",
+      "command": "python verif/player_physics_kernel.py open",
+      "result": "PASS 0.653s; peak private 54833152 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\kernel\\open\\result.json",
+        "unwind": 40,
+        "backend": "SAT",
+        "preprocessed_sha256": "1c30aa7fba5c88c86771240fc8ed4617ae4ab9995ca92f49335742a729a65860",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "projection",
+      "level": "B",
+      "command": "python verif/player_physics_kernel.py projection",
+      "result": "PASS 0.610s; peak private 51945472 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\kernel\\projection\\result.json",
+        "unwind": 40,
+        "backend": "SAT",
+        "preprocessed_sha256": "b340736d7aaf44e3b25ef29bf680ba0eb362c66e5f70374de30952141335619e",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "write",
+      "level": "B",
+      "command": "python verif/player_physics_kernel.py write",
+      "result": "PASS 0.729s; peak private 58327040 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\kernel\\write\\result.json",
+        "unwind": 40,
+        "backend": "SAT",
+        "preprocessed_sha256": "ea59d2dde459fd9dee65cdcc0bd9c4fba472de62394227463079e66fc3615277",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "out",
+      "level": "B",
+      "command": "python verif/player_physics_kernel.py out",
+      "result": "PASS 0.598s; peak private 51834880 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\kernel\\out\\result.json",
+        "unwind": 40,
+        "backend": "SAT",
+        "preprocessed_sha256": "06050cd7d5077c672fa91fd6f8568b89c7d7b89aaf907397c32115a305650fa4",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "complete",
+      "level": "B",
+      "command": "python verif/player_physics_kernel.py complete",
+      "result": "PASS 0.665s; peak private 53551104 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\kernel\\complete\\result.json",
+        "unwind": 40,
+        "backend": "SAT",
+        "preprocessed_sha256": "f643d1b47a6089aba68789804ae80a8ee47ce5edb74de18c153ff4b32ec68f46",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "append",
+      "level": "B",
+      "command": "python verif/player_physics_kernel.py append",
+      "result": "PASS 1.046s; peak private 82866176 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\kernel\\append\\result.json",
+        "unwind": 40,
+        "backend": "SAT",
+        "preprocessed_sha256": "3f109838066e6943010aac33bbd9e53aa3e50439390861063014b7479f507a7d",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "poll-reply",
+      "level": "B",
+      "command": "python verif/player_physics_kernel.py poll-reply",
+      "result": "PASS 0.563s; peak private 49213440 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\kernel\\poll-reply\\result.json",
+        "unwind": 40,
+        "backend": "SAT",
+        "preprocessed_sha256": "f17fc5efd0075bda7f3e285220880cf1f4486daae26da6d06833e70a59768228",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "--proof-only",
+      "level": "B",
+      "command": "python verif/player_physics_nontermination.py --proof-only",
+      "result": "PASS 0.080s; peak private 13201408 bytes",
+      "method": "Actual C; bounds, pointer, signed-overflow and unwinding assertions enabled. Exact output/frame/dependence or protocol/child scope is stated in the checked coverage inventory.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-8\\proofs\\nontermination\\result.json",
+        "unwind": 5,
+        "backend": "SAT",
+        "preprocessed_sha256": "f76aad5a9db183bc8e7923a2e0c29898bc81e32948bca9653b20d6525af651d7",
+        "hard_private_limit_bytes": 8589934592
+      },
+      "source_locks": "LF-normalized verification_inputs below and exact raw receipt inputs/tool hashes"
+    },
+    {
+      "property": "Complete scalar domains",
+      "level": "A",
+      "command": "python verif/player_physics_product.py; python verif/player_physics_cases.py",
+      "result": "PASS 4294967296 operand pairs; identical actual signed products and exact range [-1073709056,1073741824]; checksum 9223090562951806976",
+      "method": "All2^32 actual multiply operand pairs and exact range, every65536-word clamp/reflection input and15 complete SAR word slices. Seven full65536 whole-handler slices hold the other fields at explicit seeds; they are not A for the whole coupled handler.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Compiled full-handler and neighbourhood comparisons",
+      "level": "C",
+      "command": "python verif/player_physics_cases.py; python verif/player_physics_pixels.py",
+      "result": "PASS 473440 complete C comparisons; 7 full word whole-handler slices; all 1024 collision masks in four directions; 65536 clamp/reflection and 15 SAR slices; PASS 114688 actual aperture sampler cases; every ten-bit mask in all eight bit positions/four planes, read-mode1 compare/care, aliases/wrapped origins and final four latches",
+      "method": "Actual L1 and complete consuming bridge, all registers/flags/normalized RAM and ordered stores/ports/reads. Actual aperture cases additionally compare final four latches and read-mode0/1, care/compare, aliases and wrap.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Consumption mutation controls",
+      "level": "C",
+      "command": "python verif/player_physics_mutants.py",
+      "result": "PASS all9 defects detected, four DETECTED_BY_BRIDGE",
+      "method": "Selected-plane-only, probe-origin-only, reused-left-address and leftover normal-completion requests cannot be hidden by the retained shell.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "L0 to composed routine cases",
+      "level": "C",
+      "command": "python verif/player_physics_integration.py --whole --local-reference",
+      "result": "PASS 4810 routine comparisons",
+      "method": "Six unchanged suites plus generated all1024 sample masks, directional pixel neighbourhoods and invalid-difficulty alias compatibility; normal and poisoned state.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Committed whole-game baseline",
+      "level": "D",
+      "command": "python verif/player_physics_integration.py --whole --local-reference",
+      "result": "PASS20 scenarios; zero physics fallback",
+      "method": "Per-scenario movement and sampler counts are attached. The sampler is not assumed reached in modes that execute no craft update.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Real scratch promotion",
+      "level": "D",
+      "command": "python verif/player_physics_host.py",
+      "result": "PASS closure, host build,20 native scenarios and256-frame smoke",
+      "method": "Committed baseline plus only owned overlay. Only the scratch certificate is promoted; unmodified host tools select and link this unit.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Retained divergent admitted state",
+      "level": "C",
+      "command": "python verif/player_physics_nontermination.py --witness-only",
+      "result": "PASS32-probe L1/native diagnostic prefix and50000-instruction L0 budget prefix",
+      "method": "The separate actual-C invariant proves nonzero residue and repeated up-sample. Finite witnesses are not described as normal termination.",
+      "date": "2026-11-14"
+    }
+  ],
+  "amiga": {
+    "classification": "Meaning only",
+    "finding": "docs/amiga.md explains craft control, gravity and attachment. DOS reimplemented the fixed-point scale, palette-bit collision scan, acceleration and thresholds; no Amiga arithmetic, mask, timing or bug equivalence is claimed."
+  },
+  "uncertainty": [
+    "Admitted states can diverge exactly as DOS: cached Y=water Y=1042, raw Y32=1, velocity0, attached platform0 snap target Y32 to8000h. With clear pixels the up-scan residue1 never reaches the signed minimum. No production guard was added; invariant B and controlled L0/C prefixes are separate from terminating scenarios.",
+    "Only review changes this new component administrative status. Platform pixel services and the whole session stay with existing owners.",
+    "The accepted actor_render generated RunGameFromPassword session-body copy remains debt. This unit replaces its movement callee and retires none of that shell.",
+    "Synchronous compatibility services must preserve exact read order and cache cuts; a future port may provide an equivalent shadow collision image, but may not replace these requests with a clipped/normalized geometry predicate."
+  ],
+  "dependencies": {
+    "native/player_physics.h": {
+      "includes": [
+        "geometry.h",
+        "level.h",
+        "stddef.h",
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/player_physics.c": {
+      "includes": [
+        "player_physics.h"
+      ],
+      "calls": [
+        "player_physics_limit",
+        "player_physics_reflect",
+        "player_physics_sar",
+        "pp_append",
+        "pp_find_platform",
+        "pp_horizontal",
+        "pp_horizontal_end",
+        "pp_horizontal_hit",
+        "pp_horizontal_scan",
+        "pp_initial",
+        "pp_plane",
+        "pp_platform_decision",
+        "pp_probe",
+        "pp_signed",
+        "pp_vertical",
+        "pp_vertical_end",
+        "pp_vertical_hit",
+        "pp_vertical_scan",
+        "pp_write"
+      ]
+    },
+    "native/bridge/player_physics_bridge.c": {
+      "includes": [
+        "../player_physics.h",
+        "platform.h",
+        "stdlib.h"
+      ],
+      "calls": [
+        "CALL",
+        "D",
+        "G",
+        "R",
+        "RX",
+        "W",
+        "WX",
+        "abort",
+        "add16",
+        "collision_address",
+        "dec16",
+        "limit_velocity",
+        "logic",
+        "physics_complete",
+        "physics_field",
+        "physics_open",
+        "physics_out",
+        "physics_projection",
+        "physics_read",
+        "physics_require",
+        "physics_write",
+        "platform_out",
+        "player_collision_sample",
+        "player_physics_begin",
+        "player_physics_poll",
+        "player_physics_reply",
+        "player_physics_sar",
+        "pop",
+        "push",
+        "rd16",
+        "rd8",
+        "reflect_velocity",
+        "sar",
+        "select_collision_plane",
+        "set_ah",
+        "set_al",
+        "sub16",
+        "ugh_call_near",
+        "wr16"
+      ]
+    }
+  },
+  "proposed_status_reason": "All44 current split actual-C profiles, full operand-pair enumeration, compiled full handlers/physical neighbourhoods, nine mutation controls, independent L0 routine/whole-game comparisons and actual scratch host promotion pass. Platform and whole-session composition retain explicit C/D scope.",
+  "scenario_entry_counts": [
+    {
+      "scenario": "adlib",
+      "status": 0,
+      "entries": [
+        0,
+        0
+      ],
+      "fallbacks": [
+        0
+      ]
+    },
+    {
+      "scenario": "attract",
+      "status": 0,
+      "entries": [
+        0,
+        0
+      ],
+      "fallbacks": [
+        0
+      ]
+    },
+    {
+      "scenario": "completion",
+      "status": 0,
+      "entries": [
+        0,
+        0
+      ],
+      "fallbacks": [
+        0
+      ]
+    },
+    {
+      "scenario": "departure",
+      "status": 0,
+      "entries": [
+        2289,
+        502
+      ],
+      "fallbacks": [
+        0
+      ]
+    },
+    {
+      "scenario": "dino",
+      "status": 0,
+      "entries": [
+        172,
+        33
+      ],
+      "fallbacks": [
+        0
+      ]
+    },
+    {
+      "scenario": "enemy",
+      "status": 0,
+      "entries": [
+        972,
+        156
+      ],
+      "fallbacks": [
+        0
+      ]
+    },
+    {
+      "scenario": "gameplay-adlib",
+      "status": 0,
+      "entries": [
+        658,
+        885
+      ],
+      "fallbacks": [
+        0
+      ]
+    },
+    {
+      "scenario": "gameplay",
+      "status": 0,
+      "entries": [
+        658,
+        885
+      ],
+      "fallbacks": [
+        0
+      ]
+    },
+    {
+      "scenario": "high-score",
+      "status": 0,
+      "entries": [
+        0,
+        0
+      ],
+      "fallbacks": [
+        0
+      ]
+    },
+    {
+      "scenario": "items-multiplier",
+      "status": 0,
+      "entries": [
+        713,
+        79
+      ],
+      "fallbacks": [
+        0
+      ]
+    },
+    {
+      "scenario": "items-timer",
+      "status": 0,
+      "entries": [
+        702,
+        461
+      ],
+      "fallbacks": [
+        0
+      ]
+    },
+    {
+      "scenario": "menu",
+      "status": 0,
+      "entries": [
+        0,
+        0
+      ],
+      "fallbacks": [
+        0
+      ]
+    },
+    {
+      "scenario": "passenger",
+      "status": 0,
+      "entries": [
+        1539,
+        502
+      ],
+      "fallbacks": [
+        0
+      ]
+    },
+    {
+      "scenario": "password",
+      "status": 0,
+      "entries": [
+        0,
+        0
+      ],
+      "fallbacks": [
+        0
+      ]
+    },
+    {
+      "scenario": "pregame",
+      "status": 0,
+      "entries": [
+        0,
+        0
+      ],
+      "fallbacks": [
+        0
+      ]
+    },
+    {
+      "scenario": "reveal",
+      "status": 0,
+      "entries": [
+        0,
+        0
+      ],
+      "fallbacks": [
+        0
+      ]
+    },
+    {
+      "scenario": "startup",
+      "status": 0,
+      "entries": [
+        0,
+        0
+      ],
+      "fallbacks": [
+        0
+      ]
+    },
+    {
+      "scenario": "two-player",
+      "status": 0,
+      "entries": [
+        96,
+        59
+      ],
+      "fallbacks": [
+        0
+      ]
+    },
+    {
+      "scenario": "water-physics",
+      "status": 0,
+      "entries": [
+        2289,
+        461
+      ],
+      "fallbacks": [
+        0
+      ]
+    },
+    {
+      "scenario": "water",
+      "status": 0,
+      "entries": [
+        5357,
+        514
+      ],
+      "fallbacks": [
+        0
+      ]
+    }
+  ],
+  "maximum_solver_overlap": 2,
+  "negative_results": [
+    {
+      "receipt": "build\\workers\\close-stones-8\\negative\\1794618590049445900-78856-TIMEOUT\\result.json",
+      "result": "TIMEOUT",
+      "returncode": null,
+      "seconds": 60.06617410003673,
+      "peak_private_bytes": 204009472,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-8\\stages\\horizontal\\harness.i",
+        "--unwind",
+        "40",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--no-array-field-sensitivity"
+      ],
+      "failures": []
+    },
+    {
+      "receipt": "build\\workers\\close-stones-8\\negative\\1794618767626543600-6500-TIMEOUT\\result.json",
+      "result": "TIMEOUT",
+      "returncode": null,
+      "seconds": 120.02849850000348,
+      "peak_private_bytes": 215756800,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-8\\stages\\horizontal\\harness.i",
+        "--unwind",
+        "40",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe",
+        "--no-array-field-sensitivity"
+      ],
+      "failures": []
+    },
+    {
+      "receipt": "build\\workers\\close-stones-8\\negative\\1794618777837390000-55476-TIMEOUT\\result.json",
+      "result": "TIMEOUT",
+      "returncode": null,
+      "seconds": 120.05274489999283,
+      "peak_private_bytes": 934244352,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-8\\stages\\vertical-hit\\harness.i",
+        "--unwind",
+        "40",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--no-array-field-sensitivity"
+      ],
+      "failures": []
+    },
+    {
+      "receipt": "build\\workers\\close-stones-8\\negative\\1794618806403998900-10628-ERROR\\result.json",
+      "result": "ERROR",
+      "returncode": 6,
+      "seconds": 0.019070099981036037,
+      "peak_private_bytes": 1949696,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-8\\stages\\horizontal-scan\\harness.i",
+        "--unwind",
+        "40",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--no-array-field-sensitivity"
+      ],
+      "failures": []
+    },
+    {
+      "receipt": "build\\workers\\close-stones-8\\negative\\1794619075304750500-66484-TIMEOUT\\result.json",
+      "result": "TIMEOUT",
+      "returncode": null,
+      "seconds": 60.02097710000817,
+      "peak_private_bytes": 75235328,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-8\\children\\address\\harness.i",
+        "--unwind",
+        "15",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--no-array-field-sensitivity"
+      ],
+      "failures": []
+    },
+    {
+      "receipt": "build\\workers\\close-stones-8\\negative\\1794619155557312500-74296-TIMEOUT\\result.json",
+      "result": "TIMEOUT",
+      "returncode": null,
+      "seconds": 120.03216820000671,
+      "peak_private_bytes": 49991680,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-8\\children\\landing\\harness.i",
+        "--unwind",
+        "15",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--no-array-field-sensitivity"
+      ],
+      "failures": []
+    },
+    {
+      "receipt": "build\\workers\\close-stones-8\\negative\\1794619433520051300-82828-TIMEOUT\\result.json",
+      "result": "TIMEOUT",
+      "returncode": null,
+      "seconds": 120.00338170002215,
+      "peak_private_bytes": 108773376,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-8\\children\\address\\harness.i",
+        "--unwind",
+        "15",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe",
+        "--no-array-field-sensitivity"
+      ],
+      "failures": []
+    },
+    {
+      "receipt": "build\\workers\\close-stones-8\\negative\\1794619443746447500-68400-TIMEOUT\\result.json",
+      "result": "TIMEOUT",
+      "returncode": null,
+      "seconds": 120.03464309999254,
+      "peak_private_bytes": 94760960,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-8\\children\\landing\\harness.i",
+        "--unwind",
+        "15",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe",
+        "--no-array-field-sensitivity"
+      ],
+      "failures": []
+    },
+    {
+      "receipt": "build\\workers\\close-stones-8\\negative\\1794619727395415400-14920-TIMEOUT\\result.json",
+      "result": "TIMEOUT",
+      "returncode": null,
+      "seconds": 60.05928069999209,
+      "peak_private_bytes": 60882944,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-8\\children\\product\\harness.i",
+        "--unwind",
+        "15",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--no-array-field-sensitivity"
+      ],
+      "failures": []
+    },
+    {
+      "receipt": "build\\workers\\close-stones-8\\negative\\1794619737317988700-33012-FAIL\\result.json",
+      "result": "FAIL",
+      "returncode": 10,
+      "seconds": 0.9924905000370927,
+      "peak_private_bytes": 59342848,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-8\\stages\\horizontal-end\\harness.i",
+        "--unwind",
+        "40",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--no-array-field-sensitivity"
+      ],
+      "failures": [
+        [
+          "px_read.assertion.1",
+          "line 1197 read footprint"
+        ]
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-8\\negative\\1794620346488704000-25256-TIMEOUT\\result.json",
+      "result": "TIMEOUT",
+      "returncode": null,
+      "seconds": 600.0344071,
+      "peak_private_bytes": 111640576,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-8\\children\\product\\harness.i",
+        "--unwind",
+        "15",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--no-array-field-sensitivity"
+      ],
+      "failures": []
+    },
+    {
+      "receipt": "build\\workers\\close-stones-8\\negative\\1794620667408261600-43668-FAIL\\result.json",
+      "result": "FAIL",
+      "returncode": 10,
+      "seconds": 0.08662110002478585,
+      "peak_private_bytes": 12972032,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-8\\negative-bound\\harness.i",
+        "--unwind",
+        "1",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--no-array-field-sensitivity"
+      ],
+      "failures": [
+        [
+          "player_physics_poll.unwind.0",
+          "line 293 unwinding assertion loop 0"
+        ]
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-8\\negative\\1794620669574772100-36700-MEMORY_CAP\\result.json",
+      "result": "MEMORY_CAP",
+      "returncode": 1,
+      "seconds": 0.020220500009600073,
+      "peak_private_bytes": 6574080,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-8\\cap-control\\harness.i",
+        "--unwind",
+        "1",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace"
+      ],
+      "failures": []
+    },
+    {
+      "receipt": "build\\workers\\close-stones-8\\negative\\1794621098501986900-50432-MEMORY_CAP\\result.json",
+      "result": "MEMORY_CAP",
+      "returncode": 1,
+      "seconds": 0.01351070002419874,
+      "peak_private_bytes": 6578176,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-8\\committed-bba2c2ba528d\\build\\workers\\close-stones-8\\cap-control\\harness.i",
+        "--unwind",
+        "1",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace"
+      ],
+      "failures": []
+    },
+    {
+      "receipt": "build\\workers\\close-stones-8\\negative\\1794621224371818900-49496-FAIL\\result.json",
+      "result": "FAIL",
+      "returncode": 10,
+      "seconds": 0.07599370001116768,
+      "peak_private_bytes": 12967936,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-8\\committed-bba2c2ba528d\\build\\workers\\close-stones-8\\negative-bound\\harness.i",
+        "--unwind",
+        "1",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--no-array-field-sensitivity"
+      ],
+      "failures": [
+        [
+          "player_physics_poll.unwind.0",
+          "line 293 unwinding assertion loop 0"
+        ]
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-8\\negative\\1794621687950799100-34388-MEMORY_CAP\\result.json",
+      "result": "MEMORY_CAP",
+      "returncode": 1,
+      "seconds": 0.017602399981115013,
+      "peak_private_bytes": 6541312,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-8\\committed-bba2c2ba528d\\build\\workers\\close-stones-8\\cap-control\\harness.i",
+        "--unwind",
+        "1",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace"
+      ],
+      "failures": []
+    },
+    {
+      "receipt": "build\\workers\\close-stones-8\\negative\\1794621811879614800-66208-FAIL\\result.json",
+      "result": "FAIL",
+      "returncode": 10,
+      "seconds": 0.09277970000403002,
+      "peak_private_bytes": 12963840,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-8\\committed-bba2c2ba528d\\build\\workers\\close-stones-8\\negative-bound\\harness.i",
+        "--unwind",
+        "1",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--no-array-field-sensitivity"
+      ],
+      "failures": [
+        [
+          "player_physics_poll.unwind.0",
+          "line 293 unwinding assertion loop 0"
+        ]
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-8\\negative\\integration-af-1794621679437990800\\result.json",
+      "result": "FAIL",
+      "returncode": null,
+      "seconds": null,
+      "peak_private_bytes": null,
+      "command": [
+        "python",
+        "verif/player_physics_integration.py",
+        "--whole",
+        "--local-reference"
+      ],
+      "failures": 1024
+    }
+  ],
+  "scratch_acceptance": {
+    "baseline": "bba2c2ba528d7fe512885b091cb7f9da85706608",
+    "linked_units": [
+      "actor_render",
+      "actor_types",
+      "adlx_allocation",
+      "adlx_effects",
+      "adlx_lifetime",
+      "adlx_loader",
+      "adlx_main",
+      "adlx_music",
+      "adlx_samples",
+      "adlx_sections",
+      "adlx_voice",
+      "contacts",
+      "coordinate_scale",
+      "decimal",
+      "demo_core",
+      "demo_presentation",
+      "falling_items",
+      "far_copy",
+      "hazards",
+      "ice",
+      "level_view",
+      "music_clock",
+      "passenger_delivery",
+      "passenger_itinerary",
+      "passenger_water",
+      "player_physics",
+      "random",
+      "stones",
+      "timer"
+    ],
+    "scenarios": [
+      "adlib",
+      "attract",
+      "completion",
+      "departure",
+      "dino",
+      "enemy",
+      "gameplay-adlib",
+      "gameplay",
+      "high-score",
+      "items-multiplier",
+      "items-timer",
+      "menu",
+      "passenger",
+      "password",
+      "pregame",
+      "reveal",
+      "startup",
+      "two-player",
+      "water-physics",
+      "water"
+    ]
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "native/player_physics.h": "e20150960c3839746a644e137e88a95162f49a437e76cee26d3a5bc2e1dda4d3",
+    "native/player_physics.c": "dcb90fedbd71fbf58b826a80abbf8307bd9de3d1e1347a9e4e1338543fee7b73",
+    "native/bridge/player_physics_bridge.c": "a516cb0f86933c3ce5e8e79cebdaf764c71282bb057c6b2719eb98068cf396c1",
+    "verif/player_physics_baseline.py": "5812b15f41f8870378b76ef17d4f017941d3c62b24dac4c13c992094dd02a26a",
+    "verif/player_physics_bound.py": "2714b345154cfd8cd2cbf03f451455ca5dc5067b0bdfbf03ecd996f5056d5319",
+    "verif/player_physics_build.py": "bdcf2bc8fb0bfa87085cbb19bcf3a1613ac52629f217890a9b00bca50836e09f",
+    "verif/player_physics_cases.py": "b2b20e9b578069d024c33017efe09f5bf9779c414b3b127eb5e41039122fa19f",
+    "verif/player_physics_certificate.py": "e9ef2209d94a63d100b0e1ac2548503552309ea38c951d803c9b41b1ba3c2fa9",
+    "verif/player_physics_children.py": "4e8dafc39b3e0bc6b3d266b2175ab1f7e6356f3d92a3c81759f4d58ff6dbc87b",
+    "verif/player_physics_coverage.py": "db0eb8f2df84793621e23f41a6cae75f0a42a018af03fb4a60acea90169b5cac",
+    "verif/player_physics_harness.c": "cff50a8969d60176472b21ea39c09afdf4977727f299e68aa8e7cfe99e185abd",
+    "verif/player_physics_host.py": "398ce8dd02d8c5703e782fcefb3a55d33f3890c57f277c50f229aa9c4e556b3d",
+    "verif/player_physics_integration.py": "1d72629f2797e7cd89567358109c7a9ca6cad3ef8d59f95f15a44ea95af79e27",
+    "verif/player_physics_kernel.py": "93667d9fcc56f1674de4af93dd7d436be1507ed7bf684c8fd9cef323f24626eb",
+    "verif/player_physics_l0_cases.py": "a3bf551de674f3c6121c023498fdca1641f99f68e75b23fd5dfb28e313fc4948",
+    "verif/player_physics_limits.py": "7f984597a6d050cdd41b23149eedf52f319cd49ab776e92cbd2a816f9b0e701b",
+    "verif/player_physics_mutants.py": "114d600f4d43d7595adf0fba536b132f6747e2a480418b80712f6b5fcbda9ed2",
+    "verif/player_physics_nontermination.py": "67f6acc6bd7e7f788579d00caab3f6bec6c873b22033bcbf62db3b0f6e072396",
+    "verif/player_physics_pair.py": "7e29ed9c38953a63880c99c7edd98cee3e8bcdafa86d4b7068386efefbc237b7",
+    "verif/player_physics_pieces.py": "5095ed6f30e01eee1784c4f119c98e37257182b0a6e3c79cc77b8251d4223038",
+    "verif/player_physics_pixels.py": "a7053d30ac1e5eff84ecf1018e0bf1cfb2ea94ba7cdd5ee81443429964ec669f",
+    "verif/player_physics_product.py": "e4ebb2e13968c7aae656b641f8f146c030e86886a4602c8d50799bc9dbf105f9",
+    "verif/player_physics_proof.py": "3c68faee7b2326c987d5b5f1d51b2e2b7cc8d939744a3523fba8dc2e3b930698",
+    "verif/player_physics_proofs.py": "cefd4b433823ac2b3969a0a577b08ffd4d166be4ec277e24f726e0ecf26d48c6",
+    "verif/player_physics_reproduce.py": "7472a1344124ac909a1c1804baccffe903b4bed9cdc5d2e9599f0d13037f8bd6",
+    "verif/player_physics_shells.py": "5522212040a8d8d0e9b396bafbb2eba193b9c2aae78b89a51170d866d4186824",
+    "verif/player_physics_stage.py": "d466a5f161ffa9a37d996f5c45d97e7a1f2eebe0c01cc0f2ba8443254772e5a5",
+    "c/abi.c": "5f7c2c2fc015ca43e3786a7f96cb38113211da54acefce19564c1df78d74857a",
+    "c/actors.c": "d17c03c844f95780f0647b85aa854a87c3e566b0f56fe89ee0a95d6d689f3ff2",
+    "c/actors.h": "00817c6f676f61811df11066fca3335c9757e0f59f7cad241dff762fee7b71bd",
+    "c/actors_states.c": "79a460a0436e773bdd795953f63c6765d71c0e346cdf8bbccbcf707817994447",
+    "c/actors_states.h": "375dda6bd3fa6cd5552cc98df7f7c785dc5d70850a10f96207bd0894161cd5d8",
+    "c/adlib.c": "2f4e551282f6ac33f8d24127f3cd5294e679f72ce28794c3ed295ce243c18bf0",
+    "c/adlib.h": "70f2c0d3f51dc49dd05918266b4de07d247a12909f11e8329244b8d9af56cdee",
+    "c/demo_scripts.c": "a19c7e52bc709a28f9be40bc66b60c6de82df888f8eb725b79f0b9556fe795d7",
+    "c/demo_scripts.h": "ea65090001ef64f26f31c39de2075c098949bcb9ca8448480cd1fccdf55a608b",
+    "c/dispatch.c": "80a97f55a460a21dac9d6295939a8276c83b66cef886f814365e0a823814debf",
+    "c/dos_input.c": "b6a086f3917441a23c4238f582e00605d8a239ded81b03a658ff308890601e53",
+    "c/dos_input.h": "8cee17811645a61424b6174e0213402b8c21defd5b4fa6d56511225c70e5193e",
+    "c/dsp.c": "a2f4dc144514ed9ea8cdca8a75c9813718342a5ed5c26176ff6d691f89d651b5",
+    "c/dsp.h": "9b2c2b95b0781caf3a96b7b0b19f8078601557f5e0a11bec889d109ef2755b63",
+    "c/game_services.c": "e9301da5d7fae6f2aacce7dda8d4e6f0e86cbe8c40e736216185c4a8f792a7c5",
+    "c/game_services.h": "7a63f8bd05b2710c27c4c4247b00e0f1fc06a4ecdaa388bf47eb9fb1374965c5",
+    "c/ice.c": "27e2898dd6a5e70af26bde84c0ba8cd6e8a045e40d94df21fd5b122f10a2242e",
+    "c/ice.h": "925da59e4f3fb6cf278100578e56093dc7138040c98eb9f286acb9c867512578",
+    "c/items_water.c": "ab5c2c72096b5e6355a2575f9a58c321f91680d7cd97653581dcbab59033e2d9",
+    "c/items_water.h": "d18978433dcc966235010906984c13fcb76c3469bf4bc0f8e33345101099f148",
+    "c/memory.c": "97f59e3c343cd6911854d0bfc3ff624417de2844f712caa96ec6799d3a9783d9",
+    "c/menu.c": "b2ea585a4cb2b40c349fd7a017642534ea2b4982140a25a6dcacd12ce3b418b0",
+    "c/menu.h": "eaa33e9e9db1f3caa44f60b4a0c862b1bc82855a6389e91f330606e27317b1de",
+    "c/menu_helpers.c": "48125ab011a2ab29cd7936aa61e9889c8715ee843090c6ddd00f9d14dddbb6ad",
+    "c/menu_helpers.h": "9c5998717eec5a79122d91ca1d6a045f303baaf5b96dbf14cf6401b4df34e4e2",
+    "c/music_analysis.c": "604fc3c80dec56a6740444b908da8baeff325357760ab8b82e9db72f5e022fe5",
+    "c/music_analysis.h": "3b2175241d1ced443d9463c6545232630cd4ccd20d907dab83296c8e4cd7fe23",
+    "c/music_clock.c": "2583d53f81c50bc148d423866cbd8f0fa14ff6bb3e5f8320a60e02b35a7d82fa",
+    "c/music_clock.h": "5ffc27066dc1c8438e716850ce666daaa00421dec8be964337b43f75a936210e",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/render.c": "7620324caaff46b39094d4b8f7077f2a5426a728806e52f1c56a962771208b40",
+    "c/render.h": "bcac207ffd7130100008409d8b4069b9ac126b713c81bfb043f1eb1e9603c160",
+    "c/render_primitives.c": "447a9f435f22cc46c9c30d8d11ee9046d57d57c48d6bbaa2e91768e32f9698c0",
+    "c/render_primitives.h": "92f16baae8b087d052e7ca713921fe74ad63e4f0a9f370190b2cc476c7a0ab09",
+    "c/scene.c": "0060ef52ee2cc8b4c98d1b04b6387cd809809a9226f4b4f71c01a75a99d5e460",
+    "c/scene.h": "77c02b56b44a4eb584da4d17cad94cc7f4be79ea3a2f70fd03d7ed2dc50f884a",
+    "c/sound_api.c": "ba1c98bf3a03b5f48a71d4491bdebf3acfc17b0f6cce51db370a0e58c0507e4c",
+    "c/sound_api.h": "b15efba9d9cf41053b3b818d4bb3a084936b6d3e15dafc05544648c88e4687c1",
+    "c/sound_engine.c": "5e4116c31806441e464de35d5649894ec4eea28025254a2edea616235e6e6881",
+    "c/sound_engine.h": "bb288a280c6cf526e91718ccd7fd02a2762e9d58f3d0d53a2f2feef9472eabd1",
+    "c/sound_state.c": "c57e5874b9a7b761faf49dd0bf6da4338ffaea31af1cea5c91a2f13e8ea9ded2",
+    "c/sound_state.h": "bdbbef92b75c99c274bde293ec8bcb1f7a997ed1e8176dc5deda96806c6fbad4",
+    "c/timer.c": "49e56856d56bb1ae68b62fa9112ce294f77182bebfc8e2cd5392737f1c06080b",
+    "c/timer.h": "4ae328394adb59216a373832fbf926a926ce9fe8f813bbe7c3927c9abaf10937",
+    "c/timer_stack.c": "512cfb5332569f32adffed22e5211db5772440428369cc9cc808be931631c98d",
+    "c/timer_stack.h": "e076aba16f8ee3dacbffcddbfa5b065a79a6e8000fa825244bffeb3771d1a514",
+    "c/timer_system.c": "89ead348d18a649f37dca6f44c94c309c3d50b7b6d0877411064f9ac0129d92b",
+    "c/timer_system.h": "f7204fef034e9f641f1f12ad9412efe80844d5be64b177300bdc5a9a20136a49",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_adapters.h": "c18eafbbe16170d01fcfac6853deab651d3c2b54343b47bccd6ce0de4303ad38",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "c/video.c": "681732591d8efb11cf1d5d5816c999bca718560bd247d9c9cc6c0f36982b2fa2",
+    "c/video.h": "35e4d6076edd69e2722cf7d52392871345f5e0eb78af7ce67e13c8ed0c02f192",
+    "tests/scenarios/adlib.txt": "1db37ba320e4c3c85449c2f4a7f5ecd8543e6de6933e165e534b79adb3386f2f",
+    "tests/scenarios/attract.txt": "07339939be35779cc94094221155e97a11c6dec396ab6dce85f238a415896a01",
+    "tests/scenarios/completion.txt": "d898ad1f8abd49f7757303b562028cf7f0c10143dfb0358dad4e0a6fee7386bc",
+    "tests/scenarios/departure.txt": "dd7cb186974803ed7436b99600394606594109283d668f7ee5a893a90f89f705",
+    "tests/scenarios/dino.txt": "f5a6254be7b416bdf3da436c7b1907abe31e4a7b184bb7ac6636b72c7c166252",
+    "tests/scenarios/enemy.txt": "c5140aa9afe062e09cbefb949b78d06733c306518f315ba8f5448a0c2b8062a6",
+    "tests/scenarios/gameplay-adlib.txt": "5f0e1e3ea3f5f9e735c5a7ab2eda9ddee8a33d8d290bbd81e27fd9cbb1ddb3cd",
+    "tests/scenarios/gameplay.txt": "b0be47d570408d44dc977faca40ef2a258c0686958f7fa68574cc411bb25a03a",
+    "tests/scenarios/high-score.txt": "5b698cb06b6d77d9a9d6f009cea71b8a1af9c16c8ecf3c344e33a9b8d93b1220",
+    "tests/scenarios/items-multiplier.txt": "aea8dc889e0a1777e2c3f8b37525375e939656a91577759030523a8aca88ca8d",
+    "tests/scenarios/items-timer.txt": "1fc3cde57a7aed7acfe67e015af95c852a6dc681b7492d3464ffe5e7d5af39b1",
+    "tests/scenarios/menu.txt": "3e8347d504ac0c13ced62c1befb26b59a353c46de397bb3ac79f5089b20ea8b1",
+    "tests/scenarios/passenger.txt": "e95f43a019615449dd142652ea837aaeb4a82e7bce9c6ecd72dd67411fe44922",
+    "tests/scenarios/password.txt": "fea4555e22daca6a5e4e154fd4d6c1b7871d80aa574c402363d5b3b938657bd2",
+    "tests/scenarios/pregame.txt": "6697f662ccf5791b57e14d5dcb0c216c7428312441c570f10b0e031a33a97cf8",
+    "tests/scenarios/reveal.txt": "8be34ff993316d7e099576cccd8af23d28267b02eee37df01a430f8e94418c84",
+    "tests/scenarios/startup.txt": "bddaf9054cfb6f1a4a5734e147c2481c28d0fa0768af141c311ddb13a38fbd7b",
+    "tests/scenarios/two-player.txt": "5c07be6ec944b7a38082d275633bba2ef26cc9e90828b673bb8434ad3ffa78e5",
+    "tests/scenarios/water-physics.txt": "33853e24a477c60ab0dbecf9057a034a01fa2ec6ab6c9f6e873d463006754e6c",
+    "tests/scenarios/water.txt": "22aca0913b25142891f67c57f20d56cfef57c16df862269a377f924217e96f84",
+    "tests/demo_scripts.py": "b71d2044f43b58e9b79cce9039e1a3a8d71a7ca96a6f385abcbdc47edefa95be",
+    "tests/game_services.py": "f107e1dafead13ec0b397a12474b52d821fde5415a2783f5ebad4477b309a6e5",
+    "tests/menu.py": "968fb180e88fe43264642f12a21650663f31c79df511290879d476d3bd0f5d08",
+    "tests/actors.py": "80b0aed22ae70e2b8eeead4a4176ce5b5935ac93ee517869df14035ffa9ea7ad",
+    "tests/render.py": "ac899241858dd7dd0f2d175a7f5b7229257b5b59a24291c65078881281c86e7e",
+    "tests/scene.py": "1eb8b5d2a3fb51b9eaa123d3f5d9efe2637ef131f333f696b71dc1f3a9069a81",
+    "native/geometry.h": "e630be5b080076dfd0f95ff07be51887e5c39d8caa3bdfae7271e06be37c6410",
+    "native/level.h": "d9d498993704f2b446d52fa1f3e3cc4b721d9344cfef8520ab4979c3395f45ca",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
+    "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
+    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
+    "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
+    "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
+    "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
+    "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
+    "host/check.py": "ae78b6b48e7c77aa4c513f8474d23d7ef9d26afe39ab55ea70e871473701e94c"
+  }
+}

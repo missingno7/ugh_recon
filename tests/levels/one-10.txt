@@ -1,0 +1,18 @@
+# Physical record 3737; 1P order 10; map 29; HOW CAN I GET / OVER THERE?
+# Shipped password, standard cold-session fixture; no level-state patching.
+timing pit-quantum-at-polls
+entry GAME:RunGameFromPassword
+password RESURRECTION
+players 1
+frames 160
+card none
+1: cycle=enter,-enter
+8: cycle=off -enter
+104: up
+120: -up right
+136: -right down
+144: -down 52
+145: -52
+148: left
+156: -left
+requires GAME:LoadCurrentLevelState GAME:InitializeLevelDisplay GAME:DrawTileMap GAME:DispatchActorUpdates GAME:DrawWaterSurface GAME:MovePlayerWithVgaCollisions

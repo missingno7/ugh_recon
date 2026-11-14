@@ -1,0 +1,18 @@
+# Physical record 35CB; 1P order 17; map 15; MY FIGHT AGAINST / THE TRIOP
+# Shipped password, standard cold-session fixture; no level-state patching.
+timing pit-quantum-at-polls
+entry GAME:RunGameFromPassword
+password THEDROWNING
+players 1
+frames 160
+card none
+1: cycle=enter,-enter
+8: cycle=off -enter
+104: up
+120: -up right
+136: -right down
+144: -down 52
+145: -52
+148: left
+156: -left
+requires GAME:LoadCurrentLevelState GAME:InitializeLevelDisplay GAME:DrawTileMap GAME:DispatchActorUpdates GAME:DrawWaterSurface GAME:MovePlayerWithVgaCollisions

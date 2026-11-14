@@ -1,0 +1,18 @@
+# Physical record 3C4B; 2P order 60; map 84; WHERE IS THE STONE?
+# Shipped password, standard cold-session fixture; no level-state patching.
+timing pit-quantum-at-polls
+entry GAME:RunGameFromPassword
+password TOBLACKENEDEARTH
+players 2
+frames 160
+card none
+1: cycle=enter,-enter
+8: cycle=off -enter
+104: up 11
+120: -up -11 right 20
+136: -right -20 down 2c
+144: -down -2c 52 1d
+145: -52 -1d
+148: left
+156: -left
+requires GAME:LoadCurrentLevelState GAME:InitializeLevelDisplay GAME:DrawTileMap GAME:DispatchActorUpdates GAME:DrawWaterSurface GAME:MovePlayerWithVgaCollisions

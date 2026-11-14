@@ -1,0 +1,18 @@
+# Physical record 39F5; 1P order 51; map 58; DON'T MESS WITH / THE TRIOP
+# Shipped password, standard cold-session fixture; no level-state patching.
+timing pit-quantum-at-polls
+entry GAME:RunGameFromPassword
+password VENTRILOQUIST
+players 1
+frames 160
+card none
+1: cycle=enter,-enter
+8: cycle=off -enter
+104: up
+120: -up right
+136: -right down
+144: -down 52
+145: -52
+148: left
+156: -left
+requires GAME:LoadCurrentLevelState GAME:InitializeLevelDisplay GAME:DrawTileMap GAME:DispatchActorUpdates GAME:DrawWaterSurface GAME:MovePlayerWithVgaCollisions

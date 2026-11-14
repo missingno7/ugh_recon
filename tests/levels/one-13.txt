@@ -1,0 +1,18 @@
+# Physical record 3B2D; 1P order 13; map 71; DIVING FUN
+# Shipped password, standard cold-session fixture; no level-state patching.
+timing pit-quantum-at-polls
+entry GAME:RunGameFromPassword
+password DOGS
+players 1
+frames 160
+card none
+1: cycle=enter,-enter
+8: cycle=off -enter
+104: up
+120: -up right
+136: -right down
+144: -down 52
+145: -52
+148: left
+156: -left
+requires GAME:LoadCurrentLevelState GAME:InitializeLevelDisplay GAME:DrawTileMap GAME:DispatchActorUpdates GAME:DrawWaterSurface GAME:MovePlayerWithVgaCollisions

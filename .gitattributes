@@ -1,0 +1,7 @@
+# Reference identities (tools/wholegame.py:identity) hash these files' raw bytes.
+# Pin LF so every checkout keys cached references the same way.
+tests/scenarios/*.txt text eol=lf
+tests/levels/*.txt text eol=lf
+verif/random_rain.txt text eol=lf
+tools/emu.py text eol=lf
+tools/wholegame.py text eol=lf

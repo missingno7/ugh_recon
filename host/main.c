@@ -2,6 +2,9 @@
  * IRQ placement is wholegame.Clock's deterministic policy. Wall time only
  * paces those placements; it cannot add, drop or reorder game interrupts. */
 #include "host.h"
+#ifdef UGH_NATIVE_TIMING
+#include "timing_world_bridge.h"
+#endif
 #include <SDL3/SDL_main.h>
 #include <stdlib.h>
 #include <string.h>
@@ -208,6 +211,9 @@ int main(int argc,char **argv) {
     if(!host_audio_init(audio,wav)) host_fail("SDL audio failed; use --no-audio on machines without an audio device");
     ugh_set_output_observer(host_audio_out);
     ugh_set_frame_observer(boundary); ugh_set_service_observer(service);
+#ifdef UGH_NATIVE_TIMING
+    timing_cold_import(ugh_mem);
+#endif
     HostSymbol entry=host_symbol(scenario.entry);
     Regs r={0}; r.cs=entry.segment; r.ip=entry.offset; r.ds=r.es=DATA_SEG;
     r.ss=0x8000; r.sp=0xfefe; r.flags=0x202; wr16(r.ss,r.sp,0xfff0);

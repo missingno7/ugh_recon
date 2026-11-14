@@ -277,12 +277,12 @@
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
     "native/adlx_digital.c": "fb82aa93c8a9b250ab3fde6e118f5255e3a3b2d1f923313f0c4f88abb5fb0987",
     "native/adlx_digital.h": "cf7c87afbc174dc1e8a6f607bf8f9427cfc18f4b26237433144a9553756e86cf",
-    "native/audio.h": "e14ee8e39125b55ced910d17214acddfcd9fb0339192990487dca22dd3e04a5a",
+    "native/audio.h": "31e4dd978a7ecc91d8dfb6de250c7e9f6ef4377bc5b1d3c413df749e94a2a780",
     "native/bridge/adlx_digital_bridge.c": "6b2397e48bcd6d6f6bae0e425421fc94469448938eff691337d23e2ab1e50ae9",
     "native/bridge/audio_projection.h": "e15ee379c16623f0dfb9830e154c5c71b0f2d2a424a6073c3dec497c50cd8630",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
-    "tools/hostbuild.py": "ec24f9e6bec3c0da79df062302ea86f28491a344f1fbc3811737efe88e1f5484",
+    "tools/hostbuild.py": "5df61bcd7f749f052b70efed60fd0bfe6b38c16bb228f14e5aeb7d774612d9e7",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/adlx_digital_build.py": "6ca5eab7726797f255a5650348dafcee65097345439fd71dcfbdcc0c70bc87f3",
     "verif/adlx_digital_certificate.py": "4a227f34b6b12b6d620d552f70f130346189b66f4043b123546b1b24aee411b9",
@@ -292,7 +292,8 @@
     "verif/adlx_digital_proofs.py": "8b537bcb532e2735e8696936cee649ff3298659415392b45bbf12bc2e6bb5db5",
     "verif/adlx_digital_sb.py": "e92338af0d1ca4442a1c254a022088a5b676f61fc387dc600eb326bbfab820d8",
     "verif/adlx_facade_limits.py": "5329de2c8fe0e47474eba21d9b483d3114cba4ca4e1faa9149b619d1c71ec7be",
-    "verif/adlx_samples_sb.py": "5b61fe583486b3b55dcc4de22906496da3757f59d0e1eb309f13bc7404efb9c3"
+    "verif/adlx_samples_sb.py": "5b61fe583486b3b55dcc4de22906496da3757f59d0e1eb309f13bc7404efb9c3",
+    "native/audio_bytes.h": "46874b2057f9a2083c503638b79b8d31c1af667a56079bac35945d6fdc612b22"
   },
   "evidence_refreshed": [
     {
@@ -302,6 +303,19 @@
       "inputs": [
         "host/check.py",
         "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-14",
+      "reason": "Native timing composition profile/source and integration tooling; accepted claims/status unchanged",
+      "commands": [
+        "python verif/timing_composition.py --gate"
+      ],
+      "results": "PASS: default profile preprocessed identity/unchanged algorithms; compiled replay and 21/21 native/literal integration. No old claim widened.",
+      "inputs": [
+        "native/audio.h",
+        "tools/hostbuild.py",
+        "native/audio_bytes.h"
       ]
     }
   ]

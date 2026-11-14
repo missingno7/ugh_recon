@@ -218,7 +218,7 @@
     "native/bridge/actor_pass_bridge.c": "9dc2a3efab97232d265dfc1b3fe0615777ff85634d802c9d1e76d2101db9d351",
     "verif/entry_retirement.py": "3b52d207fef7b3e51461a2357a06f012f59651b406f1fe9a0253876e55f76529",
     "verif/entry_retirement_proof.c": "2796c3423fef93b04f190cb38667b80bda47017806d83ff5e326fb204aebb95f",
-    "verif/projector_evidence.py": "163df3e3988f16e81eb4db38b6727ccf118b929122b3ec10b06d0ff8f95b09e1",
+    "verif/projector_evidence.py": "d5309f3870f84a8553c893440580343a092c1f85a3ee46e440969a04fcd48f89",
     "verif/projector/publications.py": "74654c97ef88d961c0a470d8d50e7af897d2cf70bdc36868860ec0b06cba5b9d",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
@@ -305,5 +305,18 @@
     "tests/timer_system.py": "b8e2fb308eaa026ce15f7f598304da4b859b32ada0f514c85130547aff56091c",
     "tests/video.py": "1e0cc37f7038abf090cf91610f17646236e1b666e0639e4796ca525904793a6a",
     "tests/video_upload.py": "a182df71243e52d9b8a73e86f3a485c55dc924379681a3d43b6933582ad9f550"
-  }
+  },
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-14",
+      "reason": "Native timing composition profile/source and integration tooling; accepted claims/status unchanged",
+      "commands": [
+        "python verif/timing_composition.py --gate"
+      ],
+      "results": "PASS: default profile preprocessed identity/unchanged algorithms; compiled replay and 21/21 native/literal integration. No old claim widened.",
+      "inputs": [
+        "verif/projector_evidence.py"
+      ]
+    }
+  ]
 }

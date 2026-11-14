@@ -2035,7 +2035,7 @@
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
-    "tools/hostbuild.py": "ec24f9e6bec3c0da79df062302ea86f28491a344f1fbc3811737efe88e1f5484",
+    "tools/hostbuild.py": "5df61bcd7f749f052b70efed60fd0bfe6b38c16bb228f14e5aeb7d774612d9e7",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
@@ -2049,6 +2049,17 @@
       "inputs": [
         "tools/hostbuild.py",
         "host/check.py"
+      ]
+    },
+    {
+      "date": "2026-11-14",
+      "reason": "Native timing composition profile/source and integration tooling; accepted claims/status unchanged",
+      "commands": [
+        "python verif/timing_composition.py --gate"
+      ],
+      "results": "PASS: default profile preprocessed identity/unchanged algorithms; compiled replay and 21/21 native/literal integration. No old claim widened.",
+      "inputs": [
+        "tools/hostbuild.py"
       ]
     }
   ]

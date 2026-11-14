@@ -21,6 +21,24 @@ STATUS_ORDER = ['unanalyzed', 'analyzed', 'boundary-established', 'migrated',
                 'verified-under-assumptions', 'verified-within-contract',
                 'integration-validated']
 
+def timing_composed(units):
+    return any(u['component']=='timing_world' for u in units)
+
+def composition_options(units, base=None):
+    if not timing_composed(units): return []
+    return ['-DUGH_NATIVE_TIMING', '-DNATIVE_AUDIO_BYTE_SERVICE', '-I', str((base or ROOT)/'native/bridge'),
+            '-I', str(ROOT/'verif/projector')]
+
+def composition_source(relative, text, units):
+    """Generated memory service only; the literal build is unchanged."""
+    if not timing_composed(units) or relative!='c/memory.c': return text
+    text='#include "timing_world_bridge.h"\n'+text
+    text=text.replace('uint8_t ugh_read(uint32_t a) {',
+        'uint8_t ugh_read(uint32_t a) { uint8_t owned; if(timing_shared_read(a,&owned))return owned;')
+    text=text.replace('void ugh_write(uint32_t a, uint8_t v) {',
+        'void ugh_write(uint32_t a, uint8_t v) { if(timing_shared_write(a,v))return;')
+    return text
+
 
 def selected_units(literal=False):
     if literal:
@@ -68,7 +86,9 @@ def build(literal=False):
     sources=[]
     for source in sorted((ROOT/'c').glob('*.c')):
         text=source.read_text()
-        changed=False
+        composed=composition_source('c/'+source.name,text,units)
+        changed=composed!=text
+        text=composed
         for name,replacement in substitutions.items():
             text2=re.sub(r'\bc_'+re.escape(name[2:])+r'\b',replacement,text)
             changed |= text2!=text
@@ -91,6 +111,7 @@ def build(literal=False):
         for name in sorted(substitutions)))
     sources.append(out/'units.c')
     cmd = [str(GCC), '-O2', '-g', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fwrapv',
+           *composition_options(units),
            '-include',str(fallbacks),'-I', str(ROOT/'c'), '-I', str(ROOT/'host'), '-I', str(SDL/'include'),
            '-I', str(OPL), '-o', str(out/'ugh.exe'), *map(str,sources),
            str(out/'symbols.c'), str(OPL/'opl3.c'), '-L', str(SDL/'lib'), '-lSDL3', '-lbcrypt']

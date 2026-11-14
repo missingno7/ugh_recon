@@ -266,7 +266,7 @@
     "native/adlx_effects.h": "89fd75bd98516b98178986632b69ab0e1c58dc37d91ab0e08095ce5729e98be6",
     "native/adlx_main.c": "2e624d0ee0ea20d647b54d811671f52c50706e0cb34529c7bd8ac8c18e0dec42",
     "native/adlx_main.h": "a67988ae0fa9f4d2c5d0451f02851385a900f96a6fba67c56e4764ffc10469f6",
-    "native/audio.h": "e14ee8e39125b55ced910d17214acddfcd9fb0339192990487dca22dd3e04a5a",
+    "native/audio.h": "31e4dd978a7ecc91d8dfb6de250c7e9f6ef4377bc5b1d3c413df749e94a2a780",
     "native/bridge/adlx_effects_bridge.c": "720a905d58d47e2c13f342fc2d174c964f17b09a69455dd3b2b34cac8ba8253e",
     "native/bridge/audio_projection.h": "e15ee379c16623f0dfb9830e154c5c71b0f2d2a424a6073c3dec497c50cd8630",
     "verif/adlx_effects_build.py": "0b0ebc620373f3212d70cfaf2f2e148b322dfa21016d17941bf4d0ed0dabd83d",
@@ -285,7 +285,8 @@
     "verif/adlx_effects_timer_scalar.py": "b067889f120fa951231af658365cda5c30ace22db016cb6cba3ccecd3b0f5b29",
     "verif/adlx_effects_voice_contract.h": "7ac61520a4c9ca8d8992b56286dd22444134aceafe1f90ef63dd43e6dfbfcc15",
     "verif/adlx_effects_word.c": "9601b857062d8ed53f275f8c3db8e45d946294078e42fff974bd767621e0bd79",
-    "verif/adlx_effects_word.py": "efe551818fbf0b9139c0f90dd24bb46016f01b20f196519ce0cec7e287fd52ac"
+    "verif/adlx_effects_word.py": "efe551818fbf0b9139c0f90dd24bb46016f01b20f196519ce0cec7e287fd52ac",
+    "native/audio_bytes.h": "46874b2057f9a2083c503638b79b8d31c1af667a56079bac35945d6fdc612b22"
   },
   "boundary_gate": {
     "command": "python tools/closure.py",
@@ -300,6 +301,18 @@
       "inputs": [
         "metadata/closure/timer.json",
         "metadata/closure/adlx_allocation.json"
+      ]
+    },
+    {
+      "date": "2026-11-14",
+      "reason": "Native timing composition profile/source and integration tooling; accepted claims/status unchanged",
+      "commands": [
+        "python verif/timing_composition.py --gate"
+      ],
+      "results": "PASS: default profile preprocessed identity/unchanged algorithms; compiled replay and 21/21 native/literal integration. No old claim widened.",
+      "inputs": [
+        "native/audio.h",
+        "native/audio_bytes.h"
       ]
     }
   ]

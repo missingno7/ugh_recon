@@ -377,7 +377,8 @@
     "native/bridge/timer_bridge.c": {
       "includes": [
         "../timer.h",
-        "platform.h"
+        "platform.h",
+        "timing_world_bridge.h"
       ],
       "calls": [
         "D",
@@ -388,6 +389,7 @@
         "l1_RegisterTimerCallback",
         "l1_RemoveTimerCallback",
         "l1_SetTimerCallbackInterval",
+        "native_timing_world",
         "platform_out",
         "rd16",
         "rd32",
@@ -403,6 +405,9 @@
         "timer_take_due",
         "timer_token_word",
         "timer_word_token",
+        "timing_commit",
+        "timing_deliver",
+        "timing_snapshot",
         "ugh_dispatch",
         "wr16",
         "wr32"
@@ -414,7 +419,7 @@
   "verification_inputs": {
     "native/timer.c": "05803307a67871c34cc69e8c8b9a5168103b399c0555638c13998e5838620513",
     "native/timer.h": "99bb08b73cbd7ea5ef618975b601948a6dcee9d7e331db29d699b9b08eea0403",
-    "native/bridge/timer_bridge.c": "da2747aa9bbd83baa12dc410e34c6277ac64ad15b3fa49d69a75e18245c676bd",
+    "native/bridge/timer_bridge.c": "3ce26047d9e72b02ff7f993a1b38fc0d28fdaca10a71ef3ff8e49cc32a541ab4",
     "c/timer.c": "49e56856d56bb1ae68b62fa9112ce294f77182bebfc8e2cd5392737f1c06080b",
     "c/timer_system.c": "89ead348d18a649f37dca6f44c94c309c3d50b7b6d0877411064f9ac0129d92b",
     "c/timer_stack.c": "512cfb5332569f32adffed22e5211db5772440428369cc9cc808be931631c98d",
@@ -434,5 +439,18 @@
     "verif/timer_callbacks.py": "4149fe68343ff59647e5baa10beeae519625d099345ec256cdadf92e0c8d0b38",
     "verif/timer_integration.py": "d591e8c5b6b8fca9df337a095e4bf4606cf7a81194f9912036d541a0c31c74b9",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5"
-  }
+  },
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-14",
+      "reason": "Native timing composition profile/source and integration tooling; accepted claims/status unchanged",
+      "commands": [
+        "python verif/timing_composition.py --gate"
+      ],
+      "results": "PASS: default profile preprocessed identity/unchanged algorithms; compiled replay and 21/21 native/literal integration. No old claim widened.",
+      "inputs": [
+        "native/bridge/timer_bridge.c"
+      ]
+    }
+  ]
 }

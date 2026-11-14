@@ -177,6 +177,7 @@
         "adlx_sections.h"
       ],
       "calls": [
+        "AUDIO_BYTE",
         "audio_main_step",
         "audio_section_action",
         "audio_section_classify",
@@ -267,13 +268,13 @@
     "native/adlx_allocation.h": "e0e5c37e9612494d05042149f923bb0ed8acf223a8eb7f84bd8447ae68ffdc9b",
     "native/adlx_effects.c": "0004628dd7cb88e6990c15b95c95c2f74e3cd8e17d7433375e9f39f637cd1f37",
     "native/adlx_effects.h": "89fd75bd98516b98178986632b69ab0e1c58dc37d91ab0e08095ce5729e98be6",
-    "native/adlx_loader.c": "2a870c62e06869c3c6b590a5d72b246b68a16494a47d24b98f37687f6751e750",
+    "native/adlx_loader.c": "11198219738d1e178a0b471ec1c3d3d1d44ed7252e51c54a6ba0ce6653e93e36",
     "native/adlx_loader.h": "32cf42c1e9c2136f2ca2fdcbee3fa70b1e727453042aa8021b71afacd36b1539",
     "native/adlx_main.c": "2e624d0ee0ea20d647b54d811671f52c50706e0cb34529c7bd8ac8c18e0dec42",
     "native/adlx_main.h": "a67988ae0fa9f4d2c5d0451f02851385a900f96a6fba67c56e4764ffc10469f6",
-    "native/adlx_sections.c": "b046d562103d266375681d41df24ec7b21f6f9bd99ad8db901a17e7977dcb29f",
+    "native/adlx_sections.c": "5d3c99411e0767ad4a63664958bca8064bbb44d7a7aeb1aaff93666c43778a19",
     "native/adlx_sections.h": "d291ad1a7ca94580a327cba7b6f9810fec8bae288baddc30d67cd23351cefb35",
-    "native/audio.h": "e14ee8e39125b55ced910d17214acddfcd9fb0339192990487dca22dd3e04a5a",
+    "native/audio.h": "31e4dd978a7ecc91d8dfb6de250c7e9f6ef4377bc5b1d3c413df749e94a2a780",
     "native/bridge/adlx_allocation_bridge.c": "ce1bbd8ff5cc2b57bb0ea50a8aa1b667a42cb3e379f5daf26df92de3a7ee6256",
     "native/bridge/adlx_effects_bridge.c": "720a905d58d47e2c13f342fc2d174c964f17b09a69455dd3b2b34cac8ba8253e",
     "native/bridge/adlx_loader_bridge.c": "1bbb03af7e750a0aa7834594a426342fabf1722b02815eb64b32e490493006ca",
@@ -306,6 +307,23 @@
     "verif/cbmc_shim/ugh.h": "d23d5fb7f8d14f5c03944d9cce971d6d21fdf32c28ebac1f2710842cd03d7e72",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
-    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574"
-  }
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
+    "native/audio_bytes.h": "46874b2057f9a2083c503638b79b8d31c1af667a56079bac35945d6fdc612b22"
+  },
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-14",
+      "reason": "Native timing composition profile/source and integration tooling; accepted claims/status unchanged",
+      "commands": [
+        "python verif/timing_composition.py --gate"
+      ],
+      "results": "PASS: default profile preprocessed identity/unchanged algorithms; compiled replay and 21/21 native/literal integration. No old claim widened.",
+      "inputs": [
+        "native/adlx_loader.c",
+        "native/adlx_sections.c",
+        "native/audio.h",
+        "native/audio_bytes.h"
+      ]
+    }
+  ]
 }

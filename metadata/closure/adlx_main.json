@@ -209,6 +209,7 @@
   "dependencies": {
     "native/audio.h": {
       "includes": [
+        "audio_bytes.h",
         "stdint.h"
       ],
       "calls": []
@@ -300,7 +301,7 @@
     "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
     "native/adlx_main.c": "2e624d0ee0ea20d647b54d811671f52c50706e0cb34529c7bd8ac8c18e0dec42",
     "native/adlx_main.h": "a67988ae0fa9f4d2c5d0451f02851385a900f96a6fba67c56e4764ffc10469f6",
-    "native/audio.h": "e14ee8e39125b55ced910d17214acddfcd9fb0339192990487dca22dd3e04a5a",
+    "native/audio.h": "31e4dd978a7ecc91d8dfb6de250c7e9f6ef4377bc5b1d3c413df749e94a2a780",
     "native/bridge/adlx_main_bridge.c": "91f38d4455d13917b3c7cf4a9fb89a02963be5cf509374e4570d81407f03c9c0",
     "native/bridge/audio_projection.h": "e15ee379c16623f0dfb9830e154c5c71b0f2d2a424a6073c3dec497c50cd8630",
     "verif/adlx_main_build.py": "2143340b0898aba2015f42fd30a652e5aeff438a583489b4a0e7501693d30442",
@@ -311,7 +312,8 @@
     "verif/adlx_main_host.py": "7c8bf0ad79027db87b728364501779e71bb786d633cf2907200c5989152655c9",
     "verif/adlx_main_integration.py": "90207571612dd85e4fda1d8c1bac1ff64043151e2655dc4724dbbb58ce8b15d8",
     "verif/adlx_main_reproduce.py": "0afb8c95412e75878abca7843bf68a0b3f920bb07841443fa12c46da0ade43b1",
-    "verif/adlx_main_scenario.py": "455b799538760d84810e8d673f69fbe6ed8320bac7f0c4d385131dc06064e907"
+    "verif/adlx_main_scenario.py": "455b799538760d84810e8d673f69fbe6ed8320bac7f0c4d385131dc06064e907",
+    "native/audio_bytes.h": "46874b2057f9a2083c503638b79b8d31c1af667a56079bac35945d6fdc612b22"
   },
   "boundary_gate": {
     "command": "python tools/closure.py",
@@ -331,6 +333,18 @@
         "metadata/closure/adlx_effects.json",
         "metadata/closure/adlx_allocation.json",
         "metadata/closure/timer.json"
+      ]
+    },
+    {
+      "date": "2026-11-14",
+      "reason": "Native timing composition profile/source and integration tooling; accepted claims/status unchanged",
+      "commands": [
+        "python verif/timing_composition.py --gate"
+      ],
+      "results": "PASS: default profile preprocessed identity/unchanged algorithms; compiled replay and 21/21 native/literal integration. No old claim widened.",
+      "inputs": [
+        "native/audio.h",
+        "native/audio_bytes.h"
       ]
     }
   ]

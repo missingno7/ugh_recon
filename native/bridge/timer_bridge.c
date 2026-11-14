@@ -1,7 +1,18 @@
-/* L1 projection and platform shell. Out-of-contract machine states explicitly
- * execute the independent L1 routines; they are never silently normalized. */
+/* Legacy API profile: independent L1 fallback outside the typed contract.
+ * Composed host profile: borrow/commit NativeTimingWorld, never timer RAM;
+ * reject out-of-contract requests explicitly. IRQ/entry frames are interop. */
 #include "platform.h"
+#ifdef UGH_NATIVE_TIMING
+#include "timing_world_bridge.h"
+#endif
 #include "../timer.h"
+#ifdef UGH_NATIVE_TIMING
+#define TIMER_EARLIEST_WORD ((uint16_t)native_timing_world()->timer.earliest)
+#define TIMER_PROGRAMMED_WORD native_timing_world()->timer.programmed_divisor
+#else
+#define TIMER_EARLIEST_WORD rd16(DATA_SEG,D(EarliestTimerIntervalLow))
+#define TIMER_PROGRAMMED_WORD rd16(DATA_SEG,D(ProgrammedPitDivisor))
+#endif
 int l1_RegisterTimerCallback(Regs *r);
 int l1_RemoveTimerCallback(Regs *r);
 int l1_SetTimerCallbackInterval(Regs *r);
@@ -18,6 +29,7 @@ static uint16_t timer_word_token(uint16_t word, unsigned position) {
     if(word==SOUND_SEG) return TIMER_GROUP_SOUND;
     return (uint16_t)(32+position);
 }
+#ifndef UGH_NATIVE_TIMING
 static uint16_t timer_token_word(uint16_t token, const uint16_t *open) {
     switch(token) {
     case TIMER_ZERO:return 0;
@@ -31,7 +43,11 @@ static uint16_t timer_token_word(uint16_t token, const uint16_t *open) {
     default:return open[token-32];
     }
 }
+#endif
 static int timer_project(TimerState *state, uint16_t *open) {
+#ifdef UGH_NATIVE_TIMING
+    return timing_snapshot(state,open);
+#else
     uint16_t last=rd16(DATA_SEG,D(LastActiveTimerSlotOffset));
     if((last&1) || last>30) return 0;
     state->count=last/2+1;
@@ -54,8 +70,13 @@ static int timer_project(TimerState *state, uint16_t *open) {
         slot->target.second=timer_word_token(open[i*2+1],i*2+1);
     }
     return 1;
+
+#endif
 }
 static void timer_publish(const TimerState *state, const uint16_t *open) {
+#ifdef UGH_NATIVE_TIMING
+    timing_commit(state,open);
+#else
     wr16(DATA_SEG,D(LastActiveTimerSlotOffset),(uint16_t)((state->count-1)*2));
     wr32(DATA_SEG,D(NextPitQuantumLow),state->quantum);
     wr32(DATA_SEG,D(EarliestTimerIntervalLow),state->earliest);
@@ -72,21 +93,41 @@ static void timer_publish(const TimerState *state, const uint16_t *open) {
         wr16(DATA_SEG,(uint16_t)(D(TimerCallbackOffsetBySlot)+i*4),timer_token_word(slot->target.first,open));
         wr16(DATA_SEG,(uint16_t)(D(TimerCallbackSegmentBySlot)+i*4),timer_token_word(slot->target.second,open));
     }
+
+#endif
 }
 EXPORT int c_RegisterTimerCallback(Regs *r) {
     TimerState state; uint16_t open[32];
     TimerTarget target={timer_word_token(r->ax,0),timer_word_token(r->dx,1)};
     TimerCallback callback=timer_callback(target);
     if(!timer_project(&state,open) || callback==TIMER_OPEN || state.count==16)
+        
+#ifdef UGH_NATIVE_TIMING
+        return UGH_UNSUPPORTED;
+#else
         return l1_RegisterTimerCallback(r);
+#endif
+
     int handle=timer_register(&state,callback,r->bx | (uint32_t)r->cx*65536u);
-    if(handle<0) return l1_RegisterTimerCallback(r);
+    if(handle<0) 
+#ifdef UGH_NATIVE_TIMING
+        return UGH_UNSUPPORTED;
+#else
+        return l1_RegisterTimerCallback(r);
+#endif
+
     timer_publish(&state,open); r->ax=(uint16_t)handle; return UGH_OK;
 }
 EXPORT int c_RemoveTimerCallback(Regs *r) {
     TimerState state; uint16_t open[32];
     if(!timer_project(&state,open) || state.count<2 || timer_handle_slot(&state,r->ax)<0)
+        
+#ifdef UGH_NATIVE_TIMING
+        return UGH_UNSUPPORTED;
+#else
         return l1_RemoveTimerCallback(r);
+#endif
+
     r->ax=timer_remove(&state,r->ax);
     r->bx=(uint16_t)state.earliest; r->cx=(uint16_t)(state.earliest>>16);
     r->ds=DATA_SEG; timer_publish(&state,open); return UGH_OK;
@@ -94,7 +135,13 @@ EXPORT int c_RemoveTimerCallback(Regs *r) {
 EXPORT int c_SetTimerCallbackInterval(Regs *r) {
     TimerState state; uint16_t open[32];
     if(!timer_project(&state,open) || timer_handle_slot(&state,r->ax)<0)
+        
+#ifdef UGH_NATIVE_TIMING
+        return UGH_UNSUPPORTED;
+#else
         return l1_SetTimerCallbackInterval(r);
+#endif
+
     timer_set_interval(&state,r->ax,r->bx | (uint32_t)r->cx*65536u);
     r->bx=(uint16_t)state.earliest; r->cx=(uint16_t)(state.earliest>>16);
     timer_publish(&state,open); return UGH_OK;
@@ -107,14 +154,24 @@ EXPORT int c_HandleTimerInterrupt(Regs *r) {
     r->ds=DATA_SEG;
     r->ax=DATA_SEG;
     TimerState state; uint16_t open[32];
-    /* Validate before any native step. A malformed last offset keeps the L1 path. */
-    if(!timer_project(&state,open)) { *r=saved; return l1_HandleTimerInterrupt(r); }
+    /* Validate before any native step; legacy fallback or composed rejection. */
+    if(!timer_project(&state,open)) { *r=saved; 
+#ifdef UGH_NATIVE_TIMING
+        return UGH_UNSUPPORTED;
+#else
+        return l1_HandleTimerInterrupt(r);
+#endif
+ }
     TimerTickScratch scratch=timer_account_tick(&state);
     timer_publish(&state,open);
     r->ax=scratch.low; r->dx=scratch.high;
     uint16_t slot;
     unsigned budget;
+#ifdef UGH_NATIVE_TIMING
+    slot=native_timing_world()->last_offset;
+#else
     slot=rd16(DATA_SEG,D(LastActiveTimerSlotOffset));
+#endif
     budget=32768;
     do {
         if(!budget--) { *r=saved; return UGH_BUDGET; }
@@ -125,8 +182,10 @@ EXPORT int c_HandleTimerInterrupt(Regs *r) {
         if(timer_take_due(&state,slot/2,&callback)) {
             (void)callback; /* OPEN targets stay explicit at the machine boundary. */
             timer_publish(&state,open);
+#ifndef UGH_NATIVE_TIMING
             uint16_t off=rd16(DATA_SEG,(uint16_t)(D(TimerCallbackOffsetBySlot)+slot*2));
             uint16_t seg=rd16(DATA_SEG,(uint16_t)(D(TimerCallbackSegmentBySlot)+slot*2));
+#endif
             /* DS and SI alone are saved at this call site. Callback clobbers flow
              * to the next callback until the ISR restores the interrupted registers. */
             r->sp=(uint16_t)(r->sp-8);
@@ -136,7 +195,11 @@ EXPORT int c_HandleTimerInterrupt(Regs *r) {
             r->si=(uint16_t)(slot*2);
             flag(r,CF,slot&0x8000); szp(r,r->si,16);
             flag(r,OF,!!(slot&0x8000)^!!(r->si&0x8000));
+            #ifdef UGH_NATIVE_TIMING
+            int status=timing_deliver(callback,r);
+#else
             int status=ugh_dispatch(seg,off,r);
+#endif
             r->sp=(uint16_t)(r->sp+8); r->si=slot;
             r->ds=DATA_SEG;
             if(status) { *r=saved; return status; }
@@ -144,11 +207,15 @@ EXPORT int c_HandleTimerInterrupt(Regs *r) {
         slot=(uint16_t)(slot-2);
     } while((int16_t)slot>=0);
     platform_out(0x20,1,0x20);
-    uint16_t divisor=rd16(DATA_SEG,D(EarliestTimerIntervalLow));
-    if(rd16(DATA_SEG,D(ProgrammedPitDivisor))!=divisor) {
+    uint16_t divisor=TIMER_EARLIEST_WORD;
+    if(TIMER_PROGRAMMED_WORD!=divisor) {
         platform_out(0x43,1,0x36);
         platform_out(0x40,1,divisor&255u); platform_out(0x40,1,divisor>>8);
     }
+#ifdef UGH_NATIVE_TIMING
+    native_timing_world()->timer.programmed_divisor=(uint16_t)native_timing_world()->timer.earliest;
+#else
     wr16(DATA_SEG,D(ProgrammedPitDivisor),rd16(DATA_SEG,D(EarliestTimerIntervalLow)));
+#endif
     *r=saved; return UGH_OK; /* IRET restores FLAGS as well as general registers. */
 }

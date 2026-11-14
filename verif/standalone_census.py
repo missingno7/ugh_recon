@@ -207,6 +207,14 @@ def replace_returns(body, ident):
 def instrument(text, source, functions, sites):
     edits=[]
     for a,b,e,name in bodies(text):
+        # Per-byte typed view leaves have no control-flow edge or fallback.
+        # Keep every c/ body and every entry/transfer hook; avoid multiplying
+        # their cost by three hooks per ordinary memory byte.
+        if source=='native/bridge/timing_world_bridge.c' and name in {
+            'timing_shared_read','timing_shared_write','timing_is_owned',
+            'get','put','require','word_token','token_word','audio_borrowed_byte'}:
+            assert not re.search(r'\b(?:l1_\w+|ugh_dispatch\w*|ugh_call_near\w*)\s*\(',text[b+1:e])
+            continue
         ident=len(functions);body=text[b+1:e]
         line=text.count('\n',0,a)+1
         far=bool(re.search(r'\bugh_dispatch\s*\(',body) and re.search(r'(?:push\w*\s*\([^;]*r->cs|wr16\s*\([^;]*r->cs)',body))
@@ -269,6 +277,7 @@ def generate(literal=False):
             rel=p.relative_to(ROOT).as_posix();text=p.read_text();inputs.append(p)
             if top=='c' and p.suffix=='.c':
                 for name in sorted(exports):text=re.sub(r'\b'+re.escape(name)+r'\b','l1_'+name[2:],text)
+                text=hostbuild.composition_source(rel,text,units)
             if not literal and ((top=='c' and p.name!='dispatch_table.inc') or rel.startswith('native/bridge/')):
                 text=instrument(text,rel,functions,sites)
             if not literal and rel=='host/main.c':
@@ -300,6 +309,7 @@ def generate(literal=False):
             meta+='static const unsigned char '+name+'[]={'+','.join(map(str,values))+'};\n'
         (folder/'metadata.inc').write_text(meta);(folder/'census.c').write_text(OBSERVER);sources.append(folder/'census.c')
     command=[hostbuild.GCC,'-O2','-g','-std=c11','-Wall','-Wextra','-Werror','-fwrapv',
+             *hostbuild.composition_options(units,folder),
              '-include',folder/'fallbacks.h','-I',folder/'c','-I',folder/'host',
              '-I',hostbuild.SDL/'include','-I',hostbuild.OPL]
     if not literal:command+=['-include',folder/'census.h','-I',folder]

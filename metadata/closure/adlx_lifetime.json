@@ -275,6 +275,19 @@
         "host/check.py",
         "tools/hostbuild.py"
       ]
+    },
+    {
+      "date": "2026-11-14",
+      "reason": "Native timing composition profile/source and integration tooling; accepted claims/status unchanged",
+      "commands": [
+        "python verif/timing_composition.py --gate"
+      ],
+      "results": "PASS: default profile preprocessed identity/unchanged algorithms; compiled replay and 21/21 native/literal integration. No old claim widened.",
+      "inputs": [
+        "native/audio.h",
+        "tools/hostbuild.py",
+        "native/audio_bytes.h"
+      ]
     }
   ],
   "verification_input_hashing": "sha256-lf-text",
@@ -337,7 +350,7 @@
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
     "native/adlx_lifetime.c": "c24aa540552a69020f3ad3b446fdda23d46b260669c4f1d8855e4d381fce7b7c",
     "native/adlx_lifetime.h": "34078b03e4b54b19a758204c40b0be2ec70ef73aa099366a5082b4a1a438e67b",
-    "native/audio.h": "e14ee8e39125b55ced910d17214acddfcd9fb0339192990487dca22dd3e04a5a",
+    "native/audio.h": "31e4dd978a7ecc91d8dfb6de250c7e9f6ef4377bc5b1d3c413df749e94a2a780",
     "native/bridge/adlx_lifetime_bridge.c": "f720e4a6ff37af82a637f82bbaa761206f597def90a747bb785d7b7d0865f8c2",
     "native/bridge/audio_projection.h": "e15ee379c16623f0dfb9830e154c5c71b0f2d2a424a6073c3dec497c50cd8630",
     "tests/scenarios/adlib.txt": "1db37ba320e4c3c85449c2f4a7f5ecd8543e6de6933e165e534b79adb3386f2f",
@@ -363,7 +376,7 @@
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
-    "tools/hostbuild.py": "ec24f9e6bec3c0da79df062302ea86f28491a344f1fbc3811737efe88e1f5484",
+    "tools/hostbuild.py": "5df61bcd7f749f052b70efed60fd0bfe6b38c16bb228f14e5aeb7d774612d9e7",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/adlx_lifetime_build.py": "bea68149e9207df753a0bde0bd1f11b5d29b5ef6c9dcab02be8d915bb0de301c",
     "verif/adlx_lifetime_cases.py": "6966f52f7e025bfa3ad125e39bb976c6d5bfe3e827da5d8579710ab5bd5f46f2",
@@ -380,6 +393,7 @@
     "verif/adlx_loader_solver.py": "332c1a46957e398df5865fa5de14a73d259d464c621232f84976f8dfcc1f42d6",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
-    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574"
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
+    "native/audio_bytes.h": "46874b2057f9a2083c503638b79b8d31c1af667a56079bac35945d6fdc612b22"
   }
 }

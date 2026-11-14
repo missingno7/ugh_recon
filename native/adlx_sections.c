@@ -6,7 +6,7 @@ AudioScanAction audio_section_classify(const AudioScanDispatch table[7],uint8_t 
     return AUDIO_SCAN_DEFAULT;
 }
 static uint16_t audio_section_word(AudioCursor cursor)
-{return (uint16_t)(cursor.window[cursor.index]+(unsigned)cursor.window[(unsigned)cursor.index+1]*256u);}
+{return (uint16_t)(AUDIO_BYTE(cursor.window,cursor.index)+(unsigned)AUDIO_BYTE(cursor.window,(unsigned)cursor.index+1)*256u);}
 static void audio_section_scan_finish(AudioState *state,AudioScanWork *work)
 {
     if(work->pass==0) state->section_start=work->cursor;else state->section_end=work->cursor;
@@ -33,7 +33,7 @@ AudioScanExit audio_section_scan_step(AudioState *state,AudioScanWork *work,cons
     if(work->total>=work->threshold) {audio_section_scan_finish(state,work);return work->exit;}
     if(!work->budget) {work->exit=AUDIO_SCAN_BUDGET;return work->exit;}
     work->budget--;
-    uint8_t code=work->cursor.window[work->cursor.index];work->cursor.index=(uint16_t)(work->cursor.index+1);
+    uint8_t code=AUDIO_BYTE(work->cursor.window,work->cursor.index);work->cursor.index=(uint16_t)(work->cursor.index+1);
     uint16_t end=(uint16_t)(state->channels[12].start.index+state->channels[12].length);
     /* Retained post-fetch OFFSET-only test, before inspecting any payload. */
     if(work->cursor.index>=end) {work->exit=AUDIO_SCAN_END;return work->exit;}
@@ -45,23 +45,23 @@ AudioScanExit audio_section_scan_step(AudioState *state,AudioScanWork *work,cons
     case AUDIO_SCAN_LONG:
         /* The ENTIRE opcode participates, with no16-bit truncation. A
          * modified table can classify a nonzero high nibble as long wait. */
-        work->total+=(((uint32_t)code<<8)+work->cursor.window[work->cursor.index])<<7;
+        work->total+=(((uint32_t)code<<8)+AUDIO_BYTE(work->cursor.window,work->cursor.index))<<7;
         work->cursor.index=(uint16_t)(work->cursor.index+1);break;
     case AUDIO_SCAN_FREQUENCY:
         if(!work->pass) state->scanned[channel].frequency=audio_section_word(work->cursor);
         work->cursor.index=(uint16_t)(work->cursor.index+2);break;
     case AUDIO_SCAN_KEY_OFF:if(!work->pass) state->scanned[channel].frequency&=57343u;break;
     case AUDIO_SCAN_GAIN:
-        if(!work->pass) state->scanned[channel].gain=work->cursor.window[work->cursor.index];
+        if(!work->pass) state->scanned[channel].gain=AUDIO_BYTE(work->cursor.window,work->cursor.index);
         work->cursor.index=(uint16_t)(work->cursor.index+1);break;
     case AUDIO_SCAN_INSTRUMENT:
         if(!work->pass) {
-            for(unsigned i=0;i<12;i++) state->scanned[channel].instrument[i]=work->cursor.window[(uint16_t)(work->cursor.index+i)];
+            for(unsigned i=0;i<12;i++) state->scanned[channel].instrument[i]=AUDIO_BYTE(work->cursor.window,(uint16_t)(work->cursor.index+i));
             state->scanned[channel].owner=12;work->copied=1;
         }
         work->cursor.index=(uint16_t)(work->cursor.index+11);break;
     case AUDIO_SCAN_TIMER:work->cursor.index=(uint16_t)(work->cursor.index+2);break;
-    case AUDIO_SCAN_EXTENSION:work->cursor.index=(uint16_t)(work->cursor.index+work->cursor.window[work->cursor.index]+1);break;
+    case AUDIO_SCAN_EXTENSION:work->cursor.index=(uint16_t)(work->cursor.index+AUDIO_BYTE(work->cursor.window,work->cursor.index)+1);break;
     case AUDIO_SCAN_DEFAULT:work->total+=code&127u;break;
     case AUDIO_SCAN_BAD:work->exit=AUDIO_SCAN_CALLBACK;break;
     }

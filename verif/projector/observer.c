@@ -5,6 +5,9 @@
 #include "platform.h"
 #include "world.h"
 #include "observer.h"
+#ifdef UGH_NATIVE_TIMING
+#include "timing_serializer.h"
+#endif
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -71,6 +74,9 @@ static void assign(const Binding *b,uint32_t raw){
 }
 static void byte_write(uint32_t a,uint8_t v){
     if(a>=UGH_MEM_SIZE)fail("RAM write outside observation storage");
+#ifdef UGH_NATIVE_TIMING
+    if(timing_is_owned(a))fail("moved owner received a RAM/journal publication");
+#endif
     write_hash=(write_hash^a)*1099511628211ull;write_hash=(write_hash^v)*1099511628211ull;
     uint32_t ident=binding_at[a];
     if(ident){const Binding *b=&bindings[ident-1];unsigned shift=8*(a-b->address);uint32_t old=value(b);
@@ -113,13 +119,26 @@ static void append(ProjectEvent **p,size_t *n,size_t *capacity,ProjectEvent even
 void pr_event(unsigned kind,uint16_t port,unsigned width,uint32_t v){
     if(enabled)append(&events,&nevents,&event_capacity,(ProjectEvent){kind,port,width,v});
 }
+static const uint8_t *observation_memory(void){
+#ifdef UGH_NATIVE_TIMING
+    return project_timing_observation(ugh_mem);
+#else
+    return ugh_mem;
+#endif
+}
 static void serialize(void){
     memcpy(output,baseline,sizeof output);
     for(uint32_t a=0;a<UGH_MEM_SIZE;a++)if(dirty[a])output[a]=journal[a];
     for(unsigned i=0;i<N_BINDINGS;i++){
         const Binding *b=&bindings[i];uint32_t v=value(b);
+#ifdef UGH_NATIVE_TIMING
+        if(timing_is_owned(b->address))continue;
+#endif
         for(unsigned j=0;j<b->width;j++)output[b->address+j]=(uint8_t)(v>>(8*j));
     }
+#ifdef UGH_NATIVE_TIMING
+    timing_serialize(output);
+#endif
     memcpy(device_output,device_baseline,sizeof device_output);
     for(unsigned i=0;i<N_SERVICES;i++){
         const ServiceBinding *b=&service_bindings[i];
@@ -129,7 +148,12 @@ static void serialize(void){
 typedef struct Difference {unsigned kind;uint32_t offset;} Difference;
 static Difference compare(void){
     serialize();
-    for(uint32_t a=0;a<UGH_MEM_SIZE;a++)if(observed(a) && output[a]!=ugh_mem[a])return (Difference){1,a};
+#ifdef UGH_NATIVE_TIMING
+    uint32_t missed=timing_check_serialization(output);
+    if(missed!=UINT32_MAX)return (Difference){1,missed};
+#endif
+    const uint8_t *actual_memory=observation_memory();
+    for(uint32_t a=0;a<UGH_MEM_SIZE;a++)if(observed(a) && output[a]!=actual_memory[a])return (Difference){1,a};
     const uint8_t *device=(const uint8_t*)&ugh_devices;
     for(uint32_t a=0;a<DEVICE_BYTES;a++)if(device_output[a]!=device[a])return (Difference){2,a};
     if(services.error!=ugh_devices.error)return (Difference){2,offsetof(Devices,error)};
@@ -185,7 +209,11 @@ static void dump(void){
         if(!observed(a)){excluded++;continue;}
         if(!binding_at[a]){if(dirty[a])unclassified++;else baseline_bytes++;}
     }
-    fprintf(f,"{\"baseline_verified\":%s,\"boundaries\":%u,\"terminal_boundaries\":%u,\"last_frame\":%u,\"owners\":[",baseline_verified?"true":"false",boundaries,terminal_boundaries,host_frame);
+    fprintf(f,"{\"baseline_verified\":%s,\"boundaries\":%u,\"terminal_boundaries\":%u,\"last_frame\":%u,",baseline_verified?"true":"false",boundaries,terminal_boundaries,host_frame);
+#ifdef UGH_NATIVE_TIMING
+    fprintf(f,"\"canonical_native_owned_bytes\":%u,\"native_owned_journal_publications\":0,",timing_owned_bytes());
+#endif
+    fprintf(f,"\"owners\":[");
     for(unsigned i=0;i<N_OWNERS;i++)fprintf(f,"%s{\"name\":\"%s\",\"typed_bytes\":%llu,\"write_deliveries\":%llu,\"touched_bytes\":%llu}",i?",":"",owner_names[i],typed_bytes[i],writes[i],touched[i]);
     fprintf(f,"],\"baseline_unclassified_bytes\":%llu,\"journal_observed_bytes\":%llu,\"excluded_stack_bytes\":%llu,\"journal_total_bytes\":%llu,\"journal_write_deliveries\":%llu,\"write_hash\":\"%016llx\",\"effect_hash\":\"%016llx\",\"service_effect_cuts\":%llu,\"service_changed_bytes\":%llu,\"publication_calls\":%llu,\"publication_bytes\":%llu,\"events\":%llu,\"actual_events\":%llu,\"controls\":[",baseline_bytes,unclassified,excluded,journal_bytes,journal_writes,write_hash,effect_hash,service_calls,service_changed_bytes,publication_calls,publication_bytes,(U64)nevents,(U64)nactual);
     for(unsigned i=0;i<5;i++)fprintf(f,"%s{\"detected\":%s,\"frame\":%u,\"difference_kind\":%u,\"offset\":%u,\"target\":\"%s\"}",i?",":"",controls_done?"true":"false",control_frame,control_kinds[i],control_offsets[i],controls_done?control_targets[i]:"");
@@ -198,6 +226,7 @@ void pr_verify_baseline(void){
     baseline_verified=1;
 }
 void pr_import(void){
+    const uint8_t *import_memory=observation_memory();
     if(!baseline_verified)fail("cold import before independent baseline check");
     for(unsigned i=1;i<N_IDENTITIES;i++){
         if(identities[i].domain>=6 || id_by_word[identities[i].domain][identities[i].word])fail("identity registry duplicate");
@@ -211,12 +240,18 @@ void pr_import(void){
         const Binding *b=&bindings[i];uint32_t v=0;
         for(unsigned j=0;j<b->width;j++){
             uint32_t a=b->address+j;if(a>=UGH_MEM_SIZE || binding_at[a])fail("overlapping canonical bindings");binding_at[a]=i+1;
-            v|=(uint32_t)ugh_mem[a]<<(8*j);typed_bytes[b->owner]++;
+            v|=(uint32_t)import_memory[a]<<(8*j);typed_bytes[b->owner]++;
         }
+#ifdef UGH_NATIVE_TIMING
+        if(timing_is_owned(b->address))continue;
+#endif
         assign(b,v);if(value(b)!=v)fail("cold field codec");
     }
-    for(uint32_t a=0;a<UGH_MEM_SIZE;a++)if(!binding_at[a] && baseline[a]!=ugh_mem[a]){
-        dirty[a]=1;journal[a]=ugh_mem[a];last_frame[a]=host_frame;journal_bytes++;
+    for(uint32_t a=0;a<UGH_MEM_SIZE;a++)if(!binding_at[a] && baseline[a]!=import_memory[a]){
+#ifdef UGH_NATIVE_TIMING
+        if(timing_is_owned(a))continue;
+#endif
+        dirty[a]=1;journal[a]=import_memory[a];last_frame[a]=host_frame;journal_bytes++;
     }
     memcpy(device_baseline,&ugh_devices,sizeof device_baseline);
     enabled=1;pr_services(255);

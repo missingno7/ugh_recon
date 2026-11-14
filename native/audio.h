@@ -1,6 +1,7 @@
 #ifndef NATIVE_AUDIO_H
 #define NATIVE_AUDIO_H
 #include <stdint.h>
+#include "audio_bytes.h"
 
 enum { AUDIO_CHANNEL_COUNT=13, AUDIO_MAIN_CHANNEL=12, AUDIO_VOICE_COUNT=9 };
 /* Allocation remains at the C boundary; interpreters borrow these records. */

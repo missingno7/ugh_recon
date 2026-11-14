@@ -116,6 +116,7 @@ def build(literal=False,revision=BASELINE_REVISION):
             rel=p.relative_to(frozen).as_posix();text=p.read_text()
             if top=='c' and p.suffix=='.c':
                 for n in sorted(exports):text=re.sub(r'\b'+re.escape(n)+r'\b','l1_'+n[2:],text)
+                text=hostbuild.composition_source(rel,text,units)
             if not literal and rel=='c/memory.c':
                 text=with_return_hook(text,'ugh_read','pr_vga_read(a);')
                 a,b,e,n=next(x for x in bodies(text) if x[3]=='ugh_write')
@@ -163,6 +164,7 @@ def build(literal=False,revision=BASELINE_REVISION):
     sources += [folder/u['native'] for u in units]+[folder/u['bridge'] for u in units]
     sources += [folder/'units.c',folder/'symbols.c']+([] if literal else [folder/'observer.c'])
     command=[hostbuild.GCC,'-O2','-g','-std=c11','-Wall','-Wextra','-Werror','-fwrapv',
+             *hostbuild.composition_options(units,folder),
              '-include',folder/'observer.h','-include',folder/'fallbacks.h',
              '-I',folder,'-I',folder/'c','-I',folder/'host','-I',hostbuild.SDL/'include','-I',hostbuild.OPL,
              '-o',folder/'ugh.exe',*sources,hostbuild.OPL/'opl3.c','-L',hostbuild.SDL/'lib','-lSDL3','-lbcrypt']

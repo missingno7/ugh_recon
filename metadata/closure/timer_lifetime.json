@@ -214,7 +214,8 @@
     "native/bridge/timer_lifetime_bridge.c": {
       "includes": [
         "../timer_lifetime.h",
-        "platform.h"
+        "platform.h",
+        "timing_world_bridge.h"
       ],
       "calls": [
         "D",
@@ -229,6 +230,7 @@
         "lifetime_token_word",
         "lifetime_word_token",
         "logic",
+        "native_timing_world",
         "platform_bios_timer",
         "platform_interrupt",
         "platform_out",
@@ -242,6 +244,10 @@
         "timer_lifetime_consume",
         "timer_lifetime_install",
         "timer_lifetime_restore",
+        "timing_commit",
+        "timing_save_binding",
+        "timing_saved_words",
+        "timing_snapshot",
         "ugh_dispatch_interrupt",
         "wr16",
         "wr32"
@@ -252,12 +258,12 @@
   "verification_inputs": {
     "native/timer_lifetime.c": "d45ca7afb8fe66332e5b1a0969cafbd90727c866550781e677bd04fb850a3a2f",
     "native/timer_lifetime.h": "b1460003f1f6bec65701532d231b38e3060dd639dcdc1c15e9d5d0632c0d99c6",
-    "native/bridge/timer_lifetime_bridge.c": "5f09dbccdf5d77f2c9606f5f8c89f256ada16d11ac2ecc2c035a92e73db0f3dd",
+    "native/bridge/timer_lifetime_bridge.c": "ca969951606c7406837a7e850e9d9c55e0c6193ab6fe133028b1cd1762da8474",
     "verif/timer_lifetime.py": "6031737c5a948f0b621826e36c6a225db7314a1a6bb0a7802699b57cebf12552",
     "verif/timer_lifetime_protocol.c": "f89aa5d520e2677cb14f22f8773cc8f2a2a5ecd4e33ad18900d58fe1f0cefacf",
     "native/timer.c": "05803307a67871c34cc69e8c8b9a5168103b399c0555638c13998e5838620513",
     "native/timer.h": "99bb08b73cbd7ea5ef618975b601948a6dcee9d7e331db29d699b9b08eea0403",
-    "native/bridge/timer_bridge.c": "da2747aa9bbd83baa12dc410e34c6277ac64ad15b3fa49d69a75e18245c676bd",
+    "native/bridge/timer_bridge.c": "3ce26047d9e72b02ff7f993a1b38fc0d28fdaca10a71ef3ff8e49cc32a541ab4",
     "verif/ice_scratch.py": "3b9134ff1bd4a5616e5900d7c827070061743f62d76b91722b975eb18a912a80",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
@@ -268,12 +274,12 @@
     "verif/timer_callbacks.py": "4149fe68343ff59647e5baa10beeae519625d099345ec256cdadf92e0c8d0b38",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
-    "tools/hostbuild.py": "ec24f9e6bec3c0da79df062302ea86f28491a344f1fbc3811737efe88e1f5484",
+    "tools/hostbuild.py": "5df61bcd7f749f052b70efed60fd0bfe6b38c16bb228f14e5aeb7d774612d9e7",
     "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
-    "verif/standalone_census.py": "8a9d9cd3c3b38476b847eb2c360b7773e5ac84422afe97496411f51252f78022",
+    "verif/standalone_census.py": "f8f3bd4475c065e8615a192aef0fdc0eafd068ecdcca9d45f545e9105dce8f09",
     "src/asm/TIMER.ASM": "ef53f29ee97899bf538298d360f6979004f41abcd5e07e2d23ecfb6642f5ae2a",
-    "metadata/closure/timer.json": "e4ddfe3c3081a867dda96ac7be9bc6da18266ce4d6fec65ab44e931e012db9fc",
+    "metadata/closure/timer.json": "7b053bc337bb8f974e67d4bea5e62441d9717d2d2dfcd1cbbd7dcc40ed96c07c",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
     "tests/timer.py": "9feb061a861603ed6e75d8b1fe286d4c34c96db9574244b3c8d6663ff5bb6fde",
     "tests/timer_stack.py": "e6ea2a364a6b062fcc05036dca8cfe1cea83926d3370e3cc3b7e4b3031f20e50",
@@ -349,5 +355,22 @@
       "exe_sha256": "e2f6a110906b7c5998f31617c89220f9840735250333c90c56ef467c667d8bda",
       "usage": "CBMC's default preprocessor on Windows is cl.exe (absent) and it cannot parse MinGW system headers. Preprocess with MinGW gcc against minimal shim headers instead: gcc -E -P -nostdinc -I<shim> file.c -o file.i, then cbmc file.i. Checked on a two-implementation uint16 equivalence harness: VERIFICATION SUCCESSFUL."
     }
-  }
+  },
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-14",
+      "reason": "Native timing composition profile/source and integration tooling; accepted claims/status unchanged",
+      "commands": [
+        "python verif/timing_composition.py --gate"
+      ],
+      "results": "PASS: default profile preprocessed identity/unchanged algorithms; compiled replay and 21/21 native/literal integration. No old claim widened.",
+      "inputs": [
+        "native/bridge/timer_lifetime_bridge.c",
+        "native/bridge/timer_bridge.c",
+        "tools/hostbuild.py",
+        "verif/standalone_census.py",
+        "metadata/closure/timer.json"
+      ]
+    }
+  ]
 }

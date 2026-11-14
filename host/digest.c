@@ -1,6 +1,9 @@
 /* Same boundaries, stack exclusion and raw device/log bytes as wholegame.record.
  * Windows CNG is used only for SHA256, never for gameplay state. */
 #include "host.h"
+#ifdef UGH_NATIVE_TIMING
+#include "timing_serializer.h"
+#endif
 #include <windows.h>
 #include <bcrypt.h>
 #include <stddef.h>
@@ -23,9 +26,14 @@ void host_sha256(const void *p,unsigned size,char hex[65]) {
     update(h,p,size); finish(h,hex);
 }
 void host_digest(Regs *r,const char *terminal) {
+#ifdef UGH_NATIVE_TIMING
+    const uint8_t *observation=project_timing_observation(ugh_mem);
+#else
+    const uint8_t *observation=ugh_mem;
+#endif
     Devices *d=&ugh_devices; BCRYPT_HASH_HANDLE h; char ram[65],device[65],log[65];
     check(BCryptCreateHash(algorithm,&h,NULL,0,NULL,0,0));
-    update(h,ugh_mem,0x80000); update(h,ugh_mem+0x8fefe,UGH_MEM_SIZE-0x8fefe); finish(h,ram);
+    update(h,observation,0x80000); update(h,observation+0x8fefe,UGH_MEM_SIZE-0x8fefe); finish(h,ram);
     host_sha256(d,offsetof(Devices,count),device);
     update(rolling,d->log,d->count*sizeof(IoEvent));
     check(BCryptDuplicateHash(rolling,&h,NULL,0,0)); finish(h,log);

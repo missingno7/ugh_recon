@@ -278,6 +278,7 @@
     "native/bridge/music_clock_bridge.c": {
       "includes": [
         "../music_clock.h",
+        "timing_world_bridge.h",
         "ugh.h"
       ],
       "calls": [
@@ -286,6 +287,7 @@
         "music_clock_disable_section_loop",
         "music_clock_elapsed",
         "music_clock_swap_bytes",
+        "native_timing_world",
         "rd16",
         "rd32",
         "wr16"
@@ -333,7 +335,7 @@
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
     "metadata/toolchain-lock.json": "1eac9bc406bec9f0a6dabb333025d4bef2c08e89cf2bb54b27a1e512aca8c660",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
-    "native/bridge/music_clock_bridge.c": "656185f05df191c57d6e179effb3a830f9c7a53e0402a2c99438a03d21cfd27c",
+    "native/bridge/music_clock_bridge.c": "3718f53ca922b19b1408f68bc470f7deefde12835d688818e99fcfdd40947c42",
     "native/music_clock.c": "e89620aaff7554c7fc05dac70a4c1c4404bb0dd755f9b06281069b02920580e4",
     "native/music_clock.h": "1916c309a59fc9fc5216459efeacdc2c347a814ad96f003e39fd97f96c2b637a",
     "src/asm/SOUND.ASM": "70150219d03e52ec3ed5f6c96ca179fd3cf98b54ff68995a1ae264e8d368652d",
@@ -405,6 +407,17 @@
       "result": "closure check passes; no native or proof source changed",
       "inputs": [
         "docs/architecture-model.md"
+      ]
+    },
+    {
+      "date": "2026-11-14",
+      "reason": "Native timing composition profile/source and integration tooling; accepted claims/status unchanged",
+      "commands": [
+        "python verif/timing_composition.py --gate"
+      ],
+      "results": "PASS: default profile preprocessed identity/unchanged algorithms; compiled replay and 21/21 native/literal integration. No old claim widened.",
+      "inputs": [
+        "native/bridge/music_clock_bridge.c"
       ]
     }
   ]

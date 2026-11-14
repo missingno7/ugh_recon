@@ -1,7 +1,17 @@
 #include "platform.h"
+#ifdef UGH_NATIVE_TIMING
+#include "timing_world_bridge.h"
+#endif
 #include "../timer_lifetime.h"
+#ifdef UGH_NATIVE_TIMING
+#define LIFETIME_INSTALLED_VIEW (r->cs==TIMER_SEG?native_timing_world()->timer.installed:rd16(r->cs,T(TimerInterruptInstalled)))
+#else
+#define LIFETIME_INSTALLED_VIEW rd16(r->cs,T(TimerInterruptInstalled))
+#endif
 
-/* Projection is checked against the accepted timer bridge by the evidence driver.
+/* The composed profile borrows NativeTimingWorld. The legacy API projection
+ * remains independently replayable without the composition build flag.
+ * Projection is checked against the accepted timer bridge by the evidence driver.
  * Count is intentionally unvalidated here: installation overwrites an arbitrary
  * incoming count, while typed API requests validate their own admitted domain. */
 static uint16_t lifetime_word_token(uint16_t word, unsigned position) {
@@ -16,6 +26,7 @@ static uint16_t lifetime_word_token(uint16_t word, unsigned position) {
     return (uint16_t)(32+position);
 }
 
+#ifndef UGH_NATIVE_TIMING
 static uint16_t lifetime_token_word(uint16_t token, const uint16_t *open) {
     switch(token) {
     case TIMER_ZERO:return 0;
@@ -30,7 +41,11 @@ static uint16_t lifetime_token_word(uint16_t token, const uint16_t *open) {
     }
 }
 
+#endif
 static int lifetime_project(TimerState *state, uint16_t *open) {
+#ifdef UGH_NATIVE_TIMING
+    return timing_snapshot(state,open);
+#else
     uint16_t last=rd16(DATA_SEG,D(LastActiveTimerSlotOffset));
     state->count=last/2+1;
     state->quantum=rd32(DATA_SEG,D(NextPitQuantumLow));
@@ -52,9 +67,14 @@ static int lifetime_project(TimerState *state, uint16_t *open) {
         slot->target.second=lifetime_word_token(open[i*2+1],i*2+1);
     }
     return 1;
+
+#endif
 }
 
 static void lifetime_publish(const TimerState *state, const uint16_t *open) {
+#ifdef UGH_NATIVE_TIMING
+    timing_commit(state,open);
+#else
     wr16(DATA_SEG,D(LastActiveTimerSlotOffset),(uint16_t)((state->count-1)*2));
     wr32(DATA_SEG,D(NextPitQuantumLow),state->quantum);
     wr32(DATA_SEG,D(EarliestTimerIntervalLow),state->earliest);
@@ -71,6 +91,8 @@ static void lifetime_publish(const TimerState *state, const uint16_t *open) {
         wr16(DATA_SEG,(uint16_t)(D(TimerCallbackOffsetBySlot)+i*4),lifetime_token_word(slot->target.first,open));
         wr16(DATA_SEG,(uint16_t)(D(TimerCallbackSegmentBySlot)+i*4),lifetime_token_word(slot->target.second,open));
     }
+
+#endif
 }
 
 static TimerExternalBinding lifetime_binding(uint16_t segment, uint16_t offset, unsigned identity) {
@@ -81,14 +103,21 @@ static TimerExternalBinding lifetime_binding(uint16_t segment, uint16_t offset, 
 
 EXPORT int c_InstallTimerInterrupt(Regs *r) {
     TimerState state; uint16_t open[32]; lifetime_project(&state,open);
-    state.installed=rd16(r->cs,T(TimerInterruptInstalled));
+    state.installed=LIFETIME_INSTALLED_VIEW;
     logic(r,state.installed,16);
+#ifdef UGH_NATIVE_TIMING
+    TimerLifetime life=native_timing_world()->lifetime;
+#else
     TimerLifetime life={lifetime_binding(rd16(DATA_SEG,D(PreviousInt08Segment)),
                                         rd16(DATA_SEG,D(PreviousInt08Offset)),1)};
+#endif
     TimerLifetimeRequest request;
     timer_lifetime_install(&state,&request);
     if (request.kind==TIMER_LIFETIME_NONE) return UGH_OK;
     if (request.kind!=TIMER_LIFETIME_READ_BINDING) return UGH_UNSUPPORTED;
+#ifdef UGH_NATIVE_TIMING
+    if(r->cs==TIMER_SEG)native_timing_world()->timer.installed=state.installed;else
+#endif
     wr16(r->cs,T(TimerInterruptInstalled),state.installed);
     uint16_t saved_ds=r->ds;
     r->ds=DATA_SEG; r->ax=0x3508;
@@ -96,11 +125,15 @@ EXPORT int c_InstallTimerInterrupt(Regs *r) {
     uint16_t offset=r->bx,segment=r->es;
     /* The service boundary may update retained/inactive storage. Borrow the
      * owner at the continuation cut so baseline publication cannot undo it. */
-    lifetime_project(&state,open); state.installed=rd16(r->cs,T(TimerInterruptInstalled));
+    lifetime_project(&state,open); state.installed=LIFETIME_INSTALLED_VIEW;
     TimerExternalBinding reply=lifetime_binding(segment,offset,2);
     if (!timer_lifetime_consume(&state,&life,&request,TIMER_LIFETIME_READ_BINDING,reply) ||
         life.saved.identity!=2 || request.kind!=TIMER_LIFETIME_BIND_TIMER) return UGH_UNSUPPORTED;
+#ifdef UGH_NATIVE_TIMING
+    timing_save_binding(offset,segment);
+#else
     wr16(DATA_SEG,D(PreviousInt08Offset),offset); wr16(DATA_SEG,D(PreviousInt08Segment),segment);
+#endif
     lifetime_publish(&state,open);
     /* Compatibility working-register cut: the final map-loop SUB is 0-2.
      * The native baseline keeps all stale fields; no device service intervenes. */
@@ -108,7 +141,7 @@ EXPORT int c_InstallTimerInterrupt(Regs *r) {
     r->ds=TIMER_SEG; r->dx=T(HandleTimerInterrupt); r->ax=0x2508;
     status=platform_interrupt(0x21,r); r->ds=saved_ds;
     if (status) return status;
-    lifetime_project(&state,open); state.installed=rd16(r->cs,T(TimerInterruptInstalled));
+    lifetime_project(&state,open); state.installed=LIFETIME_INSTALLED_VIEW;
     if (!timer_lifetime_consume(&state,&life,&request,TIMER_LIFETIME_BIND_TIMER,reply) ||
         request.kind!=TIMER_LIFETIME_NONE) return UGH_UNSUPPORTED;
     return UGH_OK;
@@ -116,32 +149,46 @@ EXPORT int c_InstallTimerInterrupt(Regs *r) {
 
 EXPORT int c_RestoreTimerInterrupt(Regs *r) {
     TimerState state; uint16_t open[32]; lifetime_project(&state,open);
-    state.installed=rd16(r->cs,T(TimerInterruptInstalled)); logic(r,state.installed,16);
+    state.installed=LIFETIME_INSTALLED_VIEW; logic(r,state.installed,16);
+#ifdef UGH_NATIVE_TIMING
+    uint16_t offset,segment;timing_saved_words(&offset,&segment);
+    TimerLifetime life=native_timing_world()->lifetime;
+#else
     uint16_t offset=rd16(DATA_SEG,D(PreviousInt08Offset)),segment=rd16(DATA_SEG,D(PreviousInt08Segment));
     TimerLifetime life={lifetime_binding(segment,offset,1)};
+#endif
     TimerLifetimeRequest request; timer_lifetime_restore(&state,&life,&request);
     if (request.kind==TIMER_LIFETIME_NONE) return UGH_OK;
     if (request.kind!=TIMER_LIFETIME_BIND_SAVED || request.binding.identity!=1) return UGH_UNSUPPORTED;
+#ifdef UGH_NATIVE_TIMING
+    if(r->cs==TIMER_SEG)native_timing_world()->timer.installed=state.installed;else
+#endif
     wr16(r->cs,T(TimerInterruptInstalled),state.installed);
     uint16_t saved_ds=r->ds;
     r->dx=offset; r->ds=segment; r->ax=0x2508;
     int status=platform_interrupt(0x21,r); if (status) return status;
-    lifetime_project(&state,open); state.installed=rd16(r->cs,T(TimerInterruptInstalled));
+    lifetime_project(&state,open); state.installed=LIFETIME_INSTALLED_VIEW;
     if (!timer_lifetime_consume(&state,&life,&request,TIMER_LIFETIME_BIND_SAVED,life.saved) ||
         request.kind!=TIMER_LIFETIME_RESET_PIT) return UGH_UNSUPPORTED;
     set_al(r,request.pit_command); platform_out(0x43,1,(uint8_t)r->ax);
     set_al(r,(uint8_t)logic(r,request.pit_low,8)); platform_out(0x40,1,request.pit_low);
     platform_out(0x40,1,request.pit_high);
     r->ds=saved_ds;
-    lifetime_project(&state,open); state.installed=rd16(r->cs,T(TimerInterruptInstalled));
+    lifetime_project(&state,open); state.installed=LIFETIME_INSTALLED_VIEW;
     if (!timer_lifetime_consume(&state,&life,&request,TIMER_LIFETIME_RESET_PIT,life.saved) ||
         request.kind!=TIMER_LIFETIME_NONE) return UGH_UNSUPPORTED;
     return UGH_OK;
 }
 
 EXPORT int c_ChainSavedTimerInterrupt(Regs *r) {
+#ifdef UGH_NATIVE_TIMING
+    uint16_t segment,offset;TimerLifetime life;
+    if(r->ds==DATA_SEG){timing_saved_words(&offset,&segment);life=native_timing_world()->lifetime;}
+    else {segment=rd16(r->ds,D(PreviousInt08Segment));offset=rd16(r->ds,D(PreviousInt08Offset));life=(TimerLifetime){lifetime_binding(segment,offset,1)};}
+#else
     uint16_t segment=rd16(r->ds,D(PreviousInt08Segment)),offset=rd16(r->ds,D(PreviousInt08Offset));
     TimerLifetime life={lifetime_binding(segment,offset,1)};
+#endif
     TimerLifetimeRequest request; timer_lifetime_chain(&life,&request);
     if (request.kind!=TIMER_LIFETIME_DELIVER || request.binding.identity!=1) return UGH_UNSUPPORTED;
     if (request.enable_interrupts) flag(r,IF,1);
@@ -184,7 +231,11 @@ static int lifetime_stack(Regs *r, unsigned kind, uint16_t return_offset) {
     r->sp=(uint16_t)(r->sp-4);
     wr16(r->ss,r->sp,return_offset); wr16(r->ss,(uint16_t)(r->sp+2),r->cs);
     TimerState state; uint16_t open[32]; lifetime_project(&state,open);
+#ifdef UGH_NATIVE_TIMING
+    uint16_t last=native_timing_world()->last_offset;
+#else
     uint16_t last=rd16(DATA_SEG,D(LastActiveTimerSlotOffset));
+#endif
     TimerApiResult result;
     int admitted=!(last&1) && last<=30 && timer_lifetime_apply(&state,&request,&result);
     if (admitted) {

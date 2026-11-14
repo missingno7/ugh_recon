@@ -2,7 +2,7 @@
 
 static uint16_t audio_adlx_word(AudioCursor input,uint16_t offset)
 {
-    return (uint16_t)(input.window[offset]+(unsigned)input.window[(unsigned)offset+1]*256u);
+    return (uint16_t)(AUDIO_BYTE(input.window,offset)+(unsigned)AUDIO_BYTE(input.window,(unsigned)offset+1)*256u);
 }
 static uint32_t audio_adlx_size(AudioCursor input,uint16_t offset)
 {
@@ -13,7 +13,7 @@ static uint32_t audio_adlx_size(AudioCursor input,uint16_t offset)
 }
 static int audio_adlx_tag(AudioCursor input,uint16_t offset,const char tag[4])
 {
-    for(unsigned i=0;i<4;i++) if(input.window[(uint16_t)(offset+i)]!=(uint8_t)tag[i]) return 0;
+    for(unsigned i=0;i<4;i++) if(AUDIO_BYTE(input.window,(uint16_t)(offset+i))!=(uint8_t)tag[i]) return 0;
     return 1;
 }
 AudioAdlxLoadResult audio_adlx_load(AudioState *state,uint16_t channel,
@@ -42,7 +42,7 @@ AudioAdlxLoadResult audio_adlx_load(AudioState *state,uint16_t channel,
     if(!audio_adlx_tag(*input,track,"TRCK")) return result;
     if(channel!=AUDIO_MAIN_CHANNEL) {
         result.stage=AUDIO_ADLX_CAPACITY;
-        if(input->window[(uint16_t)(header+10)]>(uint16_t)(9-state->reserved_voices)) return result;
+        if(AUDIO_BYTE(input->window,(uint16_t)(header+10))>(uint16_t)(9-state->reserved_voices)) return result;
     } else {
         result.main_map=1;result.instrument_map=*input;result.instrument_map.index=(uint16_t)(map+8);
         state->ticks_per_unit=audio_adlx_word(*input,(uint16_t)(header+14));
@@ -51,7 +51,7 @@ AudioAdlxLoadResult audio_adlx_load(AudioState *state,uint16_t channel,
     size=audio_adlx_size(*input,(uint16_t)(root+4));
     result.swaps++;result.swap_high=(uint16_t)(size>>16);
     dest->length=(uint16_t)((uint16_t)size-34u);
-    dest->voice_count=input->window[(uint16_t)(header+10)];
+    dest->voice_count=AUDIO_BYTE(input->window,(uint16_t)(header+10));
     dest->cursor=*input;dest->start=*input;dest->control=4;
     if(!repeats) dest->control|=2;else dest->repeats=repeats;
     result.stage=AUDIO_ADLX_LOADED;result.value=1;return result;

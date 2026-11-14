@@ -244,7 +244,7 @@
     "native/adlx_effects.h": "89fd75bd98516b98178986632b69ab0e1c58dc37d91ab0e08095ce5729e98be6",
     "native/adlx_main.c": "2e624d0ee0ea20d647b54d811671f52c50706e0cb34529c7bd8ac8c18e0dec42",
     "native/adlx_main.h": "a67988ae0fa9f4d2c5d0451f02851385a900f96a6fba67c56e4764ffc10469f6",
-    "native/audio.h": "e14ee8e39125b55ced910d17214acddfcd9fb0339192990487dca22dd3e04a5a",
+    "native/audio.h": "31e4dd978a7ecc91d8dfb6de250c7e9f6ef4377bc5b1d3c413df749e94a2a780",
     "native/bridge/adlx_allocation_bridge.c": "ce1bbd8ff5cc2b57bb0ea50a8aa1b667a42cb3e379f5daf26df92de3a7ee6256",
     "native/bridge/adlx_effects_bridge.c": "720a905d58d47e2c13f342fc2d174c964f17b09a69455dd3b2b34cac8ba8253e",
     "native/bridge/adlx_main_bridge.c": "91f38d4455d13917b3c7cf4a9fb89a02963be5cf509374e4570d81407f03c9c0",
@@ -264,7 +264,8 @@
     "verif/adlx_effects_corpus.py": "62d8d968857d2a8510b978e010087640abd4e4b6e46408b4d8a76dca958fd225",
     "verif/adlx_effects_harness.c": "e55ad7c704673730bc0a968724b7fa946df37a032724addcfb052b761a059849",
     "verif/adlx_effects_integration.py": "3cb136d4fdf1abe707c53801cc74d35f8fa036e59d1134a21ad9e86590ba8c5c",
-    "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde"
+    "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
+    "native/audio_bytes.h": "46874b2057f9a2083c503638b79b8d31c1af667a56079bac35945d6fdc612b22"
   },
   "evidence_refreshed": [
     {
@@ -273,6 +274,18 @@
       "field": "uncertainty.2",
       "inputs": [
         "metadata/closure/adlx_loader.json"
+      ]
+    },
+    {
+      "date": "2026-11-14",
+      "reason": "Native timing composition profile/source and integration tooling; accepted claims/status unchanged",
+      "commands": [
+        "python verif/timing_composition.py --gate"
+      ],
+      "results": "PASS: default profile preprocessed identity/unchanged algorithms; compiled replay and 21/21 native/literal integration. No old claim widened.",
+      "inputs": [
+        "native/audio.h",
+        "native/audio_bytes.h"
       ]
     }
   ]

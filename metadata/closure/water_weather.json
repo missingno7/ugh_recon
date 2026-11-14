@@ -1,0 +1,1959 @@
+{
+  "component": "water_weather",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "original": {
+    "owned": [
+      {
+        "identity": "GAME:AdvanceWaterSurface",
+        "address": "013B:2D1C",
+        "l1": "c_AdvanceWaterSurface"
+      },
+      {
+        "identity": "GAME:DrawWaterSurface",
+        "address": "013B:2DB9",
+        "l1": "c_DrawWaterSurface"
+      },
+      {
+        "identity": "GAME:DrawWaterSurfaceFrame0",
+        "address": "013B:2E03",
+        "l1": "c_DrawWaterSurfaceFrame0"
+      },
+      {
+        "identity": "GAME:DrawWaterSurfaceFrame1",
+        "address": "013B:31CD",
+        "l1": "c_DrawWaterSurfaceFrame1"
+      },
+      {
+        "identity": "GAME:DrawWaterSurfaceFrame2",
+        "address": "013B:3597",
+        "l1": "c_DrawWaterSurfaceFrame2"
+      },
+      {
+        "identity": "GAME:AdvanceRainParticles",
+        "address": "013B:3C78",
+        "l1": "c_AdvanceRainParticles"
+      },
+      {
+        "identity": "GAME:RespawnRainParticle",
+        "address": "013B:3C35",
+        "l1": "c_RespawnRainParticle"
+      },
+      {
+        "identity": "GAME:DrawRainParticles",
+        "address": "013B:3D19",
+        "l1": "c_DrawRainParticles"
+      },
+      {
+        "identity": "GAME:RestoreRainBackground",
+        "address": "013B:3CDE",
+        "l1": "c_RestoreRainBackground"
+      }
+    ],
+    "l1": [
+      "c/actors_states.c",
+      "c/items_water.c",
+      "c/render.c",
+      "c/render_primitives.c"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/water_weather.h",
+      "native/water_weather.c",
+      "native/bridge/water_weather_bridge.c"
+    ],
+    "header": "native/water_weather.h",
+    "functions": [
+      "water_weather_advance",
+      "water_weather_marked",
+      "water_weather_prepare",
+      "weather_particle_advance",
+      "weather_particle_request",
+      "weather_particle_spawn",
+      "weather_particle_draw",
+      "weather_particle_restore",
+      "weather_frame_begin",
+      "weather_frame_next",
+      "weather_frame_color",
+      "weather_first_particle",
+      "weather_previous_particle",
+      "weather_more_particles",
+      "weather_plane_mask"
+    ],
+    "build": "python verif/water_weather_build.py"
+  },
+  "purpose": "Water animation/advancement and rain lifecycle over borrowed existing level/particle state, with ordered native writes, random requests and image-cell rendering/restoration decisions. Synchronous pixel transactions retain the existing physical service implementation.",
+  "interface": {
+    "inputs": [
+      "All scalar water fixed/pixel/previous Y, raw frame and retained byte position words; countdown, phase and pending bytes; full increment word, row-stride byte and direction byte. No positivity, initialized-cache or Boolean-phase restriction.",
+      "Selected particle current/previous image-cell position and full modulo word.193 physical slots, descending iteration with original wrapping word counter.",
+      "Respawn consumes exactly one closed RNG draw with wrapping320+surface bound, including zero. Reply is admitted as any16-bit word; actual RNG recurrence/state remains with its accepted owner.",
+      "Frame cursors borrow five arbitrary color bytes and a raw eight-bit initial mask. Frame recipes0..2 each have320 cells; constructor/valid continuation state and ordinary disjoint input/output storage are required."
+    ],
+    "outputs": [
+      "Ordered global/selected-particle stores, background mark/restore requests, frame-tail key/position, one RNG request, conditional respawn request, image-cell draw/copy requests, and plane-mask changes.",
+      "State and pixel selection follow the native results; the bridge checks exact field/address/width/value, origin, mask, frame key and complete normal consumption. Working projection is checked at matching pre-service cuts."
+    ],
+    "effects": [
+      "Water mark is one fixed pixel-service transaction: descending80 live background reads/writes of40h under GC8=40h/GC3=10h, followed by prescribed resets. Native chooses its wrapping relative position; the service owns live latches and inherited VGA configuration.",
+      "Rain restore copies live physical A000 background cells to draw cells under GC bit mask0, leaving inherited sequencer map mask and write/read modes intact; final maskFF. Rain draw and both restore routines deliberately use physical A000 and page offsets, whereas water surface tails and marking honor full original segment:offset pointers.",
+      "All real RNG calls keep original near return words and state updates. Outer loop/index helpers preserve descending order and signed post-test, including an iteration before a negative initial counter is tested.",
+      "The three frame streams emit exactly320 ordered pixels and three raw-mask shifts plus finalF. Actual physical byte writes, port setup/teardown, stack restoration and machine flags stay in the checked service/ABI shell."
+    ],
+    "preconditions": [
+      "Ordinary disjoint native state, input resources, data/code and stack; synchronous pixel services do not modify the projected simulation arrays/globals. No asynchronous mutation between import/publication/service cuts.",
+      "Native bridge admission: canonical code/data segments and even selected particle index<386. Whole rain loops use native slot operations only when their wrapping initial index is<386. Other bindings/index domains retain the complete literal shell; full-word counter arithmetic itself is proved independently.",
+      "Water draw preparation admits full scalar words in the native API. Bridge dispatch uses native preparation when the doubled frame key resolves to the expected registered frame0/1/2; unknown/corrupt table targets keep literal compatibility before partial publication. Aliases8000h..8002h are retained when their doubled key is valid.",
+      "Pixel/frame/page resources and real callees keep their existing contracts. No safety/clipping interpretation is invented for malformed overlapping resources. Direct frame tails require their original saved-DS tail frame; live colors and raw mask are not normalized."
+    ]
+  },
+  "callers": [
+    "RunGameFromPassword: water advance and background restore before later simulation/drawing, rain advance/draw before DrawWaterSurface updates the retained byte position, then page swap.",
+    "LoadCurrentLevelState clears193 current/previous positions; on nonzero direction it performs193 respawns and577 advances. It does not recompute WaterSurfaceByteOffset for prewarming.",
+    "Attract-map preparation and the accepted demo runner call water drawing. DrawWaterSurface tail-dispatches through its existing three-entry resource table."
+  ],
+  "callees": {
+    "native": [
+      "water_weather_advance",
+      "water_weather_prepare",
+      "weather_particle_advance",
+      "weather_particle_spawn",
+      "weather_frame_next"
+    ],
+    "services": [
+      "NextRandomBelowAx (closed random unit)",
+      "RestoreBackgroundRectangle (synchronous existing service)",
+      "Fixed water/rain pixel transactions and original VGA aperture access"
+    ]
+  },
+  "indirect": {
+    "targets": [
+      "DrawWaterSurfaceFrame0",
+      "DrawWaterSurfaceFrame1",
+      "DrawWaterSurfaceFrame2"
+    ],
+    "classification": "Registered frame table, wrapping doubled key and original tail ABI. Unknown targets use explicit checked literal compatibility. No new actor callback or session role."
+  },
+  "memory": {
+    "owned": [
+      "Operations on WaterSurfaceByteOffset, WaterSurfaceFrame, WaterSurfaceFrameCountdown, WaterStepPhase, WaterRestorePending and193 current/previous/modulo rain words. Only the declared low bytes are written for phase/countdown/pending.",
+      "The water advancement operation updates existing shared WaterY32/WaterYPixels/PreviousWaterSurfaceY. They remain canonical shared level state with loader/menu writers; WaterWeatherState and WeatherParticle are working projections, never second persistent owners."
+    ],
+    "borrowed": [
+      "WaterSurfaceStep, row stride, direction and shared surface value; rendering pages, live pixel/latch state and color operands; existing random state through its service.",
+      "Other readers retain their original field bindings. No actor scratch alias, passenger phase field, player position/cache, input or audio state is owned here."
+    ],
+    "projection": "Actual full water/particle projectors and imports have independent properties. After a mark service the native marked continuation updates pending before the rectangle tail; before a respawn tail the parent particle snapshot agrees, then the child owns its own poststate. No parent snapshot is compared against a child-mutated state."
+  },
+  "assumptions": [
+    "B uses actual compiled C bodies, small ordinary-RAM normalization, one arbitrary physical selected slot, arbitrary observation index plus total count, independent native/resource byte frames and inactive-input dependence. All scalar boundaries remain symbolic.",
+    "The80-cell water mark and rectangle/frame pixel services are synchronous boundaries with unchanged checked literal implementations. Their endpoints may supply arbitrary shared register/flag results subject to their data/segment/stack frames; caller proofs do not substitute a model of VGA internals.",
+    "Full-word initial/index/SUB-post-test and masked-shift properties, arbitrary-slot output/frame properties and checked complete outer loops compose the physical193-slot scans. The native frame event transition, every320-cell recipe and constructor are separately checked; fixed four-plane/80-cell shell loops are retained literally.",
+    "RNG bound/selected slot are checked and supplied from native results. Its existing ordinary-CS-state/disjoint-stack contract discharges recurrence and data frames; real RNG order/count is independently compared with L0, including loader prewarming.",
+    "Pixel services and complete-loop/session composition have independent C/D evidence. No global formal machine/device equivalence, arbitrary corrupted-resource alias theorem or overall A status is claimed."
+  ],
+  "eliminated": [
+    "Ordinary native code has no Regs, addresses, memory accessors, ports, dispatch or stack layout. Relative image cells retain required word arithmetic; the platform supplies their physical mapping.",
+    "No mode/level-entry reset or new owner for shared water Y, pending/frame history or dry-level modulo words is introduced. No clipping, positive-delay saturation, normalized modulo input, extra random draw or retry is introduced."
+  ],
+  "retained": [
+    "Pending nonzero clears and restores without advancing. Otherwise save previous pixel Y, XOR the full phase byte with1 and increment only if the result is zero; negative wrapped fixed-Y result clamps to zero only on that increment path. SAR5 and pixel equality are raw words. A changed row marks background, decrements pending0 toFF and restores; the following pending call restores again for the alternate page.",
+    "DEC8/JNS countdown:80h becomes7Fh without reload, zero becomesFFh then reloads6. Expiry decrements the frame word and replaces a signed-negative result with2. Doubling the raw frame and page-cell additions wrap.",
+    "Advance and restore begin at2*(surface+1), draw at2*surface; every loop is do/SUB/JNS. Extra last particles and wrapped/negative initial counters remain literal. Loader initializes193 current/previous cells but leaves dry-level modulo words stale.",
+    "Rain adds192 cells, plus96 on even slot parity; horizontal drift is(direction-1)*2-1, repeated twice or three times. TEST00FCh ignores high bits before modulo&3. Boundary comparison is unsigned against the retained WaterSurfaceByteOffset, not recomputed from current Y.",
+    "Respawn always draws once: values<320 spawn at top; other values subtract320 and use left/right edge according to exact direction==1. Only the low vertical byte participates in row-stride multiplication. Random bound zero still advances the closed generator.",
+    "Rain drawing uses286 count masking&31, then an eight-bit1<<count or zero; full modulo words are not normalized before this operation. All cell/page additions wrap, no clipping.",
+    "Water mark reads screen cells before writing and inherits map mask/write/read mode. Rain restore reads background even with map mask0; it refreshes all four latches and copies only enabled planes. Background/draw page segments are deliberately ignored by rain operations. The last read owns final latches."
+  ],
+  "evidence": [
+    {
+      "property": "Checked operation/service inventory",
+      "level": "B",
+      "command": "python verif/water_weather_coverage.py",
+      "result": "PASS nine handlers,960 store operands and water access census",
+      "method": "Actual output pieces cover the entire water advance with the unchanged80-cell pixel service contracted at equal input/working-state cuts, full-word animation preparation, post-mark pending update, each rain motion/respawn/draw/restore operation, every frame-cell recipe and cursor transition. Independent native/resource byte frames and inactive-input dependence complete state coverage. Full-word index/post-test and masked-shift properties compose the descending physical-slot loop; per-slot output permits arbitrary physical index<193. The checked complete ABI shells retain flags/registers/stack and fixed pixel-service setup/teardown. Request address/width/value and selected frame/mask are consumed from native results; pending RNG/pixel work and unconsumed normal output are rejected. Actual pixel/latch services, RNG recurrence and complete-loop composition retain their existing contracts and independent full-RAM C/D comparisons. No claim of a formal VGA implementation or unrestricted malformed-resource alias theorem.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "advance-water outputs",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py advance-water outputs",
+      "result": "PASS 6.857s; peak private 65503232 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\advance-water-outputs\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "5475b269c095b714d1f3e9c12a9496e4afad6d31758ad07af4f4e94fe8028811",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "marked outputs",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py marked outputs",
+      "result": "PASS 0.354s; peak private 37777408 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\marked-outputs\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "09b92a92ca4a21ec53f0a4531555c5cb1c242227fccee7578c394ffa32fe0845",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "prepare outputs",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py prepare outputs",
+      "result": "PASS 6.803s; peak private 51703808 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\prepare-outputs\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "3d382c1c66c02461be006588b4b3155c7ce6dcc606a98eabe7a2dc55a191530a",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "advance-particle outputs",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py advance-particle outputs",
+      "result": "PASS 26.571s; peak private 126943232 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\advance-particle-outputs\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "837eeb20e3f247a83d6beed8ed87acf177aebe510e1f7104a68f5d55ae2646a7",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "spawn outputs",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py spawn outputs",
+      "result": "PASS 14.055s; peak private 80433152 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\spawn-outputs\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "39360f3322fb67bd212412b3449400f3f66d79ed022797aa39079594dd02aca2",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "draw-particle outputs",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py draw-particle outputs",
+      "result": "PASS 0.445s; peak private 47427584 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\draw-particle-outputs\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "b63e6af56fe53b73477b7446e5f5826a7e7dc5962493c9d15728dc6a7c422b94",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "restore-particle outputs",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py restore-particle outputs",
+      "result": "PASS 0.495s; peak private 51871744 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\restore-particle-outputs\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "b4038a54c073fe5fa70b3569da0463d93656b68de775f1bdc3d9b774452acea6",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "index outputs",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py index outputs",
+      "result": "PASS 0.046s; peak private 10813440 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\index-outputs\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "aad7080c2498872cc7284369cdfe15521006654ccf69be5cceabb9101b857064",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "mask outputs",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py mask outputs",
+      "result": "PASS 0.038s; peak private 10174464 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\mask-outputs\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "8a558fc530373dddb82f2b35efc88b79728af8c82ecd57116c54dcfb3c869d6e",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "frame-color outputs",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py frame-color outputs",
+      "result": "PASS 0.106s; peak private 16379904 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\frame-color-outputs\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "df24f31a4efff1989aa92aeabbac54e01eb262022c54b24a9260b05e6d44a6e2",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "cursor outputs",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py cursor outputs",
+      "result": "PASS 0.119s; peak private 18636800 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\cursor-outputs\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "a52b8b7cf1cdf79bc3eccc4fdb33ff04f58201c8ac0a08e72b32a249a1c76cdc",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "frame-begin outputs",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py frame-begin outputs",
+      "result": "PASS 0.043s; peak private 10211328 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\frame-begin-outputs\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "4951cb1d8dab1ae02e14d9ea7ff155bc1cf1986ce6d26ca4d60ee715a46b4bc9",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "request outputs",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py request outputs",
+      "result": "PASS 0.043s; peak private 10440704 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\request-outputs\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "2cc336ea84ee429e650a277b40fc499ba3cf58d3b206d5e609a67a55f5efa7b8",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "advance-water frame",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py advance-water frame",
+      "result": "PASS 0.074s; peak private 12562432 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\advance-water-frame\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "7b728c019bec0b91eb10799709fc65c12c7edcf7dae62804eb1d9a25a261ae55",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "advance-water dependence",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py advance-water dependence",
+      "result": "PASS 2.091s; peak private 14348288 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\advance-water-dependence\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "08fb8bd2b4b10ff0b140a30606752d403997d389d49f69a2f131cd1c91b5f1bd",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "marked frame",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py marked frame",
+      "result": "PASS 0.050s; peak private 11325440 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\marked-frame\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "5c7bf23d420825f127c46abcd9bb9ae8b559210892ff94839810baa305726a14",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "marked dependence",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py marked dependence",
+      "result": "PASS 0.046s; peak private 10424320 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\marked-dependence\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "0935076bf9191b2b3b712f0e70062569888bb685b812a98184168ce864488a52",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "prepare frame",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py prepare frame",
+      "result": "PASS 0.062s; peak private 12038144 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\prepare-frame\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "41d6dcf8aef5d10263cebdccacc4fd55f03b39b3be923a52ef00df6c2000db3c",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "prepare dependence",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py prepare dependence",
+      "result": "PASS 3.411s; peak private 14000128 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\prepare-dependence\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "6dc7be29af1cbe02c29cff6e3a5d5211dbd4f61027b433cde0c33b9bae006251",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "advance-particle frame",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py advance-particle frame",
+      "result": "PASS 0.062s; peak private 11784192 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\advance-particle-frame\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "e28556ee5ad86c160bb319a091aacb56432efa2a9a5f88391faf31ff2ee7c6bc",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "advance-particle dependence",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py advance-particle dependence",
+      "result": "PASS 0.118s; peak private 11759616 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\advance-particle-dependence\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "2944e760d87168b7b9d333b7c4644c517deb955a97be1a2c3a4f5142bd35bd85",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "spawn frame",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py spawn frame",
+      "result": "PASS 0.052s; peak private 11722752 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\spawn-frame\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "e53c931119f8c6c2b1d5247c48acad53af356928a0cda1c89b3c889fe43d8e5a",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "spawn dependence",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py spawn dependence",
+      "result": "PASS 10.439s; peak private 13877248 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\spawn-dependence\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "4461c4b142be5e3dc9c35d219d13d01abc41d4b87db577f371599d25ecb6a9a1",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "request frame",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py request frame",
+      "result": "PASS 0.047s; peak private 11165696 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\request-frame\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "205827af7aed76cc6df5a37f53975628ec171d055be8a0b20aa6683924c14f82",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "request dependence",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py request dependence",
+      "result": "PASS 0.045s; peak private 10203136 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\request-dependence\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "59c97e983d31a8b1d61f5232ac07909069ce3c353c97fe24abb7202145fc6ca2",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "draw-particle frame",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py draw-particle frame",
+      "result": "PASS 0.048s; peak private 11153408 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\draw-particle-frame\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "3398fbbaf339e0b354b1da6c67240612530ab4c8eaf830262f53c24222b6b6b5",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "draw-particle dependence",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py draw-particle dependence",
+      "result": "PASS 0.046s; peak private 10563584 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\draw-particle-dependence\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "ed98de9f0ee1d8804d0cf6a9e31688aeab87a48dea505793b4826afecd0557e0",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "restore-particle frame",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py restore-particle frame",
+      "result": "PASS 0.053s; peak private 11042816 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\restore-particle-frame\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "135bd985d654cd0ae151973b198b14ccf15ea3152611d2b646fd6e1702ee3a7a",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "restore-particle dependence",
+      "level": "B",
+      "command": "python verif/water_weather_proof.py restore-particle dependence",
+      "result": "PASS 0.045s; peak private 10047488 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\proofs\\restore-particle-dependence\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "40be930d74c5c732193233491f01fcf5666cc08729f289bdb3c61005453417cc",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "open",
+      "level": "B",
+      "command": "python verif/water_weather_kernel.py open",
+      "result": "PASS 0.247s; peak private 31936512 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\kernel\\open\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "1e05a27105863aa29c5fced6fc553cb26c8b5c90b052388ed8f99d7fb9366d62",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "projection",
+      "level": "B",
+      "command": "python verif/water_weather_kernel.py projection",
+      "result": "PASS 0.262s; peak private 32714752 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\kernel\\projection\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "7888efe9843939bd11571f166ff73b066a1bc6de2a72be49cc06f435c7ffdfb5",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "store",
+      "level": "B",
+      "command": "python verif/water_weather_kernel.py store",
+      "result": "PASS 0.275s; peak private 35663872 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\kernel\\store\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "bf9963917b65e43e944e95d80f1cd2531fe22c6cc42f93a4db0f4db212b64830",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "complete",
+      "level": "B",
+      "command": "python verif/water_weather_kernel.py complete",
+      "result": "PASS 0.252s; peak private 31858688 bytes",
+      "method": "Actual C; pointer/bounds/signed-overflow/unwinding assertions enabled. Exact output/frame/dependence/protocol scope is stated in the inventory and assumptions.",
+      "date": "2026-11-14",
+      "profile": {
+        "receipt": "build\\workers\\close-stones-9\\kernel\\complete\\result.json",
+        "unwind": 40,
+        "preprocessed_sha256": "8dbe63de78a891061b0339a877658a92da7ecec40165b897f3968ce5176b6147",
+        "backend": "SAT",
+        "hard_private_limit_bytes": 8589934592
+      }
+    },
+    {
+      "property": "Complete masked-plane domain",
+      "level": "A",
+      "command": "python verif/water_weather_enumerate.py",
+      "result": "PASS all65536 modulo words",
+      "method": "Actual C masked-shift expression and maintained native API, complete pure scalar output domain. Not A for the water/weather component.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Compiled scalar domains and ordered transactions",
+      "level": "C",
+      "command": "python verif/water_weather_cases.py; python verif/water_weather_enumerate.py",
+      "result": "PASS 427680 complete C comparisons; five full-word slices and full frame/service transactions; PASS all65536 masked-plane and index words, both initial count conventions; 1228800 actual compiled color selector cases",
+      "method": "Five full-word primary-value slices with generated other inputs, full raw frame-tail colors/masks, registered table aliases, and1228800 actual color-selector cases. These are not a full Cartesian state enumeration.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Private request and state mutants",
+      "level": "C",
+      "command": "python verif/water_weather_mutants.py",
+      "result": "PASS all12 detected; seven DETECTED_BY_BRIDGE",
+      "method": "Includes random bound, mask, copy/mark position, frame key, unconsumed output and final mask. Compilation errors do not count as detections.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "L0 to composed routine suites",
+      "level": "C",
+      "command": "python verif/water_weather_integration.py --whole --local-reference",
+      "result": "PASS3338 comparisons",
+      "method": "Seven maintained suites and inherited VGA-mode/map-mask/read-mode cases, normal/poisoned; complete RAM, device state, registers/defined flags and ordered IO.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Committed whole-game baseline and shipped rain",
+      "level": "D",
+      "command": "python verif/water_weather_integration.py --whole --local-reference",
+      "result": "PASS20 maintained scenarios plus256-frame AFTERTHERAIN witness",
+      "method": "Per-entry counts attached. Rain witness has827 advances,2795 respawns,250 draws and250 restores; maintained water traces have no rain.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Actual scratch promotion",
+      "level": "D",
+      "command": "python verif/water_weather_host.py",
+      "result": "PASS unmodified closure/build/native check,20 scenarios and256-frame smoke",
+      "method": "Committed baseline plus owned overlay only; only scratch water_weather status is promoted.",
+      "date": "2026-11-14"
+    }
+  ],
+  "amiga": {
+    "classification": "Meaning only",
+    "finding": "docs/amiga.md water079BC increments each call and stores only a signed-positive result; DOS toggles phase, wraps and clamps as documented. Copper/blitter water presentation has no proven pixel, timing or rain-layout equality with DOS."
+  },
+  "uncertainty": [
+    "Only review sets the accepted component status. Existing renderer/session-shell debt is unchanged; this unit replaces service callees, not the session body.",
+    "The maintained AdvanceWaterSurface entry is013B:2D1C; the supervisor corrected architecture/Amiga entry references in1353f64. docs/data.md retains2D2F as an access-site reference.",
+    "Both maintained water scenarios reach water, not rain. The shipped AFTERTHERAIN witness is needed for rain integration; no reachability claim is inferred from a scenario name."
+  ],
+  "dependencies": {
+    "native/water_weather.h": {
+      "includes": [
+        "stddef.h",
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/water_weather.c": {
+      "includes": [
+        "water_weather.h"
+      ],
+      "calls": [
+        "weather_frame_color",
+        "weather_plane_mask",
+        "weather_random_bound",
+        "ww_append",
+        "ww_signed",
+        "ww_store"
+      ]
+    },
+    "native/bridge/water_weather_bridge.c": {
+      "includes": [
+        "../water_weather.h",
+        "platform.h",
+        "stdlib.h"
+      ],
+      "calls": [
+        "B",
+        "D",
+        "G",
+        "R",
+        "RI",
+        "W",
+        "WI",
+        "abort",
+        "add16",
+        "byte_dec",
+        "byte_sub",
+        "cell",
+        "cmp8",
+        "dec16",
+        "dec8",
+        "flag",
+        "inc",
+        "logic",
+        "platform_out",
+        "pop",
+        "push",
+        "rd16",
+        "rd8",
+        "set_ah",
+        "set_al",
+        "shift",
+        "sub16",
+        "szp",
+        "ugh_call_near",
+        "ugh_dispatch",
+        "water_tail",
+        "water_weather_advance",
+        "water_weather_marked",
+        "water_weather_prepare",
+        "weather_first_particle",
+        "weather_frame_begin",
+        "weather_frame_next",
+        "weather_more_particles",
+        "weather_particle_advance",
+        "weather_particle_draw",
+        "weather_particle_request",
+        "weather_particle_restore",
+        "weather_particle_spawn",
+        "weather_previous_particle",
+        "wr16",
+        "wr8",
+        "ww_complete",
+        "ww_copy",
+        "ww_first",
+        "ww_frame_mask",
+        "ww_frame_pixel",
+        "ww_mark_begin",
+        "ww_mark_end",
+        "ww_mark_position",
+        "ww_open",
+        "ww_previous",
+        "ww_projection",
+        "ww_rain_admit",
+        "ww_rain_mask",
+        "ww_rain_pixel",
+        "ww_random",
+        "ww_read",
+        "ww_require",
+        "ww_respawn",
+        "ww_tail",
+        "ww_take",
+        "ww_write"
+      ]
+    }
+  },
+  "proposed_status_reason": "All33 current actual-C split properties, complete scalar/small-domain enumeration, compiled transactions,12 mutation controls, full-RAM L0 routine/whole-game comparisons and scratch closure/native host build/check pass.",
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-14",
+      "reason": "Acceptance replay on the supervisor-corrected committed baseline; previous music_clock lock blocker is superseded.",
+      "result": "Closure, host build,20 scenarios and256-frame smoke rerun; proof/case receipts reused only after every locked input matched.",
+      "inputs": [
+        "docs/architecture-model.md",
+        "docs/amiga.md"
+      ],
+      "receipt": "build\\workers\\close-stones-9\\acceptance-reuse.json",
+      "baseline": "1353f64a04a97bab8356aeb070a7627e785c760b"
+    }
+  ],
+  "water_accesses": [
+    {
+      "source": "c/actors.c",
+      "function": "c_UpdatePassengerResurfacing",
+      "reads": [
+        "WaterYPixels"
+      ],
+      "writes": []
+    },
+    {
+      "source": "c/actors.c",
+      "function": "surface_y",
+      "reads": [
+        "WaterYPixels"
+      ],
+      "writes": []
+    },
+    {
+      "source": "c/actors.c",
+      "function": "c_UpdatePassengerFloating",
+      "reads": [
+        "WaterYPixels"
+      ],
+      "writes": []
+    },
+    {
+      "source": "c/actors.c",
+      "function": "c_UpdateFloatingDestinationDisplay",
+      "reads": [
+        "WaterYPixels"
+      ],
+      "writes": []
+    },
+    {
+      "source": "c/actors.c",
+      "function": "c_UpdateFloatingPassengerApproach",
+      "reads": [
+        "WaterYPixels"
+      ],
+      "writes": []
+    },
+    {
+      "source": "c/actors_states.c",
+      "function": "c_LaunchBirdTowardPlayer",
+      "reads": [
+        "WaterY32"
+      ],
+      "writes": []
+    },
+    {
+      "source": "c/actors_states.c",
+      "function": "submerged",
+      "reads": [
+        "WaterYPixels"
+      ],
+      "writes": []
+    },
+    {
+      "source": "c/actors_states.c",
+      "function": "water_swap",
+      "reads": [
+        "WaterYPixels"
+      ],
+      "writes": []
+    },
+    {
+      "source": "c/actors_states.c",
+      "function": "c_AdvanceWaterSurface",
+      "reads": [
+        "WaterY32",
+        "WaterYPixels",
+        "PreviousWaterSurfaceY",
+        "WaterSurfaceStep"
+      ],
+      "writes": [
+        "WaterY32",
+        "WaterYPixels",
+        "PreviousWaterSurfaceY"
+      ]
+    },
+    {
+      "source": "c/items_water.c",
+      "function": "c_DrawWaterSurface",
+      "reads": [
+        "WaterYPixels"
+      ],
+      "writes": []
+    },
+    {
+      "source": "c/menu.c",
+      "function": "c_ShowHighScores",
+      "reads": [],
+      "writes": [
+        "WaterYPixels"
+      ]
+    },
+    {
+      "source": "c/menu.c",
+      "function": "prepare_attract_map",
+      "reads": [
+        "WaterYPixels"
+      ],
+      "writes": []
+    },
+    {
+      "source": "c/menu.c",
+      "function": "c_PrepareAttractMap90",
+      "reads": [],
+      "writes": [
+        "WaterYPixels"
+      ]
+    },
+    {
+      "source": "c/menu.c",
+      "function": "c_PrepareAttractMap0",
+      "reads": [],
+      "writes": [
+        "WaterYPixels"
+      ]
+    },
+    {
+      "source": "c/menu.c",
+      "function": "c_SelectPlayerControls",
+      "reads": [],
+      "writes": [
+        "WaterYPixels"
+      ]
+    },
+    {
+      "source": "c/menu.c",
+      "function": "c_ShowLevelIntroduction",
+      "reads": [
+        "WaterYPixels"
+      ],
+      "writes": [
+        "WaterYPixels"
+      ]
+    },
+    {
+      "source": "c/menu.c",
+      "function": "c_RunMainMenuAndAttractLoop",
+      "reads": [],
+      "writes": [
+        "WaterYPixels"
+      ]
+    },
+    {
+      "source": "c/menu.c",
+      "function": "c_InsertHighScoreAndClearScore",
+      "reads": [],
+      "writes": [
+        "WaterYPixels"
+      ]
+    },
+    {
+      "source": "c/render.c",
+      "function": "c_RespawnRainParticle",
+      "reads": [
+        "WaterYPixels"
+      ],
+      "writes": []
+    },
+    {
+      "source": "c/render.c",
+      "function": "c_AdvanceRainParticles",
+      "reads": [
+        "WaterYPixels"
+      ],
+      "writes": []
+    },
+    {
+      "source": "c/render.c",
+      "function": "c_LoadCurrentLevelState",
+      "reads": [
+        "WaterY32"
+      ],
+      "writes": [
+        "WaterY32",
+        "WaterYPixels",
+        "PreviousWaterSurfaceY"
+      ]
+    },
+    {
+      "source": "c/render_primitives.c",
+      "function": "c_DrawRainParticles",
+      "reads": [
+        "WaterYPixels"
+      ],
+      "writes": []
+    },
+    {
+      "source": "c/render_primitives.c",
+      "function": "c_DrawTransparentSprite",
+      "reads": [
+        "WaterYPixels"
+      ],
+      "writes": []
+    },
+    {
+      "source": "c/render_primitives.c",
+      "function": "c_RestoreRainBackground",
+      "reads": [
+        "WaterYPixels"
+      ],
+      "writes": []
+    },
+    {
+      "source": "c/scene.c",
+      "function": "c_RunScriptedDemo",
+      "reads": [
+        "WaterYPixels"
+      ],
+      "writes": []
+    },
+    {
+      "source": "c/scene.c",
+      "function": "c_ShowCreditsPages",
+      "reads": [],
+      "writes": [
+        "WaterYPixels"
+      ]
+    },
+    {
+      "source": "c/scene.c",
+      "function": "c_MovePlayerWithVgaCollisions",
+      "reads": [
+        "WaterYPixels"
+      ],
+      "writes": []
+    },
+    {
+      "source": "c/render.c",
+      "function": "c_LoadCurrentLevelState",
+      "dynamic_write": "Backward26-byte CurrentLevelRecord copy also initializes WaterY32 and WaterSurfaceStep from the level record; subsequent explicit scaling/cap writes WaterY32 and pixel/previous Y."
+    },
+    {
+      "shared_reader": "surface_y",
+      "callers": [
+        "actors.c:c_UpdatePassengerFloating",
+        "actors.c:c_UpdateFloatingDestinationDisplay",
+        "actors.c:c_UpdateFloatingQuestionDisplay",
+        "actors.c:c_UpdateFloatingPassengerApproach"
+      ]
+    },
+    {
+      "shared_reader": "submerged",
+      "callers": [
+        "actors_states.c:c_UpdatePassengerPlatformWait",
+        "actors_states.c:display",
+        "actors_states.c:c_UpdatePassengerApproach"
+      ]
+    },
+    {
+      "shared_reader": "water_swap",
+      "callers": [
+        "actors_states.c:c_UpdatePassengerPlatformWait",
+        "actors_states.c:display",
+        "actors_states.c:c_UpdatePassengerApproach"
+      ]
+    }
+  ],
+  "native_water_bindings": [
+    {
+      "bridge": "native/bridge/demo_presentation_bridge.c",
+      "fields": [
+        "WaterYPixels"
+      ]
+    },
+    {
+      "bridge": "native/bridge/hazards_bridge.c",
+      "fields": [
+        "WaterY32"
+      ]
+    },
+    {
+      "bridge": "native/bridge/passenger_delivery_bridge.c",
+      "fields": [
+        "WaterYPixels"
+      ]
+    },
+    {
+      "bridge": "native/bridge/passenger_water_bridge.c",
+      "fields": [
+        "WaterYPixels"
+      ]
+    },
+    {
+      "bridge": "native/bridge/player_physics_bridge.c",
+      "fields": [
+        "WaterYPixels"
+      ]
+    },
+    {
+      "bridge": "native/bridge/water_weather_bridge.c",
+      "fields": [
+        "WaterY32",
+        "WaterYPixels"
+      ]
+    }
+  ],
+  "entry_order": [
+    "AdvanceWaterSurface",
+    "DrawWaterSurface",
+    "DrawWaterSurfaceFrame0",
+    "DrawWaterSurfaceFrame1",
+    "DrawWaterSurfaceFrame2",
+    "AdvanceRainParticles",
+    "RespawnRainParticle",
+    "DrawRainParticles",
+    "RestoreRainBackground"
+  ],
+  "scenario_entry_counts": [
+    {
+      "scenario": "adlib",
+      "status": 0,
+      "entries": [
+        0,
+        3,
+        0,
+        0,
+        3,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "attract",
+      "status": 0,
+      "entries": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "completion",
+      "status": 0,
+      "entries": [
+        0,
+        159,
+        49,
+        54,
+        56,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "departure",
+      "status": 0,
+      "entries": [
+        2385,
+        2391,
+        791,
+        796,
+        804,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "dino",
+      "status": 0,
+      "entries": [
+        268,
+        274,
+        86,
+        91,
+        97,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "enemy",
+      "status": 0,
+      "entries": [
+        1072,
+        1078,
+        354,
+        357,
+        367,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "gameplay-adlib",
+      "status": 0,
+      "entries": [
+        946,
+        955,
+        306,
+        321,
+        328,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "gameplay",
+      "status": 0,
+      "entries": [
+        946,
+        955,
+        306,
+        321,
+        328,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "high-score",
+      "status": 0,
+      "entries": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "items-multiplier",
+      "status": 0,
+      "entries": [
+        809,
+        815,
+        266,
+        270,
+        279,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "items-timer",
+      "status": 0,
+      "entries": [
+        798,
+        804,
+        266,
+        266,
+        272,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "menu",
+      "status": 0,
+      "entries": [
+        0,
+        3,
+        0,
+        0,
+        3,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "passenger",
+      "status": 0,
+      "entries": [
+        1635,
+        1641,
+        543,
+        546,
+        552,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "password",
+      "status": 0,
+      "entries": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "pregame",
+      "status": 0,
+      "entries": [
+        0,
+        159,
+        49,
+        54,
+        56,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "reveal",
+      "status": 0,
+      "entries": [
+        0,
+        127,
+        42,
+        42,
+        43,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "startup",
+      "status": 0,
+      "entries": [
+        0,
+        5,
+        0,
+        0,
+        5,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "two-player",
+      "status": 0,
+      "entries": [
+        144,
+        150,
+        46,
+        49,
+        55,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "water-physics",
+      "status": 0,
+      "entries": [
+        2385,
+        2391,
+        791,
+        796,
+        804,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "water",
+      "status": 0,
+      "entries": [
+        5457,
+        5463,
+        1813,
+        1820,
+        1830,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "random-rain",
+      "status": 0,
+      "entries": [
+        250,
+        253,
+        82,
+        84,
+        87,
+        827,
+        2795,
+        250,
+        250
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "maximum_solver_overlap": 2,
+  "negative_results": [
+    {
+      "receipt": "build\\workers\\close-stones-9\\negative\\1794625589709329700-50120-FAIL\\result.json",
+      "result": "FAIL",
+      "returncode": 10,
+      "seconds": 0.03670490003423765,
+      "peak_private_bytes": 9043968,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-9\\negative-bound\\harness.i",
+        "--unwind",
+        "1",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--no-array-field-sensitivity"
+      ],
+      "failures": [
+        [
+          "weather_frame_begin.unwind.0",
+          "line 114 unwinding assertion loop 0"
+        ]
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-9\\negative\\1794625589908393300-82576-MEMORY_CAP\\result.json",
+      "result": "MEMORY_CAP",
+      "returncode": 1,
+      "seconds": 0.012899499968625605,
+      "peak_private_bytes": 6553600,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-9\\cap-control\\harness.i",
+        "--unwind",
+        "1",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace"
+      ],
+      "failures": []
+    },
+    {
+      "receipt": "build\\workers\\close-stones-9\\negative\\1794626786385611300-55344-MEMORY_CAP\\result.json",
+      "result": "MEMORY_CAP",
+      "returncode": 1,
+      "seconds": 0.016015199944376945,
+      "peak_private_bytes": 6500352,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-9\\committed-667761c7b7c1\\build\\workers\\close-stones-9\\cap-control\\harness.i",
+        "--unwind",
+        "1",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace"
+      ],
+      "failures": []
+    },
+    {
+      "receipt": "build\\workers\\close-stones-9\\negative\\1794626831097201600-44532-FAIL\\result.json",
+      "result": "FAIL",
+      "returncode": 10,
+      "seconds": 0.033279300027061254,
+      "peak_private_bytes": 9015296,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-9\\committed-667761c7b7c1\\build\\workers\\close-stones-9\\negative-bound\\harness.i",
+        "--unwind",
+        "1",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--no-array-field-sensitivity"
+      ],
+      "failures": [
+        [
+          "weather_frame_begin.unwind.0",
+          "line 114 unwinding assertion loop 0"
+        ]
+      ]
+    }
+  ],
+  "scratch_acceptance": {
+    "baseline": "1353f64a04a97bab8356aeb070a7627e785c760b",
+    "linked_units": [
+      "actor_render",
+      "actor_types",
+      "adlx_allocation",
+      "adlx_digital",
+      "adlx_effects",
+      "adlx_facade",
+      "adlx_lifetime",
+      "adlx_loader",
+      "adlx_main",
+      "adlx_music",
+      "adlx_samples",
+      "adlx_sections",
+      "adlx_voice",
+      "contacts",
+      "coordinate_scale",
+      "decimal",
+      "demo_core",
+      "demo_presentation",
+      "falling_items",
+      "far_copy",
+      "hazards",
+      "ice",
+      "level_view",
+      "music_clock",
+      "passenger_delivery",
+      "passenger_itinerary",
+      "passenger_water",
+      "player_physics",
+      "random",
+      "stones",
+      "timer",
+      "water_weather"
+    ]
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "native/water_weather.h": "376ea82167cd5afbee4ffb23f70a8cc1c6b2c7c1607e71241647e4cfd2088064",
+    "native/water_weather.c": "0c7323754d3a2d6eb5f194082096da6ac3dce5d0ac3d09e517d2be9f605a20ba",
+    "native/bridge/water_weather_bridge.c": "c170a518095d9b259bdca94a86bcdc0656cdebb6728ec92eb75cb73bb94388ab",
+    "verif/water_weather_acceptance.py": "3e239b0fe4e1f5956d74a330c793408f6913e255c568a5a0dada74ac69f20900",
+    "verif/water_weather_baseline.py": "ccd42a9e88314d13afe9a23a9c1f7e07ab8d73e8def5c8212a773498a8564bae",
+    "verif/water_weather_bound.py": "0465978003fdd901db6cdf0762799e1e4f50dff2cbcd6c5061d28ab4cde5a36b",
+    "verif/water_weather_build.py": "8f7f6d25c7043bd2b5eedd2d367a2fc8f4e962d9001a10b65ac709a1103fa30d",
+    "verif/water_weather_cases.py": "e859b318ea9705ef3dcec25864740c23fed4074332744d9efdef4a8098fab647",
+    "verif/water_weather_certificate.py": "4953bf368c4868cd4c60f32c116b68b139652399dcaa4bf417a98ce1f0c9318c",
+    "verif/water_weather_coverage.py": "127f98ebf8c82ad3e3a8c34894d1cc01d69d15936aed97b288a0500afcabc3ee",
+    "verif/water_weather_enumerate.py": "a58994ec1f4987354177619180e7461510d8e294273df21408bc8c258eb35560",
+    "verif/water_weather_harness.c": "df12c5859c765dd7c07bc559f988e532bd022a1cdef1e04caa3eaf7fe8da6618",
+    "verif/water_weather_host.py": "f59d761bfcc2d6cee5cf739443d1b5aee12a2494a03240ecd7c51c3f3fe0f842",
+    "verif/water_weather_integration.py": "58e8ba2a49dbf89e8eb851b0db51d2852e219b09bd47c01e2f7fd3884dd2bd01",
+    "verif/water_weather_kernel.py": "513c82e6656a8d1f02fa435367436e98652855117ea09eabd3c7dc9e808cebd1",
+    "verif/water_weather_l0_cases.py": "e620b99e61d78aa407458d080fbeabcff8c9958992a4b9b11f6f94d33a6942e0",
+    "verif/water_weather_limits.py": "fa010c17911bc65f908d8a2838582c286932e4159638761ef83cec68b666b0b4",
+    "verif/water_weather_mutants.py": "819e65c5d8371d62593f403fcce556b8caa3d706fedab7f2a242525047214adc",
+    "verif/water_weather_pair.py": "75a9f6e8ea77f6ddcadb42b02103fa07d689e9611848b72aef9b080478351159",
+    "verif/water_weather_proof.py": "4a6261140994ebdfdd3f25c115f69c87442832e8760e4777ec20b25c2d54f073",
+    "verif/water_weather_proofs.py": "db09fa22ca23f6ec979edea1d9d1747ae91e0bdafce58b8c961c555809709ada",
+    "verif/water_weather_reproduce.py": "b54757be795fa2cd53ec64061d8a48a345ddd5b644b77a9881268c9ff2c6b4e9",
+    "verif/water_weather_shells.py": "8fdd770a87b0ba49368b719298caa73038a5e579521e390822d22b7f8804fe41",
+    "c/abi.c": "5f7c2c2fc015ca43e3786a7f96cb38113211da54acefce19564c1df78d74857a",
+    "c/actors.c": "d17c03c844f95780f0647b85aa854a87c3e566b0f56fe89ee0a95d6d689f3ff2",
+    "c/actors.h": "00817c6f676f61811df11066fca3335c9757e0f59f7cad241dff762fee7b71bd",
+    "c/actors_states.c": "79a460a0436e773bdd795953f63c6765d71c0e346cdf8bbccbcf707817994447",
+    "c/actors_states.h": "375dda6bd3fa6cd5552cc98df7f7c785dc5d70850a10f96207bd0894161cd5d8",
+    "c/adlib.c": "2f4e551282f6ac33f8d24127f3cd5294e679f72ce28794c3ed295ce243c18bf0",
+    "c/adlib.h": "70f2c0d3f51dc49dd05918266b4de07d247a12909f11e8329244b8d9af56cdee",
+    "c/demo_scripts.c": "a19c7e52bc709a28f9be40bc66b60c6de82df888f8eb725b79f0b9556fe795d7",
+    "c/demo_scripts.h": "ea65090001ef64f26f31c39de2075c098949bcb9ca8448480cd1fccdf55a608b",
+    "c/dispatch.c": "80a97f55a460a21dac9d6295939a8276c83b66cef886f814365e0a823814debf",
+    "c/dos_input.c": "b6a086f3917441a23c4238f582e00605d8a239ded81b03a658ff308890601e53",
+    "c/dos_input.h": "8cee17811645a61424b6174e0213402b8c21defd5b4fa6d56511225c70e5193e",
+    "c/dsp.c": "a2f4dc144514ed9ea8cdca8a75c9813718342a5ed5c26176ff6d691f89d651b5",
+    "c/dsp.h": "9b2c2b95b0781caf3a96b7b0b19f8078601557f5e0a11bec889d109ef2755b63",
+    "c/game_services.c": "e9301da5d7fae6f2aacce7dda8d4e6f0e86cbe8c40e736216185c4a8f792a7c5",
+    "c/game_services.h": "7a63f8bd05b2710c27c4c4247b00e0f1fc06a4ecdaa388bf47eb9fb1374965c5",
+    "c/ice.c": "27e2898dd6a5e70af26bde84c0ba8cd6e8a045e40d94df21fd5b122f10a2242e",
+    "c/ice.h": "925da59e4f3fb6cf278100578e56093dc7138040c98eb9f286acb9c867512578",
+    "c/items_water.c": "ab5c2c72096b5e6355a2575f9a58c321f91680d7cd97653581dcbab59033e2d9",
+    "c/items_water.h": "d18978433dcc966235010906984c13fcb76c3469bf4bc0f8e33345101099f148",
+    "c/memory.c": "97f59e3c343cd6911854d0bfc3ff624417de2844f712caa96ec6799d3a9783d9",
+    "c/menu.c": "b2ea585a4cb2b40c349fd7a017642534ea2b4982140a25a6dcacd12ce3b418b0",
+    "c/menu.h": "eaa33e9e9db1f3caa44f60b4a0c862b1bc82855a6389e91f330606e27317b1de",
+    "c/menu_helpers.c": "48125ab011a2ab29cd7936aa61e9889c8715ee843090c6ddd00f9d14dddbb6ad",
+    "c/menu_helpers.h": "9c5998717eec5a79122d91ca1d6a045f303baaf5b96dbf14cf6401b4df34e4e2",
+    "c/music_analysis.c": "604fc3c80dec56a6740444b908da8baeff325357760ab8b82e9db72f5e022fe5",
+    "c/music_analysis.h": "3b2175241d1ced443d9463c6545232630cd4ccd20d907dab83296c8e4cd7fe23",
+    "c/music_clock.c": "2583d53f81c50bc148d423866cbd8f0fa14ff6bb3e5f8320a60e02b35a7d82fa",
+    "c/music_clock.h": "5ffc27066dc1c8438e716850ce666daaa00421dec8be964337b43f75a936210e",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/render.c": "7620324caaff46b39094d4b8f7077f2a5426a728806e52f1c56a962771208b40",
+    "c/render.h": "bcac207ffd7130100008409d8b4069b9ac126b713c81bfb043f1eb1e9603c160",
+    "c/render_primitives.c": "447a9f435f22cc46c9c30d8d11ee9046d57d57c48d6bbaa2e91768e32f9698c0",
+    "c/render_primitives.h": "92f16baae8b087d052e7ca713921fe74ad63e4f0a9f370190b2cc476c7a0ab09",
+    "c/scene.c": "0060ef52ee2cc8b4c98d1b04b6387cd809809a9226f4b4f71c01a75a99d5e460",
+    "c/scene.h": "77c02b56b44a4eb584da4d17cad94cc7f4be79ea3a2f70fd03d7ed2dc50f884a",
+    "c/sound_api.c": "ba1c98bf3a03b5f48a71d4491bdebf3acfc17b0f6cce51db370a0e58c0507e4c",
+    "c/sound_api.h": "b15efba9d9cf41053b3b818d4bb3a084936b6d3e15dafc05544648c88e4687c1",
+    "c/sound_engine.c": "5e4116c31806441e464de35d5649894ec4eea28025254a2edea616235e6e6881",
+    "c/sound_engine.h": "bb288a280c6cf526e91718ccd7fd02a2762e9d58f3d0d53a2f2feef9472eabd1",
+    "c/sound_state.c": "c57e5874b9a7b761faf49dd0bf6da4338ffaea31af1cea5c91a2f13e8ea9ded2",
+    "c/sound_state.h": "bdbbef92b75c99c274bde293ec8bcb1f7a997ed1e8176dc5deda96806c6fbad4",
+    "c/timer.c": "49e56856d56bb1ae68b62fa9112ce294f77182bebfc8e2cd5392737f1c06080b",
+    "c/timer.h": "4ae328394adb59216a373832fbf926a926ce9fe8f813bbe7c3927c9abaf10937",
+    "c/timer_stack.c": "512cfb5332569f32adffed22e5211db5772440428369cc9cc808be931631c98d",
+    "c/timer_stack.h": "e076aba16f8ee3dacbffcddbfa5b065a79a6e8000fa825244bffeb3771d1a514",
+    "c/timer_system.c": "89ead348d18a649f37dca6f44c94c309c3d50b7b6d0877411064f9ac0129d92b",
+    "c/timer_system.h": "f7204fef034e9f641f1f12ad9412efe80844d5be64b177300bdc5a9a20136a49",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_adapters.h": "c18eafbbe16170d01fcfac6853deab651d3c2b54343b47bccd6ce0de4303ad38",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "c/video.c": "681732591d8efb11cf1d5d5816c999bca718560bd247d9c9cc6c0f36982b2fa2",
+    "c/video.h": "35e4d6076edd69e2722cf7d52392871345f5e0eb78af7ce67e13c8ed0c02f192",
+    "tests/scenarios/adlib.txt": "1db37ba320e4c3c85449c2f4a7f5ecd8543e6de6933e165e534b79adb3386f2f",
+    "tests/scenarios/attract.txt": "07339939be35779cc94094221155e97a11c6dec396ab6dce85f238a415896a01",
+    "tests/scenarios/completion.txt": "d898ad1f8abd49f7757303b562028cf7f0c10143dfb0358dad4e0a6fee7386bc",
+    "tests/scenarios/departure.txt": "dd7cb186974803ed7436b99600394606594109283d668f7ee5a893a90f89f705",
+    "tests/scenarios/dino.txt": "f5a6254be7b416bdf3da436c7b1907abe31e4a7b184bb7ac6636b72c7c166252",
+    "tests/scenarios/enemy.txt": "c5140aa9afe062e09cbefb949b78d06733c306518f315ba8f5448a0c2b8062a6",
+    "tests/scenarios/gameplay-adlib.txt": "5f0e1e3ea3f5f9e735c5a7ab2eda9ddee8a33d8d290bbd81e27fd9cbb1ddb3cd",
+    "tests/scenarios/gameplay.txt": "b0be47d570408d44dc977faca40ef2a258c0686958f7fa68574cc411bb25a03a",
+    "tests/scenarios/high-score.txt": "5b698cb06b6d77d9a9d6f009cea71b8a1af9c16c8ecf3c344e33a9b8d93b1220",
+    "tests/scenarios/items-multiplier.txt": "aea8dc889e0a1777e2c3f8b37525375e939656a91577759030523a8aca88ca8d",
+    "tests/scenarios/items-timer.txt": "1fc3cde57a7aed7acfe67e015af95c852a6dc681b7492d3464ffe5e7d5af39b1",
+    "tests/scenarios/menu.txt": "3e8347d504ac0c13ced62c1befb26b59a353c46de397bb3ac79f5089b20ea8b1",
+    "tests/scenarios/passenger.txt": "e95f43a019615449dd142652ea837aaeb4a82e7bce9c6ecd72dd67411fe44922",
+    "tests/scenarios/password.txt": "fea4555e22daca6a5e4e154fd4d6c1b7871d80aa574c402363d5b3b938657bd2",
+    "tests/scenarios/pregame.txt": "6697f662ccf5791b57e14d5dcb0c216c7428312441c570f10b0e031a33a97cf8",
+    "tests/scenarios/reveal.txt": "8be34ff993316d7e099576cccd8af23d28267b02eee37df01a430f8e94418c84",
+    "tests/scenarios/startup.txt": "bddaf9054cfb6f1a4a5734e147c2481c28d0fa0768af141c311ddb13a38fbd7b",
+    "tests/scenarios/two-player.txt": "5c07be6ec944b7a38082d275633bba2ef26cc9e90828b673bb8434ad3ffa78e5",
+    "tests/scenarios/water-physics.txt": "33853e24a477c60ab0dbecf9057a034a01fa2ec6ab6c9f6e873d463006754e6c",
+    "tests/scenarios/water.txt": "22aca0913b25142891f67c57f20d56cfef57c16df862269a377f924217e96f84",
+    "tests/actors_states.py": "94ec4f7e880e6d717c5fc1a645f6f2dfebab18150f915e9ee0009789f5126de6",
+    "tests/items_water.py": "ea1f63e28e3dbc63d89649e167f5677bdb3a13b542eb588c90e6ed34a1f6db30",
+    "tests/render.py": "ac899241858dd7dd0f2d175a7f5b7229257b5b59a24291c65078881281c86e7e",
+    "tests/render_primitives.py": "a3c0e339395fc75e8e4e472eade67d6881374453fdfdd0cf957c8c376f2f8bd0",
+    "tests/scene.py": "1eb8b5d2a3fb51b9eaa123d3f5d9efe2637ef131f333f696b71dc1f3a9069a81",
+    "tests/menu.py": "968fb180e88fe43264642f12a21650663f31c79df511290879d476d3bd0f5d08",
+    "tests/demo_scripts.py": "b71d2044f43b58e9b79cce9039e1a3a8d71a7ca96a6f385abcbdc47edefa95be",
+    "verif/random_rain.txt": "817ae7a6551eba3de98b2318cea09a26f0e68f68d368595bd9f570efc9f82ed0",
+    "metadata/closure/random.json": "e41fa5e01cd693887c242e8825c8fd17fc47a5c637d4556d1b3bcad17df05c5d",
+    "native/random.c": "5f77b30dd26cc0e6bc5ce30ce05e1163335004530ed4be4ab07339d3da027f99",
+    "native/random.h": "b9f9cabcb38b54a6fec81590179f55aeb036dd21d9cb4eaeb670013dc411d419",
+    "native/bridge/random_bridge.c": "fad64c9bce7435e60efa5e0ed5705ed1179ae9239ce85b724228e2754403d22c",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
+    "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
+    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
+    "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
+    "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
+    "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
+    "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
+    "host/check.py": "ae78b6b48e7c77aa4c513f8474d23d7ef9d26afe39ab55ea70e871473701e94c",
+    "docs/architecture-model.md": "7f9bc1f120cf6acceb32858eb178fe0e370219a4a238fb63a6fbc2014ae62dcd",
+    "docs/amiga.md": "e0db247ec323f74c2a01aaece7b403125bf9d36c63d0b7282040c8c04b16bcb4"
+  }
+}

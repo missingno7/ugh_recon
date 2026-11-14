@@ -5,6 +5,7 @@ No reference is created here, and no CPU emulator runs in this checker.
 All child processes have wall bounds; one compact receipt is written at end.
 """
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import subprocess
@@ -12,6 +13,19 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT/'build/workers/host-native'
+BUILD_VARIANT = {'native': 'native-bridged', 'literal': 'literal'}
+
+
+def require_built_variant(variant):
+    """Refuse to check an executable that tools/hostbuild.py did not build as this variant."""
+    receipt = json.loads((ROOT/'build/host/hostbuild.json').read_text())
+    if receipt.get('variant') != BUILD_VARIANT[variant]:
+        raise SystemExit(f"build/host/ugh.exe is the {receipt.get('variant')!r} build; "
+                         f"run python tools/hostbuild.py{' --literal' if variant == 'literal' else ''} first")
+    digest = hashlib.sha256((ROOT/'build/host/ugh.exe').read_bytes()).hexdigest()
+    if receipt.get('executable_sha256') != digest:
+        raise SystemExit('build/host/ugh.exe does not match build/host/hostbuild.json; rebuild it')
+    return receipt
 
 
 def main():
@@ -19,6 +33,7 @@ def main():
     parser.add_argument('scenarios', nargs='*')
     parser.add_argument('--variant',choices=('native','literal'),default='native')
     args = parser.parse_args()
+    build = require_built_variant(args.variant)
     OUT.mkdir(parents=True,exist_ok=True)
     paths=sorted((ROOT/'tests/scenarios').glob('*.txt'))
     if args.scenarios:
@@ -49,7 +64,8 @@ def main():
                      capture_output=True,text=True,timeout=35,cwd=ROOT)
     smoke=dict(passed=p.returncode==0 and len(p.stdout.splitlines())==256,stderr=p.stderr)
     print('PASS smoke: 256 attract frames' if smoke['passed'] else 'FAIL smoke',flush=True)
-    receipt=dict(variant=args.variant,passed=all(r['passed'] for r in results) and smoke['passed'],scenarios=results,smoke=smoke)
+    receipt=dict(variant=args.variant,executable_sha256=build['executable_sha256'],
+                 linked_units=len(build.get('linked_units',[])),passed=all(r['passed'] for r in results) and smoke['passed'],scenarios=results,smoke=smoke)
     (OUT/f'host-check-{args.variant}.json').write_text(json.dumps(receipt,indent=2)+'\n')
     return 0 if receipt['passed'] else 1
 

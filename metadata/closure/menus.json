@@ -282,7 +282,7 @@
     "c/scene.c": "0060ef52ee2cc8b4c98d1b04b6387cd809809a9226f4b4f71c01a75a99d5e460",
     "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
     "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
-    "host/check.py": "ae78b6b48e7c77aa4c513f8474d23d7ef9d26afe39ab55ea70e871473701e94c",
+    "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
     "native/bridge/front_end_support.h": "c8e018a28316b8d9b6af492f97bd5d71f628c2d759cfb2d849b268400802df3e",
     "native/bridge/menus_bridge.c": "5e58afe6a5f4ced7afea6623d5df2a48371427d377a175fcd530194823676561",
@@ -293,7 +293,7 @@
     "native/menus.h": "cbfdf679a866537eab418e7e95fefeb7915806a2438f434f9ad82ddc79b2f0c4",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
-    "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
+    "tools/hostbuild.py": "ec24f9e6bec3c0da79df062302ea86f28491a344f1fbc3811737efe88e1f5484",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/adlx_loader_solver.py": "332c1a46957e398df5865fa5de14a73d259d464c621232f84976f8dfcc1f42d6",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
@@ -339,6 +339,15 @@
       },
       "native_sources_changed": false,
       "status": "migrated"
+    },
+    {
+      "date": "2026-11-14",
+      "reason": "supervisor relock: host/check.py now refuses an executable whose hostbuild receipt has a different variant or executable hash, and tools/hostbuild.py records executable_sha256; no comparison, scenario or reference changed",
+      "result": "host build and check pass in both variants (21/21 each); check --variant literal refuses a native build; closure passes",
+      "inputs": [
+        "host/check.py",
+        "tools/hostbuild.py"
+      ]
     }
   ]
 }

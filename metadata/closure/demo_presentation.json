@@ -1704,9 +1704,9 @@
     "tests/actors.py": "80b0aed22ae70e2b8eeead4a4176ce5b5935ac93ee517869df14035ffa9ea7ad",
     "tests/render.py": "ac899241858dd7dd0f2d175a7f5b7229257b5b59a24291c65078881281c86e7e",
     "tests/scene.py": "1eb8b5d2a3fb51b9eaa123d3f5d9efe2637ef131f333f696b71dc1f3a9069a81",
-    "metadata/closure/actor_types.json": "65bdad902f97f0615d8c5e6d53a6f3bf4d6558531fbbe13af8419ca52807f77b",
-    "metadata/closure/actor_render.json": "589320bcac996f54c8200be79d99bcd912f261334097c374f438a16fb118d75c",
-    "metadata/closure/demo_core.json": "828c05245f4e5420a38a3f92e7f9a835e56a35a9a65844ac39845bd174d8b683",
+    "metadata/closure/actor_types.json": "c29c1005a177aa3f4423a3c7b3d890dec4b7cac95bb4f0f0a35fa2bdf5d0f027",
+    "metadata/closure/actor_render.json": "cebb87b1617d578cd7252e5c52e6e010b40775afd59c86fe9743c544f16367cd",
+    "metadata/closure/demo_core.json": "3aefffff6b07e0af3f6a7c0a9bea381a87984c2b852da339eaa6bbdb8ce4d11f",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
     "native/actors.h": "b1c7653a6e566c7f0e3e18ad38fc3f63726d01b78a6fa6843df017d2d155a42c",
     "native/actor_render.c": "f14a0f219a8a9a056a975ad38d74527512bc48634e0b388bd7aa929d846fd110",
@@ -1720,10 +1720,10 @@
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
-    "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
+    "tools/hostbuild.py": "ec24f9e6bec3c0da79df062302ea86f28491a344f1fbc3811737efe88e1f5484",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
-    "host/check.py": "ae78b6b48e7c77aa4c513f8474d23d7ef9d26afe39ab55ea70e871473701e94c"
+    "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde"
   },
   "source_snapshot": {
     "path": "build\\workers\\close-stones-7\\clean-replay-71900",
@@ -1794,6 +1794,18 @@
         "python verif/sequencing_host.py"
       ],
       "results": "23 renderer B profiles,695552 slot pairs,19 controls and26 cross-mode boundaries PASS. New session/lifecycle composition:20 scenarios and smoke PASS in both host variants. Applied by the supervisor; claims and status unchanged."
+    },
+    {
+      "date": "2026-11-14",
+      "reason": "supervisor relock: host/check.py now refuses an executable whose hostbuild receipt has a different variant or executable hash, and tools/hostbuild.py records executable_sha256; no comparison, scenario or reference changed",
+      "result": "host build and check pass in both variants (21/21 each); check --variant literal refuses a native build; closure passes",
+      "inputs": [
+        "metadata/closure/actor_types.json",
+        "metadata/closure/actor_render.json",
+        "metadata/closure/demo_core.json",
+        "tools/hostbuild.py",
+        "host/check.py"
+      ]
     }
   ]
 }

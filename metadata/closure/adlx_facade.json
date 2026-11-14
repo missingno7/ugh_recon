@@ -185,7 +185,7 @@
   "verification_inputs": {
     "c/music_analysis.c": "604fc3c80dec56a6740444b908da8baeff325357760ab8b82e9db72f5e022fe5",
     "c/sound_api.c": "ba1c98bf3a03b5f48a71d4491bdebf3acfc17b0f6cce51db370a0e58c0507e4c",
-    "host/check.py": "ae78b6b48e7c77aa4c513f8474d23d7ef9d26afe39ab55ea70e871473701e94c",
+    "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
     "native/adlx_facade.c": "0f1e6b9ef3b0cbac61c41c48c8feb8e02e76d9100d05a6571c7a2454374b6cee",
     "native/adlx_facade.h": "2b1711aea00c0197dc032babf1c7b41a3a8404ab97890fc353f5f58d34e8307a",
@@ -194,7 +194,7 @@
     "native/bridge/audio_projection.h": "e15ee379c16623f0dfb9830e154c5c71b0f2d2a424a6073c3dec497c50cd8630",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
-    "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
+    "tools/hostbuild.py": "ec24f9e6bec3c0da79df062302ea86f28491a344f1fbc3811737efe88e1f5484",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/adlx_facade_build.py": "eccdbc65cc43520f1d44ce1fb63f1e84e8872e00f7cffeb945da7b2f2a5d456e",
     "verif/adlx_facade_certificate.py": "9a3e02f26bfbc8918f7d894e6e7c2020a61976616de7e95d765ec903d48f2f81",
@@ -205,5 +205,16 @@
     "verif/adlx_facade_limits.py": "5329de2c8fe0e47474eba21d9b483d3114cba4ca4e1faa9149b619d1c71ec7be",
     "verif/adlx_facade_proofs.py": "4bb92b97825e9ac7ec2035e7e7681f161cdb09173aa95cbeff25764b53a0ec91",
     "verif/adlx_facade_reproduce.py": "9dd802cfcfcb6fe1ab77e531e57d249a346e2fda3d34e60f3f8f7431a7d97ba9"
-  }
+  },
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-14",
+      "reason": "supervisor relock: host/check.py now refuses an executable whose hostbuild receipt has a different variant or executable hash, and tools/hostbuild.py records executable_sha256; no comparison, scenario or reference changed",
+      "result": "host build and check pass in both variants (21/21 each); check --variant literal refuses a native build; closure passes",
+      "inputs": [
+        "host/check.py",
+        "tools/hostbuild.py"
+      ]
+    }
+  ]
 }

@@ -116,6 +116,7 @@ def build(literal=False):
         opl=json.loads((ROOT/'metadata/verif-tools.json').read_text())['nuked_opl3'],
         inputs={str(f):sha256(f.read_bytes()) for f in dict.fromkeys(inputs)},
         variant='literal' if literal else 'native-bridged',
+        executable_sha256=sha256((out/'ugh.exe').read_bytes()),
         linked_units=[dict(component=u['component'],status=u['status'],exports=u['exports']) for u in units])
     (out/'hostbuild.json').write_text(json.dumps(receipt,indent=2)+'\n')
     print(out/'ugh.exe')

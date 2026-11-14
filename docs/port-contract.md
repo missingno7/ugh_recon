@@ -3,7 +3,7 @@
 The port supplies the services below; native units retain the game's decisions and arithmetic.
 This contract consolidates the committed certificates at `a5e9a1e783d245b3e9d5cfb5e94df36c61564192` (2026-11-14), including
 the accepted lifecycle and session units. Service role names describe capabilities, not a new
-shared binary ABI. The inherited VGA-state measurement has one marked placeholder below.
+shared binary ABI. The inherited VGA-state row reports a scenario census, not a proof.
 
 ## Service list
 
@@ -659,15 +659,16 @@ name their migrated owners and are not contradictions.
 ## VGA: shipped requirement versus literal-compatible edges
 
 The certificate contracts are broader than shipped reachability. "Only edge evidence" below
-means **not established as a shipped dependency**, not proof that it is unreachable. The inherited-write-state measurement by close-stones-13 is pending; no canonical-state
-invariant is inferred here.
+means **not established as a shipped dependency**, not proof that it is unreachable. The
+"Inherited VGA write state" row reports the close-stones-13 census (C/D observation over the
+maintained scenarios, `verif/vga_state_census.py`); it is not a whole-game invariant.
 
 | Obligation | Required for the shipped game | Edge-only / remaining reachability question |
 |---|---|---|
 |Four planes, page offsets, hidden background and HUD line compare|Yes: RP background restores, PP background collision, WW rain/water and VD swap/configuration use these stores. A sole320x200 visible index array loses data.|Arbitrary alternate segment bindings and physical aliases are admitted compatibility domains; do not require them to display canonical resources. Sources: VD.memory.meaning, RP.interface.inputs[2], PP.retained[7], WW.interface.effects[1].|
 |Latch copies|Yes: rectangle restore selects mode 1; rain restore uses bitmask 0. Both require source-read to load four latches before writes to enabled planes.|Odd overlap, mask 0 reads and arbitrary nondefault compare/write controls extend this operation; existing certificates retain them. Sources: RP.retained[2..3], WW.retained[6].|
 |Collision index reads and final latches|Yes: physics consumes background bit 7 and all ten reads; RGB/geometric collision cannot replace that contract. Water uses index bit 6.|Full 80-bit reply and arbitrary read-mode compare/care states are broader than physics's bit 7 decision. A shipped later dependency on every such bit/state is not asserted. Source: PP.interface.inputs[2], effects[1], retained[6].|
-|Inherited VGA write state|**PENDING: close-stones-13 is measuring this across the maintained scenarios.**|Result to be inserted after supervisor review. No shipped-state conclusion is asserted; retain the per-operation contracts meanwhile (HUD.interface.effects[1], RP.retained[1,3], VD.retained[4]).|
+|Inherited VGA write state|Measured (close-stones-13, HEAD a5e9a1e: all 20 maintained scenarios plus `random-rain`, 601,950 service entries over 17,952 flips). At every reached pixel/copy entry the writer logic is canonical: write mode 0, read mode 0, bit mask FFh, rotate/function 0, set/reset disabled. Not constant: the read-map select persists as 0..3 (for example the collision sampler at departure frame 114 enters with read map 1), and the three water-frame services enter with map mask 1 set by DrawWaterSurface. Copies (save, rectangle, rain restore; 75,919 calls) never overlap and only use latches loaded inside their own call, but SaveDrawPageBackground (67/67 calls) and 8 rectangle restores read cells written earlier in the same frame. Physics consumes collision bit 7 only; toggling bits 0..6 leaves all 21 traces unchanged, clearing bit 7 diverges. Real off-allocation accesses and 16-bit address reductions occur (sprite at departure frame 292 writes A000:59CD, before draw page 5A08); no word or access stream crosses A000:FFFF.|A port may use a typed indexed-pixel backend under this explicit game-path assumption: 64 Ki cells of four index bytes, direct lane stores, live four-lane copies, the OR 40h water mark, and an explicit read plane and write-lane mask. It must keep both page layouts with padding and unclipped word destinations, read current (not frame-start) copy sources, keep index bits 6/7, and keep the DAC batch position across waits. Not covered: 5/81 level records initialized (1P 1, 2, 4, 43, 59; 2P 1); 5 services unreached (DrawHudDigitAndAdvance, RestoreTileBackground, UploadBasePalette, WaitThroughVerticalRetrace, FailDosCriticalError). The broader per-operation contracts (HUD.interface.effects[1], RP.retained[1,3], VD.retained[4]) are unchanged and remain the bit-exact profile.|
 |Water logical bit marking|Yes: native mark transaction uses live read/modify/write state and bit 40h, then resets prescribed controls. A visual-only translucent water layer omits collision/background effects.|Arbitrary raw colors, masks, phase bytes and foreign buffer bindings extend the literal-compatible edge. Sources: WW.interface.effects[0], retained[0,6].|
 |Planar pitch and signed/offscreen addressing|Yes: gameplay uses 96-cell rows, cached collision origins and unclipped placement; picture pitch differs. Retaining only visible pixels discards required backing storage.|An actual FFFF-crossing word high byte outside the aperture, huge raw counts and all corrupt page values are compatibility edges; no shipped need for each extreme is established. Sources: PP.retained[5..7], RP.retained[0], VD.interface.effects[0].|
 |Zero dimensions and mutable metadata|Render do/decrement semantics must remain; demo modifies a width byte between draws.|Do not call every zero width "unreachable": the committed certificates do not discharge reachability of every reveal-width value. Huge malformed heights/counts have edge evidence. Sources: RP.retained[1], DP.memory.owned[1].|
@@ -681,7 +682,7 @@ these obligations. A simple framebuffer plus ad hoc memcpy is not the consolidat
 
 | Area | Present implementation read | Gap / boundary |
 |---|---|---|
-|Video and planar transactions|host/video.c presents c/memory.c's four planes; c/platform.c keeps registers/latches/masks/DAC. CRTC pitch/start/split are used.|A direct typed pixel backend still needs to replace machine bindings; SDL rendering alone is not that backend. No proof of safe removal of inherited modes/hidden storage.|
+|Video and planar transactions|host/video.c presents c/memory.c's four planes; c/platform.c keeps registers/latches/masks/DAC. CRTC pitch/start/split are used.|A direct typed pixel backend still needs to replace machine bindings; SDL rendering alone is not that backend. The VGA census observes only canonical inherited writer modes on the shipped path (C/D); hidden storage is still required.|
 |Retrace/pacing|scenario_fixture supplies 0/8; main.service counts active-wait entries; pace_and_audio follows virtual timelines and paces with SDL.|No physical monitor-retrace service. Policy is explicit deterministic polling, not a free-running/refresh-independent scheduler specification.|
 |Keyboard/BIOS|Set1 queue/E0/make/break and BIOS queue; vector-mode switches clear queues; held-key releases on focus loss.|ASCII-oriented editor path; no semantic Unicode API. Queue/IRQ placement still depends on virtual vectors and named cuts.|
 |Joystick|Scripted 201h waveforms; live first gamepad maps to keyboard scans.|No live two-stick count/presence/buttons backend. Keyboard emulation is usable input, not implementation of I3.|
@@ -729,7 +730,9 @@ These choices remain open; the certificates constrain their observable boundarie
   semantic services, or document a narrower admitted resource/state domain for the port.
   Neither option silently fixes retained bugs. The compatibility profile covers admitted
   aliases, wrap, flags/frames, malformed full windows and optional unreachable digital API
-  behavior; the shipped path still needs hidden planes/latches/collision indices. Await the
-  marked VGA-state measurement before choosing any additional restriction. Constraints:
+  behavior; the shipped path still needs hidden planes/latches/collision indices. The VGA
+  census supports a narrower typed pixel backend for the shipped path as a C/D assumption
+  (see "Inherited VGA write state"); adopting it is this decision, and broader level traces
+  would strengthen it. Constraints:
   render_primitives.retained/interface, video_dos.interface.effects,
   player_physics.retained[6..7], ice.interface, adlx_digital.assumptions[0..3].

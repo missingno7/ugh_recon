@@ -141,6 +141,14 @@ is the second unit, chosen to exercise state ownership and indirect control flow
 Every unit except the four external hooks is native. What a port must supply to these units, and the
 decisions still open for the port layer, are consolidated in [port-contract.md](port-contract.md).
 
+A VGA state census (`verif/vga_state_census.py`) covered the 20 scenarios plus the rain witness,
+with 601,950 pixel and copy service entries. At every reached entry the writer logic is in its
+default state; only the read-map select (0..3) and the water-frame map mask vary. Copies never
+overlap and use only latches they load themselves, but save and restore read cells written
+earlier in the same frame. Physics uses only collision bit 7. Off-page accesses and 16-bit
+address reductions are real. This supports a smaller typed pixel backend for the shipped path
+as a C/D assumption; it is not a proof, since only 5 of 81 level records were initialized.
+
 ### The Sound Blaster path is unreachable in the shipped DOS program
 
 Recorded 2026-11-14 from close-adlx-9's run and checked in the source:

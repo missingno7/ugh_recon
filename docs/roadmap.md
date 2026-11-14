@@ -149,6 +149,9 @@ earlier in the same frame. Physics uses only collision bit 7. Off-page accesses 
 address reductions are real. This supports a smaller typed pixel backend for the shipped path
 as a C/D assumption; it is not a proof, since only 5 of 81 level records were initialized.
 
+The path from bridged native units to a standalone native executable (no fallbacks, no L1 code,
+no emulated DOS machine) is measured and planned in [standalone-plan.md](standalone-plan.md).
+
 ### The Sound Blaster path is unreachable in the shipped DOS program
 
 Recorded 2026-11-14 from close-adlx-9's run and checked in the source:

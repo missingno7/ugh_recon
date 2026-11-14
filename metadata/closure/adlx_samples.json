@@ -1,0 +1,374 @@
+{
+  "component": "adlx_samples",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "original": {
+    "L0": [
+      "C:LoadIffSample 0878:0176",
+      "SOUND:ResetSampleVoiceCursor 0664:1B3A",
+      "SOUND:MixSampleVoicePairs 0664:1CF9"
+    ],
+    "L1": [
+      "c/sound_api.c:c_LoadIffSample",
+      "c/sound_engine.c:c_ResetSampleVoiceCursor,c_MixSampleVoicePairs"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/adlx_samples.c",
+      "native/adlx_samples.h",
+      "native/bridge/adlx_samples_bridge.c"
+    ],
+    "header": "native/adlx_samples.h",
+    "functions": [
+      "audio_sample_import_begin",
+      "audio_sample_import_next",
+      "audio_sample_import_apply",
+      "audio_sample_activate",
+      "audio_sample_reset",
+      "audio_sample_mix_begin",
+      "audio_sample_mix_next",
+      "audio_sample_scale"
+    ],
+    "build": "python verif/adlx_samples_build.py",
+    "bridge": "All3 endpoints, no L1 fallback. Import stop/wait remain explicit L1 services. Mixer requests each source word and output byte; the common owner is rebound at every request, retaining source/output/state aliases."
+  },
+  "purpose": "Import IFF-tagged sample descriptors, reset the unchecked wrapping sample cursor, and mix eight borrowed sample voices into observable output bytes, preserving the original byte/pair bugs and signed arithmetic. Separate opt-in SB2 fixture supports protocol/API evidence; shipped sample gameplay remains unreachable.",
+  "interface": {
+    "inputs": [
+      "Borrowed AudioState.channels0..7 and transient mixer cells; no new persistent owner or changed audio.h.",
+      "Import: word slot/volume/repeat/scale and indexed cyclic byte window, initial unnormalized trailing-margin representation; source reads and caller-pointer publication are ordered requests.",
+      "Mixer: word byte request/destination, arbitrary count/mask/repeat/cursor/scale/flags/volume words; source words supplied at each requested wrapping cursor."
+    ],
+    "outputs": [
+      "Byte-for-byte mixer output and retained common state; original mixed-unit AX result, or explicit divide fault/budget status with exact prefix.",
+      "Import1 orFFFF, exact live caller-pointer mutation, loaded record and active mask/count. Any nonzero compression is accepted asmode3 but mixer still consumes raw signed bytes.",
+      "Reset displacement=low16(index*42), overflow flag; bridge clears the wrapping unchecked word with contiguous high operand byte."
+    ],
+    "effects": [
+      "No ordinary native register/device/segmented pointer operations.",
+      "Mixer source/output may alias audio cells: publication before actual read/write, fresh projection afterward. Divisor and second sum are reread after the first output byte.",
+      "C StopSoundChannel and wait delivery are services; no stale AudioState is published after they return.",
+      "SB model is opt-in, keeps DeviceState ABI and all legacy records unchanged, supports byte DSP reset/rate/14 block/D0 D4 pause/resume/D1 D3 speaker, DMA1/PIC completion at explicit polls. SDL host output remains unchanged."
+    ],
+    "preconditions": [
+      "Serialized ordinary SOUND RAM and disjoint active call frame/code for the historical L0 link. Whole C memory model is checked more broadly; writing live original instructions is not a proof of future self-modifying execution.",
+      "Mixer binds each source word as a contiguous operand after wrapping its effective16-bit offset; byte destinations wrap independently.",
+      "Import indexed source binding and huge-pointer normalization/publication reside in bridge. Resume work only after service success.",
+      "SB configuration base210..250, IRQ2/3/5/7,DMA1. It is a deterministic SB2 protocol fixture, not an instruction-cycle, full PIC/8237, or analogue audio model."
+    ]
+  },
+  "callers": {
+    "audit": "python verif/adlx_samples_inventory.py: static callers and all indirect target sets.",
+    "LoadIffSample": "C:LoadBankSoundByIndex; no shipped FORM bank or implemented external-bank resource hooks.",
+    "ResetSampleVoiceCursor": "No static caller or indirect target set: API-only pattern seed.",
+    "MixSampleVoicePairs": "SOUND:PrimeSampleDmaPlayback and HandleSampleDmaInterrupt; neither is entered by shipped startup/gameplay.",
+    "outside_audio": "None."
+  },
+  "callees": {
+    "native": [
+      "audio_sample_scale and private staged voice helpers"
+    ],
+    "services": [
+      "C:StopSoundChannel",
+      "SERVICE_TIMER_WAIT at actual LoadIffSample wait",
+      "Ordered source-word reads and output-byte stores through bridge"
+    ],
+    "SB": "DOS/IRQ delivery remains the harness. No broken near RET hook is repaired."
+  },
+  "indirect": {
+    "native": "No function-pointer calls or hidden dispatcher in ordinary native code.",
+    "mixer": "Eight explicit voice slots and ordered read/write requests, no data-selected callable targets.",
+    "services": "StopSoundChannel retains its existing target contracts; SB IRQ delivery uses the installed DOS vector, with IF/PIC masking and acknowledged DSP request."
+  },
+  "memory": {
+    "owner": "Existing common C/SOUND audio owner. AudioSampleView is a temporary borrow of its first8 AudioChannels plus shared mixer cells. audio.h/projection are unchanged.",
+    "records": "42-byte record: repeat+4,source+6/+8,byte length+A,mode+C,rate+E,pair cursor+10,half length+14,selector+18,accumulator+1A,volume+1C,stepQ8+26,control+28.",
+    "mixer_cells": "SampleMixerBusy, ActiveSampleVoiceCount/Mask, SampleMixPairsRemaining, SampleMixFirstSum/SecondSum; resident output buffer borrowed, not owned or allocated.",
+    "aliases": "Input/output/audio-state aliases rebound at each source-word/output-byte request; mask high byte and stale repeat count on infinite import preserved. Reset index is deliberately unchecked and may address other SOUND cells.",
+    "import": "Huge increment wraps modulo1MiB and publishes normalized offset then segment to caller arguments; initial first-byte read retains incoming far representation."
+  },
+  "assumptions": [
+    "Formal voice cuts normalize selected slot0 and contract the resampling offset, discharged by an independent actual-C all-word primitive theorem. Other7 slots and arbitrary physical aliases are compiled/L0 evidence.",
+    "Signed division profile admits divisor0..8 orFFFF and arbitrary sum words; broader divisor profile timed out and earns no credit. Arbitrary raw counts and alias faults remain C.",
+    "Native parser composition is C evidence. Formal BODY capacity cut covers all32-bit length encodings; it is not a proof of the full cyclic tag scanner.",
+    "SB model uses immediate ready/reset acknowledgement, DSP2 speaker semantics, integer1193182-Hz PIT conversion and poll sampling. No FIFO input/ADPCM/auto-init/high-speed/analogue device claim.",
+    "No sample-reaching whole-game D claim: shipped startup always PUSH1, no sample resources, and DSP probe crosses a broken far-call/near-RET hook before proper DSP ports."
+  ],
+  "eliminated": [
+    {
+      "dependency": "Persistent raw-machine audio representation",
+      "evidence": "Borrowed common typed channels plus explicit source/output requests; only bridge binds raw locations."
+    },
+    {
+      "dependency": "CPU/DOS timing from SB fixture",
+      "evidence": "SB completion consumes explicit virtual PIT quanta; old none/adlib branches and frame records remain identical."
+    }
+  ],
+  "retained": [
+    "Short-circuit FORM/VHDR/BODY scanning advances for every attempted character; no general IFF chunk walker or 8SVX type check is substituted.",
+    "BE32 lengths, root-relative unsigned normalized-address bound, BODY<=64000 and even rounding; nonzero compression setsmode3, but no decompression in mixer.",
+    "Volume clamps255, repeat0 preserves old repeat word and setscontrol2; sample cursor unit is a pair counter but scaled source offset is NOT doubled.",
+    "Signed repeat/count retirement tests, modulo word sums/cursors/masks, logical volume>>1 then signed IMUL high byte, signed truncating divide and output+127 byte wrap.",
+    "Zero/odd requests enter once; repeat reset contributes no sample pair; early AX is original bytes minus remaining PAIRS, not bytes actually emitted.",
+    "First-byte output may alter count/sum/state used for the second byte; fault preserves busy=1 and partial output.",
+    "Incoming DF preserved; unchecked cursor reset and stale/high bytes retained through native result/binding."
+  ],
+  "evidence": [
+    {
+      "property": "Compiled complete sample boundary",
+      "level": "C",
+      "method": "Independent full C DLL versus actual9-unit native audio DLL; full persistent RAM, all registers/flags, ordered ports; arbitrary output/source/state aliases and generated malformed imports.",
+      "command": "python verif/adlx_samples_evidence.py",
+      "result": "PASS67336 cases:1200 mixers,600 imports,65536 cursor words.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Complete cursor-reset word domain",
+      "level": "A",
+      "method": "Actual compiled L1/adapter over all65536 index words in the stated deterministic calling/memory fixtures; actual-C symbolic product/store/frame on arbitrary registers.",
+      "command": "python verif/adlx_samples_evidence.py; python verif/adlx_samples_proofs.py reset outputs",
+      "result": "PASS finite domain and scalar/store theorem. No future self-modifying L0 code execution claim.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Scaled sample and resampling arithmetic",
+      "level": "A",
+      "method": "Actual extracted C functions/expression versus maintained native helpers; all sample/volume byte pairs and all cursor/step words symbolically.",
+      "command": "python verif/adlx_samples_proofs.py scale outputs; python verif/adlx_samples_proofs.py offset outputs",
+      "result": "PASS2 scalar profiles; no environment assumption.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Selected voice output/frame/dependence, division and capacity",
+      "level": "B",
+      "method": "Actual original single-voice statements and native helper, normalized slot0; relational offset backed by A theorem. Separate whole-owner byte frame/dependence. Actual C division slice on0..8/FFFF divisors and all sum words, partial-fault output; actual BODY capacity statement all32-bit lengths.",
+      "command": "python verif/adlx_samples_reproduce.py --proofs-only",
+      "result": "PASS11 positive profiles;4 symbolic defect controls detected. Strict per-worker2 permits and8GB/180s process-tree jobs. Broad attempts receive no credit.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Generated IFF resource pipelines",
+      "level": "C",
+      "method": "Well-formed container shapes, lengths0..64000,odd padding,compression metadata0/1/2/255,slots0/7,steps0/256/512/FFFF; actual import/reset/mix and byte-exact output. Decoder inventory/bounds only.",
+      "command": "python verif/adlx_samples_corpus.py",
+      "result": "PASS256 pipelines. Shipped sample census0; no invented corpus member.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "SB protocol/sample/DMA composition",
+      "level": "C",
+      "method": "Actual compiled literal/native chains through reset,rate,generated import,priming,real IRQ handler and DMA; explicit API resource/vector fixture, not gameplay. Model derived from Creative Hardware Programming Guide and executed game protocol.",
+      "command": "python verif/adlx_samples_sb.py",
+      "result": "PASS equal641-byte DMA payload, model state and ports. Input-only SB gameplay180 frames passes but reaches no sample entry.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Legacy harness compatibility",
+      "level": "D",
+      "method": "Unchanged actual python tools/wholegame.py command, all20 scenarios; compare every frame/terminal record and coverage with pre-SB refs. Full L0/L1 suites normal+poison separately.",
+      "command": "python tools/wholegame.py; python verif/adlx_samples_legacy.py; python verif/adlx_samples_compat.py",
+      "result": "PASS20 scenarios, every frame/terminal record and coverage unchanged.3681/3681 normal and3681/3681 poisoned L0/L1 cases.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Audio L0 suites and all20 native scenarios",
+      "level": "D",
+      "method": "Actual combined audio bridges; per-entry counters distinguish unreached samples from API tests.",
+      "command": "python verif/adlx_samples_integration.py --whole --local-reference",
+      "result": "PASS6684 direct cases and20 scenarios. All new sample entry counters zero in scenarios; no scenario-based sample theorem intended.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Scratch native host",
+      "level": "D",
+      "method": "Archive f647495, overlay own unit and authorized tools, promote own certificate only. Scratch-only preview of nine existing harness-input relocks after compatibility evidence; root accepted metadata untouched. Actual hostbuild/check/closure.",
+      "command": "python verif/adlx_samples_host.py",
+      "result": "PASS27 linked units,20 scenarios plus256-frame smoke;27 certificates,0 errors in scratch with the explicit compatibility hash preview. Root metadata still needs review; no sample-reaching D claim.",
+      "date": "2026-11-14"
+    }
+  ],
+  "amiga": {
+    "classification": "Unresolved",
+    "finding": "No DOS/Amiga PCM equivalence claimed; DOS shipped image has no FORM/8SVX. Generated fixtures exercise DOS APIs only."
+  },
+  "uncertainty": [
+    "Requested input-only sample/mixer gameplay witness is impossible under unchanged shipped code and assets. sb_gameplay.txt truthfully witnesses an SB-equipped AdLib game, with the limitation stated.",
+    "Root global closure requires supervisor review/refresh of nine accepted harness hashes changed by explicitly authorized additive tooling. No root certificate outside this unit is edited.",
+    "SDL host has no Sound Blaster audio output. SB observation/model exists in verification peripherals only.",
+    "Remaining18 audio routines: DSP7,DMA4,top sound facade/bank/duration7."
+  ],
+  "dependencies": {
+    "native/adlx_samples.c": {
+      "includes": [
+        "adlx_samples.h"
+      ],
+      "calls": [
+        "audio_sample_scale",
+        "sample_accumulate",
+        "sample_finished",
+        "sample_import_read",
+        "sample_offset",
+        "sample_ring",
+        "sample_voice"
+      ]
+    },
+    "native/adlx_samples.h": {
+      "includes": [
+        "audio.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/adlx_samples_bridge.c": {
+      "includes": [
+        "../adlx_samples.h",
+        "audio_projection.h",
+        "platform.h"
+      ],
+      "calls": [
+        "S",
+        "arg16",
+        "audio_bridge_bank",
+        "audio_bridge_cursor",
+        "audio_bridge_pointer",
+        "audio_bridge_project",
+        "audio_bridge_voice",
+        "audio_sample_activate",
+        "audio_sample_import_apply",
+        "audio_sample_import_begin",
+        "audio_sample_import_next",
+        "audio_sample_mix_begin",
+        "audio_sample_mix_next",
+        "audio_sample_reset",
+        "flag",
+        "lin",
+        "platform_service_point_at",
+        "rd16",
+        "rd32",
+        "rd8",
+        "samples_enter",
+        "samples_leave",
+        "samples_loaded",
+        "samples_pointer",
+        "samples_publish",
+        "samples_push",
+        "samples_stop",
+        "samples_view",
+        "sub16",
+        "ugh_dispatch",
+        "wr16",
+        "wr8"
+      ]
+    }
+  },
+  "accepted_sources_changed": [],
+  "evidence_refreshed": "No accepted native source/header changed. Authorized additive emu/wholegame edits require the nine explicitly listed old-certificate harness-input refreshes; preview is scratch-only, exact proposal in REPORT.",
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "c/abi.c": "5f7c2c2fc015ca43e3786a7f96cb38113211da54acefce19564c1df78d74857a",
+    "c/actors.c": "d17c03c844f95780f0647b85aa854a87c3e566b0f56fe89ee0a95d6d689f3ff2",
+    "c/actors.h": "00817c6f676f61811df11066fca3335c9757e0f59f7cad241dff762fee7b71bd",
+    "c/actors_states.c": "79a460a0436e773bdd795953f63c6765d71c0e346cdf8bbccbcf707817994447",
+    "c/actors_states.h": "375dda6bd3fa6cd5552cc98df7f7c785dc5d70850a10f96207bd0894161cd5d8",
+    "c/adlib.c": "2f4e551282f6ac33f8d24127f3cd5294e679f72ce28794c3ed295ce243c18bf0",
+    "c/adlib.h": "70f2c0d3f51dc49dd05918266b4de07d247a12909f11e8329244b8d9af56cdee",
+    "c/demo_scripts.c": "a19c7e52bc709a28f9be40bc66b60c6de82df888f8eb725b79f0b9556fe795d7",
+    "c/demo_scripts.h": "ea65090001ef64f26f31c39de2075c098949bcb9ca8448480cd1fccdf55a608b",
+    "c/dispatch.c": "80a97f55a460a21dac9d6295939a8276c83b66cef886f814365e0a823814debf",
+    "c/dos_input.c": "b6a086f3917441a23c4238f582e00605d8a239ded81b03a658ff308890601e53",
+    "c/dos_input.h": "8cee17811645a61424b6174e0213402b8c21defd5b4fa6d56511225c70e5193e",
+    "c/dsp.c": "a2f4dc144514ed9ea8cdca8a75c9813718342a5ed5c26176ff6d691f89d651b5",
+    "c/dsp.h": "9b2c2b95b0781caf3a96b7b0b19f8078601557f5e0a11bec889d109ef2755b63",
+    "c/game_services.c": "e9301da5d7fae6f2aacce7dda8d4e6f0e86cbe8c40e736216185c4a8f792a7c5",
+    "c/game_services.h": "7a63f8bd05b2710c27c4c4247b00e0f1fc06a4ecdaa388bf47eb9fb1374965c5",
+    "c/ice.c": "27e2898dd6a5e70af26bde84c0ba8cd6e8a045e40d94df21fd5b122f10a2242e",
+    "c/ice.h": "925da59e4f3fb6cf278100578e56093dc7138040c98eb9f286acb9c867512578",
+    "c/items_water.c": "ab5c2c72096b5e6355a2575f9a58c321f91680d7cd97653581dcbab59033e2d9",
+    "c/items_water.h": "d18978433dcc966235010906984c13fcb76c3469bf4bc0f8e33345101099f148",
+    "c/memory.c": "97f59e3c343cd6911854d0bfc3ff624417de2844f712caa96ec6799d3a9783d9",
+    "c/menu.c": "b2ea585a4cb2b40c349fd7a017642534ea2b4982140a25a6dcacd12ce3b418b0",
+    "c/menu.h": "eaa33e9e9db1f3caa44f60b4a0c862b1bc82855a6389e91f330606e27317b1de",
+    "c/menu_helpers.c": "48125ab011a2ab29cd7936aa61e9889c8715ee843090c6ddd00f9d14dddbb6ad",
+    "c/menu_helpers.h": "9c5998717eec5a79122d91ca1d6a045f303baaf5b96dbf14cf6401b4df34e4e2",
+    "c/music_analysis.c": "604fc3c80dec56a6740444b908da8baeff325357760ab8b82e9db72f5e022fe5",
+    "c/music_analysis.h": "3b2175241d1ced443d9463c6545232630cd4ccd20d907dab83296c8e4cd7fe23",
+    "c/music_clock.c": "2583d53f81c50bc148d423866cbd8f0fa14ff6bb3e5f8320a60e02b35a7d82fa",
+    "c/music_clock.h": "5ffc27066dc1c8438e716850ce666daaa00421dec8be964337b43f75a936210e",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/render.c": "7620324caaff46b39094d4b8f7077f2a5426a728806e52f1c56a962771208b40",
+    "c/render.h": "bcac207ffd7130100008409d8b4069b9ac126b713c81bfb043f1eb1e9603c160",
+    "c/render_primitives.c": "447a9f435f22cc46c9c30d8d11ee9046d57d57c48d6bbaa2e91768e32f9698c0",
+    "c/render_primitives.h": "92f16baae8b087d052e7ca713921fe74ad63e4f0a9f370190b2cc476c7a0ab09",
+    "c/scene.c": "0060ef52ee2cc8b4c98d1b04b6387cd809809a9226f4b4f71c01a75a99d5e460",
+    "c/scene.h": "77c02b56b44a4eb584da4d17cad94cc7f4be79ea3a2f70fd03d7ed2dc50f884a",
+    "c/sound_api.c": "ba1c98bf3a03b5f48a71d4491bdebf3acfc17b0f6cce51db370a0e58c0507e4c",
+    "c/sound_api.h": "b15efba9d9cf41053b3b818d4bb3a084936b6d3e15dafc05544648c88e4687c1",
+    "c/sound_engine.c": "5e4116c31806441e464de35d5649894ec4eea28025254a2edea616235e6e6881",
+    "c/sound_engine.h": "bb288a280c6cf526e91718ccd7fd02a2762e9d58f3d0d53a2f2feef9472eabd1",
+    "c/sound_state.c": "c57e5874b9a7b761faf49dd0bf6da4338ffaea31af1cea5c91a2f13e8ea9ded2",
+    "c/sound_state.h": "bdbbef92b75c99c274bde293ec8bcb1f7a997ed1e8176dc5deda96806c6fbad4",
+    "c/timer.c": "49e56856d56bb1ae68b62fa9112ce294f77182bebfc8e2cd5392737f1c06080b",
+    "c/timer.h": "4ae328394adb59216a373832fbf926a926ce9fe8f813bbe7c3927c9abaf10937",
+    "c/timer_stack.c": "512cfb5332569f32adffed22e5211db5772440428369cc9cc808be931631c98d",
+    "c/timer_stack.h": "e076aba16f8ee3dacbffcddbfa5b065a79a6e8000fa825244bffeb3771d1a514",
+    "c/timer_system.c": "89ead348d18a649f37dca6f44c94c309c3d50b7b6d0877411064f9ac0129d92b",
+    "c/timer_system.h": "f7204fef034e9f641f1f12ad9412efe80844d5be64b177300bdc5a9a20136a49",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_adapters.h": "c18eafbbe16170d01fcfac6853deab651d3c2b54343b47bccd6ce0de4303ad38",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "c/video.c": "681732591d8efb11cf1d5d5816c999bca718560bd247d9c9cc6c0f36982b2fa2",
+    "c/video.h": "35e4d6076edd69e2722cf7d52392871345f5e0eb78af7ce67e13c8ed0c02f192",
+    "host/check.py": "ae78b6b48e7c77aa4c513f8474d23d7ef9d26afe39ab55ea70e871473701e94c",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "native/adlx_samples.c": "8d9c1dd3917034c80b7a2b646a0f258c6bbd7432b258f2cf7160c93de565e5af",
+    "native/adlx_samples.h": "893df7a08f251dcb592f39b841443822dd1275dd1bf360c31052690777f0e113",
+    "native/audio.h": "e14ee8e39125b55ced910d17214acddfcd9fb0339192990487dca22dd3e04a5a",
+    "native/bridge/adlx_samples_bridge.c": "969c1e85b45a73d8c5d80a338a7d4a8c6a75d6ddd691e9ba9df1325ead266265",
+    "native/bridge/audio_projection.h": "e15ee379c16623f0dfb9830e154c5c71b0f2d2a424a6073c3dec497c50cd8630",
+    "tests/scenarios/adlib.txt": "1db37ba320e4c3c85449c2f4a7f5ecd8543e6de6933e165e534b79adb3386f2f",
+    "tests/scenarios/attract.txt": "07339939be35779cc94094221155e97a11c6dec396ab6dce85f238a415896a01",
+    "tests/scenarios/completion.txt": "d898ad1f8abd49f7757303b562028cf7f0c10143dfb0358dad4e0a6fee7386bc",
+    "tests/scenarios/departure.txt": "dd7cb186974803ed7436b99600394606594109283d668f7ee5a893a90f89f705",
+    "tests/scenarios/dino.txt": "f5a6254be7b416bdf3da436c7b1907abe31e4a7b184bb7ac6636b72c7c166252",
+    "tests/scenarios/enemy.txt": "c5140aa9afe062e09cbefb949b78d06733c306518f315ba8f5448a0c2b8062a6",
+    "tests/scenarios/gameplay-adlib.txt": "5f0e1e3ea3f5f9e735c5a7ab2eda9ddee8a33d8d290bbd81e27fd9cbb1ddb3cd",
+    "tests/scenarios/gameplay.txt": "b0be47d570408d44dc977faca40ef2a258c0686958f7fa68574cc411bb25a03a",
+    "tests/scenarios/high-score.txt": "5b698cb06b6d77d9a9d6f009cea71b8a1af9c16c8ecf3c344e33a9b8d93b1220",
+    "tests/scenarios/items-multiplier.txt": "aea8dc889e0a1777e2c3f8b37525375e939656a91577759030523a8aca88ca8d",
+    "tests/scenarios/items-timer.txt": "1fc3cde57a7aed7acfe67e015af95c852a6dc681b7492d3464ffe5e7d5af39b1",
+    "tests/scenarios/menu.txt": "3e8347d504ac0c13ced62c1befb26b59a353c46de397bb3ac79f5089b20ea8b1",
+    "tests/scenarios/passenger.txt": "e95f43a019615449dd142652ea837aaeb4a82e7bce9c6ecd72dd67411fe44922",
+    "tests/scenarios/password.txt": "fea4555e22daca6a5e4e154fd4d6c1b7871d80aa574c402363d5b3b938657bd2",
+    "tests/scenarios/pregame.txt": "6697f662ccf5791b57e14d5dcb0c216c7428312441c570f10b0e031a33a97cf8",
+    "tests/scenarios/reveal.txt": "8be34ff993316d7e099576cccd8af23d28267b02eee37df01a430f8e94418c84",
+    "tests/scenarios/startup.txt": "bddaf9054cfb6f1a4a5734e147c2481c28d0fa0768af141c311ddb13a38fbd7b",
+    "tests/scenarios/two-player.txt": "5c07be6ec944b7a38082d275633bba2ef26cc9e90828b673bb8434ad3ffa78e5",
+    "tests/scenarios/water-physics.txt": "33853e24a477c60ab0dbecf9057a034a01fa2ec6ab6c9f6e873d463006754e6c",
+    "tests/scenarios/water.txt": "22aca0913b25142891f67c57f20d56cfef57c16df862269a377f924217e96f84",
+    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
+    "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
+    "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
+    "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
+    "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
+    "verif/adlx_loader_solver.py": "332c1a46957e398df5865fa5de14a73d259d464c621232f84976f8dfcc1f42d6",
+    "verif/adlx_samples_build.py": "032c882693c3ef52916392a395b33d2bf5197f38db1d6840f2506060037bb44d",
+    "verif/adlx_samples_cases.py": "92b28c9bc59980e61632437ab6664e498e01ce9e266eb466c211704367581766",
+    "verif/adlx_samples_compat.py": "b8cb4175cf62bdf59658515d1fc0c86b3232249328c350c7969b985128da0ae5",
+    "verif/adlx_samples_corpus.py": "6a2577aced3287489feea407565d7960dde0e5028a90293b4febf7015e828c76",
+    "verif/adlx_samples_evidence.py": "c37641f70512097585d17189859a63e1938f4effdc00c22589d8d1b993d3738f",
+    "verif/adlx_samples_host.py": "239cf4f5f8fb9b2241c4c6f61cb9542c54527c8f8aefb7ec887206992d6c11ba",
+    "verif/adlx_samples_integration.py": "02bcec0ff695f02f1a0d587acc6ef9a349b8f6c74d3fa40cd91ac404e1b4c6c7",
+    "verif/adlx_samples_inventory.py": "6c9d1d66da5d0e70d6b7af1efa47d9937937bb9632c1dadca0cb6ec0450bfc89",
+    "verif/adlx_samples_legacy.py": "b43e622e9c948edf47532f93532ec29c70a715eee44cbb5a03384ba1900f4a1f",
+    "verif/adlx_samples_limits.py": "44e750f5f7a0f67add0ae0047caa890ed4a01ae35a1d7be5fbf19ef185807ecf",
+    "verif/adlx_samples_proofs.py": "c4269e9f75fe11095a9d41df0dd3f616ec7c8e1d8d2ef4a58d0d61f3c4b69d34",
+    "verif/adlx_samples_reproduce.py": "0f7354a82791bdba5988c72f25ac4067c83583f70d144fd30e8a622260082b78",
+    "verif/adlx_samples_sb.py": "5b61fe583486b3b55dcc4de22906496da3757f59d0e1eb309f13bc7404efb9c3",
+    "verif/adlx_samples_voice.py": "a3f003e8f6ca1ffda014e845719e2dbfa936a57eeaf8dd93cc29446dfa3edb31",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/sb_gameplay.txt": "74f6a2651e763fad4d287061446b97ac3e0f1222c5b214bdc640a160f0f06a55",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574"
+  }
+}

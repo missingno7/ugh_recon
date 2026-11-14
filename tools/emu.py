@@ -47,6 +47,101 @@ class DeviceState(C.Structure):
         ('count',C.c_uint32),('error',C.c_uint32),('log',IoEvent*1080000)]
 
 
+class SoundBlaster:
+    """Opt-in SB2 single-cycle PCM model, outside the unchanged fixture ABI.
+
+    Creative Hardware Programming Guide: reset +6 -> AA at +A, ready +E bit7;
+    write +C bit7 clear, 40 time constant,14 low/high length-minus-one,
+    D0/D4 pause/resume,D1/D3 speaker. DMA1 advances within its fixed64K page.
+    Completion is sampled at explicit harness polls, never CPU instruction time.
+    No ADPCM, auto-init, bus contention or analogue speaker timing is modelled.
+    """
+    def __init__(self,base=0x220,irq=7,dma=1):
+        if base not in range(0x210,0x260,16) or irq not in (2,3,5,7) or dma!=1:
+            raise ValueError('SB model requires probe base210..250, IRQ2/3/5/7, DMA1')
+        self.base=base;self.irq=irq;self.dma=dma;self.reset_high=False
+        self.fifo=[];self.command=None;self.parameters=[];self.time_constant=131
+        self.speaker=False;self.paused=False;self.enabled=False;self.remaining=0
+        self.pending=False;self.delivered=False;self.credit=0;self.cursor=0
+        self.pcm=bytearray();self.blocks=0
+
+    def install(self,device):
+        # The original probe visits five bases before its >=260 exit. Dummy
+        # absent-card read ports leave room for all existing input fixtures.
+        for base in range(0x210,0x260,16):
+            for delta in (10,14):device.script(base+delta,[255],cycles=0xffffffff)
+        device.script(self.base+12,[0],cycles=0xffffffff)
+        self.refresh(device.raw)
+
+    def refresh(self,raw):
+        for port,values in [(self.base+12,[0]),(self.base+14,[128 if self.fifo else 0]),(self.base+10,[*self.fifo,255])]:
+            script=next(raw.scripts[i] for i in range(raw.script_count) if raw.scripts[i].port==port)
+            script.count=len(values);script.cursor=script.used=0;script.cycles=script.cycles_left=1
+            for i,value in enumerate(values):script.runs[i]=ScriptRun(value,0xffffffff if i==len(values)-1 else 1)
+
+    def observe(self,raw,event):
+        kind,port,size,value=event
+        if kind not in (1,2):return
+        if port in (self.base+6,self.base+10,self.base+12,self.base+14) and size!=1:
+            raise RuntimeError('SB supports byte ports only')
+        if kind==2:
+            if port==self.base+10 and self.fifo:
+                if value!=self.fifo.pop(0):raise RuntimeError('SB read FIFO mismatch')
+            elif port==self.base+14:self.pending=False;self.delivered=False
+            return
+        if port==0x0a and value&3==1:self.enabled=not bool(value&4)
+        if port==self.base+6:
+            if value&1:self.reset_high=True
+            elif self.reset_high:
+                self.reset_high=False;self.fifo=[0xaa];self.command=None;self.parameters=[]
+                self.remaining=0;self.pending=False;self.delivered=False;self.paused=False;self.speaker=False;self.credit=0
+        if port!=self.base+12:return
+        if self.command is not None:
+            self.parameters.append(value)
+            required=1 if self.command==0x40 else 2
+            if len(self.parameters)<required:return
+            if self.command==0x40:self.time_constant=self.parameters[0]
+            else:
+                self.remaining=1+self.parameters[0]+256*self.parameters[1];self.credit=0;self.paused=False
+            self.command=None;self.parameters=[];return
+        if value in (0x14,0x40):self.command=value;self.parameters=[]
+        elif value==0xd0:self.paused=True
+        elif value==0xd4:self.paused=False
+        elif value==0xd1:self.speaker=True
+        elif value==0xd3:self.speaker=False
+        elif value==0xe1:self.fifo=[2,0]
+        elif value==0xf2:self.pending=True;self.delivered=False
+        else:raise RuntimeError(f'unmodelled SB command {value:02X}')
+
+    def sync(self,raw,events):
+        if len(events)<self.cursor:self.cursor=0
+        for event in events[self.cursor:]:self.observe(raw,event)
+        self.cursor=len(events);self.refresh(raw)
+
+    def advance(self,raw,clocks,read):
+        if self.remaining and not self.paused and self.enabled:
+            if raw.dma_mode!=0x49:raise RuntimeError('SB model requires DMA1 single-cycle memory-read mode49')
+            divisor=1193182*(256-self.time_constant)
+            self.credit+=clocks*1000000;amount=min(self.remaining,self.credit//divisor,raw.dma_count+1)
+            self.credit-=amount*divisor;terminal=amount==raw.dma_count+1
+            for i in range(amount):
+                value=read(raw.dma_page<<12,(raw.dma_address+i)&65535,1)
+                if len(value)!=1:raise RuntimeError('SB DMA reads outside the bound memory window')
+                self.pcm.extend(value)
+            raw.dma_address=(raw.dma_address+amount)&65535;raw.dma_count=(raw.dma_count-amount)&65535
+            self.remaining-=amount
+            if terminal:self.enabled=False
+            if not self.remaining:
+                self.blocks+=1;self.pending=True;self.delivered=False;self.enabled=False
+        return self.pending and not self.delivered
+
+    def state(self):
+        import hashlib,json
+        values={name:getattr(self,name) for name in ('base','irq','dma','reset_high','fifo','command','parameters','time_constant','speaker','paused','enabled','remaining','pending','delivered','credit','blocks')}
+        values['pcm_bytes']=len(self.pcm);values['pcm_sha256']=hashlib.sha256(self.pcm).hexdigest()
+        return json.dumps(values,sort_keys=True,separators=(',',':')).encode()
+
+
 class Devices:
     """Finite, serializable hardware fixtures. No host input, files or time.
 
@@ -181,8 +276,10 @@ class Devices:
             elif p==0x83: self.dma_page=b
             elif p==0x201 and self._script(p) is not None:
                 s=self._script(p); s.cursor=s.used=0; s.cycles_left=s.cycles
+            elif getattr(self,'sb',None) is not None and 0x206<=p<=0x25e and p&15 in (6,12): pass
             elif 0x206<=p<=0x26e and p&15 in (6,12) and (self._script((p&0xfff0)+12) is not None or self._script((p&0xfff0)+14) is not None): pass
             else: raise RuntimeError(f'unsupported OUT {p:04X}={b:02X}')
+        if getattr(self,'sb',None) is not None and (port in (2,3,10,11,12,0x83,0x21) or port in (self.sb.base+6,self.sb.base+12)):self.sb.sync(self.raw,self.log)
 
     def inp(self,port,size):
         if size!=1: raise RuntimeError('unsupported IN width')
@@ -194,7 +291,9 @@ class Devices:
         else:
             v=self._take(port)
             if port==0x3da: self.attr_phase=0
-        self.log.append((2,port,size,v)); return v
+        self.log.append((2,port,size,v))
+        if getattr(self,'sb',None) is not None and port in (self.sb.base+10,self.sb.base+12,self.sb.base+14):self.sb.sync(self.raw,self.log)
+        return v
 
     def interrupt(self,number,m):
         ax=m.reg('AX'); ah,al=ax>>8,ax&255; self.log.append((3,number,0,ax))

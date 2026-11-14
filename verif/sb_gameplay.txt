@@ -1,0 +1,16 @@
+# Input-only SB-equipped version of the accepted gameplay path. The shipped
+# startup still requests device mask1, so this witnesses AdLib on an SB card;
+# it cannot truthfully require sample/mixer entries. See close-adlx-9 REPORT.
+timing pit-quantum-at-polls
+frames 180
+card sb
+sb 220 7 1
+scores blank
+1: esc -esc
+4: esc -esc
+9: f1 -f1
+12: enter -enter
+14: cycle=enter,-enter
+60: right
+150: -right down
+requires C:InitializeSoundSystem SOUND:InitializeAdlibPlayback SOUND:RunMainAdlxEvents

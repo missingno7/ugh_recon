@@ -444,7 +444,7 @@
     "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
     "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
-    "tools/wholegame.py": "ba6fff7d0f1583e734ab69435e801f2d101758078c36712744bc5b3e839fa65c",
+    "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/cbmc_shim/stddef.h": "03e62ec5f7016e0582b92f016d7e4017b56746e2b216ae8d7fad236ae7e723e7",
     "verif/cbmc_shim/stdint.h": "ff382e7cc9e8ac2ff6cef94767bb680b49944513ebff33b6d7e548fe12a5d7d0",
     "verif/cbmc_shim/ugh.h": "d23d5fb7f8d14f5c03944d9cce971d6d21fdf32c28ebac1f2710842cd03d7e72",
@@ -466,6 +466,14 @@
       "date": "2026-11-13",
       "reason": "supervisor applied the library-unit fix to tools/hostbuild.py (export-less bridges link as libraries)",
       "result": "unmodified python tools/hostbuild.py builds with falling_items and level_view linked; python host/check.py --variant native passes all scenarios including items-multiplier and items-timer and the 256-frame smoke; python tools/wholegame.py passes 16 scenarios"
+    },
+    {
+      "date": "2026-11-14",
+      "reason": "supervisor relock: tools/emu.py and tools/wholegame.py gained the opt-in `card sb` Sound Blaster verification model (close-adlx-9); every change is guarded by card sb",
+      "result": "python tools/wholegame.py rerun by the supervisor: all 20 scenarios pass and every reference frame and coverage list equals the pre-change references; host check passes in both variants; no native or proof source changed",
+      "inputs": [
+        "tools/wholegame.py"
+      ]
     }
   ]
 }

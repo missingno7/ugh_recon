@@ -1164,7 +1164,7 @@
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
-    "tools/wholegame.py": "ba6fff7d0f1583e734ab69435e801f2d101758078c36712744bc5b3e839fa65c",
+    "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
     "host/check.py": "ae78b6b48e7c77aa4c513f8474d23d7ef9d26afe39ab55ea70e871473701e94c",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
@@ -1222,5 +1222,15 @@
     "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
     "c/video.c": "681732591d8efb11cf1d5d5816c999bca718560bd247d9c9cc6c0f36982b2fa2",
     "c/video.h": "35e4d6076edd69e2722cf7d52392871345f5e0eb78af7ce67e13c8ed0c02f192"
-  }
+  },
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-14",
+      "reason": "supervisor relock: tools/emu.py and tools/wholegame.py gained the opt-in `card sb` Sound Blaster verification model (close-adlx-9); every change is guarded by card sb",
+      "result": "python tools/wholegame.py rerun by the supervisor: all 20 scenarios pass and every reference frame and coverage list equals the pre-change references; host check passes in both variants; no native or proof source changed",
+      "inputs": [
+        "tools/wholegame.py"
+      ]
+    }
+  ]
 }

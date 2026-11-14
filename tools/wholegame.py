@@ -18,7 +18,7 @@ from pathlib import Path
 
 from common import ROOT, sha256
 from difftest import load_dll, Regs
-from emu import Machine, Devices, DeviceState, IoEvent, MEM_SIZE, REG_NAMES, LOAD, NativeVga
+from emu import Machine, Devices, DeviceState, IoEvent, MEM_SIZE, REG_NAMES, LOAD, NativeVga, SoundBlaster
 from unicorn import UC_HOOK_CODE
 
 VERSION = 1
@@ -67,10 +67,15 @@ def scenario(path):
             if k=='requires': s[k].extend(v.split()); continue
             if k=='expect':
                 name,value=v.split(); s['expects'][name]=int(value,0); continue
-            if k not in ('entry','frames','card','players','bios','score','password','end','joystick','timing','death','scores'):
+            if k not in ('entry','frames','card','players','bios','score','password','end','joystick','timing','death','scores','sb'):
                 raise ValueError('unknown scenario directive: '+k)
             s[k]=int(v) if k in ('frames','players') else v
-    if s['card'] not in ('none','adlib'): raise ValueError('card must be none/adlib')
+    if s['card'] not in ('none','adlib','sb'): raise ValueError('card must be none/adlib/sb')
+    if s.get('sb') and s['card']!='sb':raise ValueError('sb settings require card sb')
+    if s['card']=='sb':
+        words=s.get('sb','220 7 1').split()
+        if len(words)!=3:raise ValueError('sb settings: hex-base decimal-irq decimal-dma')
+        SoundBlaster(int(words[0],16),int(words[1]),int(words[2]))
     if s.get('timing','pit-quantum-at-polls')!='pit-quantum-at-polls': raise ValueError('unknown timing policy')
     if not 1<=s['frames']<=16384: raise ValueError('frame bound 1..16384 required')
     return s
@@ -90,6 +95,8 @@ def fixture(s):
     m.device.script(0x201,joystick,cycles=0xffffffff)
     m.device.script(0xfffe,[0x10203040],cycles=0xffffffff)
     m.device.script(0x388,[0xe0] if s['card']=='none' else [0,0xc0]+[0]*64,cycles=0xffffffff)
+    if s['card']=='sb':
+        words=s.get('sb','220 7 1').split();m.device.sb=SoundBlaster(int(words[0],16),int(words[1]),int(words[2]));m.device.sb.install(m.device)
     m.write(0,0x20,struct.pack('<HH',0x100,0xf000))
     # Real temporary calibration handlers, before any periodic timer is installed.
     for site in ('loc_1163','loc_116B'):
@@ -142,8 +149,17 @@ class Clock:
         for label,delta in [('C:StopSoundChannel',0x53),('C:StopMusicTrack',0x95),('C:LoadIffSample',0x4e7)]:
             seg,off=m.address(label); self.timer_sites.append((seg,off+delta))
         self.timer_segment=m.seg('TIMER:HandleTimerInterrupt')
+        self.sb=None
 
     def service(self,dev,segment,offset,flags,read):
+        if self.sb is not None:
+            raw=dev.raw if isinstance(dev,Devices) else dev
+            events=dev.log if isinstance(dev,Devices) else [(e.kind,e.port,e.size,e.value) for e in raw.log[:raw.count]]
+            self.sb.sync(raw,events)
+            if (segment,offset) in [self.poll,*self.timer_sites]:self.sb.advance(raw,raw.pit_divisor or 65536,read)
+            if flags&512 and dev.irq_cursor>=dev.irq_count and self.sb.pending and not self.sb.delivered and not dev.pic_mask&(1<<self.sb.irq):
+                dev.irq_cursor=0;dev.irq_count=1;e=dev.irqs[0];e.segment=segment;e.offset=offset;e.skip=0;e.irq=self.sb.irq;e.clocks=0
+                self.sb.delivered=True
         if not flags&512 or dev.irq_cursor<dev.irq_count: return
         if (segment,offset) in self.timer_sites and not dev.pic_mask&1:
             vector=read(0,0x20,4)
@@ -186,13 +202,14 @@ def compared_ram(ram,sp):
     return ram[:0x80000]+ram[0x80000+sp:]
 
 
-def record(ram,device,events,rolling,m,sp,live_sp):
+def record(ram,device,events,rolling,m,sp,live_sp,sb=None):
     rolling.update(events)
     vals={n:int.from_bytes(ram[m.seg('DGROUP:'+n)*16+m.off('DGROUP:'+n):
                                 m.seg('DGROUP:'+n)*16+m.off('DGROUP:'+n)+(1 if n in ('LivesRemaining','RemainingPassengerJourneys') else 2)],'little') for n in SCALARS}
     vals['return']=int.from_bytes(ram[0x80000+live_sp:0x80002+live_sp],'little')
-    return dict(ram=sha256(compared_ram(ram,sp)),device=sha256(device),
-                log=rolling.hexdigest(),scalars=vals)
+    result=dict(ram=sha256(compared_ram(ram,sp)),device=sha256(device),log=rolling.hexdigest(),scalars=vals)
+    if sb is not None:result['sb']=sha256(sb.state())
+    return result
 
 
 def identity(path,m):
@@ -223,6 +240,8 @@ def trace_state(name,regs,ram,device,events,sp,m):
 
 def original(s,m,initial,progress=False,stop=None,trace=None,resume=None):
     clock=Clock(s,m); records=[]; rolling=hashlib.sha256(); snapshots={}; entries=set(); sites=set(); edges=set(); pending=[None]
+    clock.sb=getattr(m.device,'sb',None)
+    if clock.sb is not None:clock.timer_sites.append(m.address('SOUND:loc_1FEA'))
     frame_address=m.seg(FRAME)*16+m.off(FRAME)+0x2a
     service_addresses=[seg*16+off for seg,off in (clock.poll,clock.retrace)]
     service_addresses=sorted(set(service_addresses+[seg*16+off for seg,off in clock.timer_sites]))
@@ -234,6 +253,7 @@ def original(s,m,initial,progress=False,stop=None,trace=None,resume=None):
         C.memmove(C.addressof(m.device.raw),resume['device'],len(resume['device']))
         m.uc.context_restore(resume['context']); rolling=resume['rolling'].copy()
         clock=copy.deepcopy(resume['clock']); skip_boundary[0]=True
+        if clock.sb is not None:m.device.sb=clock.sb
     def service(uc,address,size,user):
         if address in skip_service:
             skip_service.remove(address); return
@@ -248,10 +268,12 @@ def original(s,m,initial,progress=False,stop=None,trace=None,resume=None):
     def boundary(uc,address,size,user):
         if skip_boundary[0]: skip_boundary[0]=False; return
         if m.device.error: raise RuntimeError('native VGA rejected an unsupported access width')
+        if clock.sb is not None:clock.sb.sync(m.device.raw,m.device.log)
         ram=m.snapshot(); device=m.device.state()
         raw=b''.join(struct.pack('<4I',*e) for e in m.device.log)
-        records.append(record(ram,device,raw,rolling,m,initial['SP'],m.reg('SP')))
+        records.append(record(ram,device,raw,rolling,m,initial['SP'],m.reg('SP'),clock.sb))
         m.device.log.clear(); clock.frame=len(records)
+        if clock.sb is not None:clock.sb.cursor=0
         if progress: print(f'  original frame {len(records)} {records[-1]["scalars"]}',flush=True)
         if len(records)%32==0 or len(records)==1:
             snapshots[len(records)]=dict(ram=ram,device=device,context=m.uc.context_save(),rolling=rolling.copy(),
@@ -323,6 +345,8 @@ def native(s,m,initial,dll,reference,trace=None):
     C.memmove(mem,m.snapshot(),MEM_SIZE); dll.ugh_devices_reset()
     state=m.device.state(); C.memmove(C.addressof(dev),state,len(state))
     rolling=hashlib.sha256(); clock=Clock(s,m); records=[]; failure={}; errors=[]
+    clock.sb=copy.deepcopy(getattr(m.device,'sb',None))
+    if clock.sb is not None:clock.timer_sites.append(m.address('SOUND:loc_1FEA'))
     FRAME_CB=C.CFUNCTYPE(C.c_int,C.POINTER(Regs))
     SERVICE_CB=C.CFUNCTYPE(C.c_int,C.c_uint16,C.c_uint16,C.POINTER(Regs))
     ENTRY_CB=C.CFUNCTYPE(None,C.c_uint16,C.c_uint16,C.POINTER(Regs))
@@ -336,11 +360,13 @@ def native(s,m,initial,dll,reference,trace=None):
             C.string_at(C.addressof(dev),DeviceState.count.offset),raw,initial['SP'],m))
     def boundary(rp):
         try:
+            if clock.sb is not None:clock.sb.sync(dev,[(e.kind,e.port,e.size,e.value) for e in dev.log[:dev.count]])
             ram=bytes(mem); device=C.string_at(C.addressof(dev),DeviceState.count.offset)
             raw=C.string_at(C.addressof(dev)+DeviceState.log.offset,dev.count*C.sizeof(IoEvent))
-            got=record(ram,device,raw,rolling,m,initial['SP'],rp.contents.sp)
+            got=record(ram,device,raw,rolling,m,initial['SP'],rp.contents.sp,clock.sb)
             if terminal_capture[0]: got['terminal']=s['end']
             records.append(got); dev.count=0
+            if clock.sb is not None:clock.sb.cursor=0
             clock.frame=len(records)
             if got!=reference[len(records)-1] or dev.error:
                 failure.update(frame=len(records),expected=reference[len(records)-1],actual=got,
@@ -358,6 +384,13 @@ def native(s,m,initial,dll,reference,trace=None):
     dll.ugh_set_service_observer.argtypes=[SERVICE_CB]; dll.ugh_set_service_observer(scb)
     ecb=ENTRY_CB(entry); dll.ugh_set_entry_observer.argtypes=[ENTRY_CB]
     dll.ugh_set_entry_observer(ecb if trace is not None else ENTRY_CB())
+    OUTPUT_CB=C.CFUNCTYPE(None,C.c_uint16,C.c_uint,C.c_uint32)
+    def output(port,size,value):
+        if clock.sb is not None and (port in (2,3,10,11,12,0x83,0x21) or port in (clock.sb.base+6,clock.sb.base+12)):
+            try:clock.sb.sync(dev,[(e.kind,e.port,e.size,e.value) for e in dev.log[:dev.count]])
+            except Exception as error:errors.append(str(error))
+    ocb=OUTPUT_CB(output)
+    if clock.sb is not None:dll.ugh_set_output_observer.argtypes=[OUTPUT_CB];dll.ugh_set_output_observer(ocb)
     r=Regs(**{k.lower():v for k,v in initial.items()})
     terminal_capture=[False]
     fn=getattr(dll,'c_'+s['entry'].split(':')[1]); fn.argtypes=[C.POINTER(Regs)]
@@ -367,6 +400,7 @@ def native(s,m,initial,dll,reference,trace=None):
             if s['end']=='return': r.sp=(r.sp+2)&65535; r.ip=0xfff0
             terminal_capture[0]=True; boundary(C.pointer(r))
     finally:
+        if clock.sb is not None:dll.ugh_set_output_observer(OUTPUT_CB())
         dll.ugh_set_frame_observer(FRAME_CB()); dll.ugh_set_service_observer(SERVICE_CB()); dll.ugh_set_entry_observer(ENTRY_CB())
     if errors: raise RuntimeError('; '.join(errors))
     expected_status=(5 if s['end']=='exit' else 0) if s.get('end') else 2

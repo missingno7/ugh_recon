@@ -122,7 +122,24 @@ is the second unit, chosen to exercise state ownership and indirect control flow
 | Music start, stop, volume, fades, guarded clock, silence | migrated: 264 resource pipelines through start, fade and stop with full RAM and ordered writes, 5,342 cases, 19 scenarios (`adlib` and `gameplay-adlib` run 7 starts, 13 stops and 108 fade steps) (C/D); 16 split properties proved (B). TIMER registration and delivery stay a service boundary. Retained: stop silences effects before checking that music plays, volume walks the voice count by low byte (count 256 visits voices 0..8 once), fade completion is unsigned and strict, divide faults keep their partial state. `AdvanceGuardedSoundClock` has no caller | `metadata/closure/adlx_music.json` |
 | AdLib voice driver entries (volume, gain, key-off, frequency, instrument, raw register write, I/O delay) | migrated: 70,000 actual-C cases, all 11 resources through the facade, 6,508 cases and 20 scenarios (C/D); 75 split properties (B). Channel acceptance uses the low byte (0100 is voice 0); no device or initialisation checks; device-aperture instrument sources fall back to L1 before any read. Audio now has 48 of 75 routines native; remaining: AdLib init/shutdown/calibration (6), sound facade and banks (7), sample import (1), DSP (7), mixer and DMA (6) | `metadata/closure/adlx_voice.json` |
 | AdLib lifetime, shared sound reset, CPU-loop calibration | migrated: 12,000 compiled pairs, all 65,536 probe status bytes, 88 resource pipelines, 6,594 cases and 20 scenarios (`startup`, `adlib`, `gameplay-adlib` reach them) (C/D); 21 split properties (B). DOS vectors, interrupt delivery and TIMER are services. Retained: the attempted flag is set before calibration, so a failed probe makes the next init report success without retrying; calibration has no division and stores two raw counter words (the multiplier keeps a 1179 bias, the delay uses only its low byte); the reset clears exactly 1,160 bytes and keeps DMA buffers and handles. A native port must supply the calibration measurement. Audio: 54 of 75 routines native | `metadata/closure/adlx_lifetime.json` |
+| Sample import, voice cursor reset, sample mixer | migrated on API evidence: 67,336 compiled pairs (including all 65,536 reset inputs), 256 import-reset-mix pipelines, 6,684 direct L0 cases (C); 11 split properties (B); the real DMA IRQ handler run against the Sound Blaster model captures 641 identical bytes. Unreachable in the shipped program (see below), so no scenario reaches it. Retained: the importer searches literal `VHDR`/`BODY` tags instead of walking chunks and treats any nonzero compression as mode 3, but nothing decompresses it; the mixer returns requested bytes minus remaining pairs (mixed units, which leaves a stale buffer tail); division by the live count keeps its fault prefix. Audio: 57 of 75 routines native | `metadata/closure/adlx_samples.json` |
 | everything else | unanalyzed | |
+
+### The Sound Blaster path is unreachable in the shipped DOS program
+
+Recorded 2026-11-14 from close-adlx-9's run and checked in the source:
+
+- `InitializeAdLibSound` always calls `InitializeSoundSystem(1)`: AdLib only. No setting asks for
+  the digital device (bit 2).
+- No sample (`FORM`/`8SVX`) resource ships with the DOS game.
+- The bank and delay hooks GAME:001C..001F are single near RETs, called as far procedures. The DSP
+  probe's far call to 001F returns into unrelated GAME code before any DSP transaction.
+
+Decision: the game is not patched to reach this path. Its routines are still closed, because they
+are part of the shipped program, but on API evidence against the deterministic Sound Blaster model
+(`card sb` in `tools/wholegame.py`, documented in close-adlx-9's report), with a small proof
+budget. The broken transfers stay explicit L1 boundaries. The native host needs no Sound Blaster
+output to play the shipped game; digital sound in a port would be a new feature, not a gap.
 
 ## Tooling gaps
 

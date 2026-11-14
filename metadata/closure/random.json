@@ -343,9 +343,9 @@
     "tools/common.py": "1d9a28e45a491eed6e5154fea9fbd53a2aac9d6f772614fdf37f8dc3fae3483e",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
     "tools/dos.py": "df2a7a83777a15d467bca6e32e5bd123b2c0886551512b95669b09ca89ecefc7",
-    "tools/emu.py": "c376f5a21f311b003d322b76fe23f39686c3a29f8f2d759dd5e5d82c66b2035c",
+    "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
     "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
-    "tools/wholegame.py": "ba6fff7d0f1583e734ab69435e801f2d101758078c36712744bc5b3e839fa65c",
+    "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/cbmc_shim/stddef.h": "03e62ec5f7016e0582b92f016d7e4017b56746e2b216ae8d7fad236ae7e723e7",
     "verif/cbmc_shim/stdint.h": "ff382e7cc9e8ac2ff6cef94767bb680b49944513ebff33b6d7e548fe12a5d7d0",
     "verif/cbmc_shim/ugh.h": "d23d5fb7f8d14f5c03944d9cce971d6d21fdf32c28ebac1f2710842cd03d7e72",
@@ -377,6 +377,15 @@
       "date": "2026-11-13",
       "reason": "docs/modernization.md gained the host-check review rule; no code or evidence input changed",
       "result": "certificate reviewed; evidence not affected"
+    },
+    {
+      "date": "2026-11-14",
+      "reason": "supervisor relock: tools/emu.py and tools/wholegame.py gained the opt-in `card sb` Sound Blaster verification model (close-adlx-9); every change is guarded by card sb",
+      "result": "python tools/wholegame.py rerun by the supervisor: all 20 scenarios pass and every reference frame and coverage list equals the pre-change references; host check passes in both variants; no native or proof source changed",
+      "inputs": [
+        "tools/emu.py",
+        "tools/wholegame.py"
+      ]
     }
   ]
 }

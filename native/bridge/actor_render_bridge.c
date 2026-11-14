@@ -111,85 +111,9 @@ static uint16_t sar(uint16_t v,unsigned n) {
     return (uint16_t)((v>>n)|((v&0x8000u) ? (0xffffu<<(16-n)) : 0));
 }
 
-static void push(Regs *r,uint16_t v) { r->sp=(uint16_t)(r->sp-2); wr16(r->ss,r->sp,v); }
-
-static int scene_far_call(Regs *r,uint16_t seg,uint16_t off,uint16_t ret) {
-    push(r,r->cs); push(r,ret); int st=ugh_dispatch(seg,off,r);
-    r->sp=(uint16_t)(r->sp+4); return st;
-}
-
-static int draw_enemy_layer(Regs *r,int front) {
-    r->si=logic(r,0,16);
-    for(unsigned budget=0;budget<32768;budget++) {
-        r->ax=RX(EnemyDescriptors,r->si); sub16(r,r->ax,0xffff,0); if(r->ax==0xffff) return UGH_OK;
-        sub16(r,r->ax,D(Data_76E4),0); int special=r->ax==D(Data_76E4);
-        if(!special) { sub16(r,r->ax,D(Data_76A8),0); special=r->ax==D(Data_76A8); }
-        if(special!=front) {
-            r->ax=RX(EnemySpriteIds,r->si); sub16(r,r->ax,0xffff,0);
-            if(r->ax!=0xffff) {
-                r->bx=RX(EnemyDrawX,r->si); r->cx=RX(EnemyDrawY,r->si);
-                WX(EnemyPreviousDrawX,r->si,r->bx); WX(EnemyPreviousDrawY,r->si,r->cx);
-                r->bx=sar(RX(EnemyX32,r->si),5); WX(EnemyDrawX,r->si,r->bx);
-                r->cx=sar(RX(EnemyY32,r->si),5); WX(EnemyDrawY,r->si,r->cx);
-                sub16(r,r->cx,192,0);
-                if((int16_t)r->cx<192) { CALL(DrawTransparentSprite,G(RunGameFromPassword)+(front?0x302:0x293)); }
-            }
-        }
-        r->si=add16(r,r->si,2,0);
-    }
-    return UGH_BUDGET;
-}
-
-EXPORT int c_RunGameFromPassword(Regs *r) {
-    r->cx=logic(r,0,16); r->bx=R(PlayerArrayBytes);
-    r->si=rd16(r->ds,(uint16_t)(D(PasswordListPointers)-2+r->bx));
-next_password:
-    r->bx=logic(r,0,16); r->bp=logic(r,0,16);
-    for(unsigned chars=0;chars<65536;chars++) {
-        set_al(r,rd8(r->ds,r->si)); r->si=(uint16_t)(r->si+step(r)); logic(r,(uint8_t)r->ax,8);
-        if(!(uint8_t)r->ax) break;
-        if((uint8_t)r->ax==255) { r->cx=logic(r,0,16); goto selected; }
-        uint16_t cf=r->flags&CF; r->bx=add16(r,r->bx,1,0); flag(r,CF,cf);
-        if((uint8_t)r->ax!=rd8(r->ds,(uint16_t)(D(PasswordCompareBiasedBase)+r->bx))) r->bp=dec16(r,r->bp);
-        if(chars==65535) return UGH_BUDGET;
-    }
-    logic(r,r->bp,16);
-    if(!r->bp) {
-        for(;;) {
-            sub16(r,r->bx,20,0); if(r->bx>=20) goto selected;
-            set_al(r,32);
-            if(rd8(r->ds,(uint16_t)(D(PasswordEditBuffer)+r->bx))!=32) break;
-            uint16_t cf=r->flags&CF; r->bx=add16(r,r->bx,1,0); flag(r,CF,cf);
-        }
-    }
-    { uint16_t cf=r->flags&CF; r->cx=add16(r,r->cx,1,0); flag(r,CF,cf); } goto next_password;
-selected:
-    W(CurrentLevelIndex,r->cx); CALL(PlayPreGameDemo,G(RunGameFromPassword)+0x50);
-    push(r,0x11); int st=scene_far_call(r,UGH_S_C_StopMusicTrack,UGH_O_C_StopMusicTrack,G(RunGameFromPassword)+0x57);
-    if(st) return st;
-    r->sp=add16(r,r->sp,2,0); CALL(ResetScoreLivesAndMultiplier,G(RunGameFromPassword)+0x5d);
-    CALL(BlackenVgaPalette,G(RunGameFromPassword)+0x60);
-level:
-    CALL(InitializeLevelDisplay,G(RunGameFromPassword)+0x63);
-    push(r,0xa5); push(r,0); push(r,UGH_S_B3444_ext_3444); push(r,0);
-    st=scene_far_call(r,UGH_S_C_StartMusicTrack,UGH_O_C_StartMusicTrack,G(RunGameFromPassword)+0x73); if(st) return st;
-    r->sp=add16(r,r->sp,8,0);
-    for(unsigned frames=0;frames<100000;frames++) {
-        r->cx=R(ScreenFadeLevel); sub16(r,r->cx,0,0); if((int16_t)r->cx<0) goto faded;
-        sub16(r,r->cx,256,0);
-        if((int16_t)r->cx<=256) {
-            CALL(ScaleAndUploadFadedPalette,G(RunGameFromPassword)+0x91);
-            r->cx=add16(r,r->cx,R(ScreenFadeStep),0); W(ScreenFadeLevel,r->cx);
-        } else { CALL(WaitNextVerticalRetrace,G(RunGameFromPassword)+0x9e); }
-        CALL(RefreshHudAndTimerBar,G(RunGameFromPassword)+0xa1); r->bx=logic(r,0,16);
-        do {
-            CALL(RestorePlayerBackground,G(RunGameFromPassword)+0xa6);
-            r->bx=add16(r,r->bx,2,0); sub16(r,r->bx,R(PlayerArrayBytes),0);
-        } while(r->bx!=R(PlayerArrayBytes));
-        r->si=logic(r,0,16);
-        for(unsigned slots=0;slots<32768;slots++) {
+EXPORT int actor_render_session_GAME_ERASE(Regs *r) {r->si=logic(r,0,16);for(unsigned slots=0;slots<32768;slots++) {
             sub16(r,RX(ActorDescriptors,r->si),0xffff,0); if(r->flags&ZF) break;
-        { RenderPlan plan; ar_open(r,&plan,ACTOR_RENDER_GAME_ERASE);
+{RenderPlan plan;ar_open(r,&plan,ACTOR_RENDER_GAME_ERASE);
 
             r->ax=RX(ActorSpriteIds,r->si); r->cx=RX(ActorEraseSprite,r->si); ar_write(r,&plan,(uint16_t)(D(ActorEraseSprite)+r->si),r->ax);
             sub16(r,r->cx,0xffff,0);
@@ -205,55 +129,13 @@ level:
                     }
                 }
             }
-          ar_finish(r,&plan); }
+ar_finish(r,&plan);}
 
             r->si=add16(r,r->si,2,0); if(slots==32767) return UGH_BUDGET;
-        }
-        r->si=logic(r,0,16);
-        for(unsigned slots=0;slots<32768;slots++) {
-            sub16(r,RX(EnemyDescriptors,r->si),0xffff,0); if(r->flags&ZF) break;
-            r->ax=RX(EnemySpriteIds,r->si); r->cx=RX(EnemyEraseSprite,r->si); WX(EnemyEraseSprite,r->si,r->ax);
-            sub16(r,r->cx,0xffff,0);
-            if(r->cx!=0xffff) {
-                r->ax=RX(EnemyPreviousDrawX,r->si); r->bx=RX(EnemyPreviousDrawY,r->si);
-                CALL(RestoreSpriteBackground,G(RunGameFromPassword)+0x138);
-            }
-            r->si=add16(r,r->si,2,0); if(slots==32767) return UGH_BUDGET;
-        }
-        r->si=22;
-        do {
-            r->ax=RX(FallingItemSprites,r->si); r->cx=RX(FallingItemEraseSprite,r->si); WX(FallingItemEraseSprite,r->si,r->ax);
-            sub16(r,r->cx,0xffff,0);
-            if(r->cx!=0xffff) {
-                r->ax=RX(FallingItemPreviousDrawX,r->si); r->bx=RX(FallingItemPreviousDrawY,r->si);
-                CALL(RestoreSpriteBackground,G(RunGameFromPassword)+0x15f);
-            }
-            r->si=sub16(r,r->si,2,0);
-        } while(!(r->flags&SF));
-        if(rd8(r->ds,D(LevelRainDirection))) { CALL(RestoreRainBackground,G(RunGameFromPassword)+0x171); }
-        CALL(AdvanceWaterSurface,G(RunGameFromPassword)+0x174);
-        st=platform_service_point_at(SERVICE_IO,r->cs,G(RunGameFromPassword)+0x174,r); if(st) return st;
-        CALL(PollPlayerControls,G(RunGameFromPassword)+0x177);
-        if((uint8_t)r->ax==0x19) {
-            do { CALL(PollKeyboardScanChange,G(RunGameFromPassword)+0x181); } while((uint8_t)r->ax!=0x99);
-            do { CALL(PollKeyboardScanChange,G(RunGameFromPassword)+0x188); } while((uint8_t)r->ax&128);
-            do { CALL(PollKeyboardScanChange,G(RunGameFromPassword)+0x18f); } while(!((uint8_t)r->ax&128));
-        }
-        if((uint8_t)r->ax==1) {
-            wr8(r->ds,D(LivesRemaining),0); sub16(r,R(ScreenFadeStep),0,0);
-            if((int16_t)R(ScreenFadeStep)>=0) { r->ax=0xfffe; W(ScreenFadeStep,r->ax); W(ScreenFadeLevel,add16(r,R(ScreenFadeLevel),r->ax,0)); }
-        }
-        sub16(r,R(ScreenFadeLevel),192,0); int move=(int16_t)R(ScreenFadeLevel)>192;
-        if(!move) { sub16(r,R(ScreenFadeStep),0,0); move=(int16_t)R(ScreenFadeStep)<=0; }
-        if(move) {
-            r->bx=logic(r,0,16);
-            do { CALL(MovePlayerWithVgaCollisions,G(RunGameFromPassword)+0x1ce); r->bx=add16(r,r->bx,2,0); sub16(r,r->bx,R(PlayerCount),0); } while(r->bx==R(PlayerCount));
-        }
-        CALL(DispatchActorUpdates,G(RunGameFromPassword)+0x1da); CALL(DispatchEnemyStates,G(RunGameFromPassword)+0x1dd);
-        CALL(DispatchFallingItems,G(RunGameFromPassword)+0x1e0); r->si=logic(r,0,16);
-        for(unsigned slots=0;slots<32768;slots++) {
+        }return UGH_OK;}
+EXPORT int actor_render_session_GAME_DRAW(Regs *r) {r->si=logic(r,0,16);for(unsigned slots=0;slots<32768;slots++) {
             sub16(r,RX(ActorDescriptors,r->si),0xffff,0); if(r->flags&ZF) break;
-        { RenderPlan plan; ar_open(r,&plan,ACTOR_RENDER_GAME_DRAW);
+{RenderPlan plan;ar_open(r,&plan,ACTOR_RENDER_GAME_DRAW);
 
             r->ax=RX(ActorSpriteIds,r->si); sub16(r,r->ax,0xffff,0);
             if(r->ax!=0xffff) {
@@ -262,28 +144,13 @@ level:
                 sub16(r,r->cx,192,0);
                 if((int16_t)r->cx<192) { sub16(r,r->cx,(uint16_t)-11,0); if((int16_t)r->cx>-11) { AR_CALL(DrawTransparentSprite,G(RunGameFromPassword)+0x232); } }
             }
-          ar_finish(r,&plan); }
+ar_finish(r,&plan);}
 
             r->si=add16(r,r->si,2,0); if(slots==32767) return UGH_BUDGET;
-        }
-        st=draw_enemy_layer(r,0); if(st) return st;
-        r->bx=logic(r,0,16);
-        do { CALL(AnimateAndDrawPlayer,G(RunGameFromPassword)+0x29d); r->bx=add16(r,r->bx,2,0); sub16(r,r->bx,R(PlayerArrayBytes),0); } while(r->bx!=R(PlayerArrayBytes));
-        st=draw_enemy_layer(r,1); if(st) return st;
-        r->si=22;
-        do {
-            r->ax=RX(FallingItemSprites,r->si); sub16(r,r->ax,0xffff,0);
-            if(r->ax!=0xffff) {
-                r->bx=RX(FallingItemDrawX,r->si); r->cx=RX(FallingItemDrawY,r->si); WX(FallingItemPreviousDrawX,r->si,r->bx); WX(FallingItemPreviousDrawY,r->si,r->cx);
-                r->bx=sar(RX(FallingItemX,r->si),5); WX(FallingItemDrawX,r->si,r->bx); r->cx=sar(RX(FallingItemY,r->si),5); WX(FallingItemDrawY,r->si,r->cx);
-                sub16(r,r->cx,192,0); if((int16_t)r->cx<192) { CALL(DrawTransparentSprite,G(RunGameFromPassword)+0x348); }
-            }
-            r->si=sub16(r,r->si,2,0);
-        } while(!(r->flags&SF));
-        r->si=logic(r,0,16);
-        for(unsigned slots=0;slots<32768;slots++) {
+        }return UGH_OK;}
+EXPORT int actor_render_session_GAME_OVERLAY(Regs *r) {r->si=logic(r,0,16);for(unsigned slots=0;slots<32768;slots++) {
             sub16(r,RX(ActorDescriptors,r->si),0xffff,0); if(r->flags&ZF) break;
-        { RenderPlan plan; ar_open(r,&plan,ACTOR_RENDER_GAME_OVERLAY);
+{RenderPlan plan;ar_open(r,&plan,ACTOR_RENDER_GAME_OVERLAY);
 
             r->ax=RX(ActorSpriteIds,r->si); sub16(r,r->ax,0xffff,0);
             if(r->ax!=0xffff) {
@@ -293,29 +160,10 @@ level:
                     AR_CALL(DrawTransparentSprite,G(RunGameFromPassword)+0x382);
                 }
             }
-          ar_finish(r,&plan); }
+ar_finish(r,&plan);}
 
             r->si=add16(r,r->si,2,0); if(slots==32767) return UGH_BUDGET;
-        }
-        if(rd8(r->ds,D(LevelRainDirection))) { CALL(AdvanceRainParticles,G(RunGameFromPassword)+0x394); CALL(DrawRainParticles,G(RunGameFromPassword)+0x397); }
-        CALL(DrawWaterSurface,G(RunGameFromPassword)+0x39a); CALL(SwapAndDisplayVgaPage,G(RunGameFromPassword)+0x39d);
-    }
-    return UGH_BUDGET;
-faded:
-    push(r,0x11); st=scene_far_call(r,UGH_S_C_StopMusicTrack,UGH_O_C_StopMusicTrack,G(RunGameFromPassword)+0x3a7); if(st) return st;
-    r->sp=add16(r,r->sp,2,0); logic(r,rd8(r->ds,D(LevelCompletionMarker)),8);
-    if(!(r->flags&SF)) {
-        uint8_t old=rd8(r->ds,D(LivesRemaining)),v=(uint8_t)(old-1); uint16_t cf=r->flags&CF;
-        flag(r,OF,old==128); flag(r,AF,((old^v^1)&16)!=0); szp(r,v,8); flag(r,CF,cf); wr8(r->ds,D(LivesRemaining),v);
-        if(!v || (r->flags&SF)) return UGH_OK;
-        wr8(r->ds,D(ScoreMultiplier),1); goto level;
-    }
-    r->ax=R(CurrentLevelIndex); { uint16_t cf=r->flags&CF; r->ax=add16(r,r->ax,1,0); flag(r,CF,cf); }
-    W(CurrentLevelIndex,r->ax); r->bx=sub16(r,R(PlayerArrayBytes),2,0); sub16(r,r->ax,RX(LevelCountsByPlayerMode,r->bx),0);
-    if(r->flags&CF) goto level;
-    return UGH_OK;
-}
-
+        }return UGH_OK;}
 EXPORT int c_EraseDemoSprites(Regs *r) {
     r->si=logic(r,0,16);
     for(unsigned budget=0;budget<32768;budget++) {

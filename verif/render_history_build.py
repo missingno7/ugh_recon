@@ -3,7 +3,7 @@ import os,re,sys,subprocess
 from pathlib import Path
 from closure_support import ROOT,compile_c,hashes,save,function
 from render_history_shells import BRIDGE,NAMES,OPS,partitions,adapt,gameplay_cuts
-OUT=ROOT/'build/workers/close-stones-6'
+OUT=ROOT/'build/workers/close-stones-12/actor-render'
 FILES=[ROOT/'native/actor_render.h',ROOT/'native/actor_render.c',BRIDGE]
 sys.path.insert(0,str(ROOT/'tools'))
 
@@ -12,8 +12,16 @@ def absolute_includes(text,path):
 
 def build():
     import hostbuild
-    tracked=set(subprocess.check_output(['git','ls-files','metadata/closure','native'],cwd=ROOT,text=True).splitlines())
+    tracked=({p.relative_to(ROOT).as_posix() for folder in ['native','metadata/closure'] for p in (ROOT/folder).rglob('*') if p.is_file()}
+        if (ROOT/'.closure-baseline.json').is_file() else set(subprocess.check_output(['git','ls-tree','-r','--name-only','e4e69a0','metadata/closure','native'],cwd=ROOT,text=True).splitlines()))
     units=[u for u in hostbuild.selected_units() if u['component']!='actor_render' and 'metadata/closure/'+u['component']+'.json' in tracked]
+    # The session owns the gameplay caller now. Include its current reviewed
+    # work in this component's composition harness before administrative promotion.
+    for component in ['session','lifecycle']:
+        native=ROOT/'native'/f'{component}.c';bridge=ROOT/'native/bridge'/f'{component}_bridge.c'
+        if native.is_file() and bridge.is_file() and component not in [u['component'] for u in units]:
+            names=sorted(set(re.findall(r'\bEXPORT\s+int\s+(c_\w+)\s*\(',bridge.read_text())))
+            units.append(dict(component=component,native=native,bridge=bridge,exports=names))
     exports=[*NAMES,*[n[2:] for u in units for n in u['exports']]]
     folder=OUT/f'variant-{os.getpid()}';folder.mkdir(parents=True,exist_ok=True);sources=[];originals=[]
     for path in sorted((ROOT/'c').glob('*.c')):
@@ -33,7 +41,7 @@ def build():
     sources += [ROOT/'native/actor_render.c',generated,*[p for u in units for p in [u['native'],u['bridge']]]]
     declarations=folder/'fallbacks.h';declarations.write_text('#include "ugh.h"\n'+''.join('int l1_'+n+'(Regs *);\n' for n in exports))
     dll=folder/'render-history.dll';result=compile_c(sources,dll,[ROOT/'c',ROOT/'native',ROOT/'native/bridge'],['-shared','-DACTOR_VERIFY','-include',str(declarations)])
-    headers=[p for p in (ROOT/'native').glob('*.h') if p.relative_to(ROOT).as_posix() in tracked or p in FILES]
+    headers=[p for p in (ROOT/'native').rglob('*.h') if p.relative_to(ROOT).as_posix() in tracked or p in FILES or p.name in ['session.h','lifecycle.h','session_support.h','session_actor_render.h']]
     result['maintained_inputs']=hashes([*FILES,*originals,*[p for u in units for p in [u['native'],u['bridge']]],*sorted((ROOT/'c').glob('*.[ch]')),*headers,Path(__file__),ROOT/'verif/render_history_shells.py'])
     result['baseline_units']=[u['component'] for u in units];save(OUT/'build.json',result);return dll
 

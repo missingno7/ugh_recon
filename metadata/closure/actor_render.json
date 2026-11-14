@@ -63,7 +63,7 @@
     "bridge": [
       "RestoreSpriteBackground",
       "DrawTransparentSprite",
-      "All original nonactor frame callees remain verbatim in the checked shell."
+      "Three original inline actor scan adapters; session owns all unrelated caller orchestration."
     ]
   },
   "indirect": {
@@ -88,12 +88,12 @@
   },
   "assumptions": [
     "B compares actual maintained C at complete per-slot cuts. Output covers every register/flag, current-slot RAM word, ordered store and pixel-call parameters/return word, and normal/abnormal prefixes.",
-    "Word-normalized disjoint RAM plus fixed selected-slot normalization and arbitrary-other-slot byte frame. Compiled cases cover all16 physical slots. The complete original outer loop/guard/order and nonactor code are checked retained text, with C/D composition evidence.",
+    "Word-normalized disjoint RAM plus fixed selected-slot normalization and arbitrary-other-slot byte frame. Compiled cases cover all16 physical slots. Actor-only scans, guards and slot order remain checked retained text. Session owns nonactor orchestration; its complete caller composition is C/D.",
     "Pixel-service bodies remain outside this unit, with their stated actor-array frame and synchronous register effects. Formal output profiles use arbitrary shared service results, including abnormal returns. Actual blits/devices are exercised by C/D and scratch host."
   ],
   "eliminated": [
     "Native renderer has no machine registers, addresses, memory accessors, code dispatch or sprite-directory/VGA/page layout. Native events determine what is rendered and in what order.",
-    "No dead-register/flag claim is used: the complete retained shell is compared."
+    "No dead-register/flag claim is used: the complete caller ABI and request stream are compared in the coupled session replay."
   ],
   "retained": [
     "Gameplay draw skips FFFF before caches, rotates both generations before signed -11<Y<192 clipping, and never clips X. Demo skips7FFF, rotates before signed X<320/Y<192 upper bounds, with no lower bounds. FFFF is not substituted for the demo hidden value.",
@@ -107,8 +107,8 @@
       "property": "Complete checked source inventory",
       "level": "B",
       "command": "python verif/render_history_coverage.py",
-      "result": "PASS six actor bodies and all four retained shells",
-      "method": "Six complete per-slot actor bodies cover every history decision and event. Each output proof executes actual full native apply and retained C body, compares every current-slot word, every register/flag, ordered stores/pixel-call parameters/return words and abnormal prefixes. Independent native arbitrary-byte frame and dependence complete the observation set. No summarized tick/frame/append helper is substituted. Outer equality-only sentinel scans, ascending slot order, descending all16 reset, every nonactor statement and original call frames are checked literal retained code; their general shell composition remains C/D rather than a new monolithic B claim.",
+      "result": "PASS six actor bodies, three demo/reset entry shells and three actor-only scan adapters",
+      "method": "Six per-slot actual-C B policies and their source-checked adapters. The generated session body is removed; session owns nonactor orchestration and its C/D caller composition.",
       "date": "2026-11-14"
     },
     {
@@ -350,6 +350,14 @@
       "result": "PASS actual closure/build/native check,20 scenarios and256-frame smoke",
       "method": "Clean committed baseline plus owned overlay, only scratch actor_render promoted; unchanged actual CLI tools.",
       "date": "2026-11-14"
+    },
+    {
+      "property": "Session-copy retirement with identical actor request boundary",
+      "level": "C",
+      "command": "python verif/render_history_proofs.py; python verif/render_history_cases.py; python verif/render_history_mutants.py; python verif/render_history_cross_mode.py",
+      "result": "PASS23 profiles,695552 slot pairs,19 controls,26 cross-mode boundaries",
+      "method": "Native algorithm/header and adapter prefix are unchanged. Generated c_RunGameFromPassword is removed. Session directly calls three exact actor scan adapters without a new emulated stack frame; demo/reset adapters and the six request policies remain identical. Full new-session composition is C/D in lifecycle/session receipts.",
+      "date": "2026-11-14"
     }
   ],
   "amiga": {
@@ -386,13 +394,9 @@
       ],
       "calls": [
         "AR_CALL",
-        "CALL",
         "D",
         "G",
-        "R",
         "RX",
-        "W",
-        "WX",
         "abort",
         "actor_render_apply",
         "add16",
@@ -405,23 +409,10 @@
         "ar_projection",
         "ar_require",
         "ar_write",
-        "dec16",
-        "draw_enemy_layer",
-        "flag",
         "logic",
-        "platform_service_point_at",
-        "push",
-        "rd16",
-        "rd8",
         "sar",
-        "scene_far_call",
-        "set_al",
-        "step",
         "sub16",
-        "szp",
-        "ugh_dispatch",
-        "wr16",
-        "wr8"
+        "wr16"
       ]
     }
   },
@@ -1108,12 +1099,12 @@
   "verification_inputs": {
     "native/actor_render.h": "9b68b08b34200616669b59c5c939c2da1dbbaa623fa57c67e3f6372d3ff34015",
     "native/actor_render.c": "f14a0f219a8a9a056a975ad38d74527512bc48634e0b388bd7aa929d846fd110",
-    "native/bridge/actor_render_bridge.c": "6739b219c89fc1c1fd0f62f8d548bb6cd29cdf5f59fd4fc375150a6641fbfaae",
+    "native/bridge/actor_render_bridge.c": "93a42d17baa152706352eb3eedf7cbb8fb202402f6e9a66e9e99bdadc1862bc5",
     "verif/render_history_bound.py": "4f23cb26b2583a82a6890bac41440513a99e53d0595f5f99eb762d5850fad18e",
-    "verif/render_history_build.py": "8b41ec27c3d3029ae750533a8073660701e0fdfd1dffad26cd026f42dc6c2e06",
+    "verif/render_history_build.py": "921feed96e1bcb475d1841f6d68e496b2cdbd102ffd4f1d621cb4d5e056e2df1",
     "verif/render_history_cases.py": "fb785370c0997ab015e8aa323c69f43323d580646a8372f2c0a7eb0cb2b6b779",
     "verif/render_history_certificate.py": "15811e1b52555a446ea8d6fda68ca3a7038bbe25cb0e3fda84d56e2e7ccf6aa5",
-    "verif/render_history_coverage.py": "e6bbed10838485678c6a5c90f1f33eff24366f35a969951abb781bed58504e8f",
+    "verif/render_history_coverage.py": "6a84029262d5210d08848a8bfe576fb6891c1db56ce57d396e151310761afa6c",
     "verif/render_history_cross_mode.py": "a7ecd1ca67e9d31566c378312e5342282e257199de72158b409557eb5cc8135c",
     "verif/render_history_harness.c": "f3187bd87fdc6f7a5954cad2110c05ed19c9c93bd8d1884cf196243561c17723",
     "verif/render_history_host.py": "da4faa6609a14291553d069cb1e9cd7caba13a91edfbfa6231a89aa27d620f55",
@@ -1125,7 +1116,7 @@
     "verif/render_history_proofs.py": "4de5ad34867a756a971fa9071f1fb398b422d97d8a47af43ac6f3813c7b31b90",
     "verif/render_history_reproduce.py": "17d9bcf134c16772232169e6e5ccef30375537144f117384d2dd862b2a3b7d8f",
     "verif/render_history_sequences.py": "6b41eecb3362f70972ced38540067ce4942936f49c9d6502de3c6fee3b3e55d0",
-    "verif/render_history_shells.py": "06e45bca17a43d9a5196f384dd67aa9af926622ee2f0d443bbc4ad3fe903b8ef",
+    "verif/render_history_shells.py": "9a03bbbbf36fffc523db957013dcde4974f701dd0944bbedf57ccfb07833b959",
     "tests/scenarios/adlib.txt": "1db37ba320e4c3c85449c2f4a7f5ecd8543e6de6933e165e534b79adb3386f2f",
     "tests/scenarios/attract.txt": "07339939be35779cc94094221155e97a11c6dec396ab6dce85f238a415896a01",
     "tests/scenarios/completion.txt": "d898ad1f8abd49f7757303b562028cf7f0c10143dfb0358dad4e0a6fee7386bc",
@@ -1231,6 +1222,66 @@
       "inputs": [
         "tools/wholegame.py"
       ]
+    },
+    {
+      "date": "2026-11-14",
+      "reason": "close-stones-12 retires generated session body; actor policy and request streams unchanged",
+      "locks": {
+        "native/bridge/actor_render_bridge.c": {
+          "before": "6739b219c89fc1c1fd0f62f8d548bb6cd29cdf5f59fd4fc375150a6641fbfaae",
+          "after": "93a42d17baa152706352eb3eedf7cbb8fb202402f6e9a66e9e99bdadc1862bc5"
+        },
+        "verif/render_history_build.py": {
+          "before": "8b41ec27c3d3029ae750533a8073660701e0fdfd1dffad26cd026f42dc6c2e06",
+          "after": "c6a1c301d0a6956df4b0be7eb26dfff1d914ce5b97946ab72e5b3cea6be65cd1"
+        },
+        "verif/render_history_shells.py": {
+          "before": "06e45bca17a43d9a5196f384dd67aa9af926622ee2f0d443bbc4ad3fe903b8ef",
+          "after": "9a03bbbbf36fffc523db957013dcde4974f701dd0944bbedf57ccfb07833b959"
+        },
+        "verif/render_history_coverage.py": {
+          "before": "e6bbed10838485678c6a5c90f1f33eff24366f35a969951abb781bed58504e8f",
+          "after": "6a84029262d5210d08848a8bfe576fb6891c1db56ce57d396e151310761afa6c"
+        }
+      },
+      "commands": [
+        "python verif/render_history_proofs.py",
+        "python verif/render_history_cases.py",
+        "python verif/render_history_mutants.py",
+        "python verif/render_history_cross_mode.py",
+        "python verif/sequencing_integration.py --whole --local-reference"
+      ]
+    },
+    {
+      "date": "2026-11-14",
+      "reason": "close-stones-12 retires generated session body; actor policy and request streams unchanged",
+      "locks": {
+        "native/bridge/actor_render_bridge.c": {
+          "before": "93a42d17baa152706352eb3eedf7cbb8fb202402f6e9a66e9e99bdadc1862bc5",
+          "after": "93a42d17baa152706352eb3eedf7cbb8fb202402f6e9a66e9e99bdadc1862bc5"
+        },
+        "verif/render_history_build.py": {
+          "before": "c6a1c301d0a6956df4b0be7eb26dfff1d914ce5b97946ab72e5b3cea6be65cd1",
+          "after": "921feed96e1bcb475d1841f6d68e496b2cdbd102ffd4f1d621cb4d5e056e2df1"
+        },
+        "verif/render_history_shells.py": {
+          "before": "9a03bbbbf36fffc523db957013dcde4974f701dd0944bbedf57ccfb07833b959",
+          "after": "9a03bbbbf36fffc523db957013dcde4974f701dd0944bbedf57ccfb07833b959"
+        },
+        "verif/render_history_coverage.py": {
+          "before": "6a84029262d5210d08848a8bfe576fb6891c1db56ce57d396e151310761afa6c",
+          "after": "6a84029262d5210d08848a8bfe576fb6891c1db56ce57d396e151310761afa6c"
+        }
+      },
+      "commands": [
+        "python verif/render_history_proofs.py",
+        "python verif/render_history_cases.py",
+        "python verif/render_history_mutants.py",
+        "python verif/render_history_cross_mode.py",
+        "python verif/sequencing_integration.py --whole --local-reference"
+      ]
     }
-  ]
+  ],
+  "session_owner": "session: sole c_RunGameFromPassword; actor_render exposes three scan adapters only.",
+  "reproduce": "python verif/sequencing_baseline.py verif/sequencing_reproduce.py --fresh (coupled actor/session replay; the former standalone session-copy acceptance is superseded)"
 }

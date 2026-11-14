@@ -516,16 +516,16 @@
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
     "native/actor_render.c": "f14a0f219a8a9a056a975ad38d74527512bc48634e0b388bd7aa929d846fd110",
     "native/actor_render.h": "9b68b08b34200616669b59c5c939c2da1dbbaa623fa57c67e3f6372d3ff34015",
-    "native/bridge/actor_render_bridge.c": "6739b219c89fc1c1fd0f62f8d548bb6cd29cdf5f59fd4fc375150a6641fbfaae",
+    "native/bridge/actor_render_bridge.c": "93a42d17baa152706352eb3eedf7cbb8fb202402f6e9a66e9e99bdadc1862bc5",
     "verif/cbmc_shim/stddef.h": "03e62ec5f7016e0582b92f016d7e4017b56746e2b216ae8d7fad236ae7e723e7",
     "verif/cbmc_shim/stdint.h": "ff382e7cc9e8ac2ff6cef94767bb680b49944513ebff33b6d7e548fe12a5d7d0",
     "verif/cbmc_shim/ugh.h": "d23d5fb7f8d14f5c03944d9cce971d6d21fdf32c28ebac1f2710842cd03d7e72",
     "verif/demo_scene_limits.py": "b9648987a70d347deb05495b67066901e9c636f762e84ab0d6040acfd213e374",
     "verif/demo_scene_types.py": "bde64507b7811c4dba32da1e8e9469e39b6fbca393bcb904999564e4f4a6de70",
-    "verif/render_history_build.py": "8b41ec27c3d3029ae750533a8073660701e0fdfd1dffad26cd026f42dc6c2e06",
+    "verif/render_history_build.py": "921feed96e1bcb475d1841f6d68e496b2cdbd102ffd4f1d621cb4d5e056e2df1",
     "verif/render_history_harness.c": "f3187bd87fdc6f7a5954cad2110c05ed19c9c93bd8d1884cf196243561c17723",
     "verif/render_history_proof.py": "b1f659434a82a13b835bf527614a137ac7590e7009f6e6e071f737c56cd74a96",
-    "verif/render_history_shells.py": "06e45bca17a43d9a5196f384dd67aa9af926622ee2f0d443bbc4ad3fe903b8ef",
+    "verif/render_history_shells.py": "9a03bbbbf36fffc523db957013dcde4974f701dd0944bbedf57ccfb07833b959",
     "verif/render_history_sequences.py": "6b41eecb3362f70972ced38540067ce4942936f49c9d6502de3c6fee3b3e55d0",
     "c/render.c": "7620324caaff46b39094d4b8f7077f2a5426a728806e52f1c56a962771208b40",
     "verif/render_history_projection.py": "ef49c753abd7c8bf367b06674a75cb2c832aa8f588931f0d6c543e1177a95561"
@@ -1431,6 +1431,33 @@
       "inputs": [
         "tools/wholegame.py"
       ]
+    },
+    {
+      "date": "2026-11-14",
+      "reason": "Supervisor relock for close-stones-12 (applied with the session landing): retire generated actor-render session copy; no actor algorithm/projector/persistence contract or status change.",
+      "locks": {
+        "native/bridge/actor_render_bridge.c": {
+          "before": "6739b219c89fc1c1fd0f62f8d548bb6cd29cdf5f59fd4fc375150a6641fbfaae",
+          "after": "93a42d17baa152706352eb3eedf7cbb8fb202402f6e9a66e9e99bdadc1862bc5"
+        },
+        "verif/render_history_build.py": {
+          "before": "8b41ec27c3d3029ae750533a8073660701e0fdfd1dffad26cd026f42dc6c2e06",
+          "after": "921feed96e1bcb475d1841f6d68e496b2cdbd102ffd4f1d621cb4d5e056e2df1"
+        },
+        "verif/render_history_shells.py": {
+          "before": "06e45bca17a43d9a5196f384dd67aa9af926622ee2f0d443bbc4ad3fe903b8ef",
+          "after": "9a03bbbbf36fffc523db957013dcde4974f701dd0944bbedf57ccfb07833b959"
+        }
+      },
+      "commands": [
+        "python verif/render_history_proofs.py",
+        "python verif/render_history_cases.py",
+        "python verif/render_history_mutants.py",
+        "python verif/render_history_cross_mode.py",
+        "python verif/sequencing_integration.py --whole --local-reference",
+        "python verif/sequencing_host.py"
+      ],
+      "results": "23 renderer B profiles,695552 slot pairs,19 controls and26 cross-mode boundaries PASS. New session/lifecycle composition:20 scenarios and smoke PASS in both host variants. Applied by the supervisor; claims and status unchanged."
     }
   ]
 }

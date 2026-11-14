@@ -3,7 +3,7 @@ import re,sys
 from pathlib import Path
 from closure_support import ROOT,function
 BRIDGE=ROOT/'native/bridge/actor_render_bridge.c'
-NAMES=['RunGameFromPassword','EraseDemoSprites','DrawDemoSprites','ResetSpriteEraseState']
+NAMES=['EraseDemoSprites','DrawDemoSprites','ResetSpriteEraseState']
 OPS=['GAME_ERASE','GAME_DRAW','GAME_OVERLAY','DEMO_ERASE','DEMO_DRAW','RESET']
 
 def loop_body(text,start):
@@ -41,7 +41,7 @@ def adapt(text):
     text=re.sub(r'CALL\((RestoreSpriteBackground|DrawTransparentSprite),([^;]+)\);',r'AR_CALL(\1,\2);',text)
     return text
 
-def gameplay_cuts(native=False):
+def gameplay_cuts(native=False,prefix='render_history_'):
     game=function((ROOT/'c/scene.c').read_text(),'c_RunGameFromPassword');loops=[]
     for match in re.finditer(r'for\(unsigned slots=0;slots<32768;slots\+\+\)',game):
         a,b=loop_body(game,match.start())
@@ -51,12 +51,15 @@ def gameplay_cuts(native=False):
         if native:
             fragment=partitions()[op];assert body.count(fragment)==1
             body=body.replace(fragment,'\n{RenderPlan plan;ar_open(r,&plan,ACTOR_RENDER_'+op+');\n'+adapt(fragment)+'\nar_finish(r,&plan);}\n')
-        out+='EXPORT int render_history_'+op+'(Regs *r) {r->si=logic(r,0,16);'+body+'return UGH_OK;}\n'
+        out+='EXPORT int '+prefix+op+'(Regs *r) {r->si=logic(r,0,16);'+body+'return UGH_OK;}\n'
     return out
 
 def generated():
     scene=(ROOT/'c/scene.c').read_text();demo=(ROOT/'c/demo_scripts.c').read_text();parts=partitions();out=''
-    for helper in ['sar','push','scene_far_call','draw_enemy_layer']:out+=function(scene,helper)+'\n'
+    out+=function(scene,'sar')+'\n'
+    # Session orchestration is owned by session. Keep only the three exact actor
+    # passes here; these native-call adapters add no emulated CALL frame.
+    out+=gameplay_cuts(native=True,prefix='actor_render_session_')
     for name in NAMES:
         text=function(demo if name=='ResetSpriteEraseState' else scene,'c_'+name)
         for op,fragment in parts.items():
@@ -71,5 +74,5 @@ def main():
     marker='/* BEGIN CHECKED L1 SHELLS */\n';prefix=BRIDGE.read_text().split(marker)[0];expected=prefix+marker+generated()
     if '--write' in sys.argv:BRIDGE.write_text(expected)
     else:assert BRIDGE.read_text()==expected,'retained renderer shell drift'
-    print('PASS six actual actor partitions and four full retained shells')
+    print('PASS six actor partitions, three retained shells and three session pass adapters')
 if __name__=='__main__':main()

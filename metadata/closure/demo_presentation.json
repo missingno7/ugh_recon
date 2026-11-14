@@ -1704,14 +1704,14 @@
     "tests/actors.py": "80b0aed22ae70e2b8eeead4a4176ce5b5935ac93ee517869df14035ffa9ea7ad",
     "tests/render.py": "ac899241858dd7dd0f2d175a7f5b7229257b5b59a24291c65078881281c86e7e",
     "tests/scene.py": "1eb8b5d2a3fb51b9eaa123d3f5d9efe2637ef131f333f696b71dc1f3a9069a81",
-    "metadata/closure/actor_types.json": "a243fee7c4b8a0652118be7c91930fe2366ed8dde0badf6775b0c680018bf1f9",
-    "metadata/closure/actor_render.json": "6245c8a1e4255728f4b813014387d7abb2844f1045b1506adc56efaceb7da59e",
+    "metadata/closure/actor_types.json": "65bdad902f97f0615d8c5e6d53a6f3bf4d6558531fbbe13af8419ca52807f77b",
+    "metadata/closure/actor_render.json": "589320bcac996f54c8200be79d99bcd912f261334097c374f438a16fb118d75c",
     "metadata/closure/demo_core.json": "828c05245f4e5420a38a3f92e7f9a835e56a35a9a65844ac39845bd174d8b683",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
     "native/actors.h": "b1c7653a6e566c7f0e3e18ad38fc3f63726d01b78a6fa6843df017d2d155a42c",
     "native/actor_render.c": "f14a0f219a8a9a056a975ad38d74527512bc48634e0b388bd7aa929d846fd110",
     "native/actor_render.h": "9b68b08b34200616669b59c5c939c2da1dbbaa623fa57c67e3f6372d3ff34015",
-    "native/bridge/actor_render_bridge.c": "6739b219c89fc1c1fd0f62f8d548bb6cd29cdf5f59fd4fc375150a6641fbfaae",
+    "native/bridge/actor_render_bridge.c": "93a42d17baa152706352eb3eedf7cbb8fb202402f6e9a66e9e99bdadc1862bc5",
     "native/demo_core.c": "028b9eaa6671c8219d69ad4f34d1fe5569b1ee69d4c4c3cb13f49c24616a4646",
     "native/demo_core.h": "18d2dd79899671992f6e1f6e2fa2bce933e9eb56c1033a0e60229b7de23f38d6",
     "native/bridge/demo_core_bridge.c": "00a2eba3c7a2e6a8d449fd07aa51b1c9544ec3d97b0176d6cd59d99892803ce4",
@@ -1767,6 +1767,33 @@
         "metadata/closure/actor_render.json",
         "metadata/closure/demo_core.json"
       ]
+    },
+    {
+      "date": "2026-11-14",
+      "reason": "Supervisor relock for close-stones-12 (applied with the session landing): retire generated actor-render session copy; no actor algorithm/projector/persistence contract or status change.",
+      "locks": {
+        "metadata/closure/actor_types.json": {
+          "before": "a243fee7c4b8a0652118be7c91930fe2366ed8dde0badf6775b0c680018bf1f9",
+          "after": "302dd4881e2bea2179c43d97d2aaa1b5a66f2803c174b6537af51c88c5786887"
+        },
+        "metadata/closure/actor_render.json": {
+          "before": "6245c8a1e4255728f4b813014387d7abb2844f1045b1506adc56efaceb7da59e",
+          "after": "589320bcac996f54c8200be79d99bcd912f261334097c374f438a16fb118d75c"
+        },
+        "native/bridge/actor_render_bridge.c": {
+          "before": "6739b219c89fc1c1fd0f62f8d548bb6cd29cdf5f59fd4fc375150a6641fbfaae",
+          "after": "93a42d17baa152706352eb3eedf7cbb8fb202402f6e9a66e9e99bdadc1862bc5"
+        }
+      },
+      "commands": [
+        "python verif/render_history_proofs.py",
+        "python verif/render_history_cases.py",
+        "python verif/render_history_mutants.py",
+        "python verif/render_history_cross_mode.py",
+        "python verif/sequencing_integration.py --whole --local-reference",
+        "python verif/sequencing_host.py"
+      ],
+      "results": "23 renderer B profiles,695552 slot pairs,19 controls and26 cross-mode boundaries PASS. New session/lifecycle composition:20 scenarios and smoke PASS in both host variants. Applied by the supervisor; claims and status unchanged."
     }
   ]
 }

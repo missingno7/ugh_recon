@@ -1,0 +1,353 @@
+{
+  "component": "timer_lifetime",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "proposed_status_reason": "Actual-C B covers protocol/frame, full-capacity admitted typed registration/removal and successful-get baseline initialization. Full bridge/service shell remains C with D composition; no all-state or instruction-interleaving claim.",
+  "original": {
+    "owned": [
+      {
+        "identity": "TIMER:InstallTimerInterrupt",
+        "address": "0A32:0008"
+      },
+      {
+        "identity": "TIMER:RestoreTimerInterrupt",
+        "address": "0A32:00A0"
+      },
+      {
+        "identity": "TIMER:ChainSavedTimerInterrupt",
+        "address": "0A32:0099"
+      },
+      {
+        "identity": "TIMER:RegisterTimerCallbackFromStack",
+        "address": "0A32:030E"
+      },
+      {
+        "identity": "TIMER:RemoveTimerCallbackFromStack",
+        "address": "0A32:0323"
+      },
+      {
+        "identity": "TIMER:loc_032F",
+        "address": "0A32:032F"
+      }
+    ],
+    "L0": [
+      "src/asm/TIMER.ASM install/restore/chain and three far-cdecl adapters"
+    ],
+    "L1": [
+      "c/timer_system.c:c_InstallTimerInterrupt/c_RestoreTimerInterrupt/c_ChainSavedTimerInterrupt",
+      "c/timer_stack.c:c_RegisterTimerCallbackFromStack/c_RemoveTimerCallbackFromStack/c_loc_032F"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/timer_lifetime.c",
+      "native/timer_lifetime.h",
+      "native/bridge/timer_lifetime_bridge.c"
+    ],
+    "header": "native/timer_lifetime.h",
+    "functions": [
+      "timer_lifetime_install",
+      "timer_lifetime_restore",
+      "timer_lifetime_chain",
+      "timer_lifetime_consume",
+      "timer_lifetime_apply"
+    ],
+    "bridge": [
+      "c_InstallTimerInterrupt",
+      "c_RestoreTimerInterrupt",
+      "c_ChainSavedTimerInterrupt",
+      "c_RegisterTimerCallbackFromStack",
+      "c_RemoveTimerCallbackFromStack",
+      "c_loc_032F"
+    ],
+    "build": "python verif/timer_lifetime.py --cases"
+  },
+  "purpose": "Timer-owned additive lifetime/ABI adapter over the accepted TimerState scheduler. A provider-owned opaque external binding and explicit successful-service requests replace the native-facing vector/IRET/stack shell; no second scheduler or timer state owner.",
+  "interface": {
+    "inputs": [
+      "Borrowed TimerState, TimerLifetime saved provider binding, and per-operation request/result objects; initialized, ordinary, disjoint storage.",
+      "Installation consumes installed as a literal truth word. Incoming count/maps/records are stale until successful binding read; no old-count validation is needed for baseline initialization.",
+      "Stack entry admits accepted timer API states: aligned last offset 0..30, register count<16 with free marker at/below new index and a named callback, remove count>=2 and an even handle with an aligned active map. Bijection is not assumed."
+    ],
+    "outputs": [
+      "Install: NONE if already active, otherwise installed=1 then READ_BINDING; successful reply saves binding and initializes baseline before BIND_TIMER.",
+      "Restore: NONE if inactive, otherwise installed=0 then BIND_SAVED; only successful binding emits RESET_PIT command36/low0/high0; successful consumption ends at NONE.",
+      "Chain: DELIVER of saved typed binding with enable_interrupts=1. Test backend directly delivers BIOS day-clock/midnight/EOI effects at the same cut.",
+      "Typed REGISTER/REMOVE requests invoke accepted timer API. Result contains handle and minimum; the bridge alone loads stack words and publishes register clobbers."
+    ],
+    "service_failure": "Failed service is not consumed. Preserve installed flag and all preceding state/I/O. Failed install GET leaves DS=DGROUP; failed install SET restores incoming DS; failed restore SET leaves DS at saved external segment with no PIT reset.",
+    "normal_completion": "Bridge requires each expected kind and successful matching consumption, then NONE; no unconsumed normal request is accepted.",
+    "projection": "Canonical timer RAM remains shared with the accepted timer bridge. Four private projection helpers are checked exact copies, with only old-count admission removed for installation. Reborrow after service success and before its continuation; a GET-time inactive-slot write survives initialization. Count is not republished until successful GET initializes it. Other operations explicitly enforce API admission. The saved binding provider maps bridge-local identities 1/2 to raw old/reply vector words; those words exist only in the compatibility adapter."
+  },
+  "callers": [
+    "Native lifecycle and audio bridges use stable existing TIMER entry ABI for install/restore.",
+    "Accepted timer ISR invokes chain as its baseline callback, after live descending callback consumption.",
+    "Three stack entries have no recorded internal callers; public direct entry remains admitted and tested. loc_032F targets REMOVE, not interval setter."
+  ],
+  "callees": {
+    "native": [
+      "timer_target",
+      "timer_register",
+      "timer_remove",
+      "timer_handle_slot"
+    ],
+    "services": [
+      "read external binding",
+      "bind timer interrupt role",
+      "restore saved external binding",
+      "reset PIT",
+      "deliver typed external role"
+    ],
+    "backend": [
+      "DOS21 vector services and PIT writes in bridge only; direct platform_bios_timer for the BIOS role.",
+      "OTHER binding retains accepted explicit IRET services or BAD_CALLBACK, not an implicit BIOS default. No L1 timer-lifetime body is called."
+    ]
+  },
+  "indirect": {
+    "native": "No indirect C call in the ordinary adapter; request kind, callback role and provider identity are data.",
+    "BIOS": "Saved external INT08 binding, not invented game code. Typed BIOS role replaces numeric/far dispatch on shipped fixture path.",
+    "open": "Provider may retain other external identities. Compatibility backend uses existing IRET-service admission for OTHER and retains failure prefix. Four external hooks are unchanged."
+  },
+  "memory": {
+    "owner": "One accepted TimerState plus saved provider binding; borrowed projections only.",
+    "writes": [
+      "Install flag before GET; saved external binding and baseline arrays/maps only after successful GET.",
+      "Install initializes slot0 interval/remaining/target/handle, count, maps, earliest and quantum. All due fields, inactive records and programmed divisor survive.",
+      "Restore changes installed only, restores external binding and emits PIT reset. Cached programmed divisor stays stale.",
+      "Register/remove effects are exactly accepted scheduler writes, including wrong callback-word stride, moved handle not repaired and handle-zero map defect."
+    ],
+    "shell": "Bridge retains compatibility stack save/far/IRET bytes and live working registers for verification. Native API has no registers, original addresses, dispatcher or mutable global machine."
+  },
+  "assumptions": [
+    "Single serialized operation, matching accepted deterministic virtual PIT/service cuts. No proof of arbitrary instruction-level IRQ interleavings.",
+    "Ordinary synchronous timer storage and installed flag, disjoint from live stack, code/table/device aliases; immutable callback identity bindings.",
+    "Native pointers/objects nonnull and disjoint where read/written; request payload validity is defined by kind. Non-NONE service is consumed once only after successful delivery.",
+    "External binding service preserves ordinary vector-service register contract; it may fail with a nonzero status, retaining prefix. No unknown external handler is assumed to be BIOS.",
+    "Stack requests retain accepted named callback and aligned physical-prefix/handle admission, including arbitrary map aliases and callback fragments during removal. Rejected new-entry admission returns unsupported without L1.",
+    "B uses full sixteen-slot initialized state, full scalar widths and aligned normalized timer-RAM view from accepted evidence. Baseline initialization is proved at the successful GET seam. Bridge flags, stack bytes and platform service implementation remain C."
+  ],
+  "eliminated": [
+    "Native-facing DOS vectors and PUSHF/far-IRET become provider binding plus typed DELIVER with interrupt-enable policy.",
+    "Stack-word interpretation and compatibility frame creation stay solely in bridge; native typed API calls the accepted scheduler directly.",
+    "All six former L1 entry bodies are replaced, with no new fallback. Existing timer unit/native files/certificate remain unchanged."
+  ],
+  "retained": [
+    "Literal truth-word install/restore guards, stale due/records/divisor, baseline period/remaining/quantum/minimum65536 and public handle-zero map.",
+    "PIT reset order36,0,0 after successful external binding restoration; saved binding survives restore.",
+    "STI before external delivery, test-backend BIOS midnight/day-clock wrap and EOI order, callback clobber and frame effects.",
+    "loc_032F still REMOVE; trailing BX/CX loads are ignored by removal, then replaced by minimum. Wrong stride and wrong handle-map repairs are deliberately not fixed."
+  ],
+  "evidence": [
+    {
+      "property": "actual-C protocol, frame and successful-get baseline; typed API relation",
+      "level": "B",
+      "method": "CBMC on actual native C and mechanically extracted actual L1 baseline; accepted full-capacity symbolic API harness invokes actual new adapter",
+      "command": "python verif/timer_lifetime.py --proof",
+      "result": "PASS seven profiles; full scalar widths/sixteen slots, complete unwind18; no codec/model substitution",
+      "date": "2026-11-14",
+      "artifact": "build/workers/close-stones-15/proof.json"
+    },
+    {
+      "property": "Unicorn L0/L1/native contracts and IRQ callback mutation",
+      "level": "C",
+      "method": "Maintained timer, timer_stack, timer_system and timer_callbacks suites, ordinary and poisoned inputs, rebuilt ASM vs pure L1 and selected native bridges",
+      "command": "python verif/timer_lifetime.py --cases",
+      "result": "PASS 472 comparisons; canonical malformed cases retain the accepted old timer unit's explicit fallback, not a new lifetime-entry fallback",
+      "date": "2026-11-14",
+      "artifact": "build/workers/close-stones-15/cases.json"
+    },
+    {
+      "property": "matching-cut service journals, errors, scalar slices and maps",
+      "level": "C",
+      "method": "Full RAM/register/device pairs plus ordered services at actual working cuts; seeded failure injection, full installed/FLAGS slices, mapped removals, accepted core enumeration/projection replay",
+      "command": "python verif/timer_lifetime.py --extra",
+      "result": "PASS 19 service-prefix cases including GET-time inactive-slot mutation, three65536-value slices,810 mapped removals,140 named-role registrations and four rejected admissions; existing timer corpus and projection enumeration pass",
+      "date": "2026-11-14",
+      "artifact": "build/workers/close-stones-15/extra.json"
+    },
+    {
+      "property": "semantic and bridge mutants",
+      "level": "C",
+      "method": "Seed stale-field, quantum, map, saved binding, PIT omission/command, STI, unconsumed request, stack interval, wrong-stride/wrong-map and loc_032F mutations",
+      "command": "python verif/timer_lifetime.py --mutations",
+      "result": "PASS13/13 DETECTED_BY_BRIDGE including stale pre-service projection",
+      "date": "2026-11-14",
+      "artifact": "build/workers/close-stones-15/mutations.json"
+    },
+    {
+      "property": "clean baseline host and retirement census",
+      "level": "D",
+      "method": "Committed HEAD archive plus only worker-owned overlay, scratch certificate promotion, actual unmodified closure/build/wholegame/host/check/census CLIs",
+      "command": "python verif/timer_lifetime.py --accept",
+      "result": "PASS43 certificates/0 errors, native/literal21/21, all20 scenarios plus smoke; six L1 entry bodies0 and fallbacks0",
+      "date": "2026-11-14",
+      "artifact": "build/workers/close-stones-15/acceptance.json"
+    }
+  ],
+  "amiga": {
+    "classification": "not-used",
+    "finding": "DOS timer lifetime/ABI shell and accepted scheduler establish the boundary."
+  },
+  "uncertainty": [
+    "Bridge/device/working-register shell has C and D, not whole-function B. No production linker or all-level execution claim.",
+    "Dormant independent L1 copies remain linked in verification host; runtime census is not universal unreachability proof.",
+    "OTHER external bindings and malformed stack requests stay explicit service/admission boundaries, not default success."
+  ],
+  "dependencies": {
+    "native/timer_lifetime.c": {
+      "includes": [
+        "timer_lifetime.h"
+      ],
+      "calls": [
+        "timer_handle_slot",
+        "timer_register",
+        "timer_remove",
+        "timer_target"
+      ]
+    },
+    "native/timer_lifetime.h": {
+      "includes": [
+        "timer.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/timer_lifetime_bridge.c": {
+      "includes": [
+        "../timer_lifetime.h",
+        "platform.h"
+      ],
+      "calls": [
+        "D",
+        "S",
+        "T",
+        "arg16",
+        "flag",
+        "lifetime_binding",
+        "lifetime_project",
+        "lifetime_publish",
+        "lifetime_stack",
+        "lifetime_token_word",
+        "lifetime_word_token",
+        "logic",
+        "platform_bios_timer",
+        "platform_interrupt",
+        "platform_out",
+        "rd16",
+        "rd32",
+        "set_al",
+        "sub16",
+        "timer_callback",
+        "timer_lifetime_apply",
+        "timer_lifetime_chain",
+        "timer_lifetime_consume",
+        "timer_lifetime_install",
+        "timer_lifetime_restore",
+        "ugh_dispatch_interrupt",
+        "wr16",
+        "wr32"
+      ]
+    }
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "native/timer_lifetime.c": "d45ca7afb8fe66332e5b1a0969cafbd90727c866550781e677bd04fb850a3a2f",
+    "native/timer_lifetime.h": "b1460003f1f6bec65701532d231b38e3060dd639dcdc1c15e9d5d0632c0d99c6",
+    "native/bridge/timer_lifetime_bridge.c": "5f09dbccdf5d77f2c9606f5f8c89f256ada16d11ac2ecc2c035a92e73db0f3dd",
+    "verif/timer_lifetime.py": "6031737c5a948f0b621826e36c6a225db7314a1a6bb0a7802699b57cebf12552",
+    "verif/timer_lifetime_protocol.c": "f89aa5d520e2677cb14f22f8773cc8f2a2a5ecd4e33ad18900d58fe1f0cefacf",
+    "native/timer.c": "05803307a67871c34cc69e8c8b9a5168103b399c0555638c13998e5838620513",
+    "native/timer.h": "99bb08b73cbd7ea5ef618975b601948a6dcee9d7e331db29d699b9b08eea0403",
+    "native/bridge/timer_bridge.c": "da2747aa9bbd83baa12dc410e34c6277ac64ad15b3fa49d69a75e18245c676bd",
+    "verif/ice_scratch.py": "3b9134ff1bd4a5616e5900d7c827070061743f62d76b91722b975eb18a912a80",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
+    "verif/timer_evidence.py": "8724db59b7a4cb622d579220f7c0e3afb54c9b4b37437199904193a1c561de3e",
+    "verif/timer_enumeration.c": "c2d2a64a1a8fe6591429e56443c2c2f21123f8acec18d928bb0adffc2485f1d4",
+    "verif/timer_projection.py": "539f6d57ddb4328954f79c6dff291e4622fbfbebcfb37bb3fc26307035ec4c5b",
+    "verif/timer_callbacks.py": "4149fe68343ff59647e5baa10beeae519625d099345ec256cdadf92e0c8d0b38",
+    "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
+    "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
+    "tools/hostbuild.py": "ec24f9e6bec3c0da79df062302ea86f28491a344f1fbc3811737efe88e1f5484",
+    "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
+    "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
+    "verif/standalone_census.py": "8a9d9cd3c3b38476b847eb2c360b7773e5ac84422afe97496411f51252f78022",
+    "src/asm/TIMER.ASM": "ef53f29ee97899bf538298d360f6979004f41abcd5e07e2d23ecfb6642f5ae2a",
+    "metadata/closure/timer.json": "e4ddfe3c3081a867dda96ac7be9bc6da18266ce4d6fec65ab44e931e012db9fc",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "tests/timer.py": "9feb061a861603ed6e75d8b1fe286d4c34c96db9574244b3c8d6663ff5bb6fde",
+    "tests/timer_stack.py": "e6ea2a364a6b062fcc05036dca8cfe1cea83926d3370e3cc3b7e4b3031f20e50",
+    "tests/timer_system.py": "b8e2fb308eaa026ce15f7f598304da4b859b32ada0f514c85130547aff56091c",
+    "c/abi.c": "5f7c2c2fc015ca43e3786a7f96cb38113211da54acefce19564c1df78d74857a",
+    "c/actors.c": "d17c03c844f95780f0647b85aa854a87c3e566b0f56fe89ee0a95d6d689f3ff2",
+    "c/actors.h": "00817c6f676f61811df11066fca3335c9757e0f59f7cad241dff762fee7b71bd",
+    "c/actors_states.c": "79a460a0436e773bdd795953f63c6765d71c0e346cdf8bbccbcf707817994447",
+    "c/actors_states.h": "375dda6bd3fa6cd5552cc98df7f7c785dc5d70850a10f96207bd0894161cd5d8",
+    "c/adlib.c": "2f4e551282f6ac33f8d24127f3cd5294e679f72ce28794c3ed295ce243c18bf0",
+    "c/adlib.h": "70f2c0d3f51dc49dd05918266b4de07d247a12909f11e8329244b8d9af56cdee",
+    "c/demo_scripts.c": "a19c7e52bc709a28f9be40bc66b60c6de82df888f8eb725b79f0b9556fe795d7",
+    "c/demo_scripts.h": "ea65090001ef64f26f31c39de2075c098949bcb9ca8448480cd1fccdf55a608b",
+    "c/dispatch.c": "80a97f55a460a21dac9d6295939a8276c83b66cef886f814365e0a823814debf",
+    "c/dos_input.c": "b6a086f3917441a23c4238f582e00605d8a239ded81b03a658ff308890601e53",
+    "c/dos_input.h": "8cee17811645a61424b6174e0213402b8c21defd5b4fa6d56511225c70e5193e",
+    "c/dsp.c": "a2f4dc144514ed9ea8cdca8a75c9813718342a5ed5c26176ff6d691f89d651b5",
+    "c/dsp.h": "9b2c2b95b0781caf3a96b7b0b19f8078601557f5e0a11bec889d109ef2755b63",
+    "c/game_services.c": "e9301da5d7fae6f2aacce7dda8d4e6f0e86cbe8c40e736216185c4a8f792a7c5",
+    "c/game_services.h": "7a63f8bd05b2710c27c4c4247b00e0f1fc06a4ecdaa388bf47eb9fb1374965c5",
+    "c/ice.c": "27e2898dd6a5e70af26bde84c0ba8cd6e8a045e40d94df21fd5b122f10a2242e",
+    "c/ice.h": "925da59e4f3fb6cf278100578e56093dc7138040c98eb9f286acb9c867512578",
+    "c/items_water.c": "ab5c2c72096b5e6355a2575f9a58c321f91680d7cd97653581dcbab59033e2d9",
+    "c/items_water.h": "d18978433dcc966235010906984c13fcb76c3469bf4bc0f8e33345101099f148",
+    "c/memory.c": "97f59e3c343cd6911854d0bfc3ff624417de2844f712caa96ec6799d3a9783d9",
+    "c/menu.c": "b2ea585a4cb2b40c349fd7a017642534ea2b4982140a25a6dcacd12ce3b418b0",
+    "c/menu.h": "eaa33e9e9db1f3caa44f60b4a0c862b1bc82855a6389e91f330606e27317b1de",
+    "c/menu_helpers.c": "48125ab011a2ab29cd7936aa61e9889c8715ee843090c6ddd00f9d14dddbb6ad",
+    "c/menu_helpers.h": "9c5998717eec5a79122d91ca1d6a045f303baaf5b96dbf14cf6401b4df34e4e2",
+    "c/music_analysis.c": "604fc3c80dec56a6740444b908da8baeff325357760ab8b82e9db72f5e022fe5",
+    "c/music_analysis.h": "3b2175241d1ced443d9463c6545232630cd4ccd20d907dab83296c8e4cd7fe23",
+    "c/music_clock.c": "2583d53f81c50bc148d423866cbd8f0fa14ff6bb3e5f8320a60e02b35a7d82fa",
+    "c/music_clock.h": "5ffc27066dc1c8438e716850ce666daaa00421dec8be964337b43f75a936210e",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/render.c": "7620324caaff46b39094d4b8f7077f2a5426a728806e52f1c56a962771208b40",
+    "c/render.h": "bcac207ffd7130100008409d8b4069b9ac126b713c81bfb043f1eb1e9603c160",
+    "c/render_primitives.c": "447a9f435f22cc46c9c30d8d11ee9046d57d57c48d6bbaa2e91768e32f9698c0",
+    "c/render_primitives.h": "92f16baae8b087d052e7ca713921fe74ad63e4f0a9f370190b2cc476c7a0ab09",
+    "c/scene.c": "0060ef52ee2cc8b4c98d1b04b6387cd809809a9226f4b4f71c01a75a99d5e460",
+    "c/scene.h": "77c02b56b44a4eb584da4d17cad94cc7f4be79ea3a2f70fd03d7ed2dc50f884a",
+    "c/sound_api.c": "ba1c98bf3a03b5f48a71d4491bdebf3acfc17b0f6cce51db370a0e58c0507e4c",
+    "c/sound_api.h": "b15efba9d9cf41053b3b818d4bb3a084936b6d3e15dafc05544648c88e4687c1",
+    "c/sound_engine.c": "5e4116c31806441e464de35d5649894ec4eea28025254a2edea616235e6e6881",
+    "c/sound_engine.h": "bb288a280c6cf526e91718ccd7fd02a2762e9d58f3d0d53a2f2feef9472eabd1",
+    "c/sound_state.c": "c57e5874b9a7b761faf49dd0bf6da4338ffaea31af1cea5c91a2f13e8ea9ded2",
+    "c/sound_state.h": "bdbbef92b75c99c274bde293ec8bcb1f7a997ed1e8176dc5deda96806c6fbad4",
+    "c/timer.c": "49e56856d56bb1ae68b62fa9112ce294f77182bebfc8e2cd5392737f1c06080b",
+    "c/timer.h": "4ae328394adb59216a373832fbf926a926ce9fe8f813bbe7c3927c9abaf10937",
+    "c/timer_stack.c": "512cfb5332569f32adffed22e5211db5772440428369cc9cc808be931631c98d",
+    "c/timer_stack.h": "e076aba16f8ee3dacbffcddbfa5b065a79a6e8000fa825244bffeb3771d1a514",
+    "c/timer_system.c": "89ead348d18a649f37dca6f44c94c309c3d50b7b6d0877411064f9ac0129d92b",
+    "c/timer_system.h": "f7204fef034e9f641f1f12ad9412efe80844d5be64b177300bdc5a9a20136a49",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_adapters.h": "c18eafbbe16170d01fcfac6853deab651d3c2b54343b47bccd6ce0de4303ad38",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "c/video.c": "681732591d8efb11cf1d5d5816c999bca718560bd247d9c9cc6c0f36982b2fa2",
+    "c/video.h": "35e4d6076edd69e2722cf7d52392871345f5e0eb78af7ce67e13c8ed0c02f192",
+    "c/dispatch_table.inc": "0bb8fddf7dc6c98acc2fb92cf042088d0165c128a98da7e894ca49eb499c1111"
+  },
+  "verification_tools": {
+    "gcc": {
+      "exe": "C:\\msys64\\mingw64\\bin\\gcc.exe",
+      "sha256": "c5005ba5380351c10743e9ca53ef9632164c54be3bd6b93324795114e4589a7d"
+    },
+    "cbmc": {
+      "version": "6.11.0",
+      "source": "https://github.com/diffblue/cbmc/releases/download/cbmc-6.11.0/cbmc-6.11.0-win64.msi",
+      "download": "C:/tools/download/cbmc/cbmc-6.11.0-win64.msi",
+      "download_sha256": "8dcb29c2e91329898ecde5b79198dad2f4b5ebc5cb6b7d15e892c4fe26c6ea53",
+      "install": "msiexec /a (administrative extraction, no system install) into C:/tools/cbmc-6.11.0",
+      "exe": "C:/tools/cbmc-6.11.0/cbmc/bin/cbmc.exe",
+      "exe_sha256": "e2f6a110906b7c5998f31617c89220f9840735250333c90c56ef467c667d8bda",
+      "usage": "CBMC's default preprocessor on Windows is cl.exe (absent) and it cannot parse MinGW system headers. Preprocess with MinGW gcc against minimal shim headers instead: gcc -E -P -nostdinc -I<shim> file.c -o file.i, then cbmc file.i. Checked on a two-implementation uint16 equivalence harness: VERIFICATION SUCCESSFUL."
+    }
+  }
+}

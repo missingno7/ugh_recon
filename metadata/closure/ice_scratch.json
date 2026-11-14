@@ -1,0 +1,284 @@
+{
+  "component": "ice_scratch",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "proposed_status_reason": "Full admitted scratch-entry contract has C and D; B proves the complete adapter and actual signature/setup prefix at checked codec seams. Codec whole/step B domains remain exactly those of ice, not a full-ring proof.",
+  "original": {
+    "owned": [
+      {
+        "identity": "GAME:UnpackIceToScratch",
+        "address": "013B:4CA5"
+      }
+    ],
+    "L0": [
+      "src/asm/GAME.ASM:UnpackIceToScratch, fallthrough to UnpackIceStream"
+    ],
+    "L1": [
+      "c/dos_input.c:c_UnpackIceToScratch"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/ice_scratch.c",
+      "native/ice_scratch.h",
+      "native/bridge/ice_scratch_bridge.c"
+    ],
+    "header": "native/ice_scratch.h",
+    "functions": [
+      "ice_unpack_scratch"
+    ],
+    "bridge": "c_UnpackIceToScratch",
+    "build": "python verif/ice_scratch.py --cases"
+  },
+  "purpose": "ICE-owned scratch/workspace adapter composing the accepted ice_decode API. Borrowed storage, no second workspace owner or decoder implementation; separate certificate preserves the existing codec proof/source locks.",
+  "interface": {
+    "inputs": [
+      "Borrowed disjoint native source/workspace buffers and their available sizes; header at source[0]; workspace is initialized in/out, never cleared"
+    ],
+    "outputs": [
+      "IceStatus and unchanged decoder result, plus published source/workspace cursors; partial workspace on errors"
+    ],
+    "bridge": [
+      "ES always becomes ZERO:IceDecodeWorkspace; DI=0 before signature scan; DF cleared. Bad magic publishes SI+2 or SI+4 with 16-bit wrap. Recognized streams start at SI=0; completion publishes decoder cursors; budget failure publishes SI=10, DI=0 and partial bytes.",
+      "AX/BX/CX/DX/BP/DS/SS/SP/CS preserved. Incoming arithmetic flags are not application observations; L1 equality checks include them, L0 checks compare only live DF.",
+      "No fallback: out-of-admission recognized offset/overlap returns UGH_UNSUPPORTED. ICE_LIMIT maps UGH_BUDGET; short storage is native-only TRUNCATED/RANGE."
+    ],
+    "admission": [
+      "Ordinary synchronous RAM, immutable ICE tables/resources, no device/code/live-stack aliases; actual source-read and workspace-write footprints disjoint. The first shipped resource window overlaps only the untouched workspace tail, tested at its physical address.",
+      "Bridge storage supplies two full 65536-byte snapshots. Bad-magic operands at FFFF read contiguous physical words before effective SI wraps. A recognized nonzero-header stream is outside the existing ice bridge contract."
+    ]
+  },
+  "callers": [
+    {
+      "routine": "GAME:LoadCurrentLevelState",
+      "native": "native/bridge/session_bridge.c:c_LoadCurrentLevelState",
+      "observes": "ES scratch and expanded bytes; then copies 160 words with DF clear; DS restored by caller"
+    },
+    {
+      "routine": "GAME:PrepareAttractMap",
+      "native": "native/bridge/menus_bridge.c:prepare_attract_map",
+      "observes": "ES scratch and expanded tile map; same stable near-entry ABI"
+    }
+  ],
+  "callees": [
+    "ice_unpack_scratch -> accepted native ice_decode; no L1 decoder/direct-call dependency"
+  ],
+  "indirect": [
+    "No indirect transfer or callback; both callers dispatch the stable scratch entry through the bridge."
+  ],
+  "memory": {
+    "reads": "Source signature/header/stream plus seeded workspace backreferences; immutable codec tables",
+    "writes": "Codec workspace writes only, in original backward order; no zero initialization; bridge republishes the full snapshot without other-byte changes",
+    "persistent": "No state allocated or retained: loader-owned scratch storage is borrowed per call."
+  },
+  "assumptions": [
+    "Valid nonnull view/result objects and accessible initialized buffers of the supplied sizes.",
+    "Recognized application headers start at zero; rejected signatures admit every 16-bit SI.",
+    "Ordinary disjoint read/write footprints, immutable resources/tables, no live-stack/code/device alias; synchronous execution.",
+    "Full 65536-byte windows retain wrap and malformed seed references; no general malformed-stream termination theorem. Two-million-token L1 harness guard retained.",
+    "B seam proves forwarding and publication for arbitrary codec replies; codec B only covers its accepted bounded buffer/one-step profiles. General codec/bridge remains C."
+  ],
+  "eliminated": [
+    "Original ES/DI setup becomes bridge binding plus explicit borrowed workspace view; no global native scratch or dispatcher in native code.",
+    "The executed generated c/dos_input.c -> l1_UnpackIceStream edge is retired by replacing c_UnpackIceToScratch. hostbuild.py unchanged."
+  ],
+  "retained": [
+    "Ignored high size words and incoming workspace cursor; raw 16-bit backward cursor wrap; seed-byte reads and overlap within output.",
+    "Bad magic early-return cursor, unconditional workspace binding and DF clear; partial output and unpublished local cursors on budget error.",
+    "No invented error recovery, source/workspace clearing, validation or success flag."
+  ],
+  "evidence": [
+    {
+      "property": "complete scratch adapter output/frame/dependence at codec seam",
+      "level": "B",
+      "method": "CBMC on actual complete adapter C, arbitrary reply/status/cursors and partial byte; forwarding and exactly one call checked",
+      "command": "python verif/ice_scratch.py --proof",
+      "result": "PASS; actual code, no decoder internals replaced by a claimed proof; 8 GiB, 600 s, one solver permit",
+      "date": "2026-11-14",
+      "artifact": "build/workers/close-stones-14/proof.json"
+    },
+    {
+      "property": "accepted codec evidence reused without widening",
+      "level": "B",
+      "method": "Regenerate current-code preprocessing for eleven accepted profiles; byte equality; bounded domains, reachability and negative unwind controls retained",
+      "command": "python verif/ice_scratch.py --reuse",
+      "result": "PASS eleven profiles identical; codec algorithm and old bridge unmodified",
+      "date": "2026-11-14",
+      "artifact": "build/workers/close-stones-14/codec-reuse.json"
+    },
+    {
+      "property": "L0/L1/native scratch projection, workspace and error publication",
+      "level": "C",
+      "method": "Unicorn rebuilt-ASM differential, full-RAM/device/register compiled pair, full incoming-offset bad-magic slice and one-iteration partial-output enumeration",
+      "command": "python verif/ice_scratch.py --cases",
+      "result": "PASS 147 compiled corpus cases; 25 L0/L1 and 25 L0/native Unicorn comparisons; all 131072 rejected-signature offsets; 1280 one-iteration cases; six unmodified full-ring cases including actual two-million-token partial-output error",
+      "date": "2026-11-14",
+      "artifact": "build/workers/close-stones-14/cases.json"
+    },
+    {
+      "property": "bridge mutation controls",
+      "level": "C",
+      "method": "Independent mutations of workspace binding, initial cursor, error cursors and discarded partial writes",
+      "command": "python verif/ice_scratch.py --mutations",
+      "result": "PASS 5/5 DETECTED_BY_BRIDGE",
+      "date": "2026-11-14",
+      "artifact": "build/workers/close-stones-14/mutations.json"
+    },
+    {
+      "property": "clean committed baseline composition and direct-call census",
+      "level": "D",
+      "method": "Actual build/closure/host CLIs in committed archive plus only this worker, scratch promotion; all maintained references reused, instrumented census also compares full smoke to literal",
+      "command": "python verif/ice_scratch.py --accept",
+      "result": "PASS closure; plain/proof builds; native/literal 21/21 each; 20 scenarios plus smoke, zero L1 ICE bodies and zero fallbacks",
+      "date": "2026-11-14",
+      "artifact": "build/workers/close-stones-14/acceptance.json"
+    },
+    {
+      "property": "scratch setup, signature reads and complete register frame at codec seam",
+      "level": "B",
+      "method": "CBMC over mechanically extracted actual L1 wrapper, L1 decoder prefix and native bridge prefix; arbitrary 16-bit registers/flags and both signature words; exact ordered-read assertion",
+      "command": "python verif/ice_scratch.py --proof",
+      "result": "PASS; only ordinary read service and recognized-header-at-zero assumptions; no codec or alias proof inferred",
+      "date": "2026-11-14",
+      "artifact": "build/workers/close-stones-14/scan.json"
+    }
+  ],
+  "amiga": {
+    "classification": "not-used",
+    "finding": "DOS wrapper and accepted DOS ICE API determine this boundary."
+  },
+  "uncertainty": [
+    "C/D scenarios are not all-state reachability proofs; dormant L1 copies remain linked for literal/reference evidence, but none of their ICE bodies executes in the native census.",
+    "Native safety errors and unrecognized bridge admissions are not DOS semantics; full 64-KiB malformed termination is not proved."
+  ],
+  "dependencies": {
+    "native/ice_scratch.c": {
+      "includes": [
+        "ice_scratch.h"
+      ],
+      "calls": [
+        "ice_decode"
+      ]
+    },
+    "native/ice_scratch.h": {
+      "includes": [
+        "ice.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/ice_scratch_bridge.c": {
+      "includes": [
+        "../ice_scratch.h",
+        "string.h",
+        "ugh.h"
+      ],
+      "calls": [
+        "flag",
+        "ice_unpack_scratch",
+        "lin",
+        "logic",
+        "memcpy",
+        "rd16",
+        "rd8"
+      ]
+    }
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_tools": {
+    "gcc": {
+      "exe": "C:\\msys64\\mingw64\\bin\\gcc.exe",
+      "sha256": "c5005ba5380351c10743e9ca53ef9632164c54be3bd6b93324795114e4589a7d"
+    },
+    "cbmc": {
+      "version": "6.11.0",
+      "source": "https://github.com/diffblue/cbmc/releases/download/cbmc-6.11.0/cbmc-6.11.0-win64.msi",
+      "download": "C:/tools/download/cbmc/cbmc-6.11.0-win64.msi",
+      "download_sha256": "8dcb29c2e91329898ecde5b79198dad2f4b5ebc5cb6b7d15e892c4fe26c6ea53",
+      "install": "msiexec /a (administrative extraction, no system install) into C:/tools/cbmc-6.11.0",
+      "exe": "C:/tools/cbmc-6.11.0/cbmc/bin/cbmc.exe",
+      "exe_sha256": "e2f6a110906b7c5998f31617c89220f9840735250333c90c56ef467c667d8bda",
+      "usage": "CBMC's default preprocessor on Windows is cl.exe (absent) and it cannot parse MinGW system headers. Preprocess with MinGW gcc against minimal shim headers instead: gcc -E -P -nostdinc -I<shim> file.c -o file.i, then cbmc file.i. Checked on a two-implementation uint16 equivalence harness: VERIFICATION SUCCESSFUL."
+    }
+  },
+  "verification_inputs": {
+    "native/ice_scratch.c": "4e6f10ec420a543a04c7c53ccc74123b44caa0fe88948e5ecf03289ccaac68d3",
+    "native/ice_scratch.h": "252a6d1617f2c7120e0ea71fb824825b68a47699f2c1f5ba3ea0a7af587d3ae7",
+    "native/bridge/ice_scratch_bridge.c": "4ef7b293d9a143b5247e647d8192393ca00c04ca538608039debf278ed5317e6",
+    "verif/ice_scratch.py": "3b9134ff1bd4a5616e5900d7c827070061743f62d76b91722b975eb18a912a80",
+    "verif/ice_scratch_proof.c": "0864242cc4b79d969efa3ce2d5805fc9cbdfbca8cefa55c27ba5e682478740db",
+    "verif/ice_scratch_scan.c": "773a797b8ed0f45e261f9fd496b7a34dc7da7b860eac96336e07cdad99ceed1b",
+    "c/dos_input.c": "b6a086f3917441a23c4238f582e00605d8a239ded81b03a658ff308890601e53",
+    "c/ice.c": "27e2898dd6a5e70af26bde84c0ba8cd6e8a045e40d94df21fd5b122f10a2242e",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "native/ice.c": "f370f880688879b5ccff8825b4d904a00df77c5377b8763bfc73c7ee32cdbb5c",
+    "native/ice.h": "9dae8b5a177d2d671ae2218035db0af8b83f30bf7b470c6bd5be3f068e26c756",
+    "native/bridge/ice_bridge.c": "2394fe3ef094db70ec8e550fdfe40d7a18801712f8b6253bddbaf47219acdd7c",
+    "metadata/closure/ice.json": "9952c30fd8cd63eba1c6788e454c7e8aae3aba8998751d1ae0b1027cc99a0c48",
+    "tools/hostbuild.py": "ec24f9e6bec3c0da79df062302ea86f28491a344f1fbc3811737efe88e1f5484",
+    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
+    "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
+    "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
+    "verif/standalone_census.py": "8a9d9cd3c3b38476b847eb2c360b7773e5ac84422afe97496411f51252f78022",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
+    "verif/ice_cbmc.py": "fd9bbd9cf2c84140773e9e875dc6babd0e9a1d4f3858b08e9620481bd1b19e45",
+    "verif/ice_fuzz.py": "2d7dc441242a99a27b2ab28985fd8e0e5c65dc85df19f40cd04220104f638b84",
+    "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
+    "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "src/asm/GAME.ASM": "29c9ead3b191a744c59b465a3bd4de29f2e217b92492cf57edb8c13bc3494204",
+    "c/abi.c": "5f7c2c2fc015ca43e3786a7f96cb38113211da54acefce19564c1df78d74857a",
+    "c/actors.c": "d17c03c844f95780f0647b85aa854a87c3e566b0f56fe89ee0a95d6d689f3ff2",
+    "c/actors.h": "00817c6f676f61811df11066fca3335c9757e0f59f7cad241dff762fee7b71bd",
+    "c/actors_states.c": "79a460a0436e773bdd795953f63c6765d71c0e346cdf8bbccbcf707817994447",
+    "c/actors_states.h": "375dda6bd3fa6cd5552cc98df7f7c785dc5d70850a10f96207bd0894161cd5d8",
+    "c/adlib.c": "2f4e551282f6ac33f8d24127f3cd5294e679f72ce28794c3ed295ce243c18bf0",
+    "c/adlib.h": "70f2c0d3f51dc49dd05918266b4de07d247a12909f11e8329244b8d9af56cdee",
+    "c/demo_scripts.c": "a19c7e52bc709a28f9be40bc66b60c6de82df888f8eb725b79f0b9556fe795d7",
+    "c/demo_scripts.h": "ea65090001ef64f26f31c39de2075c098949bcb9ca8448480cd1fccdf55a608b",
+    "c/dispatch.c": "80a97f55a460a21dac9d6295939a8276c83b66cef886f814365e0a823814debf",
+    "c/dos_input.h": "8cee17811645a61424b6174e0213402b8c21defd5b4fa6d56511225c70e5193e",
+    "c/dsp.c": "a2f4dc144514ed9ea8cdca8a75c9813718342a5ed5c26176ff6d691f89d651b5",
+    "c/dsp.h": "9b2c2b95b0781caf3a96b7b0b19f8078601557f5e0a11bec889d109ef2755b63",
+    "c/game_services.c": "e9301da5d7fae6f2aacce7dda8d4e6f0e86cbe8c40e736216185c4a8f792a7c5",
+    "c/game_services.h": "7a63f8bd05b2710c27c4c4247b00e0f1fc06a4ecdaa388bf47eb9fb1374965c5",
+    "c/ice.h": "925da59e4f3fb6cf278100578e56093dc7138040c98eb9f286acb9c867512578",
+    "c/items_water.c": "ab5c2c72096b5e6355a2575f9a58c321f91680d7cd97653581dcbab59033e2d9",
+    "c/items_water.h": "d18978433dcc966235010906984c13fcb76c3469bf4bc0f8e33345101099f148",
+    "c/memory.c": "97f59e3c343cd6911854d0bfc3ff624417de2844f712caa96ec6799d3a9783d9",
+    "c/menu.c": "b2ea585a4cb2b40c349fd7a017642534ea2b4982140a25a6dcacd12ce3b418b0",
+    "c/menu.h": "eaa33e9e9db1f3caa44f60b4a0c862b1bc82855a6389e91f330606e27317b1de",
+    "c/menu_helpers.c": "48125ab011a2ab29cd7936aa61e9889c8715ee843090c6ddd00f9d14dddbb6ad",
+    "c/menu_helpers.h": "9c5998717eec5a79122d91ca1d6a045f303baaf5b96dbf14cf6401b4df34e4e2",
+    "c/music_analysis.c": "604fc3c80dec56a6740444b908da8baeff325357760ab8b82e9db72f5e022fe5",
+    "c/music_analysis.h": "3b2175241d1ced443d9463c6545232630cd4ccd20d907dab83296c8e4cd7fe23",
+    "c/music_clock.c": "2583d53f81c50bc148d423866cbd8f0fa14ff6bb3e5f8320a60e02b35a7d82fa",
+    "c/music_clock.h": "5ffc27066dc1c8438e716850ce666daaa00421dec8be964337b43f75a936210e",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/render.c": "7620324caaff46b39094d4b8f7077f2a5426a728806e52f1c56a962771208b40",
+    "c/render.h": "bcac207ffd7130100008409d8b4069b9ac126b713c81bfb043f1eb1e9603c160",
+    "c/render_primitives.c": "447a9f435f22cc46c9c30d8d11ee9046d57d57c48d6bbaa2e91768e32f9698c0",
+    "c/render_primitives.h": "92f16baae8b087d052e7ca713921fe74ad63e4f0a9f370190b2cc476c7a0ab09",
+    "c/scene.c": "0060ef52ee2cc8b4c98d1b04b6387cd809809a9226f4b4f71c01a75a99d5e460",
+    "c/scene.h": "77c02b56b44a4eb584da4d17cad94cc7f4be79ea3a2f70fd03d7ed2dc50f884a",
+    "c/sound_api.c": "ba1c98bf3a03b5f48a71d4491bdebf3acfc17b0f6cce51db370a0e58c0507e4c",
+    "c/sound_api.h": "b15efba9d9cf41053b3b818d4bb3a084936b6d3e15dafc05544648c88e4687c1",
+    "c/sound_engine.c": "5e4116c31806441e464de35d5649894ec4eea28025254a2edea616235e6e6881",
+    "c/sound_engine.h": "bb288a280c6cf526e91718ccd7fd02a2762e9d58f3d0d53a2f2feef9472eabd1",
+    "c/sound_state.c": "c57e5874b9a7b761faf49dd0bf6da4338ffaea31af1cea5c91a2f13e8ea9ded2",
+    "c/sound_state.h": "bdbbef92b75c99c274bde293ec8bcb1f7a997ed1e8176dc5deda96806c6fbad4",
+    "c/timer.c": "49e56856d56bb1ae68b62fa9112ce294f77182bebfc8e2cd5392737f1c06080b",
+    "c/timer.h": "4ae328394adb59216a373832fbf926a926ce9fe8f813bbe7c3927c9abaf10937",
+    "c/timer_stack.c": "512cfb5332569f32adffed22e5211db5772440428369cc9cc808be931631c98d",
+    "c/timer_stack.h": "e076aba16f8ee3dacbffcddbfa5b065a79a6e8000fa825244bffeb3771d1a514",
+    "c/timer_system.c": "89ead348d18a649f37dca6f44c94c309c3d50b7b6d0877411064f9ac0129d92b",
+    "c/timer_system.h": "f7204fef034e9f641f1f12ad9412efe80844d5be64b177300bdc5a9a20136a49",
+    "c/ugh_adapters.h": "c18eafbbe16170d01fcfac6853deab651d3c2b54343b47bccd6ce0de4303ad38",
+    "c/video.c": "681732591d8efb11cf1d5d5816c999bca718560bd247d9c9cc6c0f36982b2fa2",
+    "c/video.h": "35e4d6076edd69e2722cf7d52392871345f5e0eb78af7ce67e13c8ed0c02f192",
+    "c/dispatch_table.inc": "0bb8fddf7dc6c98acc2fb92cf042088d0165c128a98da7e894ca49eb499c1111"
+  }
+}

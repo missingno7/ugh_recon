@@ -1,0 +1,1745 @@
+{
+  "component": "demo_presentation",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "original": {
+    "owned": [
+      {
+        "identity": "GAME:StartDemoFadeWhenSpriteHidden",
+        "address": "013B:0989",
+        "l1": "c_StartDemoFadeWhenSpriteHidden"
+      },
+      {
+        "identity": "GAME:SetDemoRevealSpriteWidth",
+        "address": "013B:099F",
+        "l1": "c_SetDemoRevealSpriteWidth"
+      },
+      {
+        "identity": "GAME:RunScriptedDemo",
+        "address": "013B:08D5",
+        "l1": "c_RunScriptedDemo"
+      },
+      {
+        "identity": "GAME:PlaySpriteRevealDemo",
+        "address": "013B:088D",
+        "l1": "c_PlaySpriteRevealDemo"
+      },
+      {
+        "identity": "GAME:PlayPreGameDemo",
+        "address": "013B:08C7",
+        "l1": "c_PlayPreGameDemo"
+      },
+      {
+        "identity": "GAME:PlayAttractDemo",
+        "address": "013B:08CF",
+        "l1": "c_PlayAttractDemo"
+      },
+      {
+        "identity": "GAME:PlayGameCompletionDemo",
+        "address": "013B:08A2",
+        "l1": "c_PlayGameCompletionDemo"
+      }
+    ],
+    "delegated": [
+      {
+        "identity": "GAME:DrawDemoSprites",
+        "address": "013B:0A58",
+        "owner": "actor_render"
+      },
+      {
+        "identity": "GAME:EraseDemoSprites",
+        "address": "013B:0AB1",
+        "owner": "actor_render"
+      }
+    ],
+    "retained": "GAME:loc_0B4E 013B:0B4E: unexplained RET, no new native role/export"
+  },
+  "native": {
+    "files": [
+      "native/demo_presentation.h",
+      "native/demo_presentation.c",
+      "native/bridge/demo_presentation_bridge.c"
+    ],
+    "header": "native/demo_presentation.h",
+    "functions": [
+      "demo_presentation_begin",
+      "demo_presentation_next",
+      "demo_presentation_fade",
+      "demo_presentation_width"
+    ],
+    "build": "python verif/demo_scene_build.py"
+  },
+  "purpose": "Demo presentation effects and resumable scene/service sequencing: common runner and four wrappers, composing the accepted demo interpreter and persistent actor renderer. This is not the gameplay session or all pixel/audio services.",
+  "interface": {
+    "inputs": [
+      "Named run/reveal/pre-game/attract/completion entry; a per-run typed cursor. Fresh fade level/step, exit word and water surface at each event cut; captured palette work, keyboard change/scan word, completion carry and joystick-zero result at immediate post-service cuts.",
+      "Effect inputs are raw sprite/level and raw X32. All scalar word patterns, signed/wrapping boundaries, flags and histories are broad; no initialized fade/timer positivity restriction."
+    ],
+    "outputs": [
+      "One ordered named service, global store, vector selection, reveal X reset, outer-loop repeat or terminal action. Every action and next phase is consumed/checked by the retained ABI shell.",
+      "Effects return triggered fade/level writes or pixel/word/byte reveal-width results, including retained high byte."
+    ],
+    "effects": [
+      "Initialize executes its real initial interpreter step/callbacks before runner clears exit/fade and polls input. Every service yields to the real callee before a fresh projection; no eager stale frame plan.",
+      "Palette/retrace/page, water draw, keyboard/joystick and near/far music are synchronous services. Native requests decide their order/selection and semantic music arguments; actual return frames and all machine outputs remain in the bridge.",
+      "Draw/erase use the accepted actor_render entries. Demo-core initialization/advance/completion remain their accepted services, including explicit compatibility for synthetic/unregistered streams."
+    ],
+    "preconditions": [
+      "Ordinary disjoint RAM, resources, target width byte, stack and native inputs/outputs; no asynchronous mutation between declared service points. Services may mutate fresh globals at cuts. Normal returns preserve their stated caller segment/stack bindings; abnormal/nonlocal prefixes admit arbitrary returned registers, including CS/DS/SS:SP.",
+      "Bridge admits canonical DS/CS and valid even effect actor index<32; other bindings retain the checked literal shell. Native kind/phase identifies an admitted entry or continuation cut.",
+      "Script/header/pixel/audio resources and index/prefix admission belong to their existing service owners. No corruption or device-alias safety is invented. Normal whole-game scenarios have zero new-component compatibility.",
+      "Renderer histories remain persistent across modes. New code does not clear/project/rederive any actor cache. The original 100000-iteration diagnostic guard remains in the literal runner; formal properties are one-step/branch composition, not arbitrary-demo termination."
+    ]
+  },
+  "callers": [
+    "Menu/startup/post-game and RunGameFromPassword call the four wrappers; the pre-game return word/flags are ignored by the actual session prefix.",
+    "Demo-core stored callbacks call the two effects or the distinct IgnoreActorState. All28 registered headers and four vectors are checked; loc_0B4E is not a callback."
+  ],
+  "callees": {
+    "native": [
+      "demo_presentation_begin",
+      "demo_presentation_next",
+      "demo_presentation_fade",
+      "demo_presentation_width"
+    ],
+    "services": [
+      "InitializeDemoScripts",
+      "AdvanceDemoScripts",
+      "TestAllDemoScriptsFinished",
+      "DrawDemoSprites (actor_render)",
+      "EraseDemoSprites (actor_render)",
+      "PrepareAttractMap0/90",
+      "ScaleAndUploadFadedPalette",
+      "WaitNextVerticalRetrace",
+      "DrawWaterSurface",
+      "SwapAndDisplayVgaPage",
+      "PollKeyboardScanChange",
+      "SampleJoystickAxesAndButtons",
+      "C:StopMusicTrack",
+      "C:StartMusicTrack"
+    ]
+  },
+  "indirect": {
+    "targets": [
+      "StartDemoFadeWhenSpriteHidden",
+      "SetDemoRevealSpriteWidth",
+      "IgnoreActorState"
+    ],
+    "classification": "Complete stored callback set decoded from all28 immutable registered headers. Named service enums bind exact near targets and the two far music targets/argument frames in the bridge. Pregame/completion retain tail transfers, attract retains direct call, reveal retains near call plus cleanup."
+  },
+  "memory": {
+    "owned": [
+      "Common runner: DemoExitCode, ScreenFadeLevel and ScreenFadeStep ordered word effects. Reveal wrapper: slot0 ActorX32 explicit reset.",
+      "Fade callback: level/step conditional writes. Reveal callback: exactly one byte through the original mutable far pointer, with original DI direction/wrap."
+    ],
+    "borrowed": [
+      "Current actor sprite/raw X for callbacks; current global fade/water/input/completion state and captured service results.",
+      "Demo resources, actor histories and mode controls keep accepted owners. Normal caller/near/far stack scratch is retained, not abstracted away from compiled comparisons."
+    ],
+    "aliases": "No PassengerStoneSlot scratch alias is read or widened. Effects borrow presentation outputs/raw position; the native scene sequence does not serialize actor slots or inactive aliases.",
+    "projection": "Native cursor and captured input snapshot agree with each actual service continuation. Pending service and normal terminal action consumption are checked. Service-mutated RAM is reprojected before the next event; palette result uses returned work, not a stale fade-level reconstruction."
+  },
+  "assumptions": [
+    "B uses literal source partitions and branch-stage equality seams. Shared arbitrary service register/status/global results ground complete output comparisons, all private captured-result fields and next phases; no service implementation model substitutes for the retained service contract.",
+    "Word-normalized ordinary disjoint RAM and stack, fixed selected-effect-slot normalization and a single arbitrary event-index observer plus total event count. Compiled corpus varies all16 effect indices and all small boundary domains.",
+    "Native frame/dependence are independent properties over actual next code. Output profiles cover full machine register/flag words, every declared RAM/stack word, ordered stores/calls/arguments/return words, normal completion and abnormal prefixes.",
+    "Outer diagnostic guard and complete ABI shells are checked retained code; real services/callbacks, IRQ inputs and whole-run composition have independent L0 C/D evidence. No universal lifetime disjointness, dead-register claim or stronger status is inferred."
+  ],
+  "eliminated": [
+    "Native code has no registers/flags, RAM accessors, original addresses, segment arithmetic, dispatch or return-stack representation. Named events and captured semantic service results replace the machine orchestration.",
+    "No synthetic callback role, AX boolean return or unconditional reveal cleanup normalization is introduced."
+  ],
+  "retained": [
+    "Signed fade-level and surface thresholds, palette equality256, surface equality192, wrapping fade steps/levels and fresh service-mutated RAM. Negative fade returns flags from memory TEST of exit code; AX remains the real working value.",
+    "Completion CF bypasses input. Idle joystick ZF selects keyboard. AH==0 continues before fade scheduling; low scan is masked7F. Q->FFFF, Escape->1, other changes/button->0. Existing negative fade step is never restarted.",
+    "Pre-game wrapper tail-calls the common runner; caller proceeds to score/level initialization independently of returned AX/SF/ZF. Attract uses direct call and completion retains music-stop/start before its vector/tail.",
+    "Reveal saves common-runner flags, clears slot0 X32, calls width cleanup, then restores those flags. Width SAR5 and signed upper AL-only clamp preserve AH, have no lower clamp and can wrap the byte/far offset with DF.",
+    "Initial callback effects precede runner exit/fade clears. Renderer cache lifetimes and all16 histories remain owned by accepted services; no new mode switch clears."
+  ],
+  "evidence": [
+    {
+      "property": "Literal coverage and complete indirect set",
+      "level": "B",
+      "command": "python verif/demo_scene_coverage.py",
+      "result": "PASS27 branch cuts and28 headers",
+      "method": "Nine disjoint literal spans cover every common-runner statement except the unchanged diagnostic loop/budget return.27 branch/continuation profiles execute actual C and native event consumer at service/backedge/return cuts. Every service asserts next-phase and complete captured-result equality/frame; palette/input/flags/stack-return seams use arbitrary shared outputs. Independent actual native frame/dependence and two full effect properties cover remaining state. Four full wrappers are source-checked; after-prepare/music/cleanup/return profiles cover their continuations. Draw/erase delegate to accepted actor_render. No monolithic arbitrary-session termination or pixel/audio-service proof is claimed.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "initialize --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py initialize --sat",
+      "result": "PASS 0.207s; private peak 27488256 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "clear-before-poll --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py clear-before-poll --sat",
+      "result": "PASS 0.285s; private peak 32952320 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "frame-header --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py frame-header --sat",
+      "result": "PASS 0.964s; private peak 74354688 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "palette-result --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py palette-result --sat",
+      "result": "PASS 0.201s; private peak 27058176 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "erase --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py erase --sat",
+      "result": "PASS 0.201s; private peak 26902528 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "advance --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py advance --sat",
+      "result": "PASS 0.213s; private peak 27103232 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "draw --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py draw --sat",
+      "result": "PASS 0.211s; private peak 27357184 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "swap --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py swap --sat",
+      "result": "PASS 0.213s; private peak 27369472 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "completion-test --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py completion-test --sat",
+      "result": "PASS 0.216s; private peak 27160576 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "water-cut --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py water-cut --sat",
+      "result": "PASS 0.909s; private peak 68218880 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "finished-result --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py finished-result --sat",
+      "result": "PASS 6.142s; private peak 394014720 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "joystick-result --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py joystick-result --sat",
+      "result": "PASS 4.709s; private peak 311398400 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "keyboard-result --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py keyboard-result --sat",
+      "result": "PASS 2.551s; private peak 172392448 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "fade-check --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py fade-check --sat",
+      "result": "PASS 1.225s; private peak 92000256 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "fade-level --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py fade-level --sat",
+      "result": "PASS 0.226s; private peak 27463680 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "reveal-prepare --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py reveal-prepare --sat",
+      "result": "PASS 0.743s; private peak 53305344 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "reveal-prepared --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py reveal-prepared --sat",
+      "result": "PASS 0.667s; private peak 47026176 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "reveal-cleanup --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py reveal-cleanup --sat",
+      "result": "PASS 0.306s; private peak 33636352 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "reveal-return --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py reveal-return --sat",
+      "result": "PASS 0.181s; private peak 24698880 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "pregame-prepare --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py pregame-prepare --sat",
+      "result": "PASS 0.315s; private peak 33361920 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "pregame-prepared --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py pregame-prepared --sat",
+      "result": "PASS 0.239s; private peak 28708864 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "attract-prepare --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py attract-prepare --sat",
+      "result": "PASS 0.306s; private peak 33366016 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "attract-prepared --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py attract-prepared --sat",
+      "result": "PASS 0.233s; private peak 29114368 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "completion-prepare --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py completion-prepare --sat",
+      "result": "PASS 1.924s; private peak 119549952 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "completion-prepared --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py completion-prepared --sat",
+      "result": "PASS 1.345s; private peak 92610560 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "completion-stopped --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py completion-stopped --sat",
+      "result": "PASS 0.440s; private peak 41086976 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "completion-started --sat",
+      "level": "B",
+      "command": "python verif/demo_scene_proof.py completion-started --sat",
+      "result": "PASS 0.254s; private peak 30154752 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "fade",
+      "level": "B",
+      "command": "python verif/demo_scene_kernel.py fade",
+      "result": "PASS 0.224s; private peak 28872704 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "width",
+      "level": "B",
+      "command": "python verif/demo_scene_kernel.py width",
+      "result": "PASS 0.214s; private peak 28209152 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "noop",
+      "level": "B",
+      "command": "python verif/demo_scene_kernel.py noop",
+      "result": "PASS 0.125s; private peak 20070400 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "constructor",
+      "level": "B",
+      "command": "python verif/demo_scene_kernel.py constructor",
+      "result": "PASS 0.126s; private peak 19550208 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "terminal",
+      "level": "B",
+      "command": "python verif/demo_scene_kernel.py terminal",
+      "result": "PASS 0.156s; private peak 22114304 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "frame",
+      "level": "B",
+      "command": "python verif/demo_scene_kernel.py frame",
+      "result": "PASS 0.811s; private peak 71991296 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "dependence",
+      "level": "B",
+      "command": "python verif/demo_scene_kernel.py dependence",
+      "result": "PASS 1.150s; private peak 99561472 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "ignored-pregame",
+      "level": "B",
+      "command": "python verif/demo_scene_kernel.py ignored-pregame",
+      "result": "PASS 0.162s; private peak 21680128 bytes",
+      "method": "Actual C, SAT backend, pointer/bounds/overflow/unwinding assertions; exact branch/service/backedge cut scope, private cursor/snapshot equality and output/frame/dependence as recorded in source inventory.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Complete effect scalar slices",
+      "level": "A",
+      "command": "python verif/demo_scene_cases.py",
+      "result": "PASS196608 comparisons in three full65536-word slices",
+      "method": "Raw X32 width, raw fade sprite, raw fade level; other inputs fixed within each slice. Not A for the runner or actor_types.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Small boundaries and generated full/cut states",
+      "level": "C",
+      "command": "python verif/demo_scene_cases.py",
+      "result": "PASS 259768 presentation comparisons",
+      "method": "259768 inclusive comparisons: full-run schedules, all hidden/signed/equality/key domains, generated all16 effect slots, and10800 independent branch-cut cases.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Control and protocol mutants",
+      "level": "C",
+      "command": "python verif/demo_scene_mutants.py; python verif/demo_scene_bound.py",
+      "result": "All24 defects DETECTED; expected actual native-walk unwind FAIL",
+      "method": "Includes initialization ordering, returned palette work, private-only next/service/snapshot outputs, both return paths, reveal cleanup, signed/wrap/high byte and consumption. Compiler-error controls are never counted.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Real initialization callback and return ordering",
+      "level": "C",
+      "command": "python verif/demo_scene_order.py",
+      "result": "PASS16 L0/native cases, normal/poisoned",
+      "method": "Observer-only actual callbacks before clears, IRQ Q/Escape, completed empty-vector path with explicit child-core compatibility, all four real wrappers, reveal width127/X0 and saved flags.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "L0 to composed maintained routine suites",
+      "level": "C",
+      "command": "python verif/demo_scene_integration.py --whole --local-reference",
+      "result": "PASS2618 routine cases",
+      "method": "Actual accepted units plus presentation; synthetic incompatible child states retain existing explicit L1 compatibility.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Current maintained whole-game baseline",
+      "level": "D",
+      "command": "python verif/demo_scene_integration.py --whole --local-reference",
+      "result": "PASS20 scenarios, zero presentation compatibility",
+      "method": "Seven new entry counts, two delegated renderer entry counts and retained L1 RET count are recorded separately for each scenario.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Actual scratch host promotion",
+      "level": "D",
+      "command": "python verif/demo_scene_host.py",
+      "result": "PASS closure/build/native check,20 scenarios and256-frame smoke",
+      "method": "Committed clean baseline plus owned files and approved actor_types update. Only scratch demo_presentation promoted; no source/status filter bypass.",
+      "date": "2026-11-14"
+    }
+  ],
+  "amiga": {
+    "classification": "Meaning only, exact presentation/script implementation unresolved",
+    "finding": "Architecture model/actor-storage supply demo scene and mutable reveal-width meaning. DOS hidden markers, bytecode, service order, flags and cache persistence remain authoritative; no Amiga timing or layout imported."
+  },
+  "uncertainty": [
+    "Only the supervisor sets this new component status. Draw/erase are delegated to actor_render without duplicate file ownership.",
+    "loc_0B4E remains a separate trivial L1 RET contract with no established normal caller. No input witness or native role is fabricated.",
+    "The accepted actor_render generated RunGameFromPassword copy remains debt. This unit replaces its demo callee, not the session body, and retires no section of that copy."
+  ],
+  "dependencies": {
+    "native/demo_presentation.h": {
+      "includes": [
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/demo_presentation.c": {
+      "includes": [
+        "demo_presentation.h"
+      ],
+      "calls": [
+        "presentation_service",
+        "presentation_signed",
+        "presentation_value"
+      ]
+    },
+    "native/bridge/demo_presentation_bridge.c": {
+      "includes": [
+        "../demo_presentation.h",
+        "platform.h",
+        "stdlib.h"
+      ],
+      "calls": [
+        "CALL",
+        "D",
+        "G",
+        "R",
+        "W",
+        "abort",
+        "add16",
+        "c_RunScriptedDemo",
+        "demo_presentation_begin",
+        "demo_presentation_fade",
+        "demo_presentation_next",
+        "demo_presentation_width",
+        "dp_before",
+        "dp_before_id",
+        "dp_effect",
+        "dp_effect_write",
+        "dp_environment",
+        "dp_event",
+        "dp_finish",
+        "dp_input",
+        "dp_music_value",
+        "dp_open",
+        "dp_repeat",
+        "dp_require",
+        "dp_resume",
+        "dp_service_id",
+        "dp_tail",
+        "dp_vector",
+        "dp_vector_pointer",
+        "dp_width_byte",
+        "logic",
+        "pop",
+        "push",
+        "rd16",
+        "scene_far_call",
+        "set_al",
+        "step",
+        "sub16",
+        "ugh_dispatch",
+        "wr16",
+        "wr8"
+      ]
+    }
+  },
+  "proposed_status_reason": "All35 current actual-C profiles, checked source/continuation inventory, complete effect slices, compiled full/cut cases,24 mutation controls,16 real L0/native ordering cases,20 scenarios and actual scratch host acceptance pass. Whole-run/service composition retains explicit C/D scope.",
+  "coverage_inventory": {
+    "initialize": {
+      "phase": "DP_INITIALIZE",
+      "kind": "DEMO_PRESENT_RUN",
+      "fragment": "CALL(InitializeDemoScripts,G(RunScriptedDemo)+3);",
+      "seam": ""
+    },
+    "clear-before-poll": {
+      "phase": "DP_CLEAR_EXIT",
+      "kind": "DEMO_PRESENT_RUN",
+      "fragment": "r->ax=logic(r,0,16); W(DemoExitCode,r->ax); W(ScreenFadeLevel,r->ax); W(ScreenFadeStep,4);\n    CALL(PollKeyboardScanChange,G(RunScriptedDemo)+0x14);\n",
+      "seam": ""
+    },
+    "frame-header": {
+      "phase": "DP_LOOP",
+      "kind": "DEMO_PRESENT_RUN",
+      "fragment": "r->cx=R(ScreenFadeLevel); sub16(r,r->cx,0,0);\n        if((int16_t)r->cx<0) { logic(r,R(DemoExitCode),16); return UGH_OK; }\n        sub16(r,r->cx,256,0);\n        if((int16_t)r->cx<=256) {\n            CALL(ScaleAndUploadFadedPalette,G(RunScriptedDemo)+0x2f);\n            r->cx=add16(r,r->cx,R(ScreenFadeStep),0); W(ScreenFadeLevel,r->cx);\n        } else { CALL(WaitNextVerticalRetrace,G(RunScriptedDemo)+0x3c); }\n",
+      "seam": ""
+    },
+    "palette-result": {
+      "phase": "DP_PALETTE_AFTER",
+      "kind": "DEMO_PRESENT_RUN",
+      "fragment": "r->cx=add16(r,r->cx,R(ScreenFadeStep),0); W(ScreenFadeLevel,r->cx);",
+      "seam": "plan.observed.palette_work=r->cx;"
+    },
+    "erase": {
+      "phase": "DP_ERASE",
+      "kind": "DEMO_PRESENT_RUN",
+      "fragment": "CALL(EraseDemoSprites,G(RunScriptedDemo)+0x3f);",
+      "seam": ""
+    },
+    "advance": {
+      "phase": "DP_ADVANCE",
+      "kind": "DEMO_PRESENT_RUN",
+      "fragment": "CALL(AdvanceDemoScripts,G(RunScriptedDemo)+0x50);",
+      "seam": ""
+    },
+    "draw": {
+      "phase": "DP_DRAW",
+      "kind": "DEMO_PRESENT_RUN",
+      "fragment": "CALL(DrawDemoSprites,G(RunScriptedDemo)+0x53);",
+      "seam": ""
+    },
+    "swap": {
+      "phase": "DP_SWAP",
+      "kind": "DEMO_PRESENT_RUN",
+      "fragment": "CALL(SwapAndDisplayVgaPage,G(RunScriptedDemo)+0x56);",
+      "seam": ""
+    },
+    "completion-test": {
+      "phase": "DP_TEST",
+      "kind": "DEMO_PRESENT_RUN",
+      "fragment": "CALL(TestAllDemoScriptsFinished,G(RunScriptedDemo)+0x59);",
+      "seam": ""
+    },
+    "water-cut": {
+      "phase": "DP_WATER",
+      "kind": "DEMO_PRESENT_RUN",
+      "fragment": "sub16(r,R(WaterYPixels),192,0);\n        if((int16_t)R(WaterYPixels)<192) { CALL(DrawWaterSurface,G(RunScriptedDemo)+0x4d); }\n        CALL(AdvanceDemoScripts,G(RunScriptedDemo)+0x50);\n",
+      "seam": ""
+    },
+    "finished-result": {
+      "phase": "DP_TEST_AFTER",
+      "kind": "DEMO_PRESENT_RUN",
+      "fragment": "if(!(r->flags&CF)) {\n            CALL(SampleJoystickAxesAndButtons,G(RunScriptedDemo)+0x61);\n            if(r->flags&ZF) {\n                CALL(PollKeyboardScanChange,G(RunScriptedDemo)+0x69);\n                logic(r,r->ax>>8,8); if(!(r->ax>>8)) continue;\n                set_al(r,(uint8_t)logic(r,r->ax&0x7f,8));\n                sub16(r,(uint8_t)r->ax,0x10,0);\n                if((uint8_t)r->ax==0x10) W(DemoExitCode,0xffff);\n                else {\n                    sub16(r,(uint8_t)r->ax,1,0);\n                    W(DemoExitCode,(uint8_t)r->ax==1?1:0);\n                }\n            } else W(DemoExitCode,0);\n        }\nsub16(r,R(ScreenFadeStep),0,0);\n        if((int16_t)R(ScreenFadeStep)<0) continue;\n        r->ax=0xfffc; W(ScreenFadeStep,r->ax); W(ScreenFadeLevel,add16(r,R(ScreenFadeLevel),r->ax,0));\n",
+      "seam": "plan.observed.finished=(r->flags&CF)!=0;"
+    },
+    "joystick-result": {
+      "phase": "DP_JOYSTICK_AFTER",
+      "kind": "DEMO_PRESENT_RUN",
+      "fragment": "if(r->flags&ZF) {\n                CALL(PollKeyboardScanChange,G(RunScriptedDemo)+0x69);\n                logic(r,r->ax>>8,8); if(!(r->ax>>8)) continue;\n                set_al(r,(uint8_t)logic(r,r->ax&0x7f,8));\n                sub16(r,(uint8_t)r->ax,0x10,0);\n                if((uint8_t)r->ax==0x10) W(DemoExitCode,0xffff);\n                else {\n                    sub16(r,(uint8_t)r->ax,1,0);\n                    W(DemoExitCode,(uint8_t)r->ax==1?1:0);\n                }\n            } else W(DemoExitCode,0);sub16(r,R(ScreenFadeStep),0,0);\n        if((int16_t)R(ScreenFadeStep)<0) continue;\n        r->ax=0xfffc; W(ScreenFadeStep,r->ax); W(ScreenFadeLevel,add16(r,R(ScreenFadeLevel),r->ax,0));\n",
+      "seam": "plan.observed.joystick_idle=(r->flags&ZF)!=0;"
+    },
+    "keyboard-result": {
+      "phase": "DP_KEYBOARD_AFTER",
+      "kind": "DEMO_PRESENT_RUN",
+      "fragment": "logic(r,r->ax>>8,8); if(!(r->ax>>8)) continue;\n                set_al(r,(uint8_t)logic(r,r->ax&0x7f,8));\n                sub16(r,(uint8_t)r->ax,0x10,0);\n                if((uint8_t)r->ax==0x10) W(DemoExitCode,0xffff);\n                else {\n                    sub16(r,(uint8_t)r->ax,1,0);\n                    W(DemoExitCode,(uint8_t)r->ax==1?1:0);\n                }\nsub16(r,R(ScreenFadeStep),0,0);\n        if((int16_t)R(ScreenFadeStep)<0) continue;\n        r->ax=0xfffc; W(ScreenFadeStep,r->ax); W(ScreenFadeLevel,add16(r,R(ScreenFadeLevel),r->ax,0));\n",
+      "seam": "plan.observed.key_word=r->ax;"
+    },
+    "fade-check": {
+      "phase": "DP_FADE_CHECK",
+      "kind": "DEMO_PRESENT_RUN",
+      "fragment": "sub16(r,R(ScreenFadeStep),0,0);\n        if((int16_t)R(ScreenFadeStep)<0) continue;\n        r->ax=0xfffc; W(ScreenFadeStep,r->ax); W(ScreenFadeLevel,add16(r,R(ScreenFadeLevel),r->ax,0));\n",
+      "seam": ""
+    },
+    "fade-level": {
+      "phase": "DP_FADE_LEVEL",
+      "kind": "DEMO_PRESENT_RUN",
+      "fragment": "W(ScreenFadeLevel,add16(r,R(ScreenFadeLevel),r->ax,0));",
+      "seam": "r->ax=65532u;"
+    },
+    "reveal-prepare": {
+      "phase": "DP_PREPARE",
+      "kind": "DEMO_PRESENT_REVEAL",
+      "fragment": "\n    CALL(PrepareAttractMap0,G(PlaySpriteRevealDemo)+3); r->si=D(DemoTable_24DE);\n    CALL(RunScriptedDemo,G(PlaySpriteRevealDemo)+9); push(r,r->flags);\n    r->bx=logic(r,0,16); W(ActorX32,r->bx);\n    CALL(SetDemoRevealSpriteWidth,G(PlaySpriteRevealDemo)+0x13); r->flags=pop(r); return UGH_OK;\n",
+      "seam": ""
+    },
+    "reveal-prepared": {
+      "phase": "DP_VECTOR",
+      "kind": "DEMO_PRESENT_REVEAL",
+      "fragment": "r->si=D(DemoTable_24DE);\n    CALL(RunScriptedDemo,G(PlaySpriteRevealDemo)+9); push(r,r->flags);\n    r->bx=logic(r,0,16); W(ActorX32,r->bx);\n    CALL(SetDemoRevealSpriteWidth,G(PlaySpriteRevealDemo)+0x13); r->flags=pop(r); return UGH_OK;\n",
+      "seam": ""
+    },
+    "reveal-cleanup": {
+      "phase": "DP_REVEAL_X",
+      "kind": "DEMO_PRESENT_REVEAL",
+      "fragment": "push(r,r->flags);\n    r->bx=logic(r,0,16); W(ActorX32,r->bx);\n    CALL(SetDemoRevealSpriteWidth,G(PlaySpriteRevealDemo)+0x13); r->flags=pop(r); return UGH_OK;\n",
+      "seam": ""
+    },
+    "reveal-return": {
+      "phase": "DP_WRAPPER_DONE",
+      "kind": "DEMO_PRESENT_REVEAL",
+      "fragment": "r->flags=pop(r); return UGH_OK;",
+      "seam": "r->sp=0xffe;"
+    },
+    "pregame-prepare": {
+      "phase": "DP_PREPARE",
+      "kind": "DEMO_PRESENT_PREGAME",
+      "fragment": "\n    CALL(PrepareAttractMap0,G(PlayPreGameDemo)+3); r->si=D(DemoTable_1792);\n    return ugh_dispatch(r->cs,G(RunScriptedDemo),r);\n",
+      "seam": ""
+    },
+    "pregame-prepared": {
+      "phase": "DP_VECTOR",
+      "kind": "DEMO_PRESENT_PREGAME",
+      "fragment": "r->si=D(DemoTable_1792);\n    return ugh_dispatch(r->cs,G(RunScriptedDemo),r);\n",
+      "seam": ""
+    },
+    "attract-prepare": {
+      "phase": "DP_PREPARE",
+      "kind": "DEMO_PRESENT_ATTRACT",
+      "fragment": "\n    CALL(PrepareAttractMap90,G(PlayAttractDemo)+3); r->si=D(DemoTable_1E40);\n    return c_RunScriptedDemo(r);\n",
+      "seam": ""
+    },
+    "attract-prepared": {
+      "phase": "DP_VECTOR",
+      "kind": "DEMO_PRESENT_ATTRACT",
+      "fragment": "r->si=D(DemoTable_1E40);\n    return c_RunScriptedDemo(r);\n",
+      "seam": ""
+    },
+    "completion-prepare": {
+      "phase": "DP_PREPARE",
+      "kind": "DEMO_PRESENT_COMPLETION",
+      "fragment": "\n    CALL(PrepareAttractMap0,G(PlayGameCompletionDemo)+3); push(r,0x11);\n    int st=scene_far_call(r,UGH_S_C_StopMusicTrack,UGH_O_C_StopMusicTrack,G(PlayGameCompletionDemo)+10);\n    if(st) return st;\n    r->sp=add16(r,r->sp,2,0); push(r,0xa5); push(r,0); push(r,UGH_S_B3279_ext_3279); push(r,0);\n    st=scene_far_call(r,UGH_S_C_StartMusicTrack,UGH_O_C_StartMusicTrack,G(PlayGameCompletionDemo)+0x1d);\n    if(st) return st;\n    r->sp=add16(r,r->sp,8,0); r->si=D(DemoTable_1020); return ugh_dispatch(r->cs,G(RunScriptedDemo),r);\n",
+      "seam": ""
+    },
+    "completion-prepared": {
+      "phase": "DP_MUSIC_STOP",
+      "kind": "DEMO_PRESENT_COMPLETION",
+      "fragment": "push(r,0x11);\n    int st=scene_far_call(r,UGH_S_C_StopMusicTrack,UGH_O_C_StopMusicTrack,G(PlayGameCompletionDemo)+10);\n    if(st) return st;\n    r->sp=add16(r,r->sp,2,0); push(r,0xa5); push(r,0); push(r,UGH_S_B3279_ext_3279); push(r,0);\n    st=scene_far_call(r,UGH_S_C_StartMusicTrack,UGH_O_C_StartMusicTrack,G(PlayGameCompletionDemo)+0x1d);\n    if(st) return st;\n    r->sp=add16(r,r->sp,8,0); r->si=D(DemoTable_1020); return ugh_dispatch(r->cs,G(RunScriptedDemo),r);\n",
+      "seam": ""
+    },
+    "completion-stopped": {
+      "phase": "DP_MUSIC_START",
+      "kind": "DEMO_PRESENT_COMPLETION",
+      "fragment": "int st;\nr->sp=add16(r,r->sp,2,0); push(r,0xa5); push(r,0); push(r,UGH_S_B3279_ext_3279); push(r,0);\n    st=scene_far_call(r,UGH_S_C_StartMusicTrack,UGH_O_C_StartMusicTrack,G(PlayGameCompletionDemo)+0x1d);\n    if(st) return st;\n    r->sp=add16(r,r->sp,8,0); r->si=D(DemoTable_1020); return ugh_dispatch(r->cs,G(RunScriptedDemo),r);\n",
+      "seam": "r->sp=0xffe;"
+    },
+    "completion-started": {
+      "phase": "DP_VECTOR",
+      "kind": "DEMO_PRESENT_COMPLETION",
+      "fragment": "r->sp=add16(r,r->sp,8,0); r->si=D(DemoTable_1020); return ugh_dispatch(r->cs,G(RunScriptedDemo),r);\n",
+      "seam": "r->sp=0xff8;"
+    }
+  },
+  "scenario_entry_counts": [
+    {
+      "scenario": "adlib",
+      "status": 0,
+      "entries": [
+        0,
+        3,
+        1,
+        1,
+        0,
+        0,
+        0,
+        2,
+        2,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "attract",
+      "status": 0,
+      "entries": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        94,
+        94,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "completion",
+      "status": 0,
+      "entries": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        158,
+        158,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "departure",
+      "status": 0,
+      "entries": [
+        2,
+        3,
+        2,
+        1,
+        1,
+        0,
+        0,
+        4,
+        4,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "dino",
+      "status": 0,
+      "entries": [
+        2,
+        3,
+        2,
+        1,
+        1,
+        0,
+        0,
+        4,
+        4,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "enemy",
+      "status": 0,
+      "entries": [
+        2,
+        3,
+        2,
+        1,
+        1,
+        0,
+        0,
+        4,
+        4,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "gameplay-adlib",
+      "status": 0,
+      "entries": [
+        2,
+        5,
+        3,
+        2,
+        1,
+        0,
+        0,
+        6,
+        6,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "gameplay",
+      "status": 0,
+      "entries": [
+        2,
+        5,
+        3,
+        2,
+        1,
+        0,
+        0,
+        6,
+        6,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "high-score",
+      "status": 0,
+      "entries": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "items-multiplier",
+      "status": 0,
+      "entries": [
+        2,
+        3,
+        2,
+        1,
+        1,
+        0,
+        0,
+        4,
+        4,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "items-timer",
+      "status": 0,
+      "entries": [
+        2,
+        3,
+        2,
+        1,
+        1,
+        0,
+        0,
+        4,
+        4,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "menu",
+      "status": 0,
+      "entries": [
+        0,
+        3,
+        1,
+        1,
+        0,
+        0,
+        0,
+        2,
+        2,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "passenger",
+      "status": 0,
+      "entries": [
+        2,
+        3,
+        2,
+        1,
+        1,
+        0,
+        0,
+        4,
+        4,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "password",
+      "status": 0,
+      "entries": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "pregame",
+      "status": 0,
+      "entries": [
+        80,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        158,
+        158,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "reveal",
+      "status": 0,
+      "entries": [
+        0,
+        64,
+        1,
+        1,
+        0,
+        0,
+        0,
+        126,
+        126,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "startup",
+      "status": 0,
+      "entries": [
+        0,
+        3,
+        1,
+        1,
+        0,
+        0,
+        0,
+        4,
+        4,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "two-player",
+      "status": 0,
+      "entries": [
+        2,
+        3,
+        2,
+        1,
+        1,
+        0,
+        0,
+        4,
+        4,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "water-physics",
+      "status": 0,
+      "entries": [
+        2,
+        3,
+        2,
+        1,
+        1,
+        0,
+        0,
+        4,
+        4,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "scenario": "water",
+      "status": 0,
+      "entries": [
+        2,
+        3,
+        2,
+        1,
+        1,
+        0,
+        0,
+        4,
+        4,
+        0
+      ],
+      "fallbacks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "retained_ret": {
+    "address": "GAME:0B4E",
+    "direct_call_sites": [],
+    "indirect_header_targets": [],
+    "contract": "Retained unexplained RET: UGH_OK and every register/flag/memory cell unchanged. It is not IgnoreActorState, not a demo effect and has no established caller.",
+    "witness": "No input-only witness justified by the checked normal direct/indirect graph. Literal trivial property is proved; no invented native role/export."
+  },
+  "session_shell_debt": "No part of the accepted actor_render RunGameFromPassword copy can be removed by replacing only the called demo runner/wrappers. The native common runner is now a callee of that shell; removing it requires a session facade or caller rewrite outside this unit. No accepted renderer or whole-session code was changed.",
+  "maximum_solver_overlap": 2,
+  "negative_results": [
+    {
+      "receipt": "build\\workers\\close-stones-7\\negative\\1794612773651948700-23304-ERROR\\result.json",
+      "result": "ERROR",
+      "returncode": 3221225477,
+      "seconds": 2.2119528999901377,
+      "peak_private_bytes": 141570048,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-7\\proofs\\keyboard-result\\harness.i",
+        "--unwind",
+        "42",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-7\\negative\\1794612799318842500-59956-ERROR\\result.json",
+      "result": "ERROR",
+      "returncode": 3221225477,
+      "seconds": 2.1317642999929376,
+      "peak_private_bytes": 138117120,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-7\\proofs\\keyboard-result\\harness.i",
+        "--unwind",
+        "42",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe",
+        "--no-array-field-sensitivity"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-7\\negative\\1794612843586525700-80344-ERROR\\result.json",
+      "result": "ERROR",
+      "returncode": 3221225477,
+      "seconds": 2.1120759999612346,
+      "peak_private_bytes": 138465280,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-7\\proofs\\keyboard-result\\harness.i",
+        "--unwind",
+        "42",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--smt2",
+        "--z3",
+        "--external-smt2-solver",
+        "C:\\tools\\z3-solver-5.4.1.0\\z3_solver-5.4.1.0.data\\data\\bin\\z3.exe",
+        "--no-array-field-sensitivity"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-7\\negative\\1794613070832184400-42472-ERROR\\result.json",
+      "result": "ERROR",
+      "returncode": 6,
+      "seconds": 0.02552490000380203,
+      "peak_private_bytes": 7737344,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-7\\kernel\\frame\\harness.i",
+        "--unwind",
+        "42",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--no-array-field-sensitivity"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-7\\negative\\1794613607454392400-18556-FAIL\\result.json",
+      "result": "FAIL",
+      "returncode": 10,
+      "seconds": 0.22986210003728047,
+      "peak_private_bytes": 30494720,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-7\\negative-bound\\harness.i",
+        "--unwind",
+        "1",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--no-array-field-sensitivity"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-7\\negative\\1794614122289760100-10932-MEMORY_CAP\\result.json",
+      "result": "MEMORY_CAP",
+      "returncode": 1,
+      "seconds": 0.014145500026643276,
+      "peak_private_bytes": 6537216,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-7\\cap-control\\harness.i",
+        "--unwind",
+        "1",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-7\\negative\\1794614135334532600-30980-FAIL\\result.json",
+      "result": "FAIL",
+      "returncode": 10,
+      "seconds": 0.2381597000057809,
+      "peak_private_bytes": 30560256,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-7\\negative-bound\\harness.i",
+        "--unwind",
+        "1",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--no-array-field-sensitivity"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-7\\negative\\1794614477452774800-42096-FAIL\\result.json",
+      "result": "FAIL",
+      "returncode": 10,
+      "seconds": 0.2322472999803722,
+      "peak_private_bytes": 30568448,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-7\\negative-bound\\harness.i",
+        "--unwind",
+        "1",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--no-array-field-sensitivity"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-7\\clean-replay-71900\\build\\workers\\close-stones-7\\negative\\1794614879021259700-75660-MEMORY_CAP\\result.json",
+      "result": "MEMORY_CAP",
+      "returncode": 1,
+      "seconds": 0.015093599969986826,
+      "peak_private_bytes": 6586368,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-7\\clean-replay-71900\\build\\workers\\close-stones-7\\cap-control\\harness.i",
+        "--unwind",
+        "1",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-7\\clean-replay-71900\\build\\workers\\close-stones-7\\negative\\1794614897361712600-82172-FAIL\\result.json",
+      "result": "FAIL",
+      "returncode": 10,
+      "seconds": 0.23828440002398565,
+      "peak_private_bytes": 30441472,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-7\\clean-replay-71900\\build\\workers\\close-stones-7\\negative-bound\\harness.i",
+        "--unwind",
+        "1",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--no-array-field-sensitivity"
+      ]
+    },
+    {
+      "receipt": "build\\workers\\close-stones-7\\clean-replay-71900\\build\\workers\\close-stones-7\\negative\\1794616613831734300-34692-FAIL\\result.json",
+      "result": "FAIL",
+      "returncode": 10,
+      "seconds": 0.23421640001470223,
+      "peak_private_bytes": 30466048,
+      "command": [
+        "C:\\tools\\cbmc-6.11.0\\cbmc\\bin\\cbmc.exe",
+        "D:\\Prog\\ugh_recon\\build\\workers\\close-stones-7\\clean-replay-71900\\build\\workers\\close-stones-7\\negative-bound\\harness.i",
+        "--unwind",
+        "1",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--slice-formula",
+        "--trace",
+        "--no-array-field-sensitivity"
+      ]
+    }
+  ],
+  "scratch_acceptance": {
+    "baseline": "f647495734e0d00650816a6ceffb4ae918cc5b97",
+    "linked_units": [
+      "actor_render",
+      "actor_types",
+      "adlx_allocation",
+      "adlx_effects",
+      "adlx_lifetime",
+      "adlx_loader",
+      "adlx_main",
+      "adlx_music",
+      "adlx_sections",
+      "adlx_voice",
+      "contacts",
+      "coordinate_scale",
+      "decimal",
+      "demo_core",
+      "demo_presentation",
+      "falling_items",
+      "far_copy",
+      "hazards",
+      "ice",
+      "level_view",
+      "music_clock",
+      "passenger_delivery",
+      "passenger_itinerary",
+      "passenger_water",
+      "random",
+      "stones",
+      "timer"
+    ],
+    "scenarios": [
+      "adlib",
+      "attract",
+      "completion",
+      "departure",
+      "dino",
+      "enemy",
+      "gameplay-adlib",
+      "gameplay",
+      "high-score",
+      "items-multiplier",
+      "items-timer",
+      "menu",
+      "passenger",
+      "password",
+      "pregame",
+      "reveal",
+      "startup",
+      "two-player",
+      "water-physics",
+      "water"
+    ]
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "native/demo_presentation.h": "f48152b51d6321f89d307ca9fdfbf89a69efd77ffa3cfdf47e0b70e8cad2b7b0",
+    "native/demo_presentation.c": "34c6600013690323da87b129cdca749c76f65c78a8d91c7cec3eaa0ca2e799bc",
+    "native/bridge/demo_presentation_bridge.c": "cbb91c49b1cf3ddd949521f18a56c96a34aa5a74347a0848d2f2ff07e3cc5153",
+    "verif/demo_scene_baseline.py": "c224bfc3844ea877402896166d5fcf8f398512c7ed748322f9259a4bbb35540a",
+    "verif/demo_scene_bound.py": "5de9807938399ad784ec668901ab3fa19c52e56734122641e3319f865af4f8bb",
+    "verif/demo_scene_build.py": "3655f100656fddae12906521e4c6f5e59fe145b49a1269d5a41154aa9ccea0c9",
+    "verif/demo_scene_cases.py": "dbdf1d5bd37db8745e642fbac8661da32d7ab59236bc0cd311f5a253b0d0b951",
+    "verif/demo_scene_certificate.py": "6dce780d91e826d5402b8565cdfeb8637fbb7954c9d63e501648764235297c70",
+    "verif/demo_scene_coverage.py": "b4a88456ad4294bc0c532314aa27f9576df786ffafb080687b389468c7d2abbc",
+    "verif/demo_scene_harness.c": "1dfbc6b1e17e21c052e8edff6c40d52a7df06ef17e151c343fed9bc13be793d7",
+    "verif/demo_scene_host.py": "a925e79186e1e2480807b51440c00d1d2909f06b82371bfa1e93f4d80a67044e",
+    "verif/demo_scene_integration.py": "9efa313025622f99bfd6304728a03199c677dfe70f3a1be44da521f3089c5f6a",
+    "verif/demo_scene_kernel.py": "213eca1bd6a707e5af00fe538d89ef1b0f50e28acf3600b8af93737bbe0634b4",
+    "verif/demo_scene_limits.py": "b9648987a70d347deb05495b67066901e9c636f762e84ab0d6040acfd213e374",
+    "verif/demo_scene_mutants.py": "768396c89f9873d40b26327e6b58a35fc6ee339a01dcc7b20ac6cc09d1199c2d",
+    "verif/demo_scene_order.py": "d7ea935ca009f16b91f760b908190b6140bf304140a5fde0bf33344e2dd48475",
+    "verif/demo_scene_pieces.py": "4126eab3509a43d19a3819c44f4d600673ec3f043e8cc374f6a7914240a90426",
+    "verif/demo_scene_proof.py": "b84f5ba22aacfb5a9396ec6062ee13ee537e6b075ae1172ed499b50fccc958df",
+    "verif/demo_scene_proofs.py": "61f4e633e69421e204f20124090a19f05408d74943613d667837129abb14fb8b",
+    "verif/demo_scene_reproduce.py": "429ba32d13c7b743de2d70c31c87f0a4264a0b9149a6ee28c7aa172a27b4d07d",
+    "verif/demo_scene_shells.py": "86c960ab4239403eb6286c334cedf14bcd0c856881848a7a072580ec7530621e",
+    "verif/demo_scene_types.py": "bde64507b7811c4dba32da1e8e9469e39b6fbca393bcb904999564e4f4a6de70",
+    "c/abi.c": "5f7c2c2fc015ca43e3786a7f96cb38113211da54acefce19564c1df78d74857a",
+    "c/actors.c": "d17c03c844f95780f0647b85aa854a87c3e566b0f56fe89ee0a95d6d689f3ff2",
+    "c/actors.h": "00817c6f676f61811df11066fca3335c9757e0f59f7cad241dff762fee7b71bd",
+    "c/actors_states.c": "79a460a0436e773bdd795953f63c6765d71c0e346cdf8bbccbcf707817994447",
+    "c/actors_states.h": "375dda6bd3fa6cd5552cc98df7f7c785dc5d70850a10f96207bd0894161cd5d8",
+    "c/adlib.c": "2f4e551282f6ac33f8d24127f3cd5294e679f72ce28794c3ed295ce243c18bf0",
+    "c/adlib.h": "70f2c0d3f51dc49dd05918266b4de07d247a12909f11e8329244b8d9af56cdee",
+    "c/demo_scripts.c": "a19c7e52bc709a28f9be40bc66b60c6de82df888f8eb725b79f0b9556fe795d7",
+    "c/demo_scripts.h": "ea65090001ef64f26f31c39de2075c098949bcb9ca8448480cd1fccdf55a608b",
+    "c/dispatch.c": "80a97f55a460a21dac9d6295939a8276c83b66cef886f814365e0a823814debf",
+    "c/dos_input.c": "b6a086f3917441a23c4238f582e00605d8a239ded81b03a658ff308890601e53",
+    "c/dos_input.h": "8cee17811645a61424b6174e0213402b8c21defd5b4fa6d56511225c70e5193e",
+    "c/dsp.c": "a2f4dc144514ed9ea8cdca8a75c9813718342a5ed5c26176ff6d691f89d651b5",
+    "c/dsp.h": "9b2c2b95b0781caf3a96b7b0b19f8078601557f5e0a11bec889d109ef2755b63",
+    "c/game_services.c": "e9301da5d7fae6f2aacce7dda8d4e6f0e86cbe8c40e736216185c4a8f792a7c5",
+    "c/game_services.h": "7a63f8bd05b2710c27c4c4247b00e0f1fc06a4ecdaa388bf47eb9fb1374965c5",
+    "c/ice.c": "27e2898dd6a5e70af26bde84c0ba8cd6e8a045e40d94df21fd5b122f10a2242e",
+    "c/ice.h": "925da59e4f3fb6cf278100578e56093dc7138040c98eb9f286acb9c867512578",
+    "c/items_water.c": "ab5c2c72096b5e6355a2575f9a58c321f91680d7cd97653581dcbab59033e2d9",
+    "c/items_water.h": "d18978433dcc966235010906984c13fcb76c3469bf4bc0f8e33345101099f148",
+    "c/memory.c": "97f59e3c343cd6911854d0bfc3ff624417de2844f712caa96ec6799d3a9783d9",
+    "c/menu.c": "b2ea585a4cb2b40c349fd7a017642534ea2b4982140a25a6dcacd12ce3b418b0",
+    "c/menu.h": "eaa33e9e9db1f3caa44f60b4a0c862b1bc82855a6389e91f330606e27317b1de",
+    "c/menu_helpers.c": "48125ab011a2ab29cd7936aa61e9889c8715ee843090c6ddd00f9d14dddbb6ad",
+    "c/menu_helpers.h": "9c5998717eec5a79122d91ca1d6a045f303baaf5b96dbf14cf6401b4df34e4e2",
+    "c/music_analysis.c": "604fc3c80dec56a6740444b908da8baeff325357760ab8b82e9db72f5e022fe5",
+    "c/music_analysis.h": "3b2175241d1ced443d9463c6545232630cd4ccd20d907dab83296c8e4cd7fe23",
+    "c/music_clock.c": "2583d53f81c50bc148d423866cbd8f0fa14ff6bb3e5f8320a60e02b35a7d82fa",
+    "c/music_clock.h": "5ffc27066dc1c8438e716850ce666daaa00421dec8be964337b43f75a936210e",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/render.c": "7620324caaff46b39094d4b8f7077f2a5426a728806e52f1c56a962771208b40",
+    "c/render.h": "bcac207ffd7130100008409d8b4069b9ac126b713c81bfb043f1eb1e9603c160",
+    "c/render_primitives.c": "447a9f435f22cc46c9c30d8d11ee9046d57d57c48d6bbaa2e91768e32f9698c0",
+    "c/render_primitives.h": "92f16baae8b087d052e7ca713921fe74ad63e4f0a9f370190b2cc476c7a0ab09",
+    "c/scene.c": "0060ef52ee2cc8b4c98d1b04b6387cd809809a9226f4b4f71c01a75a99d5e460",
+    "c/scene.h": "77c02b56b44a4eb584da4d17cad94cc7f4be79ea3a2f70fd03d7ed2dc50f884a",
+    "c/sound_api.c": "ba1c98bf3a03b5f48a71d4491bdebf3acfc17b0f6cce51db370a0e58c0507e4c",
+    "c/sound_api.h": "b15efba9d9cf41053b3b818d4bb3a084936b6d3e15dafc05544648c88e4687c1",
+    "c/sound_engine.c": "5e4116c31806441e464de35d5649894ec4eea28025254a2edea616235e6e6881",
+    "c/sound_engine.h": "bb288a280c6cf526e91718ccd7fd02a2762e9d58f3d0d53a2f2feef9472eabd1",
+    "c/sound_state.c": "c57e5874b9a7b761faf49dd0bf6da4338ffaea31af1cea5c91a2f13e8ea9ded2",
+    "c/sound_state.h": "bdbbef92b75c99c274bde293ec8bcb1f7a997ed1e8176dc5deda96806c6fbad4",
+    "c/timer.c": "49e56856d56bb1ae68b62fa9112ce294f77182bebfc8e2cd5392737f1c06080b",
+    "c/timer.h": "4ae328394adb59216a373832fbf926a926ce9fe8f813bbe7c3927c9abaf10937",
+    "c/timer_stack.c": "512cfb5332569f32adffed22e5211db5772440428369cc9cc808be931631c98d",
+    "c/timer_stack.h": "e076aba16f8ee3dacbffcddbfa5b065a79a6e8000fa825244bffeb3771d1a514",
+    "c/timer_system.c": "89ead348d18a649f37dca6f44c94c309c3d50b7b6d0877411064f9ac0129d92b",
+    "c/timer_system.h": "f7204fef034e9f641f1f12ad9412efe80844d5be64b177300bdc5a9a20136a49",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_adapters.h": "c18eafbbe16170d01fcfac6853deab651d3c2b54343b47bccd6ce0de4303ad38",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "c/video.c": "681732591d8efb11cf1d5d5816c999bca718560bd247d9c9cc6c0f36982b2fa2",
+    "c/video.h": "35e4d6076edd69e2722cf7d52392871345f5e0eb78af7ce67e13c8ed0c02f192",
+    "tests/scenarios/adlib.txt": "1db37ba320e4c3c85449c2f4a7f5ecd8543e6de6933e165e534b79adb3386f2f",
+    "tests/scenarios/attract.txt": "07339939be35779cc94094221155e97a11c6dec396ab6dce85f238a415896a01",
+    "tests/scenarios/completion.txt": "d898ad1f8abd49f7757303b562028cf7f0c10143dfb0358dad4e0a6fee7386bc",
+    "tests/scenarios/departure.txt": "dd7cb186974803ed7436b99600394606594109283d668f7ee5a893a90f89f705",
+    "tests/scenarios/dino.txt": "f5a6254be7b416bdf3da436c7b1907abe31e4a7b184bb7ac6636b72c7c166252",
+    "tests/scenarios/enemy.txt": "c5140aa9afe062e09cbefb949b78d06733c306518f315ba8f5448a0c2b8062a6",
+    "tests/scenarios/gameplay-adlib.txt": "5f0e1e3ea3f5f9e735c5a7ab2eda9ddee8a33d8d290bbd81e27fd9cbb1ddb3cd",
+    "tests/scenarios/gameplay.txt": "b0be47d570408d44dc977faca40ef2a258c0686958f7fa68574cc411bb25a03a",
+    "tests/scenarios/high-score.txt": "5b698cb06b6d77d9a9d6f009cea71b8a1af9c16c8ecf3c344e33a9b8d93b1220",
+    "tests/scenarios/items-multiplier.txt": "aea8dc889e0a1777e2c3f8b37525375e939656a91577759030523a8aca88ca8d",
+    "tests/scenarios/items-timer.txt": "1fc3cde57a7aed7acfe67e015af95c852a6dc681b7492d3464ffe5e7d5af39b1",
+    "tests/scenarios/menu.txt": "3e8347d504ac0c13ced62c1befb26b59a353c46de397bb3ac79f5089b20ea8b1",
+    "tests/scenarios/passenger.txt": "e95f43a019615449dd142652ea837aaeb4a82e7bce9c6ecd72dd67411fe44922",
+    "tests/scenarios/password.txt": "fea4555e22daca6a5e4e154fd4d6c1b7871d80aa574c402363d5b3b938657bd2",
+    "tests/scenarios/pregame.txt": "6697f662ccf5791b57e14d5dcb0c216c7428312441c570f10b0e031a33a97cf8",
+    "tests/scenarios/reveal.txt": "8be34ff993316d7e099576cccd8af23d28267b02eee37df01a430f8e94418c84",
+    "tests/scenarios/startup.txt": "bddaf9054cfb6f1a4a5734e147c2481c28d0fa0768af141c311ddb13a38fbd7b",
+    "tests/scenarios/two-player.txt": "5c07be6ec944b7a38082d275633bba2ef26cc9e90828b673bb8434ad3ffa78e5",
+    "tests/scenarios/water-physics.txt": "33853e24a477c60ab0dbecf9057a034a01fa2ec6ab6c9f6e873d463006754e6c",
+    "tests/scenarios/water.txt": "22aca0913b25142891f67c57f20d56cfef57c16df862269a377f924217e96f84",
+    "tests/demo_scripts.py": "b71d2044f43b58e9b79cce9039e1a3a8d71a7ca96a6f385abcbdc47edefa95be",
+    "tests/game_services.py": "f107e1dafead13ec0b397a12474b52d821fde5415a2783f5ebad4477b309a6e5",
+    "tests/menu.py": "968fb180e88fe43264642f12a21650663f31c79df511290879d476d3bd0f5d08",
+    "tests/actors.py": "80b0aed22ae70e2b8eeead4a4176ce5b5935ac93ee517869df14035ffa9ea7ad",
+    "tests/render.py": "ac899241858dd7dd0f2d175a7f5b7229257b5b59a24291c65078881281c86e7e",
+    "tests/scene.py": "1eb8b5d2a3fb51b9eaa123d3f5d9efe2637ef131f333f696b71dc1f3a9069a81",
+    "metadata/closure/actor_types.json": "b5306623d72c3adca581a24c7d2e1caae1d1bec7c23a9a158d049ccfedcffaa9",
+    "metadata/closure/actor_render.json": "c863d8d10b0167a9fdc61a230a1c8cb64c987604bfc43aaecf369382126463df",
+    "metadata/closure/demo_core.json": "47466fd7906c899640c0512e2f341eb20a10b3717032eed275df73302abcf5c7",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
+    "native/actors.h": "b1c7653a6e566c7f0e3e18ad38fc3f63726d01b78a6fa6843df017d2d155a42c",
+    "native/actor_render.c": "f14a0f219a8a9a056a975ad38d74527512bc48634e0b388bd7aa929d846fd110",
+    "native/actor_render.h": "9b68b08b34200616669b59c5c939c2da1dbbaa623fa57c67e3f6372d3ff34015",
+    "native/bridge/actor_render_bridge.c": "6739b219c89fc1c1fd0f62f8d548bb6cd29cdf5f59fd4fc375150a6641fbfaae",
+    "native/demo_core.c": "028b9eaa6671c8219d69ad4f34d1fe5569b1ee69d4c4c3cb13f49c24616a4646",
+    "native/demo_core.h": "18d2dd79899671992f6e1f6e2fa2bce933e9eb56c1033a0e60229b7de23f38d6",
+    "native/bridge/demo_core_bridge.c": "00a2eba3c7a2e6a8d449fd07aa51b1c9544ec3d97b0176d6cd59d99892803ce4",
+    "native/bridge/actor_resources_bridge.c": "6941d649e3fb35d3898b35c3e461fedd0ceee0210861300ce674ac78aac0acc2",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
+    "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
+    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
+    "tools/wholegame.py": "ba6fff7d0f1583e734ab69435e801f2d101758078c36712744bc5b3e839fa65c",
+    "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
+    "host/check.py": "ae78b6b48e7c77aa4c513f8474d23d7ef9d26afe39ab55ea70e871473701e94c"
+  },
+  "source_snapshot": {
+    "path": "build\\workers\\close-stones-7\\clean-replay-71900",
+    "revision": "f647495734e0d00650816a6ceffb4ae918cc5b97",
+    "commands": [
+      "python verif/demo_scene_reproduce.py --fresh",
+      "python verif/demo_scene_proofs.py",
+      "python verif/demo_scene_cases.py",
+      "python verif/demo_scene_mutants.py",
+      "python verif/demo_scene_bound.py",
+      "python verif/demo_scene_coverage.py"
+    ],
+    "tool_sha256": {
+      "tools/emu.py": "f4c493799bf6628dd14091d67429151a8593af97101ed54b28b45fbc7151c651",
+      "tools/wholegame.py": "b775fa0a4d92d05460c3fa549d24ef7f71a2097b539c9d73ca1265da0a14385d"
+    },
+    "note": "Complete committed-baseline replay passed. Afterwards the formal abnormal-return seam was broadened to arbitrary CS/DS/SS:SP and all35 actual-C profiles/corpus/controls/inventory replayed. Production native/bridge sources and passing host binary inputs are unchanged."
+  }
+}

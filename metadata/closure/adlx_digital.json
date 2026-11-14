@@ -1,0 +1,297 @@
+{
+  "component": "adlx_digital",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "original": {
+    "L0": [
+      "C:StopSoundChannel 0878:09CA",
+      "C:LoadSoundBankResource 0878:00F5",
+      "C:LoadBankSoundByIndex 0878:06E4",
+      "SOUND:WriteSoundBlasterDsp 0664:1B4D",
+      "SOUND:ResetSoundBlasterDsp 0664:2114",
+      "SOUND:SetDspSampleRate 0664:1C39",
+      "SOUND:ProbeSoundBlasterDmaIrq 0664:1F00",
+      "SOUND:HandleDspProbeInterrupt 0664:1EF5",
+      "SOUND:InitializeDspPlayback 0664:205C",
+      "SOUND:ShutdownDspPlayback 0664:20B9",
+      "SOUND:LocateDmaMixBuffers 0664:1C74",
+      "SOUND:StartDmaSampleBlock 0664:1B77",
+      "SOUND:PrimeSampleDmaPlayback 0664:1E97",
+      "SOUND:HandleSampleDmaInterrupt 0664:1E04"
+    ],
+    "L1": [
+      "c/sound_api.c:c_StopSoundChannel,c_LoadSoundBankResource,c_LoadBankSoundByIndex",
+      "c/dsp.c:all8 entries",
+      "c/sound_engine.c:c_WriteSoundBlasterDsp,c_LocateDmaMixBuffers,c_HandleDspProbeInterrupt"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/adlx_digital.c",
+      "native/adlx_digital.h",
+      "native/bridge/adlx_digital_bridge.c"
+    ],
+    "header": "native/adlx_digital.h",
+    "functions": [
+      "audio_bank_add",
+      "audio_bank_admit",
+      "audio_bank_entry",
+      "audio_bank_scan_next",
+      "audio_bank_tag_byte",
+      "audio_bank_tag_position",
+      "audio_digital_interrupt_begin",
+      "audio_digital_interrupt_queue",
+      "audio_digital_pic",
+      "audio_digital_prime_active",
+      "audio_digital_prime_enabled",
+      "audio_digital_queue_index",
+      "audio_digital_stop_begin",
+      "audio_digital_stop_finish",
+      "audio_dma_block",
+      "audio_dma_interrupt_next",
+      "audio_dma_locate",
+      "audio_dma_prime_next",
+      "audio_dsp_constant",
+      "audio_dsp_poll",
+      "audio_dsp_rate_enabled"
+    ],
+    "build": "python verif/adlx_digital_build.py",
+    "bridge": "All14 endpoints. No L1 endpoint fallback. Four control prefixes explicitly call the actual broken GAME near-RET boundary; no imagined tail."
+  },
+  "purpose": "Close the remaining14 digital DSP/DMA/bank endpoints as one coherent API unit, unreachable in the shipped program. Barriers: InitializeAdLibSound always requests1; no shipped sample resource and bank hooks are lone near RETs; DSP probe far CALL returns through a near RET before probing hardware.",
+  "interface": {
+    "inputs": [
+      "Borrowed AudioState channels and current digital count/mask/busy/selection/header cells, fresh after every external service.",
+      "DSP status bytes, rate word, DMA page/address/count, cyclic indexed bank resource and unsigned slot/index."
+    ],
+    "outputs": [
+      "Ordered byte DSP/PIC/DMA transactions, exact flags/register/call/IRET adapter effects and timeout/fault/control-transfer prefix.",
+      "Bank-selected sample/ADLX call orFFFF; sample stop result and shared repeat/mask/count; wrapping physical DMA headers and queue/refill state."
+    ],
+    "effects": [
+      "Native DSP polling, rate/count arithmetic, DMA programming list, bank index/tag scanner and IRQ/prime request orchestration.",
+      "Bridge delivers ports, wait/IRQ/call frames, flags and binds indexed resource reads; underlying services are synchronous."
+    ],
+    "preconditions": [
+      "Serialized ordinary SOUND RAM and resource bytes, active code/call frames disjoint; initial far base representation retained for directory operand.",
+      "Core rate constant requires rate>=1000; bank tag state is created at character0/sample1/first1.",
+      "IRQ request states resume only after successful synchronous service, reprojecting headers and common cells; no persistent duplicate owner."
+    ]
+  },
+  "callers": {
+    "audit": "python verif/adlx_facade_inventory.py; all static edges and indirect target sets.",
+    "outside_audio": "None beyond the reached facade conditional SB calls; those device-bit2 branches cannot be selected by shipped startup.",
+    "API_only": "LoadSoundBankResource and LoadBankSoundByIndex have no static/indirect callers. HandleDspProbeInterrupt also has no static/indirect caller: its identity is installed only in the unreachable probe suffix; direct API evidence.",
+    "digital": "StopSoundChannel only LoadIffSample; DSP/DMA peers only each other or unreachable bank/StartSoundOutputs branches; all14 have zero entries in20 scenarios."
+  },
+  "callees": {
+    "native": [
+      "Accepted common sample mixer and AdLib stop/load peers; temporary native digital policies and request planners."
+    ],
+    "services": [
+      "Ordered platform IN/OUT; DelaySoundIo; CalibrateSoundDelay; real mixer/stop/load dispatch peers; SERVICE_TIMER_WAIT and real interrupt dispatch.",
+      "ugh_call_near_ret_hook for GAME:001D/001F with original resume and stack bytes."
+    ]
+  },
+  "indirect": {
+    "native": "No function pointers or machine target tables in ordinary native digital code.",
+    "IRQ": "Explicit DSP probe and DMA handler identities; actual IRET dispatcher owns delivery/return flags.",
+    "broken": "GAME hooks remain L1 trivial near RET; pushes CS/IP, pops IP only, leaves saved CS, status CONTROL_TRANSFER4. No intended resource/probe/vector service inferred."
+  },
+  "memory": {
+    "owner": "Existing audio owner only. AudioDigitalView borrows AudioState.channels; AudioDmaView is a fresh temporary two-header borrow. audio.h/projection unchanged.",
+    "DMA": "Resident two headers/buffers, stride1034; count is a byte count, low16(count-1) programmed even for count0. Byte page stores retain adjacent high bytes.",
+    "bank": "Word index*12 truncates before huge modulo1MiB additions. Entry upper bound only, equality admitted; directory/source operands retain contiguous word bytes and wrapping offset+2.",
+    "aliases": "Actual sample mixer rebinds aliases at every source/output request. Digital planners rebind after DSP/block/mix/wait services, and publish only owned changed fields."
+  },
+  "assumptions": [
+    "unreachable in the shipped program; generated API fixtures explicitly install the digital vector/sample, without patching the game.",
+    "Three barriers: startup always requests AdLib1; no sample resource ships and bank hooks are stubs; DSP probe far call transfers through a lone near RET.",
+    "SB2 deterministic model is committed and unchanged. Immediate readiness/resetAA, byte mono single-cycle blocks and DMA1/PIC/IRQ at explicit virtual polls; no instruction-cycle/analogue/high-speed/ADPCM/auto-init theorem.",
+    "Only cheap digital scalar cuts are formal; complete API composition, arbitrary aliases, flags and faults are compiled C evidence."
+  ],
+  "eliminated": [
+    {
+      "dependency": "Persistent raw DSP/DMA/bank state in ordinary code",
+      "evidence": "Typed borrows, indexed bank scan and ordered service requests over the one audio owner."
+    }
+  ],
+  "retained": [
+    "Busy DSP writer polls up to65536 times then writes anyway; reset polls100 then still reads response; CF=response!=AA.",
+    "Unsigned rate>=1000 gate; low8(-(1000000/rate)) wraps, not clamped.",
+    "DMA1 mode49, ordered mask/flip/mode/address/page/count/unmask before14/count low/count high. Zero count means65536; page crossing uncorrected.",
+    "Buffer page-end equality takes fallback; relocated storage origin, byte page wrap and fallback offset exact.",
+    "EOI before busybit0; busy skip has no DSP ack; otherwise ack before queue read; count>=40 unsigned, XOR entire selection byte, clear chosen count then refill opposite; short count masksPIC; busy reset discards other bits.",
+    "Prime tests mixer busybit0, then signed count>0; D0, mix first buffer, live count/select, PIC unmask then synthetic real IRET call retaining incomingIF/DF.",
+    "Stop devicebit2 gates even ADLX slots; unsignedslot12 accepted, mask high byte preserved; full busy-word wait, fresh mask/count afterwait.",
+    "Bank only bounds entry upper address; FORM8SVX beforeADLXAHDR, position0..3/8..11, no bank data-size check.",
+    "Broken hooks never repaired: LoadSoundBankResource/Probe/InitializeDSP/ShutdownDSP expose exact actual control prefix, not intended protocol tails.",
+    "API run captures641 bytes:258 freshly mixed and383 unchanged stale-tail bytes caused by the accepted mixer byte/pair return bug."
+  ],
+  "evidence": [
+    {
+      "property": "Complete compiled API boundary",
+      "level": "C",
+      "method": "Independent all-C DLL versus actual11-unit audio DLL, real peers; full persistent RAM, all flags/registers, ordered ports and error/control prefixes.",
+      "command": "python verif/adlx_digital_evidence.py",
+      "result": "PASS1980 paired generated cases across all14 entries, including300 wrapping/unnormalized bank cases.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Cheap actual-C scalar cuts",
+      "level": "B",
+      "method": "Literal C DMA prefix, DSP poll iteration, huge bank-entry arithmetic and relocated buffer location versus maintained native helpers; arbitrary words/bytes;15s/8GB jobs.",
+      "command": "python verif/adlx_digital_proofs.py block; python verif/adlx_digital_proofs.py poll; python verif/adlx_digital_proofs.py bank; python verif/adlx_digital_proofs.py locate",
+      "result": "PASS4 profiles; one block-opcode negative control detected. No complete digital interpreter/IRQ theorem.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Actual DSP/DMA/IRQ API against committed SB2 model",
+      "level": "C",
+      "method": "Real reset/rate/location/import/prime and actual IRQ delivery; independent C/native state and ordered port/model comparison. Unreachable in shipped program.",
+      "command": "python verif/adlx_digital_sb.py",
+      "result": "PASS641 captured bytes in1 block;258 produced,383 stale byte-exact against pre-mix buffer.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Whole-program non-regression and reach audit",
+      "level": "D",
+      "method": "Compiled combined audio boundary versus L0, all20 unchanged maintained references, endpoint counters. This is not digital gameplay reach evidence.",
+      "command": "python verif/adlx_digital_integration.py --whole --local-reference",
+      "result": "PASS6864 direct cases and20 scenarios; all14 digital entries zero.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Scratch native host",
+      "level": "D",
+      "method": "Committed baseline archive, both own certificates promoted, actual hostbuild/native check/closure; no accepted certificate edits.",
+      "command": "python verif/adlx_digital_host.py",
+      "result": "PASS30 linked units,20 scenarios plus256-frame smoke;30 certificates,0 errors.",
+      "date": "2026-11-14"
+    }
+  ],
+  "amiga": "No Amiga behavior equivalence claim; DOS and committed protocol fixture are authorities for this unit.",
+  "uncertainty": [
+    "Administrative status pending supervisor; proposed migrated on API C evidence with four cheap scalar B cuts.",
+    "SDL host has no digital Sound Blaster output; a future port needs an audio peripheral backend. Shipped DOS behavior needs no sample-reaching witness.",
+    "Broken GAME near RETs remain L1 boundaries and belong to external_hooks, not these75 audio entries."
+  ],
+  "dependencies": {
+    "native/adlx_digital.c": {
+      "includes": [
+        "adlx_digital.h"
+      ],
+      "calls": [
+        "audio_bank_add",
+        "audio_bank_tag_byte",
+        "audio_bank_tag_position",
+        "audio_digital_interrupt_begin",
+        "audio_digital_interrupt_queue",
+        "audio_digital_prime_active",
+        "audio_digital_prime_enabled",
+        "audio_digital_queue_index"
+      ]
+    },
+    "native/adlx_digital.h": {
+      "includes": [
+        "audio.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/adlx_digital_bridge.c": {
+      "includes": [
+        "../adlx_digital.h",
+        "audio_projection.h",
+        "platform.h"
+      ],
+      "calls": [
+        "C",
+        "CALL",
+        "G",
+        "S",
+        "SW",
+        "WW",
+        "add16",
+        "arg",
+        "audio_bank_add",
+        "audio_bank_admit",
+        "audio_bank_entry",
+        "audio_bank_scan_next",
+        "audio_bridge_cursor",
+        "audio_bridge_pointer",
+        "audio_bridge_project",
+        "audio_bridge_voice",
+        "audio_digital_pic",
+        "audio_digital_stop_begin",
+        "audio_digital_stop_finish",
+        "audio_dma_block",
+        "audio_dma_interrupt_next",
+        "audio_dma_locate",
+        "audio_dma_prime_next",
+        "audio_dsp_constant",
+        "audio_dsp_poll",
+        "audio_dsp_rate_enabled",
+        "call_sound",
+        "compare_byte",
+        "dec16",
+        "digital_dma_view",
+        "digital_locate",
+        "digital_view",
+        "digital_words",
+        "enter",
+        "flag",
+        "increment",
+        "leave",
+        "lin",
+        "logic",
+        "platform_in",
+        "platform_out",
+        "platform_service_point_at",
+        "pop_word",
+        "push",
+        "push_word",
+        "rd16",
+        "rd32",
+        "rd8",
+        "set_ah",
+        "set_al",
+        "sub16",
+        "szp",
+        "ugh_call_near_ret_hook",
+        "ugh_dispatch",
+        "ugh_dispatch_interrupt",
+        "words32",
+        "wr16",
+        "wr8"
+      ]
+    }
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "c/abi.c": "5f7c2c2fc015ca43e3786a7f96cb38113211da54acefce19564c1df78d74857a",
+    "c/dsp.c": "a2f4dc144514ed9ea8cdca8a75c9813718342a5ed5c26176ff6d691f89d651b5",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/sound_api.c": "ba1c98bf3a03b5f48a71d4491bdebf3acfc17b0f6cce51db370a0e58c0507e4c",
+    "c/sound_engine.c": "5e4116c31806441e464de35d5649894ec4eea28025254a2edea616235e6e6881",
+    "host/check.py": "ae78b6b48e7c77aa4c513f8474d23d7ef9d26afe39ab55ea70e871473701e94c",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "native/adlx_digital.c": "fb82aa93c8a9b250ab3fde6e118f5255e3a3b2d1f923313f0c4f88abb5fb0987",
+    "native/adlx_digital.h": "cf7c87afbc174dc1e8a6f607bf8f9427cfc18f4b26237433144a9553756e86cf",
+    "native/audio.h": "e14ee8e39125b55ced910d17214acddfcd9fb0339192990487dca22dd3e04a5a",
+    "native/bridge/adlx_digital_bridge.c": "6b2397e48bcd6d6f6bae0e425421fc94469448938eff691337d23e2ab1e50ae9",
+    "native/bridge/audio_projection.h": "e15ee379c16623f0dfb9830e154c5c71b0f2d2a424a6073c3dec497c50cd8630",
+    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
+    "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
+    "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
+    "verif/adlx_digital_build.py": "6ca5eab7726797f255a5650348dafcee65097345439fd71dcfbdcc0c70bc87f3",
+    "verif/adlx_digital_certificate.py": "4a227f34b6b12b6d620d552f70f130346189b66f4043b123546b1b24aee411b9",
+    "verif/adlx_digital_evidence.py": "c1c50753e8455ce24c1f50741ad1c5cf97a255009fd274c77710892a59b1d285",
+    "verif/adlx_digital_host.py": "075a95c9e82136bb5ad6558b5eb44d2f9aa99f118f5b7bf6349be732e22752a7",
+    "verif/adlx_digital_integration.py": "dea6ddae438038d71bc2cbab48893db1de5ed4ce045f80541a40ae769bb2f9b4",
+    "verif/adlx_digital_proofs.py": "8b537bcb532e2735e8696936cee649ff3298659415392b45bbf12bc2e6bb5db5",
+    "verif/adlx_digital_sb.py": "e92338af0d1ca4442a1c254a022088a5b676f61fc387dc600eb326bbfab820d8",
+    "verif/adlx_facade_limits.py": "5329de2c8fe0e47474eba21d9b483d3114cba4ca4e1faa9149b619d1c71ec7be",
+    "verif/adlx_samples_sb.py": "5b61fe583486b3b55dcc4de22906496da3757f59d0e1eb309f13bc7404efb9c3"
+  }
+}

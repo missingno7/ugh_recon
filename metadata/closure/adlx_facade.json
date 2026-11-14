@@ -1,0 +1,209 @@
+{
+  "component": "adlx_facade",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "original": {
+    "L0": [
+      "C:InitializeSoundSystem 0878:0003",
+      "C:ShutdownSoundSystem 0878:008A",
+      "C:StartSoundOutputs 0878:096B",
+      "C:GetMusicTrackDuration 0878:1A8E"
+    ],
+    "L1": [
+      "c/sound_api.c:c_InitializeSoundSystem,c_ShutdownSoundSystem,c_StartSoundOutputs",
+      "c/music_analysis.c:c_GetMusicTrackDuration"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/adlx_facade.c",
+      "native/adlx_facade.h",
+      "native/bridge/adlx_facade_bridge.c"
+    ],
+    "header": "native/adlx_facade.h",
+    "functions": [
+      "audio_facade_begin",
+      "audio_facade_next",
+      "audio_duration_begin",
+      "audio_duration_fetch",
+      "audio_duration_step",
+      "audio_duration_result"
+    ],
+    "build": "python verif/adlx_facade_build.py",
+    "bridge": "Four adapters; real services and real stack frames, no L1 endpoint fallback."
+  },
+  "purpose": "Reachable sound initialization/shutdown orchestration plus the two API-only facade entries: outputs start and independent duration scan.",
+  "interface": {
+    "inputs": [
+      "Fresh borrowed audio owner plus initialized/shutdown/device/sample-count cells; requested device mask and synchronous peer result.",
+      "Duration word cursor/length/rate and mutable target classification, supplied stream bytes."
+    ],
+    "outputs": [
+      "Exact successful mask and live-DS latch writes; guard, ordered child calls and abnormal control prefix.",
+      "Duration low16(total/live rate), prefetch unsigned end, word cursor wrap and long-wait low16 arithmetic."
+    ],
+    "effects": [
+      "All port, timer, CPU/stack and broken-transfer services belong to bridge.",
+      "Rebind state and arguments after each child; four effect volumes read separately."
+    ],
+    "preconditions": [
+      "Serialized ordinary RAM, disjoint active code/stack; production harness service contracts.",
+      "DSP successful return followed by first broken hook is terminal; no invented far return."
+    ]
+  },
+  "callers": {
+    "audit": "python verif/adlx_facade_inventory.py; all static edges plus every indirect target set",
+    "InitializeSoundSystem": "GAME:InitializeAdLibSound;14 maintained scenarios.",
+    "ShutdownSoundSystem": "C:InitializeSoundSystem and GAME:FadeAndShutdownSound; adlib scenario.",
+    "StartSoundOutputs": "No static or indirect caller; API-only, supports both devices.",
+    "GetMusicTrackDuration": "No static or indirect caller; API-only."
+  },
+  "callees": {
+    "native": "Accepted common AudioState owner and transient planner.",
+    "services": [
+      "ClearSoundState, ShutdownSoundSystem, InitializeDspPlayback, InitializeAdlibPlayback, CancelMusicFade, ShutdownDspPlayback, ShutdownAdlibPlayback, PrimeSampleDmaPlayback, StartAdlibTrackChannel",
+      "Explicit broken GAME near-RET boundary and stream reads"
+    ]
+  },
+  "indirect": {
+    "duration": "Live C target table; unknown target returns BAD_CALLBACK, high nibbles8..F bypass table.",
+    "calls": "No native indirect callable target; request enum consumed by bridge."
+  },
+  "memory": {
+    "owner": "Existing audio owner; audio.h/projection unchanged.",
+    "borrow": "Transient planner and AudioState projection refreshed at every service.",
+    "quirks": "Shutdown latch uses live DS, possibly DGROUP after timer removal; initial latch check uses fixed CDATA. Duration never mutates RAM."
+  },
+  "assumptions": [
+    "Native planner composition has compiled C/D evidence, not a full opaque-callee theorem.",
+    "Duration symbolic step has arbitrary cursor/total/code/payload/target; actual mutable-table selection and complete scanner are compiled evidence.",
+    "No self-modifying instruction execution claim; ordinary alias states tested in C model."
+  ],
+  "eliminated": [
+    {
+      "dependency": "Machine-layout state in ordinary facade",
+      "evidence": "Typed temporary owner view and native service requests."
+    }
+  ],
+  "retained": [
+    "Initialization returns successful subset, always writes initialized1 after ordinary return, preserves DSP broken prefix.",
+    "Shutdown gate/latch ordering and live DS typo exact; child device bits reread.",
+    "Start ignores normal child return values, iterates8..11 with live record volumes.",
+    "Duration end is checked before fetch; section5n is default wait, END77 is extension payload skip, not end-track; all skips nominal and offset wraps.",
+    "Long wait contributes low16((code*256+payload)*128), total wraps32bits; final divisor reread."
+  ],
+  "evidence": [
+    {
+      "property": "Complete compiled facade",
+      "level": "C",
+      "method": "Independent complete C DLL versus combined accepted audio + facade DLL; full persistent RAM, registers/flags, ordered ports including error prefixes.",
+      "command": "python verif/adlx_facade_evidence.py",
+      "result": "PASS2883 pairs:1050 lifecycle/start,1800 generated/mutable/malformed duration,33 shipped-resource/rate cases.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Duration split output/frame/dependence",
+      "level": "B",
+      "method": "Actual extracted L1 switch versus native step; arbitrary admitted words/targets and all operand bytes; 8GB job,60s each.",
+      "command": "python verif/adlx_facade_proofs.py outputs; python verif/adlx_facade_proofs.py frame; python verif/adlx_facade_proofs.py dependence",
+      "result": "PASS3 scalar profiles; default-wait negative control detected.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "L0 integration and entry counts",
+      "level": "D",
+      "method": "Compiled full audio chain, actual per-entry counters and all maintained references.",
+      "command": "python verif/adlx_facade_integration.py --whole --local-reference",
+      "result": "PASS6684 direct cases and20 scenarios. Init14 scenarios; shutdown adlib only; Start/Duration0 as expected.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Scratch native host",
+      "level": "D",
+      "method": "Committed baseline archive, own source overlay and own certificate promotion only; actual CLI gates.",
+      "command": "python verif/adlx_facade_host.py",
+      "result": "PASS29 linked units,20 scenarios and256-frame smoke;29 certificates,0 errors.",
+      "date": "2026-11-14"
+    }
+  ],
+  "amiga": "No Amiga claim; DOS behavior is the authority.",
+  "uncertainty": [
+    "Administrative status remains unanalyzed pending supervisor review.",
+    "Two API-only entries carry no shipped-reach claim; scheduler and hardware services retain their accepted contracts."
+  ],
+  "dependencies": {
+    "native/adlx_facade.c": {
+      "includes": [
+        "adlx_facade.h"
+      ],
+      "calls": []
+    },
+    "native/adlx_facade.h": {
+      "includes": [
+        "audio.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/adlx_facade_bridge.c": {
+      "includes": [
+        "../adlx_facade.h",
+        "audio_projection.h",
+        "platform.h"
+      ],
+      "calls": [
+        "G",
+        "S",
+        "audio_bridge_bank",
+        "audio_bridge_cursor",
+        "audio_bridge_pointer",
+        "audio_bridge_project",
+        "audio_bridge_voice",
+        "audio_duration_begin",
+        "audio_duration_fetch",
+        "audio_duration_result",
+        "audio_duration_step",
+        "audio_facade_begin",
+        "audio_facade_next",
+        "facade_call",
+        "facade_duration_arm",
+        "facade_enter",
+        "facade_leave",
+        "facade_push",
+        "facade_run",
+        "logic",
+        "rd16",
+        "rd32",
+        "rd8",
+        "ugh_call_near_ret_hook",
+        "ugh_dispatch",
+        "wr16",
+        "wr8"
+      ]
+    }
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "c/music_analysis.c": "604fc3c80dec56a6740444b908da8baeff325357760ab8b82e9db72f5e022fe5",
+    "c/sound_api.c": "ba1c98bf3a03b5f48a71d4491bdebf3acfc17b0f6cce51db370a0e58c0507e4c",
+    "host/check.py": "ae78b6b48e7c77aa4c513f8474d23d7ef9d26afe39ab55ea70e871473701e94c",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "native/adlx_facade.c": "0f1e6b9ef3b0cbac61c41c48c8feb8e02e76d9100d05a6571c7a2454374b6cee",
+    "native/adlx_facade.h": "2b1711aea00c0197dc032babf1c7b41a3a8404ab97890fc353f5f58d34e8307a",
+    "native/audio.h": "e14ee8e39125b55ced910d17214acddfcd9fb0339192990487dca22dd3e04a5a",
+    "native/bridge/adlx_facade_bridge.c": "41de5e344734288f815ce70a87b3fb3f5b716a2c372c87ceef7265c9f9fbf9f5",
+    "native/bridge/audio_projection.h": "e15ee379c16623f0dfb9830e154c5c71b0f2d2a424a6073c3dec497c50cd8630",
+    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
+    "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
+    "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
+    "verif/adlx_facade_build.py": "eccdbc65cc43520f1d44ce1fb63f1e84e8872e00f7cffeb945da7b2f2a5d456e",
+    "verif/adlx_facade_certificate.py": "9a3e02f26bfbc8918f7d894e6e7c2020a61976616de7e95d765ec903d48f2f81",
+    "verif/adlx_facade_evidence.py": "730dc6e4ae961e7663fbbbaced31ddbadaf855e96a9f6a2263de458180e04c3f",
+    "verif/adlx_facade_host.py": "74b538b181c8d71d0a99b35a2d9bf1c0d1d8c410987a12abd750c566a0c86bbe",
+    "verif/adlx_facade_integration.py": "788f29344ab62855ec8feef0ed28789ea562a6155fdef5a61c92591558e257fb",
+    "verif/adlx_facade_inventory.py": "416d3b0607087a4c35a406b6752a7a8be7f8c2a50e2fe3969069a429d2220589",
+    "verif/adlx_facade_limits.py": "5329de2c8fe0e47474eba21d9b483d3114cba4ca4e1faa9149b619d1c71ec7be",
+    "verif/adlx_facade_proofs.py": "4bb92b97825e9ac7ec2035e7e7681f161cdb09173aa95cbeff25764b53a0ec91",
+    "verif/adlx_facade_reproduce.py": "9dd802cfcfcb6fe1ab77e531e57d249a346e2fda3d34e60f3f8f7431a7d97ba9"
+  }
+}

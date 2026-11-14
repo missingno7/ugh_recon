@@ -1,0 +1,228 @@
+{
+  "component": "pictures",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "original": {
+    "L0": [
+      "GAME:UnpackPictureAndCopyPalette 013B:4C81",
+      "GAME:ShowPackedPictureAndWait 013B:0B83",
+      "GAME:ShowStartupPictures 013B:0BB8"
+    ],
+    "L1": [
+      "c/video.c:c_UnpackPictureAndCopyPalette",
+      "c/scene.c:c_ShowPackedPictureAndWait,c_ShowStartupPictures"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/pictures.h",
+      "native/pictures.c",
+      "native/bridge/pictures_bridge.c"
+    ],
+    "header": "native/pictures.h",
+    "functions": [
+      "pictures_input_result",
+      "pictures_palette_advance",
+      "pictures_palette_begin",
+      "pictures_show_next",
+      "pictures_startup_item",
+      "pictures_startup_route"
+    ],
+    "bridge": "Three original adapters, no original-entry fallback. ICE decode is the existing service, not a second codec; native owns palette cursor and complete display/startup action sequences.",
+    "build": "python verif/pictures_build.py"
+  },
+  "purpose": "Decode/present embedded ICE pictures through the existing decompressor; ordered palette copy, show/wait result classification and startup selection/timing.",
+  "interface": {
+    "inputs": [
+      "SI selects an embedded bank beginning at byte0. Full picture payload is64000 row-major indexed pixels plus768 RGB6 bytes, no inner header.",
+      "Borrowed current ICE workspace and live palette far pointer; raw destination and alias/wrap behavior remain admitted.",
+      "Current UnpackIceStream, chunky upload/page/fade/wait and terminal shutdown entries are services, with original frames and error prefixes."
+    ],
+    "outputs": [
+      "Native ordered384-word palette cursor; no byte shift/mask; exact palette and scratch state including stale/overrun effects.",
+      "Show classification: scan&7F Escape=>1,Q=>FFFF,other=>0; final word logic flags. Startup advances on zero, returns on positive, tails to shutdown on negative.",
+      "Complete original RAM/register/flag/device/ordered port and service effects through bridge."
+    ],
+    "effects": [
+      "No persistent native picture owner. Decode starts at0 and still copies scratch after invalid magic. Cursor writes read before store per word and wrap independently; aliases may propagate.",
+      "Timeout and scan result remain on original stack across fades; failure exits before subsequent work.",
+      "Q uses existing loc_4EE6 tail, retaining non-returning DOS exit and its sound/video/keyboard cleanup."
+    ],
+    "preconditions": [
+      "Existing ICE bridge requires disjoint recognized packed-source/output footprints, immutable tables and ordinary RAM separate from live code/stack. Arbitrary palette aliases and word wrap are separately admitted/tested.",
+      "Canonical B prefix/step proofs log ordered memory and service observations with arbitrary delivery values; no unrestricted asynchronous IRQ/decompression proof.",
+      "Service transport failures stop the entry; bad magic is a normal ICE return, not a transport error."
+    ]
+  },
+  "callers": {
+    "audit": "pictures_inventory.py checks static plus all indirect target sets. All3 have static callers; none is an indirect target or caller-free API. All3 reached by maintained scenarios.",
+    "chain": "RunDosGame -> ShowStartupPictures -> ShowPackedPictureAndWait -> UnpackPictureAndCopyPalette."
+  },
+  "callees": {
+    "native": "PictureShowFlow action sequence, startup resource/time table and SF/ZF routing, input classification, ordered palette cursor.",
+    "services": [
+      "UnpackIceStream (accepted ice native service), UploadChunkyImageToVgaPlanes, SwapAndDisplayVgaPage, FadePaletteIn, WaitForInputOrRetraceTimeout, FadePaletteOut.",
+      "loc_4EE6 terminal shutdown remains current sequencing/lifetime implementation. It calls RestoreKeyboardInterrupt; normal pictures do not."
+    ]
+  },
+  "indirect": {
+    "audit": "No function pointer invented. Existing direct calls and terminal tail keep their original near return IPs. Resource identities in native are enums; bank segments belong only in bridge."
+  },
+  "memory": {
+    "owner": "Existing ICE scratch and video palettes are borrowed. No second allocation, global image state or duplicate persistent page/input owner.",
+    "layout": "ScratchFD00 bytes: pixel[320*200] at0, palette[256][RGB] atFA00, endingFD00. Initial64K window also contains adjacent C state/padding16 bytes and752 tile-map packed bytes; malformed decode can overwrite them.",
+    "pointers": "IncomingCS selects IceScratchPointer and PicturePaletteDestination. Palette source is absoluteFA00 regardless of supplied scratch offset or decoded size; the existing ICE service ignores initial destination offset on success.",
+    "stack": "SaveCX/DS for unpack; save timeout and returned scan across services in show. Service errors retain partial stack/memory effects. Pop reads remain live if copied data aliases saved storage."
+  },
+  "assumptions": [
+    "ICE is an accepted dependency, unmodified here. Its full malformed/alias boundary remains its own certificate. This component does not turn arbitrary corrupt streams into a safe total decoder.",
+    "The1280 one-token cases change only both implementations outer budget to1: packed13, one arbitrary payload byte, output low word0..4, other bytes zero. This is an exhaustive finite step family, not all streams.",
+    "Primitive domains196608 bit transitions,1032 match lengths,4520480 offsets,33040 literal codes reuse actual accepted L1/native source extraction. Header/palette layout cross-checks use dataprobe only as another decoder, never the sole expected result."
+  ],
+  "eliminated": [
+    {
+      "dependency": "Picture sequencing and copy decisions encoded only in raw registers",
+      "evidence": "Typed borrowed cursor, native named show actions, resource enums/time table and native result/route decisions; machine frames and flags confined to bridge."
+    }
+  ],
+  "retained": [
+    "No separate picture RLE: ICE! header with big-endian packed and unpacked u32, DOS uses only low16; packed includes12-byte header. Actual backwards sentinel grammar and signed run arithmetic remain existing ICE.",
+    "Palette is768 bytes atFA00, copied384 words verbatim with no shift to6bits. Shipped values already0..63. Invalid magic still copies stale scratch; short decoded resources leave stale palette.",
+    "No file open/read/length or missing-file branch: four resources are embedded. Raw absent/truncated memory is not rejected by a picture-length check.",
+    "ICE cursor wrap, checkpoint termination after optional literals, BX+2 matches, signed literal threshold and malformed overrun retained through current codec. L1 two-million token guard is a harness limit, not DOS format.",
+    "Show order decode/upload/swap/fade-in/wait/fade-out; timeout and scan save/restore; mask7F after fade, Escape skips,Q exits, other input advances. Wait service consumes initial scan then checks keyboard before joystick and retrace; zero timeout wraps.",
+    "Startup Play Byte2D9A280, Bones Park2BF6280, present2F9E140, title2FB7420 retraces. SF tested beforeZF, including contradictory replies; fourth only testsSF. No new seconds/refresh-rate assumption.",
+    "RestoreKeyboardInterrupt only via Q shutdown; timeout/Escape keep installed input. Terminal tail sound->BIOS mode->restoreIRQ1->DOS4C is unchanged."
+  ],
+  "evidence": [
+    {
+      "property": "Shipped corpus and complete entries",
+      "level": "C",
+      "method": "Independent full L1 DLL versus native pictures plus accepted native ICE. Full RAM including stack,14 register/flag words, full device state, raw ordered ports and complete register-bearing entry-service streams.",
+      "command": "python verif/pictures_evidence.py",
+      "result": "PASS256 generated pairs, including all4 shipped64768-byte outputs and palettes; byte-exact compiledL1/native/dataprobe agreement; malformed, short, overflow, high-size, palette alias/wrap, timeout and realIRQ startup cases.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Actual-C scalar and codec domains",
+      "level": "A",
+      "method": "Complete actual-C input word enumeration and unchanged accepted ICE primitive driver; finite one-token family explicitly bounded.",
+      "command": "python verif/pictures_enumerate.py",
+      "result": "PASS65536 scan/high-byte words;196608 pending/refill/cursor transitions;1032 length codes;4520480 offsets;33040 literal codes;1280 one-token fixtures.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Split actual-C contracts",
+      "level": "B",
+      "method": "Reference statements/functions mechanically extracted. Arbitrary output/frame, ordered memory and service prefix properties;8GB process-tree limits,60s each, at most2.",
+      "command": "python verif/pictures_proofs.py palette-prefix; python verif/pictures_proofs.py palette-step; python verif/pictures_proofs.py input; python verif/pictures_proofs.py show; python verif/pictures_proofs.py startup",
+      "result": "PASS5 profiles. Step checks next native cursor as well as live registers/accesses; full show/startup functions use arbitrary synchronous service replies/errors.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Mutation controls",
+      "level": "C",
+      "method": "Scratch native mutations, independent reference fixed.",
+      "command": "python verif/pictures_proofs.py palette-prefix --negative; python verif/pictures_proofs.py palette-step --negative; python verif/pictures_proofs.py input --negative; python verif/pictures_proofs.py show --negative; python verif/pictures_proofs.py startup --negative; python verif/pictures_enumerate.py --negative",
+      "result": "PASS7 controls: five native faults, input repeated by enumeration, ICE service length mutation. Initial127->255 input mask mutant was equivalent because bridge already masks; changed Escape mapping is detected. Initial step-frame-only control motivated adding next-cursor invariant.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "L0 and whole game",
+      "level": "D",
+      "method": "Unchanged video/scene suites and maintained scenario references; explicit named counts including zeros.",
+      "command": "python verif/pictures_integration.py --whole",
+      "result": "PASS24 direct L0 cases and20 scenarios. startup reaches4 unpack,4 show,1 startup entries; all3 reached globally.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Isolated promoted host",
+      "level": "D",
+      "method": "Committedd3e63cc archive plus owned picture files only; certificate promoted only in scratch.",
+      "command": "python verif/pictures_host.py",
+      "result": "PASS39 linked units;21/21 native and literal checks;39 certificates,0 errors. No uncommitted session/lifecycle/render files included.",
+      "date": "2026-11-14"
+    }
+  ],
+  "amiga": "Meaning only: existing architecture/data evidence identifies Amiga JOKE/ILBM/blitter presentation and separate intro loader. No codec or palette representation equivalence inferred; DOS meanings come from the decoded shipped logos.",
+  "uncertainty": [
+    "Proposed migrated on complete-entry C/D plus scoped actual-C A/B. No new whole ICE malformed termination proof.",
+    "Administrative status remains unanalyzed for supervisor promotion."
+  ],
+  "dependencies": {
+    "native/pictures.h": {
+      "includes": [
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/pictures.c": {
+      "includes": [
+        "pictures.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/pictures_bridge.c": {
+      "includes": [
+        "../pictures.h",
+        "platform.h"
+      ],
+      "calls": [
+        "G",
+        "PCALL",
+        "logic",
+        "pictures_input_result",
+        "pictures_palette_advance",
+        "pictures_palette_begin",
+        "pictures_show_next",
+        "pictures_startup_item",
+        "pictures_startup_route",
+        "pop",
+        "push",
+        "rd16",
+        "resource_segment",
+        "set_al",
+        "ugh_dispatch",
+        "wr16"
+      ]
+    }
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "c/ice.c": "27e2898dd6a5e70af26bde84c0ba8cd6e8a045e40d94df21fd5b122f10a2242e",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/scene.c": "0060ef52ee2cc8b4c98d1b04b6387cd809809a9226f4b4f71c01a75a99d5e460",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "c/video.c": "681732591d8efb11cf1d5d5816c999bca718560bd247d9c9cc6c0f36982b2fa2",
+    "host/check.py": "ae78b6b48e7c77aa4c513f8474d23d7ef9d26afe39ab55ea70e871473701e94c",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "native/bridge/ice_bridge.c": "2394fe3ef094db70ec8e550fdfe40d7a18801712f8b6253bddbaf47219acdd7c",
+    "native/bridge/pictures_bridge.c": "5aaf335a49b28bff1c61db107d0bbb4ccc4623c7f3c7a6d7ac8e521ee3fecf0e",
+    "native/ice.c": "f370f880688879b5ccff8825b4d904a00df77c5377b8763bfc73c7ee32cdbb5c",
+    "native/ice.h": "9dae8b5a177d2d671ae2218035db0af8b83f30bf7b470c6bd5be3f068e26c756",
+    "native/pictures.c": "ccc339ec71a745a87737bb8d7b6a4a4a645cc33f5b1ad33f9334cf5afc46558c",
+    "native/pictures.h": "9832161a91a541413efaab4672c7fe658f9b6bcb39cf52d1d14d6b5977077878",
+    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
+    "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
+    "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
+    "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
+    "verif/adlx_loader_solver.py": "332c1a46957e398df5865fa5de14a73d259d464c621232f84976f8dfcc1f42d6",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
+    "verif/ice_evidence.py": "0705b2a01deb1ee6cd32927e6a056d6d8afd90466fe0d5da44058debd93ce3b1",
+    "verif/ice_primitives.c": "1adffabd65b67ae21d3272e24e1f85b41f393c6223fe8b74f34af7bca281b1ec",
+    "verif/pictures_build.py": "0af316d614f6f2084a92fa549e974515027e3d20e8ffb0246f682c84cef657c1",
+    "verif/pictures_certificate.py": "d719f33b3f5f96894d4d815ab9de525c830fc24dbe226a89ec50ba73c86ec7a6",
+    "verif/pictures_enumerate.py": "15464e68553121faf3b6d6ca855f6078e026b16d161394b495a478ccd0af0da7",
+    "verif/pictures_evidence.py": "af6337eb926619aa9b82fb785d3349929c423d4f84ba6553e6a5dfa9362370a3",
+    "verif/pictures_host.py": "1a1f1d0529c90077581192ddbae9c2476ea3377975d5612e05561bc5b8df0e5c",
+    "verif/pictures_integration.py": "2bf2abe4c03cfdf021e305f57c7d6392854f074350d7bb81ace795dd2f9f8549",
+    "verif/pictures_inventory.py": "82675ee36eed0bbe3d18236f91e140948406ea6d672ed689d39a01215099c0e3",
+    "verif/pictures_limits.py": "bf9b27485ef31d39cf8ad1415ddfa30e02c0a68b7bfb0e2c937e6d5b4641d510",
+    "verif/pictures_proofs.py": "8e42775df2883c3d7caca50cd270d2b136a741cb8a7102c1d768524f821df0c5",
+    "verif/pictures_reproduce.py": "1a7c9b6da9ab81494fbf826bfdcdd76cd1079a9f8c60c61560bdb88472a01dd0"
+  }
+}

@@ -1,0 +1,450 @@
+{
+  "component": "video_dos",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "original": {
+    "L0": [
+      "GAME:BlackenVgaPalette 013B:4E9B",
+      "GAME:UploadBasePalette 013B:4E68",
+      "GAME:DuplicateSourcePaletteHalves 013B:466A",
+      "GAME:ScaleAndUploadFadedPalette 013B:4E36",
+      "GAME:FadePaletteIn 013B:4E19",
+      "GAME:FadePaletteOut 013B:4E28",
+      "GAME:ClearAllVgaPlanes 013B:4F96",
+      "GAME:EnableAllVgaWritePlanes 013B:4FA8",
+      "GAME:ConfigureVgaGameplayPages 013B:503B",
+      "GAME:ConfigureVgaPicturePages 013B:4FB3",
+      "GAME:SwapAndDisplayVgaPage 013B:4EBB",
+      "GAME:UploadChunkyImageToVgaPlanes 013B:4634",
+      "GAME:WaitNextVerticalRetrace 013B:44C3",
+      "GAME:WaitRetraceCount 013B:44BB",
+      "GAME:WaitThroughVerticalRetrace 013B:44CF",
+      "GAME:WaitVerticalRetraceActive 013B:44C6",
+      "GAME:WaitVerticalRetraceInactive 013B:44D2",
+      "GAME:WaitForInputOrRetraceTimeout 013B:4497",
+      "GAME:InstallDosCriticalErrorFailHandler 013B:4E5B",
+      "GAME:FailDosCriticalError 013B:4E57"
+    ],
+    "L1": [
+      "c/video.c:palette/page/wait orchestration",
+      "c/dos_input.c:duplicate,plane-enable,retrace-level,DOS critical handler/install",
+      "c/game_services.c:chunky upload"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/video_dos.h",
+      "native/video_dos.c",
+      "native/bridge/video_dos_bridge.c"
+    ],
+    "header": "native/video_dos.h",
+    "functions": [
+      "video_all_planes",
+      "video_attribute_mode",
+      "video_blackening_batches",
+      "video_blackening_entries",
+      "video_chunky_advance",
+      "video_chunky_begin",
+      "video_chunky_mask",
+      "video_clear_advance",
+      "video_clear_begin",
+      "video_critical_error_result",
+      "video_duplicate_advance",
+      "video_duplicate_begin",
+      "video_duplicate_second",
+      "video_duplicate_transfer",
+      "video_fade_continue",
+      "video_fade_step",
+      "video_geometry",
+      "video_mode_setting",
+      "video_palette_advance",
+      "video_palette_range",
+      "video_palette_scale",
+      "video_register_value",
+      "video_retrace_delivery",
+      "video_retrace_level",
+      "video_scale_advance",
+      "video_scale_begin",
+      "video_swap",
+      "video_timeout_next",
+      "video_wait_decrement"
+    ],
+    "build": "python verif/video_dos_build.py",
+    "bridge": "Twenty adapters; no L1 endpoint fallback. Palette and memory visits, page offsets, mode settings and wait sequencing are native; raw I/O, vector/interrupt frames, call sites and register flags stay services."
+  },
+  "purpose": "Palette arithmetic and ordered ranges, page selection and mode policy, planar memory traversal, retrace/input-wait decisions and DOS fail response, borrowing the existing video owner.",
+  "interface": {
+    "inputs": [
+      "Borrowed VideoPages offsets/dimensions/copy count, mutable palette/source bytes and raw factor/word counts; no persistent copied owner.",
+      "Synchronous ordered raw status/register deliveries, DAC/SEQ/CRTC/attribute output and aperture byte/word stores from platform services.",
+      "Normal retrace port can supply requested levels/events; active service runs at each original active-wait entry, including immediate success."
+    ],
+    "outputs": [
+      "Live owner page offsets and dimensions; descending768 scaled bytes, ordered DAC components, word duplication/clear and chunky plane visits.",
+      "Level/edge and counted-wait results, default39h on input timeout/button, raw scan/change on scan; INT24 fail AL3.",
+      "Original returned registers/flags, service errors/budget prefixes, device state and ordered port streams through bridge."
+    ],
+    "effects": [
+      "All palette/action/aperture accesses stay live in original order; word operands have contiguous high bytes even atFFFF and cursor increments wrap.",
+      "Page configuration/swap change only pointer offset words; bank words stay borrowed platform bindings. Raw aliases can change owner cells; later calls reborrow them.",
+      "No platform CPU speed or guessed refresh frequency participates in arithmetic or retrace counts."
+    ],
+    "preconditions": [
+      "Serialized ordinary RAM/device access; stable direction and memory-bank bindings between explicit services. No equivalence for arbitrary asynchronous mid-instruction mutation/MMIO replacement of source tables.",
+      "Work cursors start with native constructors or the documented equivalent step invariants. The ordinary interface uses offsets within borrowed byte/plane buffers, never DOS addresses.",
+      "Original malformed hardware nontermination is not repaired: L1/native polling adapters retain the diagnostic1000000 poll limit; event backend must block or report delivery failure."
+    ]
+  },
+  "callers": {
+    "audit": "python verif/video_dos_inventory.py enumerates static edges and every indirect target set; per-scenario counts include zeros.",
+    "shared": "All drawing/front-end/session clients borrow these pages. See inventory page_ownership for every named reader/writer and source site.",
+    "unused": "UploadBasePalette and WaitThroughVerticalRetrace have no static caller or indirect target membership. FailDosCriticalError is an IRQ24 vector service, no static call; all three have zero maintained scenario entries and API evidence."
+  },
+  "callees": {
+    "native": "Palette product/range/fade policy; configuration/offset swap; wrapping copy, clear and chunky cursors; status predicate, count and input-wait machine; fail result.",
+    "services": [
+      "PollKeyboardScanChange and SampleJoystickAxesAndButtons are explicit external input services, already migrated separately.",
+      "Raw ports3DA,3C8/9,3C4/5,3D4/5,3C0/1; aperture access; DOS21/2524; frame boundary after restored swap registers."
+    ]
+  },
+  "indirect": {
+    "vectors": "Install sets INT24 to FailDosCriticalError through DOS21, without saving/restoring the previous vector. No native dispatch target identity is embedded in ordinary code.",
+    "returns": "Fail handler sets liveIF with STI and returns AL3 through the original IRET service frame; IRET restores the interrupted flags. No chaining or DOS call in handler.",
+    "callbacks": "No native callback or new indirect grammar. Page/palette far pointers are borrowed data, not code targets."
+  },
+  "memory": {
+    "owner": "One original GAME video owner, with DS-selected palette/source pointer cells. VideoPages is an ephemeral view, never a second global owner.",
+    "pages": {
+      "DrawPagePointer": {
+        "complete": false,
+        "conditional_segment_sites": [],
+        "readers": [
+          "GAME:DrawRainParticles",
+          "GAME:DrawTransparentSprite",
+          "GAME:DrawWaterSurface",
+          "GAME:RestoreBackgroundRectangle",
+          "GAME:RestoreRainBackground",
+          "GAME:SaveDrawPageBackground",
+          "GAME:SwapAndDisplayVgaPage",
+          "GAME:UploadChunkyImageToVgaPlanes"
+        ],
+        "sites": [
+          "013B:2DE4",
+          "013B:3CF2",
+          "013B:3D2B",
+          "013B:4206",
+          "013B:4419",
+          "013B:447D",
+          "013B:4634",
+          "013B:4EC3",
+          "013B:5027",
+          "013B:50B5"
+        ],
+        "writers": [
+          "GAME:ConfigureVgaGameplayPages",
+          "GAME:ConfigureVgaPicturePages",
+          "GAME:SwapAndDisplayVgaPage"
+        ]
+      },
+      "BackgroundPagePointer": {
+        "complete": false,
+        "conditional_segment_sites": [],
+        "readers": [
+          "GAME:AdvanceWaterSurface",
+          "GAME:MovePlayerWithVgaCollisions",
+          "GAME:RestoreBackgroundRectangle",
+          "GAME:RestoreRainBackground",
+          "GAME:SaveDrawPageBackground"
+        ],
+        "sites": [
+          "013B:117D",
+          "013B:1341",
+          "013B:2D79",
+          "013B:3CED",
+          "013B:4414",
+          "013B:4482",
+          "013B:502E",
+          "013B:50BC"
+        ],
+        "writers": [
+          "GAME:ConfigureVgaGameplayPages",
+          "GAME:ConfigureVgaPicturePages"
+        ]
+      },
+      "DisplayedVgaPagePointer": {
+        "complete": false,
+        "conditional_segment_sites": [],
+        "readers": [
+          "GAME:SwapAndDisplayVgaPage"
+        ],
+        "sites": [
+          "013B:4EBE",
+          "013B:4EC8",
+          "013B:5023",
+          "013B:50AE"
+        ],
+        "writers": [
+          "GAME:ConfigureVgaGameplayPages",
+          "GAME:ConfigureVgaPicturePages",
+          "GAME:SwapAndDisplayVgaPage"
+        ]
+      },
+      "FixedVgaPagePointer": {
+        "complete": false,
+        "conditional_segment_sites": [],
+        "readers": [
+          "GAME:DrawTransparentSprite"
+        ],
+        "sites": [
+          "013B:4215",
+          "013B:501F",
+          "013B:50A7"
+        ],
+        "writers": [
+          "GAME:ConfigureVgaGameplayPages",
+          "GAME:ConfigureVgaPicturePages"
+        ]
+      },
+      "PlayfieldHeight": {
+        "complete": false,
+        "conditional_segment_sites": [],
+        "readers": [
+          "GAME:DrawTransparentSprite",
+          "GAME:RestorePlayfieldBackground"
+        ],
+        "sites": [
+          "013B:420B",
+          "013B:43AE",
+          "013B:4FB3",
+          "013B:503B"
+        ],
+        "writers": [
+          "GAME:ConfigureVgaGameplayPages",
+          "GAME:ConfigureVgaPicturePages"
+        ]
+      },
+      "VgaPlaneCopyByteCount": {
+        "complete": false,
+        "conditional_segment_sites": [],
+        "readers": [
+          "GAME:SaveDrawPageBackground",
+          "GAME:UploadChunkyImageToVgaPlanes"
+        ],
+        "sites": [
+          "013B:4487",
+          "013B:4639",
+          "013B:4FBA",
+          "013B:5042"
+        ],
+        "writers": [
+          "GAME:ConfigureVgaGameplayPages",
+          "GAME:ConfigureVgaPicturePages"
+        ]
+      }
+    },
+    "palette": "Source pointer static bank first384 bytes duplicated with second-half-first word stores; BaseRgbPalette768 and FadedRgbPalette768 (loc_4981 alias) remain their original storage.",
+    "meaning": "Offsets are byte addresses per VGA plane. CRTC display start is the newly displayed offset. Background is saved scenery/collision/latch/rain restoration storage; fixed0 serves below the gameplay line compare. Banks are not reset by offset-only configuration.",
+    "aliases": "Model completeness=false retained: unknown far/indexed malformed writes may alias owner cells. No restrictive general no-alias assertion; generated duplicate/chunky cases include overlap, physical aliases, odd word wrap and aperture sources."
+  },
+  "assumptions": [
+    "A for the finite scalar product domain only; B for the explicit actual-C profiles, C/D for complete entries. No whole-VGA/interrupt/asynchronous theorem.",
+    "Mode prefix proof stops at the second external wait with neutral first service, arbitrary five RMW input bytes and both modes; complete configuration is compiled C/D.",
+    "Timeout property covers1..3 retraces with neutral external delivery, arbitrary three change/button bytes and canonical stack; raw full-word count edges, IRQ scripts and failures have compiled evidence.",
+    "Duplicate/clear/chunky profiles are single actual iterations with admitted cursor/remaining invariants and ordered physical access logs. No credit for the initial whole-timeout timeout."
+  ],
+  "eliminated": [
+    {
+      "dependency": "Hardware data layout in ordinary game decisions",
+      "evidence": "Typed borrowed page state, normal scalar/cursor APIs; port transport and bank bindings confined to bridge."
+    },
+    {
+      "dependency": "CPU-delay/refresh conversion for retrace waits",
+      "evidence": "Code tests bit3 levels only; count advances after completed waits. No delay calibration or decrement-per-status timeout exists in DOS original."
+    }
+  ],
+  "retained": [
+    "Palette scale is AH(low16(byte*factor)), no saturation/mask; raw eight-bit outputs are masked to six bits by DAC service. Computes768 bytes descending767..0, uploads217 entries0..216 only. Base uploader sends256 entries0..255.",
+    "DAC write index reset occurs once per upload/blacken; component/index auto-increment persists across eight blackening waits. Blacken sends32 RGB triples per wait, eight batches; CLI/STI forceIF on. Fade in/out use65 factors inclusive0..256/256..0 in steps4, liveCX reread after each callee; out restores callerCX.",
+    "Palette duplication reads192 words once each; writes destination+384 before destination, incomingDF and word/cursor wrap exact. No second source half read.",
+    "Mode setup performs original seven ordered register updates/RMW masks and attributeOR20, with height192/count4800 or200/count3E80. Initial gameplay offsets0/A88/5A08/A988 (fixed/display/draw/background) versus picture0/0/3E80/7D00; both tail-swap draw/display. Segment words survive.",
+    "Clear selects all four planes then32768 zero STOSW operands in incomingDF order; VGA write modes/latches remain caller state, so no invented whole-device memset. Chunky emits1,2,4,8 masks for four sequential source bytes at each destination, advancing destination once per group; count0 means65536 groups, final mask15.",
+    "Swap exchanges offsets before waiting inactive only, writes CRTC0C high then0D low, restores registers before frame service. No guaranteed complete retrace or double swap of segment words.",
+    "Active/inactive are level waits. Next=inactive then active; Through=active then inactive. Zero count wraps to65536 Next waits. Active invokes original retrace service even if level already active; inactive does not.",
+    "Input timeout discards initial change, services/polls scan before buttons, then waits a Next retrace and decrements only no-input iterations; button/timeout returns39h and current remainingCX, scan returns raw packed result. Failure exits preserve prefix.",
+    "DOS install never saves/restores priorINT24; handler unconditionallyAL3, with temporary liveSTI beforeIRET. No repair or invented chain."
+  ],
+  "evidence": [
+    {
+      "property": "Compiled complete entry contracts",
+      "level": "C",
+      "method": "Independent all-L1 and20-entry native DLLs; full RAM including every stack byte, complete device state including planes/DAC, all14 register/flag words and exact raw ordered port bytes.",
+      "command": "python verif/video_dos_evidence.py",
+      "result": "PASS1551 pairs, including aliases, wrapping cursors/counts, non-default VGA modes, missing/constant status scripts, DOS errors and input-service failures.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Palette multiplication domain",
+      "level": "A",
+      "method": "Actual maintained C MUL/store span, native product words/value/CF/OF; all256 byte values x65536 factors.",
+      "command": "python verif/video_dos_enumerate.py",
+      "result": "PASS16777216 comparisons. Six-bit shipped values are a subset, not a premise.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Actual-C split properties",
+      "level": "B",
+      "method": "Outputs/frame/access lists from actual C spans and actual native/bridge iterations, unwinding assertions and60s/8GB limits.",
+      "command": "python verif/video_dos_proofs.py scale; python verif/video_dos_proofs.py fade; python verif/video_dos_proofs.py range; python verif/video_dos_proofs.py retrace; python verif/video_dos_proofs.py duplicate; python verif/video_dos_proofs.py clear; python verif/video_dos_proofs.py chunky; python verif/video_dos_proofs.py swap; python verif/video_dos_proofs.py mode; python verif/video_dos_proofs.py timeout",
+      "result": "PASS10 profiles. Explicit per-loop bounds make the bounded timeout composition tractable; initial global-unwind65 attempt timed out60s and earns no credit.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Mutation controls",
+      "level": "C",
+      "method": "Scratch ordinary source mutations, compared with independent actual C.",
+      "command": "python verif/video_dos_enumerate.py --negative; python verif/video_dos_proofs.py fade --negative; python verif/video_dos_proofs.py retrace --negative; python verif/video_dos_proofs.py chunky --negative; python verif/video_dos_proofs.py swap --negative",
+      "result": "PASS5 faults detected: scale shift, fade increment, status bit, plane masks and page swap.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Compiled L0 and whole-game observations",
+      "level": "D",
+      "method": "Unchanged maintained suites and scenario references; build-only native entry counters, including zero entries.",
+      "command": "python verif/video_dos_integration.py --whole",
+      "result": "PASS190 direct L0 cases and20 maintained scenarios; zero UploadBasePalette/WaitThroughVerticalRetrace/FailDosCriticalError entries explicitly reported.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Scratch promoted native host",
+      "level": "D",
+      "method": "Archive of committed10f0035 plus only video/DOS files; actual CLI build, native check and closure.",
+      "command": "python verif/video_dos_host.py",
+      "result": "PASS34 linked units,20 maintained scenarios and256-frame smoke;34 certificates,0 errors. Own files only, input baseline10f0035.",
+      "date": "2026-11-14"
+    }
+  ],
+  "amiga": "python verif/video_dos_inventory.py checks pinned extracted t, h0:03A40..03A62: exchange of two record longwords and beam-position wait. Beam timing meaning only; no palette/hardware/ABI correspondence asserted.",
+  "uncertainty": [
+    "Whole-entry status proposed migrated on C/D composition; scoped finite A and step B evidence does not promote whole entries to proved.",
+    "Some static page pointer ownership completeness remains conditional on far/indexed aliasing, as in the program model. Raw data aliases are retained through live bridge accesses.",
+    "The original DOS waits may spin forever on stuck hardware; the million-poll adapter guard is diagnostic, not a recovered timeout policy."
+  ],
+  "dependencies": {
+    "native/video_dos.h": {
+      "includes": [
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/video_dos.c": {
+      "includes": [
+        "video_dos.h"
+      ],
+      "calls": [
+        "video_duplicate_second",
+        "video_geometry"
+      ]
+    },
+    "native/bridge/video_dos_bridge.c": {
+      "includes": [
+        "../video_dos.h",
+        "platform.h"
+      ],
+      "calls": [
+        "D",
+        "G",
+        "add16",
+        "c_SwapAndDisplayVgaPage",
+        "c_WaitVerticalRetraceActive",
+        "c_WaitVerticalRetraceInactive",
+        "call",
+        "configure",
+        "dec16",
+        "dec8",
+        "flag",
+        "inc",
+        "logic",
+        "out_al",
+        "platform_frame_boundary",
+        "platform_in",
+        "platform_interrupt",
+        "platform_out",
+        "platform_service_point_at",
+        "pop",
+        "push",
+        "rd16",
+        "rd8",
+        "retrace",
+        "set_ah",
+        "set_al",
+        "sub16",
+        "szp",
+        "ugh_call_near",
+        "upload_range",
+        "video_all_planes",
+        "video_attribute_mode",
+        "video_blackening_batches",
+        "video_blackening_entries",
+        "video_chunky_advance",
+        "video_chunky_begin",
+        "video_chunky_mask",
+        "video_clear_advance",
+        "video_clear_begin",
+        "video_critical_error_result",
+        "video_duplicate_advance",
+        "video_duplicate_begin",
+        "video_duplicate_transfer",
+        "video_fade_continue",
+        "video_fade_step",
+        "video_geometry",
+        "video_mode_setting",
+        "video_palette_advance",
+        "video_palette_range",
+        "video_palette_scale",
+        "video_register_value",
+        "video_retrace_delivery",
+        "video_retrace_level",
+        "video_scale_advance",
+        "video_scale_begin",
+        "video_swap",
+        "video_timeout_next",
+        "video_wait_decrement",
+        "wr16",
+        "wr8"
+      ]
+    }
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "c/dos_input.c": "b6a086f3917441a23c4238f582e00605d8a239ded81b03a658ff308890601e53",
+    "c/game_services.c": "e9301da5d7fae6f2aacce7dda8d4e6f0e86cbe8c40e736216185c4a8f792a7c5",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "c/video.c": "681732591d8efb11cf1d5d5816c999bca718560bd247d9c9cc6c0f36982b2fa2",
+    "host/check.py": "ae78b6b48e7c77aa4c513f8474d23d7ef9d26afe39ab55ea70e871473701e94c",
+    "host/video.c": "fcf24e4afa71114d8e835f9558eb06d73c74bf1310cbb411fc215d86f2227491",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "native/bridge/video_dos_bridge.c": "de0b0d978a53ec981979535ea91bf695b258594a2828b04eb1678c849ee9e390",
+    "native/video_dos.c": "4a8639a8349bf49694dbff5bf052811b89a500882aa8fea492e4c84fb700dcde",
+    "native/video_dos.h": "830cf4e706ce00033be99d4e74831f4f39e348f3b226bd1086128a5f61c26cf5",
+    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
+    "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
+    "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
+    "verif/adlx_loader_solver.py": "332c1a46957e398df5865fa5de14a73d259d464c621232f84976f8dfcc1f42d6",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
+    "verif/video_dos_build.py": "b3caa6b4953b549bd39e8104bda6567671dd8bcad3b7093c22e080d7a11d088e",
+    "verif/video_dos_certificate.py": "5d4b6a20754b888adf094bc1453f7fa28f20028e2947d50f8e1670d4d63c2239",
+    "verif/video_dos_enumerate.py": "c1573a2b07c7ed0a6fe0e581232fb98991ff236a7c55f249405d656fc00a6451",
+    "verif/video_dos_evidence.py": "52311e9fbeafafe129452e76167a701e769c717da5583ade3a5279678795a72f",
+    "verif/video_dos_host.py": "e2b88c859c2372cb8c9e9aab056554eefac849f4a410b3dc03215a1c1f37b556",
+    "verif/video_dos_integration.py": "cea83b47a36184d795f139c346f4698dbb05bdc1257f4f74648fa5b7574ad443",
+    "verif/video_dos_inventory.py": "7838c2670c54bda5fa791099fc2c7cd5c875f5dc36a2aa1d43c2b9b7f04cd5e7",
+    "verif/video_dos_limits.py": "69aa893ea6809001be397a77d4d3cec12f81923d0922bc7514c6162a78014702",
+    "verif/video_dos_proofs.py": "2cb8df96a9d2a5136e34c3ea2f1e4f5d22ae9715d7327c641d85880cf092ef7a",
+    "verif/video_dos_reproduce.py": "60038283a58fc54bacacea0b1b6493acaa1795815042cdfe0e58c60b71f57ba7"
+  }
+}

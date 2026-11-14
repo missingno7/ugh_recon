@@ -325,7 +325,7 @@
     "c/ugh_adapters.h": "c18eafbbe16170d01fcfac6853deab651d3c2b54343b47bccd6ce0de4303ad38",
     "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
     "c/video.h": "35e4d6076edd69e2722cf7d52392871345f5e0eb78af7ce67e13c8ed0c02f192",
-    "docs/architecture-model.md": "c6599b7ddac1558a695cd66bce840f5f3d92a44a97c15fcbdb65200817ae046f",
+    "docs/architecture-model.md": "5fae8a240501e3a3d3a34da42dabb81a3101adb591bec771ae504a6b40243008",
     "docs/data.md": "9485aacdc4b31ce4159648241c52472c2dd387fe30e815c6f06237a823d4e523",
     "docs/program-model.md": "8fc05fc5a2f34c271c1005075788dd485daca5380fd4b98ad8c91fb0bcda07c7",
     "docs/runtime.md": "9403308f0a3710db573bd4b64b61e906866c7fddee4cbba8b7912018c78e18fd",
@@ -389,6 +389,14 @@
       "inputs": [
         "tools/emu.py",
         "tools/wholegame.py"
+      ]
+    },
+    {
+      "date": "2026-11-14",
+      "reason": "supervisor relock: docs/architecture-model.md changed only in the player-physics table row (667761c, address and collision-boundary wording); no music-clock text changed",
+      "result": "closure check passes; no native or proof source changed",
+      "inputs": [
+        "docs/architecture-model.md"
       ]
     }
   ]

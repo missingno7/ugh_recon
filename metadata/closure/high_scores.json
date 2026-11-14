@@ -1,0 +1,307 @@
+{
+  "component": "high_scores",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "original": {
+    "L0": [
+      "GAME:LoadHighScores 013B:0405",
+      "GAME:SaveHighScores 013B:03DA",
+      "GAME:ComplementHighScoreTable 013B:03CD",
+      "GAME:GetHighScoreRow 013B:043A",
+      "GAME:GetHighScoreDigits 013B:0446",
+      "GAME:CopyHighScoreRowDown 013B:04B3",
+      "GAME:TestHighScoreQualification 013B:0452",
+      "GAME:InsertHighScoreAndClearScore 013B:0210",
+      "GAME:ShowHighScores 013B:01B1",
+      "GAME:DrawHighScoreNameEntry 013B:01F1"
+    ],
+    "L1": [
+      "c/menu.c:score files, qualification, shifting, insertion, name/show",
+      "c/menu_helpers.c:row and digit address",
+      "c/game_services.c:107-byte complement"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/front_end.h",
+      "native/high_scores.h",
+      "native/high_scores.c",
+      "native/bridge/front_end_support.h",
+      "native/bridge/high_scores_bridge.c"
+    ],
+    "header": "native/high_scores.h",
+    "functions": [
+      "front_blink",
+      "front_edit_command",
+      "front_entry_rectangle",
+      "front_next_byte_position",
+      "high_compare_step",
+      "high_complement_begin",
+      "high_complement_byte",
+      "high_copy_advance",
+      "high_copy_begin",
+      "high_default_name_word",
+      "high_descending_advance",
+      "high_digits_begin",
+      "high_file_next",
+      "high_file_size",
+      "high_format_digit",
+      "high_insertion_compare",
+      "high_name_begin",
+      "high_row_offset",
+      "high_shift_advance",
+      "high_show_result"
+    ],
+    "build": "python verif/high_scores_build.py",
+    "bridge": "Ten adapters with no L1 fallback; native record/format/rank/editor/file decisions, live memory and exact original service frames through bridge."
+  },
+  "purpose": "Borrowed high-score records, unsigned qualification/tie order, fixed row shift, digit formatting, name editor plans and raw complemented DOS file protocol.",
+  "interface": {
+    "inputs": [
+      "Borrowed107-byte table: five21-byte rows (14 name/padding,6 score characters,CR),00 FF trailer. Raw byte stride and unsignedCL indices remain admitted.",
+      "Numeric encoder, drawing, palette/page/input/audio and BIOS/DOS are synchronous services. Work digit buffer, score words, file handle and WaterYPixels are existing storage.",
+      "Editor receives BIOS character bytes and live word index; stores and backward clear locations are native plans."
+    ],
+    "outputs": [
+      "Exact row offsets, unsigned inverted-CF qualification, descending insertion shifts, ASCII with leading spaces,12-byte name commit and both score words cleared after normal reject/insertion.",
+      "UGH!.HI requests107 raw bytes, complemented by XORFF over the entire block; no header/checksum/validation.",
+      "Full original RAM/register/flag/device effects, ordered service calls and port streams, DOS carry versus transport-error prefixes."
+    ],
+    "effects": [
+      "Live alias-sensitive accesses and byte/word wrapping. No persistent native global copies.",
+      "DOS open/read/close or complement/create/write/complement ordering, including handle leaks and stale tails.",
+      "Shared front_end types are borrowed input/session configuration views; menus may consume common edit policy without a second owner."
+    ],
+    "preconditions": [
+      "Serialized ordinary record/source RAM and disjoint active code/call frames for typed proofs; raw bridge access cases separately exercise wrap/alias.",
+      "Native request/cursor work begins with constructors or documented step invariants. Editors start at0 in full entries; raw-position step tests cover all words, including out-of-range erase addresses.",
+      "Service failure stops before subsequent work; DOS carry errors are normal service results. No invented rollback after unsupported transport status."
+    ]
+  },
+  "callers": {
+    "audit": "python verif/front_end_inventory.py static callers plus every indirect target set; integration has explicit counts including zeros.",
+    "outside": "Startup LoadHighScores; main menu/high-score display and post-session insertion; all ten entries reached across maintained scenarios."
+  },
+  "callees": {
+    "native": "HighFileFlow; row/qualification/format/rank/shift/copy/complement cursors; generic native blink and editor command policy.",
+    "services": [
+      "DOS21 open3D/read3F/close3E/create3C/write40 and BIOS16 readiness/read.",
+      "Existing numeric encoder, sprite/text/layout, restore/map, palette/page, input and music implementations through original near/far frames."
+    ]
+  },
+  "indirect": {
+    "files": "Filename/data pointers are live data; no native code target invented.",
+    "dispatch": "Original direct/tail service identities stay in bridge; numeric/render/input/audio/session implementations are not rewritten."
+  },
+  "memory": {
+    "owner": "One existing front-end table and editor owner. HighScoreTable is107 bytes of borrowed records; no global allocation or second input/session/water owner.",
+    "shared": "WaterYPixels159 during score entry and200 during display; decimal work buffer also belongs to numeric consumers; score words are written by gameplay/session too. Configuration views are not owners.",
+    "stride": "Raw stride byte initially21; CL unsigned and product wrapping. Row-down always writes20 bytes at source+21 independent of stride; destination separator remains stale.",
+    "name": "12 editable/committed name bytes, two further row padding bytes retained. Enter at full capacity does not clear/draw an extra terminator; static NUL after the field remains. Empty name becomes INCOGNITUS plus two spaces after the final empty redraw."
+  },
+  "assumptions": [
+    "Finite enum claims apply to their stated fixed fixtures; six arbitrary score-character arrays are covered by the canonical symbolic qualification profile, not by pretending the393216 pair slices are all2^96 inputs.",
+    "Editor finite slice fixes irrelevant frame inputs and neutral drawing service; symbolic step covers arbitrary registers/indices/chars under the same neutral service cut. Complete editing/orchestration has C/D.",
+    "File proof mocks DOS/complement services and compares ordered requests/error prefixes; complement and memory transformations are separate actual-C properties. Complete file state is compiled evidence."
+  ],
+  "eliminated": [
+    {
+      "dependency": "Raw register/address model in ordinary front-end decisions",
+      "evidence": "Typed records, native enum workflows, scalar/cursor/ordered editor plans; bindings and flag traces remain only in bridge."
+    }
+  ],
+  "retained": [
+    "Unsigned byte lexicographic comparison, ties qualify before old ties; candidate ASCII conversion wraps bytes, all-zero score becomes six spaces. Numeric encoding remains its current service including out-of-range score/divisor behavior.",
+    "Rank4 still performs row3->4 copy once. Rows shift from3 down to rank,20 bytes each, fixed spacing21; six digits and12 name bytes commit backwards.",
+    "Missing/open failure leaves table/handle unchanged; read failure leaks the opened handle; close carry failure skips decoding. Successful short/zero reads complement stale bytes too; excess file bytes ignored.",
+    "Save complements before create, never closes, accepts short writes and complements again even on DOS carry errors, destroying carry. Unsupported service transport exits before the undo and can leave the table encoded.",
+    "BIOS editing accepts letters/digits/space, uppercases ASCII lowercase, ignores Escape, checks backspace before other characters, blinks by decrementing a byte and testingbit4. Valid indices stay0..12; raw nonzero bad indices can erase outside the field on backspace, with no clamp.",
+    "Default name writes after the last empty redraw. DrawHighScoreNameEntry preserves BX/SI on the original stack. Normal insertion/rejection clears both score words; service failures may exit earlier."
+  ],
+  "evidence": [
+    {
+      "property": "Whole compiled entries",
+      "level": "C",
+      "method": "Independent complete L1 and10-entry native DLLs; all RAM including stack, all14 register/flag words, full device state, exact ordered ports and entry-service ABI streams.",
+      "command": "python verif/high_scores_evidence.py",
+      "result": "PASS757 generated pairs; ranks0..reject, full/empty/edited names, score boundaries, raw strides and file lengths/errors.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Finite scalar and step domains",
+      "level": "A",
+      "method": "Actual compiled row helpers, formatter, qualification entry, numeric encoder service plus formatter, and post-BIOS editor span.",
+      "command": "python verif/high_scores_enumerate.py",
+      "result": "PASS18367040 comparisons:131072 row/stride/digit-selector;65536 raw digit/counter;393216 qualification pair-position fixtures;1000000 canonical six-digit scores;16777216 index/character name steps.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Split actual-C contracts",
+      "level": "B",
+      "method": "Actual original spans/entries versus maintained native/bridge;60s8GB jobs with unwinding assertions.",
+      "command": "python verif/high_scores_proofs.py row; python verif/high_scores_proofs.py qualification; python verif/high_scores_proofs.py format; python verif/high_scores_proofs.py complement; python verif/high_scores_proofs.py copy; python verif/high_scores_proofs.py insertion; python verif/high_scores_proofs.py file; python verif/high_scores_proofs.py editor",
+      "result": "PASS8 profiles, including full word row input, arbitrary six-byte qualification, full raw formatter input, ordered memory steps, rank/shift sequencing, protocol/error paths and editor step.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Mutation controls",
+      "level": "C",
+      "method": "Scratch source changes, independent actual-C expectations.",
+      "command": "python verif/high_scores_proofs.py qualification --negative; python verif/high_scores_proofs.py format --negative; python verif/high_scores_proofs.py copy --negative; python verif/high_scores_proofs.py file --negative; python verif/high_scores_proofs.py editor --negative; python verif/high_scores_enumerate.py --negative",
+      "result": "PASS6 controls detecting5 fault kinds (tie control repeated in enumeration).",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "L0 and whole game",
+      "level": "D",
+      "method": "Unchanged routine suites and maintained scenario references, named per-entry counters including zeros.",
+      "command": "python verif/high_scores_integration.py --whole",
+      "result": "PASS288 direct L0 cases and20 scenarios; all ten entries reached.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Promoted scratch host",
+      "level": "D",
+      "method": "Committed6bfb206 archive plus only front-end files, actual build/native/literal/closure CLIs.",
+      "command": "python verif/front_end_host.py --all",
+      "result": "PASS36 linked units,20 maintained scenarios plus256-frame smoke in native and literal variants;36 certificates,0 errors on baseline6bfb206 plus only both front-end units.",
+      "date": "2026-11-14"
+    }
+  ],
+  "amiga": "front_end_inventory.py compares all150 decoded Amiga hunk8 XOR42/NUL/ordinal password strings with the DOS lists for meaning only. No claim of identical high-score file codec or DOS behavior.",
+  "uncertainty": [
+    "Proposed migrated on C/D whole-entry composition and explicitly scoped A/B slices. No whole asynchronous BIOS/DOS/drawing proof.",
+    "Administrative status remains unanalyzed for supervisor promotion."
+  ],
+  "dependencies": {
+    "native/front_end.h": {
+      "includes": [
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/high_scores.h": {
+      "includes": [
+        "front_end.h",
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/high_scores.c": {
+      "includes": [
+        "high_scores.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/front_end_support.h": {
+      "includes": [
+        "../front_end.h",
+        "platform.h"
+      ],
+      "calls": [
+        "add16",
+        "add_byte",
+        "compare_byte",
+        "flag",
+        "push",
+        "rd16",
+        "rd8",
+        "set_al",
+        "step",
+        "szp",
+        "ugh_dispatch",
+        "wr16"
+      ]
+    },
+    "native/bridge/high_scores_bridge.c": {
+      "includes": [
+        "../high_scores.h",
+        "front_end_support.h"
+      ],
+      "calls": [
+        "D",
+        "G",
+        "MCALL",
+        "MFAR",
+        "add16",
+        "add_byte",
+        "compare_byte",
+        "dec16",
+        "edit_score_name",
+        "editor_compare_trace",
+        "flag",
+        "front_blink",
+        "front_edit_command",
+        "front_entry_rectangle",
+        "high_compare_step",
+        "high_complement_begin",
+        "high_complement_byte",
+        "high_copy_advance",
+        "high_copy_begin",
+        "high_default_name_word",
+        "high_descending_advance",
+        "high_digits_begin",
+        "high_file_next",
+        "high_file_size",
+        "high_format_digit",
+        "high_insertion_compare",
+        "high_name_begin",
+        "high_row_offset",
+        "high_shift_advance",
+        "high_show_result",
+        "inc_byte",
+        "increment_word",
+        "logic",
+        "platform_interrupt",
+        "pop",
+        "push",
+        "rd16",
+        "rd8",
+        "set_ah",
+        "set_al",
+        "step",
+        "sub16",
+        "szp",
+        "ugh_call_near",
+        "ugh_dispatch",
+        "wr16",
+        "wr8"
+      ]
+    }
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "c/game_services.c": "e9301da5d7fae6f2aacce7dda8d4e6f0e86cbe8c40e736216185c4a8f792a7c5",
+    "c/menu.c": "b2ea585a4cb2b40c349fd7a017642534ea2b4982140a25a6dcacd12ce3b418b0",
+    "c/menu_helpers.c": "48125ab011a2ab29cd7936aa61e9889c8715ee843090c6ddd00f9d14dddbb6ad",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/render_primitives.c": "447a9f435f22cc46c9c30d8d11ee9046d57d57c48d6bbaa2e91768e32f9698c0",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "host/check.py": "ae78b6b48e7c77aa4c513f8474d23d7ef9d26afe39ab55ea70e871473701e94c",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "native/bridge/front_end_support.h": "c8e018a28316b8d9b6af492f97bd5d71f628c2d759cfb2d849b268400802df3e",
+    "native/bridge/high_scores_bridge.c": "0b953ac00971ad46f04351bf46c58601a5d5c138b3d963317c865c3571e6ae13",
+    "native/front_end.h": "b6b7977bb81c3fdf8294631a853912cd6dc03c5d295d04c416ece363c2a3d5db",
+    "native/high_scores.c": "00fc8da7870acfcf6573d4548e798d2aee82db5af4fe74d653c65e60d4fcd30f",
+    "native/high_scores.h": "e2d31207d80276d28158bc186f1bbf6f5909330644ab09028a46c6e943f6429b",
+    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
+    "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
+    "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
+    "verif/adlx_loader_solver.py": "332c1a46957e398df5865fa5de14a73d259d464c621232f84976f8dfcc1f42d6",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
+    "verif/front_end_host.py": "f4b4a1909459dc4fb812ddf30f6022ae58a39c1a9e3e85d56f99cf19b8447b77",
+    "verif/front_end_inventory.py": "206607c126da32eee66750ebbac62ac0f668674c7e4495d7093cbd334708be05",
+    "verif/front_end_limits.py": "e5bb448b12c8a755757c8fca9cbccc483eb3c5e65dee87987652be6c88c591c8",
+    "verif/high_scores_build.py": "e261a63c053da46491bdd297a743639b5e033c165c88da6bbfc05af03d87e280",
+    "verif/high_scores_certificate.py": "2999857d24b8d16367b91151f712f7f28fbca3da834238d9d961b8efe8de0c31",
+    "verif/high_scores_enumerate.py": "e347395cae50dbe8539b1b56ee9f7db2a5201bd510e0157a93e6f440f9e209d3",
+    "verif/high_scores_evidence.py": "f75ede8659ec066b0356b731247c0b93faa6befedb4682e3b4a43cce82027eb6",
+    "verif/high_scores_integration.py": "15813519c1e3326072fb6886ce0bfaa493b39787f4b399af881afda0442d8dd5",
+    "verif/high_scores_proofs.py": "2b76c786bbfe4ea43a956391fc339ac7a5b86b57bd86814fb5d2853fdc40a4fa",
+    "verif/high_scores_spans.py": "e7adbf016d1eee3dcbfe152f1f1bcb80d5f4b0aca82eee763a1deca2b6502805"
+  }
+}

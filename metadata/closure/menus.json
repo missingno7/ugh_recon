@@ -1,0 +1,314 @@
+{
+  "component": "menus",
+  "status": "migrated",
+  "proposed_status": "migrated",
+  "original": {
+    "L0": [
+      "GAME:RunMainMenuAndAttractLoop 013B:0063",
+      "GAME:DrawMainMenu 013B:0039",
+      "GAME:DrawMenuHeaderSprites 013B:06F7",
+      "GAME:SelectPlayerControls 013B:05E6",
+      "GAME:DrawControlOptions 013B:05BB",
+      "GAME:EditLevelPassword 013B:04CA",
+      "GAME:CopyIndexedMenuString 013B:0652",
+      "GAME:DrawTextLine 013B:077C",
+      "GAME:DrawTextBlock 013B:0776",
+      "GAME:PrepareAttractMap0 013B:0720",
+      "GAME:PrepareAttractMap90 013B:0712",
+      "GAME:ShowLevelIntroduction 013B:0664",
+      "GAME:ShowCreditsPages 013B:07F6"
+    ],
+    "L1": [
+      "c/menu.c:menu/control/editor/text entries",
+      "c/menu_helpers.c:indexed string copy",
+      "c/scene.c:attract preparation, introduction and credits"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/menus.h",
+      "native/menus.c",
+      "native/bridge/menus_bridge.c"
+    ],
+    "header": "native/menus.h",
+    "functions": [
+      "menus_ascii_digit",
+      "menus_attract_map_offset",
+      "menus_center_credits",
+      "menus_control_key",
+      "menus_control_next",
+      "menus_control_present",
+      "menus_credits_result",
+      "menus_difficulty_next",
+      "menus_double_index",
+      "menus_draw_water",
+      "menus_header_item",
+      "menus_label",
+      "menus_level_ordinal",
+      "menus_main_next",
+      "menus_map_advance",
+      "menus_map_begin",
+      "menus_session_complete",
+      "menus_string_begin",
+      "menus_string_read",
+      "menus_string_written",
+      "menus_text_center_x",
+      "menus_text_centered",
+      "menus_text_next_x",
+      "menus_text_next_y",
+      "menus_text_step",
+      "menus_toggle_players",
+      "menus_water"
+    ],
+    "build": "python verif/menus_build.py",
+    "bridge": "Thirteen adapters, no original-entry fallback. Native main-menu action machine drives attract/session dispatch; current render, session, demo, audio, input and video implementations remain services."
+  },
+  "purpose": "Main/controls menu decisions and orchestration, password editing, byte-string layout/cursors, attract map preparation, level introduction and credit pages.",
+  "interface": {
+    "inputs": [
+      "Borrowed player control modes/count/byte count, difficulty, WaterYPixels, level and20-byte password field with static NUL; shared front_end.h is owned by high_scores.",
+      "Live indexed NUL strings, font sprite directory, descriptions, passwords and credit pages; no second configuration owner.",
+      "Synchronous current drawing, restore/map, palette/page, input/waits, music, session and demo services with original return frames and error prefixes."
+    ],
+    "outputs": [
+      "Native menu actions, raw scan dispatch, signed control-mode cycling, unsigned difficulty/count arithmetic, ordered editor writes and text glyph/line/centering plans.",
+      "Existing image/map/page/configuration mutations, exact ordered full-register service arguments, full original RAM/register/flag/port effects."
+    ],
+    "effects": [
+      "Main dispatch calls RunGameFromPassword as a service; its password-to-level selection is documented and tested at its actual-C selection prefix, never duplicated in native code.",
+      "Original live DF, source aliases, word wraps, stale destination tails and raw malformed indices retained through cursor adapters."
+    ],
+    "preconditions": [
+      "Serialized ordinary code/call frames; complete string cases require a reachable terminator and return within existing interpreter budgets. Single-step alias properties state their footprint.",
+      "Service implementation is the committed implementation at baseline6bfb206; services may expose live registers/flags and errors. No asynchronous service theorem claimed."
+    ]
+  },
+  "callers": {
+    "audit": "python verif/front_end_inventory.py checks static callers plus every indirect target set; menus_integration.py reports all per-scenario counts including zeros.",
+    "outside": "Startup enters RunMainMenuAndAttractLoop; session enters ShowLevelIntroduction. All thirteen entries have shipped callers; coverage zeros, if any, are reported without assuming reachability."
+  },
+  "callees": {
+    "native": "menus_main_next and named action/reply types; text classification and arithmetic, mode/count decisions, label/map/string cursors, shared native editor/blink plans.",
+    "services": [
+      "DrawTransparentSprite, RestoreBackgroundRectangle, RestorePlayfieldBackground, SaveDrawPageBackground and DrawTileMap remain current implementations.",
+      "Palette/page, input poll/wait, audio, ICE/map/water, numeric encoding and PlaySpriteRevealDemo/PlayAttractDemo/RunGameFromPassword remain synchronous services."
+    ]
+  },
+  "indirect": {
+    "audit": "No invented function target. Existing dispatch and original near/far service identities stay in bridge; indexed menu/password/font pointers are data, not native function pointers."
+  },
+  "memory": {
+    "owner": "Borrowed front-end strings/edit fields/configuration, never persistent native copies. Input, session, water_weather and gameplay writers remain authoritative; inventory.json contains the reader/writer records.",
+    "configuration": "Menus write PlayerCount XOR3, PlayerArrayBytes low16(2*count), difficulty, both control modes, password, and WaterYPixels. Intro saves/restores the live water word. Session writes CurrentLevelIndex and consumes the password and same control cells.",
+    "map": "Attract decoder is a service.160 words copy to fixed DATA_SEG Data_264C, source offset0 or28800, live DF consumed after decode. Incoming DS is restored before the map service.",
+    "text": "Logical advance16; CR adds16y, FD adds8y; initialFE centers. No clipping/wrapping, raw glyph arithmetic. String copy consumes but does not store NUL; no size bound and live overlap."
+  },
+  "assumptions": [
+    "The17,367,040 finite cases are full domains only for their stated fixture parameters; control presence uses four endpoint/sign slices, while the symbolic control property covers every presence word.",
+    "Actual-C symbolic properties cover selected iterations/prefixes and complete scalar/frame outputs, not whole asynchronous menus. Complete entries and service composition carry C/D evidence.",
+    "The906 password tests cover all150 shipped strings and edited/invalid variants through the actual session selection prefix; complete session dispatch stays the current service."
+  ],
+  "eliminated": [
+    {
+      "dependency": "Raw register control flow for front-end decisions",
+      "evidence": "Named native action/reply state machine, borrowed configuration and scalar/cursor/editor plans; register/flag and service frame replay only in bridge."
+    }
+  ],
+  "retained": [
+    "Main raw F1/F2/F3/F4/F5 dispatch; C restarts attract, Q fades/exits. Unrecognized changed scans reset834 retraces, unchanged scans continue. No new joystick menu navigation. Attract tests SF before ZF, including contradictory flags.",
+    "Control increment is signed against2; keyboard becomesFFFF. Presence accepts sign bit. Other raw negative modes retain wrapped unchecked indices. Difficulty increment is unsigned; player count XOR3 has no clamp.",
+    "Editor uppercases ASCII lowercase and accepts letters/digits, rejects space, ignores Escape; backspace first. Enter on empty writes NONE after final empty redraw. No normal index overrun; raw nonzero corrupt indices can erase outside the field.20-byte field and static NUL remain.",
+    "Password lists69/81, NUL strings plusFF sentinel. Session matches exact bytes and only space padding to20; exact20 succeeds immediately; unknown/NONE selects ordinal0. Native does not replace session lookup.",
+    "Text NUL/CR/FD, leadingFE centering with word subtraction/logical half,16px advance,8px FD versus16px credit separator counting; no automatic wrap.8E/99/9A map to5B/5C/5D then glyph base237h. LaterFE/FF are ordinary raw glyphs.",
+    "Indexed string pointer index doubles with word wrap; pointer high byte is contiguous, byte cursor follows DF, NUL is not copied. Live aliases can propagate and prevent termination; no sanitization added.",
+    "Credits testFF only at page start after setup; Q/Esc use scan&7F. Existing65536 iteration guards and their final-delimiter bypass are unchanged.",
+    "Header second sprite uses returned liveAX+1, not a fixed216. Attract uses fixed destination segment, liveDF,160words and signed waterY<192. Intro display uses low level byte+1 but session completion compares words."
+  ],
+  "evidence": [
+    {
+      "property": "Whole compiled entries",
+      "level": "C",
+      "method": "Independent complete L1 and23-entry native DLLs, full RAM including stack, full device state,14 register/flag words, ordered ports and full entry-service ABI streams.",
+      "command": "python verif/menus_evidence.py",
+      "result": "PASS805 generated pairs: strings/DF/aliases, font and raw text, all256 BIOS bytes, control cases, all150 introductions, both attract maps and credits.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Finite scalar and editor domains",
+      "level": "A",
+      "method": "Actual-C property spans compiled unchanged except assertions/driver; allword centering/mutator/index and character slices; endpoint control slices are C, symbolic fullword profile is B.",
+      "command": "python verif/menus_enumerate.py",
+      "result": "PASS17104896 complete scalar/editor domain cases:131072 centering,131072 mutators,65536 raw dispatch,16777216 password index/character steps. Additional262144 mode/presence endpoint slices are C; total17367040.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Shipped password table",
+      "level": "C",
+      "method": "Actual compiled session selection prefix plus native editing; static DOS/Amiga decoders for inventory only.",
+      "command": "python verif/menus_passwords.py",
+      "result": "PASS906 exact/lowercase/prefix/junk/NUL/default cases across all150 passwords; zero mismatches.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Split actual-C properties",
+      "level": "B",
+      "method": "Actual reference C spans versus maintained native/bridge.8GB process-tree jobs,60s per run, at most two.",
+      "command": "python verif/menus_proofs.py text; python verif/menus_proofs.py centering; python verif/menus_proofs.py copy-index; python verif/menus_proofs.py copy-step; python verif/menus_proofs.py control; python verif/menus_proofs.py mutators; python verif/menus_proofs.py selector; python verif/menus_proofs.py attract; python verif/menus_proofs.py editor; python verif/menus_proofs.py header",
+      "result": "PASS10 profiles: outputs/frame, ordered reads/writes, raw service-response prefixes, all control words, raw scans and editor inputs.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Mutation controls",
+      "level": "C",
+      "method": "Scratch-only defects compared to independent actual C.",
+      "command": "python verif/menus_proofs.py text --negative; python verif/menus_proofs.py centering --negative; python verif/menus_proofs.py copy-index --negative; python verif/menus_proofs.py copy-step --negative; python verif/menus_proofs.py control --negative; python verif/menus_proofs.py mutators --negative; python verif/menus_proofs.py selector --negative; python verif/menus_proofs.py attract --negative; python verif/menus_proofs.py editor --negative; python verif/menus_proofs.py header --negative; python verif/menus_enumerate.py --negative; python verif/menus_passwords.py --negative",
+      "result": "PASS12 controls; all10 native defects detected, dispatch repeated by enumeration, session comparison defect detected by747 cases. Initial320->321 centering mutant was equivalent after division;318 changes output and is detected.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "L0 and whole game",
+      "level": "D",
+      "method": "Unchanged L0 suites and20 maintained scenario references with explicit per-entry counters.",
+      "command": "python verif/menus_integration.py --whole",
+      "result": "PASS190 direct L0 cases and20 maintained scenarios; ShowCreditsPages has0 maintained entries and API-level evidence; all other twelve menu entries reached. Every per-scenario zero retained.",
+      "date": "2026-11-14"
+    },
+    {
+      "property": "Promoted isolated host",
+      "level": "D",
+      "method": "Archive6bfb206 plus only two front-end units, promote certificates only in scratch; actual build and check commands.",
+      "command": "python verif/front_end_host.py --all",
+      "result": "PASS36 linked units,21/21 checks in native and literal variants,36 certificates0 errors; no foreign uncommitted render/HUD files.",
+      "date": "2026-11-14"
+    }
+  ],
+  "amiga": "Inventory compares all150 DOS strings to hash-pinned Amiga hunk8 XOR42 password lists: same order and one-based table ordinal. Meaning only; no DOS byte/algorithm equivalence claim.",
+  "uncertainty": [
+    "Proposed migrated on whole-entry C/D with scoped A/B properties; no whole interactive loop proof.",
+    "Administrative status remains unanalyzed pending supervisor review."
+  ],
+  "dependencies": {
+    "native/menus.h": {
+      "includes": [
+        "front_end.h",
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/menus.c": {
+      "includes": [
+        "menus.h"
+      ],
+      "calls": [
+        "menus_text_step"
+      ]
+    },
+    "native/bridge/menus_bridge.c": {
+      "includes": [
+        "../menus.h",
+        "front_end_support.h"
+      ],
+      "calls": [
+        "D",
+        "G",
+        "MCALL",
+        "MFAR",
+        "add16",
+        "add_byte",
+        "compare_byte",
+        "dec16",
+        "editor_compare_trace",
+        "flag",
+        "front_blink",
+        "front_edit_command",
+        "inc_byte",
+        "increment_word",
+        "load_character",
+        "logic",
+        "main_key_trace",
+        "menus_ascii_digit",
+        "menus_attract_map_offset",
+        "menus_center_credits",
+        "menus_control_key",
+        "menus_control_next",
+        "menus_control_present",
+        "menus_credits_result",
+        "menus_difficulty_next",
+        "menus_double_index",
+        "menus_draw_water",
+        "menus_header_item",
+        "menus_label",
+        "menus_level_ordinal",
+        "menus_main_next",
+        "menus_map_advance",
+        "menus_map_begin",
+        "menus_session_complete",
+        "menus_string_begin",
+        "menus_string_read",
+        "menus_string_written",
+        "menus_text_center_x",
+        "menus_text_centered",
+        "menus_text_next_x",
+        "menus_text_next_y",
+        "menus_text_step",
+        "menus_toggle_players",
+        "menus_water",
+        "platform_interrupt",
+        "platform_service_point_at",
+        "pop",
+        "prepare_attract_map",
+        "push",
+        "rd16",
+        "rd16_linear",
+        "rd8",
+        "set_ah",
+        "set_al",
+        "step",
+        "sub16",
+        "szp",
+        "ugh_call_near",
+        "ugh_dispatch",
+        "wr16",
+        "wr8"
+      ]
+    }
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "c/menu.c": "b2ea585a4cb2b40c349fd7a017642534ea2b4982140a25a6dcacd12ce3b418b0",
+    "c/menu_helpers.c": "48125ab011a2ab29cd7936aa61e9889c8715ee843090c6ddd00f9d14dddbb6ad",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/scene.c": "0060ef52ee2cc8b4c98d1b04b6387cd809809a9226f4b4f71c01a75a99d5e460",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "host/check.py": "ae78b6b48e7c77aa4c513f8474d23d7ef9d26afe39ab55ea70e871473701e94c",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "native/bridge/front_end_support.h": "c8e018a28316b8d9b6af492f97bd5d71f628c2d759cfb2d849b268400802df3e",
+    "native/bridge/menus_bridge.c": "5e58afe6a5f4ced7afea6623d5df2a48371427d377a175fcd530194823676561",
+    "native/front_end.h": "b6b7977bb81c3fdf8294631a853912cd6dc03c5d295d04c416ece363c2a3d5db",
+    "native/high_scores.c": "00fc8da7870acfcf6573d4548e798d2aee82db5af4fe74d653c65e60d4fcd30f",
+    "native/high_scores.h": "e2d31207d80276d28158bc186f1bbf6f5909330644ab09028a46c6e943f6429b",
+    "native/menus.c": "c5ec44bae5d8c9c072c73e5c7e93ddada3bf2a9f20cc5c31b199782188c3a972",
+    "native/menus.h": "cbfdf679a866537eab418e7e95fefeb7915806a2438f434f9ad82ddc79b2f0c4",
+    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
+    "tools/hostbuild.py": "3bc32802268b9fcacb2a6f87777fdedbba62c6847c2af662a886b3c9ccdc635b",
+    "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
+    "verif/adlx_loader_solver.py": "332c1a46957e398df5865fa5de14a73d259d464c621232f84976f8dfcc1f42d6",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
+    "verif/front_end_host.py": "f4b4a1909459dc4fb812ddf30f6022ae58a39c1a9e3e85d56f99cf19b8447b77",
+    "verif/front_end_inventory.py": "206607c126da32eee66750ebbac62ac0f668674c7e4495d7093cbd334708be05",
+    "verif/front_end_limits.py": "e5bb448b12c8a755757c8fca9cbccc483eb3c5e65dee87987652be6c88c591c8",
+    "verif/front_end_reproduce.py": "26073e964b373f6560d1ec54944fb5a6188f04178c0026f92943525ae64d30ef",
+    "verif/menus_build.py": "3a1c1cefb03e407d6606ca976c399ffbe3d232878e90ada910de1a8ba0985ef9",
+    "verif/menus_certificate.py": "c6719945cd5006f139dc8b3475cfcf7d832cf2dcc45f93fada44ef9756721955",
+    "verif/menus_enumerate.py": "efb612848da8b44398d5b902112f5c83ef89884e22e3f698c21e6b285beda215",
+    "verif/menus_evidence.py": "76566b66c97e328daecdcb6c722ead759f1ca96292e89849b3bdb96e80935f4e",
+    "verif/menus_integration.py": "5530f9b35a1bbba24ce7a5680216562793516f53322e6da7f9f9d794adfb10fe",
+    "verif/menus_passwords.py": "f2034d9d4b8b308860eef4b828a844342a5766f070ec1789964e12fc274e07d5",
+    "verif/menus_proofs.py": "823468218f96e5357e0f8785d16feb836ad8971da1ec0b2b54dc6cc81faa7c64",
+    "verif/menus_spans.py": "eea16813bdfe496eec5f292090b414e19595501b443a96e93b3368280f930dec"
+  }
+}

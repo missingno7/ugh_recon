@@ -27,6 +27,7 @@ sys.path.insert(0,str(ROOT/'tools'))
 from windows_job import WindowsJob,ExtendedLimits
 from standalone_census import bodies,masked
 from projector.schema import generate as generate_schema
+from projector.publications import instrument_publication
 
 
 def save(path,value):
@@ -140,6 +141,7 @@ def build(literal=False,revision=BASELINE_REVISION):
             if not literal and rel=='native/bridge/ice_bridge.c':
                 needle='memcpy(ugh_mem+destination,output,sizeof output);';assert needle in text
                 text=text.replace(needle,needle+'pr_publish(ugh_mem+destination,sizeof output);')
+            if not literal:text=instrument_publication(rel,text)
             target=folder/rel;target.parent.mkdir(parents=True,exist_ok=True);target.write_text(text)
     schema=generate_schema(frozen,folder)
     for n in ['world.h','observer.h','observer.c']:shutil.copy2(ROOT/'verif/projector'/n,folder/n)

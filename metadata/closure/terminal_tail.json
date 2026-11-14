@@ -1,0 +1,259 @@
+{
+  "component": "terminal_tail",
+  "status": "migrated",
+  "original": {
+    "owned": [
+      {
+        "identity": "GAME:loc_4EE6",
+        "address": "013B:4EE6"
+      }
+    ],
+    "L1": [
+      "c/video.c"
+    ],
+    "L0": [
+      "src/asm/GAME.ASM"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/terminal_tail.c",
+      "native/terminal_tail.h",
+      "native/bridge/terminal_tail_bridge.c"
+    ],
+    "functions": [
+      "terminal_tail_begin",
+      "terminal_tail_next",
+      "terminal_tail_video_mode"
+    ],
+    "bridge": [
+      "c_DosShutdownTail"
+    ]
+  },
+  "purpose": "Additive native continuation adapter; no changes to accepted peer semantics or state ownership.",
+  "interface": {
+    "inputs": "Synchronous terminal services and saved-mode byte read after sound returns",
+    "outputs": "Sound stop, saved-video-mode restore, input restore, terminal exit in that order; first error stops prefix",
+    "widths": "Transient cursor uint8_t; four TerminalAction requests; saved mode uint8_t copied unmasked; synchronous service status int; nonzero aborts the prefix. Exit consumes the live AL byte after input restoration."
+  },
+  "callers": [
+    "lifecycle: RunDosGame tail; startup Q terminal transfer"
+  ],
+  "callees": [
+    "lifecycle FadeAndShutdownSound, input RestoreKeyboardInterrupt; platform BIOS set-mode and DOS exit services"
+  ],
+  "indirect": [
+    "No indirect native transfer"
+  ],
+  "memory": {
+    "owner": "No persistent second owner",
+    "reads": "SavedBiosVideoMode through live DS after sound returns; keyboard restore owns its cells",
+    "writes": "Only peer services and retiring ABI stack"
+  },
+  "assumptions": [
+    "Ordinary synchronous admitted peer bridges; executable callback code immutable, no alias into active native locals; GAME entry segment. Existing peer admission assumptions unchanged.",
+    "GAME entry segment; BIOS set-mode service preserves the code segment; peer control-transfer/terminal statuses abort before subsequent actions."
+  ],
+  "eliminated": [
+    "Executed L1 entry body; dispatcher round trip on the new direct peer edges; no fallback."
+  ],
+  "retained": [
+    "Mode is an unmasked byte read live after sound; input may change AL before exit; error prefix has no rollback; sound may reach timer restoration before video/input.",
+    "Broken hooks remain explicit existing L1 boundaries; Sound Blaster unreachable in shipped game (AdLib-only startup, absent samples/stub bank hooks, broken far-call/near-RET probe)."
+  ],
+  "evidence": [
+    {
+      "property": "compiled L1/native and rebuilt ASM differential",
+      "level": "C",
+      "method": "See reproducible driver and artifact for exact domains; no reference-derived expected state",
+      "command": "python verif/entry_retirement.py --cases",
+      "result": "PASS",
+      "date": "2026-11-14",
+      "artifact": "build/workers/close-adlx-21/cases.json"
+    },
+    {
+      "property": "actual native continuation output/frame properties (not L1 equivalence)",
+      "level": "B",
+      "method": "See reproducible driver and artifact for exact domains; no reference-derived expected state",
+      "command": "python verif/entry_retirement.py --proof",
+      "result": "PASS",
+      "date": "2026-11-14",
+      "artifact": "build/workers/close-adlx-21/proof.json"
+    },
+    {
+      "property": "seeded mutation controls",
+      "level": "C",
+      "method": "See reproducible driver and artifact for exact domains; no reference-derived expected state",
+      "command": "python verif/entry_retirement.py --mutations",
+      "result": "PASS",
+      "date": "2026-11-14",
+      "artifact": "build/workers/close-adlx-21/mutations.json"
+    },
+    {
+      "property": "clean overlay gates and census",
+      "level": "D",
+      "method": "See reproducible driver and artifact for exact domains; no reference-derived expected state",
+      "command": "python verif/entry_retirement.py --accept",
+      "result": "PASS",
+      "date": "2026-11-14",
+      "artifact": "build/workers/close-adlx-21/acceptance.json"
+    },
+    {
+      "property": "unchanged projector observations with producer publication",
+      "level": "D",
+      "method": "See reproducible driver and artifact for exact domains; no reference-derived expected state",
+      "command": "python verif/entry_retirement.py --projector",
+      "result": "PASS",
+      "date": "2026-11-14",
+      "artifact": "build/workers/close-adlx-21/projector/summary.json"
+    },
+    {
+      "property": "missed ICE publication must fail comparison",
+      "level": "C",
+      "method": "See reproducible driver and artifact for exact domains; no reference-derived expected state",
+      "command": "python verif/entry_retirement.py --missed-publication",
+      "result": "PASS",
+      "date": "2026-11-14",
+      "artifact": "build/workers/close-adlx-21/missed-publication.json"
+    }
+  ],
+  "amiga": {
+    "classification": "not-used",
+    "finding": "DOS boundary determined by code and accepted peers"
+  },
+  "uncertainty": [
+    "Certificates intentionally remain unanalyzed for supervisor review. Scenario evidence does not prove all states.",
+    "Native proof is a continuation property, not a universal L1 or peer-alias theorem."
+  ],
+  "dependencies": {
+    "native/terminal_tail.c": {
+      "includes": [
+        "terminal_tail.h"
+      ],
+      "calls": []
+    },
+    "native/terminal_tail.h": {
+      "includes": [
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/terminal_tail_bridge.c": {
+      "includes": [
+        "../terminal_tail.h",
+        "platform.h"
+      ],
+      "calls": [
+        "D",
+        "G",
+        "c_FadeAndShutdownSound",
+        "c_RestoreKeyboardInterrupt",
+        "logic",
+        "platform_interrupt",
+        "rd8",
+        "set_ah",
+        "set_al",
+        "terminal_near",
+        "terminal_tail_begin",
+        "terminal_tail_next",
+        "terminal_tail_video_mode",
+        "wr16"
+      ]
+    }
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "native/terminal_tail.c": "572e0f54097b80e0672bcc9dc4d46a16d80aeabc2657497faa51c944986ab1a4",
+    "native/terminal_tail.h": "2bddbe7c8b549c3452ce4bad15c02837ce478b6f0a502ba27cfafe9ed804c0b0",
+    "native/bridge/terminal_tail_bridge.c": "0676680d7e43f742ecb274b0869824043fe6f28e0e62ed2fef2daecaa569bf50",
+    "verif/entry_retirement.py": "3b52d207fef7b3e51461a2357a06f012f59651b406f1fe9a0253876e55f76529",
+    "verif/entry_retirement_proof.c": "2796c3423fef93b04f190cb38667b80bda47017806d83ff5e326fb204aebb95f",
+    "verif/projector_evidence.py": "163df3e3988f16e81eb4db38b6727ccf118b929122b3ec10b06d0ff8f95b09e1",
+    "verif/projector/publications.py": "74654c97ef88d961c0a470d8d50e7af897d2cf70bdc36868860ec0b06cba5b9d",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
+    "c/abi.c": "5f7c2c2fc015ca43e3786a7f96cb38113211da54acefce19564c1df78d74857a",
+    "c/actors.c": "d17c03c844f95780f0647b85aa854a87c3e566b0f56fe89ee0a95d6d689f3ff2",
+    "c/actors.h": "00817c6f676f61811df11066fca3335c9757e0f59f7cad241dff762fee7b71bd",
+    "c/actors_states.c": "79a460a0436e773bdd795953f63c6765d71c0e346cdf8bbccbcf707817994447",
+    "c/actors_states.h": "375dda6bd3fa6cd5552cc98df7f7c785dc5d70850a10f96207bd0894161cd5d8",
+    "c/adlib.c": "2f4e551282f6ac33f8d24127f3cd5294e679f72ce28794c3ed295ce243c18bf0",
+    "c/adlib.h": "70f2c0d3f51dc49dd05918266b4de07d247a12909f11e8329244b8d9af56cdee",
+    "c/demo_scripts.c": "a19c7e52bc709a28f9be40bc66b60c6de82df888f8eb725b79f0b9556fe795d7",
+    "c/demo_scripts.h": "ea65090001ef64f26f31c39de2075c098949bcb9ca8448480cd1fccdf55a608b",
+    "c/dispatch.c": "80a97f55a460a21dac9d6295939a8276c83b66cef886f814365e0a823814debf",
+    "c/dispatch_table.inc": "0bb8fddf7dc6c98acc2fb92cf042088d0165c128a98da7e894ca49eb499c1111",
+    "c/dos_input.c": "b6a086f3917441a23c4238f582e00605d8a239ded81b03a658ff308890601e53",
+    "c/dos_input.h": "8cee17811645a61424b6174e0213402b8c21defd5b4fa6d56511225c70e5193e",
+    "c/dsp.c": "a2f4dc144514ed9ea8cdca8a75c9813718342a5ed5c26176ff6d691f89d651b5",
+    "c/dsp.h": "9b2c2b95b0781caf3a96b7b0b19f8078601557f5e0a11bec889d109ef2755b63",
+    "c/game_services.c": "e9301da5d7fae6f2aacce7dda8d4e6f0e86cbe8c40e736216185c4a8f792a7c5",
+    "c/game_services.h": "7a63f8bd05b2710c27c4c4247b00e0f1fc06a4ecdaa388bf47eb9fb1374965c5",
+    "c/ice.c": "27e2898dd6a5e70af26bde84c0ba8cd6e8a045e40d94df21fd5b122f10a2242e",
+    "c/ice.h": "925da59e4f3fb6cf278100578e56093dc7138040c98eb9f286acb9c867512578",
+    "c/items_water.c": "ab5c2c72096b5e6355a2575f9a58c321f91680d7cd97653581dcbab59033e2d9",
+    "c/items_water.h": "d18978433dcc966235010906984c13fcb76c3469bf4bc0f8e33345101099f148",
+    "c/memory.c": "97f59e3c343cd6911854d0bfc3ff624417de2844f712caa96ec6799d3a9783d9",
+    "c/menu.c": "b2ea585a4cb2b40c349fd7a017642534ea2b4982140a25a6dcacd12ce3b418b0",
+    "c/menu.h": "eaa33e9e9db1f3caa44f60b4a0c862b1bc82855a6389e91f330606e27317b1de",
+    "c/menu_helpers.c": "48125ab011a2ab29cd7936aa61e9889c8715ee843090c6ddd00f9d14dddbb6ad",
+    "c/menu_helpers.h": "9c5998717eec5a79122d91ca1d6a045f303baaf5b96dbf14cf6401b4df34e4e2",
+    "c/music_analysis.c": "604fc3c80dec56a6740444b908da8baeff325357760ab8b82e9db72f5e022fe5",
+    "c/music_analysis.h": "3b2175241d1ced443d9463c6545232630cd4ccd20d907dab83296c8e4cd7fe23",
+    "c/music_clock.c": "2583d53f81c50bc148d423866cbd8f0fa14ff6bb3e5f8320a60e02b35a7d82fa",
+    "c/music_clock.h": "5ffc27066dc1c8438e716850ce666daaa00421dec8be964337b43f75a936210e",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/render.c": "7620324caaff46b39094d4b8f7077f2a5426a728806e52f1c56a962771208b40",
+    "c/render.h": "bcac207ffd7130100008409d8b4069b9ac126b713c81bfb043f1eb1e9603c160",
+    "c/render_primitives.c": "447a9f435f22cc46c9c30d8d11ee9046d57d57c48d6bbaa2e91768e32f9698c0",
+    "c/render_primitives.h": "92f16baae8b087d052e7ca713921fe74ad63e4f0a9f370190b2cc476c7a0ab09",
+    "c/scene.c": "0060ef52ee2cc8b4c98d1b04b6387cd809809a9226f4b4f71c01a75a99d5e460",
+    "c/scene.h": "77c02b56b44a4eb584da4d17cad94cc7f4be79ea3a2f70fd03d7ed2dc50f884a",
+    "c/sound_api.c": "ba1c98bf3a03b5f48a71d4491bdebf3acfc17b0f6cce51db370a0e58c0507e4c",
+    "c/sound_api.h": "b15efba9d9cf41053b3b818d4bb3a084936b6d3e15dafc05544648c88e4687c1",
+    "c/sound_engine.c": "5e4116c31806441e464de35d5649894ec4eea28025254a2edea616235e6e6881",
+    "c/sound_engine.h": "bb288a280c6cf526e91718ccd7fd02a2762e9d58f3d0d53a2f2feef9472eabd1",
+    "c/sound_state.c": "c57e5874b9a7b761faf49dd0bf6da4338ffaea31af1cea5c91a2f13e8ea9ded2",
+    "c/sound_state.h": "bdbbef92b75c99c274bde293ec8bcb1f7a997ed1e8176dc5deda96806c6fbad4",
+    "c/timer.c": "49e56856d56bb1ae68b62fa9112ce294f77182bebfc8e2cd5392737f1c06080b",
+    "c/timer.h": "4ae328394adb59216a373832fbf926a926ce9fe8f813bbe7c3927c9abaf10937",
+    "c/timer_stack.c": "512cfb5332569f32adffed22e5211db5772440428369cc9cc808be931631c98d",
+    "c/timer_stack.h": "e076aba16f8ee3dacbffcddbfa5b065a79a6e8000fa825244bffeb3771d1a514",
+    "c/timer_system.c": "89ead348d18a649f37dca6f44c94c309c3d50b7b6d0877411064f9ac0129d92b",
+    "c/timer_system.h": "f7204fef034e9f641f1f12ad9412efe80844d5be64b177300bdc5a9a20136a49",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_adapters.h": "c18eafbbe16170d01fcfac6853deab651d3c2b54343b47bccd6ce0de4303ad38",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "c/video.c": "681732591d8efb11cf1d5d5816c999bca718560bd247d9c9cc6c0f36982b2fa2",
+    "c/video.h": "35e4d6076edd69e2722cf7d52392871345f5e0eb78af7ce67e13c8ed0c02f192",
+    "tests/_abi_kat.py": "4fc8a5f9aaad1b888b427022ff075ea6d362914414a61ddc6dfdadee6496b8e9",
+    "tests/_platform_kat.py": "ac67afd325c036beb7ba87edce9ff79fe4c335b805f8ad268f535ab1e5d07095",
+    "tests/_whole_kat.py": "0adfa7f39ebc120efe9a16cf0abc18134e71326e0a43049b63371926cfa3a940",
+    "tests/_whole_program.py": "770acd5244d1369144d02c22a7621ffca33a93e2726af2a4e9412d28416af3cb",
+    "tests/actors.py": "80b0aed22ae70e2b8eeead4a4176ce5b5935ac93ee517869df14035ffa9ea7ad",
+    "tests/actors_states.py": "94ec4f7e880e6d717c5fc1a645f6f2dfebab18150f915e9ee0009789f5126de6",
+    "tests/adlib.py": "d834fc01cafb123c16c6489c25239a7ae464b855dd5cb055bf6d0c25c1c39ade",
+    "tests/composition.py": "3a4eea0ae63a7062ed8d4d62d4f981892915c1b40bb5bc3d8cc771301029c614",
+    "tests/demo_scripts.py": "b71d2044f43b58e9b79cce9039e1a3a8d71a7ca96a6f385abcbdc47edefa95be",
+    "tests/dos_input.py": "d9f48959a7d4b5eff7eb57a0357c10b96c7b17dff35a8b3e8bb362522d7c40c4",
+    "tests/dsp.py": "1578a2485f23e906c47c98322ce0925337b9544381fcd612ac2288e09aa0a1e0",
+    "tests/game_services.py": "f107e1dafead13ec0b397a12474b52d821fde5415a2783f5ebad4477b309a6e5",
+    "tests/ice.py": "754e63fadb89bd086d8fa1e71cef6276ae14104d1144455e02baf569fab2eb79",
+    "tests/items_water.py": "ea1f63e28e3dbc63d89649e167f5677bdb3a13b542eb588c90e6ed34a1f6db30",
+    "tests/menu.py": "968fb180e88fe43264642f12a21650663f31c79df511290879d476d3bd0f5d08",
+    "tests/menu_helpers.py": "c46e406316d775373b87152b4517d89e866456283286f2574332ba24185b4525",
+    "tests/music_analysis.py": "b8d670835ad7f932e5108f1bd7443302c8fe54b3ff5cc25ce82a819212677fca",
+    "tests/music_clock.py": "440aed46727e7128a8dd4a2980d33a6eb6b5646da912dbcec626da6421105037",
+    "tests/render.py": "ac899241858dd7dd0f2d175a7f5b7229257b5b59a24291c65078881281c86e7e",
+    "tests/render_primitives.py": "a3c0e339395fc75e8e4e472eade67d6881374453fdfdd0cf957c8c376f2f8bd0",
+    "tests/scene.py": "1eb8b5d2a3fb51b9eaa123d3f5d9efe2637ef131f333f696b71dc1f3a9069a81",
+    "tests/sound_api.py": "f2ff7e547e026136ecb3abbc2abf139dcdfbd7fa4a5d026d5c19d1ed804b8650",
+    "tests/sound_engine.py": "4a3fbc291f252e8b558e3acaef6cd82b71d404325260d7323d7e975b4819d4a2",
+    "tests/timer.py": "9feb061a861603ed6e75d8b1fe286d4c34c96db9574244b3c8d6663ff5bb6fde",
+    "tests/timer_stack.py": "e6ea2a364a6b062fcc05036dca8cfe1cea83926d3370e3cc3b7e4b3031f20e50",
+    "tests/timer_system.py": "b8e2fb308eaa026ce15f7f598304da4b859b32ada0f514c85130547aff56091c",
+    "tests/video.py": "1e0cc37f7038abf090cf91610f17646236e1b666e0639e4796ca525904793a6a",
+    "tests/video_upload.py": "a182df71243e52d9b8a73e86f3a485c55dc924379681a3d43b6933582ad9f550"
+  }
+}

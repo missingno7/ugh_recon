@@ -9,7 +9,8 @@ def gate(out,jobs=3,skip_build=False):
  tasks={
  'closure':([],['tools/closure.py']),
  'build':([],['tools/build.py']),
- 'admission':(['build'],['verif/admission.py','--check']),
+ 'port-services':(['build'],['verif/port_services.py','--all']),
+ 'admission':(['port-services'],['verif/admission.py','--check']),
  'prepare':(['build'],['tools/hostbuild.py','--prepare-only']),
  'native-build':(['prepare'],['tools/hostbuild.py','--no-generate','--out',native]),
  'literal-build':(['prepare'],['tools/hostbuild.py','--no-generate','--literal','--out',literal]),

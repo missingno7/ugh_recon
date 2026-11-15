@@ -63,7 +63,7 @@ typedef struct GSRegisterWrite { uint8_t reg,value; } GSRegisterWrite;
 typedef enum GSOplKind { GS_OPL_SELECT,GS_OPL_DATA } GSOplKind;
 typedef enum GSClockDelivery { GS_CLOCK_TIMER, GS_CLOCK_BIOS_CHAIN } GSClockDelivery;
 typedef enum GSCalibrationPhase { GS_CALIBRATION_BEGIN,GS_CALIBRATION_WAIT,GS_CALIBRATION_FINISH } GSCalibrationPhase;
-typedef struct GSCalibrationReply {uint16_t remainder,progress;uint8_t marker;} GSCalibrationReply;
+typedef struct GSCalibrationReply {uint16_t remainder,progress,marker;} GSCalibrationReply;
 typedef enum GSTimerLifetimeKind { GS_TIMER_READ_BINDING,GS_TIMER_BIND_HANDLER,
     GS_TIMER_BIND_SAVED,GS_TIMER_RESET_COUNTER,GS_TIMER_DELIVER_SAVED } GSTimerLifetimeKind;
 typedef struct GSTimerLifetimeRequest {

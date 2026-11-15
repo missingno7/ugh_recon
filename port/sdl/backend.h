@@ -63,4 +63,12 @@ GSFilesOps gs_files_operations(void);
 typedef struct GSSdlSeed { int fixed; GSSeedReply replay; } GSSdlSeed;
 GSSeedOps gs_seed_operations(void);
 GSLifecycleOps gs_lifecycle_operations(void);
+typedef struct GSSdlStartup {
+    GSSdlVideo *video;GSSdlTime *time;GSSdlAudio *audio;
+    GSAudioOps audio_ops;GSTimeOps time_ops;GSVideoModeReply mode;
+    GSBinding critical,timer;uint64_t audio_ns,presentations;
+    uint16_t divisor;uint8_t mask,pit_phase,adlib,probe_reads,exited,exit_code;
+} GSSdlStartup;
+void gs_sdl_startup(GSSdlStartup *,GameServices *,GSSdlVideo *,GSSdlInput *,
+    GSSdlTime *,GSSdlAudio *,GSSdlFiles *,GSSdlSeed *,int);
 #endif

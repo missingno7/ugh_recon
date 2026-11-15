@@ -498,7 +498,7 @@
     "native/actors.h": "b1c7653a6e566c7f0e3e18ad38fc3f63726d01b78a6fa6843df017d2d155a42c",
     "native/bridge/actor_projection.h": "71e0476afe7c0b082b5eac20957028e58a61f6741ef11c7ca546fe8bbad8b483",
     "native/bridge/actor_resources_bridge.c": "153414e54952edd4eee09e247f5fbbd6b03b5b802a99868ea98214c1f4b43b53",
-    "native/bridge/demo_core_bridge.c": "6bf9824be121eab8d197ab5be11abe2f36999d29fe5b89efdf861afc5d06891f",
+    "native/bridge/demo_core_bridge.c": "c96a14bea3108105130c6a99a6da021625fa180fe25b7473ab0c6116a92bb899",
     "native/bridge/level_projection.h": "d463ba8829671479c3349435080eb7f16ae48551c7a7b0464d27dbc88257df83",
     "native/bridge/level_view_bridge.c": "0be946adae9146d92cd2b0447c6d0edbc83c11eb6ec5cad09468791a60609ebe",
     "native/demo_core.c": "028b9eaa6671c8219d69ad4f34d1fe5569b1ee69d4c4c3cb13f49c24616a4646",
@@ -1676,6 +1676,19 @@
       "results": "PASS: complete15-stage world gate,11/11 controls, unchanged default bridge bodies and pure algorithms, projector/census, both hosts21/21 and levels81+7+8; supervisor gate PASS. See build/workers/cut-5g/REPORT.md.",
       "inputs": [
         "native/bridge/actor_render_bridge.c"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut6A native session/demo scratch ownership and native synchronous frame driver; relock only changed direct source inputs or actual dependency contracts, with no note/lock-only cascade.",
+      "commands": [
+        "python verif/world_gate.py session_world --jobs 3 --out build/workers/cut-6a/gate",
+        "python verif/world_gate.py session_world --finalize --locks --out build/workers/cut-6a/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-6a/sgate"
+      ],
+      "results": "PASS: complete cut6A world gate; byte router/CBMC,144 matching API comparisons per profile (composed142 native plus2 explicitly inventoried existing empty-vector compatibility executions),16/16 controls, native driver failure prefixes, literal loader/demo witnesses, projector/census, both hosts21/21 and81+7+8 levels both variants. Separate supervisor receipt: build/workers/cut-6a/sgate/receipt.json.",
+      "inputs": [
+        "native/bridge/demo_core_bridge.c"
       ]
     }
   ]

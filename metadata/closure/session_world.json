@@ -1,0 +1,421 @@
+{
+  "component": "session_world",
+  "status": "migrated",
+  "original": {
+    "owned": [],
+    "composes": [
+      "session",
+      "demo_core",
+      "demo_presentation",
+      "coordinate_scale",
+      "run_world",
+      "player_world",
+      "platform_world",
+      "actor_world",
+      "enemy_world",
+      "item_world",
+      "presentation_world",
+      "front_end_world"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/session_world.h",
+      "native/session_world.c",
+      "native/bridge/session_world_bridge.h",
+      "native/bridge/session_world_bridge.c",
+      "native/bridge/sessionstate_borrow.h"
+    ],
+    "functions": [
+      "native_session_world",
+      "session_world_run"
+    ],
+    "bridge": "Native synchronous frame orchestration with live borrowers; ABI and diagnostic guard stay in verification binding"
+  },
+  "purpose": "Cut6A: retained arithmetic/demo words and native invocation continuations; no duplicate persistent world snapshots",
+  "interface": {
+    "inputs": "Cold fixture once; ephemeral live observations and synchronous service replies",
+    "outputs": "Four observation bytes from native owner; exact service failure prefix"
+  },
+  "callers": [
+    "Session entry, loader scaler, encompassing display reset, demo runner/wrappers and generic byte windows"
+  ],
+  "callees": [
+    "run_world",
+    "player_world",
+    "platform_world",
+    "actor_world",
+    "enemy_world",
+    "item_world",
+    "presentation_world",
+    "front_end_world",
+    "Accepted resources, input, timing, audio and display services"
+  ],
+  "indirect": [
+    "Raw descriptor and callback words remain compatibility data; no new code-address registry"
+  ],
+  "memory": {
+    "bytes": 4,
+    "native_bytes_before": 12430,
+    "native_bytes_after": 12434,
+    "region": "DGROUP:2648..264B",
+    "fields": [
+      "CoordinateScaleScratch",
+      "DemoExitCode"
+    ],
+    "observation": "Single cold import, A5 sealed lanes, separate observation-only serialization; no writeback",
+    "continuations": "SessionProcess, SessionLoadRecord, SessionPassword and SessionDisplayProcess are invocation locals. NativeDemoContinuation is nested per wrapper/run invocation. No extra historical allocations."
+  },
+  "assumptions": [
+    "Accepted deterministic verification profile and compatibility domains unchanged",
+    "Synchronous services; fresh live state after every callback; no parent aggregate store"
+  ],
+  "eliminated": [
+    "RAM ownership of four retained session/demo scratch bytes",
+    "Frame driver lifetime in ABI shell for composed profile"
+  ],
+  "retained": [
+    "Original frame order and PlayerCount equality movement loop",
+    "Byte lives decrement and wrapping level word",
+    "Both players seeded; descending record copy and live Triopterus repeat operand",
+    "193 rain respawns followed by 577 advances",
+    "HUD byte/score seed arithmetic and all demo attract/pre-game/completion/reveal flows",
+    "Pause release/make/break service delivery without simulation/frame advance",
+    "Per-level guard only in verification binding; nonzero service replies stop at the original prefix"
+  ],
+  "evidence": [
+    {
+      "property": "State seam and sequencing",
+      "level": "C",
+      "method": "Actual-C symbolic byte read/store output/frame/dependence; exhaustive router; independent synchronous-driver and literal loader/demo comparators; independent L1/native API replay",
+      "command": "python verif/world_gate.py session_world --jobs 3 --out build/workers/cut-6a/gate",
+      "result": "PASS: 4 owned lanes, 144 comparisons per API profile with no rejections; composed142 native cases and2 explicitly enumerated existing empty-vector initializer compatibility executions, 8 driver flows and 2180 failure prefixes, 160 overlapping copies, exact193/577 rain startup and all16 locally detected defects",
+      "date": "2026-11-15"
+    }
+  ],
+  "amiga": {
+    "classification": "not-used",
+    "finding": "Accepted DOS contracts only"
+  },
+  "uncertainty": [
+    "Production typed descriptor/callback registry and asynchronous port scheduling remain later work",
+    "The synthetic empty demo vector atDGROUP:6000 retains its existing literal InitializeDemoScripts compatibility fallback in both poison variants; never counted as native demo initialization evidence."
+  ],
+  "dependencies": {
+    "native/session_world.h": {
+      "includes": [
+        "demo_presentation.h",
+        "session.h"
+      ],
+      "calls": []
+    },
+    "native/session_world.c": {
+      "includes": [
+        "session_world.h",
+        "stdlib.h"
+      ],
+      "calls": [
+        "abort",
+        "diagnostic",
+        "execute",
+        "observe",
+        "session_acknowledge",
+        "session_begin",
+        "session_complete",
+        "session_next"
+      ]
+    },
+    "native/bridge/session_world_bridge.h": {
+      "includes": [
+        "../session_world.h",
+        "ugh.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/session_world_bridge.c": {
+      "includes": [
+        "front_end_world_bridge.h",
+        "platform.h",
+        "session_world_bridge.h",
+        "stddef.h",
+        "stdio.h",
+        "stdlib.h",
+        "string.h"
+      ],
+      "calls": [
+        "D",
+        "WORD",
+        "exit",
+        "fputs",
+        "frontend_borrowed_byte",
+        "frontend_borrowed_store",
+        "lin",
+        "memcpy",
+        "memset",
+        "native_session_world",
+        "sessionstate_field",
+        "sessionstate_field_get",
+        "sessionstate_field_put",
+        "sessionstate_owned_bytes",
+        "sessionstate_shared_read",
+        "sessionstate_shared_write",
+        "ugh_read",
+        "ugh_write"
+      ]
+    },
+    "native/bridge/sessionstate_borrow.h": {
+      "includes": [
+        "session_world_bridge.h"
+      ],
+      "calls": []
+    }
+  },
+  "verification_inputs": {
+    "native/session_world.h": "da81436bac0ff494a4273a2b68b72e47fd8a8992b1316ef004a32aeed4c67de9",
+    "native/session_world.c": "85d5556d80a7824c4cd7ed3b188e86907529b8f1db8f697e836915c55646ff6a",
+    "native/bridge/session_world_bridge.h": "7f9bc26221bc451f057eca5513e24460bc7d9b4d69f70a9f70dab406effadc37",
+    "native/bridge/session_world_bridge.c": "4615bd32945aa39cfe5276f5d91bf9291d3171745833a986a97ae59b720397b9",
+    "native/bridge/sessionstate_borrow.h": "73513db358cc03a9833ee76c84744a2c5b4756b8fbcbb76fbc049e8041fd7aed",
+    "verif/session_world_cases.py": "b3738e167be28c01daee3e03b1eb99dd1836c1f18c2d7aad0465b585ce68164f",
+    "verif/session_world_router.c": "92c538b0a3f39b2460a45e7534cafd5df29b6529bbc4295f856b8204166812b9",
+    "verif/session_world_byte_proof.c": "7e41c2d92162bfb4b0482ef331f37c4174eec00023825e2a7dcaae5fe1244cff",
+    "verif/session_world_sequence.c": "cfbee062f0682f00487d65a63e29f14097d222408c73c7177333814c86b2e64a",
+    "verif/world_cases/session.py": "bcae55c4c78c353143fddf05f05c2d72873adcaaa8106368ba940726c3a22dbc",
+    "metadata/worlds/session_world.json": "e3937e98f6f7c415fcc0725dcd84797d566ffa988a62f9462d6206c5f05417b8",
+    "docs/standalone-cuts.md": "ae06aa47864cfbf2cefce111370f82678c75f5198fb95620c4c13e0e633b4d2e",
+    "docs/standalone-ledger.md": "624beb95ebaa6f3e585be85d8c96bc9e04612228dc563d12a06f16fc6a437b6a",
+    "docs/world-registry.md": "f73db335eb541972653f923a8dbbfd26583b728d63835f29cd92b70a502314a4",
+    "tools/world_registry.py": "54fdfc61a0509112ab2049af29f7321f56718084637a1fce04b0b89429159b99",
+    "verif/world_gate.py": "2ba63041f75fd9c9c0b368ce40ef6ec1e40bb692bc17940c1dcf06f2b3311763",
+    "verif/world_api.py": "a83bc75b4264a5ed575e8716eba52478a858556dfdba447107dc90e0e982569e",
+    "verif/job_pool.py": "fd3a52cb8cb4dacd758e930a00ead9c5016776817d18d687a59d5399aa46348a",
+    "verif/world_cases/legacy_adapter.py": "9978014371764ca9a123efe557fe62a6b0fef06f0e19a52b944bf72fbb14d677",
+    "verif/session_world_loader.c": "f0a8eb52ed09789d91ffaaf870701f64219967585154c8a36178a2e330743f33",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "tools/hostbuild.py": "bbefb2573d32e1ac7cc2286af2eff27bf03cdd708b3c1e423b66429647487b15",
+    "tools/closure.py": "4fc04bad986fabe519acd6cfb3b360a66bdfb9c13d204a600e65e0c91e605126",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/sequencing_cases.py": "6a92694aa2ed62d7dba4f04fda36d663ae86ee31ed7c7c5ac66fb13c1d13c52d",
+    "verif/sequencing_proof.py": "6719663dc9c4a591cde282a1a712b8782bf22dd1cd77002e0fc2a6c95f7e2ac1",
+    "verif/session_record_proof.py": "343c7dfffcbd4c44185e0099d4dcf2c03fc7bc2d2e31211989f9647118a090a4",
+    "verif/session_loader.py": "4db743f71ea32f8b5c51e51033953a2970ea4c2290a758d1cdbb5177587a4341",
+    "verif/demo_scene_cases.py": "dbdf1d5bd37db8745e642fbac8661da32d7ab59236bc0cd311f5a253b0d0b951",
+    "verif/demo_scene_build.py": "3655f100656fddae12906521e4c6f5e59fe145b49a1269d5a41154aa9ccea0c9",
+    "verif/demo_scene_pieces.py": "4126eab3509a43d19a3819c44f4d600673ec3f043e8cc374f6a7914240a90426",
+    "verif/demo_scene_harness.c": "1dfbc6b1e17e21c052e8edff6c40d52a7df06ef17e151c343fed9bc13be793d7",
+    "verif/demo_scene_shells.py": "86c960ab4239403eb6286c334cedf14bcd0c856881848a7a072580ec7530621e",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "c/render.c": "7620324caaff46b39094d4b8f7077f2a5426a728806e52f1c56a962771208b40",
+    "c/scene.c": "0060ef52ee2cc8b4c98d1b04b6387cd809809a9226f4b4f71c01a75a99d5e460",
+    "c/demo_scripts.c": "a19c7e52bc709a28f9be40bc66b60c6de82df888f8eb725b79f0b9556fe795d7",
+    "native/session.c": "731afa9e3ade606e09a77fce94d6a762a5080554863a31cec183a6c7f4121634",
+    "native/session.h": "843e2fa75fc55024f787804ff00c20505238381d4f02dc891e02d937f1e05d20",
+    "native/demo_presentation.c": "34c6600013690323da87b129cdca749c76f65c78a8d91c7cec3eaa0ca2e799bc",
+    "native/demo_presentation.h": "f48152b51d6321f89d307ca9fdfbf89a69efd77ffa3cfdf47e0b70e8cad2b7b0",
+    "native/bridge/session_bridge.c": "dc657cd3fd640655b033c915fedffaba477d75fe1c1edf1e7943238c3e64be8d",
+    "native/bridge/session_support.h": "7df8b311866e11d391cea33896ab84a1b1bc8373f933fd7661a131f1fb324226",
+    "native/bridge/demo_core_bridge.c": "c96a14bea3108105130c6a99a6da021625fa180fe25b7473ab0c6116a92bb899",
+    "native/bridge/demo_presentation_bridge.c": "8c1e4a6b7ed13078d76207391dbbcb0e942d78c2c68d671e433d6da18607d980",
+    "native/bridge/coordinate_scale_bridge.c": "92b5a782b7e7c640bb4726d978bf0c788dfb40e882c1a4e956ddb06cf4e5d4cc",
+    "verif/cbmc_shim/stddef.h": "03e62ec5f7016e0582b92f016d7e4017b56746e2b216ae8d7fad236ae7e723e7",
+    "verif/cbmc_shim/stdint.h": "ff382e7cc9e8ac2ff6cef94767bb680b49944513ebff33b6d7e548fe12a5d7d0",
+    "verif/cbmc_shim/ugh.h": "d23d5fb7f8d14f5c03944d9cce971d6d21fdf32c28ebac1f2710842cd03d7e72"
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "Pending process-refactor replay",
+      "inputs": [
+        "docs/standalone-cuts.md",
+        "docs/standalone-ledger.md",
+        "docs/world-registry.md",
+        "metadata/worlds/session_world.json",
+        "native/bridge/session_world_bridge.c",
+        "native/bridge/session_world_bridge.h",
+        "native/bridge/sessionstate_borrow.h",
+        "native/session_world.c",
+        "native/session_world.h",
+        "tools/world_registry.py",
+        "verif/job_pool.py",
+        "verif/session_world_byte_proof.c",
+        "verif/session_world_cases.py",
+        "verif/session_world_router.c",
+        "verif/session_world_sequence.c",
+        "verif/world_api.py",
+        "verif/world_cases/legacy_adapter.py",
+        "verif/world_cases/session.py",
+        "verif/world_gate.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "Pending process-refactor replay",
+      "inputs": [
+        "metadata/worlds/session_world.json",
+        "verif/session_world_cases.py",
+        "verif/session_world_loader.c",
+        "verif/session_world_sequence.c",
+        "verif/world_cases/session.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "Pending process-refactor replay",
+      "inputs": [
+        "verif/session_world_cases.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "Pending process-refactor replay",
+      "inputs": [
+        "verif/session_world_cases.py",
+        "verif/world_cases/session.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "Pending process-refactor replay",
+      "inputs": [
+        "verif/session_world_cases.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "Pending process-refactor replay",
+      "inputs": [
+        "c/demo_scripts.c",
+        "c/render.c",
+        "c/scene.c",
+        "c/ugh.h",
+        "c/ugh_sym.h",
+        "metadata/program-model.json",
+        "native/bridge/coordinate_scale_bridge.c",
+        "native/bridge/demo_core_bridge.c",
+        "native/bridge/demo_presentation_bridge.c",
+        "native/bridge/session_bridge.c",
+        "native/bridge/session_support.h",
+        "native/demo_presentation.c",
+        "native/demo_presentation.h",
+        "native/session.c",
+        "native/session.h",
+        "tools/closure.py",
+        "tools/hostbuild.py",
+        "verif/cbmc_shim/stddef.h",
+        "verif/cbmc_shim/stdint.h",
+        "verif/cbmc_shim/ugh.h",
+        "verif/closure_support.py",
+        "verif/demo_scene_build.py",
+        "verif/demo_scene_cases.py",
+        "verif/demo_scene_harness.c",
+        "verif/demo_scene_pieces.py",
+        "verif/demo_scene_shells.py",
+        "verif/sequencing_cases.py",
+        "verif/sequencing_proof.py",
+        "verif/session_loader.py",
+        "verif/session_record_proof.py",
+        "verif/session_world_cases.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut6A initial native allocation/driver certificate and complete world-gate evidence.",
+      "commands": [
+        "python verif/world_gate.py session_world --jobs 3 --out build/workers/cut-6a/gate",
+        "python verif/world_gate.py session_world --finalize --locks --out build/workers/cut-6a/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-6a/sgate"
+      ],
+      "results": "PASS: complete cut6A world gate; byte router/CBMC,144 matching API comparisons per profile (composed142 native plus2 explicitly inventoried existing empty-vector compatibility executions),16/16 controls, native driver failure prefixes, literal loader/demo witnesses, projector/census, both hosts21/21 and81+7+8 levels both variants. Separate supervisor receipt: build/workers/cut-6a/sgate/receipt.json.",
+      "inputs": [
+        "c/demo_scripts.c",
+        "c/render.c",
+        "c/scene.c",
+        "c/ugh.h",
+        "c/ugh_sym.h",
+        "docs/standalone-cuts.md",
+        "docs/standalone-ledger.md",
+        "docs/world-registry.md",
+        "metadata/program-model.json",
+        "metadata/worlds/session_world.json",
+        "native/bridge/coordinate_scale_bridge.c",
+        "native/bridge/demo_core_bridge.c",
+        "native/bridge/demo_presentation_bridge.c",
+        "native/bridge/session_bridge.c",
+        "native/bridge/session_support.h",
+        "native/bridge/session_world_bridge.c",
+        "native/bridge/session_world_bridge.h",
+        "native/bridge/sessionstate_borrow.h",
+        "native/demo_presentation.c",
+        "native/demo_presentation.h",
+        "native/session.c",
+        "native/session.h",
+        "native/session_world.c",
+        "native/session_world.h",
+        "tools/closure.py",
+        "tools/hostbuild.py",
+        "tools/world_registry.py",
+        "verif/cbmc_shim/stddef.h",
+        "verif/cbmc_shim/stdint.h",
+        "verif/cbmc_shim/ugh.h",
+        "verif/closure_support.py",
+        "verif/demo_scene_build.py",
+        "verif/demo_scene_cases.py",
+        "verif/demo_scene_harness.c",
+        "verif/demo_scene_pieces.py",
+        "verif/demo_scene_shells.py",
+        "verif/job_pool.py",
+        "verif/sequencing_cases.py",
+        "verif/sequencing_proof.py",
+        "verif/session_loader.py",
+        "verif/session_record_proof.py",
+        "verif/session_world_byte_proof.c",
+        "verif/session_world_cases.py",
+        "verif/session_world_loader.c",
+        "verif/session_world_router.c",
+        "verif/session_world_sequence.c",
+        "verif/world_api.py",
+        "verif/world_cases/legacy_adapter.py",
+        "verif/world_cases/session.py",
+        "verif/world_gate.py"
+      ]
+    }
+  ]
+}

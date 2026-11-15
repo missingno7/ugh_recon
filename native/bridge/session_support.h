@@ -1,4 +1,9 @@
 #include "platform.h"
+#ifndef SESSIONSTATE_BORROWER
+#define SESSIONSTATE_BORROWER SESSIONSTATE_BORROW_SESSION
+#endif
+#include "sessionstate_borrow.h"
+#include "platform.h"
 #ifndef ITEMSTATE_BORROWER
 #define ITEMSTATE_BORROWER ITEMSTATE_BORROW_SESSION
 #endif
@@ -30,24 +35,24 @@ static uint16_t sq_word(uint16_t native_value,uint16_t literal){sq_require(nativ
 static int sq_bool(int native_value,int literal){sq_require(!!native_value==!!literal);return !!native_value;}
 static SessionWorld sq_world(Regs *r,SessionPhase phase){
     SessionWorld w;
-    w.fade_level=itemstate_read16(r->ds,D(ScreenFadeLevel));w.fade_rate=itemstate_read16(r->ds,D(ScreenFadeStep));w.palette_reply=r->cx;
-    w.player_bytes=itemstate_read16(r->ds,D(PlayerArrayBytes));w.player_count=itemstate_read16(r->ds,D(PlayerCount));
-    w.level=itemstate_read16(r->ds,D(CurrentLevelIndex));w.level_limit=0;
-    if(phase==SP_TEST_LEVEL_LIMIT)w.level_limit=itemstate_read16(r->ds,(uint16_t)(D(LevelCountsByPlayerMode)+(uint16_t)(w.player_bytes-2u)));
-    w.password_reply=r->cx;w.lives=itemstate_read8(r->ds,D(LivesRemaining));w.completion=itemstate_read8(r->ds,D(LevelCompletionMarker));
-    w.rain=itemstate_read8(r->ds,D(LevelRainDirection));w.scan=(uint8_t)r->ax;return w;
+    w.fade_level=sessionstate_read16(r->ds,D(ScreenFadeLevel));w.fade_rate=sessionstate_read16(r->ds,D(ScreenFadeStep));w.palette_reply=r->cx;
+    w.player_bytes=sessionstate_read16(r->ds,D(PlayerArrayBytes));w.player_count=sessionstate_read16(r->ds,D(PlayerCount));
+    w.level=sessionstate_read16(r->ds,D(CurrentLevelIndex));w.level_limit=0;
+    if(phase==SP_TEST_LEVEL_LIMIT)w.level_limit=sessionstate_read16(r->ds,(uint16_t)(D(LevelCountsByPlayerMode)+(uint16_t)(w.player_bytes-2u)));
+    w.password_reply=r->cx;w.lives=sessionstate_read8(r->ds,D(LivesRemaining));w.completion=sessionstate_read8(r->ds,D(LevelCompletionMarker));
+    w.rain=sessionstate_read8(r->ds,D(LevelRainDirection));w.scan=(uint8_t)r->ax;return w;
 }
 typedef struct SessionLayerPlan {SessionRenderResult result;uint16_t index;unsigned stores,requests;} SessionLayerPlan;
 static SessionRenderView sq_layer_view(Regs *r,uint16_t index,int items){
     SessionRenderView v;
-    v.sprite=itemstate_read16(r->ds,(uint16_t)((items?D(FallingItemSprites):D(EnemySpriteIds))+index));
-    v.erase_sprite=itemstate_read16(r->ds,(uint16_t)((items?D(FallingItemEraseSprite):D(EnemyEraseSprite))+index));
-    v.pixel_x=itemstate_read16(r->ds,(uint16_t)((items?D(FallingItemDrawX):D(EnemyDrawX))+index));
-    v.pixel_y=itemstate_read16(r->ds,(uint16_t)((items?D(FallingItemDrawY):D(EnemyDrawY))+index));
-    v.previous_x=itemstate_read16(r->ds,(uint16_t)((items?D(FallingItemPreviousDrawX):D(EnemyPreviousDrawX))+index));
-    v.previous_y=itemstate_read16(r->ds,(uint16_t)((items?D(FallingItemPreviousDrawY):D(EnemyPreviousDrawY))+index));
-    v.position.x32=itemstate_read16(r->ds,(uint16_t)((items?D(FallingItemX):D(EnemyX32))+index));
-    v.position.y32=itemstate_read16(r->ds,(uint16_t)((items?D(FallingItemY):D(EnemyY32))+index));return v;
+    v.sprite=sessionstate_read16(r->ds,(uint16_t)((items?D(FallingItemSprites):D(EnemySpriteIds))+index));
+    v.erase_sprite=sessionstate_read16(r->ds,(uint16_t)((items?D(FallingItemEraseSprite):D(EnemyEraseSprite))+index));
+    v.pixel_x=sessionstate_read16(r->ds,(uint16_t)((items?D(FallingItemDrawX):D(EnemyDrawX))+index));
+    v.pixel_y=sessionstate_read16(r->ds,(uint16_t)((items?D(FallingItemDrawY):D(EnemyDrawY))+index));
+    v.previous_x=sessionstate_read16(r->ds,(uint16_t)((items?D(FallingItemPreviousDrawX):D(EnemyPreviousDrawX))+index));
+    v.previous_y=sessionstate_read16(r->ds,(uint16_t)((items?D(FallingItemPreviousDrawY):D(EnemyPreviousDrawY))+index));
+    v.position.x32=sessionstate_read16(r->ds,(uint16_t)((items?D(FallingItemX):D(EnemyX32))+index));
+    v.position.y32=sessionstate_read16(r->ds,(uint16_t)((items?D(FallingItemY):D(EnemyY32))+index));return v;
 }
 static SessionLayerPlan sq_layer_open(Regs *r,int items,int erase,int enabled){
     SessionLayerPlan p;p.index=r->si;p.stores=p.requests=0;SessionRenderView v=sq_layer_view(r,p.index,items);
@@ -63,7 +68,7 @@ static void sq_layer_store(Regs *r,SessionLayerPlan *p,int items,unsigned field,
         else if(field==3){value=p->result.pixel_x;base=items?D(FallingItemDrawX):D(EnemyDrawX);}
         else {sq_require(field==4);value=p->result.pixel_y;base=items?D(FallingItemDrawY):D(EnemyDrawY);}
     }
-    sq_require(r->si==p->index);itemstate_write16(r->ds,(uint16_t)(base+p->index),sq_word(value,old));p->stores++;
+    sq_require(r->si==p->index);sessionstate_write16(r->ds,(uint16_t)(base+p->index),sq_word(value,old));p->stores++;
 }
 static void sq_layer_request(Regs *r,SessionLayerPlan *p,int restore){
     sq_require(!p->requests && (restore?p->result.restore:p->result.draw));

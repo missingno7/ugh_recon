@@ -55,9 +55,12 @@ typedef struct GSInputOps {
     GSStatus (*buttons)(void *,unsigned,uint16_t *);
     GSStatus (*counts)(void *,uint16_t,uint8_t,GSJoystickCounts *);
     GSStatus (*pump)(void *,GSInputPollCut);
+    /* Optional low-level count provider, in the same discharge units as counts. */
+    GSStatus (*sample)(void *,uint8_t *);
 } GSInputOps;
 
 typedef struct GSRegisterWrite { uint8_t reg,value; } GSRegisterWrite;
+typedef enum GSOplKind { GS_OPL_SELECT,GS_OPL_DATA } GSOplKind;
 typedef enum GSClockDelivery { GS_CLOCK_TIMER, GS_CLOCK_BIOS_CHAIN } GSClockDelivery;
 typedef enum GSCalibrationPhase { GS_CALIBRATION_BEGIN,GS_CALIBRATION_WAIT,GS_CALIBRATION_FINISH } GSCalibrationPhase;
 typedef struct GSCalibrationReply {uint16_t remainder,progress;uint8_t marker;} GSCalibrationReply;
@@ -77,6 +80,8 @@ typedef struct GSAudioOps {
      * external role and low/high counter programming, at their matching cuts. */
     GSStatus (*calibration)(void *,GSCalibrationPhase,GSCalibrationReply *);
     GSStatus (*timer_lifetime)(void *,GSTimerLifetimeRequest,GSBinding *);
+    /* Streaming form retains an unfinished register selection across cuts. */
+    GSStatus (*stream)(void *,GSOplKind,uint8_t);
 } GSAudioOps;
 /* step 7: pending: lifetime calibration/vector prefix must supply these witnesses
  * at its accepted cuts; they are not synthesized from audio sample count. */
@@ -90,6 +95,13 @@ typedef struct GSTimeOps {
     GSStatus (*deliver)(void *,GSEventKind,GSEvent *);
     GSStatus (*suspend)(void *,int);
     GSStatus (*pace)(void *);
+    GSStatus (*pit_command)(void *,uint8_t);
+    GSStatus (*pit_counter)(void *,uint8_t);
+    GSStatus (*interrupt_mask)(void *,uint8_t);
+    GSStatus (*read_interrupt_mask)(void *,uint8_t *);
+    GSStatus (*acknowledge)(void *);
+    /* An explicit opportunity; no game callback. Masked/disabled -> Empty. */
+    GSStatus (*interrupt)(void *,unsigned,uint32_t,int);
 } GSTimeOps;
 
 /* Encoded score bytes are owned/complemented by the engine. A short read never
@@ -115,10 +127,15 @@ typedef enum GSLifecycleAction { GS_LIFECYCLE_START, GS_LIFECYCLE_STOP,
     GS_LIFECYCLE_CPU_QUERY,GS_LIFECYCLE_TERMINAL } GSLifecycleAction;
 typedef enum GSLifecycleBindingRole { GS_BIND_CRITICAL_ERROR_FAIL } GSLifecycleBindingRole;
 typedef struct GSLifecycleRequest { GSLifecycleAction action; uint8_t value; } GSLifecycleRequest;
+typedef struct GSVideoModeReply {uint8_t mode,columns,page;} GSVideoModeReply;
 typedef struct GSLifecycleOps {
     /* step 7: pending: lifecycle prefix/critical-error/external binding adapter. */
     GSStatus (*request)(void *,GSLifecycleRequest,uint8_t *);
     GSStatus (*binding)(void *,GSLifecycleBindingRole,GSVectorOp,GSBinding,GSBinding *); /* step 7: pending */
+    /* Primitive platform replies, separate from pending engine orchestration. */
+    GSStatus (*video_query)(void *,GSVideoModeReply *);
+    GSStatus (*video_set)(void *,uint8_t);
+    GSStatus (*terminate)(void *,uint8_t);
 } GSLifecycleOps;
 typedef struct GameServices {
     void *video_context,*input_context,*audio_context,*time_context;

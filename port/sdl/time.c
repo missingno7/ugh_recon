@@ -30,4 +30,4 @@ static GSStatus pace(void *context) {
     if(target>now)SDL_DelayNS(target-now);
     return GS_OK;
 }
-GSTimeOps gs_time_operations(void){return (GSTimeOps){deliver,suspend,pace};}
+GSTimeOps gs_time_operations(void){return (GSTimeOps){deliver,suspend,pace,NULL,NULL,NULL,NULL,NULL,NULL};}

@@ -5,4 +5,4 @@ static GSStatus request(void *ctx,GSLifecycleRequest action,uint8_t *reply) {
     (void)ctx;(void)action;(void)reply;return GS_UNSUPPORTED;
 }
 static GSStatus binding(void *ctx,GSLifecycleBindingRole role,GSVectorOp op,GSBinding value,GSBinding *reply){(void)ctx;(void)role;(void)op;(void)value;(void)reply;return GS_UNSUPPORTED;}
-GSLifecycleOps gs_lifecycle_operations(void){return (GSLifecycleOps){request,binding};}
+GSLifecycleOps gs_lifecycle_operations(void){return (GSLifecycleOps){request,binding,NULL,NULL,NULL};}

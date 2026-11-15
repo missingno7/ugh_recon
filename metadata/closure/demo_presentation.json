@@ -537,6 +537,7 @@
         "platforms_borrow.h",
         "player_borrow.h",
         "run_borrow.h",
+        "sessionstate_borrow.h",
         "stdlib.h"
       ],
       "calls": [
@@ -570,13 +571,13 @@
         "dp_vector",
         "dp_vector_pointer",
         "dp_width_byte",
-        "enemies_read16",
-        "enemies_write16",
-        "enemies_write8",
         "logic",
         "pop",
         "push",
         "scene_far_call",
+        "sessionstate_read16",
+        "sessionstate_write16",
+        "sessionstate_write8",
         "set_al",
         "step",
         "sub16",
@@ -1609,7 +1610,7 @@
   "verification_inputs": {
     "native/demo_presentation.h": "f48152b51d6321f89d307ca9fdfbf89a69efd77ffa3cfdf47e0b70e8cad2b7b0",
     "native/demo_presentation.c": "34c6600013690323da87b129cdca749c76f65c78a8d91c7cec3eaa0ca2e799bc",
-    "native/bridge/demo_presentation_bridge.c": "f3a215e862a05e7ebd09c47bb6e3c81bba49946f5de5627888a47ea648ee2f71",
+    "native/bridge/demo_presentation_bridge.c": "8c1e4a6b7ed13078d76207391dbbcb0e942d78c2c68d671e433d6da18607d980",
     "verif/demo_scene_baseline.py": "c224bfc3844ea877402896166d5fcf8f398512c7ed748322f9259a4bbb35540a",
     "verif/demo_scene_bound.py": "5de9807938399ad784ec668901ab3fa19c52e56734122641e3319f865af4f8bb",
     "verif/demo_scene_build.py": "3655f100656fddae12906521e4c6f5e59fe145b49a1269d5a41154aa9ccea0c9",
@@ -1711,7 +1712,7 @@
     "tests/scene.py": "1eb8b5d2a3fb51b9eaa123d3f5d9efe2637ef131f333f696b71dc1f3a9069a81",
     "metadata/closure/actor_types.json": "contract-v1:8529882e9e5f0240914d00c0eeb8f478b9f64b2d3e9f5a46a25b3575e39e5e3a",
     "metadata/closure/actor_render.json": "contract-v1:ed574ffbc651093186b8b3030d74b6a992a1b4accb591d9497ca12eed1fa02b4",
-    "metadata/closure/demo_core.json": "contract-v1:9ec54b6372cb835168ecb7befd3bd843ef94817626855f20e949ac9251c121de",
+    "metadata/closure/demo_core.json": "contract-v1:abbdcd84833c3657575e6ff5b617cef35d086957d2a695f5ac64899085013992",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
     "native/actors.h": "b1c7653a6e566c7f0e3e18ad38fc3f63726d01b78a6fa6843df017d2d155a42c",
     "native/actor_render.c": "f14a0f219a8a9a056a975ad38d74527512bc48634e0b388bd7aa929d846fd110",
@@ -1719,7 +1720,7 @@
     "native/bridge/actor_render_bridge.c": "fb5336186ea4b0e2016a6e7a9fb8ea79aa6ba391a23cc51b37aed4b4f798cf4e",
     "native/demo_core.c": "028b9eaa6671c8219d69ad4f34d1fe5569b1ee69d4c4c3cb13f49c24616a4646",
     "native/demo_core.h": "18d2dd79899671992f6e1f6e2fa2bce933e9eb56c1033a0e60229b7de23f38d6",
-    "native/bridge/demo_core_bridge.c": "6bf9824be121eab8d197ab5be11abe2f36999d29fe5b89efdf861afc5d06891f",
+    "native/bridge/demo_core_bridge.c": "c96a14bea3108105130c6a99a6da021625fa180fe25b7473ab0c6116a92bb899",
     "native/bridge/actor_resources_bridge.c": "153414e54952edd4eee09e247f5fbbd6b03b5b802a99868ea98214c1f4b43b53",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
@@ -2060,6 +2061,21 @@
       "inputs": [
         "metadata/closure/actor_render.json",
         "native/bridge/actor_render_bridge.c"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut6A native session/demo scratch ownership and native synchronous frame driver; relock only changed direct source inputs or actual dependency contracts, with no note/lock-only cascade.",
+      "commands": [
+        "python verif/world_gate.py session_world --jobs 3 --out build/workers/cut-6a/gate",
+        "python verif/world_gate.py session_world --finalize --locks --out build/workers/cut-6a/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-6a/sgate"
+      ],
+      "results": "PASS: complete cut6A world gate; byte router/CBMC,144 matching API comparisons per profile (composed142 native plus2 explicitly inventoried existing empty-vector compatibility executions),16/16 controls, native driver failure prefixes, literal loader/demo witnesses, projector/census, both hosts21/21 and81+7+8 levels both variants. Separate supervisor receipt: build/workers/cut-6a/sgate/receipt.json.",
+      "inputs": [
+        "metadata/closure/demo_core.json",
+        "native/bridge/demo_core_bridge.c",
+        "native/bridge/demo_presentation_bridge.c"
       ]
     }
   ]

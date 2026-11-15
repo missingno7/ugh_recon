@@ -190,6 +190,8 @@
     "native/bridge/coordinate_scale_bridge.c": {
       "includes": [
         "../coordinate_scale.h",
+        "platform.h",
+        "sessionstate_borrow.h",
         "ugh.h"
       ],
       "calls": [
@@ -197,8 +199,8 @@
         "add16",
         "scale_level_speed",
         "scale_level_y",
-        "sub16",
-        "wr16"
+        "sessionstate_write16",
+        "sub16"
       ]
     }
   },
@@ -206,7 +208,7 @@
   "verification_inputs": {
     "native/coordinate_scale.c": "7bf708b14dc66fdace02a69b7a1b993b37c2535934a71dc0e5d9d397a5903118",
     "native/coordinate_scale.h": "e7022a067efeba307f7658b3726f196f20647f9fdd175c9b85b08a5d033a4202",
-    "native/bridge/coordinate_scale_bridge.c": "601bd9cd7cc5ebb8875f076787fa7392d1085fa163dce431887dbbf2e18660e8",
+    "native/bridge/coordinate_scale_bridge.c": "92b5a782b7e7c640bb4726d978bf0c788dfb40e882c1a4e956ddb06cf4e5d4cc",
     "c/render_primitives.c": "447a9f435f22cc46c9c30d8d11ee9046d57d57c48d6bbaa2e91768e32f9698c0",
     "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
     "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
@@ -224,6 +226,19 @@
       "date": "2026-11-13",
       "reason": "symbol renames (architecture naming proposal) changed c/ugh_sym.h, metadata/verif-tools.json",
       "result": "all evidence commands re-run, all passed; certificate reviewed by supervisor"
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut6A native session/demo scratch ownership and native synchronous frame driver; relock only changed direct source inputs or actual dependency contracts, with no note/lock-only cascade.",
+      "commands": [
+        "python verif/world_gate.py session_world --jobs 3 --out build/workers/cut-6a/gate",
+        "python verif/world_gate.py session_world --finalize --locks --out build/workers/cut-6a/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-6a/sgate"
+      ],
+      "results": "PASS: complete cut6A world gate; byte router/CBMC,144 matching API comparisons per profile (composed142 native plus2 explicitly inventoried existing empty-vector compatibility executions),16/16 controls, native driver failure prefixes, literal loader/demo witnesses, projector/census, both hosts21/21 and81+7+8 levels both variants. Separate supervisor receipt: build/workers/cut-6a/sgate/receipt.json.",
+      "inputs": [
+        "native/bridge/coordinate_scale_bridge.c"
+      ]
     }
   ]
 }

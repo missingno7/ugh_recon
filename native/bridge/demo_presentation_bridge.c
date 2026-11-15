@@ -1,4 +1,9 @@
 #include "platform.h"
+#ifndef SESSIONSTATE_BORROWER
+#define SESSIONSTATE_BORROWER SESSIONSTATE_BORROW_DEMO
+#endif
+#include "sessionstate_borrow.h"
+#include "platform.h"
 #ifndef ENEMIES_BORROWER
 #define ENEMIES_BORROWER ENEMIES_BORROW_DEMO
 #endif
@@ -28,12 +33,16 @@
 #include "../demo_presentation.h"
 #include <stdlib.h>
 
+#ifdef UGH_NATIVE_SESSION
+typedef NativeDemoContinuation DemoScenePlan;
+#else
 typedef struct DemoScenePlan {
     DemoPresentationCursor cursor;
     DemoPresentationInput observed;
     DemoPresentationAction pending_action;
     int active,pending,completed;
 } DemoScenePlan;
+#endif
 static void dp_require(int condition) {if(!condition) abort();}
 static int dp_environment(const Regs *r) {return r->ds==DATA_SEG && r->cs==GAME_SEG;}
 static void dp_open(Regs *r,DemoScenePlan *plan,DemoPresentationKind kind) {
@@ -41,8 +50,8 @@ static void dp_open(Regs *r,DemoScenePlan *plan,DemoPresentationKind kind) {
 }
 static DemoPresentationInput dp_input(Regs *r,const DemoScenePlan *plan) {
     DemoPresentationInput input=plan->observed;
-    input.fade_level=enemies_read16(r->ds,D(ScreenFadeLevel));input.fade_step=enemies_read16(r->ds,D(ScreenFadeStep));
-    input.exit_code=enemies_read16(r->ds,D(DemoExitCode));input.water_y=enemies_read16(r->ds,D(WaterYPixels));return input;
+    input.fade_level=sessionstate_read16(r->ds,D(ScreenFadeLevel));input.fade_step=sessionstate_read16(r->ds,D(ScreenFadeStep));
+    input.exit_code=sessionstate_read16(r->ds,D(DemoExitCode));input.water_y=sessionstate_read16(r->ds,D(WaterYPixels));return input;
 }
 static DemoPresentationAction dp_event(Regs *r,DemoScenePlan *plan,DemoPresentationActionKind kind) {
     dp_require(!plan->pending && !plan->completed && dp_environment(r));
@@ -91,10 +100,10 @@ static void dp_resume(Regs *r,DemoScenePlan *plan) {
     plan->pending=0;
 }
 static void dp_write(Regs *r,DemoScenePlan *plan,uint16_t address,uint16_t expected) {
-    if(!plan->active) {enemies_write16(r->ds,address,expected);return;}
+    if(!plan->active) {sessionstate_write16(r->ds,address,expected);return;}
     DemoPresentationActionKind kind=address==D(DemoExitCode)?DP_ACTION_EXIT:address==D(ScreenFadeLevel)?DP_ACTION_LEVEL:address==D(ScreenFadeStep)?DP_ACTION_STEP:DP_ACTION_REVEAL_X;
     dp_require(address==D(DemoExitCode) || address==D(ScreenFadeLevel) || address==D(ScreenFadeStep) || address==D(ActorX32));
-    DemoPresentationAction action=dp_event(r,plan,kind);dp_require(action.value==expected);enemies_write16(r->ds,address,action.value);
+    DemoPresentationAction action=dp_event(r,plan,kind);dp_require(action.value==expected);sessionstate_write16(r->ds,address,action.value);
 }
 static uint16_t dp_vector_pointer(uint16_t vector) {
     switch(vector) {
@@ -116,7 +125,7 @@ static uint16_t dp_music_value(Regs *r,DemoScenePlan *plan,DemoPresentationServi
 static void dp_finish(Regs *r,DemoScenePlan *plan) {
     if(!plan->active) return;
     DemoPresentationAction action=dp_event(r,plan,DP_ACTION_DONE);
-    dp_require(action.value==(plan->cursor.kind==DEMO_PRESENT_RUN?enemies_read16(r->ds,D(DemoExitCode)):0));
+    dp_require(action.value==(plan->cursor.kind==DEMO_PRESENT_RUN?sessionstate_read16(r->ds,D(DemoExitCode)):0));
     dp_require(plan->cursor.phase==DP_TERMINAL);plan->completed=1;
 }
 static void dp_repeat(Regs *r,DemoScenePlan *plan) {
@@ -133,28 +142,28 @@ typedef struct DemoEffectPlan {DemoFadeEffect fade;DemoRevealWidth width;int act
 static DemoEffectPlan dp_effect(Regs *r,int width) {
     DemoEffectPlan plan={0};plan.active=dp_environment(r) && !(r->bx&1u) && r->bx<32;
     if(!plan.active) return plan;
-    if(width) plan.width=demo_presentation_width(enemies_read16(r->ds,(uint16_t)(D(ActorX32)+r->bx)));
-    else plan.fade=demo_presentation_fade(enemies_read16(r->ds,(uint16_t)(D(ActorSpriteIds)+r->bx)),enemies_read16(r->ds,D(ScreenFadeLevel)));
+    if(width) plan.width=demo_presentation_width(sessionstate_read16(r->ds,(uint16_t)(D(ActorX32)+r->bx)));
+    else plan.fade=demo_presentation_fade(sessionstate_read16(r->ds,(uint16_t)(D(ActorSpriteIds)+r->bx)),sessionstate_read16(r->ds,D(ScreenFadeLevel)));
     return plan;
 }
 static void dp_effect_write(Regs *r,DemoEffectPlan *plan,uint16_t address,uint16_t expected) {
-    if(!plan->active) {enemies_write16(r->ds,address,expected);return;}
+    if(!plan->active) {sessionstate_write16(r->ds,address,expected);return;}
     dp_require(plan->fade.triggered);uint16_t value=address==D(ScreenFadeStep)?plan->fade.fade_step:plan->fade.level;
-    dp_require((address==D(ScreenFadeStep) || address==D(ScreenFadeLevel)) && value==expected);enemies_write16(r->ds,address,value);
+    dp_require((address==D(ScreenFadeStep) || address==D(ScreenFadeLevel)) && value==expected);sessionstate_write16(r->ds,address,value);
 }
 static uint8_t dp_width_byte(Regs *r,DemoEffectPlan *plan) {
     if(!plan->active) return (uint8_t)r->ax;
     dp_require(plan->width.pixel_x==r->cx && plan->width.width_word==r->ax && plan->width.width==(uint8_t)r->ax);return plan->width.width;
 }
 
-#define R(n) enemies_read16(r->ds,D(n))
+#define R(n) sessionstate_read16(r->ds,D(n))
 #define W(n,v) dp_write(r,&plan,D(n),(uint16_t)(v))
 #define CALL(n,ret) do {dp_before(r,&plan,G(n));int status=ugh_call_near(G(n),ret,r);dp_resume(r,&plan);if(status) return status;} while(0)
 
 /* BEGIN CHECKED DEMO SHELLS */
-static void push(Regs *r,uint16_t v) { r->sp=(uint16_t)(r->sp-2); enemies_write16(r->ss,r->sp,v); }
+static void push(Regs *r,uint16_t v) { r->sp=(uint16_t)(r->sp-2); sessionstate_write16(r->ss,r->sp,v); }
 
-static uint16_t pop(Regs *r) { uint16_t v=enemies_read16(r->ss,r->sp); r->sp=(uint16_t)(r->sp+2); return v; }
+static uint16_t pop(Regs *r) { uint16_t v=sessionstate_read16(r->ss,r->sp); r->sp=(uint16_t)(r->sp+2); return v; }
 
 static int scene_far_call(Regs *r,DemoScenePlan *plan,uint16_t seg,uint16_t off,uint16_t ret) {
     if(plan->active) dp_require(plan->pending && (plan->pending_action.service==DP_SERVICE_MUSIC_STOP || plan->pending_action.service==DP_SERVICE_MUSIC_START));
@@ -230,27 +239,27 @@ EXPORT int c_PlayGameCompletionDemo(Regs *r) { DemoScenePlan plan;dp_open(r,&pla
 }
 
 EXPORT int c_StartDemoFadeWhenSpriteHidden(Regs *r) { DemoEffectPlan plan=dp_effect(r,0);
-    uint16_t sprite=enemies_read16(r->ds,(uint16_t)(D(ActorSpriteIds)+r->bx));
+    uint16_t sprite=sessionstate_read16(r->ds,(uint16_t)(D(ActorSpriteIds)+r->bx));
     sub16(r,sprite,0x7fff,0);
     if(plan.active) dp_require(plan.fade.triggered==(sprite==0x7fff));
     if(sprite==0x7fff) {
         r->ax=0xfffc;
         dp_effect_write(r,&plan,D(ScreenFadeStep),r->ax);
         dp_effect_write(r,&plan,D(ScreenFadeLevel),
-             add16(r,enemies_read16(r->ds,D(ScreenFadeLevel)),r->ax,0));
+             add16(r,sessionstate_read16(r->ds,D(ScreenFadeLevel)),r->ax,0));
     }
     return UGH_OK;
 }
 
 EXPORT int c_SetDemoRevealSpriteWidth(Regs *r) { DemoEffectPlan plan=dp_effect(r,1);
-    uint16_t x=enemies_read16(r->ds,(uint16_t)(D(ActorX32)+r->bx));
+    uint16_t x=sessionstate_read16(r->ds,(uint16_t)(D(ActorX32)+r->bx));
     r->cx=(uint16_t)((x>>5) | ((x&0x8000) ? 0xf800u : 0));
     r->ax=sub16(r,320,r->cx,0);
     sub16(r,r->ax,127,0);
     if((int16_t)r->ax>127) set_al(r,127);
-    r->di=enemies_read16(r->cs,G(DemoRevealWidthPointer));
-    r->es=enemies_read16(r->cs,(uint16_t)(G(DemoRevealWidthPointer)+2));
-    enemies_write8(r->es,r->di,dp_width_byte(r,&plan));
+    r->di=sessionstate_read16(r->cs,G(DemoRevealWidthPointer));
+    r->es=sessionstate_read16(r->cs,(uint16_t)(G(DemoRevealWidthPointer)+2));
+    sessionstate_write8(r->es,r->di,dp_width_byte(r,&plan));
     r->di=(uint16_t)(r->di+step(r));
     return UGH_OK;
 }

@@ -234,6 +234,10 @@
       "source": "metadata/closure/session.json",
       "semantic_sha256": "d2e905c97a1d4a5e058d5a613ce660cbc6dbbf8c312d0470b6495d4073a5c83b"
     },
+    "session_world": {
+      "source": "metadata/closure/session_world.json",
+      "semantic_sha256": "b1ac53c173cb235ffc31136e11d01c209d4ea6602c7bc58a882cc5d720dcd767"
+    },
     "stones": {
       "source": "metadata/closure/stones.json",
       "semantic_sha256": "bcd86b767229ec7e9059b561d0f7a54171378d57027e73874c17671845647879"
@@ -109586,6 +109590,76 @@
       "resource_scope": "Exact model reader/writer links to stable pack IDs; not an exhaustive indirect resource allowlist. Registry tokens below plus the certificate's list/descriptor contract constrain indirect resources.",
       "typed_vocabulary": [
         {
+          "type": "DemoPresentationActionKind",
+          "declarations": [
+            "DP_ACTION_SERVICE",
+            "DP_ACTION_EXIT",
+            "DP_ACTION_LEVEL",
+            "DP_ACTION_STEP",
+            "DP_ACTION_VECTOR",
+            "DP_ACTION_REVEAL_X",
+            "DP_ACTION_DONE",
+            "DP_ACTION_REPEAT",
+            "DP_ACTION_INVALID"
+          ],
+          "source": {
+            "path": "native/demo_presentation.h"
+          },
+          "scope": "Declared typed vocabulary; not permission to invoke every role or enum value from arbitrary state."
+        },
+        {
+          "type": "DemoPresentationKind",
+          "declarations": [
+            "DEMO_PRESENT_RUN",
+            "DEMO_PRESENT_REVEAL",
+            "DEMO_PRESENT_PREGAME",
+            "DEMO_PRESENT_ATTRACT",
+            "DEMO_PRESENT_COMPLETION"
+          ],
+          "source": {
+            "path": "native/demo_presentation.h"
+          },
+          "scope": "Declared typed vocabulary; not permission to invoke every role or enum value from arbitrary state."
+        },
+        {
+          "type": "DemoPresentationPhase",
+          "declarations": [
+            "DP_INITIALIZE",
+            "DP_CLEAR_EXIT",
+            "DP_CLEAR_LEVEL",
+            "DP_CLEAR_STEP",
+            "DP_INITIAL_POLL",
+            "DP_LOOP",
+            "DP_PALETTE_AFTER",
+            "DP_ERASE",
+            "DP_WATER",
+            "DP_ADVANCE",
+            "DP_DRAW",
+            "DP_SWAP",
+            "DP_TEST",
+            "DP_TEST_AFTER",
+            "DP_JOYSTICK_AFTER",
+            "DP_KEYBOARD_AFTER",
+            "DP_FADE_CHECK",
+            "DP_FADE_LEVEL",
+            "DP_REPEAT",
+            "DP_PREPARE",
+            "DP_MUSIC_STOP",
+            "DP_MUSIC_START",
+            "DP_VECTOR",
+            "DP_RUN",
+            "DP_REVEAL_X",
+            "DP_REVEAL_WIDTH",
+            "DP_WRAPPER_DONE",
+            "DP_TERMINAL",
+            "DEMO_PRESENT_PHASE_COUNT"
+          ],
+          "source": {
+            "path": "native/demo_presentation.h"
+          },
+          "scope": "Declared typed vocabulary; not permission to invoke every role or enum value from arbitrary state."
+        },
+        {
           "type": "SessionPhase",
           "declarations": [
             "SP_PASSWORD",
@@ -109682,6 +109756,216 @@
         "unit_constraints": [
           "Ordinary disjoint resources and stack; original callbacks/services synchronous. Full raw arithmetic is retained without positivity or initialized-history assumptions.",
           "Formal profiles state fixed-slot, typed/disjoint resource normalizations. Whole-emulated RAM/device/ABI, arbitrary resource aliasing, pixel execution, interrupt timing and entire session termination are composition evidence, not an unrestricted theorem."
+        ]
+      },
+      "interpretation": "Conjunction of this contract, registered identities, the shipped entry graph and explicit exclusions. Migrated does not mean arbitrary ABI states are admitted. Vocabulary enum members do not independently grant entry permission."
+    },
+    {
+      "unit": "session_world",
+      "source": {
+        "path": "metadata/closure/session_world.json"
+      },
+      "certificate_status": "migrated",
+      "contract": {
+        "interface": {
+          "inputs": "Cold fixture once; ephemeral live observations and synchronous service replies",
+          "outputs": "Four observation bytes from native owner; exact service failure prefix"
+        },
+        "assumptions": [
+          "Accepted deterministic verification profile and compatibility domains unchanged",
+          "Synchronous services; fresh live state after every callback; no parent aggregate store"
+        ],
+        "indirect": [
+          "Raw descriptor and callback words remain compatibility data; no new code-address registry"
+        ]
+      },
+      "entry_roles": {
+        "owned": [],
+        "composes": [
+          "session",
+          "demo_core",
+          "demo_presentation",
+          "coordinate_scale",
+          "run_world",
+          "player_world",
+          "platform_world",
+          "actor_world",
+          "enemy_world",
+          "item_world",
+          "presentation_world",
+          "front_end_world"
+        ]
+      },
+      "production_entry": "internal shipped caller roles only, never arbitrary ABI entry",
+      "resource_tokens": [],
+      "indirect_resource_groups": [],
+      "resource_scope": "Exact model reader/writer links to stable pack IDs; not an exhaustive indirect resource allowlist. Registry tokens below plus the certificate's list/descriptor contract constrain indirect resources.",
+      "typed_vocabulary": [
+        {
+          "type": "DemoPresentationActionKind",
+          "declarations": [
+            "DP_ACTION_SERVICE",
+            "DP_ACTION_EXIT",
+            "DP_ACTION_LEVEL",
+            "DP_ACTION_STEP",
+            "DP_ACTION_VECTOR",
+            "DP_ACTION_REVEAL_X",
+            "DP_ACTION_DONE",
+            "DP_ACTION_REPEAT",
+            "DP_ACTION_INVALID"
+          ],
+          "source": {
+            "path": "native/demo_presentation.h"
+          },
+          "scope": "Declared typed vocabulary; not permission to invoke every role or enum value from arbitrary state."
+        },
+        {
+          "type": "DemoPresentationKind",
+          "declarations": [
+            "DEMO_PRESENT_RUN",
+            "DEMO_PRESENT_REVEAL",
+            "DEMO_PRESENT_PREGAME",
+            "DEMO_PRESENT_ATTRACT",
+            "DEMO_PRESENT_COMPLETION"
+          ],
+          "source": {
+            "path": "native/demo_presentation.h"
+          },
+          "scope": "Declared typed vocabulary; not permission to invoke every role or enum value from arbitrary state."
+        },
+        {
+          "type": "DemoPresentationPhase",
+          "declarations": [
+            "DP_INITIALIZE",
+            "DP_CLEAR_EXIT",
+            "DP_CLEAR_LEVEL",
+            "DP_CLEAR_STEP",
+            "DP_INITIAL_POLL",
+            "DP_LOOP",
+            "DP_PALETTE_AFTER",
+            "DP_ERASE",
+            "DP_WATER",
+            "DP_ADVANCE",
+            "DP_DRAW",
+            "DP_SWAP",
+            "DP_TEST",
+            "DP_TEST_AFTER",
+            "DP_JOYSTICK_AFTER",
+            "DP_KEYBOARD_AFTER",
+            "DP_FADE_CHECK",
+            "DP_FADE_LEVEL",
+            "DP_REPEAT",
+            "DP_PREPARE",
+            "DP_MUSIC_STOP",
+            "DP_MUSIC_START",
+            "DP_VECTOR",
+            "DP_RUN",
+            "DP_REVEAL_X",
+            "DP_REVEAL_WIDTH",
+            "DP_WRAPPER_DONE",
+            "DP_TERMINAL",
+            "DEMO_PRESENT_PHASE_COUNT"
+          ],
+          "source": {
+            "path": "native/demo_presentation.h"
+          },
+          "scope": "Declared typed vocabulary; not permission to invoke every role or enum value from arbitrary state."
+        },
+        {
+          "type": "SessionPhase",
+          "declarations": [
+            "SP_PASSWORD",
+            "SP_SELECT_LEVEL",
+            "SP_PREGAME",
+            "SP_STOP_INITIAL_MUSIC",
+            "SP_RESET_GAME",
+            "SP_BLACK_PALETTE",
+            "SP_INITIALIZE_LEVEL",
+            "SP_START_MUSIC",
+            "SP_FRAME_BEGIN",
+            "SP_FADE_ADVANCE",
+            "SP_HUD",
+            "SP_ERASE_PLAYER_BEGIN",
+            "SP_ERASE_PLAYER",
+            "SP_ERASE_PLAYER_NEXT",
+            "SP_ERASE_ACTORS",
+            "SP_ERASE_ENEMIES",
+            "SP_ERASE_ITEMS",
+            "SP_RESTORE_RAIN",
+            "SP_ADVANCE_WATER",
+            "SP_IO_POINT",
+            "SP_POLL_CONTROLS",
+            "SP_PAUSE_RELEASE",
+            "SP_PAUSE_MAKE",
+            "SP_PAUSE_BREAK",
+            "SP_ESCAPE",
+            "SP_MOVE_BEGIN",
+            "SP_MOVE_PLAYER",
+            "SP_MOVE_NEXT",
+            "SP_UPDATE_ACTORS",
+            "SP_UPDATE_ENEMIES",
+            "SP_UPDATE_ITEMS",
+            "SP_DRAW_ACTORS",
+            "SP_DRAW_ENEMIES_BACK",
+            "SP_DRAW_PLAYER_BEGIN",
+            "SP_DRAW_PLAYER",
+            "SP_DRAW_PLAYER_NEXT",
+            "SP_DRAW_ENEMIES_FRONT",
+            "SP_DRAW_ITEMS",
+            "SP_DRAW_OVERLAYS",
+            "SP_ADVANCE_RAIN",
+            "SP_DRAW_RAIN",
+            "SP_DRAW_WATER",
+            "SP_SWAP_PAGE",
+            "SP_STOP_LEVEL_MUSIC",
+            "SP_OUTCOME",
+            "SP_DECREMENT_LIVES",
+            "SP_RESET_MULTIPLIER",
+            "SP_INCREMENT_LEVEL",
+            "SP_TEST_LEVEL_LIMIT",
+            "SP_RETURN",
+            "SP_DONE"
+          ],
+          "source": {
+            "path": "native/session.h"
+          },
+          "scope": "Declared typed vocabulary; not permission to invoke every role or enum value from arbitrary state."
+        }
+      ],
+      "callback_roles": [],
+      "error_replies": {
+        "declared_status_types": [
+          {
+            "type": "SessionPasswordResult",
+            "declarations": [
+              "PASSWORD_MORE",
+              "PASSWORD_END",
+              "PASSWORD_DEFAULT"
+            ],
+            "source": {
+              "path": "native/session.h"
+            },
+            "scope": "Declared typed vocabulary; not permission to invoke every role or enum value from arbitrary state."
+          }
+        ],
+        "contract_outputs": "Four observation bytes from native owner; exact service failure prefix",
+        "production_admission_failure": "Unsupported at the edge's prefix; ordinary documented game errors retain their own result and partial effects."
+      },
+      "modes": {
+        "production_audio": [
+          "none",
+          "adlib"
+        ],
+        "players": [
+          1,
+          2
+        ],
+        "source": {
+          "path": "docs/port-contract.md"
+        },
+        "unit_constraints": [
+          "Accepted deterministic verification profile and compatibility domains unchanged",
+          "Synchronous services; fresh live state after every callback; no parent aggregate store"
         ]
       },
       "interpretation": "Conjunction of this contract, registered identities, the shipped entry graph and explicit exclusions. Migrated does not mean arbitrary ABI states are admitted. Vocabulary enum members do not independently grant entry permission."
@@ -111883,6 +112167,14 @@
         "pointer": "/negative_results/234/failures/3/1"
       },
       "declaration": "line 764 BRIDGE_REJECTED"
+    },
+    {
+      "unit": "session_world",
+      "source": {
+        "path": "metadata/closure/session_world.json",
+        "pointer": "/evidence/0/result"
+      },
+      "declaration": "PASS: 4 owned lanes, 144 comparisons per API profile with no rejections; composed142 native cases and2 explicitly enumerated existing empty-vector initializer compatibility executions, 8 driver flows and 2180 failure prefixes, 160 overlapping copies, exact193/577 rain startup and all16 locally detected defects"
     },
     {
       "unit": "stones",
@@ -120282,7 +120574,7 @@
           "path": "native/bridge/demo_core_bridge.c"
         },
         "function": "c_AdvanceDemoScripts",
-        "line_hint": 73,
+        "line_hint": 78,
         "expression": "!actor_bridge_demo_project(r->ds,&resources,&scene)) return l1_AdvanceDemoScripts(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "2833b6771f36bf2643d12fe985cab74da48c428dc1276884606096034e0377ad"
@@ -120300,7 +120592,7 @@
           "path": "native/bridge/demo_core_bridge.c"
         },
         "function": "c_AdvanceDemoScripts",
-        "line_hint": 75,
+        "line_hint": 80,
         "expression": "return result<0 ? l1_AdvanceDemoScripts(r) : result;",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "2833b6771f36bf2643d12fe985cab74da48c428dc1276884606096034e0377ad"
@@ -120318,10 +120610,10 @@
           "path": "native/bridge/demo_core_bridge.c"
         },
         "function": "c_InitializeDemoScripts",
-        "line_hint": 79,
+        "line_hint": 84,
         "expression": "if(!demo_bridge_environment(r) || !actor_bridge_scripts(r->ds,&resources)) return l1_InitializeDemoScripts(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
-        "source_function_sha256_normalized_tokens": "1be4bb14150c62a19e4a7b2e5e1d8c3c150681ec78cd0f435cf1f8e716c919f5"
+        "source_function_sha256_normalized_tokens": "56f4b662df4ebd741683065d96f42010cad205380c872e73f74f4d70c906d699"
       },
       "verification_behavior": "Retained full compatibility fallback or composed Unsupported branch; census nonexecution is observation, not proof of unreachability."
     },
@@ -120336,10 +120628,10 @@
           "path": "native/bridge/demo_core_bridge.c"
         },
         "function": "c_InitializeDemoScripts",
-        "line_hint": 83,
+        "line_hint": 88,
         "expression": "if(r->si!=0x1020 && r->si!=0x1792 && r->si!=0x1e40 && r->si!=0x24de) return l1_InitializeDemoScripts(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
-        "source_function_sha256_normalized_tokens": "1be4bb14150c62a19e4a7b2e5e1d8c3c150681ec78cd0f435cf1f8e716c919f5"
+        "source_function_sha256_normalized_tokens": "56f4b662df4ebd741683065d96f42010cad205380c872e73f74f4d70c906d699"
       },
       "verification_behavior": "Retained full compatibility fallback or composed Unsupported branch; census nonexecution is observation, not proof of unreachability."
     },
@@ -120354,10 +120646,10 @@
           "path": "native/bridge/demo_core_bridge.c"
         },
         "function": "c_InitializeDemoScripts",
-        "line_hint": 87,
+        "line_hint": 92,
         "expression": "if(count==ACTOR_CAPACITY-1) return l1_InitializeDemoScripts(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
-        "source_function_sha256_normalized_tokens": "1be4bb14150c62a19e4a7b2e5e1d8c3c150681ec78cd0f435cf1f8e716c919f5"
+        "source_function_sha256_normalized_tokens": "56f4b662df4ebd741683065d96f42010cad205380c872e73f74f4d70c906d699"
       },
       "verification_behavior": "Retained full compatibility fallback or composed Unsupported branch; census nonexecution is observation, not proof of unreachability."
     },
@@ -120372,10 +120664,10 @@
           "path": "native/bridge/demo_core_bridge.c"
         },
         "function": "c_InitializeDemoScripts",
-        "line_hint": 89,
+        "line_hint": 94,
         "expression": "if(n==resources.count) return l1_InitializeDemoScripts(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
-        "source_function_sha256_normalized_tokens": "1be4bb14150c62a19e4a7b2e5e1d8c3c150681ec78cd0f435cf1f8e716c919f5"
+        "source_function_sha256_normalized_tokens": "56f4b662df4ebd741683065d96f42010cad205380c872e73f74f4d70c906d699"
       },
       "verification_behavior": "Retained full compatibility fallback or composed Unsupported branch; census nonexecution is observation, not proof of unreachability."
     },
@@ -120390,10 +120682,10 @@
           "path": "native/bridge/demo_core_bridge.c"
         },
         "function": "c_TestAllDemoScriptsFinished",
-        "line_hint": 120,
+        "line_hint": 125,
         "expression": "if(!demo_bridge_environment(r)) return l1_TestAllDemoScriptsFinished(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
-        "source_function_sha256_normalized_tokens": "ce1f34932c0b907f349696c06bfbbc9c742109c7435ce5b721b8b6752131b34a"
+        "source_function_sha256_normalized_tokens": "9f9d465d24765618fbe22edad74635081054444942cec9e477ff7c83ab94d9e1"
       },
       "verification_behavior": "Retained full compatibility fallback or composed Unsupported branch; census nonexecution is observation, not proof of unreachability."
     },
@@ -120408,10 +120700,10 @@
           "path": "native/bridge/demo_core_bridge.c"
         },
         "function": "c_TestAllDemoScriptsFinished",
-        "line_hint": 123,
+        "line_hint": 128,
         "expression": "if(i==ACTOR_CAPACITY-1) return l1_TestAllDemoScriptsFinished(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
-        "source_function_sha256_normalized_tokens": "ce1f34932c0b907f349696c06bfbbc9c742109c7435ce5b721b8b6752131b34a"
+        "source_function_sha256_normalized_tokens": "9f9d465d24765618fbe22edad74635081054444942cec9e477ff7c83ab94d9e1"
       },
       "verification_behavior": "Retained full compatibility fallback or composed Unsupported branch; census nonexecution is observation, not proof of unreachability."
     },
@@ -128871,6 +129163,94 @@
       "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
     },
     {
+      "id": "session_world/memory/continuations",
+      "unit": "session_world",
+      "source": {
+        "path": "metadata/closure/session_world.json",
+        "pointer": "/memory/continuations"
+      },
+      "assertion": "SessionProcess, SessionLoadRecord, SessionPassword and SessionDisplayProcess are invocation locals. NativeDemoContinuation is nested per wrapper/run invocation. No extra historical allocations.",
+      "kind": "contract_edge_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "session_world/retained/0",
+      "unit": "session_world",
+      "source": {
+        "path": "metadata/closure/session_world.json",
+        "pointer": "/retained/0"
+      },
+      "assertion": "Original frame order and PlayerCount equality movement loop",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "session_world/retained/1",
+      "unit": "session_world",
+      "source": {
+        "path": "metadata/closure/session_world.json",
+        "pointer": "/retained/1"
+      },
+      "assertion": "Byte lives decrement and wrapping level word",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "session_world/retained/2",
+      "unit": "session_world",
+      "source": {
+        "path": "metadata/closure/session_world.json",
+        "pointer": "/retained/2"
+      },
+      "assertion": "Both players seeded; descending record copy and live Triopterus repeat operand",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "session_world/retained/3",
+      "unit": "session_world",
+      "source": {
+        "path": "metadata/closure/session_world.json",
+        "pointer": "/retained/3"
+      },
+      "assertion": "193 rain respawns followed by 577 advances",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "session_world/retained/4",
+      "unit": "session_world",
+      "source": {
+        "path": "metadata/closure/session_world.json",
+        "pointer": "/retained/4"
+      },
+      "assertion": "HUD byte/score seed arithmetic and all demo attract/pre-game/completion/reveal flows",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "session_world/retained/5",
+      "unit": "session_world",
+      "source": {
+        "path": "metadata/closure/session_world.json",
+        "pointer": "/retained/5"
+      },
+      "assertion": "Pause release/make/break service delivery without simulation/frame advance",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "session_world/retained/6",
+      "unit": "session_world",
+      "source": {
+        "path": "metadata/closure/session_world.json",
+        "pointer": "/retained/6"
+      },
+      "assertion": "Per-level guard only in verification binding; nonzero service replies stop at the original prefix",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
       "id": "stones/interface/inputs/1",
       "unit": "stones",
       "source": {
@@ -132431,7 +132811,7 @@
     }
   },
   "counts": {
-    "units": 63,
+    "units": 64,
     "audio_declines": 188,
     "included_timing_declines": 32,
     "literal_transfer_sites": 104,

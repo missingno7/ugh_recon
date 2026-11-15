@@ -167,4 +167,4 @@ static GSStatus pump(void *ctx,GSInputPollCut cut) {
  return in->quit?GS_QUIT:GS_OK;
 }
 void gs_input_close(GSSdlInput *in){for(unsigned j=0;j<2;j++){SDL_CloseGamepad(in->pads[j]);in->pads[j]=NULL;}}
-GSInputOps gs_input_operations(void){return (GSInputOps){scan,acknowledge,queue,flush,vector,start,presence,buttons,counts,pump};}
+GSInputOps gs_input_operations(void){return (GSInputOps){scan,acknowledge,queue,flush,vector,start,presence,buttons,counts,pump,NULL};}

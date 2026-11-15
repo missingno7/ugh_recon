@@ -1,0 +1,37 @@
+{
+  "component": "session_world",
+  "flag": "UGH_NATIVE_SESSION",
+  "order": 17,
+  "header": "native/bridge/session_world_bridge.h",
+  "bridge": "native/bridge/session_world_bridge.c",
+  "lanes": {
+    "predicate": "sessionstate_is_owned",
+    "declaration": "Authoritative physical-byte membership in this world bridge; aliases are lanes, never independent allocations",
+    "stability": "Fixed physical membership after cold construction; availability may be inactive before import",
+    "bytes": 4
+  },
+  "cold_import": "sessionstate_cold_import",
+  "seal": "sessionstate_require_seal",
+  "read": "sessionstate_shared_read",
+  "write": "sessionstate_shared_write",
+  "serialize": "sessionstate_serialize",
+  "check": "sessionstate_check_serialization",
+  "owned_bytes": "sessionstate_owned_bytes",
+  "borrowed_byte": "sessionstate_borrowed_byte",
+  "borrowed_store": "sessionstate_borrowed_store",
+  "platform_provider": null,
+  "compile_flags": [],
+  "gate": {
+    "cases": "verif/world_cases/session.py"
+  },
+  "files": [
+    "native/session_world.h",
+    "native/session_world.c",
+    "native/bridge/sessionstate_borrow.h",
+    "verif/session_world_cases.py",
+    "verif/session_world_router.c",
+    "verif/session_world_byte_proof.c",
+    "verif/session_world_sequence.c",
+    "verif/session_world_loader.c"
+  ]
+}

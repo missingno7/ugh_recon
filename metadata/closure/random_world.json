@@ -664,6 +664,21 @@
         "verif/projector/observer.c"
       ],
       "dependency_change": false
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut6A native session/demo scratch ownership and native synchronous frame driver; relock only changed direct source inputs or actual dependency contracts, with no note/lock-only cascade.",
+      "commands": [
+        "python verif/world_gate.py session_world --jobs 3 --out build/workers/cut-6a/gate",
+        "python verif/world_gate.py session_world --finalize --locks --out build/workers/cut-6a/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-6a/sgate"
+      ],
+      "results": "PASS: complete cut6A world gate; byte router/CBMC,144 matching API comparisons per profile (composed142 native plus2 explicitly inventoried existing empty-vector compatibility executions),16/16 controls, native driver failure prefixes, literal loader/demo witnesses, projector/census, both hosts21/21 and81+7+8 levels both variants. Separate supervisor receipt: build/workers/cut-6a/sgate/receipt.json.",
+      "inputs": [
+        "metadata/closure/demo_presentation.json",
+        "metadata/closure/session.json",
+        "native/bridge/session_bridge.c"
+      ]
     }
   ]
 }

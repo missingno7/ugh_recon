@@ -22,7 +22,10 @@ def classification_policy():
     if 'RESOURCE_SPRITE_RECORD=1,RESOURCE_CODEC_TABLE,RESOURCE_DEMO_EFFECT' not in vocabulary or 'RESOURCE_SPRITE_RECORDS=662,RESOURCE_CODEC_BYTES=60' not in vocabulary:
         raise ValueError('resource_catalog token vocabulary changed; schema review required')
     # Dependent relocks are concurrent work. They do not alter data classification.
-    return dict(component=cert['component'],mutable=2648,readonly=60,assumptions=cert['assumptions'],retained=cert['retained'])
+    policy=dict(component=cert['component'],mutable=2648,readonly=60,assumptions=cert['assumptions'],retained=cert['retained'])
+    world=json.loads((ROOT/'metadata/resource-world.json').read_text())
+    policy['resource_world']=dict(schema=world['schema'],storage_bytes=world['storage_bytes'],classification=world['classification'],workspace=world['workspace'])
+    return policy
 
 def inventory(image,symbols):
     layout=json.loads((ROOT/'metadata/data-layout.json').read_text())
@@ -41,7 +44,7 @@ def inventory(image,symbols):
         if module['name']=='ZERO':
             a=module['frame']*16+module['start'];b=module['frame']*16+module['end']
             if any(image[a:b]):raise ValueError('nonzero workspace reservation requires provider review')
-            excluded.append(dict(name='workspace reservation',image_start=a,size=b-a,reason='scratch, not resource payload; full-window aliases remain step7 work'))
+            excluded.append(dict(name='workspace reservation',image_start=a,size=b-a,reason='scratch, not resource payload; resource_world borrows the full-window audio/map aliases'))
             continue
         labels={}
         for label in module['labels']:
@@ -106,6 +109,13 @@ def inventory(image,symbols):
             add('model.'+name,base['image_start'],base['image_start']+base['size'],base['classification'],basis='model data reference; exact declared-object view '+base['name'])
             bindings.append(dict(name=name,resource='model.'+name,declared_view=base['name'],readers=variable['readers'],writers=variable['writers']))
         else:bindings.append(dict(name=name,resource=None,reason='no unique exact declared data-object start; no extent guessed. Base data is retained; scratch/runtime exclusions are explicit. Biased anchors are not allocations'))
+    # Version-one world view identities alias the existing provider allocations.
+    # Scratch is reserved by the owner, never duplicated as package payload.
+    world=json.loads((ROOT/'metadata/resource-world.json').read_text())
+    for view in world['views']:
+        region=world['regions'][view['region']]
+        if region['classification']=='scratch':continue
+        add('world.'+view['name'],region['image_start']+view['offset'],region['image_start']+view['offset']+view['size'],region['classification'],resource_id(5,view['token']),'resource_world v1 mutable provider view; aliases share payload')
     rows.sort(key=lambda row:row['id'])
     instruction_starts=set()
     for module in ['GAME','SOUND','TIMER']:
@@ -143,7 +153,7 @@ def extract(output,manifest_path=None,header_path=None):
     output=Path(output);output.parent.mkdir(parents=True,exist_ok=True);output.write_bytes(head+toc+payload)
     manifest=dict(schema=1,format='UGHRES1',source='rebuilt plain load-image data declarations only',image_sha256=hashlib.sha256(mz.image).hexdigest(),pack_sha256=hashlib.sha256(output.read_bytes()).hexdigest(),resources=rows,model_bindings=bindings,excluded=excluded,payload_bytes=len(payload),code_bytes=0,runtime_image=False,
         classification='resource_catalog: whole sprite records mutable, explicit codec block immutable; other spans opaque_mutable, including initializer templates',
-        classification_policy=classification_policy(),model_inputs=model['inputs'],inputs={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [Path(__file__),ROOT/'metadata/data-layout.json',ROOT/'metadata/program-model.json',ROOT/'metadata/regions.json',ROOT/'native/resource_catalog.h',*[ROOT/('src/asm/'+m+'.ASM') for m in ['GAME','SOUND','TIMER']]]})
+        classification_policy=classification_policy(),model_inputs=model['inputs'],inputs={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [Path(__file__),ROOT/'metadata/data-layout.json',ROOT/'metadata/resource-world.json',ROOT/'metadata/program-model.json',ROOT/'metadata/regions.json',ROOT/'native/resource_catalog.h',*[ROOT/('src/asm/'+m+'.ASM') for m in ['GAME','SOUND','TIMER']]]})
     target=Path(manifest_path) if manifest_path else output.with_suffix('.manifest.json');target.write_text(json.dumps(manifest,indent=2)+'\n')
     if header_path:
         text='/* Build-time admission manifest. No image coordinates. */\n#include "resources.h"\n'

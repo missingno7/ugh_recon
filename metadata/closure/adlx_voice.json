@@ -318,6 +318,20 @@
         "metadata/closure/adlx_music.json",
         "metadata/closure/adlx_sections.json"
       ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5R continuation: refresh only changed direct model/registry/projector inputs; accepted algorithms, proof domains and statuses unchanged. No note/lock-only cascade.",
+      "commands": [
+        "python verif/world_gate.py resource_world --jobs 3 --out build/workers/cut-5r2/gate",
+        "python verif/world_gate.py resource_world --finalize --locks --out build/workers/cut-5r2/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5r2/sgate"
+      ],
+      "results": "PASS finalized11-stage world gate; all5 controls,21 projector runs/no moved journal, census, hosts21+21 and level groups81+7+8 both variants. Separate root supervisor receipt: build/workers/cut-5r2/sgate/receipt.json.",
+      "inputs": [
+        "metadata/program-model.json"
+      ],
+      "dependency_change": false
     }
   ],
   "proposed_status_reason": "Seven ordinary facade entries implemented over unchanged accepted semantics. Full compiled facade-only stream corpora and70000 ABI/alias pairs,6508 L0 cases, current20 scenarios and isolated cd48651 baseline native host22 units/19 scenarios plus smoke pass.75 positive B profiles cover explicit kernels/cuts/admission/I/O, not a whole asynchronous machine theorem. MMIO load compatibility explicit. Baseline closure23 certificates0 errors; working-tree actor-render files are foreign in progress. Supervisor promotion only.",
@@ -350,7 +364,7 @@
     "metadata/closure/adlx_main.json": "contract-v1:2fa56868bf2a8a101ec7f82f2ed10a108fed065118f1769ad7cbd33859b7cb85",
     "metadata/closure/adlx_music.json": "contract-v1:7b97103926ab15324510479fabd20c68031d2964d3a7111b42cdec56f6ad46b8",
     "metadata/closure/adlx_sections.json": "contract-v1:2b81b8f8ab7bb2e0a4de71384c1c9d7fa54526e1e746c2b97086644ca975dcc7",
-    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "metadata/program-model.json": "fc421cdeff861f7fecc194339a376ba3a23356806a1107af46e3b84ee7c28709",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
     "native/adlx_allocation.c": "4fd567bf96fd73d071073a7d70bd31ad5d0339df16fcea5dd083e87989bbc858",
     "native/adlx_allocation.h": "e0e5c37e9612494d05042149f923bb0ed8acf223a8eb7f84bd8447ae68ffdc9b",

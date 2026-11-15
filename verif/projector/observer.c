@@ -177,7 +177,13 @@ static void controls(void){
     if(controls_done || !getenv("PR_CONTROLS") || !host_frame)return;
     uint32_t stale=UGH_MEM_SIZE;unsigned identity=N_BINDINGS;
     uint32_t scratch=(uint32_t)UGH_S_ZERO_IceDecodeWorkspace*16u;
+#ifdef UGH_NATIVE_RESOURCE_DATA
+    /* The retained scratch lane is now native, so it must never acquire a
+     * journal entry. Corrupt the live owner against the frozen actual boundary. */
+    stale=scratch+64767u;
+#else
     for(uint32_t a=scratch;a<scratch+65536u;a++)if(observed(a) && dirty[a] && last_frame[a]<host_frame){stale=a;break;}
+#endif
 #ifdef UGH_NATIVE_ENEMIES
     identity=0; /* The live raw enemy identity is canonical native state. */
 #elif defined(UGH_NATIVE_ACTORS)
@@ -192,7 +198,12 @@ static void controls(void){
     if(stale==UGH_MEM_SIZE || identity==N_BINDINGS || second==nevents)return;
     memcpy(control_boundary,observation_memory(),sizeof control_boundary);
     control_actual=control_boundary;
-    control_targets[0]="session.level";control_targets[1]="unclassified retained ICE-workspace byte";
+    control_targets[0]="session.level";
+#ifdef UGH_NATIVE_RESOURCE_DATA
+    control_targets[1]="resource_world retained ICE-workspace byte";
+#else
+    control_targets[1]="unclassified retained ICE-workspace byte";
+#endif
     control_targets[2]="services.video.map_mask";control_targets[3]="cumulative ordered event journal";
 #ifdef UGH_NATIVE_ENEMIES
     control_targets[4]="enemy_world.slot[0].descriptor_word";
@@ -207,7 +218,14 @@ static void controls(void){
 #else
     uint16_t level=world.session.level;world.session.level^=1;require_control(0,compare());world.session.level=level;
 #endif
+#ifdef UGH_NATIVE_RESOURCE_DATA
+    uint8_t retained;
+    if(!resource_data_shared_read(stale,&retained))fail("retained scratch owner missing");
+    resource_data_shared_write(stale,(uint8_t)(retained^1));require_control(1,compare());
+    resource_data_shared_write(stale,retained);
+#else
     journal[stale]^=1;require_control(1,compare());journal[stale]^=1;
+#endif
     services.video.map_mask^=1;require_control(2,compare());services.video.map_mask^=1;
     ProjectEvent temp=events[0];events[0]=events[second];events[second]=temp;require_control(3,compare());
     temp=events[0];events[0]=events[second];events[second]=temp;

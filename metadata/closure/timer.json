@@ -428,7 +428,7 @@
     "src/asm/TIMER.ASM": "ef53f29ee97899bf538298d360f6979004f41abcd5e07e2d23ecfb6642f5ae2a",
     "src/asm/SOUND.ASM": "70150219d03e52ec3ed5f6c96ca179fd3cf98b54ff68995a1ae264e8d368652d",
     "src/c/module.c": "e58e54aa3f44fdfd29bdbcbaa471de2a6405235cbe2b276df56ea7193d548ae1",
-    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "metadata/program-model.json": "fc421cdeff861f7fecc194339a376ba3a23356806a1107af46e3b84ee7c28709",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
     "verif/timer_build.py": "4902f41651703faae92384a57f75c86416aa07d17c0dd2ef51d8f3b8a99aa6ab",
@@ -451,6 +451,20 @@
       "inputs": [
         "native/bridge/timer_bridge.c"
       ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5R continuation: refresh only changed direct model/registry/projector inputs; accepted algorithms, proof domains and statuses unchanged. No note/lock-only cascade.",
+      "commands": [
+        "python verif/world_gate.py resource_world --jobs 3 --out build/workers/cut-5r2/gate",
+        "python verif/world_gate.py resource_world --finalize --locks --out build/workers/cut-5r2/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5r2/sgate"
+      ],
+      "results": "PASS finalized11-stage world gate; all5 controls,21 projector runs/no moved journal, census, hosts21+21 and level groups81+7+8 both variants. Separate root supervisor receipt: build/workers/cut-5r2/sgate/receipt.json.",
+      "inputs": [
+        "metadata/program-model.json"
+      ],
+      "dependency_change": false
     }
   ]
 }

@@ -1,0 +1,234 @@
+{
+  "component": "resource_world",
+  "status": "migrated",
+  "original": {
+    "composes": [
+      "resource_catalog",
+      "ice",
+      "ice_scratch",
+      "actor_types",
+      "level_view",
+      "player_physics",
+      "render_primitives"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/resource_world.h",
+      "native/resource_world.c",
+      "native/resource_world_layout.h",
+      "native/bridge/resource_world_bridge.h",
+      "native/bridge/resource_world_bridge.c"
+    ],
+    "functions": [
+      "resource_world_view",
+      "resource_world_read",
+      "resource_world_store"
+    ],
+    "bridge": "One cold native resource owner; stable alias views and explicit full-window codec borrowers"
+  },
+  "purpose": "Cut5R second part: remaining mutable resource allocations and codec scratch",
+  "interface": {
+    "inputs": "Cold provider allocations once; live token views and explicit byte-window borrowers",
+    "outputs": "Sealed RAM lanes; native allocation storage; separate observation serialization"
+  },
+  "callers": [
+    "codec",
+    "render",
+    "player",
+    "session",
+    "actors",
+    "front_end",
+    "audio",
+    "copy_decimal"
+  ],
+  "callees": [
+    "Accepted codecs, resource catalog, player and audio owners"
+  ],
+  "indirect": [
+    "Encoded descriptor/callback words remain compatibility data; no original-address production dispatcher"
+  ],
+  "memory": {
+    "bytes": 359423,
+    "native_bytes_before": 12430,
+    "native_bytes_after": 371853,
+    "manifest": "metadata/resource-world.json",
+    "borrowers": {
+      "codec": "Full-window seed/publication, actual partial backward-ring writes only",
+      "render": "Sprite directory, pixel banks, palettes and masks read live",
+      "player": "Overlapping cycle starts/ends and three difficulty words",
+      "session": "Ordered level/list/map reads",
+      "actors": "Descriptors, animations, journeys, lists and scripts read live",
+      "front_end": "Passwords/text/order views",
+      "audio": "ADLX/music/sample provider windows",
+      "copy_decimal": "Foreign, biased and partial byte aliases"
+    },
+    "workspace": {
+      "window": 65536,
+      "nominal_allocation": 64768,
+      "audio_alias": [
+        64768,
+        4
+      ],
+      "padding": [
+        64772,
+        12
+      ],
+      "packed_maps_alias": [
+        64784,
+        752
+      ]
+    }
+  },
+  "assumptions": [
+    "All deferred data remains mutable or opaque_mutable; only resource_catalog codec tables have immutable evidence. No new readonly claim.",
+    "D3 resource pack with startup rejection unchanged; shipped domain plus Unsupported unchanged",
+    "Membership fixed after cold import; imported exactly once per resource lifetime"
+  ],
+  "eliminated": [
+    "RAM ownership for every declared manifest region; no moved-owner journal publication"
+  ],
+  "retained": [
+    "Full65536-byte ICE seed and partial-output/backward-ring publication behavior",
+    "Audio flags and packed-map prefix are borrowed aliases, never duplicated",
+    "0CFC is one shared animation boundary: ends[0] and starts[1]",
+    "Three impact-limit words indexed by the live difficulty; generic mutable aliases retained",
+    "Raw skipped/reserved resource bytes retain their values"
+  ],
+  "amiga": {
+    "classification": "not-used",
+    "finding": "DOS declaration and accepted provider/access evidence only"
+  },
+  "uncertainty": [
+    "Missing writers establish neither constness nor extent; unknown allocation extents remain unknown"
+  ],
+  "evidence": [
+    {
+      "property": "Ownership, views, workspace overlaps and integration",
+      "level": "B",
+      "method": "Compiled router, bounded actual C proof, independent ASM/API and frame replay",
+      "command": "python verif/world_gate.py resource_world --jobs 3 --out build/workers/cut-5r2/gate",
+      "result": "Cut evidence is recorded in build/workers/cut-5r2/gate/receipt.json and finalize.json",
+      "date": "2026-11-15"
+    }
+  ],
+  "dependencies": {
+    "native/resource_world.h": {
+      "includes": [
+        "resource_world_layout.h",
+        "stddef.h",
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/resource_world.c": {
+      "includes": [
+        "resource_world.h",
+        "resource_world_layout.inc"
+      ],
+      "calls": [
+        "resource_world_allocation",
+        "resource_world_position",
+        "resource_world_view"
+      ]
+    },
+    "native/resource_world_layout.h": {
+      "includes": [],
+      "calls": []
+    },
+    "native/bridge/resource_world_bridge.h": {
+      "includes": [
+        "../resource_world.h",
+        "ugh.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/resource_world_bridge.c": {
+      "includes": [
+        "platform.h",
+        "resource_world_bindings.inc",
+        "resource_world_bridge.h",
+        "stdio.h",
+        "stdlib.h",
+        "string.h"
+      ],
+      "calls": [
+        "D",
+        "exit",
+        "fputs",
+        "lin",
+        "memcpy",
+        "memset",
+        "resource_data_field",
+        "resource_data_owned_bytes",
+        "resource_data_shared_read",
+        "resource_data_shared_write",
+        "resource_world_allocation",
+        "resource_world_bootstrap",
+        "resource_world_view",
+        "ugh_read",
+        "ugh_write"
+      ]
+    }
+  },
+  "verification_inputs": {
+    "native/resource_world.h": "5dcf6676d6bc42541c05207f557b24ae9c3a5d970f14f7dd087484a17c7a706e",
+    "native/resource_world.c": "7fc687880bfd3c77e176c334007ca1a6883bea4a08ca39fe33830a249c90b30b",
+    "native/resource_world_layout.h": "98a12f5e42df45ea9473217ba2ac49f7887e73e5b5d50a58c30b3c5d1cbe38bd",
+    "native/bridge/resource_world_bridge.h": "f7bc602d8a0f64e8b65474dd64c955687e1859cc60aa115ff3a59f0e08789120",
+    "native/bridge/resource_world_bridge.c": "3363696f57725392adf7b6b4489b23a7d18b12686543ca1426c5cc46bbcae0bb",
+    "metadata/resource-world.json": "35adad0e99ec611406367a3e51560b5a6b008ae67dc0b693960575690434bb9d",
+    "native/resource_world_layout.inc": "c094c1e62155fad4c151a774a17f58815618c7fc68eec4c733321a4d033ac64f",
+    "native/bridge/resource_world_bindings.inc": "485228057b199434911bf100676cefc9c036e2c431cf234cc2f16f923bd9b668",
+    "verif/resource_world_router.c": "e6543955db0a5c23927b82c5d643bf335018b2ecf16e20b984e53d7bdc076815",
+    "metadata/worlds/resource_world.json": "71f1104b59c35ea4e131607c9275e913dd12af22f4a39d2eaede9609ccc6ddef",
+    "verif/world_cases/resource_data.py": "b6d7efc3a2fbca6116efcf3c080eb249f796d526e960cbdfe6a5f8667056b3ba",
+    "verif/world_cases/resource_data_operators.py": "2e58e04ae59ef33826953c12733f11e963137baf538153e395bcc9593d5e5445",
+    "tools/world_registry.py": "06893f72ab80e15b198bf45865a5927a76dac2bf9daddb8f60ef3f6ac0aba9a1",
+    "verif/world_gate.py": "2ba63041f75fd9c9c0b368ce40ef6ec1e40bb692bc17940c1dcf06f2b3311763",
+    "verif/world_api.py": "a83bc75b4264a5ed575e8716eba52478a858556dfdba447107dc90e0e982569e",
+    "verif/job_pool.py": "fd3a52cb8cb4dacd758e930a00ead9c5016776817d18d687a59d5399aa46348a",
+    "verif/resource_catalog_cases.py": "8a9e765c12bbc19320535e496360d6c3786012ad7e0d025d3a78776a232cba0e",
+    "docs/resource-storage.md": "db66f18840e4aea5b07f89ed7a7d40423ba47b6c36528f7b40724acf5f54a655",
+    "metadata/data-layout.json": "cb6d35b32be63451e7cf8f3f882e4685381ad87240457317515ca2d3f64b43cb",
+    "verif/world_cases/legacy_adapter.py": "9978014371764ca9a123efe557fe62a6b0fef06f0e19a52b944bf72fbb14d677",
+    "verif/projector/observer.c": "aebab7ab83992bf9843f7530597b5e553cd40745c241ff11e7793c113f9c115f"
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-15",
+      "reason": "New5R resource owner, bounded provider views and scratch allocation; conservative mutable classifications.",
+      "commands": [
+        "python verif/world_gate.py resource_world --jobs 3 --out build/workers/cut-5r2/gate",
+        "python verif/world_gate.py resource_world --finalize --locks --out build/workers/cut-5r2/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5r2/sgate"
+      ],
+      "results": "PASS finalized11-stage world gate; all5 controls,21 projector runs/no moved journal, census, hosts21+21 and level groups81+7+8 both variants. Separate root supervisor receipt: build/workers/cut-5r2/sgate/receipt.json.",
+      "inputs": [
+        "docs/resource-storage.md",
+        "metadata/data-layout.json",
+        "metadata/resource-world.json",
+        "metadata/worlds/resource_world.json",
+        "native/bridge/resource_world_bindings.inc",
+        "native/bridge/resource_world_bridge.c",
+        "native/bridge/resource_world_bridge.h",
+        "native/resource_world.c",
+        "native/resource_world.h",
+        "native/resource_world_layout.h",
+        "native/resource_world_layout.inc",
+        "tools/world_registry.py",
+        "verif/job_pool.py",
+        "verif/projector/observer.c",
+        "verif/resource_catalog_cases.py",
+        "verif/resource_world_router.c",
+        "verif/world_api.py",
+        "verif/world_cases/legacy_adapter.py",
+        "verif/world_cases/resource_data.py",
+        "verif/world_cases/resource_data_operators.py",
+        "verif/world_gate.py"
+      ],
+      "dependency_change": true
+    }
+  ]
+}

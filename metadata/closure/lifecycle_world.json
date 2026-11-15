@@ -201,7 +201,7 @@
     "verif/world_gate.py": "2ba63041f75fd9c9c0b368ce40ef6ec1e40bb692bc17940c1dcf06f2b3311763",
     "verif/world_api.py": "a83bc75b4264a5ed575e8716eba52478a858556dfdba447107dc90e0e982569e",
     "verif/job_pool.py": "fd3a52cb8cb4dacd758e930a00ead9c5016776817d18d687a59d5399aa46348a",
-    "tools/world_registry.py": "54fdfc61a0509112ab2049af29f7321f56718084637a1fce04b0b89429159b99",
+    "tools/world_registry.py": "06893f72ab80e15b198bf45865a5927a76dac2bf9daddb8f60ef3f6ac0aba9a1",
     "verif/world_cases/legacy_adapter.py": "9978014371764ca9a123efe557fe62a6b0fef06f0e19a52b944bf72fbb14d677"
   },
   "verification_input_hashing": "sha256-lf-text",
@@ -255,6 +255,20 @@
         "verif/world_api.py",
         "verif/world_gate.py"
       ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5R continuation: refresh only changed direct model/registry/projector inputs; accepted algorithms, proof domains and statuses unchanged. No note/lock-only cascade.",
+      "commands": [
+        "python verif/world_gate.py resource_world --jobs 3 --out build/workers/cut-5r2/gate",
+        "python verif/world_gate.py resource_world --finalize --locks --out build/workers/cut-5r2/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5r2/sgate"
+      ],
+      "results": "PASS finalized11-stage world gate; all5 controls,21 projector runs/no moved journal, census, hosts21+21 and level groups81+7+8 both variants. Separate root supervisor receipt: build/workers/cut-5r2/sgate/receipt.json.",
+      "inputs": [
+        "tools/world_registry.py"
+      ],
+      "dependency_change": false
     }
   ]
 }

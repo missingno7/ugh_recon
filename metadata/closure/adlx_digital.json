@@ -278,7 +278,7 @@
     "c/sound_api.c": "ba1c98bf3a03b5f48a71d4491bdebf3acfc17b0f6cce51db370a0e58c0507e4c",
     "c/sound_engine.c": "5e4116c31806441e464de35d5649894ec4eea28025254a2edea616235e6e6881",
     "host/check.py": "f88a901c22501da281fdfc6ff19c7096c67eada2ac21953c809b9e25d5addc87",
-    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "metadata/program-model.json": "fc421cdeff861f7fecc194339a376ba3a23356806a1107af46e3b84ee7c28709",
     "native/adlx_digital.c": "fb82aa93c8a9b250ab3fde6e118f5255e3a3b2d1f923313f0c4f88abb5fb0987",
     "native/adlx_digital.h": "cf7c87afbc174dc1e8a6f607bf8f9427cfc18f4b26237433144a9553756e86cf",
     "native/audio.h": "31e4dd978a7ecc91d8dfb6de250c7e9f6ef4377bc5b1d3c413df749e94a2a780",
@@ -482,6 +482,20 @@
         "tools/closure.py",
         "tools/hostbuild.py"
       ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5R continuation: refresh only changed direct model/registry/projector inputs; accepted algorithms, proof domains and statuses unchanged. No note/lock-only cascade.",
+      "commands": [
+        "python verif/world_gate.py resource_world --jobs 3 --out build/workers/cut-5r2/gate",
+        "python verif/world_gate.py resource_world --finalize --locks --out build/workers/cut-5r2/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5r2/sgate"
+      ],
+      "results": "PASS finalized11-stage world gate; all5 controls,21 projector runs/no moved journal, census, hosts21+21 and level groups81+7+8 both variants. Separate root supervisor receipt: build/workers/cut-5r2/sgate/receipt.json.",
+      "inputs": [
+        "metadata/program-model.json"
+      ],
+      "dependency_change": false
     }
   ]
 }

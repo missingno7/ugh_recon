@@ -281,7 +281,7 @@
     "metadata/closure/timer.json": "contract-v1:dd45c3fd62bc452d05cb461e4656ccc9e11f9e950385253b23e3dd953749f6d9",
     "metadata/closure/timer_lifetime.json": "contract-v1:af5ced0883e57196129eb1a05473b1eab3faefb1ab4180a0a1c1aa3837073c5d",
     "metadata/closure/timing_world.json": "contract-v1:a3a4dfaca620a34a5672f56027c9ffdcc31db566a4da812469666947d10c4c6a",
-    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "metadata/program-model.json": "fc421cdeff861f7fecc194339a376ba3a23356806a1107af46e3b84ee7c28709",
     "native/adlx_allocation.c": "4fd567bf96fd73d071073a7d70bd31ad5d0339df16fcea5dd083e87989bbc858",
     "native/adlx_allocation.h": "e0e5c37e9612494d05042149f923bb0ed8acf223a8eb7f84bd8447ae68ffdc9b",
     "native/adlx_digital.c": "fb82aa93c8a9b250ab3fde6e118f5255e3a3b2d1f923313f0c4f88abb5fb0987",
@@ -361,14 +361,14 @@
     "verif/audio_composition.py": "5a3c68c4c9e688170ec61c93da1669bf360ab3168308aacbdc7b669aa1886696",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/entry_retirement.py": "3b52d207fef7b3e51461a2357a06f012f59651b406f1fe9a0253876e55f76529",
-    "verif/projector/observer.c": "bc0a563339976281e80a76ec6fe8a499552922f0d6b7465987e584def623392c",
+    "verif/projector/observer.c": "aebab7ab83992bf9843f7530597b5e553cd40745c241ff11e7793c113f9c115f",
     "verif/projector/publications.py": "4a4ca629261acff45e12a4af7bf2df8e2af87fe0ff64257a952fcfb6e0e8b26f",
     "verif/projector_evidence.py": "9427aa4eb3f4661b647b71596a42f0e9aa720746f52a552baec20fd3b43d923e",
     "verif/standalone_census.py": "647dd84b82fbeb0871fd992671b0c2279cd98e66bb46854b57c0745ed84b0a6f",
     "verif/timer_callbacks.py": "4149fe68343ff59647e5baa10beeae519625d099345ec256cdadf92e0c8d0b38",
     "verif/timing_composition.py": "032237e6f6f657075d1bf988051b040005349cd34b410058a5dfc31cf0f4da04",
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
-    "tools/world_registry.py": "54fdfc61a0509112ab2049af29f7321f56718084637a1fce04b0b89429159b99",
+    "tools/world_registry.py": "06893f72ab80e15b198bf45865a5927a76dac2bf9daddb8f60ef3f6ac0aba9a1",
     "metadata/worlds/audio_world.json": "d8717c9eaba417fbb32afd622b91208687dd842f65270e32adaa7bffe69a2b37",
     "verif/world_cases/audio.py": "bfebef05be464d1afd335b72597bd9da32edcbeaf4201f9d21bca56f51420a26",
     "verif/world_gate.py": "2ba63041f75fd9c9c0b368ce40ef6ec1e40bb692bc17940c1dcf06f2b3311763",
@@ -732,6 +732,22 @@
         "verif/world_api.py",
         "verif/world_gate.py"
       ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5R continuation: refresh only changed direct model/registry/projector inputs; accepted algorithms, proof domains and statuses unchanged. No note/lock-only cascade.",
+      "commands": [
+        "python verif/world_gate.py resource_world --jobs 3 --out build/workers/cut-5r2/gate",
+        "python verif/world_gate.py resource_world --finalize --locks --out build/workers/cut-5r2/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5r2/sgate"
+      ],
+      "results": "PASS finalized11-stage world gate; all5 controls,21 projector runs/no moved journal, census, hosts21+21 and level groups81+7+8 both variants. Separate root supervisor receipt: build/workers/cut-5r2/sgate/receipt.json.",
+      "inputs": [
+        "metadata/program-model.json",
+        "tools/world_registry.py",
+        "verif/projector/observer.c"
+      ],
+      "dependency_change": false
     }
   ]
 }

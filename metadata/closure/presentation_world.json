@@ -142,7 +142,7 @@
     "verif/presentation_composition.py": "19ecad7942dbca37569062bfb4974fd8edbc7be212431030b1508a8a8fdae083",
     "tools/hostbuild.py": "bbefb2573d32e1ac7cc2286af2eff27bf03cdd708b3c1e423b66429647487b15",
     "host/main.c": "ff25ef090f6aac65575eeeda6b745f343803ddd6d7f74b640062b1d72f968d2a",
-    "verif/projector/observer.c": "bc0a563339976281e80a76ec6fe8a499552922f0d6b7465987e584def623392c",
+    "verif/projector/observer.c": "aebab7ab83992bf9843f7530597b5e553cd40745c241ff11e7793c113f9c115f",
     "verif/projector/timing_serializer.h": "43d5b73629567906c30746bd1b2ca97f56d74eae3f99fc5af55e85432fa1317a",
     "verif/projector/publications.py": "4a4ca629261acff45e12a4af7bf2df8e2af87fe0ff64257a952fcfb6e0e8b26f",
     "verif/projector_evidence.py": "9427aa4eb3f4661b647b71596a42f0e9aa720746f52a552baec20fd3b43d923e",
@@ -150,7 +150,7 @@
     "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
     "tools/cgen.py": "c494a10b08145efeb0dfd7bcef4fa89b3902cebbdd69ee63bae89647026d9aff",
-    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "metadata/program-model.json": "fc421cdeff861f7fecc194339a376ba3a23356806a1107af46e3b84ee7c28709",
     "verif/audio_composition.py": "5a3c68c4c9e688170ec61c93da1669bf360ab3168308aacbdc7b669aa1886696",
     "verif/timing_composition.py": "032237e6f6f657075d1bf988051b040005349cd34b410058a5dfc31cf0f4da04",
     "verif/entry_retirement.py": "3b52d207fef7b3e51461a2357a06f012f59651b406f1fe9a0253876e55f76529",
@@ -220,7 +220,7 @@
     "native/bridge/hud_bridge.c": "20826a77dfc2e68979d2fedc1a5935c3738b9f0002a2d8d8c064d9cc3f4bf6ea",
     "native/bridge/hud_support.h": "90e8d5095e5b2291ad53991535b876541cb8b3a31970ee18db1f4d0e39b206de",
     "native/bridge/session_bridge.c": "359c6e1c84c03c03c535fe3e1fa344063f9d651d47acfdfefd78aee03275c8e8",
-    "tools/world_registry.py": "54fdfc61a0509112ab2049af29f7321f56718084637a1fce04b0b89429159b99",
+    "tools/world_registry.py": "06893f72ab80e15b198bf45865a5927a76dac2bf9daddb8f60ef3f6ac0aba9a1",
     "metadata/worlds/presentation_world.json": "4b6bda8c17c7b911425a9ed6e46b65649a436f150ec045872872ad35fd2bb6f9",
     "verif/world_cases/presentation.py": "a0fd165a6ddc26750ff639f37028d17724acd2b23e9622359a8094d5772953a7",
     "verif/world_gate.py": "2ba63041f75fd9c9c0b368ce40ef6ec1e40bb692bc17940c1dcf06f2b3311763",
@@ -676,6 +676,22 @@
         "verif/world_api.py",
         "verif/world_gate.py"
       ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5R continuation: refresh only changed direct model/registry/projector inputs; accepted algorithms, proof domains and statuses unchanged. No note/lock-only cascade.",
+      "commands": [
+        "python verif/world_gate.py resource_world --jobs 3 --out build/workers/cut-5r2/gate",
+        "python verif/world_gate.py resource_world --finalize --locks --out build/workers/cut-5r2/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5r2/sgate"
+      ],
+      "results": "PASS finalized11-stage world gate; all5 controls,21 projector runs/no moved journal, census, hosts21+21 and level groups81+7+8 both variants. Separate root supervisor receipt: build/workers/cut-5r2/sgate/receipt.json.",
+      "inputs": [
+        "metadata/program-model.json",
+        "tools/world_registry.py",
+        "verif/projector/observer.c"
+      ],
+      "dependency_change": false
     }
   ]
 }

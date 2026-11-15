@@ -1,0 +1,5334 @@
+{
+  "schema": 1,
+  "component": "resource_world",
+  "storage_bytes": 359423,
+  "native_before": 12430,
+  "native_after": 371853,
+  "regions": [
+    {
+      "name": "inline.GAME.WaterSurfaceDispatchWords",
+      "image_start": 16739,
+      "size": 6,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 0,
+      "storage_offset": 0
+    },
+    {
+      "name": "inline.GAME.VideoScratchAndResourcePointers_part24",
+      "image_start": 22980,
+      "size": 32,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 1,
+      "storage_offset": 6
+    },
+    {
+      "name": "inline.SOUND.MainAdlxDispatchStorage",
+      "image_start": 32139,
+      "size": 32,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 2,
+      "storage_offset": 38
+    },
+    {
+      "name": "inline.SOUND.EffectAdlxDispatchStorage",
+      "image_start": 32601,
+      "size": 32,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 3,
+      "storage_offset": 70
+    },
+    {
+      "name": "inline.SOUND.DspProbeIrqOrderStorage",
+      "image_start": 34456,
+      "size": 4,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 4,
+      "storage_offset": 102
+    },
+    {
+      "name": "ZERO",
+      "image_start": 42608,
+      "size": 64768,
+      "classification": "scratch",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 5,
+      "storage_offset": 106
+    },
+    {
+      "name": "workspace_tail_padding",
+      "image_start": 107380,
+      "size": 12,
+      "classification": "scratch",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 6,
+      "storage_offset": 64874
+    },
+    {
+      "name": "B1A38",
+      "image_start": 107392,
+      "size": 15984,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 7,
+      "storage_offset": 64886
+    },
+    {
+      "name": "B1E1F",
+      "image_start": 123376,
+      "size": 55920,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 8,
+      "storage_offset": 80870
+    },
+    {
+      "name": "B2BC6",
+      "image_start": 179296,
+      "size": 768,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 9,
+      "storage_offset": 136790
+    },
+    {
+      "name": "B2BF6",
+      "image_start": 180064,
+      "size": 6720,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 10,
+      "storage_offset": 137558
+    },
+    {
+      "name": "B2D9A",
+      "image_start": 186784,
+      "size": 8256,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 11,
+      "storage_offset": 144278
+    },
+    {
+      "name": "B2F9E",
+      "image_start": 195040,
+      "size": 400,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 12,
+      "storage_offset": 152534
+    },
+    {
+      "name": "B2FB7",
+      "image_start": 195440,
+      "size": 10816,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 13,
+      "storage_offset": 152934
+    },
+    {
+      "name": "B325B",
+      "image_start": 206256,
+      "size": 80,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 14,
+      "storage_offset": 163750
+    },
+    {
+      "name": "B3260",
+      "image_start": 206336,
+      "size": 80,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 15,
+      "storage_offset": 163830
+    },
+    {
+      "name": "B3265",
+      "image_start": 206416,
+      "size": 96,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 16,
+      "storage_offset": 163910
+    },
+    {
+      "name": "B326B",
+      "image_start": 206512,
+      "size": 144,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 17,
+      "storage_offset": 164006
+    },
+    {
+      "name": "B3274",
+      "image_start": 206656,
+      "size": 80,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 18,
+      "storage_offset": 164150
+    },
+    {
+      "name": "B3279",
+      "image_start": 206736,
+      "size": 7344,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 19,
+      "storage_offset": 164230
+    },
+    {
+      "name": "B3444",
+      "image_start": 214080,
+      "size": 7760,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 20,
+      "storage_offset": 171574
+    },
+    {
+      "name": "B3629",
+      "image_start": 221840,
+      "size": 144,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 21,
+      "storage_offset": 179334
+    },
+    {
+      "name": "B3632",
+      "image_start": 221984,
+      "size": 80,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 22,
+      "storage_offset": 179478
+    },
+    {
+      "name": "B3637",
+      "image_start": 222064,
+      "size": 5888,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 23,
+      "storage_offset": 179558
+    },
+    {
+      "name": "B37A7",
+      "image_start": 227952,
+      "size": 48688,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 24,
+      "storage_offset": 185446
+    },
+    {
+      "name": "B438A",
+      "image_start": 276640,
+      "size": 44944,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 25,
+      "storage_offset": 234134
+    },
+    {
+      "name": "B4E83",
+      "image_start": 321584,
+      "size": 52736,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 26,
+      "storage_offset": 279078
+    },
+    {
+      "name": "B5B63_part2648",
+      "image_start": 376968,
+      "size": 8,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 27,
+      "storage_offset": 331814
+    },
+    {
+      "name": "dgroup_0x92_part5",
+      "image_start": 377127,
+      "size": 36,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 28,
+      "storage_offset": 331822
+    },
+    {
+      "name": "dgroup_0x92_part43",
+      "image_start": 377165,
+      "size": 10,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 29,
+      "storage_offset": 331858
+    },
+    {
+      "name": "dgroup_0x92_part68",
+      "image_start": 377190,
+      "size": 24,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 30,
+      "storage_offset": 331868
+    },
+    {
+      "name": "dgroup_0xee",
+      "image_start": 377214,
+      "size": 932,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 31,
+      "storage_offset": 331892
+    },
+    {
+      "name": "dgroup_0x492",
+      "image_start": 378146,
+      "size": 1165,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 32,
+      "storage_offset": 332824
+    },
+    {
+      "name": "dgroup_0x91f",
+      "image_start": 379311,
+      "size": 453,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 33,
+      "storage_offset": 333989
+    },
+    {
+      "name": "dgroup_0xae4",
+      "image_start": 379764,
+      "size": 41,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 34,
+      "storage_offset": 334442
+    },
+    {
+      "name": "dgroup_0xae4_part47",
+      "image_start": 379811,
+      "size": 6,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 35,
+      "storage_offset": 334483
+    },
+    {
+      "name": "dgroup_0xae4_part63",
+      "image_start": 379827,
+      "size": 43,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 36,
+      "storage_offset": 334489
+    },
+    {
+      "name": "dgroup_0xae4_part127",
+      "image_start": 379891,
+      "size": 16,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 37,
+      "storage_offset": 334532
+    },
+    {
+      "name": "dgroup_0xae4_part153",
+      "image_start": 379917,
+      "size": 16,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 38,
+      "storage_offset": 334548
+    },
+    {
+      "name": "dgroup_0xae4_part179",
+      "image_start": 379943,
+      "size": 102,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 39,
+      "storage_offset": 334564
+    },
+    {
+      "name": "dgroup_0xae4_part283",
+      "image_start": 380047,
+      "size": 110,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 40,
+      "storage_offset": 334666
+    },
+    {
+      "name": "dgroup_0xae4_part406",
+      "image_start": 380170,
+      "size": 12,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 41,
+      "storage_offset": 334776
+    },
+    {
+      "name": "dgroup_0xcf1",
+      "image_start": 380289,
+      "size": 8,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 42,
+      "storage_offset": 334788
+    },
+    {
+      "name": "dgroup_0xcf9",
+      "image_start": 380297,
+      "size": 1,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 43,
+      "storage_offset": 334796
+    },
+    {
+      "name": "dgroup_0xcfa",
+      "image_start": 380298,
+      "size": 6,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 44,
+      "storage_offset": 334797
+    },
+    {
+      "name": "dgroup_0xd00",
+      "image_start": 380304,
+      "size": 800,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 45,
+      "storage_offset": 334803
+    },
+    {
+      "name": "dgroup_0x1020",
+      "image_start": 381104,
+      "size": 5620,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 46,
+      "storage_offset": 335603
+    },
+    {
+      "name": "dgroup_0x2614",
+      "image_start": 386724,
+      "size": 8,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 47,
+      "storage_offset": 341223
+    },
+    {
+      "name": "LevelCountsByPlayerMode",
+      "image_start": 386740,
+      "size": 4,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 48,
+      "storage_offset": 341231
+    },
+    {
+      "name": "MultiplierLimitsByDifficulty",
+      "image_start": 386744,
+      "size": 3,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 49,
+      "storage_offset": 341235
+    },
+    {
+      "name": "PlayerImpactLimits",
+      "image_start": 386750,
+      "size": 6,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 50,
+      "storage_offset": 341238
+    },
+    {
+      "name": "dgroup_0x3349",
+      "image_start": 390105,
+      "size": 140,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 51,
+      "storage_offset": 341244
+    },
+    {
+      "name": "dgroup_0x33d5",
+      "image_start": 390245,
+      "size": 164,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 52,
+      "storage_offset": 341384
+    },
+    {
+      "name": "dgroup_0x3479",
+      "image_start": 390409,
+      "size": 2106,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 53,
+      "storage_offset": 341548
+    },
+    {
+      "name": "dgroup_0x3cb3",
+      "image_start": 392515,
+      "size": 14717,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 54,
+      "storage_offset": 343654
+    },
+    {
+      "name": "dgroup_0x7630",
+      "image_start": 407232,
+      "size": 240,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 55,
+      "storage_offset": 358371
+    },
+    {
+      "name": "dgroup_0x7720",
+      "image_start": 407472,
+      "size": 592,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 56,
+      "storage_offset": 358611
+    },
+    {
+      "name": "dgroup_0x7970",
+      "image_start": 408064,
+      "size": 220,
+      "classification": "opaque_mutable",
+      "reason": "Exact declaration/provider allocation; mutable generic byte aliases retained. Missing writers do not establish constness.",
+      "index": 57,
+      "storage_offset": 359203
+    }
+  ],
+  "views": [
+    {
+      "name": "allocation.inline.GAME.WaterSurfaceDispatchWords",
+      "region": 0,
+      "offset": 0,
+      "size": 6,
+      "token": 0
+    },
+    {
+      "name": "allocation.inline.GAME.VideoScratchAndResourcePointers_part24",
+      "region": 1,
+      "offset": 0,
+      "size": 32,
+      "token": 1
+    },
+    {
+      "name": "allocation.inline.SOUND.MainAdlxDispatchStorage",
+      "region": 2,
+      "offset": 0,
+      "size": 32,
+      "token": 2
+    },
+    {
+      "name": "allocation.inline.SOUND.EffectAdlxDispatchStorage",
+      "region": 3,
+      "offset": 0,
+      "size": 32,
+      "token": 3
+    },
+    {
+      "name": "allocation.inline.SOUND.DspProbeIrqOrderStorage",
+      "region": 4,
+      "offset": 0,
+      "size": 4,
+      "token": 4
+    },
+    {
+      "name": "allocation.ZERO",
+      "region": 5,
+      "offset": 0,
+      "size": 64768,
+      "token": 5
+    },
+    {
+      "name": "allocation.workspace_tail_padding",
+      "region": 6,
+      "offset": 0,
+      "size": 12,
+      "token": 6
+    },
+    {
+      "name": "allocation.B1A38",
+      "region": 7,
+      "offset": 0,
+      "size": 15984,
+      "token": 7
+    },
+    {
+      "name": "allocation.B1E1F",
+      "region": 8,
+      "offset": 0,
+      "size": 55920,
+      "token": 8
+    },
+    {
+      "name": "allocation.B2BC6",
+      "region": 9,
+      "offset": 0,
+      "size": 768,
+      "token": 9
+    },
+    {
+      "name": "allocation.B2BF6",
+      "region": 10,
+      "offset": 0,
+      "size": 6720,
+      "token": 10
+    },
+    {
+      "name": "allocation.B2D9A",
+      "region": 11,
+      "offset": 0,
+      "size": 8256,
+      "token": 11
+    },
+    {
+      "name": "allocation.B2F9E",
+      "region": 12,
+      "offset": 0,
+      "size": 400,
+      "token": 12
+    },
+    {
+      "name": "allocation.B2FB7",
+      "region": 13,
+      "offset": 0,
+      "size": 10816,
+      "token": 13
+    },
+    {
+      "name": "allocation.B325B",
+      "region": 14,
+      "offset": 0,
+      "size": 80,
+      "token": 14
+    },
+    {
+      "name": "allocation.B3260",
+      "region": 15,
+      "offset": 0,
+      "size": 80,
+      "token": 15
+    },
+    {
+      "name": "allocation.B3265",
+      "region": 16,
+      "offset": 0,
+      "size": 96,
+      "token": 16
+    },
+    {
+      "name": "allocation.B326B",
+      "region": 17,
+      "offset": 0,
+      "size": 144,
+      "token": 17
+    },
+    {
+      "name": "allocation.B3274",
+      "region": 18,
+      "offset": 0,
+      "size": 80,
+      "token": 18
+    },
+    {
+      "name": "allocation.B3279",
+      "region": 19,
+      "offset": 0,
+      "size": 7344,
+      "token": 19
+    },
+    {
+      "name": "allocation.B3444",
+      "region": 20,
+      "offset": 0,
+      "size": 7760,
+      "token": 20
+    },
+    {
+      "name": "allocation.B3629",
+      "region": 21,
+      "offset": 0,
+      "size": 144,
+      "token": 21
+    },
+    {
+      "name": "allocation.B3632",
+      "region": 22,
+      "offset": 0,
+      "size": 80,
+      "token": 22
+    },
+    {
+      "name": "allocation.B3637",
+      "region": 23,
+      "offset": 0,
+      "size": 5888,
+      "token": 23
+    },
+    {
+      "name": "allocation.B37A7",
+      "region": 24,
+      "offset": 0,
+      "size": 48688,
+      "token": 24
+    },
+    {
+      "name": "allocation.B438A",
+      "region": 25,
+      "offset": 0,
+      "size": 44944,
+      "token": 25
+    },
+    {
+      "name": "allocation.B4E83",
+      "region": 26,
+      "offset": 0,
+      "size": 52736,
+      "token": 26
+    },
+    {
+      "name": "allocation.B5B63_part2648",
+      "region": 27,
+      "offset": 0,
+      "size": 8,
+      "token": 27
+    },
+    {
+      "name": "allocation.dgroup_0x92_part5",
+      "region": 28,
+      "offset": 0,
+      "size": 36,
+      "token": 28
+    },
+    {
+      "name": "allocation.dgroup_0x92_part43",
+      "region": 29,
+      "offset": 0,
+      "size": 10,
+      "token": 29
+    },
+    {
+      "name": "allocation.dgroup_0x92_part68",
+      "region": 30,
+      "offset": 0,
+      "size": 24,
+      "token": 30
+    },
+    {
+      "name": "allocation.dgroup_0xee",
+      "region": 31,
+      "offset": 0,
+      "size": 932,
+      "token": 31
+    },
+    {
+      "name": "allocation.dgroup_0x492",
+      "region": 32,
+      "offset": 0,
+      "size": 1165,
+      "token": 32
+    },
+    {
+      "name": "allocation.dgroup_0x91f",
+      "region": 33,
+      "offset": 0,
+      "size": 453,
+      "token": 33
+    },
+    {
+      "name": "allocation.dgroup_0xae4",
+      "region": 34,
+      "offset": 0,
+      "size": 41,
+      "token": 34
+    },
+    {
+      "name": "allocation.dgroup_0xae4_part47",
+      "region": 35,
+      "offset": 0,
+      "size": 6,
+      "token": 35
+    },
+    {
+      "name": "allocation.dgroup_0xae4_part63",
+      "region": 36,
+      "offset": 0,
+      "size": 43,
+      "token": 36
+    },
+    {
+      "name": "allocation.dgroup_0xae4_part127",
+      "region": 37,
+      "offset": 0,
+      "size": 16,
+      "token": 37
+    },
+    {
+      "name": "allocation.dgroup_0xae4_part153",
+      "region": 38,
+      "offset": 0,
+      "size": 16,
+      "token": 38
+    },
+    {
+      "name": "allocation.dgroup_0xae4_part179",
+      "region": 39,
+      "offset": 0,
+      "size": 102,
+      "token": 39
+    },
+    {
+      "name": "allocation.dgroup_0xae4_part283",
+      "region": 40,
+      "offset": 0,
+      "size": 110,
+      "token": 40
+    },
+    {
+      "name": "allocation.dgroup_0xae4_part406",
+      "region": 41,
+      "offset": 0,
+      "size": 12,
+      "token": 41
+    },
+    {
+      "name": "allocation.dgroup_0xcf1",
+      "region": 42,
+      "offset": 0,
+      "size": 8,
+      "token": 42
+    },
+    {
+      "name": "allocation.dgroup_0xcf9",
+      "region": 43,
+      "offset": 0,
+      "size": 1,
+      "token": 43
+    },
+    {
+      "name": "allocation.dgroup_0xcfa",
+      "region": 44,
+      "offset": 0,
+      "size": 6,
+      "token": 44
+    },
+    {
+      "name": "allocation.dgroup_0xd00",
+      "region": 45,
+      "offset": 0,
+      "size": 800,
+      "token": 45
+    },
+    {
+      "name": "allocation.dgroup_0x1020",
+      "region": 46,
+      "offset": 0,
+      "size": 5620,
+      "token": 46
+    },
+    {
+      "name": "allocation.dgroup_0x2614",
+      "region": 47,
+      "offset": 0,
+      "size": 8,
+      "token": 47
+    },
+    {
+      "name": "allocation.LevelCountsByPlayerMode",
+      "region": 48,
+      "offset": 0,
+      "size": 4,
+      "token": 48
+    },
+    {
+      "name": "allocation.MultiplierLimitsByDifficulty",
+      "region": 49,
+      "offset": 0,
+      "size": 3,
+      "token": 49
+    },
+    {
+      "name": "allocation.PlayerImpactLimits",
+      "region": 50,
+      "offset": 0,
+      "size": 6,
+      "token": 50
+    },
+    {
+      "name": "allocation.dgroup_0x3349",
+      "region": 51,
+      "offset": 0,
+      "size": 140,
+      "token": 51
+    },
+    {
+      "name": "allocation.dgroup_0x33d5",
+      "region": 52,
+      "offset": 0,
+      "size": 164,
+      "token": 52
+    },
+    {
+      "name": "allocation.dgroup_0x3479",
+      "region": 53,
+      "offset": 0,
+      "size": 2106,
+      "token": 53
+    },
+    {
+      "name": "allocation.dgroup_0x3cb3",
+      "region": 54,
+      "offset": 0,
+      "size": 14717,
+      "token": 54
+    },
+    {
+      "name": "allocation.dgroup_0x7630",
+      "region": 55,
+      "offset": 0,
+      "size": 240,
+      "token": 55
+    },
+    {
+      "name": "allocation.dgroup_0x7720",
+      "region": 56,
+      "offset": 0,
+      "size": 592,
+      "token": 56
+    },
+    {
+      "name": "allocation.dgroup_0x7970",
+      "region": 57,
+      "offset": 0,
+      "size": 220,
+      "token": 57
+    },
+    {
+      "name": "animation.0d00",
+      "region": 45,
+      "offset": 0,
+      "size": 26,
+      "token": 58
+    },
+    {
+      "name": "animation.0d1a",
+      "region": 45,
+      "offset": 26,
+      "size": 26,
+      "token": 59
+    },
+    {
+      "name": "animation.0d34",
+      "region": 45,
+      "offset": 52,
+      "size": 4,
+      "token": 60
+    },
+    {
+      "name": "animation.0d38",
+      "region": 45,
+      "offset": 56,
+      "size": 4,
+      "token": 61
+    },
+    {
+      "name": "animation.0d3c",
+      "region": 45,
+      "offset": 60,
+      "size": 14,
+      "token": 62
+    },
+    {
+      "name": "animation.0d4a",
+      "region": 45,
+      "offset": 74,
+      "size": 14,
+      "token": 63
+    },
+    {
+      "name": "animation.0d58",
+      "region": 45,
+      "offset": 88,
+      "size": 14,
+      "token": 64
+    },
+    {
+      "name": "animation.0d66",
+      "region": 45,
+      "offset": 102,
+      "size": 14,
+      "token": 65
+    },
+    {
+      "name": "animation.0d74",
+      "region": 45,
+      "offset": 116,
+      "size": 14,
+      "token": 66
+    },
+    {
+      "name": "animation.0d82",
+      "region": 45,
+      "offset": 130,
+      "size": 14,
+      "token": 67
+    },
+    {
+      "name": "animation.0d90",
+      "region": 45,
+      "offset": 144,
+      "size": 14,
+      "token": 68
+    },
+    {
+      "name": "animation.0d9e",
+      "region": 45,
+      "offset": 158,
+      "size": 14,
+      "token": 69
+    },
+    {
+      "name": "animation.0dac",
+      "region": 45,
+      "offset": 172,
+      "size": 14,
+      "token": 70
+    },
+    {
+      "name": "animation.0dba",
+      "region": 45,
+      "offset": 186,
+      "size": 14,
+      "token": 71
+    },
+    {
+      "name": "animation.0dc8",
+      "region": 45,
+      "offset": 200,
+      "size": 14,
+      "token": 72
+    },
+    {
+      "name": "animation.0dd6",
+      "region": 45,
+      "offset": 214,
+      "size": 14,
+      "token": 73
+    },
+    {
+      "name": "animation.0de4",
+      "region": 45,
+      "offset": 228,
+      "size": 22,
+      "token": 74
+    },
+    {
+      "name": "animation.0dfa",
+      "region": 45,
+      "offset": 250,
+      "size": 4,
+      "token": 75
+    },
+    {
+      "name": "animation.0dfe",
+      "region": 45,
+      "offset": 254,
+      "size": 30,
+      "token": 76
+    },
+    {
+      "name": "animation.0e1c",
+      "region": 45,
+      "offset": 284,
+      "size": 4,
+      "token": 77
+    },
+    {
+      "name": "animation.0e20",
+      "region": 45,
+      "offset": 288,
+      "size": 10,
+      "token": 78
+    },
+    {
+      "name": "animation.0e2a",
+      "region": 45,
+      "offset": 298,
+      "size": 8,
+      "token": 79
+    },
+    {
+      "name": "animation.0e32",
+      "region": 45,
+      "offset": 306,
+      "size": 20,
+      "token": 80
+    },
+    {
+      "name": "animation.0e46",
+      "region": 45,
+      "offset": 326,
+      "size": 20,
+      "token": 81
+    },
+    {
+      "name": "animation.0e5a",
+      "region": 45,
+      "offset": 346,
+      "size": 20,
+      "token": 82
+    },
+    {
+      "name": "animation.0e6e",
+      "region": 45,
+      "offset": 366,
+      "size": 20,
+      "token": 83
+    },
+    {
+      "name": "animation.0e82",
+      "region": 45,
+      "offset": 386,
+      "size": 6,
+      "token": 84
+    },
+    {
+      "name": "animation.0e88",
+      "region": 45,
+      "offset": 392,
+      "size": 20,
+      "token": 85
+    },
+    {
+      "name": "animation.0e9c",
+      "region": 45,
+      "offset": 412,
+      "size": 20,
+      "token": 86
+    },
+    {
+      "name": "animation.0eb0",
+      "region": 45,
+      "offset": 432,
+      "size": 10,
+      "token": 87
+    },
+    {
+      "name": "animation.0eba",
+      "region": 45,
+      "offset": 442,
+      "size": 8,
+      "token": 88
+    },
+    {
+      "name": "animation.0ec2",
+      "region": 45,
+      "offset": 450,
+      "size": 20,
+      "token": 89
+    },
+    {
+      "name": "animation.0ed6",
+      "region": 45,
+      "offset": 470,
+      "size": 20,
+      "token": 90
+    },
+    {
+      "name": "animation.0eea",
+      "region": 45,
+      "offset": 490,
+      "size": 20,
+      "token": 91
+    },
+    {
+      "name": "animation.0efe",
+      "region": 45,
+      "offset": 510,
+      "size": 20,
+      "token": 92
+    },
+    {
+      "name": "animation.0f12",
+      "region": 45,
+      "offset": 530,
+      "size": 10,
+      "token": 93
+    },
+    {
+      "name": "animation.0f1c",
+      "region": 45,
+      "offset": 540,
+      "size": 122,
+      "token": 94
+    },
+    {
+      "name": "animation.0f96",
+      "region": 45,
+      "offset": 662,
+      "size": 20,
+      "token": 95
+    },
+    {
+      "name": "animation.0faa",
+      "region": 45,
+      "offset": 682,
+      "size": 20,
+      "token": 96
+    },
+    {
+      "name": "animation.0fbe",
+      "region": 45,
+      "offset": 702,
+      "size": 20,
+      "token": 97
+    },
+    {
+      "name": "animation.0fd2",
+      "region": 45,
+      "offset": 722,
+      "size": 20,
+      "token": 98
+    },
+    {
+      "name": "animation.0fe6",
+      "region": 45,
+      "offset": 742,
+      "size": 8,
+      "token": 99
+    },
+    {
+      "name": "animation.0fee",
+      "region": 45,
+      "offset": 750,
+      "size": 8,
+      "token": 100
+    },
+    {
+      "name": "animation.0ff6",
+      "region": 45,
+      "offset": 758,
+      "size": 20,
+      "token": 101
+    },
+    {
+      "name": "animation.100a",
+      "region": 45,
+      "offset": 778,
+      "size": 20,
+      "token": 102
+    },
+    {
+      "name": "animation.101e",
+      "region": 45,
+      "offset": 798,
+      "size": 2,
+      "token": 103
+    },
+    {
+      "name": "demo pointer table.1020",
+      "region": 46,
+      "offset": 0,
+      "size": 32,
+      "token": 104
+    },
+    {
+      "name": "motion script.1040",
+      "region": 46,
+      "offset": 32,
+      "size": 162,
+      "token": 105
+    },
+    {
+      "name": "motion script.10e2",
+      "region": 46,
+      "offset": 194,
+      "size": 154,
+      "token": 106
+    },
+    {
+      "name": "motion script.117c",
+      "region": 46,
+      "offset": 348,
+      "size": 350,
+      "token": 107
+    },
+    {
+      "name": "motion script.12da",
+      "region": 46,
+      "offset": 698,
+      "size": 126,
+      "token": 108
+    },
+    {
+      "name": "motion script.1358",
+      "region": 46,
+      "offset": 824,
+      "size": 158,
+      "token": 109
+    },
+    {
+      "name": "motion script.13f6",
+      "region": 46,
+      "offset": 982,
+      "size": 102,
+      "token": 110
+    },
+    {
+      "name": "motion script.145c",
+      "region": 46,
+      "offset": 1084,
+      "size": 70,
+      "token": 111
+    },
+    {
+      "name": "motion script.14a2",
+      "region": 46,
+      "offset": 1154,
+      "size": 94,
+      "token": 112
+    },
+    {
+      "name": "motion script.1500",
+      "region": 46,
+      "offset": 1248,
+      "size": 78,
+      "token": 113
+    },
+    {
+      "name": "motion script.154e",
+      "region": 46,
+      "offset": 1326,
+      "size": 70,
+      "token": 114
+    },
+    {
+      "name": "motion script.1594",
+      "region": 46,
+      "offset": 1396,
+      "size": 134,
+      "token": 115
+    },
+    {
+      "name": "motion script.161a",
+      "region": 46,
+      "offset": 1530,
+      "size": 86,
+      "token": 116
+    },
+    {
+      "name": "motion script.1670",
+      "region": 46,
+      "offset": 1616,
+      "size": 94,
+      "token": 117
+    },
+    {
+      "name": "motion script.16ce",
+      "region": 46,
+      "offset": 1710,
+      "size": 70,
+      "token": 118
+    },
+    {
+      "name": "motion script.1714",
+      "region": 46,
+      "offset": 1780,
+      "size": 126,
+      "token": 119
+    },
+    {
+      "name": "demo pointer table.1792",
+      "region": 46,
+      "offset": 1906,
+      "size": 14,
+      "token": 120
+    },
+    {
+      "name": "motion script.17a0",
+      "region": 46,
+      "offset": 1920,
+      "size": 802,
+      "token": 121
+    },
+    {
+      "name": "motion script.1ac2",
+      "region": 46,
+      "offset": 2722,
+      "size": 190,
+      "token": 122
+    },
+    {
+      "name": "motion script.1b80",
+      "region": 46,
+      "offset": 2912,
+      "size": 126,
+      "token": 123
+    },
+    {
+      "name": "motion script.1bfe",
+      "region": 46,
+      "offset": 3038,
+      "size": 190,
+      "token": 124
+    },
+    {
+      "name": "motion script.1cbc",
+      "region": 46,
+      "offset": 3228,
+      "size": 326,
+      "token": 125
+    },
+    {
+      "name": "motion script.1e02",
+      "region": 46,
+      "offset": 3554,
+      "size": 62,
+      "token": 126
+    },
+    {
+      "name": "demo pointer table.1e40",
+      "region": 46,
+      "offset": 3616,
+      "size": 12,
+      "token": 127
+    },
+    {
+      "name": "motion script.1e4c",
+      "region": 46,
+      "offset": 3628,
+      "size": 370,
+      "token": 128
+    },
+    {
+      "name": "motion script.1fbe",
+      "region": 46,
+      "offset": 3998,
+      "size": 386,
+      "token": 129
+    },
+    {
+      "name": "motion script.2140",
+      "region": 46,
+      "offset": 4384,
+      "size": 386,
+      "token": 130
+    },
+    {
+      "name": "motion script.22c2",
+      "region": 46,
+      "offset": 4770,
+      "size": 326,
+      "token": 131
+    },
+    {
+      "name": "motion script.2408",
+      "region": 46,
+      "offset": 5096,
+      "size": 214,
+      "token": 132
+    },
+    {
+      "name": "demo pointer table.24de",
+      "region": 46,
+      "offset": 5310,
+      "size": 6,
+      "token": 133
+    },
+    {
+      "name": "motion script.24e4",
+      "region": 46,
+      "offset": 5316,
+      "size": 162,
+      "token": 134
+    },
+    {
+      "name": "motion script.2586",
+      "region": 46,
+      "offset": 5478,
+      "size": 142,
+      "token": 135
+    },
+    {
+      "name": "tree reward list.3cb3",
+      "region": 54,
+      "offset": 0,
+      "size": 20,
+      "token": 136
+    },
+    {
+      "name": "platforms.3cc7",
+      "region": 54,
+      "offset": 20,
+      "size": 50,
+      "token": 137
+    },
+    {
+      "name": "passenger itinerary.3cf9",
+      "region": 54,
+      "offset": 70,
+      "size": 18,
+      "token": 138
+    },
+    {
+      "name": "passenger itinerary.3d0b",
+      "region": 54,
+      "offset": 88,
+      "size": 18,
+      "token": 139
+    },
+    {
+      "name": "actors.3d1d",
+      "region": 54,
+      "offset": 106,
+      "size": 20,
+      "token": 140
+    },
+    {
+      "name": "enemies.3d31",
+      "region": 54,
+      "offset": 126,
+      "size": 8,
+      "token": 141
+    },
+    {
+      "name": "text.3d39",
+      "region": 54,
+      "offset": 134,
+      "size": 24,
+      "token": 142
+    },
+    {
+      "name": "platforms.3d51",
+      "region": 54,
+      "offset": 158,
+      "size": 66,
+      "token": 143
+    },
+    {
+      "name": "passenger itinerary.3d93",
+      "region": 54,
+      "offset": 224,
+      "size": 22,
+      "token": 144
+    },
+    {
+      "name": "passenger itinerary.3da9",
+      "region": 54,
+      "offset": 246,
+      "size": 22,
+      "token": 145
+    },
+    {
+      "name": "actors.3dbf",
+      "region": 54,
+      "offset": 268,
+      "size": 20,
+      "token": 146
+    },
+    {
+      "name": "enemies.3dd3",
+      "region": 54,
+      "offset": 288,
+      "size": 16,
+      "token": 147
+    },
+    {
+      "name": "text.3de3",
+      "region": 54,
+      "offset": 304,
+      "size": 26,
+      "token": 148
+    },
+    {
+      "name": "platforms.3dfd",
+      "region": 54,
+      "offset": 330,
+      "size": 82,
+      "token": 149
+    },
+    {
+      "name": "passenger itinerary.3e4f",
+      "region": 54,
+      "offset": 412,
+      "size": 22,
+      "token": 150
+    },
+    {
+      "name": "passenger itinerary.3e65",
+      "region": 54,
+      "offset": 434,
+      "size": 22,
+      "token": 151
+    },
+    {
+      "name": "passenger itinerary.3e7b",
+      "region": 54,
+      "offset": 456,
+      "size": 22,
+      "token": 152
+    },
+    {
+      "name": "actors.3e91",
+      "region": 54,
+      "offset": 478,
+      "size": 26,
+      "token": 153
+    },
+    {
+      "name": "enemies.3eab",
+      "region": 54,
+      "offset": 504,
+      "size": 26,
+      "token": 154
+    },
+    {
+      "name": "text.3ec5",
+      "region": 54,
+      "offset": 530,
+      "size": 19,
+      "token": 155
+    },
+    {
+      "name": "platforms.3ed8",
+      "region": 54,
+      "offset": 549,
+      "size": 114,
+      "token": 156
+    },
+    {
+      "name": "passenger itinerary.3f4a",
+      "region": 54,
+      "offset": 663,
+      "size": 22,
+      "token": 157
+    },
+    {
+      "name": "passenger itinerary.3f60",
+      "region": 54,
+      "offset": 685,
+      "size": 22,
+      "token": 158
+    },
+    {
+      "name": "passenger itinerary.3f76",
+      "region": 54,
+      "offset": 707,
+      "size": 22,
+      "token": 159
+    },
+    {
+      "name": "actors.3f8c",
+      "region": 54,
+      "offset": 729,
+      "size": 26,
+      "token": 160
+    },
+    {
+      "name": "enemies.3fa6",
+      "region": 54,
+      "offset": 755,
+      "size": 18,
+      "token": 161
+    },
+    {
+      "name": "text.3fb8",
+      "region": 54,
+      "offset": 773,
+      "size": 17,
+      "token": 162
+    },
+    {
+      "name": "platforms.3fc9",
+      "region": 54,
+      "offset": 790,
+      "size": 66,
+      "token": 163
+    },
+    {
+      "name": "passenger itinerary.400b",
+      "region": 54,
+      "offset": 856,
+      "size": 22,
+      "token": 164
+    },
+    {
+      "name": "passenger itinerary.4021",
+      "region": 54,
+      "offset": 878,
+      "size": 22,
+      "token": 165
+    },
+    {
+      "name": "actors.4037",
+      "region": 54,
+      "offset": 900,
+      "size": 20,
+      "token": 166
+    },
+    {
+      "name": "enemies.404b",
+      "region": 54,
+      "offset": 920,
+      "size": 18,
+      "token": 167
+    },
+    {
+      "name": "text.405d",
+      "region": 54,
+      "offset": 938,
+      "size": 19,
+      "token": 168
+    },
+    {
+      "name": "platforms.4070",
+      "region": 54,
+      "offset": 957,
+      "size": 82,
+      "token": 169
+    },
+    {
+      "name": "passenger itinerary.40c2",
+      "region": 54,
+      "offset": 1039,
+      "size": 22,
+      "token": 170
+    },
+    {
+      "name": "passenger itinerary.40d8",
+      "region": 54,
+      "offset": 1061,
+      "size": 22,
+      "token": 171
+    },
+    {
+      "name": "actors.40ee",
+      "region": 54,
+      "offset": 1083,
+      "size": 20,
+      "token": 172
+    },
+    {
+      "name": "enemies.4102",
+      "region": 54,
+      "offset": 1103,
+      "size": 8,
+      "token": 173
+    },
+    {
+      "name": "text.410a",
+      "region": 54,
+      "offset": 1111,
+      "size": 11,
+      "token": 174
+    },
+    {
+      "name": "platforms.4115",
+      "region": 54,
+      "offset": 1122,
+      "size": 98,
+      "token": 175
+    },
+    {
+      "name": "text.4177",
+      "region": 54,
+      "offset": 1220,
+      "size": 20,
+      "token": 176
+    },
+    {
+      "name": "passenger itinerary.418b",
+      "region": 54,
+      "offset": 1240,
+      "size": 14,
+      "token": 177
+    },
+    {
+      "name": "passenger itinerary.4199",
+      "region": 54,
+      "offset": 1254,
+      "size": 14,
+      "token": 178
+    },
+    {
+      "name": "actors.41a7",
+      "region": 54,
+      "offset": 1268,
+      "size": 20,
+      "token": 179
+    },
+    {
+      "name": "enemies.41bb",
+      "region": 54,
+      "offset": 1288,
+      "size": 18,
+      "token": 180
+    },
+    {
+      "name": "platforms.41cd",
+      "region": 54,
+      "offset": 1306,
+      "size": 82,
+      "token": 181
+    },
+    {
+      "name": "passenger itinerary.421f",
+      "region": 54,
+      "offset": 1388,
+      "size": 22,
+      "token": 182
+    },
+    {
+      "name": "passenger itinerary.4235",
+      "region": 54,
+      "offset": 1410,
+      "size": 22,
+      "token": 183
+    },
+    {
+      "name": "actors.424b",
+      "region": 54,
+      "offset": 1432,
+      "size": 20,
+      "token": 184
+    },
+    {
+      "name": "enemies.425f",
+      "region": 54,
+      "offset": 1452,
+      "size": 18,
+      "token": 185
+    },
+    {
+      "name": "text.4271",
+      "region": 54,
+      "offset": 1470,
+      "size": 27,
+      "token": 186
+    },
+    {
+      "name": "platforms.428c",
+      "region": 54,
+      "offset": 1497,
+      "size": 82,
+      "token": 187
+    },
+    {
+      "name": "passenger itinerary.42de",
+      "region": 54,
+      "offset": 1579,
+      "size": 10,
+      "token": 188
+    },
+    {
+      "name": "passenger itinerary.42e8",
+      "region": 54,
+      "offset": 1589,
+      "size": 10,
+      "token": 189
+    },
+    {
+      "name": "passenger itinerary.42f2",
+      "region": 54,
+      "offset": 1599,
+      "size": 10,
+      "token": 190
+    },
+    {
+      "name": "actors.42fc",
+      "region": 54,
+      "offset": 1609,
+      "size": 26,
+      "token": 191
+    },
+    {
+      "name": "enemies.4316",
+      "region": 54,
+      "offset": 1635,
+      "size": 8,
+      "token": 192
+    },
+    {
+      "name": "text.431e",
+      "region": 54,
+      "offset": 1643,
+      "size": 26,
+      "token": 193
+    },
+    {
+      "name": "platforms.4338",
+      "region": 54,
+      "offset": 1669,
+      "size": 66,
+      "token": 194
+    },
+    {
+      "name": "passenger itinerary.437a",
+      "region": 54,
+      "offset": 1735,
+      "size": 14,
+      "token": 195
+    },
+    {
+      "name": "passenger itinerary.4388",
+      "region": 54,
+      "offset": 1749,
+      "size": 14,
+      "token": 196
+    },
+    {
+      "name": "passenger itinerary.4396",
+      "region": 54,
+      "offset": 1763,
+      "size": 14,
+      "token": 197
+    },
+    {
+      "name": "actors.43a4",
+      "region": 54,
+      "offset": 1777,
+      "size": 26,
+      "token": 198
+    },
+    {
+      "name": "enemies.43be",
+      "region": 54,
+      "offset": 1803,
+      "size": 24,
+      "token": 199
+    },
+    {
+      "name": "text.43d6",
+      "region": 54,
+      "offset": 1827,
+      "size": 29,
+      "token": 200
+    },
+    {
+      "name": "platforms.43f3",
+      "region": 54,
+      "offset": 1856,
+      "size": 98,
+      "token": 201
+    },
+    {
+      "name": "passenger itinerary.4455",
+      "region": 54,
+      "offset": 1954,
+      "size": 22,
+      "token": 202
+    },
+    {
+      "name": "passenger itinerary.446b",
+      "region": 54,
+      "offset": 1976,
+      "size": 22,
+      "token": 203
+    },
+    {
+      "name": "actors.4481",
+      "region": 54,
+      "offset": 1998,
+      "size": 20,
+      "token": 204
+    },
+    {
+      "name": "enemies.4495",
+      "region": 54,
+      "offset": 2018,
+      "size": 8,
+      "token": 205
+    },
+    {
+      "name": "text.449d",
+      "region": 54,
+      "offset": 2026,
+      "size": 19,
+      "token": 206
+    },
+    {
+      "name": "platforms.44b0",
+      "region": 54,
+      "offset": 2045,
+      "size": 114,
+      "token": 207
+    },
+    {
+      "name": "passenger itinerary.4522",
+      "region": 54,
+      "offset": 2159,
+      "size": 22,
+      "token": 208
+    },
+    {
+      "name": "passenger itinerary.4538",
+      "region": 54,
+      "offset": 2181,
+      "size": 22,
+      "token": 209
+    },
+    {
+      "name": "actors.454e",
+      "region": 54,
+      "offset": 2203,
+      "size": 20,
+      "token": 210
+    },
+    {
+      "name": "enemies.4562",
+      "region": 54,
+      "offset": 2223,
+      "size": 24,
+      "token": 211
+    },
+    {
+      "name": "text.457a",
+      "region": 54,
+      "offset": 2247,
+      "size": 12,
+      "token": 212
+    },
+    {
+      "name": "platforms.4586",
+      "region": 54,
+      "offset": 2259,
+      "size": 114,
+      "token": 213
+    },
+    {
+      "name": "text.45f8",
+      "region": 54,
+      "offset": 2373,
+      "size": 30,
+      "token": 214
+    },
+    {
+      "name": "passenger itinerary.4616",
+      "region": 54,
+      "offset": 2403,
+      "size": 18,
+      "token": 215
+    },
+    {
+      "name": "passenger itinerary.4628",
+      "region": 54,
+      "offset": 2421,
+      "size": 18,
+      "token": 216
+    },
+    {
+      "name": "actors.463a",
+      "region": 54,
+      "offset": 2439,
+      "size": 20,
+      "token": 217
+    },
+    {
+      "name": "enemies.464e",
+      "region": 54,
+      "offset": 2459,
+      "size": 26,
+      "token": 218
+    },
+    {
+      "name": "platforms.4668",
+      "region": 54,
+      "offset": 2485,
+      "size": 114,
+      "token": 219
+    },
+    {
+      "name": "text.46da",
+      "region": 54,
+      "offset": 2599,
+      "size": 29,
+      "token": 220
+    },
+    {
+      "name": "passenger itinerary.46f7",
+      "region": 54,
+      "offset": 2628,
+      "size": 14,
+      "token": 221
+    },
+    {
+      "name": "passenger itinerary.4705",
+      "region": 54,
+      "offset": 2642,
+      "size": 14,
+      "token": 222
+    },
+    {
+      "name": "passenger itinerary.4713",
+      "region": 54,
+      "offset": 2656,
+      "size": 14,
+      "token": 223
+    },
+    {
+      "name": "actors.4721",
+      "region": 54,
+      "offset": 2670,
+      "size": 26,
+      "token": 224
+    },
+    {
+      "name": "enemies.473b",
+      "region": 54,
+      "offset": 2696,
+      "size": 16,
+      "token": 225
+    },
+    {
+      "name": "platforms.474b",
+      "region": 54,
+      "offset": 2712,
+      "size": 130,
+      "token": 226
+    },
+    {
+      "name": "text.47cd",
+      "region": 54,
+      "offset": 2842,
+      "size": 19,
+      "token": 227
+    },
+    {
+      "name": "passenger itinerary.47e0",
+      "region": 54,
+      "offset": 2861,
+      "size": 10,
+      "token": 228
+    },
+    {
+      "name": "passenger itinerary.47ea",
+      "region": 54,
+      "offset": 2871,
+      "size": 10,
+      "token": 229
+    },
+    {
+      "name": "passenger itinerary.47f4",
+      "region": 54,
+      "offset": 2881,
+      "size": 10,
+      "token": 230
+    },
+    {
+      "name": "passenger itinerary.47fe",
+      "region": 54,
+      "offset": 2891,
+      "size": 10,
+      "token": 231
+    },
+    {
+      "name": "actors.4808",
+      "region": 54,
+      "offset": 2901,
+      "size": 32,
+      "token": 232
+    },
+    {
+      "name": "enemies.4828",
+      "region": 54,
+      "offset": 2933,
+      "size": 8,
+      "token": 233
+    },
+    {
+      "name": "platforms.4830",
+      "region": 54,
+      "offset": 2941,
+      "size": 98,
+      "token": 234
+    },
+    {
+      "name": "text.4892",
+      "region": 54,
+      "offset": 3039,
+      "size": 25,
+      "token": 235
+    },
+    {
+      "name": "passenger itinerary.48ab",
+      "region": 54,
+      "offset": 3064,
+      "size": 14,
+      "token": 236
+    },
+    {
+      "name": "passenger itinerary.48b9",
+      "region": 54,
+      "offset": 3078,
+      "size": 14,
+      "token": 237
+    },
+    {
+      "name": "actors.48c7",
+      "region": 54,
+      "offset": 3092,
+      "size": 20,
+      "token": 238
+    },
+    {
+      "name": "enemies.48db",
+      "region": 54,
+      "offset": 3112,
+      "size": 16,
+      "token": 239
+    },
+    {
+      "name": "platforms.48eb",
+      "region": 54,
+      "offset": 3128,
+      "size": 98,
+      "token": 240
+    },
+    {
+      "name": "text.494d",
+      "region": 54,
+      "offset": 3226,
+      "size": 20,
+      "token": 241
+    },
+    {
+      "name": "passenger itinerary.4961",
+      "region": 54,
+      "offset": 3246,
+      "size": 18,
+      "token": 242
+    },
+    {
+      "name": "passenger itinerary.4973",
+      "region": 54,
+      "offset": 3264,
+      "size": 18,
+      "token": 243
+    },
+    {
+      "name": "actors.4985",
+      "region": 54,
+      "offset": 3282,
+      "size": 20,
+      "token": 244
+    },
+    {
+      "name": "enemies.4999",
+      "region": 54,
+      "offset": 3302,
+      "size": 24,
+      "token": 245
+    },
+    {
+      "name": "platforms.49b1",
+      "region": 54,
+      "offset": 3326,
+      "size": 98,
+      "token": 246
+    },
+    {
+      "name": "text.4a13",
+      "region": 54,
+      "offset": 3424,
+      "size": 16,
+      "token": 247
+    },
+    {
+      "name": "passenger itinerary.4a23",
+      "region": 54,
+      "offset": 3440,
+      "size": 18,
+      "token": 248
+    },
+    {
+      "name": "passenger itinerary.4a35",
+      "region": 54,
+      "offset": 3458,
+      "size": 18,
+      "token": 249
+    },
+    {
+      "name": "actors.4a47",
+      "region": 54,
+      "offset": 3476,
+      "size": 20,
+      "token": 250
+    },
+    {
+      "name": "enemies.4a5b",
+      "region": 54,
+      "offset": 3496,
+      "size": 8,
+      "token": 251
+    },
+    {
+      "name": "platforms.4a63",
+      "region": 54,
+      "offset": 3504,
+      "size": 66,
+      "token": 252
+    },
+    {
+      "name": "text.4aa5",
+      "region": 54,
+      "offset": 3570,
+      "size": 18,
+      "token": 253
+    },
+    {
+      "name": "passenger itinerary.4ab7",
+      "region": 54,
+      "offset": 3588,
+      "size": 18,
+      "token": 254
+    },
+    {
+      "name": "passenger itinerary.4ac9",
+      "region": 54,
+      "offset": 3606,
+      "size": 18,
+      "token": 255
+    },
+    {
+      "name": "actors.4adb",
+      "region": 54,
+      "offset": 3624,
+      "size": 20,
+      "token": 256
+    },
+    {
+      "name": "enemies.4aef",
+      "region": 54,
+      "offset": 3644,
+      "size": 8,
+      "token": 257
+    },
+    {
+      "name": "platforms.4af7",
+      "region": 54,
+      "offset": 3652,
+      "size": 82,
+      "token": 258
+    },
+    {
+      "name": "text.4b49",
+      "region": 54,
+      "offset": 3734,
+      "size": 32,
+      "token": 259
+    },
+    {
+      "name": "passenger itinerary.4b69",
+      "region": 54,
+      "offset": 3766,
+      "size": 18,
+      "token": 260
+    },
+    {
+      "name": "passenger itinerary.4b7b",
+      "region": 54,
+      "offset": 3784,
+      "size": 18,
+      "token": 261
+    },
+    {
+      "name": "actors.4b8d",
+      "region": 54,
+      "offset": 3802,
+      "size": 20,
+      "token": 262
+    },
+    {
+      "name": "enemies.4ba1",
+      "region": 54,
+      "offset": 3822,
+      "size": 22,
+      "token": 263
+    },
+    {
+      "name": "platforms.4bb7",
+      "region": 54,
+      "offset": 3844,
+      "size": 98,
+      "token": 264
+    },
+    {
+      "name": "text.4c19",
+      "region": 54,
+      "offset": 3942,
+      "size": 19,
+      "token": 265
+    },
+    {
+      "name": "passenger itinerary.4c2c",
+      "region": 54,
+      "offset": 3961,
+      "size": 18,
+      "token": 266
+    },
+    {
+      "name": "passenger itinerary.4c3e",
+      "region": 54,
+      "offset": 3979,
+      "size": 18,
+      "token": 267
+    },
+    {
+      "name": "passenger itinerary.4c50",
+      "region": 54,
+      "offset": 3997,
+      "size": 18,
+      "token": 268
+    },
+    {
+      "name": "actors.4c62",
+      "region": 54,
+      "offset": 4015,
+      "size": 26,
+      "token": 269
+    },
+    {
+      "name": "enemies.4c7c",
+      "region": 54,
+      "offset": 4041,
+      "size": 8,
+      "token": 270
+    },
+    {
+      "name": "platforms.4c84",
+      "region": 54,
+      "offset": 4049,
+      "size": 82,
+      "token": 271
+    },
+    {
+      "name": "text.4cd6",
+      "region": 54,
+      "offset": 4131,
+      "size": 14,
+      "token": 272
+    },
+    {
+      "name": "passenger itinerary.4ce4",
+      "region": 54,
+      "offset": 4145,
+      "size": 18,
+      "token": 273
+    },
+    {
+      "name": "passenger itinerary.4cf6",
+      "region": 54,
+      "offset": 4163,
+      "size": 18,
+      "token": 274
+    },
+    {
+      "name": "actors.4d08",
+      "region": 54,
+      "offset": 4181,
+      "size": 20,
+      "token": 275
+    },
+    {
+      "name": "enemies.4d1c",
+      "region": 54,
+      "offset": 4201,
+      "size": 16,
+      "token": 276
+    },
+    {
+      "name": "platforms.4d2c",
+      "region": 54,
+      "offset": 4217,
+      "size": 50,
+      "token": 277
+    },
+    {
+      "name": "text.4d5e",
+      "region": 54,
+      "offset": 4267,
+      "size": 21,
+      "token": 278
+    },
+    {
+      "name": "passenger itinerary.4d73",
+      "region": 54,
+      "offset": 4288,
+      "size": 14,
+      "token": 279
+    },
+    {
+      "name": "actors.4d81",
+      "region": 54,
+      "offset": 4302,
+      "size": 8,
+      "token": 280
+    },
+    {
+      "name": "enemies.4d89",
+      "region": 54,
+      "offset": 4310,
+      "size": 8,
+      "token": 281
+    },
+    {
+      "name": "platforms.4d91",
+      "region": 54,
+      "offset": 4318,
+      "size": 66,
+      "token": 282
+    },
+    {
+      "name": "text.4dd3",
+      "region": 54,
+      "offset": 4384,
+      "size": 18,
+      "token": 283
+    },
+    {
+      "name": "passenger itinerary.4de5",
+      "region": 54,
+      "offset": 4402,
+      "size": 18,
+      "token": 284
+    },
+    {
+      "name": "passenger itinerary.4df7",
+      "region": 54,
+      "offset": 4420,
+      "size": 18,
+      "token": 285
+    },
+    {
+      "name": "passenger itinerary.4e09",
+      "region": 54,
+      "offset": 4438,
+      "size": 18,
+      "token": 286
+    },
+    {
+      "name": "actors.4e1b",
+      "region": 54,
+      "offset": 4456,
+      "size": 26,
+      "token": 287
+    },
+    {
+      "name": "enemies.4e35",
+      "region": 54,
+      "offset": 4482,
+      "size": 16,
+      "token": 288
+    },
+    {
+      "name": "platforms.4e45",
+      "region": 54,
+      "offset": 4498,
+      "size": 98,
+      "token": 289
+    },
+    {
+      "name": "text.4ea7",
+      "region": 54,
+      "offset": 4596,
+      "size": 13,
+      "token": 290
+    },
+    {
+      "name": "passenger itinerary.4eb4",
+      "region": 54,
+      "offset": 4609,
+      "size": 18,
+      "token": 291
+    },
+    {
+      "name": "passenger itinerary.4ec6",
+      "region": 54,
+      "offset": 4627,
+      "size": 18,
+      "token": 292
+    },
+    {
+      "name": "actors.4ed8",
+      "region": 54,
+      "offset": 4645,
+      "size": 20,
+      "token": 293
+    },
+    {
+      "name": "enemies.4eec",
+      "region": 54,
+      "offset": 4665,
+      "size": 8,
+      "token": 294
+    },
+    {
+      "name": "platforms.4ef4",
+      "region": 54,
+      "offset": 4673,
+      "size": 114,
+      "token": 295
+    },
+    {
+      "name": "text.4f66",
+      "region": 54,
+      "offset": 4787,
+      "size": 20,
+      "token": 296
+    },
+    {
+      "name": "passenger itinerary.4f7a",
+      "region": 54,
+      "offset": 4807,
+      "size": 18,
+      "token": 297
+    },
+    {
+      "name": "passenger itinerary.4f8c",
+      "region": 54,
+      "offset": 4825,
+      "size": 18,
+      "token": 298
+    },
+    {
+      "name": "passenger itinerary.4f9e",
+      "region": 54,
+      "offset": 4843,
+      "size": 18,
+      "token": 299
+    },
+    {
+      "name": "actors.4fb0",
+      "region": 54,
+      "offset": 4861,
+      "size": 26,
+      "token": 300
+    },
+    {
+      "name": "enemies.4fca",
+      "region": 54,
+      "offset": 4887,
+      "size": 18,
+      "token": 301
+    },
+    {
+      "name": "platforms.4fdc",
+      "region": 54,
+      "offset": 4905,
+      "size": 50,
+      "token": 302
+    },
+    {
+      "name": "text.500e",
+      "region": 54,
+      "offset": 4955,
+      "size": 19,
+      "token": 303
+    },
+    {
+      "name": "passenger itinerary.5021",
+      "region": 54,
+      "offset": 4974,
+      "size": 14,
+      "token": 304
+    },
+    {
+      "name": "passenger itinerary.502f",
+      "region": 54,
+      "offset": 4988,
+      "size": 14,
+      "token": 305
+    },
+    {
+      "name": "actors.503d",
+      "region": 54,
+      "offset": 5002,
+      "size": 20,
+      "token": 306
+    },
+    {
+      "name": "enemies.5051",
+      "region": 54,
+      "offset": 5022,
+      "size": 16,
+      "token": 307
+    },
+    {
+      "name": "platforms.5061",
+      "region": 54,
+      "offset": 5038,
+      "size": 66,
+      "token": 308
+    },
+    {
+      "name": "text.50a3",
+      "region": 54,
+      "offset": 5104,
+      "size": 28,
+      "token": 309
+    },
+    {
+      "name": "passenger itinerary.50bf",
+      "region": 54,
+      "offset": 5132,
+      "size": 18,
+      "token": 310
+    },
+    {
+      "name": "passenger itinerary.50d1",
+      "region": 54,
+      "offset": 5150,
+      "size": 18,
+      "token": 311
+    },
+    {
+      "name": "actors.50e3",
+      "region": 54,
+      "offset": 5168,
+      "size": 20,
+      "token": 312
+    },
+    {
+      "name": "enemies.50f7",
+      "region": 54,
+      "offset": 5188,
+      "size": 8,
+      "token": 313
+    },
+    {
+      "name": "platforms.50ff",
+      "region": 54,
+      "offset": 5196,
+      "size": 34,
+      "token": 314
+    },
+    {
+      "name": "text.5121",
+      "region": 54,
+      "offset": 5230,
+      "size": 18,
+      "token": 315
+    },
+    {
+      "name": "passenger itinerary.5133",
+      "region": 54,
+      "offset": 5248,
+      "size": 14,
+      "token": 316
+    },
+    {
+      "name": "actors.5141",
+      "region": 54,
+      "offset": 5262,
+      "size": 8,
+      "token": 317
+    },
+    {
+      "name": "enemies.5149",
+      "region": 54,
+      "offset": 5270,
+      "size": 2,
+      "token": 318
+    },
+    {
+      "name": "platforms.514b",
+      "region": 54,
+      "offset": 5272,
+      "size": 82,
+      "token": 319
+    },
+    {
+      "name": "text.519d",
+      "region": 54,
+      "offset": 5354,
+      "size": 13,
+      "token": 320
+    },
+    {
+      "name": "passenger itinerary.51aa",
+      "region": 54,
+      "offset": 5367,
+      "size": 18,
+      "token": 321
+    },
+    {
+      "name": "passenger itinerary.51bc",
+      "region": 54,
+      "offset": 5385,
+      "size": 18,
+      "token": 322
+    },
+    {
+      "name": "passenger itinerary.51ce",
+      "region": 54,
+      "offset": 5403,
+      "size": 18,
+      "token": 323
+    },
+    {
+      "name": "actors.51e0",
+      "region": 54,
+      "offset": 5421,
+      "size": 26,
+      "token": 324
+    },
+    {
+      "name": "enemies.51fa",
+      "region": 54,
+      "offset": 5447,
+      "size": 10,
+      "token": 325
+    },
+    {
+      "name": "platforms.5204",
+      "region": 54,
+      "offset": 5457,
+      "size": 82,
+      "token": 326
+    },
+    {
+      "name": "text.5256",
+      "region": 54,
+      "offset": 5539,
+      "size": 18,
+      "token": 327
+    },
+    {
+      "name": "passenger itinerary.5268",
+      "region": 54,
+      "offset": 5557,
+      "size": 14,
+      "token": 328
+    },
+    {
+      "name": "passenger itinerary.5276",
+      "region": 54,
+      "offset": 5571,
+      "size": 14,
+      "token": 329
+    },
+    {
+      "name": "actors.5284",
+      "region": 54,
+      "offset": 5585,
+      "size": 20,
+      "token": 330
+    },
+    {
+      "name": "enemies.5298",
+      "region": 54,
+      "offset": 5605,
+      "size": 16,
+      "token": 331
+    },
+    {
+      "name": "platforms.52a8",
+      "region": 54,
+      "offset": 5621,
+      "size": 130,
+      "token": 332
+    },
+    {
+      "name": "text.532a",
+      "region": 54,
+      "offset": 5751,
+      "size": 21,
+      "token": 333
+    },
+    {
+      "name": "passenger itinerary.533f",
+      "region": 54,
+      "offset": 5772,
+      "size": 18,
+      "token": 334
+    },
+    {
+      "name": "passenger itinerary.5351",
+      "region": 54,
+      "offset": 5790,
+      "size": 18,
+      "token": 335
+    },
+    {
+      "name": "passenger itinerary.5363",
+      "region": 54,
+      "offset": 5808,
+      "size": 18,
+      "token": 336
+    },
+    {
+      "name": "actors.5375",
+      "region": 54,
+      "offset": 5826,
+      "size": 26,
+      "token": 337
+    },
+    {
+      "name": "enemies.538f",
+      "region": 54,
+      "offset": 5852,
+      "size": 8,
+      "token": 338
+    },
+    {
+      "name": "platforms.5397",
+      "region": 54,
+      "offset": 5860,
+      "size": 82,
+      "token": 339
+    },
+    {
+      "name": "text.53e9",
+      "region": 54,
+      "offset": 5942,
+      "size": 27,
+      "token": 340
+    },
+    {
+      "name": "passenger itinerary.5404",
+      "region": 54,
+      "offset": 5969,
+      "size": 14,
+      "token": 341
+    },
+    {
+      "name": "passenger itinerary.5412",
+      "region": 54,
+      "offset": 5983,
+      "size": 14,
+      "token": 342
+    },
+    {
+      "name": "actors.5420",
+      "region": 54,
+      "offset": 5997,
+      "size": 20,
+      "token": 343
+    },
+    {
+      "name": "enemies.5434",
+      "region": 54,
+      "offset": 6017,
+      "size": 8,
+      "token": 344
+    },
+    {
+      "name": "platforms.543c",
+      "region": 54,
+      "offset": 6025,
+      "size": 82,
+      "token": 345
+    },
+    {
+      "name": "text.548e",
+      "region": 54,
+      "offset": 6107,
+      "size": 14,
+      "token": 346
+    },
+    {
+      "name": "passenger itinerary.549c",
+      "region": 54,
+      "offset": 6121,
+      "size": 18,
+      "token": 347
+    },
+    {
+      "name": "passenger itinerary.54ae",
+      "region": 54,
+      "offset": 6139,
+      "size": 18,
+      "token": 348
+    },
+    {
+      "name": "actors.54c0",
+      "region": 54,
+      "offset": 6157,
+      "size": 20,
+      "token": 349
+    },
+    {
+      "name": "enemies.54d4",
+      "region": 54,
+      "offset": 6177,
+      "size": 16,
+      "token": 350
+    },
+    {
+      "name": "platforms.54e4",
+      "region": 54,
+      "offset": 6193,
+      "size": 98,
+      "token": 351
+    },
+    {
+      "name": "text.5546",
+      "region": 54,
+      "offset": 6291,
+      "size": 18,
+      "token": 352
+    },
+    {
+      "name": "passenger itinerary.5558",
+      "region": 54,
+      "offset": 6309,
+      "size": 10,
+      "token": 353
+    },
+    {
+      "name": "passenger itinerary.5562",
+      "region": 54,
+      "offset": 6319,
+      "size": 10,
+      "token": 354
+    },
+    {
+      "name": "passenger itinerary.556c",
+      "region": 54,
+      "offset": 6329,
+      "size": 10,
+      "token": 355
+    },
+    {
+      "name": "actors.5576",
+      "region": 54,
+      "offset": 6339,
+      "size": 26,
+      "token": 356
+    },
+    {
+      "name": "enemies.5590",
+      "region": 54,
+      "offset": 6365,
+      "size": 16,
+      "token": 357
+    },
+    {
+      "name": "platforms.55a0",
+      "region": 54,
+      "offset": 6381,
+      "size": 114,
+      "token": 358
+    },
+    {
+      "name": "text.5612",
+      "region": 54,
+      "offset": 6495,
+      "size": 25,
+      "token": 359
+    },
+    {
+      "name": "passenger itinerary.562b",
+      "region": 54,
+      "offset": 6520,
+      "size": 10,
+      "token": 360
+    },
+    {
+      "name": "passenger itinerary.5635",
+      "region": 54,
+      "offset": 6530,
+      "size": 10,
+      "token": 361
+    },
+    {
+      "name": "passenger itinerary.563f",
+      "region": 54,
+      "offset": 6540,
+      "size": 10,
+      "token": 362
+    },
+    {
+      "name": "actors.5649",
+      "region": 54,
+      "offset": 6550,
+      "size": 26,
+      "token": 363
+    },
+    {
+      "name": "enemies.5663",
+      "region": 54,
+      "offset": 6576,
+      "size": 16,
+      "token": 364
+    },
+    {
+      "name": "platforms.5673",
+      "region": 54,
+      "offset": 6592,
+      "size": 50,
+      "token": 365
+    },
+    {
+      "name": "text.56a5",
+      "region": 54,
+      "offset": 6642,
+      "size": 19,
+      "token": 366
+    },
+    {
+      "name": "passenger itinerary.56b8",
+      "region": 54,
+      "offset": 6661,
+      "size": 10,
+      "token": 367
+    },
+    {
+      "name": "passenger itinerary.56c2",
+      "region": 54,
+      "offset": 6671,
+      "size": 10,
+      "token": 368
+    },
+    {
+      "name": "actors.56cc",
+      "region": 54,
+      "offset": 6681,
+      "size": 20,
+      "token": 369
+    },
+    {
+      "name": "enemies.56e0",
+      "region": 54,
+      "offset": 6701,
+      "size": 8,
+      "token": 370
+    },
+    {
+      "name": "platforms.56e8",
+      "region": 54,
+      "offset": 6709,
+      "size": 82,
+      "token": 371
+    },
+    {
+      "name": "text.573a",
+      "region": 54,
+      "offset": 6791,
+      "size": 20,
+      "token": 372
+    },
+    {
+      "name": "passenger itinerary.574e",
+      "region": 54,
+      "offset": 6811,
+      "size": 14,
+      "token": 373
+    },
+    {
+      "name": "passenger itinerary.575c",
+      "region": 54,
+      "offset": 6825,
+      "size": 14,
+      "token": 374
+    },
+    {
+      "name": "actors.576a",
+      "region": 54,
+      "offset": 6839,
+      "size": 20,
+      "token": 375
+    },
+    {
+      "name": "enemies.577e",
+      "region": 54,
+      "offset": 6859,
+      "size": 16,
+      "token": 376
+    },
+    {
+      "name": "platforms.578e",
+      "region": 54,
+      "offset": 6875,
+      "size": 98,
+      "token": 377
+    },
+    {
+      "name": "text.57f0",
+      "region": 54,
+      "offset": 6973,
+      "size": 15,
+      "token": 378
+    },
+    {
+      "name": "passenger itinerary.57ff",
+      "region": 54,
+      "offset": 6988,
+      "size": 14,
+      "token": 379
+    },
+    {
+      "name": "passenger itinerary.580d",
+      "region": 54,
+      "offset": 7002,
+      "size": 10,
+      "token": 380
+    },
+    {
+      "name": "passenger itinerary.5817",
+      "region": 54,
+      "offset": 7012,
+      "size": 10,
+      "token": 381
+    },
+    {
+      "name": "actors.5821",
+      "region": 54,
+      "offset": 7022,
+      "size": 26,
+      "token": 382
+    },
+    {
+      "name": "enemies.583b",
+      "region": 54,
+      "offset": 7048,
+      "size": 26,
+      "token": 383
+    },
+    {
+      "name": "platforms.5855",
+      "region": 54,
+      "offset": 7074,
+      "size": 82,
+      "token": 384
+    },
+    {
+      "name": "text.58a7",
+      "region": 54,
+      "offset": 7156,
+      "size": 24,
+      "token": 385
+    },
+    {
+      "name": "passenger itinerary.58bf",
+      "region": 54,
+      "offset": 7180,
+      "size": 14,
+      "token": 386
+    },
+    {
+      "name": "passenger itinerary.58cd",
+      "region": 54,
+      "offset": 7194,
+      "size": 14,
+      "token": 387
+    },
+    {
+      "name": "actors.58db",
+      "region": 54,
+      "offset": 7208,
+      "size": 20,
+      "token": 388
+    },
+    {
+      "name": "enemies.58ef",
+      "region": 54,
+      "offset": 7228,
+      "size": 32,
+      "token": 389
+    },
+    {
+      "name": "platforms.590f",
+      "region": 54,
+      "offset": 7260,
+      "size": 82,
+      "token": 390
+    },
+    {
+      "name": "text.5961",
+      "region": 54,
+      "offset": 7342,
+      "size": 13,
+      "token": 391
+    },
+    {
+      "name": "passenger itinerary.596e",
+      "region": 54,
+      "offset": 7355,
+      "size": 14,
+      "token": 392
+    },
+    {
+      "name": "passenger itinerary.597c",
+      "region": 54,
+      "offset": 7369,
+      "size": 14,
+      "token": 393
+    },
+    {
+      "name": "actors.598a",
+      "region": 54,
+      "offset": 7383,
+      "size": 20,
+      "token": 394
+    },
+    {
+      "name": "enemies.599e",
+      "region": 54,
+      "offset": 7403,
+      "size": 16,
+      "token": 395
+    },
+    {
+      "name": "platforms.59ae",
+      "region": 54,
+      "offset": 7419,
+      "size": 146,
+      "token": 396
+    },
+    {
+      "name": "text.5a40",
+      "region": 54,
+      "offset": 7565,
+      "size": 20,
+      "token": 397
+    },
+    {
+      "name": "passenger itinerary.5a54",
+      "region": 54,
+      "offset": 7585,
+      "size": 14,
+      "token": 398
+    },
+    {
+      "name": "passenger itinerary.5a62",
+      "region": 54,
+      "offset": 7599,
+      "size": 14,
+      "token": 399
+    },
+    {
+      "name": "passenger itinerary.5a70",
+      "region": 54,
+      "offset": 7613,
+      "size": 14,
+      "token": 400
+    },
+    {
+      "name": "actors.5a7e",
+      "region": 54,
+      "offset": 7627,
+      "size": 26,
+      "token": 401
+    },
+    {
+      "name": "enemies.5a98",
+      "region": 54,
+      "offset": 7653,
+      "size": 16,
+      "token": 402
+    },
+    {
+      "name": "platforms.5aa8",
+      "region": 54,
+      "offset": 7669,
+      "size": 82,
+      "token": 403
+    },
+    {
+      "name": "text.5afa",
+      "region": 54,
+      "offset": 7751,
+      "size": 23,
+      "token": 404
+    },
+    {
+      "name": "passenger itinerary.5b11",
+      "region": 54,
+      "offset": 7774,
+      "size": 14,
+      "token": 405
+    },
+    {
+      "name": "passenger itinerary.5b1f",
+      "region": 54,
+      "offset": 7788,
+      "size": 14,
+      "token": 406
+    },
+    {
+      "name": "actors.5b2d",
+      "region": 54,
+      "offset": 7802,
+      "size": 20,
+      "token": 407
+    },
+    {
+      "name": "enemies.5b41",
+      "region": 54,
+      "offset": 7822,
+      "size": 16,
+      "token": 408
+    },
+    {
+      "name": "platforms.5b51",
+      "region": 54,
+      "offset": 7838,
+      "size": 66,
+      "token": 409
+    },
+    {
+      "name": "text.5b93",
+      "region": 54,
+      "offset": 7904,
+      "size": 15,
+      "token": 410
+    },
+    {
+      "name": "passenger itinerary.5ba2",
+      "region": 54,
+      "offset": 7919,
+      "size": 18,
+      "token": 411
+    },
+    {
+      "name": "passenger itinerary.5bb4",
+      "region": 54,
+      "offset": 7937,
+      "size": 18,
+      "token": 412
+    },
+    {
+      "name": "actors.5bc6",
+      "region": 54,
+      "offset": 7955,
+      "size": 14,
+      "token": 413
+    },
+    {
+      "name": "enemies.5bd4",
+      "region": 54,
+      "offset": 7969,
+      "size": 2,
+      "token": 414
+    },
+    {
+      "name": "platforms.5bd6",
+      "region": 54,
+      "offset": 7971,
+      "size": 98,
+      "token": 415
+    },
+    {
+      "name": "text.5c38",
+      "region": 54,
+      "offset": 8069,
+      "size": 28,
+      "token": 416
+    },
+    {
+      "name": "passenger itinerary.5c54",
+      "region": 54,
+      "offset": 8097,
+      "size": 10,
+      "token": 417
+    },
+    {
+      "name": "passenger itinerary.5c5e",
+      "region": 54,
+      "offset": 8107,
+      "size": 10,
+      "token": 418
+    },
+    {
+      "name": "passenger itinerary.5c68",
+      "region": 54,
+      "offset": 8117,
+      "size": 10,
+      "token": 419
+    },
+    {
+      "name": "actors.5c72",
+      "region": 54,
+      "offset": 8127,
+      "size": 20,
+      "token": 420
+    },
+    {
+      "name": "enemies.5c86",
+      "region": 54,
+      "offset": 8147,
+      "size": 2,
+      "token": 421
+    },
+    {
+      "name": "platforms.5c88",
+      "region": 54,
+      "offset": 8149,
+      "size": 82,
+      "token": 422
+    },
+    {
+      "name": "text.5cda",
+      "region": 54,
+      "offset": 8231,
+      "size": 15,
+      "token": 423
+    },
+    {
+      "name": "passenger itinerary.5ce9",
+      "region": 54,
+      "offset": 8246,
+      "size": 14,
+      "token": 424
+    },
+    {
+      "name": "passenger itinerary.5cf7",
+      "region": 54,
+      "offset": 8260,
+      "size": 14,
+      "token": 425
+    },
+    {
+      "name": "actors.5d05",
+      "region": 54,
+      "offset": 8274,
+      "size": 20,
+      "token": 426
+    },
+    {
+      "name": "enemies.5d19",
+      "region": 54,
+      "offset": 8294,
+      "size": 14,
+      "token": 427
+    },
+    {
+      "name": "platforms.5d27",
+      "region": 54,
+      "offset": 8308,
+      "size": 98,
+      "token": 428
+    },
+    {
+      "name": "text.5d89",
+      "region": 54,
+      "offset": 8406,
+      "size": 16,
+      "token": 429
+    },
+    {
+      "name": "passenger itinerary.5d99",
+      "region": 54,
+      "offset": 8422,
+      "size": 14,
+      "token": 430
+    },
+    {
+      "name": "passenger itinerary.5da7",
+      "region": 54,
+      "offset": 8436,
+      "size": 14,
+      "token": 431
+    },
+    {
+      "name": "passenger itinerary.5db5",
+      "region": 54,
+      "offset": 8450,
+      "size": 14,
+      "token": 432
+    },
+    {
+      "name": "actors.5dc3",
+      "region": 54,
+      "offset": 8464,
+      "size": 26,
+      "token": 433
+    },
+    {
+      "name": "enemies.5ddd",
+      "region": 54,
+      "offset": 8490,
+      "size": 16,
+      "token": 434
+    },
+    {
+      "name": "platforms.5ded",
+      "region": 54,
+      "offset": 8506,
+      "size": 98,
+      "token": 435
+    },
+    {
+      "name": "text.5e4f",
+      "region": 54,
+      "offset": 8604,
+      "size": 16,
+      "token": 436
+    },
+    {
+      "name": "passenger itinerary.5e5f",
+      "region": 54,
+      "offset": 8620,
+      "size": 14,
+      "token": 437
+    },
+    {
+      "name": "passenger itinerary.5e6d",
+      "region": 54,
+      "offset": 8634,
+      "size": 14,
+      "token": 438
+    },
+    {
+      "name": "passenger itinerary.5e7b",
+      "region": 54,
+      "offset": 8648,
+      "size": 14,
+      "token": 439
+    },
+    {
+      "name": "actors.5e89",
+      "region": 54,
+      "offset": 8662,
+      "size": 26,
+      "token": 440
+    },
+    {
+      "name": "enemies.5ea3",
+      "region": 54,
+      "offset": 8688,
+      "size": 16,
+      "token": 441
+    },
+    {
+      "name": "platforms.5eb3",
+      "region": 54,
+      "offset": 8704,
+      "size": 98,
+      "token": 442
+    },
+    {
+      "name": "text.5f15",
+      "region": 54,
+      "offset": 8802,
+      "size": 12,
+      "token": 443
+    },
+    {
+      "name": "passenger itinerary.5f21",
+      "region": 54,
+      "offset": 8814,
+      "size": 18,
+      "token": 444
+    },
+    {
+      "name": "passenger itinerary.5f33",
+      "region": 54,
+      "offset": 8832,
+      "size": 14,
+      "token": 445
+    },
+    {
+      "name": "actors.5f41",
+      "region": 54,
+      "offset": 8846,
+      "size": 20,
+      "token": 446
+    },
+    {
+      "name": "enemies.5f55",
+      "region": 54,
+      "offset": 8866,
+      "size": 8,
+      "token": 447
+    },
+    {
+      "name": "platforms.5f5d",
+      "region": 54,
+      "offset": 8874,
+      "size": 82,
+      "token": 448
+    },
+    {
+      "name": "text.5faf",
+      "region": 54,
+      "offset": 8956,
+      "size": 17,
+      "token": 449
+    },
+    {
+      "name": "passenger itinerary.5fc0",
+      "region": 54,
+      "offset": 8973,
+      "size": 18,
+      "token": 450
+    },
+    {
+      "name": "passenger itinerary.5fd2",
+      "region": 54,
+      "offset": 8991,
+      "size": 14,
+      "token": 451
+    },
+    {
+      "name": "actors.5fe0",
+      "region": 54,
+      "offset": 9005,
+      "size": 20,
+      "token": 452
+    },
+    {
+      "name": "enemies.5ff4",
+      "region": 54,
+      "offset": 9025,
+      "size": 16,
+      "token": 453
+    },
+    {
+      "name": "platforms.6004",
+      "region": 54,
+      "offset": 9041,
+      "size": 82,
+      "token": 454
+    },
+    {
+      "name": "text.6056",
+      "region": 54,
+      "offset": 9123,
+      "size": 20,
+      "token": 455
+    },
+    {
+      "name": "passenger itinerary.606a",
+      "region": 54,
+      "offset": 9143,
+      "size": 18,
+      "token": 456
+    },
+    {
+      "name": "passenger itinerary.607c",
+      "region": 54,
+      "offset": 9161,
+      "size": 14,
+      "token": 457
+    },
+    {
+      "name": "actors.608a",
+      "region": 54,
+      "offset": 9175,
+      "size": 20,
+      "token": 458
+    },
+    {
+      "name": "enemies.609e",
+      "region": 54,
+      "offset": 9195,
+      "size": 24,
+      "token": 459
+    },
+    {
+      "name": "platforms.60b6",
+      "region": 54,
+      "offset": 9219,
+      "size": 98,
+      "token": 460
+    },
+    {
+      "name": "text.6118",
+      "region": 54,
+      "offset": 9317,
+      "size": 13,
+      "token": 461
+    },
+    {
+      "name": "passenger itinerary.6125",
+      "region": 54,
+      "offset": 9330,
+      "size": 14,
+      "token": 462
+    },
+    {
+      "name": "passenger itinerary.6133",
+      "region": 54,
+      "offset": 9344,
+      "size": 14,
+      "token": 463
+    },
+    {
+      "name": "passenger itinerary.6141",
+      "region": 54,
+      "offset": 9358,
+      "size": 14,
+      "token": 464
+    },
+    {
+      "name": "actors.614f",
+      "region": 54,
+      "offset": 9372,
+      "size": 26,
+      "token": 465
+    },
+    {
+      "name": "enemies.6169",
+      "region": 54,
+      "offset": 9398,
+      "size": 24,
+      "token": 466
+    },
+    {
+      "name": "platforms.6181",
+      "region": 54,
+      "offset": 9422,
+      "size": 114,
+      "token": 467
+    },
+    {
+      "name": "text.61f3",
+      "region": 54,
+      "offset": 9536,
+      "size": 28,
+      "token": 468
+    },
+    {
+      "name": "passenger itinerary.620f",
+      "region": 54,
+      "offset": 9564,
+      "size": 14,
+      "token": 469
+    },
+    {
+      "name": "passenger itinerary.621d",
+      "region": 54,
+      "offset": 9578,
+      "size": 14,
+      "token": 470
+    },
+    {
+      "name": "passenger itinerary.622b",
+      "region": 54,
+      "offset": 9592,
+      "size": 14,
+      "token": 471
+    },
+    {
+      "name": "actors.6239",
+      "region": 54,
+      "offset": 9606,
+      "size": 26,
+      "token": 472
+    },
+    {
+      "name": "enemies.6253",
+      "region": 54,
+      "offset": 9632,
+      "size": 16,
+      "token": 473
+    },
+    {
+      "name": "platforms.6263",
+      "region": 54,
+      "offset": 9648,
+      "size": 66,
+      "token": 474
+    },
+    {
+      "name": "text.62a5",
+      "region": 54,
+      "offset": 9714,
+      "size": 17,
+      "token": 475
+    },
+    {
+      "name": "passenger itinerary.62b6",
+      "region": 54,
+      "offset": 9731,
+      "size": 22,
+      "token": 476
+    },
+    {
+      "name": "passenger itinerary.62cc",
+      "region": 54,
+      "offset": 9753,
+      "size": 14,
+      "token": 477
+    },
+    {
+      "name": "actors.62da",
+      "region": 54,
+      "offset": 9767,
+      "size": 20,
+      "token": 478
+    },
+    {
+      "name": "enemies.62ee",
+      "region": 54,
+      "offset": 9787,
+      "size": 16,
+      "token": 479
+    },
+    {
+      "name": "platforms.62fe",
+      "region": 54,
+      "offset": 9803,
+      "size": 66,
+      "token": 480
+    },
+    {
+      "name": "text.6340",
+      "region": 54,
+      "offset": 9869,
+      "size": 28,
+      "token": 481
+    },
+    {
+      "name": "passenger itinerary.635c",
+      "region": 54,
+      "offset": 9897,
+      "size": 14,
+      "token": 482
+    },
+    {
+      "name": "passenger itinerary.636a",
+      "region": 54,
+      "offset": 9911,
+      "size": 14,
+      "token": 483
+    },
+    {
+      "name": "actors.6378",
+      "region": 54,
+      "offset": 9925,
+      "size": 20,
+      "token": 484
+    },
+    {
+      "name": "enemies.638c",
+      "region": 54,
+      "offset": 9945,
+      "size": 16,
+      "token": 485
+    },
+    {
+      "name": "platforms.639c",
+      "region": 54,
+      "offset": 9961,
+      "size": 98,
+      "token": 486
+    },
+    {
+      "name": "text.63fe",
+      "region": 54,
+      "offset": 10059,
+      "size": 14,
+      "token": 487
+    },
+    {
+      "name": "passenger itinerary.640c",
+      "region": 54,
+      "offset": 10073,
+      "size": 14,
+      "token": 488
+    },
+    {
+      "name": "passenger itinerary.641a",
+      "region": 54,
+      "offset": 10087,
+      "size": 14,
+      "token": 489
+    },
+    {
+      "name": "actors.6428",
+      "region": 54,
+      "offset": 10101,
+      "size": 20,
+      "token": 490
+    },
+    {
+      "name": "enemies.643c",
+      "region": 54,
+      "offset": 10121,
+      "size": 16,
+      "token": 491
+    },
+    {
+      "name": "platforms.644c",
+      "region": 54,
+      "offset": 10137,
+      "size": 66,
+      "token": 492
+    },
+    {
+      "name": "text.648e",
+      "region": 54,
+      "offset": 10203,
+      "size": 20,
+      "token": 493
+    },
+    {
+      "name": "passenger itinerary.64a2",
+      "region": 54,
+      "offset": 10223,
+      "size": 18,
+      "token": 494
+    },
+    {
+      "name": "passenger itinerary.64b4",
+      "region": 54,
+      "offset": 10241,
+      "size": 14,
+      "token": 495
+    },
+    {
+      "name": "actors.64c2",
+      "region": 54,
+      "offset": 10255,
+      "size": 20,
+      "token": 496
+    },
+    {
+      "name": "enemies.64d6",
+      "region": 54,
+      "offset": 10275,
+      "size": 16,
+      "token": 497
+    },
+    {
+      "name": "platforms.64e6",
+      "region": 54,
+      "offset": 10291,
+      "size": 98,
+      "token": 498
+    },
+    {
+      "name": "text.6548",
+      "region": 54,
+      "offset": 10389,
+      "size": 21,
+      "token": 499
+    },
+    {
+      "name": "passenger itinerary.655d",
+      "region": 54,
+      "offset": 10410,
+      "size": 14,
+      "token": 500
+    },
+    {
+      "name": "passenger itinerary.656b",
+      "region": 54,
+      "offset": 10424,
+      "size": 14,
+      "token": 501
+    },
+    {
+      "name": "actors.6579",
+      "region": 54,
+      "offset": 10438,
+      "size": 20,
+      "token": 502
+    },
+    {
+      "name": "enemies.658d",
+      "region": 54,
+      "offset": 10458,
+      "size": 16,
+      "token": 503
+    },
+    {
+      "name": "platforms.659d",
+      "region": 54,
+      "offset": 10474,
+      "size": 66,
+      "token": 504
+    },
+    {
+      "name": "text.65df",
+      "region": 54,
+      "offset": 10540,
+      "size": 19,
+      "token": 505
+    },
+    {
+      "name": "passenger itinerary.65f2",
+      "region": 54,
+      "offset": 10559,
+      "size": 14,
+      "token": 506
+    },
+    {
+      "name": "passenger itinerary.6600",
+      "region": 54,
+      "offset": 10573,
+      "size": 18,
+      "token": 507
+    },
+    {
+      "name": "actors.6612",
+      "region": 54,
+      "offset": 10591,
+      "size": 20,
+      "token": 508
+    },
+    {
+      "name": "enemies.6626",
+      "region": 54,
+      "offset": 10611,
+      "size": 16,
+      "token": 509
+    },
+    {
+      "name": "platforms.6636",
+      "region": 54,
+      "offset": 10627,
+      "size": 114,
+      "token": 510
+    },
+    {
+      "name": "text.66a8",
+      "region": 54,
+      "offset": 10741,
+      "size": 19,
+      "token": 511
+    },
+    {
+      "name": "passenger itinerary.66bb",
+      "region": 54,
+      "offset": 10760,
+      "size": 14,
+      "token": 512
+    },
+    {
+      "name": "passenger itinerary.66c9",
+      "region": 54,
+      "offset": 10774,
+      "size": 14,
+      "token": 513
+    },
+    {
+      "name": "passenger itinerary.66d7",
+      "region": 54,
+      "offset": 10788,
+      "size": 14,
+      "token": 514
+    },
+    {
+      "name": "passenger itinerary.66e5",
+      "region": 54,
+      "offset": 10802,
+      "size": 14,
+      "token": 515
+    },
+    {
+      "name": "actors.66f3",
+      "region": 54,
+      "offset": 10816,
+      "size": 32,
+      "token": 516
+    },
+    {
+      "name": "enemies.6713",
+      "region": 54,
+      "offset": 10848,
+      "size": 2,
+      "token": 517
+    },
+    {
+      "name": "platforms.6715",
+      "region": 54,
+      "offset": 10850,
+      "size": 82,
+      "token": 518
+    },
+    {
+      "name": "text.6767",
+      "region": 54,
+      "offset": 10932,
+      "size": 35,
+      "token": 519
+    },
+    {
+      "name": "passenger itinerary.678a",
+      "region": 54,
+      "offset": 10967,
+      "size": 10,
+      "token": 520
+    },
+    {
+      "name": "passenger itinerary.6794",
+      "region": 54,
+      "offset": 10977,
+      "size": 22,
+      "token": 521
+    },
+    {
+      "name": "actors.67aa",
+      "region": 54,
+      "offset": 10999,
+      "size": 14,
+      "token": 522
+    },
+    {
+      "name": "enemies.67b8",
+      "region": 54,
+      "offset": 11013,
+      "size": 2,
+      "token": 523
+    },
+    {
+      "name": "platforms.67ba",
+      "region": 54,
+      "offset": 11015,
+      "size": 98,
+      "token": 524
+    },
+    {
+      "name": "text.681c",
+      "region": 54,
+      "offset": 11113,
+      "size": 20,
+      "token": 525
+    },
+    {
+      "name": "passenger itinerary.6830",
+      "region": 54,
+      "offset": 11133,
+      "size": 14,
+      "token": 526
+    },
+    {
+      "name": "passenger itinerary.683e",
+      "region": 54,
+      "offset": 11147,
+      "size": 14,
+      "token": 527
+    },
+    {
+      "name": "actors.684c",
+      "region": 54,
+      "offset": 11161,
+      "size": 20,
+      "token": 528
+    },
+    {
+      "name": "enemies.6860",
+      "region": 54,
+      "offset": 11181,
+      "size": 16,
+      "token": 529
+    },
+    {
+      "name": "platforms.6870",
+      "region": 54,
+      "offset": 11197,
+      "size": 82,
+      "token": 530
+    },
+    {
+      "name": "text.68c2",
+      "region": 54,
+      "offset": 11279,
+      "size": 15,
+      "token": 531
+    },
+    {
+      "name": "passenger itinerary.68d1",
+      "region": 54,
+      "offset": 11294,
+      "size": 18,
+      "token": 532
+    },
+    {
+      "name": "passenger itinerary.68e3",
+      "region": 54,
+      "offset": 11312,
+      "size": 22,
+      "token": 533
+    },
+    {
+      "name": "actors.68f9",
+      "region": 54,
+      "offset": 11334,
+      "size": 20,
+      "token": 534
+    },
+    {
+      "name": "enemies.690d",
+      "region": 54,
+      "offset": 11354,
+      "size": 16,
+      "token": 535
+    },
+    {
+      "name": "platforms.691d",
+      "region": 54,
+      "offset": 11370,
+      "size": 98,
+      "token": 536
+    },
+    {
+      "name": "text.697f",
+      "region": 54,
+      "offset": 11468,
+      "size": 24,
+      "token": 537
+    },
+    {
+      "name": "passenger itinerary.6997",
+      "region": 54,
+      "offset": 11492,
+      "size": 14,
+      "token": 538
+    },
+    {
+      "name": "passenger itinerary.69a5",
+      "region": 54,
+      "offset": 11506,
+      "size": 14,
+      "token": 539
+    },
+    {
+      "name": "actors.69b3",
+      "region": 54,
+      "offset": 11520,
+      "size": 20,
+      "token": 540
+    },
+    {
+      "name": "enemies.69c7",
+      "region": 54,
+      "offset": 11540,
+      "size": 26,
+      "token": 541
+    },
+    {
+      "name": "platforms.69e1",
+      "region": 54,
+      "offset": 11566,
+      "size": 98,
+      "token": 542
+    },
+    {
+      "name": "text.6a43",
+      "region": 54,
+      "offset": 11664,
+      "size": 19,
+      "token": 543
+    },
+    {
+      "name": "passenger itinerary.6a56",
+      "region": 54,
+      "offset": 11683,
+      "size": 14,
+      "token": 544
+    },
+    {
+      "name": "passenger itinerary.6a64",
+      "region": 54,
+      "offset": 11697,
+      "size": 14,
+      "token": 545
+    },
+    {
+      "name": "actors.6a72",
+      "region": 54,
+      "offset": 11711,
+      "size": 20,
+      "token": 546
+    },
+    {
+      "name": "enemies.6a86",
+      "region": 54,
+      "offset": 11731,
+      "size": 8,
+      "token": 547
+    },
+    {
+      "name": "platforms.6a8e",
+      "region": 54,
+      "offset": 11739,
+      "size": 66,
+      "token": 548
+    },
+    {
+      "name": "text.6ad0",
+      "region": 54,
+      "offset": 11805,
+      "size": 10,
+      "token": 549
+    },
+    {
+      "name": "passenger itinerary.6ada",
+      "region": 54,
+      "offset": 11815,
+      "size": 14,
+      "token": 550
+    },
+    {
+      "name": "passenger itinerary.6ae8",
+      "region": 54,
+      "offset": 11829,
+      "size": 10,
+      "token": 551
+    },
+    {
+      "name": "actors.6af2",
+      "region": 54,
+      "offset": 11839,
+      "size": 20,
+      "token": 552
+    },
+    {
+      "name": "enemies.6b06",
+      "region": 54,
+      "offset": 11859,
+      "size": 16,
+      "token": 553
+    },
+    {
+      "name": "platforms.6b16",
+      "region": 54,
+      "offset": 11875,
+      "size": 98,
+      "token": 554
+    },
+    {
+      "name": "text.6b78",
+      "region": 54,
+      "offset": 11973,
+      "size": 12,
+      "token": 555
+    },
+    {
+      "name": "passenger itinerary.6b84",
+      "region": 54,
+      "offset": 11985,
+      "size": 14,
+      "token": 556
+    },
+    {
+      "name": "passenger itinerary.6b92",
+      "region": 54,
+      "offset": 11999,
+      "size": 14,
+      "token": 557
+    },
+    {
+      "name": "passenger itinerary.6ba0",
+      "region": 54,
+      "offset": 12013,
+      "size": 14,
+      "token": 558
+    },
+    {
+      "name": "actors.6bae",
+      "region": 54,
+      "offset": 12027,
+      "size": 26,
+      "token": 559
+    },
+    {
+      "name": "enemies.6bc8",
+      "region": 54,
+      "offset": 12053,
+      "size": 16,
+      "token": 560
+    },
+    {
+      "name": "platforms.6bd8",
+      "region": 54,
+      "offset": 12069,
+      "size": 114,
+      "token": 561
+    },
+    {
+      "name": "text.6c4a",
+      "region": 54,
+      "offset": 12183,
+      "size": 18,
+      "token": 562
+    },
+    {
+      "name": "passenger itinerary.6c5c",
+      "region": 54,
+      "offset": 12201,
+      "size": 18,
+      "token": 563
+    },
+    {
+      "name": "passenger itinerary.6c6e",
+      "region": 54,
+      "offset": 12219,
+      "size": 18,
+      "token": 564
+    },
+    {
+      "name": "actors.6c80",
+      "region": 54,
+      "offset": 12237,
+      "size": 20,
+      "token": 565
+    },
+    {
+      "name": "enemies.6c94",
+      "region": 54,
+      "offset": 12257,
+      "size": 14,
+      "token": 566
+    },
+    {
+      "name": "platforms.6ca2",
+      "region": 54,
+      "offset": 12271,
+      "size": 114,
+      "token": 567
+    },
+    {
+      "name": "text.6d14",
+      "region": 54,
+      "offset": 12385,
+      "size": 12,
+      "token": 568
+    },
+    {
+      "name": "passenger itinerary.6d20",
+      "region": 54,
+      "offset": 12397,
+      "size": 14,
+      "token": 569
+    },
+    {
+      "name": "passenger itinerary.6d2e",
+      "region": 54,
+      "offset": 12411,
+      "size": 14,
+      "token": 570
+    },
+    {
+      "name": "passenger itinerary.6d3c",
+      "region": 54,
+      "offset": 12425,
+      "size": 14,
+      "token": 571
+    },
+    {
+      "name": "actors.6d4a",
+      "region": 54,
+      "offset": 12439,
+      "size": 26,
+      "token": 572
+    },
+    {
+      "name": "enemies.6d64",
+      "region": 54,
+      "offset": 12465,
+      "size": 16,
+      "token": 573
+    },
+    {
+      "name": "platforms.6d74",
+      "region": 54,
+      "offset": 12481,
+      "size": 82,
+      "token": 574
+    },
+    {
+      "name": "text.6dc6",
+      "region": 54,
+      "offset": 12563,
+      "size": 16,
+      "token": 575
+    },
+    {
+      "name": "passenger itinerary.6dd6",
+      "region": 54,
+      "offset": 12579,
+      "size": 14,
+      "token": 576
+    },
+    {
+      "name": "passenger itinerary.6de4",
+      "region": 54,
+      "offset": 12593,
+      "size": 18,
+      "token": 577
+    },
+    {
+      "name": "actors.6df6",
+      "region": 54,
+      "offset": 12611,
+      "size": 20,
+      "token": 578
+    },
+    {
+      "name": "enemies.6e0a",
+      "region": 54,
+      "offset": 12631,
+      "size": 16,
+      "token": 579
+    },
+    {
+      "name": "platforms.6e1a",
+      "region": 54,
+      "offset": 12647,
+      "size": 66,
+      "token": 580
+    },
+    {
+      "name": "text.6e5c",
+      "region": 54,
+      "offset": 12713,
+      "size": 18,
+      "token": 581
+    },
+    {
+      "name": "passenger itinerary.6e6e",
+      "region": 54,
+      "offset": 12731,
+      "size": 14,
+      "token": 582
+    },
+    {
+      "name": "passenger itinerary.6e7c",
+      "region": 54,
+      "offset": 12745,
+      "size": 14,
+      "token": 583
+    },
+    {
+      "name": "passenger itinerary.6e8a",
+      "region": 54,
+      "offset": 12759,
+      "size": 14,
+      "token": 584
+    },
+    {
+      "name": "passenger itinerary.6e98",
+      "region": 54,
+      "offset": 12773,
+      "size": 14,
+      "token": 585
+    },
+    {
+      "name": "actors.6ea6",
+      "region": 54,
+      "offset": 12787,
+      "size": 26,
+      "token": 586
+    },
+    {
+      "name": "enemies.6ec0",
+      "region": 54,
+      "offset": 12813,
+      "size": 2,
+      "token": 587
+    },
+    {
+      "name": "platforms.6ec2",
+      "region": 54,
+      "offset": 12815,
+      "size": 114,
+      "token": 588
+    },
+    {
+      "name": "text.6f34",
+      "region": 54,
+      "offset": 12929,
+      "size": 20,
+      "token": 589
+    },
+    {
+      "name": "passenger itinerary.6f48",
+      "region": 54,
+      "offset": 12949,
+      "size": 14,
+      "token": 590
+    },
+    {
+      "name": "passenger itinerary.6f56",
+      "region": 54,
+      "offset": 12963,
+      "size": 14,
+      "token": 591
+    },
+    {
+      "name": "passenger itinerary.6f64",
+      "region": 54,
+      "offset": 12977,
+      "size": 14,
+      "token": 592
+    },
+    {
+      "name": "actors.6f72",
+      "region": 54,
+      "offset": 12991,
+      "size": 26,
+      "token": 593
+    },
+    {
+      "name": "enemies.6f8c",
+      "region": 54,
+      "offset": 13017,
+      "size": 16,
+      "token": 594
+    },
+    {
+      "name": "platforms.6f9c",
+      "region": 54,
+      "offset": 13033,
+      "size": 98,
+      "token": 595
+    },
+    {
+      "name": "text.6ffe",
+      "region": 54,
+      "offset": 13131,
+      "size": 20,
+      "token": 596
+    },
+    {
+      "name": "passenger itinerary.7012",
+      "region": 54,
+      "offset": 13151,
+      "size": 14,
+      "token": 597
+    },
+    {
+      "name": "passenger itinerary.7020",
+      "region": 54,
+      "offset": 13165,
+      "size": 14,
+      "token": 598
+    },
+    {
+      "name": "passenger itinerary.702e",
+      "region": 54,
+      "offset": 13179,
+      "size": 18,
+      "token": 599
+    },
+    {
+      "name": "actors.7040",
+      "region": 54,
+      "offset": 13197,
+      "size": 26,
+      "token": 600
+    },
+    {
+      "name": "enemies.705a",
+      "region": 54,
+      "offset": 13223,
+      "size": 26,
+      "token": 601
+    },
+    {
+      "name": "platforms.7074",
+      "region": 54,
+      "offset": 13249,
+      "size": 98,
+      "token": 602
+    },
+    {
+      "name": "text.70d6",
+      "region": 54,
+      "offset": 13347,
+      "size": 17,
+      "token": 603
+    },
+    {
+      "name": "passenger itinerary.70e7",
+      "region": 54,
+      "offset": 13364,
+      "size": 18,
+      "token": 604
+    },
+    {
+      "name": "passenger itinerary.70f9",
+      "region": 54,
+      "offset": 13382,
+      "size": 18,
+      "token": 605
+    },
+    {
+      "name": "passenger itinerary.710b",
+      "region": 54,
+      "offset": 13400,
+      "size": 18,
+      "token": 606
+    },
+    {
+      "name": "actors.711d",
+      "region": 54,
+      "offset": 13418,
+      "size": 26,
+      "token": 607
+    },
+    {
+      "name": "enemies.7137",
+      "region": 54,
+      "offset": 13444,
+      "size": 16,
+      "token": 608
+    },
+    {
+      "name": "platforms.7147",
+      "region": 54,
+      "offset": 13460,
+      "size": 82,
+      "token": 609
+    },
+    {
+      "name": "text.7199",
+      "region": 54,
+      "offset": 13542,
+      "size": 14,
+      "token": 610
+    },
+    {
+      "name": "passenger itinerary.71a7",
+      "region": 54,
+      "offset": 13556,
+      "size": 18,
+      "token": 611
+    },
+    {
+      "name": "passenger itinerary.71b9",
+      "region": 54,
+      "offset": 13574,
+      "size": 18,
+      "token": 612
+    },
+    {
+      "name": "actors.71cb",
+      "region": 54,
+      "offset": 13592,
+      "size": 20,
+      "token": 613
+    },
+    {
+      "name": "enemies.71df",
+      "region": 54,
+      "offset": 13612,
+      "size": 8,
+      "token": 614
+    },
+    {
+      "name": "platforms.71e7",
+      "region": 54,
+      "offset": 13620,
+      "size": 98,
+      "token": 615
+    },
+    {
+      "name": "text.7249",
+      "region": 54,
+      "offset": 13718,
+      "size": 10,
+      "token": 616
+    },
+    {
+      "name": "passenger itinerary.7253",
+      "region": 54,
+      "offset": 13728,
+      "size": 14,
+      "token": 617
+    },
+    {
+      "name": "passenger itinerary.7261",
+      "region": 54,
+      "offset": 13742,
+      "size": 14,
+      "token": 618
+    },
+    {
+      "name": "passenger itinerary.726f",
+      "region": 54,
+      "offset": 13756,
+      "size": 14,
+      "token": 619
+    },
+    {
+      "name": "actors.727d",
+      "region": 54,
+      "offset": 13770,
+      "size": 26,
+      "token": 620
+    },
+    {
+      "name": "enemies.7297",
+      "region": 54,
+      "offset": 13796,
+      "size": 16,
+      "token": 621
+    },
+    {
+      "name": "platforms.72a7",
+      "region": 54,
+      "offset": 13812,
+      "size": 66,
+      "token": 622
+    },
+    {
+      "name": "text.72e9",
+      "region": 54,
+      "offset": 13878,
+      "size": 16,
+      "token": 623
+    },
+    {
+      "name": "passenger itinerary.72f9",
+      "region": 54,
+      "offset": 13894,
+      "size": 18,
+      "token": 624
+    },
+    {
+      "name": "passenger itinerary.730b",
+      "region": 54,
+      "offset": 13912,
+      "size": 18,
+      "token": 625
+    },
+    {
+      "name": "actors.731d",
+      "region": 54,
+      "offset": 13930,
+      "size": 20,
+      "token": 626
+    },
+    {
+      "name": "enemies.7331",
+      "region": 54,
+      "offset": 13950,
+      "size": 16,
+      "token": 627
+    },
+    {
+      "name": "platforms.7341",
+      "region": 54,
+      "offset": 13966,
+      "size": 66,
+      "token": 628
+    },
+    {
+      "name": "text.7383",
+      "region": 54,
+      "offset": 14032,
+      "size": 21,
+      "token": 629
+    },
+    {
+      "name": "passenger itinerary.7398",
+      "region": 54,
+      "offset": 14053,
+      "size": 14,
+      "token": 630
+    },
+    {
+      "name": "passenger itinerary.73a6",
+      "region": 54,
+      "offset": 14067,
+      "size": 14,
+      "token": 631
+    },
+    {
+      "name": "passenger itinerary.73b4",
+      "region": 54,
+      "offset": 14081,
+      "size": 14,
+      "token": 632
+    },
+    {
+      "name": "actors.73c2",
+      "region": 54,
+      "offset": 14095,
+      "size": 20,
+      "token": 633
+    },
+    {
+      "name": "enemies.73d6",
+      "region": 54,
+      "offset": 14115,
+      "size": 8,
+      "token": 634
+    },
+    {
+      "name": "platforms.73de",
+      "region": 54,
+      "offset": 14123,
+      "size": 66,
+      "token": 635
+    },
+    {
+      "name": "text.7420",
+      "region": 54,
+      "offset": 14189,
+      "size": 25,
+      "token": 636
+    },
+    {
+      "name": "passenger itinerary.7439",
+      "region": 54,
+      "offset": 14214,
+      "size": 34,
+      "token": 637
+    },
+    {
+      "name": "passenger itinerary.745b",
+      "region": 54,
+      "offset": 14248,
+      "size": 18,
+      "token": 638
+    },
+    {
+      "name": "passenger itinerary.746d",
+      "region": 54,
+      "offset": 14266,
+      "size": 14,
+      "token": 639
+    },
+    {
+      "name": "actors.747b",
+      "region": 54,
+      "offset": 14280,
+      "size": 26,
+      "token": 640
+    },
+    {
+      "name": "enemies.7495",
+      "region": 54,
+      "offset": 14306,
+      "size": 10,
+      "token": 641
+    },
+    {
+      "name": "platforms.749f",
+      "region": 54,
+      "offset": 14316,
+      "size": 98,
+      "token": 642
+    },
+    {
+      "name": "text.7501",
+      "region": 54,
+      "offset": 14414,
+      "size": 17,
+      "token": 643
+    },
+    {
+      "name": "passenger itinerary.7512",
+      "region": 54,
+      "offset": 14431,
+      "size": 18,
+      "token": 644
+    },
+    {
+      "name": "passenger itinerary.7524",
+      "region": 54,
+      "offset": 14449,
+      "size": 18,
+      "token": 645
+    },
+    {
+      "name": "passenger itinerary.7536",
+      "region": 54,
+      "offset": 14467,
+      "size": 14,
+      "token": 646
+    },
+    {
+      "name": "actors.7544",
+      "region": 54,
+      "offset": 14481,
+      "size": 26,
+      "token": 647
+    },
+    {
+      "name": "enemies.755e",
+      "region": 54,
+      "offset": 14507,
+      "size": 8,
+      "token": 648
+    },
+    {
+      "name": "platforms.7566",
+      "region": 54,
+      "offset": 14515,
+      "size": 98,
+      "token": 649
+    },
+    {
+      "name": "text.75c8",
+      "region": 54,
+      "offset": 14613,
+      "size": 16,
+      "token": 650
+    },
+    {
+      "name": "passenger itinerary.75d8",
+      "region": 54,
+      "offset": 14629,
+      "size": 10,
+      "token": 651
+    },
+    {
+      "name": "passenger itinerary.75e2",
+      "region": 54,
+      "offset": 14639,
+      "size": 18,
+      "token": 652
+    },
+    {
+      "name": "passenger itinerary.75f4",
+      "region": 54,
+      "offset": 14657,
+      "size": 18,
+      "token": 653
+    },
+    {
+      "name": "actors.7606",
+      "region": 54,
+      "offset": 14675,
+      "size": 26,
+      "token": 654
+    },
+    {
+      "name": "enemies.7620",
+      "region": 54,
+      "offset": 14701,
+      "size": 16,
+      "token": 655
+    },
+    {
+      "name": "enemy descriptor.7630",
+      "region": 55,
+      "offset": 0,
+      "size": 60,
+      "token": 656
+    },
+    {
+      "name": "enemy descriptor.766c",
+      "region": 55,
+      "offset": 60,
+      "size": 60,
+      "token": 657
+    },
+    {
+      "name": "enemy descriptor.76a8",
+      "region": 55,
+      "offset": 120,
+      "size": 60,
+      "token": 658
+    },
+    {
+      "name": "enemy descriptor.76e4",
+      "region": 55,
+      "offset": 180,
+      "size": 60,
+      "token": 659
+    },
+    {
+      "name": "actor descriptor.7720",
+      "region": 56,
+      "offset": 0,
+      "size": 74,
+      "token": 660
+    },
+    {
+      "name": "actor descriptor.776a",
+      "region": 56,
+      "offset": 74,
+      "size": 74,
+      "token": 661
+    },
+    {
+      "name": "actor descriptor.77b4",
+      "region": 56,
+      "offset": 148,
+      "size": 74,
+      "token": 662
+    },
+    {
+      "name": "actor descriptor.77fe",
+      "region": 56,
+      "offset": 222,
+      "size": 74,
+      "token": 663
+    },
+    {
+      "name": "actor descriptor.7848",
+      "region": 56,
+      "offset": 296,
+      "size": 74,
+      "token": 664
+    },
+    {
+      "name": "actor descriptor.7892",
+      "region": 56,
+      "offset": 370,
+      "size": 74,
+      "token": 665
+    },
+    {
+      "name": "actor descriptor.78dc",
+      "region": 56,
+      "offset": 444,
+      "size": 74,
+      "token": 666
+    },
+    {
+      "name": "actor descriptor.7926",
+      "region": 56,
+      "offset": 518,
+      "size": 74,
+      "token": 667
+    },
+    {
+      "name": "falling-item descriptor.7970",
+      "region": 57,
+      "offset": 0,
+      "size": 20,
+      "token": 668
+    },
+    {
+      "name": "falling-item descriptor.7984",
+      "region": 57,
+      "offset": 20,
+      "size": 20,
+      "token": 669
+    },
+    {
+      "name": "falling-item descriptor.7998",
+      "region": 57,
+      "offset": 40,
+      "size": 20,
+      "token": 670
+    },
+    {
+      "name": "falling-item descriptor.79ac",
+      "region": 57,
+      "offset": 60,
+      "size": 20,
+      "token": 671
+    },
+    {
+      "name": "falling-item descriptor.79c0",
+      "region": 57,
+      "offset": 80,
+      "size": 20,
+      "token": 672
+    },
+    {
+      "name": "falling-item descriptor.79d4",
+      "region": 57,
+      "offset": 100,
+      "size": 20,
+      "token": 673
+    },
+    {
+      "name": "falling-item descriptor.79e8",
+      "region": 57,
+      "offset": 120,
+      "size": 20,
+      "token": 674
+    },
+    {
+      "name": "falling-item descriptor.79fc",
+      "region": 57,
+      "offset": 140,
+      "size": 20,
+      "token": 675
+    },
+    {
+      "name": "falling-item descriptor.7a10",
+      "region": 57,
+      "offset": 160,
+      "size": 20,
+      "token": 676
+    },
+    {
+      "name": "falling-item descriptor.7a24",
+      "region": 57,
+      "offset": 180,
+      "size": 20,
+      "token": 677
+    },
+    {
+      "name": "falling-item descriptor.7a38",
+      "region": 57,
+      "offset": 200,
+      "size": 20,
+      "token": 678
+    },
+    {
+      "name": "player.animation_starts",
+      "region": 44,
+      "offset": 0,
+      "size": 4,
+      "token": 679
+    },
+    {
+      "name": "player.animation_ends",
+      "region": 44,
+      "offset": 2,
+      "size": 4,
+      "token": 680
+    },
+    {
+      "name": "player.impact_limits",
+      "region": 50,
+      "offset": 0,
+      "size": 6,
+      "token": 681
+    }
+  ],
+  "workspace": {
+    "window": 65536,
+    "nominal_allocation": 64768,
+    "audio_alias": [
+      64768,
+      4
+    ],
+    "padding": [
+      64772,
+      12
+    ],
+    "packed_maps_alias": [
+      64784,
+      752
+    ]
+  },
+  "classification": "All deferred data remains mutable or opaque_mutable; only resource_catalog codec tables have immutable evidence. No new readonly claim.",
+  "borrowers": {
+    "codec": "Full-window seed/publication, actual partial backward-ring writes only",
+    "render": "Sprite directory, pixel banks, palettes and masks read live",
+    "player": "Overlapping cycle starts/ends and three difficulty words",
+    "session": "Ordered level/list/map reads",
+    "actors": "Descriptors, animations, journeys, lists and scripts read live",
+    "front_end": "Passwords/text/order views",
+    "audio": "ADLX/music/sample provider windows",
+    "copy_decimal": "Foreign, biased and partial byte aliases"
+  }
+}

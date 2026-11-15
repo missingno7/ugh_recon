@@ -1,0 +1,33 @@
+{
+  "component": "resource_world",
+  "flag": "UGH_NATIVE_RESOURCE_DATA",
+  "order": 18,
+  "header": "native/bridge/resource_world_bridge.h",
+  "bridge": "native/bridge/resource_world_bridge.c",
+  "lanes": {
+    "predicate": "resource_data_is_owned",
+    "declaration": "Authoritative physical-byte membership in this world bridge; aliases are lanes, never independent allocations",
+    "stability": "Fixed physical membership after cold construction; availability may be inactive before import",
+    "bytes": 359423
+  },
+  "cold_import": "resource_data_cold_import",
+  "seal": "resource_data_require_seal",
+  "read": "resource_data_shared_read",
+  "write": "resource_data_shared_write",
+  "serialize": "resource_data_serialize",
+  "check": "resource_data_check_serialization",
+  "owned_bytes": "resource_data_owned_bytes",
+  "borrowed_byte": "resource_data_borrowed_byte",
+  "borrowed_store": "resource_data_borrowed_store",
+  "platform_provider": null,
+  "compile_flags": [],
+  "gate": {
+    "cases": "verif/world_cases/resource_data.py"
+  },
+  "files": [
+    "metadata/resource-world.json",
+    "native/resource_world_layout.inc",
+    "native/bridge/resource_world_bindings.inc",
+    "verif/resource_world_router.c"
+  ]
+}

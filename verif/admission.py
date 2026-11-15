@@ -26,7 +26,7 @@ sys.path[:0] = [str(ROOT / "verif"), str(ROOT / "tools")]
 # Receipt snapshots are data, not game code. Pins are filled from the accepted
 # receipts, independently of the generated manifest. Missing receipts must never
 # turn --check into an unchecked comparison of a manifest with itself.
-PINS = {'audio': 'dc50cfb50119d00c94062dd47b056c01ee334a9f646476139055545a88479101', 'timing': 'd1d1272ff929a38e2f81427053c37f18a0eae212812e36ae9c476ed6288f18b9', 'audio_summary': '0b0d19e49187afcc1c10bf5dcd9e527903ac8236e803e4dce23913df0a4ff479', 'timing_summary': '0871ae4306290dde454e4e0cd641537e95450349a2a22332ec031dafcdb94758', 'pack': '652e7c2536ca5ab220ff09b9899ead2af80470bc0716ca0724d8e2c1fd79c4ac', 'prefix_replay': '0b5658d853aa1077cc95d9ef9a1bf0e5664d9207f5d4fffb2f18782dda33911e'}
+PINS = {'audio': 'dc50cfb50119d00c94062dd47b056c01ee334a9f646476139055545a88479101', 'timing': 'd1d1272ff929a38e2f81427053c37f18a0eae212812e36ae9c476ed6288f18b9', 'audio_summary': '0b0d19e49187afcc1c10bf5dcd9e527903ac8236e803e4dce23913df0a4ff479', 'timing_summary': '0871ae4306290dde454e4e0cd641537e95450349a2a22332ec031dafcdb94758', 'pack': '1e889cc5d20d50b3b775fab041e3ed76024e640434c0c6e65c064619fefb10af', 'prefix_replay': '0b5658d853aa1077cc95d9ef9a1bf0e5664d9207f5d4fffb2f18782dda33911e'}
 RECEIPTS = {
     "audio": "build/workers/close-adlx-23/api.json",
     "timing": "build/workers/close-adlx-22/api.json",
@@ -469,10 +469,16 @@ def assemble(previous=None):
         "policy_inputs": {path: text_hash(ROOT / path) for path in (
             "docs/port-contract.md", "docs/standalone-plan.md", "src/asm/GAME.ASM",
             "native/pixel_world.h", "native/actor_world.h", "native/enemy_world.h",
-            "native/resource_catalog.c", "port/resources.c")},
+            "native/resource_catalog.c", "native/resource_world.h", "native/resource_world.c",
+            "metadata/resource-world.json", "metadata/program-model.json", "port/resources.c")},
+        "model_storage_extents": {n: v["storage_extent"] for n, v in read(ROOT / "metadata/program-model.json")["variables"].items() if "storage_extent" in v},
         "evidence_snapshots": ev,
         "registry": {"resource_catalog": {"sprite": {"kind": 1, "indices": [0, 661]}, "codec": {"kind": 2, "indices": [0, 4]},
                                           "demo_effect": {"kind": 3, "indices": [0, 2]}, "source": source("native/resource_catalog.c")},
+                     "resource_world": {"source": source("metadata/resource-world.json"),
+                                        "schema": 1, "pack_family": 5,
+                                        "views": read(ROOT / "metadata/resource-world.json")["views"],
+                                        "workspace": read(ROOT / "metadata/resource-world.json")["workspace"]},
                      "pack_resources": pack["resources"],
                      "resource_groups": resource_groups(pack),
                      "storage_only_units": {"actor_world": "Preserves raw words; callback registry is actor_pass, typed descriptors are actor_types. Storage is not permission to interpret an identity.",

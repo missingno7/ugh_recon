@@ -224,7 +224,7 @@
     "metadata/closure/video_dos.json": "contract-v1:012e7fd8ceaffb0443863e995cc409635dfc492b6895061b2411539c7381ac15",
     "metadata/closure/video_pages.json": "contract-v1:446da768622f883de709b9e9f330cb1a430f259aa00bd89fe559b9322f5f5eac",
     "metadata/closure/water_weather.json": "contract-v1:01d982a43fc467bd40a206d21b72fe3f232fe8e293ea9b6b835e504e9c6f67c6",
-    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "metadata/program-model.json": "fc421cdeff861f7fecc194339a376ba3a23356806a1107af46e3b84ee7c28709",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
     "native/actor_pass.c": "51af4b214987bf35bdfdadd60c06d7722eaefbb0efb06f33f894c031f25c7a1e",
     "native/actor_pass.h": "bacd12e4aefb60987f641e3e814d83c799068588e443417456fe9ff2e2a7a8ad",
@@ -335,7 +335,7 @@
     "verif/player_physics_l0_cases.py": "a3bf551de674f3c6121c023498fdca1641f99f68e75b23fd5dfb28e313fc4948",
     "verif/player_physics_pair.py": "7e29ed9c38953a63880c99c7edd98cee3e8bcdafa86d4b7068386efefbc237b7",
     "verif/presentation_composition.py": "19ecad7942dbca37569062bfb4974fd8edbc7be212431030b1508a8a8fdae083",
-    "verif/projector/observer.c": "bc0a563339976281e80a76ec6fe8a499552922f0d6b7465987e584def623392c",
+    "verif/projector/observer.c": "aebab7ab83992bf9843f7530597b5e553cd40745c241ff11e7793c113f9c115f",
     "verif/projector/publications.py": "4a4ca629261acff45e12a4af7bf2df8e2af87fe0ff64257a952fcfb6e0e8b26f",
     "verif/projector/schema.py": "1bb39678888b4da7fb5a48ee6b26794d392ee544238c58ede37d85cb38c33228",
     "verif/projector/timing_serializer.h": "43d5b73629567906c30746bd1b2ca97f56d74eae3f99fc5af55e85432fa1317a",
@@ -357,7 +357,7 @@
     "verif/video_pages_composition.py": "3d7bb7b8d3a2ae397b1dc73e963f88e727c268608339df14b9b17ee98ee313be",
     "verif/water_weather_l0_cases.py": "e620b99e61d78aa407458d080fbeabcff8c9958992a4b9b11f6f94d33a6942e0",
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
-    "tools/world_registry.py": "54fdfc61a0509112ab2049af29f7321f56718084637a1fce04b0b89429159b99",
+    "tools/world_registry.py": "06893f72ab80e15b198bf45865a5927a76dac2bf9daddb8f60ef3f6ac0aba9a1",
     "metadata/worlds/resource_catalog.json": "e6b1df95766c162c031dfabf7aadeb3408435372e6613041c13e7132be1a699a",
     "verif/world_cases/resource.py": "45ba4e8258275cfdf00d99f770d6bb896ed9b82e056a1d2f6c4d3f79d79c175e",
     "verif/world_gate.py": "2ba63041f75fd9c9c0b368ce40ef6ec1e40bb692bc17940c1dcf06f2b3311763",
@@ -754,6 +754,22 @@
         "verif/world_api.py",
         "verif/world_gate.py"
       ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5R continuation: refresh only changed direct model/registry/projector inputs; accepted algorithms, proof domains and statuses unchanged. No note/lock-only cascade.",
+      "commands": [
+        "python verif/world_gate.py resource_world --jobs 3 --out build/workers/cut-5r2/gate",
+        "python verif/world_gate.py resource_world --finalize --locks --out build/workers/cut-5r2/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5r2/sgate"
+      ],
+      "results": "PASS finalized11-stage world gate; all5 controls,21 projector runs/no moved journal, census, hosts21+21 and level groups81+7+8 both variants. Separate root supervisor receipt: build/workers/cut-5r2/sgate/receipt.json.",
+      "inputs": [
+        "metadata/program-model.json",
+        "tools/world_registry.py",
+        "verif/projector/observer.c"
+      ],
+      "dependency_change": false
     }
   ]
 }

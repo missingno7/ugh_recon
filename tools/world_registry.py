@@ -141,6 +141,29 @@ def compose(relative,text,units):
    for v in ['ten','hundred']:text=text.replace('*divisors.'+v,'world_borrowed_byte(divisors.'+v+',0)')
   return h+text
  names={r['component'] for r in rows}
+ if 'resource_world' in names and relative.startswith('native/bridge/') and relative.endswith('.c') and relative not in {r['bridge'] for r in rows}:
+  # Storage borrowers keep the accepted byte/word algorithms. Classify the
+  # consuming adapter explicitly, including conditional/foreign resource views.
+  leaf=Path(relative).stem
+  role=('CODEC' if leaf.startswith('ice') or leaf=='pictures_bridge' else
+        'RENDER' if any(n in leaf for n in ['render','palette','video','hud','water']) else
+        'PLAYER' if 'physics' in leaf or 'contacts' in leaf else
+        'SESSION' if 'session' in leaf or 'level' in leaf else
+        'FRONT_END' if any(n in leaf for n in ['menu','score','text','lifecycle']) else
+        'AUDIO' if any(n in leaf for n in ['audio','adlx','sound','music','sample']) else
+        'COPY_DECIMAL' if any(n in leaf for n in ['copy','decimal']) else 'ACTORS')
+  for bits in [8,16,32]:
+   for action,call in [('read','resource_data_borrow_read'),('write','resource_data_borrow_write')]:
+    pattern=r'\b(?:'+('rd' if action=='read' else 'wr')+str(bits)+r'|(?:run|rng|player|platforms|actors|enemies|items|frontend|lifecycle)_'+action+str(bits)+r')\('
+    # Insert width after the two original coordinate operands using small
+    # wrappers, retaining evaluation and contiguous-word semantics.
+    wrapper='resource_'+action+str(bits)
+    text=re.sub(pattern,wrapper+'(',text)
+  prologue='#include "resource_world_bridge.h"\n'
+  for bits in [8,16,32]:
+   prologue+='#define resource_read'+str(bits)+'(b,p) ((uint'+str(bits)+'_t)resource_data_borrow_read(RESOURCE_BORROW_'+role+',b,p,'+str(bits//8)+'))\n'
+   prologue+='#define resource_write'+str(bits)+'(b,p,v) resource_data_borrow_write(RESOURCE_BORROW_'+role+',b,p,'+str(bits//8)+',v)\n'
+  text=prologue+text
  if relative in ('native/bridge/ice_bridge.c','native/bridge/ice_scratch_bridge.c') and 'audio_world' in names:
   name='ice_scratch.h' if 'ice_scratch_bridge' in relative else 'ice.h'
   text=text.replace('#include "../'+name+'"','#include "'+(ROOT/'native'/name).as_posix()+'"\n#include "audio_world_bridge.h"')

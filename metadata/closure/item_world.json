@@ -1,0 +1,232 @@
+{
+  "component": "item_world",
+  "status": "migrated",
+  "original": {
+    "owned": [],
+    "composes": [
+      "falling_items",
+      "enemy_world",
+      "session",
+      "contacts",
+      "player_physics",
+      "actor_render",
+      "hazards",
+      "passenger_delivery",
+      "hud",
+      "resource_catalog"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/item_world.h",
+      "native/item_world.c",
+      "native/bridge/item_world_bridge.h",
+      "native/bridge/item_world_bridge.c",
+      "native/bridge/items_borrow.h"
+    ],
+    "functions": [
+      "native_item_world"
+    ],
+    "bridge": "One persistent twelve-slot item owner, explicit live borrowers, observation-only serialization"
+  },
+  "purpose": "Cut5G: one native owner for the12 falling item slots and all retained simulation/draw/erase/motion-lifetime words; resource descriptor contents remain views",
+  "interface": {
+    "inputs": "One cold fixture; live ordered byte/word borrower mutations",
+    "outputs": "288 native item bytes; sealed RAM and a separate observation view"
+  },
+  "callers": [
+    "Session loader/reset and draw/erase passes",
+    "Tree drop lists and quick-delivery multiplier spawn",
+    "Item flight/landing/lifetime/contact transitions",
+    "Demo raw reset, contacts/physics, render and generic byte-window borrowers"
+  ],
+  "callees": [
+    "Accepted run/player/platform/enemy/actor owners through live byte routes",
+    "Live resource provider views; no descriptor byte ownership"
+  ],
+  "indirect": [
+    "Existing checked item callbacks/descriptor policy unchanged; this storage island adds no dispatcher"
+  ],
+  "memory": {
+    "owner": "NativeItemWorld.slot[12], twelve retained words each",
+    "region": "DGROUP:2D6B..2E8B",
+    "bytes": 288,
+    "slots": 12,
+    "fields": [
+      "FallingItemDescriptors",
+      "FallingItemCallbacks",
+      "FallingItemSprites",
+      "FallingItemEraseSprite",
+      "FallingItemX",
+      "FallingItemY",
+      "FallingItemDrawX",
+      "FallingItemPreviousDrawX",
+      "FallingItemDrawY",
+      "FallingItemPreviousDrawY",
+      "FallingItemMotionOrLifetime",
+      "FallingItemVerticalStep"
+    ],
+    "borrowers": [
+      "native/bridge/actor_render_bridge.c",
+      "native/bridge/contacts_bridge.c",
+      "native/bridge/hazards_bridge.c",
+      "native/bridge/items_bridge.c",
+      "native/bridge/passenger_delivery_bridge.c",
+      "native/bridge/session_bridge.c",
+      "native/bridge/session_support.h"
+    ],
+    "native_bytes_before": 11959,
+    "native_bytes_after": 12247,
+    "total_with_prior": 12247,
+    "observation": "All288 bytes serialized solely from native owner; zero moved-owner journal publications"
+  },
+  "assumptions": [
+    "Existing deterministic item descriptor/callback and alias domains unchanged; broader compatibility cases remain explicit",
+    "Exactly12 physical slots, no spare or second lifetime allocation",
+    "Cold import once; RAM stays A5 sealed; no writeback or resynchronization"
+  ],
+  "eliminated": [
+    "RAM authority for288 falling-item bytes"
+  ],
+  "retained": [
+    "Descending slot order and allocator sign-bit/dispatcher FFFF disagreement",
+    "Single motion/lifetime word; retirement retains raw identities, payload and erase history",
+    "Simulation, current draw and prior draw coordinates stay independent",
+    "Demo16-index raw EnemyEraseSprite reset reaches FallingItemDescriptors[0] at2D6B through its existing view",
+    "Descriptor/callback words remain compatibility data; resource descriptor bytes remain live mutable provider views",
+    "Timer word wrap-before-cap, lives byte arithmetic and multiplier low-byte store preserve accepted quirks"
+  ],
+  "evidence": [
+    {
+      "property": "State seam",
+      "level": "B",
+      "method": "Split actual-C byte get/put output/frame/dependence plus exhaustive independent address/member router",
+      "command": "python verif/world_gate.py item_world --jobs 3 --out build/workers/cut-5g/gate",
+      "result": "PASS: 288 lanes x256, 144 words x65536, aliases/resources/seal/serializer and split actual-C output/frame/dependence; measured receipts in world gate router/proof stages",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "API and borrowers",
+      "level": "C",
+      "method": "Independent L1/Unicorn API plus compiled full-RAM/devices/ports/ordered callbacks/owner-store tests, failure prefixes, live mutation, full pool and stale tails",
+      "command": "python verif/world_gate.py item_world --jobs 3 --out build/workers/cut-5g/gate",
+      "result": "PASS: 2568 matching API runs per profile, zero new rejections; 54 pre-existing broader compatibility cases explicitly listed, not credited as native algorithm executions. 820 compiled borrower cases, 150 level seeds, live mutation and failure-prefix witnesses; measured receipts in world gate API/borrower stages",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "Composed storage",
+      "level": "D",
+      "method": "Projector/census, both hosts21/21 and level groups81+7+8; instrumented item counters and seeded defects",
+      "command": "python verif/world_gate.py item_world --jobs 3 --out build/workers/cut-5g/gate",
+      "result": "PASS requires the complete finalized world gate receipt: both hosts21/21, projector native12247 bytes with zero moved journals, census zero fallbacks/L1 game bodies, level groups81+7+8 and11/11 declared defects. Instrumented116-run entry census records every item entry, including zero landing/contact adapter counts with separate API evidence; native item_land is counted positively",
+      "date": "2026-11-15"
+    }
+  ],
+  "amiga": "Meaning only; no DOS-byte evidence",
+  "uncertainty": [
+    "Typed callback/resource identities remain the accepted adapters; no new production-domain claim"
+  ],
+  "dependencies": {
+    "native/item_world.h": {
+      "includes": [
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/item_world.c": {
+      "includes": [
+        "item_world.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/item_world_bridge.h": {
+      "includes": [
+        "../item_world.h",
+        "ugh.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/item_world_bridge.c": {
+      "includes": [
+        "enemy_world_bridge.h",
+        "item_world_bridge.h",
+        "platform.h",
+        "stddef.h",
+        "stdio.h",
+        "stdlib.h",
+        "string.h"
+      ],
+      "calls": [
+        "A",
+        "D",
+        "WORD",
+        "enemies_borrowed_byte",
+        "enemies_borrowed_store",
+        "exit",
+        "fputs",
+        "itemstate_field",
+        "itemstate_field_get",
+        "itemstate_field_put",
+        "itemstate_owned_bytes",
+        "itemstate_shared_read",
+        "itemstate_shared_write",
+        "lin",
+        "memcpy",
+        "memset",
+        "native_item_world",
+        "ugh_read",
+        "ugh_write"
+      ]
+    },
+    "native/bridge/items_borrow.h": {
+      "includes": [
+        "item_world_bridge.h"
+      ],
+      "calls": []
+    }
+  },
+  "verification_inputs": {
+    "native/item_world.h": "e7f8010cfca39fdff7695219fb37633f5d6fd1d11a2caf963d8964b6b84ecc40",
+    "native/item_world.c": "27eedbe81718bebc98399aafa83d507b6cad8875f9b5e69b7cf3d6610bf88bac",
+    "native/bridge/item_world_bridge.h": "559d7319efda35d9a52767da802f29fd8792ba1a89949483ba195cddf19b8465",
+    "native/bridge/item_world_bridge.c": "d99b6899f36141d0590585e23266edc8c7afd8707e6b6453ab6d6613fabefaf0",
+    "native/bridge/items_borrow.h": "ba843ddc46e6e1d423a3d178fd811cbbd952710433ce920e04c84f435939bdeb",
+    "metadata/worlds/item_world.json": "fb2a8998ecea11b59d9cee6708735534a0d862c2f8412eec612e07dbfd9d3761",
+    "verif/world_cases/item.py": "b25212a00c5d542ad4fb98c7bdcaf518f6323778add7449b7a502922184df61b",
+    "verif/world_cases/legacy_item.py": "078303198c7b74853c5411e8b9a035639d5ca8d51547a09d4189540c0afa39f4",
+    "verif/item_world_router.c": "401240f60f48c712a51ca3218fac35a3acc2c75dae71ce01b065fa1487ee3c3e",
+    "verif/item_world_byte_proof.c": "a59b2ffa5503cba54a4225a456634f3dec71d4e200b6266266f597952ed5f77a",
+    "verif/item_world_cases.py": "eb60421affc550596fe9f67e0102a7282a019da4fb8eaf715d1d87bef001b59a",
+    "docs/standalone-cuts.md": "ae06aa47864cfbf2cefce111370f82678c75f5198fb95620c4c13e0e633b4d2e",
+    "docs/standalone-ledger.md": "b232c5e0e4ebd04d94aeea9b4369ab3da07eb0725bbf2cba1a1ed0636bbed41c",
+    "tools/world_registry.py": "54fdfc61a0509112ab2049af29f7321f56718084637a1fce04b0b89429159b99",
+    "verif/world_gate.py": "8b6fe931efea911a385cb7cf8244011a3783f547ba2f7f0028ccec33196d4681",
+    "verif/world_api.py": "f366496fb7ecc0b16516ada42fd7ca75ddb191e74be5e67f5a03fdcbf2a81f33",
+    "verif/job_pool.py": "fd3a52cb8cb4dacd758e930a00ead9c5016776817d18d687a59d5399aa46348a",
+    "native/bridge/actor_render_bridge.c": "fb5336186ea4b0e2016a6e7a9fb8ea79aa6ba391a23cc51b37aed4b4f798cf4e",
+    "native/bridge/contacts_bridge.c": "fb4807cf6ac7d2415d64c02b25e9981febf5a3e746bb0e9a9fa53f740bc68059",
+    "native/bridge/hazards_bridge.c": "d8f700db96794f704a87d6a958b06d9d3579f83b1d29dc729a040a20147b49c8",
+    "native/bridge/items_bridge.c": "5cb0719e8e21a6e776ca9c9ba7ca857f40bac993507bf94d03f8be518c0c296a",
+    "native/bridge/passenger_delivery_bridge.c": "55357194b960fac8bc6dfc7e463988b7e971804dc50016bf8c9518aac032792b",
+    "native/bridge/session_bridge.c": "88d19ef8e11d8789e2e81c787eeb79568c346ae5eb11706b3ce30ab74c054b40",
+    "native/bridge/session_support.h": "f240e422b33c4acb872c0f5521310454c8b199ce69b6376e94661a02b2271dd7",
+    "verif/world_cases/legacy_adapter.py": "9978014371764ca9a123efe557fe62a6b0fef06f0e19a52b944bf72fbb14d677",
+    "docs/item-storage.md": "a115a85a88e9e3593a5febd27d771bae7ac366e4adfc98c8c566256d1cc5ef9b"
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "proposed_status": "migrated",
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5G acceptance measurements; bookkeeping only, no contract/domain change",
+      "commands": [
+        "python verif/world_gate.py item_world --jobs 3 --out build/workers/cut-5g/gate",
+        "python verif/world_gate.py item_world --finalize --locks --out build/workers/cut-5g/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5g/sgate"
+      ],
+      "results": "PASS: native12247 bytes (+288),15 stages,17,955 projector boundaries, zero owner journals/fallbacks/L1 game bodies,820 borrower cases,2,568 API runs per profile,11 declared defects, both hosts21/21 and81+7+8 levels;116 instrumented runs match. Native item_land reached; landing/contact adapter zero counts have explicit direct API witnesses.",
+      "receipt": "build/workers/cut-5g/gate/receipt.json",
+      "supervisor": "build/workers/cut-5g/sgate/receipt.json"
+    }
+  ]
+}

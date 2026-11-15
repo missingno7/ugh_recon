@@ -297,6 +297,7 @@
         "../contacts.h",
         "actors_borrow.h",
         "enemies_borrow.h",
+        "items_borrow.h",
         "level_projection.h",
         "platform.h",
         "platforms_borrow.h",
@@ -309,7 +310,7 @@
         "contact_players",
         "contact_position",
         "contact_stones",
-        "enemies_read16",
+        "itemstate_read16",
         "l1_FindThrownStoneHittingEnemy",
         "level_bridge_geometry",
         "logic",
@@ -325,7 +326,7 @@
     "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
-    "native/bridge/contacts_bridge.c": "261596ada1a8f81b90d31cd051604583063bc9c6505c50b91607de0dac6fcbaf",
+    "native/bridge/contacts_bridge.c": "fb4807cf6ac7d2415d64c02b25e9981febf5a3e746bb0e9a9fa53f740bc68059",
     "native/bridge/level_projection.h": "d463ba8829671479c3349435080eb7f16ae48551c7a7b0464d27dbc88257df83",
     "native/bridge/level_view_bridge.c": "0be946adae9146d92cd2b0447c6d0edbc83c11eb6ec5cad09468791a60609ebe",
     "native/contacts.c": "f809c3af54ddb43b07b60be870e30e404f0b0456f4542585011cb5108dcc8b15",
@@ -414,6 +415,19 @@
       "results": "PASS: existing contract claims unchanged; full representative gate, all 111 controls (including one positive rejection barrier), registry/contract controls and supervisor gate; receipts in build/workers/close-adlx-29",
       "inputs": [
         "tools/closure.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5G: one item owner and explicit shared borrower routes. Relock only changed direct source inputs or actual dependency contracts; accepted algorithms, proof domains and statuses unchanged.",
+      "commands": [
+        "python verif/world_gate.py item_world --jobs 3 --out build/workers/cut-5g/gate",
+        "python verif/world_gate.py item_world --finalize --locks --out build/workers/cut-5g/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5g/sgate"
+      ],
+      "results": "PASS: complete15-stage world gate,11/11 controls, unchanged default bridge bodies and pure algorithms, projector/census, both hosts21/21 and levels81+7+8; supervisor gate PASS. See build/workers/cut-5g/REPORT.md.",
+      "inputs": [
+        "native/bridge/contacts_bridge.c"
       ]
     }
   ]

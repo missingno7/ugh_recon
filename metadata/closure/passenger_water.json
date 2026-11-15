@@ -2447,15 +2447,15 @@
     "native/passenger_water.c": "193cbc6572e7cd51085bc792a3169e19d694198882ee017c86c38351312a9348",
     "native/bridge/passenger_water_bridge.c": "783e64a80fc372bdda891f284cea1ed00cbe1dd3325e373421d38347cb26c7a1",
     "native/passenger_delivery.c": "ca71e756fff535f31a132c1bf865a9ef91161ebd84972c39991cddf07c322494",
-    "native/bridge/passenger_delivery_bridge.c": "2679ff7ddd23f399ced1904f377f2edc0fe52770c9527cc6dfe90c434855b960",
+    "native/bridge/passenger_delivery_bridge.c": "55357194b960fac8bc6dfc7e463988b7e971804dc50016bf8c9518aac032792b",
     "native/actor_resources.c": "47e21228ee1d873fa5636e062a955e4a6b5a8f0522a7bde2cf223708c9880137",
     "native/bridge/actor_resources_bridge.c": "153414e54952edd4eee09e247f5fbbd6b03b5b802a99868ea98214c1f4b43b53",
     "native/level_view.c": "f0b3db5747f718d7c112c721735ca5a497a9b93a6ecb33096223b188b170353d",
     "native/bridge/level_view_bridge.c": "0be946adae9146d92cd2b0447c6d0edbc83c11eb6ec5cad09468791a60609ebe",
     "native/contacts.c": "f809c3af54ddb43b07b60be870e30e404f0b0456f4542585011cb5108dcc8b15",
-    "native/bridge/contacts_bridge.c": "261596ada1a8f81b90d31cd051604583063bc9c6505c50b91607de0dac6fcbaf",
+    "native/bridge/contacts_bridge.c": "fb4807cf6ac7d2415d64c02b25e9981febf5a3e746bb0e9a9fa53f740bc68059",
     "native/items.c": "d3ede593a1249fc46da025fc304f90ed8f962a5145a81731c6dc70b2f384b8ec",
-    "native/bridge/items_bridge.c": "9911c74614be8383fd1797fa753cbde14869dbd27177f2b014ddf5dd774870e0",
+    "native/bridge/items_bridge.c": "5cb0719e8e21a6e776ca9c9ba7ca857f40bac993507bf94d03f8be518c0c296a",
     "native/passenger_itinerary.c": "111d8dcb3c6528a54ab34adb4c93025f3dd023d92fa53e10a6f0e0546fc75258",
     "native/bridge/passenger_itinerary_bridge.c": "679d2845bd17fd44d122a38ac1ab1472277431094c627c9300d2152c9fa36bfc",
     "native/coordinate_scale.c": "7bf708b14dc66fdace02a69b7a1b993b37c2535934a71dc0e5d9d397a5903118",
@@ -2742,6 +2742,21 @@
         "host/check.py",
         "tools/closure.py",
         "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5G: one item owner and explicit shared borrower routes. Relock only changed direct source inputs or actual dependency contracts; accepted algorithms, proof domains and statuses unchanged.",
+      "commands": [
+        "python verif/world_gate.py item_world --jobs 3 --out build/workers/cut-5g/gate",
+        "python verif/world_gate.py item_world --finalize --locks --out build/workers/cut-5g/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5g/sgate"
+      ],
+      "results": "PASS: complete15-stage world gate,11/11 controls, unchanged default bridge bodies and pure algorithms, projector/census, both hosts21/21 and levels81+7+8; supervisor gate PASS. See build/workers/cut-5g/REPORT.md.",
+      "inputs": [
+        "native/bridge/contacts_bridge.c",
+        "native/bridge/items_bridge.c",
+        "native/bridge/passenger_delivery_bridge.c"
       ]
     }
   ]

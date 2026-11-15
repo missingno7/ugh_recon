@@ -1,4 +1,9 @@
 #include "platform.h"
+#ifndef ITEMSTATE_BORROWER
+#define ITEMSTATE_BORROWER ITEMSTATE_BORROW_ITEMS
+#endif
+#include "items_borrow.h"
+#include "platform.h"
 #ifndef PLATFORMS_BORROWER
 #define PLATFORMS_BORROWER PLATFORMS_BORROW_ITEMS
 #endif
@@ -22,17 +27,17 @@ int l1_LandFallingItem(Regs *r);
 int l1_ExpireOrCollectFallingItem(Regs *r);
 
 static uint16_t item_word(Regs *r,uint16_t base,uint16_t index) {
-    return platforms_read16(r->ds,(uint16_t)(base+index));
+    return itemstate_read16(r->ds,(uint16_t)(base+index));
 }
 static FallingItemType item_type(Regs *r,uint16_t descriptor) {
     FallingItemType type;
-    type.geometry.anchor_x=platforms_read16(r->ds,descriptor);
-    type.geometry.anchor_y=platforms_read16(r->ds,(uint16_t)(descriptor+2));
+    type.geometry.anchor_x=itemstate_read16(r->ds,descriptor);
+    type.geometry.anchor_y=itemstate_read16(r->ds,(uint16_t)(descriptor+2));
     type.geometry.extent_x=3;type.geometry.extent_y=3;
-    type.launch_impulse=platforms_read16(r->ds,(uint16_t)(descriptor+12));
-    type.amount=platforms_read16(r->ds,(uint16_t)(descriptor+14));
-    type.sprite=platforms_read16(r->ds,(uint16_t)(descriptor+16));
-    uint16_t kind=platforms_read16(r->ds,(uint16_t)(descriptor+18));
+    type.launch_impulse=itemstate_read16(r->ds,(uint16_t)(descriptor+12));
+    type.amount=itemstate_read16(r->ds,(uint16_t)(descriptor+14));
+    type.sprite=itemstate_read16(r->ds,(uint16_t)(descriptor+16));
+    uint16_t kind=itemstate_read16(r->ds,(uint16_t)(descriptor+18));
     type.benefit=kind==0?ITEM_TIMER:kind==1?ITEM_LIVES:ITEM_MULTIPLIER;
     return type;
 }
@@ -48,14 +53,14 @@ static FallingItem item_project(Regs *r,uint16_t index) {
     return item;
 }
 static void item_publish(Regs *r,uint16_t index,const FallingItem *item) {
-    platforms_write16(r->ds,(uint16_t)(D(FallingItemSprites)+index),item->sprite);
-    platforms_write16(r->ds,(uint16_t)(D(FallingItemX)+index),item->position.x32);
-    platforms_write16(r->ds,(uint16_t)(D(FallingItemY)+index),item->position.y32);
-    platforms_write16(r->ds,(uint16_t)(D(FallingItemVerticalStep)+index),item->vertical_step);
-    platforms_write16(r->ds,(uint16_t)(D(FallingItemMotionOrLifetime)+index),item->motion_or_lifetime);
+    itemstate_write16(r->ds,(uint16_t)(D(FallingItemSprites)+index),item->sprite);
+    itemstate_write16(r->ds,(uint16_t)(D(FallingItemX)+index),item->position.x32);
+    itemstate_write16(r->ds,(uint16_t)(D(FallingItemY)+index),item->position.y32);
+    itemstate_write16(r->ds,(uint16_t)(D(FallingItemVerticalStep)+index),item->vertical_step);
+    itemstate_write16(r->ds,(uint16_t)(D(FallingItemMotionOrLifetime)+index),item->motion_or_lifetime);
 }
 static int item_ordinary(Regs *r,uint16_t descriptor) {
-    /* This projection samples an immutable descriptor. Mutable descriptor/output
+    /* This projection samples a stable descriptor view. Mutable descriptor/output
      * aliases retain L1's sequential reads, including the maintained alias case.
      * Effective descriptor offsets may wrap; its operand bytes are contiguous. */
     if(r->bx>22 || (r->bx&1)) return 0;
@@ -91,13 +96,13 @@ EXPORT int c_SpawnFallingItem(Regs *r) {
     FallingItemType type=item_type(r,r->si);
     ObjectPosition launch={r->ax,r->bp};
     ItemSpawnResult result=items_spawn(slots,type,launch,r->cx,r->dx);
-    r->sp=(uint16_t)(r->sp-2);platforms_write16(r->ss,r->sp,saved);
+    r->sp=(uint16_t)(r->sp-2);itemstate_write16(r->ss,r->sp,saved);
     r->bx=22;
     while(result.status==ITEM_POOL_FULL || r->bx!=(uint16_t)(result.slot*2)) {
         logic(r,item_word(r,D(FallingItemSprites),r->bx),16);
         r->bx=sub16(r,r->bx,2,0);
         if(r->bx==65534u) {
-            uint16_t target=platforms_read16(r->ss,r->sp);r->sp=(uint16_t)(r->sp+2);
+            uint16_t target=itemstate_read16(r->ss,r->sp);r->sp=(uint16_t)(r->sp+2);
             /* Exact L1 abnormal RET boundary: the caller return is pending.
              * The RET-only target can continue; every other target stays open. */
             if(target==G(IgnoreExhaustedTree)) return UGH_OK;
@@ -106,27 +111,27 @@ EXPORT int c_SpawnFallingItem(Regs *r) {
     }
     logic(r,item_word(r,D(FallingItemSprites),r->bx),16);
     FallingItem *item=&slots[result.slot];
-    platforms_write16(r->ds,(uint16_t)(D(FallingItemDescriptors)+r->bx),r->si);
+    itemstate_write16(r->ds,(uint16_t)(D(FallingItemDescriptors)+r->bx),r->si);
     r->di=(uint16_t)(type.geometry.anchor_x<<5);r->ax=sub16(r,r->ax,r->di,0);
     r->di=(uint16_t)(type.geometry.anchor_y<<4);r->bp=sub16(r,r->bp,r->di,0);
     r->dx=add16(r,r->dx,type.launch_impulse,0);r->dx=sub16(r,0,r->dx,0);
     item_publish(r,r->bx,item);
-    r->ax=type.sprite;r->ax=platforms_read16(r->ds,(uint16_t)(r->si+6));
-    platforms_write16(r->ds,(uint16_t)(D(FallingItemCallbacks)+r->bx),r->ax);
-    r->bx=platforms_read16(r->ss,r->sp);r->sp=(uint16_t)(r->sp+2);return UGH_OK;
+    r->ax=type.sprite;r->ax=itemstate_read16(r->ds,(uint16_t)(r->si+6));
+    itemstate_write16(r->ds,(uint16_t)(D(FallingItemCallbacks)+r->bx),r->ax);
+    r->bx=itemstate_read16(r->ss,r->sp);r->sp=(uint16_t)(r->sp+2);return UGH_OK;
 }
 EXPORT int c_LandFallingItem(Regs *r) {
     uint16_t descriptor=item_word(r,D(FallingItemDescriptors),r->bx);
     if(!item_ordinary(r,descriptor)) return l1_LandFallingItem(r);
     FallingItem item=item_project(r,r->bx);item_land(&item);
-    r->si=descriptor;r->ax=platforms_read16(r->ds,(uint16_t)(descriptor+10));
-    platforms_write16(r->ds,(uint16_t)(D(FallingItemCallbacks)+r->bx),r->ax);
-    platforms_write16(r->ds,(uint16_t)(D(FallingItemMotionOrLifetime)+r->bx),item.motion_or_lifetime);
+    r->si=descriptor;r->ax=itemstate_read16(r->ds,(uint16_t)(descriptor+10));
+    itemstate_write16(r->ds,(uint16_t)(D(FallingItemCallbacks)+r->bx),r->ax);
+    itemstate_write16(r->ds,(uint16_t)(D(FallingItemMotionOrLifetime)+r->bx),item.motion_or_lifetime);
     return UGH_OK;
 }
 EXPORT int c_AdvanceFallingItem(Regs *r) {
     uint16_t descriptor=item_word(r,D(FallingItemDescriptors),r->bx);
-    if(!item_ordinary(r,descriptor) || platforms_read16(r->ds,(uint16_t)(descriptor+8))!=G(LandFallingItem))
+    if(!item_ordinary(r,descriptor) || itemstate_read16(r->ds,(uint16_t)(descriptor+8))!=G(LandFallingItem))
         return l1_AdvanceFallingItem(r);
     LevelPlatform platforms[10];size_t count=0;
     for(;;) {
@@ -174,14 +179,14 @@ EXPORT int c_AdvanceFallingItem(Regs *r) {
         }
         if(result.exit==ITEM_TOUCHDOWN && i==result.platform) {
             r->ax=sub16(r,height,before.type.geometry.anchor_y,0);r->ax=item_shl(r,r->ax);
-            r->ax=platforms_read16(r->ds,(uint16_t)(descriptor+10));break;
+            r->ax=itemstate_read16(r->ds,(uint16_t)(descriptor+10));break;
         }
         r->di=add16(r,r->di,2,0);
     }
 done:
     item_publish(r,r->bx,&item);
     if(result.exit==ITEM_TOUCHDOWN)
-        platforms_write16(r->ds,(uint16_t)(D(FallingItemCallbacks)+r->bx),r->ax);
+        itemstate_write16(r->ds,(uint16_t)(D(FallingItemCallbacks)+r->bx),r->ax);
     return UGH_OK;
 }
 EXPORT int c_ExpireOrCollectFallingItem(Regs *r) {
@@ -193,14 +198,14 @@ EXPORT int c_ExpireOrCollectFallingItem(Regs *r) {
         players[i].x32=item_word(r,D(PlayerX32),(uint16_t)(2*i));
         players[i].y32=item_word(r,D(PlayerY32),(uint16_t)(2*i));
     }
-    uint16_t count=platforms_read16(r->ds,D(PlayerCount)),difficulty=platforms_read16(r->ds,D(SelectedDifficulty));
-    ItemBenefits before={platforms_read16(r->ds,D(LevelTimer)),platforms_read16(r->ds,D(ScoreMultiplier)),
-        item_word(r,D(MultiplierLimitsByDifficulty),(uint16_t)(difficulty*2u)),platforms_read8(r->ds,D(LivesRemaining))};
+    uint16_t count=itemstate_read16(r->ds,D(PlayerCount)),difficulty=itemstate_read16(r->ds,D(SelectedDifficulty));
+    ItemBenefits before={itemstate_read16(r->ds,D(LevelTimer)),itemstate_read16(r->ds,D(ScoreMultiplier)),
+        item_word(r,D(MultiplierLimitsByDifficulty),(uint16_t)(difficulty*2u)),itemstate_read8(r->ds,D(LivesRemaining))};
     ItemBenefits benefits=before;
     item.phase=ITEM_LANDED; /* direct landed entry admits any lifetime word */
     ItemCollectionResult result=item_update(&item,0,0,players,count,&benefits).collection;
     dec16(r,item_word(r,D(FallingItemMotionOrLifetime),r->bx));
-    platforms_write16(r->ds,(uint16_t)(D(FallingItemMotionOrLifetime)+r->bx),item.motion_or_lifetime);
+    itemstate_write16(r->ds,(uint16_t)(D(FallingItemMotionOrLifetime)+r->bx),item.motion_or_lifetime);
     if(result.expired) goto done;
     r->si=descriptor;r->ax=result.contact.boundary;
     r->di=result.contact.index<0?65535u:(uint16_t)(2*result.contact.index);
@@ -208,10 +213,10 @@ EXPORT int c_ExpireOrCollectFallingItem(Regs *r) {
     else sub16(r,r->ax,players[result.contact.index].x32,0);
     logic(r,r->di,16);
     if(!result.collected) return UGH_OK;
-    r->ax=platforms_read16(r->ds,(uint16_t)(descriptor+18));sub16(r,r->ax,0,0);
+    r->ax=itemstate_read16(r->ds,(uint16_t)(descriptor+18));sub16(r,r->ax,0,0);
     if(item.type.benefit==ITEM_TIMER) {
         r->ax=add16(r,item.type.amount,before.timer,0);sub16(r,r->ax,23099,0);
-        r->ax=benefits.timer;platforms_write16(r->ds,D(LevelTimer),benefits.timer);
+        r->ax=benefits.timer;itemstate_write16(r->ds,D(LevelTimer),benefits.timer);
     } else {
         sub16(r,r->ax,1,0);
         if(item.type.benefit==ITEM_LIVES) {
@@ -219,7 +224,7 @@ EXPORT int c_ExpireOrCollectFallingItem(Regs *r) {
             uint8_t a=(uint8_t)r->ax,v=(uint8_t)(a-99u);
             flag(r,CF,a<99);flag(r,OF,((a^99u)&(a^v)&128)!=0);
             flag(r,AF,((a^99u^v)&16)!=0);szp(r,v,8);
-            set_al(r,benefits.lives);platforms_write8(r->ds,D(LivesRemaining),benefits.lives);
+            set_al(r,benefits.lives);itemstate_write8(r->ds,D(LivesRemaining),benefits.lives);
         } else {
             r->ax=before.multiplier;
             uint16_t v=difficulty;
@@ -228,12 +233,12 @@ EXPORT int c_ExpireOrCollectFallingItem(Regs *r) {
             sub16(r,r->ax,before.multiplier_limit,0);
             if(before.multiplier<before.multiplier_limit) {
                 uint16_t carry=r->flags&CF;set_al(r,item_byte_add(r,(uint8_t)r->ax,1));flag(r,CF,carry);
-                platforms_write8(r->ds,D(ScoreMultiplier),(uint8_t)benefits.multiplier);
+                itemstate_write8(r->ds,D(ScoreMultiplier),(uint8_t)benefits.multiplier);
             }
         }
     }
 done:
-    platforms_write16(r->ds,(uint16_t)(D(FallingItemSprites)+r->bx),item.sprite);return UGH_OK;
+    itemstate_write16(r->ds,(uint16_t)(D(FallingItemSprites)+r->bx),item.sprite);return UGH_OK;
 }
 EXPORT int c_DispatchFallingItems(Regs *r) {
     FallingItem slots[12];size_t cursor=12;r->bx=22;

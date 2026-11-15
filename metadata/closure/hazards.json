@@ -626,6 +626,7 @@
         "../hazards.h",
         "actors_borrow.h",
         "enemies_borrow.h",
+        "items_borrow.h",
         "platform.h",
         "platforms_borrow.h",
         "player_borrow.h",
@@ -645,8 +646,6 @@
         "WRITE",
         "add16",
         "dec16",
-        "enemies_read16",
-        "enemies_write16",
         "flag",
         "hazard_audio",
         "hazard_entry",
@@ -680,6 +679,8 @@
         "hs_1_recover",
         "hs_1_shift",
         "hs_2_cell",
+        "itemstate_read16",
+        "itemstate_write16",
         "l1_AdvanceTreeRewardCooldown",
         "l1_AnimateTriopterusImpactRecovery",
         "l1_AnimateTriopterusRecovery",
@@ -753,11 +754,11 @@
   "verification_input_hashing": "sha256-lf-text",
   "verification_inputs": {
     "native/hazards.c": "590ad430fc32a4267004492dd602993de903618e7b4da6a79addc0746c692159",
-    "native/bridge/hazards_bridge.c": "7447a0b5927b4745cb9a7616a9e3b6d0af1a22b7522d8a10e00dcb20e2fc809a",
+    "native/bridge/hazards_bridge.c": "d8f700db96794f704a87d6a958b06d9d3579f83b1d29dc729a040a20147b49c8",
     "native/contacts.c": "f809c3af54ddb43b07b60be870e30e404f0b0456f4542585011cb5108dcc8b15",
-    "native/bridge/contacts_bridge.c": "261596ada1a8f81b90d31cd051604583063bc9c6505c50b91607de0dac6fcbaf",
+    "native/bridge/contacts_bridge.c": "fb4807cf6ac7d2415d64c02b25e9981febf5a3e746bb0e9a9fa53f740bc68059",
     "native/items.c": "d3ede593a1249fc46da025fc304f90ed8f962a5145a81731c6dc70b2f384b8ec",
-    "native/bridge/items_bridge.c": "9911c74614be8383fd1797fa753cbde14869dbd27177f2b014ddf5dd774870e0",
+    "native/bridge/items_bridge.c": "5cb0719e8e21a6e776ca9c9ba7ca857f40bac993507bf94d03f8be518c0c296a",
     "native/level_view.c": "f0b3db5747f718d7c112c721735ca5a497a9b93a6ecb33096223b188b170353d",
     "native/bridge/level_view_bridge.c": "0be946adae9146d92cd2b0447c6d0edbc83c11eb6ec5cad09468791a60609ebe",
     "native/hazards.h": "9c2086caf6c37a56b8da62cd7a843a13247f2f87d1c5da836158d6dfa0403331",
@@ -984,6 +985,21 @@
         "host/check.py",
         "tools/closure.py",
         "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5G: one item owner and explicit shared borrower routes. Relock only changed direct source inputs or actual dependency contracts; accepted algorithms, proof domains and statuses unchanged.",
+      "commands": [
+        "python verif/world_gate.py item_world --jobs 3 --out build/workers/cut-5g/gate",
+        "python verif/world_gate.py item_world --finalize --locks --out build/workers/cut-5g/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5g/sgate"
+      ],
+      "results": "PASS: complete15-stage world gate,11/11 controls, unchanged default bridge bodies and pure algorithms, projector/census, both hosts21/21 and levels81+7+8; supervisor gate PASS. See build/workers/cut-5g/REPORT.md.",
+      "inputs": [
+        "native/bridge/contacts_bridge.c",
+        "native/bridge/hazards_bridge.c",
+        "native/bridge/items_bridge.c"
       ]
     }
   ]

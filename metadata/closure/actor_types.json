@@ -525,7 +525,7 @@
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
     "native/actor_render.c": "f14a0f219a8a9a056a975ad38d74527512bc48634e0b388bd7aa929d846fd110",
     "native/actor_render.h": "9b68b08b34200616669b59c5c939c2da1dbbaa623fa57c67e3f6372d3ff34015",
-    "native/bridge/actor_render_bridge.c": "409b59be4f3f40641f9da498d2fb0e5b68422424b80896e8b74affabfe97cc75",
+    "native/bridge/actor_render_bridge.c": "fb5336186ea4b0e2016a6e7a9fb8ea79aa6ba391a23cc51b37aed4b4f798cf4e",
     "verif/cbmc_shim/stddef.h": "03e62ec5f7016e0582b92f016d7e4017b56746e2b216ae8d7fad236ae7e723e7",
     "verif/cbmc_shim/stdint.h": "ff382e7cc9e8ac2ff6cef94767bb680b49944513ebff33b6d7e548fe12a5d7d0",
     "verif/cbmc_shim/ugh.h": "d23d5fb7f8d14f5c03944d9cce971d6d21fdf32c28ebac1f2710842cd03d7e72",
@@ -1663,6 +1663,19 @@
       "inputs": [
         "host/check.py",
         "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5G: one item owner and explicit shared borrower routes. Relock only changed direct source inputs or actual dependency contracts; accepted algorithms, proof domains and statuses unchanged.",
+      "commands": [
+        "python verif/world_gate.py item_world --jobs 3 --out build/workers/cut-5g/gate",
+        "python verif/world_gate.py item_world --finalize --locks --out build/workers/cut-5g/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5g/sgate"
+      ],
+      "results": "PASS: complete15-stage world gate,11/11 controls, unchanged default bridge bodies and pure algorithms, projector/census, both hosts21/21 and levels81+7+8; supervisor gate PASS. See build/workers/cut-5g/REPORT.md.",
+      "inputs": [
+        "native/bridge/actor_render_bridge.c"
       ]
     }
   ]

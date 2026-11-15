@@ -1,0 +1,27 @@
+{
+  "component": "item_world",
+  "flag": "UGH_NATIVE_ITEMS",
+  "order": 14,
+  "header": "native/bridge/item_world_bridge.h",
+  "bridge": "native/bridge/item_world_bridge.c",
+  "lanes": {
+    "predicate": "itemstate_is_owned",
+    "declaration": "Authoritative physical-byte membership in this world bridge; aliases are lanes, never independent allocations",
+    "stability": "Fixed physical membership after cold construction; availability may be inactive before import",
+    "bytes": 288
+  },
+  "cold_import": "itemstate_cold_import",
+  "seal": "itemstate_require_seal",
+  "read": "itemstate_shared_read",
+  "write": "itemstate_shared_write",
+  "serialize": "itemstate_serialize",
+  "check": "itemstate_check_serialization",
+  "owned_bytes": "itemstate_owned_bytes",
+  "borrowed_byte": "itemstate_borrowed_byte",
+  "borrowed_store": "itemstate_borrowed_store",
+  "platform_provider": null,
+  "compile_flags": [],
+  "gate": {
+    "cases": "verif/world_cases/item.py"
+  }
+}

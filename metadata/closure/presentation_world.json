@@ -164,7 +164,7 @@
     "tools/cbuild.py": "b957186e9697f04be43136704d51f727fa5f20aace331919e3ade16468a4a8f1",
     "metadata/closure/video_dos.json": "contract-v1:012e7fd8ceaffb0443863e995cc409635dfc492b6895061b2411539c7381ac15",
     "metadata/closure/render_primitives.json": "contract-v1:d486e04667211afe3c657e3d2d8f3dc53fd8bd25ddc61ec9ac9e0ebfe6b81236",
-    "metadata/closure/actor_render.json": "contract-v1:7dc56f4a0cd7e70b246f73f143b3fdeae1741b7cebdfbb91860df437c257c154",
+    "metadata/closure/actor_render.json": "contract-v1:ed574ffbc651093186b8b3030d74b6a992a1b4accb591d9497ca12eed1fa02b4",
     "metadata/closure/audio_world.json": "contract-v1:ba1c9f449dee744bbab664ee52385564f226d44ec8bb4dcfb79baca6d93e1c8e",
     "metadata/closure/timing_world.json": "contract-v1:a3a4dfaca620a34a5672f56027c9ffdcc31db566a4da812469666947d10c4c6a",
     "metadata/closure/ice.json": "contract-v1:60a6e1eab6b5c2c5517fc5201132b14515a18536e3b8fa72ecc48b7d68df99ea",
@@ -200,13 +200,13 @@
     "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
     "metadata/closure/player_physics.json": "contract-v1:6372b8740111c0a23fd48e558cf3d148b8132c4580b9657cdac3d9346d3a684e",
     "metadata/closure/water_weather.json": "contract-v1:01d982a43fc467bd40a206d21b72fe3f232fe8e293ea9b6b835e504e9c6f67c6",
-    "metadata/closure/session.json": "contract-v1:0b9d0776008423ba9f201d6f862788f7718d51defa6307498260f61cf2d9ab7f",
+    "metadata/closure/session.json": "contract-v1:91ae00e5a8951dfdb0e37aeca13393cbd140ff56621abe5b7087ad68758bee4f",
     "metadata/closure/demo_presentation.json": "contract-v1:0f22dc6eabf7bc0871121e4348c6a0531608708898fd86de9a788795db81fe40",
     "verif/video_pages_composition.py": "3d7bb7b8d3a2ae397b1dc73e963f88e727c268608339df14b9b17ee98ee313be",
     "metadata/closure/video_pages.json": "contract-v1:446da768622f883de709b9e9f330cb1a430f259aa00bd89fe559b9322f5f5eac",
     "metadata/closure/hud.json": "contract-v1:0f01d1dc347671c24c79558674bc21730aeffdc44725e604e8a3dcdf4ac43e6a",
     "native/player_physics.c": "dcb90fedbd71fbf58b826a80abbf8307bd9de3d1e1347a9e4e1338543fee7b73",
-    "native/bridge/actor_render_bridge.c": "409b59be4f3f40641f9da498d2fb0e5b68422424b80896e8b74affabfe97cc75",
+    "native/bridge/actor_render_bridge.c": "fb5336186ea4b0e2016a6e7a9fb8ea79aa6ba391a23cc51b37aed4b4f798cf4e",
     "verif/player_physics_l0_cases.py": "a3bf551de674f3c6121c023498fdca1641f99f68e75b23fd5dfb28e313fc4948",
     "verif/water_weather_l0_cases.py": "e620b99e61d78aa407458d080fbeabcff8c9958992a4b9b11f6f94d33a6942e0",
     "verif/pixel_composition.py": "7d8ca08a0a89f446e00152150c6f9de5cd329aadbe3d5cc1f83d3663f5bdf74a",
@@ -219,7 +219,7 @@
     "native/session.h": "843e2fa75fc55024f787804ff00c20505238381d4f02dc891e02d937f1e05d20",
     "native/bridge/hud_bridge.c": "20826a77dfc2e68979d2fedc1a5935c3738b9f0002a2d8d8c064d9cc3f4bf6ea",
     "native/bridge/hud_support.h": "90e8d5095e5b2291ad53991535b876541cb8b3a31970ee18db1f4d0e39b206de",
-    "native/bridge/session_bridge.c": "5ee6573eeeef6ab2f5bdc064d2e653f9c5fe6654341c8f71e89204c8e72bc747",
+    "native/bridge/session_bridge.c": "88d19ef8e11d8789e2e81c787eeb79568c346ae5eb11706b3ce30ab74c054b40",
     "tools/world_registry.py": "54fdfc61a0509112ab2049af29f7321f56718084637a1fce04b0b89429159b99",
     "metadata/worlds/presentation_world.json": "4b6bda8c17c7b911425a9ed6e46b65649a436f150ec045872872ad35fd2bb6f9",
     "verif/world_cases/presentation.py": "a0fd165a6ddc26750ff639f37028d17724acd2b23e9622359a8094d5772953a7",
@@ -619,6 +619,22 @@
         "verif/world_cases/legacy_video_pages.py",
         "verif/world_cases/presentation.py",
         "verif/world_gate.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5G: one item owner and explicit shared borrower routes. Relock only changed direct source inputs or actual dependency contracts; accepted algorithms, proof domains and statuses unchanged.",
+      "commands": [
+        "python verif/world_gate.py item_world --jobs 3 --out build/workers/cut-5g/gate",
+        "python verif/world_gate.py item_world --finalize --locks --out build/workers/cut-5g/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5g/sgate"
+      ],
+      "results": "PASS: complete15-stage world gate,11/11 controls, unchanged default bridge bodies and pure algorithms, projector/census, both hosts21/21 and levels81+7+8; supervisor gate PASS. See build/workers/cut-5g/REPORT.md.",
+      "inputs": [
+        "metadata/closure/actor_render.json",
+        "metadata/closure/session.json",
+        "native/bridge/actor_render_bridge.c",
+        "native/bridge/session_bridge.c"
       ]
     }
   ]

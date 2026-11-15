@@ -391,6 +391,7 @@
         "../actor_render.h",
         "actors_borrow.h",
         "enemies_borrow.h",
+        "items_borrow.h",
         "pixel_io.h",
         "platform.h",
         "platforms_borrow.h",
@@ -415,7 +416,7 @@
         "ar_projection",
         "ar_require",
         "ar_write",
-        "enemies_write16",
+        "itemstate_write16",
         "logic",
         "pixel_route",
         "pixel_service_compatibility_write",
@@ -1117,7 +1118,7 @@
   "verification_inputs": {
     "native/actor_render.h": "9b68b08b34200616669b59c5c939c2da1dbbaa623fa57c67e3f6372d3ff34015",
     "native/actor_render.c": "f14a0f219a8a9a056a975ad38d74527512bc48634e0b388bd7aa929d846fd110",
-    "native/bridge/actor_render_bridge.c": "409b59be4f3f40641f9da498d2fb0e5b68422424b80896e8b74affabfe97cc75",
+    "native/bridge/actor_render_bridge.c": "fb5336186ea4b0e2016a6e7a9fb8ea79aa6ba391a23cc51b37aed4b4f798cf4e",
     "verif/render_history_bound.py": "4f23cb26b2583a82a6890bac41440513a99e53d0595f5f99eb762d5850fad18e",
     "verif/render_history_build.py": "921feed96e1bcb475d1841f6d68e496b2cdbd102ffd4f1d621cb4d5e056e2df1",
     "verif/render_history_cases.py": "fb785370c0997ab015e8aa323c69f43323d580646a8372f2c0a7eb0cb2b6b779",
@@ -1487,6 +1488,19 @@
         "host/check.py",
         "tools/closure.py",
         "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5G: one item owner and explicit shared borrower routes. Relock only changed direct source inputs or actual dependency contracts; accepted algorithms, proof domains and statuses unchanged.",
+      "commands": [
+        "python verif/world_gate.py item_world --jobs 3 --out build/workers/cut-5g/gate",
+        "python verif/world_gate.py item_world --finalize --locks --out build/workers/cut-5g/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5g/sgate"
+      ],
+      "results": "PASS: complete15-stage world gate,11/11 controls, unchanged default bridge bodies and pure algorithms, projector/census, both hosts21/21 and levels81+7+8; supervisor gate PASS. See build/workers/cut-5g/REPORT.md.",
+      "inputs": [
+        "native/bridge/actor_render_bridge.c"
       ]
     }
   ],

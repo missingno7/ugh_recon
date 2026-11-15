@@ -113,7 +113,7 @@
     "native/bridge/render_primitives_bridge.c": "61c966018acd8281162428dd680dd7dc07f1e1a7236f7af93d5ec5bc396e361d",
     "native/bridge/hud_bridge.c": "20826a77dfc2e68979d2fedc1a5935c3738b9f0002a2d8d8c064d9cc3f4bf6ea",
     "native/bridge/water_weather_bridge.c": "bcdba927aefb1ef4cc90e4c179e55d2fff90715c195dbf09cde6e0207ae4889a",
-    "native/bridge/actor_render_bridge.c": "409b59be4f3f40641f9da498d2fb0e5b68422424b80896e8b74affabfe97cc75",
+    "native/bridge/actor_render_bridge.c": "fb5336186ea4b0e2016a6e7a9fb8ea79aa6ba391a23cc51b37aed4b4f798cf4e",
     "native/bridge/player_physics_bridge.c": "30d6ee178a639cf103c143f69616ea92a535caa778ca88e3d58e1add594fd373",
     "native/bridge/hud_support.h": "90e8d5095e5b2291ad53991535b876541cb8b3a31970ee18db1f4d0e39b206de",
     "verif/pixel_platform_model.inc": "b8e1daa2000db0ec4034b2dd10e953082233a331c668209cd1411500c1404992",
@@ -142,7 +142,7 @@
     "tools/cbuild.py": "b957186e9697f04be43136704d51f727fa5f20aace331919e3ade16468a4a8f1",
     "metadata/closure/video_dos.json": "contract-v1:012e7fd8ceaffb0443863e995cc409635dfc492b6895061b2411539c7381ac15",
     "metadata/closure/render_primitives.json": "contract-v1:d486e04667211afe3c657e3d2d8f3dc53fd8bd25ddc61ec9ac9e0ebfe6b81236",
-    "metadata/closure/actor_render.json": "contract-v1:7dc56f4a0cd7e70b246f73f143b3fdeae1741b7cebdfbb91860df437c257c154",
+    "metadata/closure/actor_render.json": "contract-v1:ed574ffbc651093186b8b3030d74b6a992a1b4accb591d9497ca12eed1fa02b4",
     "metadata/closure/audio_world.json": "contract-v1:ba1c9f449dee744bbab664ee52385564f226d44ec8bb4dcfb79baca6d93e1c8e",
     "metadata/closure/timing_world.json": "contract-v1:a3a4dfaca620a34a5672f56027c9ffdcc31db566a4da812469666947d10c4c6a",
     "metadata/closure/ice.json": "contract-v1:60a6e1eab6b5c2c5517fc5201132b14515a18536e3b8fa72ecc48b7d68df99ea",
@@ -178,7 +178,7 @@
     "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
     "metadata/closure/player_physics.json": "contract-v1:6372b8740111c0a23fd48e558cf3d148b8132c4580b9657cdac3d9346d3a684e",
     "metadata/closure/water_weather.json": "contract-v1:01d982a43fc467bd40a206d21b72fe3f232fe8e293ea9b6b835e504e9c6f67c6",
-    "metadata/closure/session.json": "contract-v1:0b9d0776008423ba9f201d6f862788f7718d51defa6307498260f61cf2d9ab7f",
+    "metadata/closure/session.json": "contract-v1:91ae00e5a8951dfdb0e37aeca13393cbd140ff56621abe5b7087ad68758bee4f",
     "metadata/closure/demo_presentation.json": "contract-v1:0f22dc6eabf7bc0871121e4348c6a0531608708898fd86de9a788795db81fe40",
     "verif/video_pages_composition.py": "3d7bb7b8d3a2ae397b1dc73e963f88e727c268608339df14b9b17ee98ee313be",
     "metadata/closure/video_pages.json": "contract-v1:446da768622f883de709b9e9f330cb1a430f259aa00bd89fe559b9322f5f5eac",
@@ -644,6 +644,21 @@
         "verif/world_cases/legacy_video_pages.py",
         "verif/world_cases/pixel.py",
         "verif/world_gate.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5G: one item owner and explicit shared borrower routes. Relock only changed direct source inputs or actual dependency contracts; accepted algorithms, proof domains and statuses unchanged.",
+      "commands": [
+        "python verif/world_gate.py item_world --jobs 3 --out build/workers/cut-5g/gate",
+        "python verif/world_gate.py item_world --finalize --locks --out build/workers/cut-5g/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5g/sgate"
+      ],
+      "results": "PASS: complete15-stage world gate,11/11 controls, unchanged default bridge bodies and pure algorithms, projector/census, both hosts21/21 and levels81+7+8; supervisor gate PASS. See build/workers/cut-5g/REPORT.md.",
+      "inputs": [
+        "metadata/closure/actor_render.json",
+        "metadata/closure/session.json",
+        "native/bridge/actor_render_bridge.c"
       ]
     }
   ]

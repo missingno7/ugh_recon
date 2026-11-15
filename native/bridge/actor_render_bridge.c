@@ -1,4 +1,9 @@
 #include "platform.h"
+#ifndef ITEMSTATE_BORROWER
+#define ITEMSTATE_BORROWER ITEMSTATE_BORROW_RENDER
+#endif
+#include "items_borrow.h"
+#include "platform.h"
 #ifndef ENEMIES_BORROWER
 #define ENEMIES_BORROWER ENEMIES_BORROW_ACTORS
 #endif
@@ -30,10 +35,10 @@
 #include "../actor_render.h"
 #include <stdlib.h>
 
-#define R(n) enemies_read16(r->ds,D(n))
-#define W(n,v) enemies_write16(r->ds,D(n),(uint16_t)(v))
-#define RX(n,i) enemies_read16(r->ds,(uint16_t)(D(n)+(i)))
-#define WX(n,i,v) enemies_write16(r->ds,(uint16_t)(D(n)+(i)),(uint16_t)(v))
+#define R(n) itemstate_read16(r->ds,D(n))
+#define W(n,v) itemstate_write16(r->ds,D(n),(uint16_t)(v))
+#define RX(n,i) itemstate_read16(r->ds,(uint16_t)(D(n)+(i)))
+#define WX(n,i,v) itemstate_write16(r->ds,(uint16_t)(D(n)+(i)),(uint16_t)(v))
 #define CALL(n,ret) do { int status=PIXEL_CALL(n,ret); if(status) return status; } while(0)
 #define AR_CALL(n,ret) do { ar_request(r,&plan,G(n)); int status=PIXEL_CALL(n,ret); if(status) return status; } while(0)
 
@@ -98,7 +103,7 @@ static void ar_projection(Regs *r,RenderPlan *plan) {
 #endif
 }
 static void ar_write(Regs *r,RenderPlan *plan,uint16_t address,uint16_t expected) {
-    if(!plan->active) {enemies_write16(r->ds,address,expected);return;}
+    if(!plan->active) {itemstate_write16(r->ds,address,expected);return;}
     ActorRenderEvent event=ar_next(plan,ACTOR_RENDER_STORE);
     ar_require(address==(uint16_t)(ar_address(event.field)+plan->index) && event.value==expected);
     switch(event.field) {
@@ -110,7 +115,7 @@ static void ar_write(Regs *r,RenderPlan *plan,uint16_t address,uint16_t expected
     case ACTOR_RENDER_ERASE_OVERLAY:plan->published.erase_overlay_sprite=event.value;break;
     case ACTOR_RENDER_CURRENT_SPRITE:plan->published_sprite=event.value;break;
     }
-    enemies_write16(r->ds,address,event.value);
+    itemstate_write16(r->ds,address,event.value);
     ar_projection(r,plan);
 }
 static void ar_request(Regs *r,RenderPlan *plan,uint16_t target) {
@@ -243,8 +248,8 @@ EXPORT int c_ResetSpriteEraseState(Regs *r) {
     r->ax=0xffff;
     r->si=8;
     do {
-        enemies_write16(r->ds,(uint16_t)(D(EnemySpriteIds)+r->si),r->ax);
-        enemies_write16(r->ds,(uint16_t)(D(EnemyEraseSprite)+r->si),r->ax);
+        itemstate_write16(r->ds,(uint16_t)(D(EnemySpriteIds)+r->si),r->ax);
+        itemstate_write16(r->ds,(uint16_t)(D(EnemyEraseSprite)+r->si),r->ax);
         r->si=sub16(r,r->si,2,0);
     } while((int16_t)r->si>=0);
     r->si=30;
@@ -259,8 +264,8 @@ EXPORT int c_ResetSpriteEraseState(Regs *r) {
     } while((int16_t)r->si>=0);
     r->si=22;
     do {
-        enemies_write16(r->ds,(uint16_t)(D(FallingItemSprites)+r->si),r->ax);
-        enemies_write16(r->ds,(uint16_t)(D(FallingItemEraseSprite)+r->si),r->ax);
+        itemstate_write16(r->ds,(uint16_t)(D(FallingItemSprites)+r->si),r->ax);
+        itemstate_write16(r->ds,(uint16_t)(D(FallingItemEraseSprite)+r->si),r->ax);
         r->si=sub16(r,r->si,2,0);
     } while((int16_t)r->si>=0);
     return UGH_OK;

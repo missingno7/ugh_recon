@@ -318,6 +318,7 @@
     "native/bridge/items_bridge.c": {
       "includes": [
         "../items.h",
+        "items_borrow.h",
         "platform.h",
         "platforms_borrow.h",
         "player_borrow.h",
@@ -342,16 +343,16 @@
         "item_word",
         "items_next",
         "items_spawn",
+        "itemstate_read16",
+        "itemstate_read8",
+        "itemstate_write16",
+        "itemstate_write8",
         "l1_AdvanceFallingItem",
         "l1_ExpireOrCollectFallingItem",
         "l1_LandFallingItem",
         "l1_SpawnFallingItem",
         "lin",
         "logic",
-        "platforms_read16",
-        "platforms_read8",
-        "platforms_write16",
-        "platforms_write8",
         "set_al",
         "sub16",
         "szp",
@@ -417,7 +418,7 @@
     "c/video.h": "35e4d6076edd69e2722cf7d52392871345f5e0eb78af7ce67e13c8ed0c02f192",
     "metadata/oracle.json": "7db8024058b1a1e34c7b02058e49f331f30effb6f35927945abcafaf63f9033f",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
-    "native/bridge/items_bridge.c": "9911c74614be8383fd1797fa753cbde14869dbd27177f2b014ddf5dd774870e0",
+    "native/bridge/items_bridge.c": "5cb0719e8e21a6e776ca9c9ba7ca857f40bac993507bf94d03f8be518c0c296a",
     "native/contacts.c": "f809c3af54ddb43b07b60be870e30e404f0b0456f4542585011cb5108dcc8b15",
     "native/contacts.h": "2d329a52985ea628a56afaee703e8b2f84ed9a328e58109c3be4dac3e90c1d29",
     "native/geometry.h": "e630be5b080076dfd0f95ff07be51887e5c39d8caa3bdfae7271e06be37c6410",
@@ -656,6 +657,19 @@
       "inputs": [
         "tools/closure.py",
         "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5G: one item owner and explicit shared borrower routes. Relock only changed direct source inputs or actual dependency contracts; accepted algorithms, proof domains and statuses unchanged.",
+      "commands": [
+        "python verif/world_gate.py item_world --jobs 3 --out build/workers/cut-5g/gate",
+        "python verif/world_gate.py item_world --finalize --locks --out build/workers/cut-5g/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5g/sgate"
+      ],
+      "results": "PASS: complete15-stage world gate,11/11 controls, unchanged default bridge bodies and pure algorithms, projector/census, both hosts21/21 and levels81+7+8; supervisor gate PASS. See build/workers/cut-5g/REPORT.md.",
+      "inputs": [
+        "native/bridge/items_bridge.c"
       ]
     }
   ]

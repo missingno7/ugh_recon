@@ -1,4 +1,9 @@
 #include "platform.h"
+#ifndef ITEMSTATE_BORROWER
+#define ITEMSTATE_BORROWER ITEMSTATE_BORROW_ACTORS
+#endif
+#include "items_borrow.h"
+#include "platform.h"
 #ifndef ENEMIES_BORROWER
 #define ENEMIES_BORROWER ENEMIES_BORROW_ACTORS
 #endif
@@ -140,7 +145,7 @@ static int hazard_entry(uint16_t target,HazardEntry *entry) {
  return 0;
 }
 static uint16_t hazard_word(Regs *r,uint16_t base,uint16_t index) {
-    return enemies_read16(r->ds,(uint16_t)(base+index));
+    return itemstate_read16(r->ds,(uint16_t)(base+index));
 }
 static ObjectPosition hazard_position(Regs *r,uint16_t x,uint16_t y,uint16_t index) {
     ObjectPosition position={hazard_word(r,x,index),hazard_word(r,y,index)};return position;
@@ -175,27 +180,27 @@ static int hazard_project(Regs *r,HazardEntry entry,HazardPlan *plan) {
     if((entry==H_BIRD_LAUNCH && slot.direction>1) ||
        ((entry==H_TRIO_PATROL || entry==H_TRIO_ALERT || entry==H_TRIO_CHARGE ||
          entry==H_TRIO_RECOVER || entry==H_TRIO_IMPACT || entry==H_TRIO_STUNNED) && slot.direction!=0 && slot.direction!=2)) return 0;
-    type.geometry.anchor_x=enemies_read16(r->ds,descriptor);type.geometry.anchor_y=enemies_read16(r->ds,(uint16_t)(descriptor+2));
-    type.geometry.extent_x=enemies_read16(r->ds,(uint16_t)(descriptor+4));type.geometry.extent_y=enemies_read16(r->ds,(uint16_t)(descriptor+6));
-    type.score=enemies_read16(r->ds,(uint16_t)(descriptor+58));
-    for(unsigned i=0;i<13;i++) if(!hazard_entry(enemies_read16(r->ds,(uint16_t)(descriptor+8+2*i)),&type.handlers[i])) return 0;
+    type.geometry.anchor_x=itemstate_read16(r->ds,descriptor);type.geometry.anchor_y=itemstate_read16(r->ds,(uint16_t)(descriptor+2));
+    type.geometry.extent_x=itemstate_read16(r->ds,(uint16_t)(descriptor+4));type.geometry.extent_y=itemstate_read16(r->ds,(uint16_t)(descriptor+6));
+    type.score=itemstate_read16(r->ds,(uint16_t)(descriptor+58));
+    for(unsigned i=0;i<13;i++) if(!hazard_entry(itemstate_read16(r->ds,(uint16_t)(descriptor+8+2*i)),&type.handlers[i])) return 0;
     for(unsigned i=0;i<12;i++) {
-        uint16_t sequence=enemies_read16(r->ds,(uint16_t)(descriptor+34+2*i));
+        uint16_t sequence=itemstate_read16(r->ds,(uint16_t)(descriptor+34+2*i));
         uint16_t next=(uint16_t)(sequence+slot.animation_cursor+2u);
         if((sequence>=D(ScoreLowWord)-1u && sequence<D(FallingItemDescriptors)+144u) ||
            (next>=D(ScoreLowWord)-1u && next<D(FallingItemDescriptors)+144u)) return 0;
-        type.animations[i].first=enemies_read16(r->ds,sequence);type.animations[i].next=enemies_read16(r->ds,next);
+        type.animations[i].first=itemstate_read16(r->ds,sequence);type.animations[i].next=itemstate_read16(r->ds,next);
         if(type.animations[i].first==65535u) return 0;
     }
     uint16_t list=hazard_word(r,D(EnemyAnimationOrDropLists),r->bx);
-    slot.flight_side=list==enemies_read16(r->ds,(uint16_t)(descriptor+34))?H_FLIGHT_LEFT:
-        list==enemies_read16(r->ds,(uint16_t)(descriptor+36))?H_FLIGHT_RIGHT:H_FLIGHT_UNSELECTED;
+    slot.flight_side=list==itemstate_read16(r->ds,(uint16_t)(descriptor+34))?H_FLIGHT_LEFT:
+        list==itemstate_read16(r->ds,(uint16_t)(descriptor+36))?H_FLIGHT_RIGHT:H_FLIGHT_UNSELECTED;
     slot.reward_cursor=(uint16_t)((uint16_t)(list-D(Treerewardlist_3CB3))/2u);
     if((entry==H_TREE_RELEASE || entry==H_TREE_COOLDOWN) &&
        ((uint16_t)(list-D(Treerewardlist_3CB3))>18u || ((list-D(Treerewardlist_3CB3))&1u))) return 0;
     if(entry==H_BIRD_FLIGHT && slot.flight_side==H_FLIGHT_UNSELECTED) return 0;
-    type.flight.first=enemies_read16(r->ds,list);
-    type.flight.next=enemies_read16(r->ds,(uint16_t)(list+slot.animation_cursor+2u));
+    type.flight.first=itemstate_read16(r->ds,list);
+    type.flight.next=itemstate_read16(r->ds,(uint16_t)(list+slot.animation_cursor+2u));
     type.rewards_exhausted=type.flight.first==65535u;
     if(entry==H_BIRD_FLIGHT && type.flight.first==65535u) return 0;
     world.player_count=hazard_word(r,D(PlayerCount),0);
@@ -232,8 +237,8 @@ static int hazard_project(Regs *r,HazardEntry entry,HazardPlan *plan) {
     if(entry==H_TRIO_PATROL && slot.platform>=10) return 0;
     if(entry==H_TREE_RELEASE && (r->di>30 || (r->di&1u))) return 0;
     if(entry==H_TREE_RELEASE) {
-        uint16_t item=enemies_read16(r->ds,list);
-        if(enemies_read16(r->ds,(uint16_t)(item+4))!=G(SpawnFallingItem)) return 0;
+        uint16_t item=itemstate_read16(r->ds,list);
+        if(itemstate_read16(r->ds,(uint16_t)(item+4))!=G(SpawnFallingItem)) return 0;
     }
     plan->result=hazard_step(entry,&slot,&type,&world,r->di/2);
     plan->descriptor=descriptor;plan->used=0;plan->invalid=0;plan->audio_used=0;
@@ -241,7 +246,7 @@ static int hazard_project(Regs *r,HazardEntry entry,HazardPlan *plan) {
 }
 static void hazard_write(Regs *r,HazardPlan *plan,uint16_t base,uint16_t index,uint16_t shell_value) {
     /* A returned audio channel is supplied by the open L1 audio interface. */
-    if(base==D(EnemyFlightSoundHandles)) { enemies_write16(r->ds,(uint16_t)(base+index),shell_value);return; }
+    if(base==D(EnemyFlightSoundHandles)) { itemstate_write16(r->ds,(uint16_t)(base+index),shell_value);return; }
     if(plan->used>=plan->result.count) { plan->invalid=1;return; }
     const HazardWrite *write=&plan->result.writes[plan->used++];
     HazardField field=HW_STATE;unsigned logical=0;int recognized=1;
@@ -272,8 +277,8 @@ static void hazard_write(Regs *r,HazardPlan *plan,uint16_t base,uint16_t index,u
     uint16_t value=write->value;
     if(field==HW_STATE) value=hazard_target((HazardEntry)value);
     if(field==HW_LIST) value=value==2?(uint16_t)(hazard_word(r,base,index)+2u):
-        enemies_read16(r->ds,(uint16_t)(plan->descriptor+34+2*value));
-    enemies_write16(r->ds,(uint16_t)(base+index),value);
+        itemstate_read16(r->ds,(uint16_t)(plan->descriptor+34+2*value));
+    itemstate_write16(r->ds,(uint16_t)(base+index),value);
 }
 static int hazard_finish(HazardPlan *plan,int status) {
     if(plan->invalid) return UGH_BAD_CALLBACK;
@@ -305,7 +310,7 @@ static int hazard_audio(Regs *r,HazardPlan *plan,uint16_t segment,uint16_t targe
 #define WRITE(n,i,v) hazard_write(r,plan,D(n),(i),(v))
 #define A(n) READ(n,r->bx)
 #define W(n,v) WRITE(n,r->bx,v)
-#define DESC(n) enemies_read16(r->ds,(uint16_t)(r->si+(n)))
+#define DESC(n) itemstate_read16(r->ds,(uint16_t)(r->si+(n)))
 static int tail(Regs *r,HazardPlan *plan,unsigned field) { return hazard_tail_call(r,plan,DESC(field)); }
 static uint16_t hs_0_shl(Regs *r,HazardPlan *plan,uint16_t v,unsigned n) { (void)plan;
     for(unsigned i=0;i<n;i++) { flag(r,CF,v&0x8000u); v=(uint16_t)(v<<1); }
@@ -328,9 +333,9 @@ static void hs_0_enemy_init(Regs *r,HazardPlan *plan,unsigned field,int load_des
 static int hs_0_enemy_frame(Regs *r,HazardPlan *plan,unsigned field) { (void)plan;
     for(unsigned budget=0;budget<32768;budget++) {
         r->bp=A(EnemyDirectionOrTargetPlayer);
-        r->di=enemies_read16(r->ds,(uint16_t)(r->bp+r->si+field));
+        r->di=itemstate_read16(r->ds,(uint16_t)(r->bp+r->si+field));
         r->di=add16(r,r->di,A(EnemyAnimationByteOffsets),0);
-        r->ax=enemies_read16(r->ds,r->di); sub16(r,r->ax,0xffff,0);
+        r->ax=itemstate_read16(r->ds,r->di); sub16(r,r->ax,0xffff,0);
         if(r->ax!=0xffff) { W(EnemySpriteIds,r->ax); return UGH_OK; }
         W(EnemyAnimationByteOffsets,0);
     }
@@ -360,7 +365,7 @@ static int shell_WaitForBirdWarning(Regs *r,HazardPlan *plan) { (void)plan; retu
 static int shell_StunBirdAndAwardScore(Regs *r,HazardPlan *plan) { (void)plan;
     r->ax=DESC(0x1e); W(EnemyStateCallbacks,r->ax); hs_0_score(r,plan); W(EnemyStateCounters,0);
     logic(r,A(EnemyHorizontalSpeeds),16); r->si=DESC((r->flags&SF)?0x36:0x38);
-    r->ax=enemies_read16(r->ds,r->si); W(EnemySpriteIds,r->ax); return UGH_OK;
+    r->ax=itemstate_read16(r->ds,r->si); W(EnemySpriteIds,r->ax); return UGH_OK;
 }
 
 static int shell_UpdateStunnedBird(Regs *r,HazardPlan *plan) { (void)plan;
@@ -404,7 +409,7 @@ static int shell_InitializeDinoAnimation(Regs *r,HazardPlan *plan) { (void)plan;
 
 static int shell_StunDinoAndAwardScore(Regs *r,HazardPlan *plan) { (void)plan;
     r->ax=DESC(0x1e); W(EnemyStateCallbacks,r->ax); hs_0_score(r,plan); W(EnemyStateCounters,350);
-    r->si=DESC(0x36); r->ax=enemies_read16(r->ds,r->si); W(EnemySpriteIds,r->ax); return UGH_OK;
+    r->si=DESC(0x36); r->ax=itemstate_read16(r->ds,r->si); W(EnemySpriteIds,r->ax); return UGH_OK;
 }
 
 static int shell_UpdateStunnedDino(Regs *r,HazardPlan *plan) { (void)plan; return hs_0_enemy_wait(r,plan,0x10); }
@@ -435,9 +440,9 @@ static uint16_t hs_1_shift(Regs *r,HazardPlan *plan,uint16_t v,unsigned n,int ri
     return v;
 }
 
-static void hs_1_push(Regs *r,HazardPlan *plan,uint16_t v) { (void)plan; r->sp=(uint16_t)(r->sp-2); enemies_write16(r->ss,r->sp,v); }
+static void hs_1_push(Regs *r,HazardPlan *plan,uint16_t v) { (void)plan; r->sp=(uint16_t)(r->sp-2); itemstate_write16(r->ss,r->sp,v); }
 
-static uint16_t hs_1_pop(Regs *r,HazardPlan *plan) { (void)plan; uint16_t v=enemies_read16(r->ss,r->sp); r->sp=(uint16_t)(r->sp+2); return v; }
+static uint16_t hs_1_pop(Regs *r,HazardPlan *plan) { (void)plan; uint16_t v=itemstate_read16(r->ss,r->sp); r->sp=(uint16_t)(r->sp+2); return v; }
 
 static int hs_1_effect(Regs *r,HazardPlan *plan,uint16_t segment,uint16_t offset,uint16_t ret) { (void)plan;
     hs_1_push(r,plan,1); hs_1_push(r,plan,255); hs_1_push(r,plan,segment); hs_1_push(r,plan,offset);
@@ -450,9 +455,9 @@ static int hs_1_effect(Regs *r,HazardPlan *plan,uint16_t segment,uint16_t offset
 static int hs_1_frame(Regs *r,HazardPlan *plan,int enemy,unsigned field,int directional) { (void)plan; (void)enemy;
     for(unsigned budget=0;budget<32768;budget++) {
         if(directional) r->bp=A(EnemyDirectionOrTargetPlayer);
-        r->di=enemies_read16(r->ds,(uint16_t)(r->si+field+(directional?r->bp:0)));
+        r->di=itemstate_read16(r->ds,(uint16_t)(r->si+field+(directional?r->bp:0)));
         r->di=add16(r,r->di,A(EnemyAnimationByteOffsets),0);
-        r->ax=enemies_read16(r->ds,r->di); sub16(r,r->ax,0xffff,0);
+        r->ax=itemstate_read16(r->ds,r->di); sub16(r,r->ax,0xffff,0);
         if(r->ax!=0xffff) {
             B(EnemySpriteIds,r->ax);
             return UGH_OK;
@@ -494,8 +499,8 @@ static int hs_1_enemy_tick(Regs *r,HazardPlan *plan,uint16_t period) { (void)pla
 static int hs_1_recover(Regs *r,HazardPlan *plan,int impact) { (void)plan;
     r->si=A(EnemyDescriptors);
     if(hs_1_enemy_tick(r,plan,4)) {
-        r->bp=A(EnemyDirectionOrTargetPlayer); r->di=enemies_read16(r->ds,(uint16_t)(r->bp+r->si+(impact?0x32:0x2a)));
-        r->di=add16(r,r->di,A(EnemyAnimationByteOffsets),0); r->ax=enemies_read16(r->ds,r->di); sub16(r,r->ax,0xffff,0);
+        r->bp=A(EnemyDirectionOrTargetPlayer); r->di=itemstate_read16(r->ds,(uint16_t)(r->bp+r->si+(impact?0x32:0x2a)));
+        r->di=add16(r,r->di,A(EnemyAnimationByteOffsets),0); r->ax=itemstate_read16(r->ds,r->di); sub16(r,r->ax,0xffff,0);
         if(r->flags&ZF) return tail(r,plan,8);
         B(EnemySpriteIds,r->ax);
     }
@@ -550,7 +555,7 @@ static int shell_UpdateBirdFlight(Regs *r,HazardPlan *plan) { (void)plan;
     /* Bird's sequence pointer is stored in its array, not the descriptor. */
     for(unsigned budget=0;;budget++) {
         if(budget==32768) return UGH_BUDGET;
-        r->di=add16(r,A(EnemyAnimationOrDropLists),A(EnemyAnimationByteOffsets),0); r->ax=enemies_read16(r->ds,r->di); sub16(r,r->ax,0xffff,0);
+        r->di=add16(r,A(EnemyAnimationOrDropLists),A(EnemyAnimationByteOffsets),0); r->ax=itemstate_read16(r->ds,r->di); sub16(r,r->ax,0xffff,0);
         if(r->ax!=0xffff) break;
         B(EnemyAnimationByteOffsets,0);
     }
@@ -654,7 +659,7 @@ static int shell_ReleaseTreeReward(Regs *r,HazardPlan *plan) { (void)plan;
     r->ax=F(0x1e); B(EnemyStateCallbacks,r->ax); B(EnemyStateCounters,210); B(EnemySpriteIds,0xe8);
     r->ax=R(ActorX32,r->di); r->bp=R(ActorY32,r->di);
     r->cx=R(ActorMotionWaitOrDemoRepeats,r->di); r->dx=hs_1_shift(r,plan,sub16(r,0,R(ActorVerticalOrDemoPeriod,r->di),0),2,1);
-    r->si=A(EnemyAnimationOrDropLists); r->si=enemies_read16(r->ds,r->si);
+    r->si=A(EnemyAnimationOrDropLists); r->si=itemstate_read16(r->ds,r->si);
     int st=hazard_near(r,plan,F(4),G(ReleaseTreeReward)+0x31); if(st) return st;
     B(EnemyAnimationOrDropLists,add16(r,A(EnemyAnimationOrDropLists),2,0));
     hs_1_push(r,plan,r->bx); st=hs_1_effect(r,plan,UGH_S_B3274_ext_3274,0,G(ReleaseTreeReward)+0x47);
@@ -665,14 +670,14 @@ static int shell_ReleaseTreeReward(Regs *r,HazardPlan *plan) { (void)plan;
 static uint16_t hs_2_cell(uint16_t base, uint16_t index) { return (uint16_t)(base+index); }
 
 static int shell_AdvanceTreeRewardCooldown(Regs *r,HazardPlan *plan) { (void)plan;
-    r->si=enemies_read16(r->ds,hs_2_cell(D(EnemyDescriptors),r->bx));
-    uint16_t count=dec16(r,enemies_read16(r->ds,hs_2_cell(D(EnemyStateCounters),r->bx)));
+    r->si=itemstate_read16(r->ds,hs_2_cell(D(EnemyDescriptors),r->bx));
+    uint16_t count=dec16(r,itemstate_read16(r->ds,hs_2_cell(D(EnemyStateCounters),r->bx)));
     hazard_write(r,plan,D(EnemyStateCounters),r->bx,count);
     if(!count) {
-        r->di=enemies_read16(r->ds,hs_2_cell(D(EnemyAnimationOrDropLists),r->bx));
-        uint16_t end=enemies_read16(r->ds,r->di);
+        r->di=itemstate_read16(r->ds,hs_2_cell(D(EnemyAnimationOrDropLists),r->bx));
+        uint16_t end=itemstate_read16(r->ds,r->di);
         sub16(r,end,65535,0);
-        r->ax=enemies_read16(r->ds,(uint16_t)(r->si+(end==65535 ? 0x20 : 0x0a)));
+        r->ax=itemstate_read16(r->ds,(uint16_t)(r->si+(end==65535 ? 0x20 : 0x0a)));
         hazard_write(r,plan,D(EnemyStateCallbacks),r->bx,r->ax);
     }
     return UGH_OK;

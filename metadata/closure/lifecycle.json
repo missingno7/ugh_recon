@@ -215,9 +215,9 @@
     "native/bridge/lifecycle_bridge.c": "c071659c8a4d82b8946cda5d7cb12fcf5df28dfd152f8ae899657e38228556f6",
     "native/session.h": "843e2fa75fc55024f787804ff00c20505238381d4f02dc891e02d937f1e05d20",
     "native/session.c": "731afa9e3ade606e09a77fce94d6a762a5080554863a31cec183a6c7f4121634",
-    "native/bridge/session_support.h": "edc2b4bbce67f6fe64ce012d4329be9ab04f0d103f6358c70fb6fd6c246633c9",
+    "native/bridge/session_support.h": "f240e422b33c4acb872c0f5521310454c8b199ce69b6376e94661a02b2271dd7",
     "native/bridge/session_actor_render.h": "f90681ea84d69ee4491d4453d1229afe5cb7477cd1941061b3956e4e5a6dd9d0",
-    "native/bridge/session_bridge.c": "5ee6573eeeef6ab2f5bdc064d2e653f9c5fe6654341c8f71e89204c8e72bc747",
+    "native/bridge/session_bridge.c": "88d19ef8e11d8789e2e81c787eeb79568c346ae5eb11706b3ce30ab74c054b40",
     "verif/sequencing_actor_refresh.py": "c3ed724e359d4518f0a500a28d8ffcd04b98f8b40825e8b1e26b2a3ef4b5a041",
     "verif/sequencing_baseline.py": "a06616efc43adda5c8c114170b9a879b396d0f2ed7dceaa1275f1cb9141bff70",
     "verif/sequencing_build.py": "bd643b01f6781f48eab591d8a33fa9346fec85bb903fb1136a1c9f39e5b4f98f",
@@ -239,7 +239,7 @@
     "verif/session_loader.py": "4db743f71ea32f8b5c51e51033953a2970ea4c2290a758d1cdbb5177587a4341",
     "verif/session_record_proof.py": "343c7dfffcbd4c44185e0099d4dcf2c03fc7bc2d2e31211989f9647118a090a4",
     "verif/session_copy_proof.py": "476e4d8a1c12b068f666378c2513d3882d7ebe8068fbb211ad20960c6c50cdb8",
-    "native/bridge/actor_render_bridge.c": "409b59be4f3f40641f9da498d2fb0e5b68422424b80896e8b74affabfe97cc75",
+    "native/bridge/actor_render_bridge.c": "fb5336186ea4b0e2016a6e7a9fb8ea79aa6ba391a23cc51b37aed4b4f798cf4e",
     "native/actors.h": "b1c7653a6e566c7f0e3e18ad38fc3f63726d01b78a6fa6843df017d2d155a42c",
     "c/abi.c": "5f7c2c2fc015ca43e3786a7f96cb38113211da54acefce19564c1df78d74857a",
     "c/actors.c": "d17c03c844f95780f0647b85aa854a87c3e566b0f56fe89ee0a95d6d689f3ff2",
@@ -7344,6 +7344,21 @@
         "host/check.py",
         "tools/closure.py",
         "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5G: one item owner and explicit shared borrower routes. Relock only changed direct source inputs or actual dependency contracts; accepted algorithms, proof domains and statuses unchanged.",
+      "commands": [
+        "python verif/world_gate.py item_world --jobs 3 --out build/workers/cut-5g/gate",
+        "python verif/world_gate.py item_world --finalize --locks --out build/workers/cut-5g/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5g/sgate"
+      ],
+      "results": "PASS: complete15-stage world gate,11/11 controls, unchanged default bridge bodies and pure algorithms, projector/census, both hosts21/21 and levels81+7+8; supervisor gate PASS. See build/workers/cut-5g/REPORT.md.",
+      "inputs": [
+        "native/bridge/actor_render_bridge.c",
+        "native/bridge/session_bridge.c",
+        "native/bridge/session_support.h"
       ]
     }
   ]

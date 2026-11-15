@@ -179,7 +179,7 @@
     "tools/cbuild.py": "b957186e9697f04be43136704d51f727fa5f20aace331919e3ade16468a4a8f1",
     "metadata/closure/video_dos.json": "contract-v1:012e7fd8ceaffb0443863e995cc409635dfc492b6895061b2411539c7381ac15",
     "metadata/closure/render_primitives.json": "contract-v1:d486e04667211afe3c657e3d2d8f3dc53fd8bd25ddc61ec9ac9e0ebfe6b81236",
-    "metadata/closure/actor_render.json": "contract-v1:7dc56f4a0cd7e70b246f73f143b3fdeae1741b7cebdfbb91860df437c257c154",
+    "metadata/closure/actor_render.json": "contract-v1:ed574ffbc651093186b8b3030d74b6a992a1b4accb591d9497ca12eed1fa02b4",
     "metadata/closure/audio_world.json": "contract-v1:ba1c9f449dee744bbab664ee52385564f226d44ec8bb4dcfb79baca6d93e1c8e",
     "metadata/closure/timing_world.json": "contract-v1:a3a4dfaca620a34a5672f56027c9ffdcc31db566a4da812469666947d10c4c6a",
     "metadata/closure/ice.json": "contract-v1:60a6e1eab6b5c2c5517fc5201132b14515a18536e3b8fa72ecc48b7d68df99ea",
@@ -521,6 +521,19 @@
         "verif/world_cases/legacy_timing.py",
         "verif/world_cases/palette.py",
         "verif/world_gate.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5G: one item owner and explicit shared borrower routes. Relock only changed direct source inputs or actual dependency contracts; accepted algorithms, proof domains and statuses unchanged.",
+      "commands": [
+        "python verif/world_gate.py item_world --jobs 3 --out build/workers/cut-5g/gate",
+        "python verif/world_gate.py item_world --finalize --locks --out build/workers/cut-5g/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5g/sgate"
+      ],
+      "results": "PASS: complete15-stage world gate,11/11 controls, unchanged default bridge bodies and pure algorithms, projector/census, both hosts21/21 and levels81+7+8; supervisor gate PASS. See build/workers/cut-5g/REPORT.md.",
+      "inputs": [
+        "metadata/closure/actor_render.json"
       ]
     }
   ]

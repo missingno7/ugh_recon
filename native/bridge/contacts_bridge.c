@@ -1,4 +1,9 @@
 #include "platform.h"
+#ifndef ITEMSTATE_BORROWER
+#define ITEMSTATE_BORROWER ITEMSTATE_BORROW_PHYSICS
+#endif
+#include "items_borrow.h"
+#include "platform.h"
 #ifndef ENEMIES_BORROWER
 #define ENEMIES_BORROWER ENEMIES_BORROW_ACTORS
 #endif
@@ -23,7 +28,7 @@
 #include "level_projection.h"
 int l1_FindThrownStoneHittingEnemy(Regs *r);
 static ObjectPosition contact_position(uint16_t segment,uint16_t x,uint16_t y,uint16_t index) {
-    ObjectPosition result={enemies_read16(segment,(uint16_t)(x+index)),enemies_read16(segment,(uint16_t)(y+index))};
+    ObjectPosition result={itemstate_read16(segment,(uint16_t)(x+index)),itemstate_read16(segment,(uint16_t)(y+index))};
     return result;
 }
 static int player_bridge(Regs *r,uint16_t x,uint16_t y,int item,int actor) {
@@ -31,7 +36,7 @@ static int player_bridge(Regs *r,uint16_t x,uint16_t y,int item,int actor) {
     for(unsigned i=0;i<2;i++) players[i]=contact_position(r->ds,D(PlayerX32),D(PlayerY32),(uint16_t)(i*2));
     ObjectGeometry geometry=level_bridge_geometry(r->ds,r->si,item);
     ObjectPosition object=contact_position(r->ds,x,y,r->bx);
-    uint16_t count=enemies_read16(r->ds,D(PlayerCount));
+    uint16_t count=itemstate_read16(r->ds,D(PlayerCount));
     ContactSelection result=contact_players(object,geometry,players,count);
     r->ax=result.boundary;
     if(result.index>=0) {
@@ -42,7 +47,7 @@ static int player_bridge(Regs *r,uint16_t x,uint16_t y,int item,int actor) {
     }
     logic(r,r->di,16);
     /* MOV after TEST preserves its flags, including SF from DI, not platform. */
-    if(actor && result.index>=0) r->ax=enemies_read16(r->ds,(uint16_t)(D(PlayerPlatformIndices)+r->di));
+    if(actor && result.index>=0) r->ax=itemstate_read16(r->ds,(uint16_t)(D(PlayerPlatformIndices)+r->di));
     return UGH_OK;
 }
 EXPORT int c_FindPlayerTouchingFallingItem(Regs *r) {
@@ -58,14 +63,14 @@ EXPORT int c_FindThrownStoneHittingEnemy(Regs *r) {
     StoneContactView stones[16];size_t count=0;
     for(;;) {
         uint16_t index=(uint16_t)(count*2);
-        uint16_t descriptor=enemies_read16(r->ds,(uint16_t)(D(ActorDescriptors)+index));
+        uint16_t descriptor=itemstate_read16(r->ds,(uint16_t)(D(ActorDescriptors)+index));
         if(descriptor==65535u) break;
         /* Unbounded/corrupt sentinel walks remain explicit L1 compatibility. */
         if(count==16) return l1_FindThrownStoneHittingEnemy(r);
         stones[count].position=contact_position(r->ds,D(ActorX32),D(ActorY32),index);
         stones[count].thrown_stone=descriptor==D(Data_78DC) &&
-            enemies_read16(r->ds,(uint16_t)(D(ActorUpdateOrScriptCursor)+index))==G(UpdateThrownStone);
-        stones[count].vertical_step=enemies_read16(r->ds,(uint16_t)(D(ActorVerticalOrDemoPeriod)+index));
+            itemstate_read16(r->ds,(uint16_t)(D(ActorUpdateOrScriptCursor)+index))==G(UpdateThrownStone);
+        stones[count].vertical_step=itemstate_read16(r->ds,(uint16_t)(D(ActorVerticalOrDemoPeriod)+index));
         count++;
     }
     ObjectPosition enemy=contact_position(r->ds,D(EnemyX32),D(EnemyY32),r->bx);

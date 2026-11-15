@@ -130,7 +130,7 @@
     "tools/cbuild.py": "b957186e9697f04be43136704d51f727fa5f20aace331919e3ade16468a4a8f1",
     "metadata/closure/video_dos.json": "contract-v1:012e7fd8ceaffb0443863e995cc409635dfc492b6895061b2411539c7381ac15",
     "metadata/closure/render_primitives.json": "contract-v1:d486e04667211afe3c657e3d2d8f3dc53fd8bd25ddc61ec9ac9e0ebfe6b81236",
-    "metadata/closure/actor_render.json": "contract-v1:7dc56f4a0cd7e70b246f73f143b3fdeae1741b7cebdfbb91860df437c257c154",
+    "metadata/closure/actor_render.json": "contract-v1:ed574ffbc651093186b8b3030d74b6a992a1b4accb591d9497ca12eed1fa02b4",
     "metadata/closure/audio_world.json": "contract-v1:ba1c9f449dee744bbab664ee52385564f226d44ec8bb4dcfb79baca6d93e1c8e",
     "metadata/closure/timing_world.json": "contract-v1:a3a4dfaca620a34a5672f56027c9ffdcc31db566a4da812469666947d10c4c6a",
     "metadata/closure/ice.json": "contract-v1:60a6e1eab6b5c2c5517fc5201132b14515a18536e3b8fa72ecc48b7d68df99ea",
@@ -166,7 +166,7 @@
     "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
     "metadata/closure/player_physics.json": "contract-v1:6372b8740111c0a23fd48e558cf3d148b8132c4580b9657cdac3d9346d3a684e",
     "metadata/closure/water_weather.json": "contract-v1:01d982a43fc467bd40a206d21b72fe3f232fe8e293ea9b6b835e504e9c6f67c6",
-    "metadata/closure/session.json": "contract-v1:0b9d0776008423ba9f201d6f862788f7718d51defa6307498260f61cf2d9ab7f",
+    "metadata/closure/session.json": "contract-v1:91ae00e5a8951dfdb0e37aeca13393cbd140ff56621abe5b7087ad68758bee4f",
     "metadata/closure/demo_presentation.json": "contract-v1:0f22dc6eabf7bc0871121e4348c6a0531608708898fd86de9a788795db81fe40",
     "tools/world_registry.py": "54fdfc61a0509112ab2049af29f7321f56718084637a1fce04b0b89429159b99",
     "metadata/worlds/video_pages.json": "ad7bcbe54e529e50ff108b387900b53932ad537560af5a7778ed3529de8252c1",
@@ -585,6 +585,20 @@
         "verif/world_cases/legacy_video_pages.py",
         "verif/world_cases/video_pages.py",
         "verif/world_gate.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5G: one item owner and explicit shared borrower routes. Relock only changed direct source inputs or actual dependency contracts; accepted algorithms, proof domains and statuses unchanged.",
+      "commands": [
+        "python verif/world_gate.py item_world --jobs 3 --out build/workers/cut-5g/gate",
+        "python verif/world_gate.py item_world --finalize --locks --out build/workers/cut-5g/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5g/sgate"
+      ],
+      "results": "PASS: complete15-stage world gate,11/11 controls, unchanged default bridge bodies and pure algorithms, projector/census, both hosts21/21 and levels81+7+8; supervisor gate PASS. See build/workers/cut-5g/REPORT.md.",
+      "inputs": [
+        "metadata/closure/actor_render.json",
+        "metadata/closure/session.json"
       ]
     }
   ]

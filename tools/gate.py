@@ -9,6 +9,7 @@ def gate(out,jobs=3,skip_build=False):
  tasks={
  'closure':([],['tools/closure.py']),
  'build':([],['tools/build.py']),
+ 'admission':(['build'],['verif/admission.py','--check']),
  'prepare':(['build'],['tools/hostbuild.py','--prepare-only']),
  'native-build':(['prepare'],['tools/hostbuild.py','--no-generate','--out',native]),
  'literal-build':(['prepare'],['tools/hostbuild.py','--no-generate','--literal','--out',literal]),
@@ -34,6 +35,6 @@ def gate(out,jobs=3,skip_build=False):
  semantic=dict(result='PASS',closure=results['closure']['stdout'].strip(),host={v:dict(passed=r['passed'],linked_units=r['linked_units'],smoke=r['smoke']['passed'],scenarios=[{k:x for k,x in s.items() if k not in ['seconds','stderr']} for s in r['scenarios']]) for v,r in checks.items()},levels={g:json.loads((out/('levels-'+g)/'receipt.json').read_text()) for g in ['openings','audio','deep']})
  save(out/'receipt.json',semantic);save(out/'timings.json',dict(jobs=jobs,wall_seconds=time.perf_counter()-start,child_seconds={n:r['seconds'] for n,r in results.items()}))
  for name in tasks:print('PASS '+name)
- print('PASS closure / host21+21 / levels81+7+8',flush=True);return semantic
+ print('PASS closure / admission / host21+21 / levels81+7+8',flush=True);return semantic
 if __name__=='__main__':
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--out',type=Path,default=ROOT/'build/gate');p.add_argument('--jobs',type=int,default=3);p.add_argument('--skip-build',action='store_true');a=p.parse_args();gate(a.out,a.jobs,a.skip_build)

@@ -110,6 +110,10 @@
       "source": "metadata/closure/far_copy.json",
       "semantic_sha256": "2adeabed2c11997748d9ddcec8a954149de95280ec57eecd24f08528543fb705"
     },
+    "front_end_world": {
+      "source": "metadata/closure/front_end_world.json",
+      "semantic_sha256": "534af76d6070eea02c8e00bbf595164a392b4f16f508c2ec8deb6468bab89e16"
+    },
     "hazards": {
       "source": "metadata/closure/hazards.json",
       "semantic_sha256": "aa4c63deb7a86b073271af9f81eb8a75f2713197b844ec59ba4d63965957ece3"
@@ -138,6 +142,10 @@
       "source": "metadata/closure/input_world.json",
       "semantic_sha256": "bebc70d23f28d8fe43882f67cc65903d2ebb9b98a5f924534477197990003248"
     },
+    "item_world": {
+      "source": "metadata/closure/item_world.json",
+      "semantic_sha256": "9ce7309637b21a0b9f7466262b3fbe62caf3e486b9ebecadca4ce0a9d5d632b6"
+    },
     "level_view": {
       "source": "metadata/closure/level_view.json",
       "semantic_sha256": "bea5cd488fef4da306d202c83fdc1e882d3804701b235de3932af6eda4f85016"
@@ -145,6 +153,10 @@
     "lifecycle": {
       "source": "metadata/closure/lifecycle.json",
       "semantic_sha256": "80f36cbf857035681af975dcf4e1e4d7f1e233a6fadd5ef0b9cfc233906a161c"
+    },
+    "lifecycle_world": {
+      "source": "metadata/closure/lifecycle_world.json",
+      "semantic_sha256": "972fd484051f39da806e69b2181e386abb4cd4a1e6b79fe2286521c112daa855"
     },
     "menus": {
       "source": "metadata/closure/menus.json",
@@ -217,6 +229,10 @@
     "session": {
       "source": "metadata/closure/session.json",
       "semantic_sha256": "d2e905c97a1d4a5e058d5a613ce660cbc6dbbf8c312d0470b6495d4073a5c83b"
+    },
+    "session_world": {
+      "source": "metadata/closure/session_world.json",
+      "semantic_sha256": "b1ac53c173cb235ffc31136e11d01c209d4ea6602c7bc58a882cc5d720dcd767"
     },
     "stones": {
       "source": "metadata/closure/stones.json",
@@ -81489,6 +81505,66 @@
       "interpretation": "Conjunction of this contract, registered identities, the shipped entry graph and explicit exclusions. Migrated does not mean arbitrary ABI states are admitted. Vocabulary enum members do not independently grant entry permission."
     },
     {
+      "unit": "front_end_world",
+      "source": {
+        "path": "metadata/closure/front_end_world.json"
+      },
+      "certificate_status": "migrated",
+      "contract": {
+        "interface": {
+          "inputs": "Cold fixture once and live ordered byte/word stores plus synchronous file/input/draw service replies",
+          "outputs": "182 native observation bytes; sealed historical lanes; native invocation-lifetime editor/menu/text/file continuations"
+        },
+        "assumptions": [
+          "Existing deterministic verification profile; existing string/editor budgets and full raw-window alias domain unchanged",
+          "Import once at fixture construction; no write-back",
+          "File contents/positions/handle active state remain service state, not another high-score table"
+        ],
+        "indirect": [
+          "Existing service dispatch unchanged; no new game callback resolver"
+        ]
+      },
+      "entry_roles": {
+        "owned": [],
+        "composes": [
+          "high_scores",
+          "menus",
+          "session",
+          "input_world"
+        ]
+      },
+      "production_entry": "internal shipped caller roles only, never arbitrary ABI entry",
+      "resource_tokens": [],
+      "indirect_resource_groups": [],
+      "resource_scope": "Exact model reader/writer links to stable pack IDs; not an exhaustive indirect resource allowlist. Registry tokens below plus the certificate's list/descriptor contract constrain indirect resources.",
+      "typed_vocabulary": [],
+      "callback_roles": [],
+      "error_replies": {
+        "declared_status_types": [],
+        "contract_outputs": "182 native observation bytes; sealed historical lanes; native invocation-lifetime editor/menu/text/file continuations",
+        "production_admission_failure": "Unsupported at the edge's prefix; ordinary documented game errors retain their own result and partial effects."
+      },
+      "modes": {
+        "production_audio": [
+          "none",
+          "adlib"
+        ],
+        "players": [
+          1,
+          2
+        ],
+        "source": {
+          "path": "docs/port-contract.md"
+        },
+        "unit_constraints": [
+          "Existing deterministic verification profile; existing string/editor budgets and full raw-window alias domain unchanged",
+          "Import once at fixture construction; no write-back",
+          "File contents/positions/handle active state remain service state, not another high-score table"
+        ]
+      },
+      "interpretation": "Conjunction of this contract, registered identities, the shipped entry graph and explicit exclusions. Migrated does not mean arbitrary ABI states are admitted. Vocabulary enum members do not independently grant entry permission."
+    },
+    {
       "unit": "hazards",
       "source": {
         "path": "metadata/closure/hazards.json"
@@ -82662,6 +82738,72 @@
       "interpretation": "Conjunction of this contract, registered identities, the shipped entry graph and explicit exclusions. Migrated does not mean arbitrary ABI states are admitted. Vocabulary enum members do not independently grant entry permission."
     },
     {
+      "unit": "item_world",
+      "source": {
+        "path": "metadata/closure/item_world.json"
+      },
+      "certificate_status": "migrated",
+      "contract": {
+        "interface": {
+          "inputs": "One cold fixture; live ordered byte/word borrower mutations",
+          "outputs": "288 native item bytes; sealed RAM and a separate observation view"
+        },
+        "assumptions": [
+          "Existing deterministic item descriptor/callback and alias domains unchanged; broader compatibility cases remain explicit",
+          "Exactly12 physical slots, no spare or second lifetime allocation",
+          "Cold import once; RAM stays A5 sealed; no writeback or resynchronization"
+        ],
+        "indirect": [
+          "Existing checked item callbacks/descriptor policy unchanged; this storage island adds no dispatcher"
+        ]
+      },
+      "entry_roles": {
+        "owned": [],
+        "composes": [
+          "falling_items",
+          "enemy_world",
+          "session",
+          "contacts",
+          "player_physics",
+          "actor_render",
+          "hazards",
+          "passenger_delivery",
+          "hud",
+          "resource_catalog"
+        ]
+      },
+      "production_entry": "internal shipped caller roles only, never arbitrary ABI entry",
+      "resource_tokens": [],
+      "indirect_resource_groups": [],
+      "resource_scope": "Exact model reader/writer links to stable pack IDs; not an exhaustive indirect resource allowlist. Registry tokens below plus the certificate's list/descriptor contract constrain indirect resources.",
+      "typed_vocabulary": [],
+      "callback_roles": [],
+      "error_replies": {
+        "declared_status_types": [],
+        "contract_outputs": "288 native item bytes; sealed RAM and a separate observation view",
+        "production_admission_failure": "Unsupported at the edge's prefix; ordinary documented game errors retain their own result and partial effects."
+      },
+      "modes": {
+        "production_audio": [
+          "none",
+          "adlib"
+        ],
+        "players": [
+          1,
+          2
+        ],
+        "source": {
+          "path": "docs/port-contract.md"
+        },
+        "unit_constraints": [
+          "Existing deterministic item descriptor/callback and alias domains unchanged; broader compatibility cases remain explicit",
+          "Exactly12 physical slots, no spare or second lifetime allocation",
+          "Cold import once; RAM stays A5 sealed; no writeback or resynchronization"
+        ]
+      },
+      "interpretation": "Conjunction of this contract, registered identities, the shipped entry graph and explicit exclusions. Migrated does not mean arbitrary ABI states are admitted. Vocabulary enum members do not independently grant entry permission."
+    },
+    {
       "unit": "level_view",
       "source": {
         "path": "metadata/closure/level_view.json"
@@ -82897,6 +83039,79 @@
         "unit_constraints": [
           "Ordinary disjoint resources and stack; original callbacks/services synchronous. Full raw arithmetic is retained without positivity or initialized-history assumptions.",
           "Formal profiles state fixed-slot, typed/disjoint resource normalizations. Whole-emulated RAM/device/ABI, arbitrary resource aliasing, pixel execution, interrupt timing and entire session termination are composition evidence, not an unrestricted theorem."
+        ]
+      },
+      "interpretation": "Conjunction of this contract, registered identities, the shipped entry graph and explicit exclusions. Migrated does not mean arbitrary ABI states are admitted. Vocabulary enum members do not independently grant entry permission."
+    },
+    {
+      "unit": "lifecycle_world",
+      "source": {
+        "path": "metadata/closure/lifecycle_world.json"
+      },
+      "certificate_status": "migrated",
+      "contract": {
+        "interface": {
+          "inputs": "One cold saved byte; role-named synchronous services and live saved-mode binding. Machine statuses, CPU probe and INT24 frames stay in verification adapters.",
+          "outputs": "Typed GameExit preserves the live low input-restoration reply; consumed failure prefix without cleanup. No semantic API contains Regs."
+        },
+        "assumptions": [
+          "Accepted synchronous deterministic verification domain; foreign DS uses an explicit borrowed byte binding.",
+          "Cold fixture import once per scenario, RAM lane sealed A5; serialization only into separate observation view, never resynchronized.",
+          "Existing subsystem admission and unsupported boundaries are unchanged. Typed production service extraction remains step 7."
+        ],
+        "indirect": [
+          "Explicit typed synchronous service function parameters; no code-word resolver in the native core"
+        ]
+      },
+      "entry_roles": {
+        "composes": [
+          "lifecycle",
+          "terminal_tail"
+        ],
+        "owned_cells": [
+          "DGROUP:SavedBiosVideoMode"
+        ]
+      },
+      "production_entry": "internal shipped caller roles only, never arbitrary ABI entry",
+      "resource_tokens": [],
+      "indirect_resource_groups": [],
+      "resource_scope": "Exact model reader/writer links to stable pack IDs; not an exhaustive indirect resource allowlist. Registry tokens below plus the certificate's list/descriptor contract constrain indirect resources.",
+      "typed_vocabulary": [
+        {
+          "type": "GameExitKind",
+          "declarations": [
+            "GAME_CONTINUE",
+            "GAME_SERVICE_FAILED",
+            "GAME_EXITED"
+          ],
+          "source": {
+            "path": "native/lifecycle_world.h"
+          },
+          "scope": "Declared typed vocabulary; not permission to invoke every role or enum value from arbitrary state."
+        }
+      ],
+      "callback_roles": [],
+      "error_replies": {
+        "declared_status_types": [],
+        "contract_outputs": "Typed GameExit preserves the live low input-restoration reply; consumed failure prefix without cleanup. No semantic API contains Regs.",
+        "production_admission_failure": "Unsupported at the edge's prefix; ordinary documented game errors retain their own result and partial effects."
+      },
+      "modes": {
+        "production_audio": [
+          "none",
+          "adlib"
+        ],
+        "players": [
+          1,
+          2
+        ],
+        "source": {
+          "path": "docs/port-contract.md"
+        },
+        "unit_constraints": [
+          "Accepted synchronous deterministic verification domain; foreign DS uses an explicit borrowed byte binding.",
+          "Cold fixture import once per scenario, RAM lane sealed A5; serialization only into separate observation view, never resynchronized.",
+          "Existing subsystem admission and unsupported boundaries are unchanged. Typed production service extraction remains step 7."
         ]
       },
       "interpretation": "Conjunction of this contract, registered identities, the shipped entry graph and explicit exclusions. Migrated does not mean arbitrary ABI states are admitted. Vocabulary enum members do not independently grant entry permission."
@@ -85432,6 +85647,76 @@
       "resource_scope": "Exact model reader/writer links to stable pack IDs; not an exhaustive indirect resource allowlist. Registry tokens below plus the certificate's list/descriptor contract constrain indirect resources.",
       "typed_vocabulary": [
         {
+          "type": "DemoPresentationActionKind",
+          "declarations": [
+            "DP_ACTION_SERVICE",
+            "DP_ACTION_EXIT",
+            "DP_ACTION_LEVEL",
+            "DP_ACTION_STEP",
+            "DP_ACTION_VECTOR",
+            "DP_ACTION_REVEAL_X",
+            "DP_ACTION_DONE",
+            "DP_ACTION_REPEAT",
+            "DP_ACTION_INVALID"
+          ],
+          "source": {
+            "path": "native/demo_presentation.h"
+          },
+          "scope": "Declared typed vocabulary; not permission to invoke every role or enum value from arbitrary state."
+        },
+        {
+          "type": "DemoPresentationKind",
+          "declarations": [
+            "DEMO_PRESENT_RUN",
+            "DEMO_PRESENT_REVEAL",
+            "DEMO_PRESENT_PREGAME",
+            "DEMO_PRESENT_ATTRACT",
+            "DEMO_PRESENT_COMPLETION"
+          ],
+          "source": {
+            "path": "native/demo_presentation.h"
+          },
+          "scope": "Declared typed vocabulary; not permission to invoke every role or enum value from arbitrary state."
+        },
+        {
+          "type": "DemoPresentationPhase",
+          "declarations": [
+            "DP_INITIALIZE",
+            "DP_CLEAR_EXIT",
+            "DP_CLEAR_LEVEL",
+            "DP_CLEAR_STEP",
+            "DP_INITIAL_POLL",
+            "DP_LOOP",
+            "DP_PALETTE_AFTER",
+            "DP_ERASE",
+            "DP_WATER",
+            "DP_ADVANCE",
+            "DP_DRAW",
+            "DP_SWAP",
+            "DP_TEST",
+            "DP_TEST_AFTER",
+            "DP_JOYSTICK_AFTER",
+            "DP_KEYBOARD_AFTER",
+            "DP_FADE_CHECK",
+            "DP_FADE_LEVEL",
+            "DP_REPEAT",
+            "DP_PREPARE",
+            "DP_MUSIC_STOP",
+            "DP_MUSIC_START",
+            "DP_VECTOR",
+            "DP_RUN",
+            "DP_REVEAL_X",
+            "DP_REVEAL_WIDTH",
+            "DP_WRAPPER_DONE",
+            "DP_TERMINAL",
+            "DEMO_PRESENT_PHASE_COUNT"
+          ],
+          "source": {
+            "path": "native/demo_presentation.h"
+          },
+          "scope": "Declared typed vocabulary; not permission to invoke every role or enum value from arbitrary state."
+        },
+        {
           "type": "SessionPhase",
           "declarations": [
             "SP_PASSWORD",
@@ -85528,6 +85813,216 @@
         "unit_constraints": [
           "Ordinary disjoint resources and stack; original callbacks/services synchronous. Full raw arithmetic is retained without positivity or initialized-history assumptions.",
           "Formal profiles state fixed-slot, typed/disjoint resource normalizations. Whole-emulated RAM/device/ABI, arbitrary resource aliasing, pixel execution, interrupt timing and entire session termination are composition evidence, not an unrestricted theorem."
+        ]
+      },
+      "interpretation": "Conjunction of this contract, registered identities, the shipped entry graph and explicit exclusions. Migrated does not mean arbitrary ABI states are admitted. Vocabulary enum members do not independently grant entry permission."
+    },
+    {
+      "unit": "session_world",
+      "source": {
+        "path": "metadata/closure/session_world.json"
+      },
+      "certificate_status": "migrated",
+      "contract": {
+        "interface": {
+          "inputs": "Cold fixture once; ephemeral live observations and synchronous service replies",
+          "outputs": "Four observation bytes from native owner; exact service failure prefix"
+        },
+        "assumptions": [
+          "Accepted deterministic verification profile and compatibility domains unchanged",
+          "Synchronous services; fresh live state after every callback; no parent aggregate store"
+        ],
+        "indirect": [
+          "Raw descriptor and callback words remain compatibility data; no new code-address registry"
+        ]
+      },
+      "entry_roles": {
+        "owned": [],
+        "composes": [
+          "session",
+          "demo_core",
+          "demo_presentation",
+          "coordinate_scale",
+          "run_world",
+          "player_world",
+          "platform_world",
+          "actor_world",
+          "enemy_world",
+          "item_world",
+          "presentation_world",
+          "front_end_world"
+        ]
+      },
+      "production_entry": "internal shipped caller roles only, never arbitrary ABI entry",
+      "resource_tokens": [],
+      "indirect_resource_groups": [],
+      "resource_scope": "Exact model reader/writer links to stable pack IDs; not an exhaustive indirect resource allowlist. Registry tokens below plus the certificate's list/descriptor contract constrain indirect resources.",
+      "typed_vocabulary": [
+        {
+          "type": "DemoPresentationActionKind",
+          "declarations": [
+            "DP_ACTION_SERVICE",
+            "DP_ACTION_EXIT",
+            "DP_ACTION_LEVEL",
+            "DP_ACTION_STEP",
+            "DP_ACTION_VECTOR",
+            "DP_ACTION_REVEAL_X",
+            "DP_ACTION_DONE",
+            "DP_ACTION_REPEAT",
+            "DP_ACTION_INVALID"
+          ],
+          "source": {
+            "path": "native/demo_presentation.h"
+          },
+          "scope": "Declared typed vocabulary; not permission to invoke every role or enum value from arbitrary state."
+        },
+        {
+          "type": "DemoPresentationKind",
+          "declarations": [
+            "DEMO_PRESENT_RUN",
+            "DEMO_PRESENT_REVEAL",
+            "DEMO_PRESENT_PREGAME",
+            "DEMO_PRESENT_ATTRACT",
+            "DEMO_PRESENT_COMPLETION"
+          ],
+          "source": {
+            "path": "native/demo_presentation.h"
+          },
+          "scope": "Declared typed vocabulary; not permission to invoke every role or enum value from arbitrary state."
+        },
+        {
+          "type": "DemoPresentationPhase",
+          "declarations": [
+            "DP_INITIALIZE",
+            "DP_CLEAR_EXIT",
+            "DP_CLEAR_LEVEL",
+            "DP_CLEAR_STEP",
+            "DP_INITIAL_POLL",
+            "DP_LOOP",
+            "DP_PALETTE_AFTER",
+            "DP_ERASE",
+            "DP_WATER",
+            "DP_ADVANCE",
+            "DP_DRAW",
+            "DP_SWAP",
+            "DP_TEST",
+            "DP_TEST_AFTER",
+            "DP_JOYSTICK_AFTER",
+            "DP_KEYBOARD_AFTER",
+            "DP_FADE_CHECK",
+            "DP_FADE_LEVEL",
+            "DP_REPEAT",
+            "DP_PREPARE",
+            "DP_MUSIC_STOP",
+            "DP_MUSIC_START",
+            "DP_VECTOR",
+            "DP_RUN",
+            "DP_REVEAL_X",
+            "DP_REVEAL_WIDTH",
+            "DP_WRAPPER_DONE",
+            "DP_TERMINAL",
+            "DEMO_PRESENT_PHASE_COUNT"
+          ],
+          "source": {
+            "path": "native/demo_presentation.h"
+          },
+          "scope": "Declared typed vocabulary; not permission to invoke every role or enum value from arbitrary state."
+        },
+        {
+          "type": "SessionPhase",
+          "declarations": [
+            "SP_PASSWORD",
+            "SP_SELECT_LEVEL",
+            "SP_PREGAME",
+            "SP_STOP_INITIAL_MUSIC",
+            "SP_RESET_GAME",
+            "SP_BLACK_PALETTE",
+            "SP_INITIALIZE_LEVEL",
+            "SP_START_MUSIC",
+            "SP_FRAME_BEGIN",
+            "SP_FADE_ADVANCE",
+            "SP_HUD",
+            "SP_ERASE_PLAYER_BEGIN",
+            "SP_ERASE_PLAYER",
+            "SP_ERASE_PLAYER_NEXT",
+            "SP_ERASE_ACTORS",
+            "SP_ERASE_ENEMIES",
+            "SP_ERASE_ITEMS",
+            "SP_RESTORE_RAIN",
+            "SP_ADVANCE_WATER",
+            "SP_IO_POINT",
+            "SP_POLL_CONTROLS",
+            "SP_PAUSE_RELEASE",
+            "SP_PAUSE_MAKE",
+            "SP_PAUSE_BREAK",
+            "SP_ESCAPE",
+            "SP_MOVE_BEGIN",
+            "SP_MOVE_PLAYER",
+            "SP_MOVE_NEXT",
+            "SP_UPDATE_ACTORS",
+            "SP_UPDATE_ENEMIES",
+            "SP_UPDATE_ITEMS",
+            "SP_DRAW_ACTORS",
+            "SP_DRAW_ENEMIES_BACK",
+            "SP_DRAW_PLAYER_BEGIN",
+            "SP_DRAW_PLAYER",
+            "SP_DRAW_PLAYER_NEXT",
+            "SP_DRAW_ENEMIES_FRONT",
+            "SP_DRAW_ITEMS",
+            "SP_DRAW_OVERLAYS",
+            "SP_ADVANCE_RAIN",
+            "SP_DRAW_RAIN",
+            "SP_DRAW_WATER",
+            "SP_SWAP_PAGE",
+            "SP_STOP_LEVEL_MUSIC",
+            "SP_OUTCOME",
+            "SP_DECREMENT_LIVES",
+            "SP_RESET_MULTIPLIER",
+            "SP_INCREMENT_LEVEL",
+            "SP_TEST_LEVEL_LIMIT",
+            "SP_RETURN",
+            "SP_DONE"
+          ],
+          "source": {
+            "path": "native/session.h"
+          },
+          "scope": "Declared typed vocabulary; not permission to invoke every role or enum value from arbitrary state."
+        }
+      ],
+      "callback_roles": [],
+      "error_replies": {
+        "declared_status_types": [
+          {
+            "type": "SessionPasswordResult",
+            "declarations": [
+              "PASSWORD_MORE",
+              "PASSWORD_END",
+              "PASSWORD_DEFAULT"
+            ],
+            "source": {
+              "path": "native/session.h"
+            },
+            "scope": "Declared typed vocabulary; not permission to invoke every role or enum value from arbitrary state."
+          }
+        ],
+        "contract_outputs": "Four observation bytes from native owner; exact service failure prefix",
+        "production_admission_failure": "Unsupported at the edge's prefix; ordinary documented game errors retain their own result and partial effects."
+      },
+      "modes": {
+        "production_audio": [
+          "none",
+          "adlib"
+        ],
+        "players": [
+          1,
+          2
+        ],
+        "source": {
+          "path": "docs/port-contract.md"
+        },
+        "unit_constraints": [
+          "Accepted deterministic verification profile and compatibility domains unchanged",
+          "Synchronous services; fresh live state after every callback; no parent aggregate store"
         ]
       },
       "interpretation": "Conjunction of this contract, registered identities, the shipped entry graph and explicit exclusions. Migrated does not mean arbitrary ABI states are admitted. Vocabulary enum members do not independently grant entry permission."
@@ -87379,6 +87874,14 @@
       "declaration": "PASS: 184 composed and legacy API matches, 0 declines; 3791 generated complete input pairs; 232 borrower cases; all 256 scan bytes, full vector/queue-tail word slices and 2048 sampler frames"
     },
     {
+      "unit": "item_world",
+      "source": {
+        "path": "metadata/closure/item_world.json",
+        "pointer": "/evidence/1/result"
+      },
+      "declaration": "PASS: 2568 matching API runs per profile, zero new rejections; 54 pre-existing broader compatibility cases explicitly listed, not credited as native algorithm executions. 820 compiled borrower cases, 150 level seeds, live mutation and failure-prefix witnesses; measured receipts in world gate API/borrower stages"
+    },
+    {
       "unit": "level_view",
       "source": {
         "path": "metadata/closure/level_view.json",
@@ -87465,6 +87968,22 @@
         "pointer": "/negative_results/234/failures/3/1"
       },
       "declaration": "line 764 BRIDGE_REJECTED"
+    },
+    {
+      "unit": "lifecycle_world",
+      "source": {
+        "path": "metadata/closure/lifecycle_world.json",
+        "pointer": "/assumptions/2"
+      },
+      "declaration": "Existing subsystem admission and unsupported boundaries are unchanged. Typed production service extraction remains step 7."
+    },
+    {
+      "unit": "lifecycle_world",
+      "source": {
+        "path": "metadata/closure/lifecycle_world.json",
+        "pointer": "/evidence/1/result"
+      },
+      "declaration": "PASS 22/22 each legacy/composed API profile, no rejections/fallbacks; 204,800 independent literal/adapter cases"
     },
     {
       "unit": "menus",
@@ -87697,6 +88216,14 @@
         "pointer": "/negative_results/234/failures/3/1"
       },
       "declaration": "line 764 BRIDGE_REJECTED"
+    },
+    {
+      "unit": "session_world",
+      "source": {
+        "path": "metadata/closure/session_world.json",
+        "pointer": "/evidence/0/result"
+      },
+      "declaration": "PASS: 4 owned lanes, 144 comparisons per API profile with no rejections; composed142 native cases and2 explicitly enumerated existing empty-vector initializer compatibility executions, 8 driver flows and 2180 failure prefixes, 160 overlapping copies, exact193/577 rain startup and all16 locally detected defects"
     },
     {
       "unit": "stones",
@@ -96078,10 +96605,10 @@
           "path": "native/bridge/contacts_bridge.c"
         },
         "function": "c_FindThrownStoneHittingEnemy",
-        "line_hint": 64,
+        "line_hint": 69,
         "expression": "if(count==16) return l1_FindThrownStoneHittingEnemy(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
-        "source_function_sha256_normalized_tokens": "4cb42c986846db194c769931a4ea32deef4c0654a158ec6fc2bcd960b1c81474"
+        "source_function_sha256_normalized_tokens": "d92fd12061178f3f1ad69d877ae7ae4f6b23ba3ef7fc0eb8c91cbe5005ac5de4"
       },
       "verification_behavior": "Retained full compatibility fallback or composed Unsupported branch; census nonexecution is observation, not proof of unreachability."
     },
@@ -96096,7 +96623,7 @@
           "path": "native/bridge/demo_core_bridge.c"
         },
         "function": "c_AdvanceDemoScripts",
-        "line_hint": 73,
+        "line_hint": 78,
         "expression": "!actor_bridge_demo_project(r->ds,&resources,&scene)) return l1_AdvanceDemoScripts(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "2833b6771f36bf2643d12fe985cab74da48c428dc1276884606096034e0377ad"
@@ -96114,7 +96641,7 @@
           "path": "native/bridge/demo_core_bridge.c"
         },
         "function": "c_AdvanceDemoScripts",
-        "line_hint": 75,
+        "line_hint": 80,
         "expression": "return result<0 ? l1_AdvanceDemoScripts(r) : result;",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "2833b6771f36bf2643d12fe985cab74da48c428dc1276884606096034e0377ad"
@@ -96132,10 +96659,10 @@
           "path": "native/bridge/demo_core_bridge.c"
         },
         "function": "c_InitializeDemoScripts",
-        "line_hint": 79,
+        "line_hint": 84,
         "expression": "if(!demo_bridge_environment(r) || !actor_bridge_scripts(r->ds,&resources)) return l1_InitializeDemoScripts(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
-        "source_function_sha256_normalized_tokens": "1be4bb14150c62a19e4a7b2e5e1d8c3c150681ec78cd0f435cf1f8e716c919f5"
+        "source_function_sha256_normalized_tokens": "56f4b662df4ebd741683065d96f42010cad205380c872e73f74f4d70c906d699"
       },
       "verification_behavior": "Retained full compatibility fallback or composed Unsupported branch; census nonexecution is observation, not proof of unreachability."
     },
@@ -96150,10 +96677,10 @@
           "path": "native/bridge/demo_core_bridge.c"
         },
         "function": "c_InitializeDemoScripts",
-        "line_hint": 83,
+        "line_hint": 88,
         "expression": "if(r->si!=0x1020 && r->si!=0x1792 && r->si!=0x1e40 && r->si!=0x24de) return l1_InitializeDemoScripts(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
-        "source_function_sha256_normalized_tokens": "1be4bb14150c62a19e4a7b2e5e1d8c3c150681ec78cd0f435cf1f8e716c919f5"
+        "source_function_sha256_normalized_tokens": "56f4b662df4ebd741683065d96f42010cad205380c872e73f74f4d70c906d699"
       },
       "verification_behavior": "Retained full compatibility fallback or composed Unsupported branch; census nonexecution is observation, not proof of unreachability."
     },
@@ -96168,10 +96695,10 @@
           "path": "native/bridge/demo_core_bridge.c"
         },
         "function": "c_InitializeDemoScripts",
-        "line_hint": 87,
+        "line_hint": 92,
         "expression": "if(count==ACTOR_CAPACITY-1) return l1_InitializeDemoScripts(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
-        "source_function_sha256_normalized_tokens": "1be4bb14150c62a19e4a7b2e5e1d8c3c150681ec78cd0f435cf1f8e716c919f5"
+        "source_function_sha256_normalized_tokens": "56f4b662df4ebd741683065d96f42010cad205380c872e73f74f4d70c906d699"
       },
       "verification_behavior": "Retained full compatibility fallback or composed Unsupported branch; census nonexecution is observation, not proof of unreachability."
     },
@@ -96186,10 +96713,10 @@
           "path": "native/bridge/demo_core_bridge.c"
         },
         "function": "c_InitializeDemoScripts",
-        "line_hint": 89,
+        "line_hint": 94,
         "expression": "if(n==resources.count) return l1_InitializeDemoScripts(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
-        "source_function_sha256_normalized_tokens": "1be4bb14150c62a19e4a7b2e5e1d8c3c150681ec78cd0f435cf1f8e716c919f5"
+        "source_function_sha256_normalized_tokens": "56f4b662df4ebd741683065d96f42010cad205380c872e73f74f4d70c906d699"
       },
       "verification_behavior": "Retained full compatibility fallback or composed Unsupported branch; census nonexecution is observation, not proof of unreachability."
     },
@@ -96204,10 +96731,10 @@
           "path": "native/bridge/demo_core_bridge.c"
         },
         "function": "c_TestAllDemoScriptsFinished",
-        "line_hint": 120,
+        "line_hint": 125,
         "expression": "if(!demo_bridge_environment(r)) return l1_TestAllDemoScriptsFinished(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
-        "source_function_sha256_normalized_tokens": "ce1f34932c0b907f349696c06bfbbc9c742109c7435ce5b721b8b6752131b34a"
+        "source_function_sha256_normalized_tokens": "9f9d465d24765618fbe22edad74635081054444942cec9e477ff7c83ab94d9e1"
       },
       "verification_behavior": "Retained full compatibility fallback or composed Unsupported branch; census nonexecution is observation, not proof of unreachability."
     },
@@ -96222,10 +96749,10 @@
           "path": "native/bridge/demo_core_bridge.c"
         },
         "function": "c_TestAllDemoScriptsFinished",
-        "line_hint": 123,
+        "line_hint": 128,
         "expression": "if(i==ACTOR_CAPACITY-1) return l1_TestAllDemoScriptsFinished(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
-        "source_function_sha256_normalized_tokens": "ce1f34932c0b907f349696c06bfbbc9c742109c7435ce5b721b8b6752131b34a"
+        "source_function_sha256_normalized_tokens": "9f9d465d24765618fbe22edad74635081054444942cec9e477ff7c83ab94d9e1"
       },
       "verification_behavior": "Retained full compatibility fallback or composed Unsupported branch; census nonexecution is observation, not proof of unreachability."
     },
@@ -96240,7 +96767,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_BeginBirdDelay",
-        "line_hint": 693,
+        "line_hint": 698,
         "expression": "if(!hazard_project(r,H_BIRD_DELAY,&plan)) return l1_BeginBirdDelay(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "1bd73326e259ce0c42f02aeb18a40b84200740bd22273aae900bcd30260a66e3"
@@ -96258,7 +96785,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_WaitForBirdFlight",
-        "line_hint": 699,
+        "line_hint": 704,
         "expression": "if(!hazard_project(r,H_BIRD_WAIT,&plan)) return l1_WaitForBirdFlight(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "4e4ed4c3474aa2c12c6e5c2879e00510dbd05aa0bfc4116e5395f15c85df15e6"
@@ -96276,7 +96803,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_BeginBirdWarning",
-        "line_hint": 705,
+        "line_hint": 710,
         "expression": "if(!hazard_project(r,H_BIRD_WARNING,&plan)) return l1_BeginBirdWarning(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "54b08f9e0d049700b09978d2f97f34fb4ebb40ee59b5af9a294fb982ae154aaa"
@@ -96294,7 +96821,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_WaitForBirdWarning",
-        "line_hint": 711,
+        "line_hint": 716,
         "expression": "if(!hazard_project(r,H_BIRD_WARN_WAIT,&plan)) return l1_WaitForBirdWarning(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "5bb3fb07c4cb3ef9492b1781a7f16afab094551cc3f629163ecc1d5680438f6d"
@@ -96312,7 +96839,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_LaunchBirdTowardPlayer",
-        "line_hint": 717,
+        "line_hint": 722,
         "expression": "if(!hazard_project(r,H_BIRD_LAUNCH,&plan)) return l1_LaunchBirdTowardPlayer(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "8ea8bf0d2d6f0b5a9b022d59280c1f6c8411f1e09b583cc4e288ae925fe14c9e"
@@ -96330,7 +96857,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_UpdateBirdFlight",
-        "line_hint": 723,
+        "line_hint": 728,
         "expression": "if(!hazard_project(r,H_BIRD_FLIGHT,&plan)) return l1_UpdateBirdFlight(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "8abc59b23c1cb468c6e1cd3444c895d68ff5b862b83b885e62ab2288559cc55a"
@@ -96348,7 +96875,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_StunBirdAndAwardScore",
-        "line_hint": 729,
+        "line_hint": 734,
         "expression": "if(!hazard_project(r,H_BIRD_STUN,&plan)) return l1_StunBirdAndAwardScore(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "f1a1047fed86f1d8be9a371153f502c1173fef397ba8032b1fd9a12f1861dbd0"
@@ -96366,7 +96893,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_UpdateStunnedBird",
-        "line_hint": 735,
+        "line_hint": 740,
         "expression": "if(!hazard_project(r,H_BIRD_FALL,&plan)) return l1_UpdateStunnedBird(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "007cadf33f9851735eeafadd56b95ecca913ffec009928aa5b20aa2562f9d351"
@@ -96384,7 +96911,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_StopBirdFlightSound",
-        "line_hint": 741,
+        "line_hint": 746,
         "expression": "if(!hazard_project(r,H_BIRD_STOP,&plan)) return l1_StopBirdFlightSound(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "84006bd7c7568ffeaff5dd11a73ea8f2caac42110b3179af77f8dd19104a2b34"
@@ -96402,7 +96929,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_BeginTriopterusPatrol",
-        "line_hint": 747,
+        "line_hint": 752,
         "expression": "if(!hazard_project(r,H_TRIO_PATROL_BEGIN,&plan)) return l1_BeginTriopterusPatrol(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "78d2044794ab0600d5706f42f30322ecf11d8715b4528607786ac3b09e286da5"
@@ -96420,7 +96947,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_UpdateTriopterusPatrol",
-        "line_hint": 753,
+        "line_hint": 758,
         "expression": "if(!hazard_project(r,H_TRIO_PATROL,&plan)) return l1_UpdateTriopterusPatrol(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "a9b0421cee8beb3c233421d30dd634b76c4b2ee7201f2c4f8bf50b93bb4753c8"
@@ -96438,7 +96965,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_BeginTriopterusAlert",
-        "line_hint": 759,
+        "line_hint": 764,
         "expression": "if(!hazard_project(r,H_TRIO_ALERT_BEGIN,&plan)) return l1_BeginTriopterusAlert(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "957dcd152850f567b0bf2384df32fd9c91c7ea1a6f13bb7cd5868b86e668a9b2"
@@ -96456,7 +96983,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_UpdateTriopterusAlert",
-        "line_hint": 765,
+        "line_hint": 770,
         "expression": "if(!hazard_project(r,H_TRIO_ALERT,&plan)) return l1_UpdateTriopterusAlert(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "30edbd6b7f79db44ea33fee254d726d62984ea0ec3ed2d424bd9d3554d485161"
@@ -96474,7 +97001,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_BeginTriopterusCharge",
-        "line_hint": 771,
+        "line_hint": 776,
         "expression": "if(!hazard_project(r,H_TRIO_CHARGE_BEGIN,&plan)) return l1_BeginTriopterusCharge(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "5e3306f8142e9a21d955b3f4f850333a850e69340722aed84bbe4ab92add1d82"
@@ -96492,7 +97019,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_UpdateTriopterusCharge",
-        "line_hint": 777,
+        "line_hint": 782,
         "expression": "if(!hazard_project(r,H_TRIO_CHARGE,&plan)) return l1_UpdateTriopterusCharge(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "dbf10cea581cde2e94108a9abdbaed994eadc185cbcc3c0bfcc4290da7c69d67"
@@ -96510,7 +97037,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_BeginTriopterusRecovery",
-        "line_hint": 783,
+        "line_hint": 788,
         "expression": "if(!hazard_project(r,H_TRIO_RECOVER_BEGIN,&plan)) return l1_BeginTriopterusRecovery(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "f4b1945e68e9a8531241226a224a191a3778514ae58f9e15e1adad5548d04cd1"
@@ -96528,7 +97055,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_AnimateTriopterusRecovery",
-        "line_hint": 789,
+        "line_hint": 794,
         "expression": "if(!hazard_project(r,H_TRIO_RECOVER,&plan)) return l1_AnimateTriopterusRecovery(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "d3dd5fb15548c456c4da9f78382e5a44337f75080a87f664c3741cb7f48e7c3d"
@@ -96546,7 +97073,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_BeginTriopterusImpactRecovery",
-        "line_hint": 795,
+        "line_hint": 800,
         "expression": "if(!hazard_project(r,H_TRIO_IMPACT_BEGIN,&plan)) return l1_BeginTriopterusImpactRecovery(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "5205e8b7563f88c5d5ca645898420cd18f90f9cedc8d07fcd78aa25c8e00d6e9"
@@ -96564,7 +97091,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_AnimateTriopterusImpactRecovery",
-        "line_hint": 801,
+        "line_hint": 806,
         "expression": "if(!hazard_project(r,H_TRIO_IMPACT,&plan)) return l1_AnimateTriopterusImpactRecovery(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "81c42579b2a8c03601c8c94d95edfebf159385a70864d4028258d4dab7261190"
@@ -96582,7 +97109,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_StunTriopterusAndAwardScore",
-        "line_hint": 807,
+        "line_hint": 812,
         "expression": "if(!hazard_project(r,H_TRIO_STUN,&plan)) return l1_StunTriopterusAndAwardScore(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "57f071680127fcd0ebb664a7208ec597a2315154a489816d185af612cbe5898e"
@@ -96600,7 +97127,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_UpdateStunnedTriopterus",
-        "line_hint": 813,
+        "line_hint": 818,
         "expression": "if(!hazard_project(r,H_TRIO_STUNNED,&plan)) return l1_UpdateStunnedTriopterus(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "97071201763871bfd74de819b55bfa2bd487119853e24de68ade5e09302795fa"
@@ -96618,7 +97145,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_InitializeDinoAnimation",
-        "line_hint": 819,
+        "line_hint": 824,
         "expression": "if(!hazard_project(r,H_DINO_BEGIN,&plan)) return l1_InitializeDinoAnimation(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "757d191cdbdcfd601333aa0fad001782367507f5a514e714d518227b4852f16f"
@@ -96636,7 +97163,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_UpdateDinoForce",
-        "line_hint": 825,
+        "line_hint": 830,
         "expression": "if(!hazard_project(r,H_DINO_FORCE,&plan)) return l1_UpdateDinoForce(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "f9a2fb199d2d23c09d173cbd94442c95506e79b0d977b5e306a6e8821545dea0"
@@ -96654,7 +97181,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_StunDinoAndAwardScore",
-        "line_hint": 831,
+        "line_hint": 836,
         "expression": "if(!hazard_project(r,H_DINO_STUN,&plan)) return l1_StunDinoAndAwardScore(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "cbae8afb6ae2720717d0b146715b99b8ec0e0626f375d6957a02ec0896e98833"
@@ -96672,7 +97199,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_UpdateStunnedDino",
-        "line_hint": 837,
+        "line_hint": 842,
         "expression": "if(!hazard_project(r,H_DINO_STUNNED,&plan)) return l1_UpdateStunnedDino(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "9ee2a7cd015abb4c61e262441c6b8c13034cdfcf8bf3413aed123694d6992b38"
@@ -96690,7 +97217,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_InitializeFruitTreeAnimation",
-        "line_hint": 843,
+        "line_hint": 848,
         "expression": "if(!hazard_project(r,H_TREE_BEGIN,&plan)) return l1_InitializeFruitTreeAnimation(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "16c1b92f3da372762ef2cc96f3807ac35eb0b17bcb5f5addd6885418da7dd1a8"
@@ -96708,7 +97235,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_UpdateFruitTreeAnimation",
-        "line_hint": 849,
+        "line_hint": 854,
         "expression": "if(!hazard_project(r,H_TREE_ANIMATE,&plan)) return l1_UpdateFruitTreeAnimation(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "93df4cd0e78b39f77b9c3489d6cc76b5c8f490cc4f34c0e3319c28d7492460cf"
@@ -96726,7 +97253,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_ReleaseTreeReward",
-        "line_hint": 855,
+        "line_hint": 860,
         "expression": "if(!hazard_project(r,H_TREE_RELEASE,&plan)) return l1_ReleaseTreeReward(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "f63ac4916c9b63e359e36120aadcbd39861386d847a0c5d2c8f615c0dbd77e29"
@@ -96744,7 +97271,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_AdvanceTreeRewardCooldown",
-        "line_hint": 861,
+        "line_hint": 866,
         "expression": "if(!hazard_project(r,H_TREE_COOLDOWN,&plan)) return l1_AdvanceTreeRewardCooldown(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "e88a3b6fb99f6a320fc37c510515d03a40f60bba181c3d6fcf78f2ed6b2dee24"
@@ -96762,7 +97289,7 @@
           "path": "native/bridge/hazards_bridge.c"
         },
         "function": "c_DispatchEnemyStates",
-        "line_hint": 869,
+        "line_hint": 874,
         "expression": "if(count==5 && hazard_word(r,D(EnemyDescriptors),10)!=65535u) return l1_DispatchEnemyStates(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "a5ba998e5172053b15dbb24e7c9dd7b88e523d5b64630c14de5f394b4b38bb64"
@@ -96780,10 +97307,10 @@
           "path": "native/bridge/items_bridge.c"
         },
         "function": "c_SpawnFallingItem",
-        "line_hint": 88,
+        "line_hint": 93,
         "expression": "if(!ordinary) return l1_SpawnFallingItem(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
-        "source_function_sha256_normalized_tokens": "2a7a7f2e158243cddb053b6933f74d3ea14c7dad53c7e99349590d28c207e5e6"
+        "source_function_sha256_normalized_tokens": "4ea219039bf2ff161f031133cd4c3cfeb229d1233e5231c6e22b5831aa123af0"
       },
       "verification_behavior": "Retained full compatibility fallback or composed Unsupported branch; census nonexecution is observation, not proof of unreachability."
     },
@@ -96798,10 +97325,10 @@
           "path": "native/bridge/items_bridge.c"
         },
         "function": "c_LandFallingItem",
-        "line_hint": 120,
+        "line_hint": 125,
         "expression": "if(!item_ordinary(r,descriptor)) return l1_LandFallingItem(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
-        "source_function_sha256_normalized_tokens": "cf4645c3fb4febc55f5e1cc22a4c57bb2924f4d56efd69c43309ec59e2854074"
+        "source_function_sha256_normalized_tokens": "5120e4baf9639f7026f7d882d46a4eed2356e38aebaec049a0394f5293b98144"
       },
       "verification_behavior": "Retained full compatibility fallback or composed Unsupported branch; census nonexecution is observation, not proof of unreachability."
     },
@@ -96816,10 +97343,10 @@
           "path": "native/bridge/items_bridge.c"
         },
         "function": "c_AdvanceFallingItem",
-        "line_hint": 130,
+        "line_hint": 135,
         "expression": "return l1_AdvanceFallingItem(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
-        "source_function_sha256_normalized_tokens": "2ab26db85b77d5f27a4e5b987f0f74b47ce01c3effd10c65d672458560529c7d"
+        "source_function_sha256_normalized_tokens": "de01962bd8869e1952c35d25550c191642750b11d4df1cdb074a86aea138de30"
       },
       "verification_behavior": "Retained full compatibility fallback or composed Unsupported branch; census nonexecution is observation, not proof of unreachability."
     },
@@ -96834,10 +97361,10 @@
           "path": "native/bridge/items_bridge.c"
         },
         "function": "c_AdvanceFallingItem",
-        "line_hint": 135,
+        "line_hint": 140,
         "expression": "if(count==10) return l1_AdvanceFallingItem(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
-        "source_function_sha256_normalized_tokens": "2ab26db85b77d5f27a4e5b987f0f74b47ce01c3effd10c65d672458560529c7d"
+        "source_function_sha256_normalized_tokens": "de01962bd8869e1952c35d25550c191642750b11d4df1cdb074a86aea138de30"
       },
       "verification_behavior": "Retained full compatibility fallback or composed Unsupported branch; census nonexecution is observation, not proof of unreachability."
     },
@@ -96852,10 +97379,10 @@
           "path": "native/bridge/items_bridge.c"
         },
         "function": "c_ExpireOrCollectFallingItem",
-        "line_hint": 189,
+        "line_hint": 194,
         "expression": "if(!item_ordinary(r,descriptor)) return l1_ExpireOrCollectFallingItem(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
-        "source_function_sha256_normalized_tokens": "5c3b396a16bc7f8e6a84ae3d0b3ca35346d4b652bc5fdc08f701dbed5a8d84a4"
+        "source_function_sha256_normalized_tokens": "e5aad4bc865a2fc1d047e7784a25b0b0c8881d5cf506a1d7a161519a14a05f3b"
       },
       "verification_behavior": "Retained full compatibility fallback or composed Unsupported branch; census nonexecution is observation, not proof of unreachability."
     },
@@ -96870,7 +97397,7 @@
           "path": "native/bridge/passenger_delivery_bridge.c"
         },
         "function": "c_BeginPassengerPlatformWait",
-        "line_hint": 539,
+        "line_hint": 544,
         "expression": "if(!delivery_prepare(r,PD_BEGIN_WAIT,&plan)) return l1_BeginPassengerPlatformWait(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "54a6f61691b4ccaf8b75b842735b59190603d5e9580154dfbbe4bbac05bf637e"
@@ -96888,7 +97415,7 @@
           "path": "native/bridge/passenger_delivery_bridge.c"
         },
         "function": "c_UpdatePassengerPlatformWait",
-        "line_hint": 547,
+        "line_hint": 552,
         "expression": "if(!delivery_prepare(r,PD_WAIT,&plan)) return l1_UpdatePassengerPlatformWait(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "5c009b88b4c2242e77ba4d89fbfc2e31f10f73eed8b9d8a5f8a535fdbd3dd031"
@@ -96906,7 +97433,7 @@
           "path": "native/bridge/passenger_delivery_bridge.c"
         },
         "function": "c_BeginPassengerDestinationDisplay",
-        "line_hint": 555,
+        "line_hint": 560,
         "expression": "if(!delivery_prepare(r,PD_BEGIN_DESTINATION,&plan)) return l1_BeginPassengerDestinationDisplay(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "6b4dafb6e1b8788912b120c516f4a94073f14a3de4b8de2813c494e5e5448a9d"
@@ -96924,7 +97451,7 @@
           "path": "native/bridge/passenger_delivery_bridge.c"
         },
         "function": "c_UpdatePassengerDestinationDisplay",
-        "line_hint": 563,
+        "line_hint": 568,
         "expression": "if(!delivery_prepare(r,PD_DESTINATION,&plan)) return l1_UpdatePassengerDestinationDisplay(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "4325bb75f21ed31ea33897c6c68da41abba8cac93f9a9c52cc72b85fb70ea38b"
@@ -96942,7 +97469,7 @@
           "path": "native/bridge/passenger_delivery_bridge.c"
         },
         "function": "c_BeginPassengerQuestionDisplay",
-        "line_hint": 571,
+        "line_hint": 576,
         "expression": "if(!delivery_prepare(r,PD_BEGIN_QUESTION,&plan)) return l1_BeginPassengerQuestionDisplay(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "d94c5f7020c68c1124446310ce85968b8291e72a8b11b2dbedc593e0f24c73d8"
@@ -96960,7 +97487,7 @@
           "path": "native/bridge/passenger_delivery_bridge.c"
         },
         "function": "c_UpdatePassengerQuestionDisplay",
-        "line_hint": 579,
+        "line_hint": 584,
         "expression": "if(!delivery_prepare(r,PD_QUESTION,&plan)) return l1_UpdatePassengerQuestionDisplay(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "246676520d71e7e86670c95d7f033b6ec0d69994d64d69906bcea6ddbf3e278f"
@@ -96978,7 +97505,7 @@
           "path": "native/bridge/passenger_delivery_bridge.c"
         },
         "function": "c_BeginPassengerApproach",
-        "line_hint": 587,
+        "line_hint": 592,
         "expression": "if(!delivery_prepare(r,PD_BEGIN_APPROACH,&plan)) return l1_BeginPassengerApproach(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "9b944ec7b256703ed2707bed546ff37d99f19f0b2ff2f827009d58e2f930b090"
@@ -96996,7 +97523,7 @@
           "path": "native/bridge/passenger_delivery_bridge.c"
         },
         "function": "c_UpdatePassengerApproach",
-        "line_hint": 595,
+        "line_hint": 600,
         "expression": "if(!delivery_prepare(r,PD_APPROACH,&plan)) return l1_UpdatePassengerApproach(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "dd00d56869031d05ef72d43ce6aeaa244048d8da79f9f57a8ca7889f1c2ba062"
@@ -97014,7 +97541,7 @@
           "path": "native/bridge/passenger_delivery_bridge.c"
         },
         "function": "c_BoardWaterbornePassenger",
-        "line_hint": 603,
+        "line_hint": 608,
         "expression": "if(!delivery_prepare(r,PD_RESCUE,&plan)) return l1_BoardWaterbornePassenger(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "d6d563131e9b1b1c57ab689cddc7646a7d21246d7f435531147a5d48781b5a0b"
@@ -97032,7 +97559,7 @@
           "path": "native/bridge/passenger_delivery_bridge.c"
         },
         "function": "c_BoardPassenger",
-        "line_hint": 611,
+        "line_hint": 616,
         "expression": "if(!delivery_prepare(r,PD_BOARD,&plan)) return l1_BoardPassenger(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "7c147508715f05424cb0720c693b74391bb80135b316d2e2157cfdb38e9cd14a"
@@ -97050,7 +97577,7 @@
           "path": "native/bridge/passenger_delivery_bridge.c"
         },
         "function": "c_UpdateCarriedPassenger",
-        "line_hint": 619,
+        "line_hint": 624,
         "expression": "if(!delivery_prepare(r,PD_CARRIED,&plan)) return l1_UpdateCarriedPassenger(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "f92671f41bd0c8f9e0c0073dfaccdc2fa4a2c9a23ff6b1271da99e9ef6f1fcc7"
@@ -97068,7 +97595,7 @@
           "path": "native/bridge/passenger_delivery_bridge.c"
         },
         "function": "c_DeliverPassenger",
-        "line_hint": 627,
+        "line_hint": 632,
         "expression": "if(!delivery_prepare(r,PD_DELIVER,&plan)) return l1_DeliverPassenger(r);",
         "semantics": "Stop at this selected literal-transfer expression, before invoking its target. Preserve all preceding stores, register effects and delivered services. Execute neither the literal body nor its following tail; no rollback.",
         "source_function_sha256_normalized_tokens": "93b060eb5d407689aeccef1bcf990e9daf1c3e8457ba191c770eaa50e8978e7b"
@@ -98123,6 +98650,74 @@
       "scope": "Source cut inventory, not an additional fixture decline. A cut may also serve one of the 188 replayed declines or a classified literal guard."
     },
     {
+      "id": "existing-unsupported:native/bridge/lifecycle_world_bridge.c:lifecycle_service:Unsupported:1",
+      "kind": "existing_unsupported_cut",
+      "policy": "Unsupported",
+      "prefix": {
+        "checkpoint": "native/bridge/lifecycle_world_bridge.c:lifecycle_service:Unsupported:1",
+        "source": {
+          "path": "native/bridge/lifecycle_world_bridge.c"
+        },
+        "function": "lifecycle_service",
+        "line_hint": 114,
+        "expression": "default:status=UGH_UNSUPPORTED;break;",
+        "semantics": "Produce Unsupported at this selected status expression (macro expands at its caller). Preserve preceding writes/services and the documented caller unwind. Do not resume normal gameplay or invoke a literal fallback; no rollback.",
+        "source_function_sha256_normalized_tokens": "00c404c4056f5ef07f666076bd943510553fbf2a5914b6daf2287e0c7e3be98c"
+      },
+      "scope": "Source cut inventory, not an additional fixture decline. A cut may also serve one of the 188 replayed declines or a classified literal guard."
+    },
+    {
+      "id": "existing-unsupported:native/bridge/lifecycle_world_bridge.c:lifecycle_terminal_service:Unsupported:1",
+      "kind": "existing_unsupported_cut",
+      "policy": "Unsupported",
+      "prefix": {
+        "checkpoint": "native/bridge/lifecycle_world_bridge.c:lifecycle_terminal_service:Unsupported:1",
+        "source": {
+          "path": "native/bridge/lifecycle_world_bridge.c"
+        },
+        "function": "lifecycle_terminal_service",
+        "line_hint": 129,
+        "expression": "default:status=UGH_UNSUPPORTED;break;",
+        "semantics": "Produce Unsupported at this selected status expression (macro expands at its caller). Preserve preceding writes/services and the documented caller unwind. Do not resume normal gameplay or invoke a literal fallback; no rollback.",
+        "source_function_sha256_normalized_tokens": "c6faa234f34948df8faea6f86ab3c22ffab814293dd689630b1e4daf32e849dd"
+      },
+      "scope": "Source cut inventory, not an additional fixture decline. A cut may also serve one of the 188 replayed declines or a classified literal guard."
+    },
+    {
+      "id": "existing-unsupported:native/bridge/lifecycle_world_bridge.c:lifecycle_adapter_run:Unsupported:1",
+      "kind": "existing_unsupported_cut",
+      "policy": "Unsupported",
+      "prefix": {
+        "checkpoint": "native/bridge/lifecycle_world_bridge.c:lifecycle_adapter_run:Unsupported:1",
+        "source": {
+          "path": "native/bridge/lifecycle_world_bridge.c"
+        },
+        "function": "lifecycle_adapter_run",
+        "line_hint": 135,
+        "expression": "return result.kind==GAME_CONTINUE?UGH_OK:(adapter.status?adapter.status:UGH_UNSUPPORTED);",
+        "semantics": "Produce Unsupported at this selected status expression (macro expands at its caller). Preserve preceding writes/services and the documented caller unwind. Do not resume normal gameplay or invoke a literal fallback; no rollback.",
+        "source_function_sha256_normalized_tokens": "a3657a6647c8837bce436e9e3323c5f689c8a5f575dd7bddcd6e0759ec876f0d"
+      },
+      "scope": "Source cut inventory, not an additional fixture decline. A cut may also serve one of the 188 replayed declines or a classified literal guard."
+    },
+    {
+      "id": "existing-unsupported:native/bridge/lifecycle_world_bridge.c:lifecycle_adapter_terminal:Unsupported:1",
+      "kind": "existing_unsupported_cut",
+      "policy": "Unsupported",
+      "prefix": {
+        "checkpoint": "native/bridge/lifecycle_world_bridge.c:lifecycle_adapter_terminal:Unsupported:1",
+        "source": {
+          "path": "native/bridge/lifecycle_world_bridge.c"
+        },
+        "function": "lifecycle_adapter_terminal",
+        "line_hint": 139,
+        "expression": "return result.kind==GAME_EXITED?UGH_DOS_EXIT:(adapter.status?adapter.status:UGH_UNSUPPORTED);",
+        "semantics": "Produce Unsupported at this selected status expression (macro expands at its caller). Preserve preceding writes/services and the documented caller unwind. Do not resume normal gameplay or invoke a literal fallback; no rollback.",
+        "source_function_sha256_normalized_tokens": "ac1c3a555b89ec6ed45399fbce5063c7e7ba51362aadd354cbf010144f0ce6b2"
+      },
+      "scope": "Source cut inventory, not an additional fixture decline. A cut may also serve one of the 188 replayed declines or a classified literal guard."
+    },
+    {
       "id": "existing-unsupported:native/bridge/music_clock_bridge.c:c_GetElapsedMusicTime:Unsupported:1",
       "kind": "existing_unsupported_cut",
       "policy": "Unsupported",
@@ -98149,10 +98744,10 @@
           "path": "native/bridge/terminal_tail_bridge.c"
         },
         "function": "c_DosShutdownTail",
-        "line_hint": 30,
+        "line_hint": 34,
         "expression": "default: return UGH_UNSUPPORTED;",
         "semantics": "Produce Unsupported at this selected status expression (macro expands at its caller). Preserve preceding writes/services and the documented caller unwind. Do not resume normal gameplay or invoke a literal fallback; no rollback.",
-        "source_function_sha256_normalized_tokens": "84dc1cb8f66773a1db7b2e6fe6851b1bd6ca3221e29e72fd1c3e48cf37140e25"
+        "source_function_sha256_normalized_tokens": "713c79a49be258ccde5f8558d6850524d214f8566dc1502be242f10ab4fbe1ae"
       },
       "scope": "Source cut inventory, not an additional fixture decline. A cut may also serve one of the 188 replayed declines or a classified literal guard."
     },
@@ -101878,6 +102473,72 @@
       "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
     },
     {
+      "id": "front_end_world/retained/0",
+      "unit": "front_end_world",
+      "source": {
+        "path": "metadata/closure/front_end_world.json",
+        "pointer": "/retained/0"
+      },
+      "assertion": "107-byte XOR-FF score file and short-read stale tail, logical save handle leak and failed-read/close prefixes",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "front_end_world/retained/1",
+      "unit": "front_end_world",
+      "source": {
+        "path": "metadata/closure/front_end_world.json",
+        "pointer": "/retained/1"
+      },
+      "assertion": "Five21-byte rows;20-byte row copy excludes CR;12-character name with retained field tail; ties qualify",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "front_end_world/retained/2",
+      "unit": "front_end_world",
+      "source": {
+        "path": "metadata/closure/front_end_world.json",
+        "pointer": "/retained/2"
+      },
+      "assertion": "20-byte password with biased/word aliases,69/81 shipped tables; unknown/empty maps to0 in session",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "front_end_world/retained/3",
+      "unit": "front_end_world",
+      "source": {
+        "path": "metadata/closure/front_end_world.json",
+        "pointer": "/retained/3"
+      },
+      "assertion": "Indexed copy omits NUL, retains DF/wrap/alias behavior; no clipping or normalization",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "front_end_world/retained/4",
+      "unit": "front_end_world",
+      "source": {
+        "path": "metadata/closure/front_end_world.json",
+        "pointer": "/retained/4"
+      },
+      "assertion": "Raw scan menu dispatch, wrap, centering and live intro water save/restore unchanged",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "front_end_world/retained/5",
+      "unit": "front_end_world",
+      "source": {
+        "path": "metadata/closure/front_end_world.json",
+        "pointer": "/retained/5"
+      },
+      "assertion": "Editors consume the input_world typed BIOS queue",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
       "id": "hazards/interface/effects/0",
       "unit": "hazards",
       "source": {
@@ -102714,6 +103375,72 @@
       "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
     },
     {
+      "id": "item_world/retained/0",
+      "unit": "item_world",
+      "source": {
+        "path": "metadata/closure/item_world.json",
+        "pointer": "/retained/0"
+      },
+      "assertion": "Descending slot order and allocator sign-bit/dispatcher FFFF disagreement",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "item_world/retained/1",
+      "unit": "item_world",
+      "source": {
+        "path": "metadata/closure/item_world.json",
+        "pointer": "/retained/1"
+      },
+      "assertion": "Single motion/lifetime word; retirement retains raw identities, payload and erase history",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "item_world/retained/2",
+      "unit": "item_world",
+      "source": {
+        "path": "metadata/closure/item_world.json",
+        "pointer": "/retained/2"
+      },
+      "assertion": "Simulation, current draw and prior draw coordinates stay independent",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "item_world/retained/3",
+      "unit": "item_world",
+      "source": {
+        "path": "metadata/closure/item_world.json",
+        "pointer": "/retained/3"
+      },
+      "assertion": "Demo16-index raw EnemyEraseSprite reset reaches FallingItemDescriptors[0] at2D6B through its existing view",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "item_world/retained/4",
+      "unit": "item_world",
+      "source": {
+        "path": "metadata/closure/item_world.json",
+        "pointer": "/retained/4"
+      },
+      "assertion": "Descriptor/callback words remain compatibility data; resource descriptor bytes remain live mutable provider views",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "item_world/retained/5",
+      "unit": "item_world",
+      "source": {
+        "path": "metadata/closure/item_world.json",
+        "pointer": "/retained/5"
+      },
+      "assertion": "Timer word wrap-before-cap, lives byte arithmetic and multiplier low-byte store preserve accepted quirks",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
       "id": "level_view/interface/preconditions/0",
       "unit": "level_view",
       "source": {
@@ -102875,6 +103602,39 @@
         "pointer": "/retained/1"
       },
       "assertion": "Literal verification guards remain where the original C translation put them; native code introduces no new gameplay timeout.",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "lifecycle_world/retained/0",
+      "unit": "lifecycle_world",
+      "source": {
+        "path": "metadata/closure/lifecycle_world.json",
+        "pointer": "/retained/0"
+      },
+      "assertion": "Full startup order: platform/query/save, CPU/critical-error binding, scores, single seed point, mode19, picture pages, input install, calibration, AdLib mask1, clear, startup pictures, gameplay pages, menu/session.",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "lifecycle_world/retained/1",
+      "unit": "lifecycle_world",
+      "source": {
+        "path": "metadata/closure/lifecycle_world.json",
+        "pointer": "/retained/1"
+      },
+      "assertion": "Sound stop/fade before live saved video restore before keyboard restore before terminal exit using the low BIOS-queue-flush reply; no synthetic zero exit code or cleanup on failure.",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "lifecycle_world/retained/2",
+      "unit": "lifecycle_world",
+      "source": {
+        "path": "metadata/closure/lifecycle_world.json",
+        "pointer": "/retained/2"
+      },
+      "assertion": "Audio shutdown latch remains the existing live DS store, DGROUP:0002, not a repaired C flag; no external hook repair.",
       "kind": "retained_assertion",
       "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
     },
@@ -104371,6 +105131,94 @@
         "pointer": "/retained/1"
       },
       "assertion": "Literal verification guards remain where the original C translation put them; native code introduces no new gameplay timeout.",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "session_world/memory/continuations",
+      "unit": "session_world",
+      "source": {
+        "path": "metadata/closure/session_world.json",
+        "pointer": "/memory/continuations"
+      },
+      "assertion": "SessionProcess, SessionLoadRecord, SessionPassword and SessionDisplayProcess are invocation locals. NativeDemoContinuation is nested per wrapper/run invocation. No extra historical allocations.",
+      "kind": "contract_edge_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "session_world/retained/0",
+      "unit": "session_world",
+      "source": {
+        "path": "metadata/closure/session_world.json",
+        "pointer": "/retained/0"
+      },
+      "assertion": "Original frame order and PlayerCount equality movement loop",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "session_world/retained/1",
+      "unit": "session_world",
+      "source": {
+        "path": "metadata/closure/session_world.json",
+        "pointer": "/retained/1"
+      },
+      "assertion": "Byte lives decrement and wrapping level word",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "session_world/retained/2",
+      "unit": "session_world",
+      "source": {
+        "path": "metadata/closure/session_world.json",
+        "pointer": "/retained/2"
+      },
+      "assertion": "Both players seeded; descending record copy and live Triopterus repeat operand",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "session_world/retained/3",
+      "unit": "session_world",
+      "source": {
+        "path": "metadata/closure/session_world.json",
+        "pointer": "/retained/3"
+      },
+      "assertion": "193 rain respawns followed by 577 advances",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "session_world/retained/4",
+      "unit": "session_world",
+      "source": {
+        "path": "metadata/closure/session_world.json",
+        "pointer": "/retained/4"
+      },
+      "assertion": "HUD byte/score seed arithmetic and all demo attract/pre-game/completion/reveal flows",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "session_world/retained/5",
+      "unit": "session_world",
+      "source": {
+        "path": "metadata/closure/session_world.json",
+        "pointer": "/retained/5"
+      },
+      "assertion": "Pause release/make/break service delivery without simulation/frame advance",
+      "kind": "retained_assertion",
+      "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
+    },
+    {
+      "id": "session_world/retained/6",
+      "unit": "session_world",
+      "source": {
+        "path": "metadata/closure/session_world.json",
+        "pointer": "/retained/6"
+      },
+      "assertion": "Per-level guard only in verification binding; nonzero service replies stop at the original prefix",
       "kind": "retained_assertion",
       "rule": "Preserve the entire source assertion, including each clause; production admission is not permission to fix it."
     },
@@ -107935,12 +108783,12 @@
     }
   },
   "counts": {
-    "units": 59,
+    "units": 63,
     "audio_declines": 188,
     "included_timing_declines": 32,
     "literal_transfer_sites": 104,
     "pixel_opaque_services": 2,
-    "existing_status_cuts": 50,
+    "existing_status_cuts": 54,
     "pack_data_ids": 3439,
     "unresolved_allocation_names": 184
   }

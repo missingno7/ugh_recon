@@ -1,5 +1,6 @@
 /* Composition checks for prefixes and live borrowers absent from frame corpus. */
 #include "native/compose_front_end.h"
+#include "native/compose_audio.h"
 #include "native/game_defaults.h"
 #include "native/game_startup.h"
 #include "port/test/backend.h"
@@ -51,7 +52,9 @@ static void insertion(void) {
     reset();for(unsigned row=0;row<5;row++){memset(w->front.score_rows+21*row+14,'9',6);}memcpy(w->front.score_rows+21*4+14,"     1",6);w->front.score_rows[21*3+12]='X';w->front.score_rows[21*3+13]='Y';w->run.score=1;
     GSTestRun enter[]={{13,1}};keys(enter,1);assert(game_front_scores_insert(w,&s).status==GS_OK);assert(!w->run.score);assert(!memcmp(w->front.score_rows+21*4,"INCOGNITUS",10));assert(w->front.score_rows[21*4+12]=='X'&&w->front.score_rows[21*4+13]=='Y');assert(!memcmp(w->front.score_rows+21*4+14,"     1",6));assert(b->handles[5].active&&b->length==107);
     for(unsigned i=0;i<107;i++)assert(b->scores[i]==255u-(unsigned)w->front.score_rows[i]);
-    reset();w->audio_reset.devices=1;w->run.score=999999;assert(game_front_scores_insert(w,&s).status==GS_UNSUPPORTED);assert(!w->frames&&w->run.score==999999&&!b->exists);
+    reset();gs_test_startup(b,1);s=gs_test_services(b);assert(game_audio_init(w,&s,1)==GS_OK);
+    w->run.score=999999;keys(enter,1);assert(game_front_scores_insert(w,&s).status==GS_OK);
+    assert(w->audio.playing&&w->audio.ticks&&b->exists&&!w->run.score);
     reset();w->run.score=0;uint8_t original[107];memcpy(original,w->front.score_rows,107);assert(game_front_scores_insert(w,&s).status==GS_OK);assert(!memcmp(original,w->front.score_rows,107)&&!b->exists);
 }
 static GSStatus (*original_store)(void *,uint16_t,uint16_t);

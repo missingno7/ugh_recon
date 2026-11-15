@@ -1,6 +1,7 @@
 #include "game_boot.h"
 #include "game_defaults.h"
 #include "compose_demo.h"
+#include "compose_audio.h"
 #include <string.h>
 static GSStatus word(GameServices *s,GameDefaultField f,uint16_t *out) {
     uint8_t b[2];GSStatus status=game_default_copy(s,f,b,2);
@@ -45,5 +46,6 @@ GSStatus game_world_construct(GameWorld *w,GameServices *s) {
     /* The unpack destination is a bounded codec allocation, initially zero.
      * Picture IDs must resolve before platform effects begin. */
     for(unsigned i=0;i<4;i++){GSBytes bytes;GSStatus status=game_picture_resource(s,i,&bytes);if(status!=GS_OK)return status;if(bytes.size<12)return GS_INVALID;}
+    {GSStatus status=game_audio_construct(w,s);if(status!=GS_OK)return status;}
     return game_demo_construct(w,s);
 }

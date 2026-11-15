@@ -22,6 +22,7 @@ static GSStatus lifetime(void *ctx,GSTimerLifetimeRequest q,GSBinding *reply){
     GSSdlStartup *p=ctx;if(!reply)return GS_INVALID;
     if(q.kind==GS_TIMER_READ_BINDING)*reply=p->timer;
     else if(q.kind==GS_TIMER_BIND_HANDLER){*reply=p->timer;p->timer=(GSBinding){2};}
+    else if(q.kind==GS_TIMER_BIND_SAVED){*reply=p->timer;p->timer=q.binding;}
     else return GS_UNSUPPORTED;
     return GS_OK;
 }

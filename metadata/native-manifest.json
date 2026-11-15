@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "scope": "Step 7 production startup, typed front-end and demo composition",
+  "scope": "Step 7 production startup, front-end, AdLib audio and demo composition",
   "core": [
     "native/game_world.c",
     "native/game_defaults.c",
@@ -41,7 +41,9 @@
     "native/actor_render.c",
     "native/actor_resources.c",
     "native/level_view.c",
-    "native/water_weather.c"
+    "native/water_weather.c",
+    "native/compose_audio.c",
+    "native/adlx_allocation.c"
   ],
   "backends": {
     "test": [
@@ -142,7 +144,8 @@
     "native/compose_front_end.h",
     "native/compose_demo.h",
     "native/game_demo.h",
-    "native/object_identities.h"
+    "native/object_identities.h",
+    "native/compose_audio.h"
   ],
   "vendor": {
     "sdl": [
@@ -182,6 +185,8 @@
     "native/compose_demo.c",
     "native/game_demo_data.c",
     "native/compose_demo.h",
-    "native/game_demo.h"
+    "native/game_demo.h",
+    "native/compose_audio.c",
+    "native/compose_audio.h"
   ]
 }

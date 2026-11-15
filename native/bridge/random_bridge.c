@@ -1,9 +1,10 @@
+#include "random_borrow.h"
 #include "../random.h"
 #include "platform.h"
 
 static RandomState random_project(const Regs *r) {
-    RandomState state={{rd16(r->cs,G(RandomStateWord0)),rd16(r->cs,G(RandomStateWord1)),
-                        rd16(r->cs,G(RandomStateWord2)),rd16(r->cs,G(RandomStateWord3))}};
+    RandomState state={{rng_read16(r->cs,G(RandomStateWord0)),rng_read16(r->cs,G(RandomStateWord1)),
+                        rng_read16(r->cs,G(RandomStateWord2)),rng_read16(r->cs,G(RandomStateWord3))}};
     return state;
 }
 
@@ -11,10 +12,10 @@ EXPORT int c_NextRandomBelowAx(Regs *r) {
     RandomState state=random_project(r);
     uint16_t first=(uint16_t)(r->ax+state.word[0]);
     r->ax=random_next_below(&state,r->ax);
-    wr16(r->cs,G(RandomStateWord1),state.word[1]);
-    wr16(r->cs,G(RandomStateWord2),state.word[2]);
-    wr16(r->cs,G(RandomStateWord3),state.word[3]);
-    wr16(r->cs,G(RandomStateWord0),state.word[0]);
+    rng_write16(r->cs,G(RandomStateWord1),state.word[1]);
+    rng_write16(r->cs,G(RandomStateWord2),state.word[2]);
+    rng_write16(r->cs,G(RandomStateWord3),state.word[3]);
+    rng_write16(r->cs,G(RandomStateWord0),state.word[0]);
     /* MUL leaves these flags undefined on DOS. Preserve the L1 convention
      * (the final ADC flags) as well as the defined MUL carry/overflow. */
     szp(r,state.word[0],16);
@@ -32,6 +33,6 @@ EXPORT int c_SeedRandomFromDosSeconds(Regs *r) {
     RandomDosTime time={(uint8_t)(r->cx>>8),(uint8_t)r->cx,
                         (uint8_t)(r->dx>>8),(uint8_t)r->dx};
     random_seed(&state,time);
-    wr8(r->cs,G(RandomSecondsSeedByte),(uint8_t)(state.word[0]>>8));
+    rng_write8(r->cs,G(RandomSecondsSeedByte),(uint8_t)(state.word[0]>>8));
     return UGH_OK;
 }

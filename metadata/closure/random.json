@@ -229,7 +229,8 @@
     "native/bridge/random_bridge.c": {
       "includes": [
         "../random.h",
-        "platform.h"
+        "platform.h",
+        "random_borrow.h"
       ],
       "calls": [
         "G",
@@ -238,11 +239,11 @@
         "random_next_below",
         "random_project",
         "random_seed",
-        "rd16",
+        "rng_read16",
+        "rng_write16",
+        "rng_write8",
         "set_ah",
-        "szp",
-        "wr16",
-        "wr8"
+        "szp"
       ]
     }
   },
@@ -288,7 +289,7 @@
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
     "metadata/toolchain-lock.json": "1eac9bc406bec9f0a6dabb333025d4bef2c08e89cf2bb54b27a1e512aca8c660",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
-    "native/bridge/random_bridge.c": "fad64c9bce7435e60efa5e0ed5705ed1179ae9239ce85b724228e2754403d22c",
+    "native/bridge/random_bridge.c": "3df2829acbc3c96c94154a1d8b062de12033f0df037e9ad1e8a843a77c7453c8",
     "native/random.c": "5f77b30dd26cc0e6bc5ce30ce05e1163335004530ed4be4ab07339d3da027f99",
     "native/random.h": "b9f9cabcb38b54a6fec81590179f55aeb036dd21d9cb4eaeb670013dc411d419",
     "src/asm/GAME.ASM": "29c9ead3b191a744c59b465a3bd4de29f2e217b92492cf57edb8c13bc3494204",
@@ -385,6 +386,17 @@
       "inputs": [
         "tools/emu.py",
         "tools/wholegame.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Random ownership and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/random_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/random_bridge.c"
       ]
     }
   ]

@@ -19,6 +19,9 @@
 #ifdef UGH_NATIVE_RUN
 #include "run_world_bridge.h"
 #endif
+#ifdef UGH_NATIVE_RANDOM
+#include "random_world_bridge.h"
+#endif
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,6 +45,9 @@ static inline const uint8_t *project_timing_observation(const uint8_t *machine) 
 #endif
 #ifdef UGH_NATIVE_RUN
     run_require_seal(machine);
+#endif
+#ifdef UGH_NATIVE_RANDOM
+    rng_require_seal(machine);
 #endif
     memcpy(observation,machine,sizeof observation);
     timing_serialize(observation);
@@ -68,6 +74,10 @@ static inline const uint8_t *project_timing_observation(const uint8_t *machine) 
 #ifdef UGH_NATIVE_RUN
     run_serialize(observation);
     if(run_check_serialization(observation)!=UINT32_MAX){fputs("run: missed serialization\n",stderr);exit(88);}
+#endif
+#ifdef UGH_NATIVE_RANDOM
+    rng_serialize(observation);
+    if(rng_check_serialization(observation)!=UINT32_MAX){fputs("random: missed serialization\n",stderr);exit(88);}
 #endif
     if(timing_check_serialization(observation)!=UINT32_MAX){
         fputs("timing: missed owned serialization\n",stderr);exit(88);

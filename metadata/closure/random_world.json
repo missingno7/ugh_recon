@@ -1,0 +1,278 @@
+{
+  "component": "random_world",
+  "status": "migrated",
+  "original": {
+    "owned": [],
+    "composes": [
+      "random",
+      "run_world",
+      "water_weather",
+      "lifecycle"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/random_world.h",
+      "native/random_world.c",
+      "native/bridge/random_world_bridge.h",
+      "native/bridge/random_world_bridge.c",
+      "native/bridge/random_borrow.h"
+    ],
+    "functions": [
+      "native_random_world"
+    ],
+    "bridge": "Native random-state owner, typed live byte borrowers and observation-only serialization"
+  },
+  "purpose": "Cut 5B: four-word random state and high-byte seconds alias, without changing the time source",
+  "interface": {
+    "inputs": "Cold fixture once; live generator/seed and explicit byte-window borrowers",
+    "outputs": "Eight native bytes, sealed RAM and separate observation serialization",
+    "roles": {
+      "rain": "Existing WW_RANDOM / PIXEL_PEER_NextRandomBelowAx bound and result request",
+      "lifecycle": "Existing LIFE_SEED_RANDOM at initialization",
+      "storage": "RNG_BORROW_GENERATOR and live generic byte-window borrowers"
+    }
+  },
+  "callers": [
+    "Accepted generator/seed bridge; rain WW_RANDOM/PIXEL_PEER request and lifecycle LIFE_SEED_RANDOM request; generic byte windows"
+  ],
+  "callees": [
+    "Accepted random API and existing foreign/unmoved owner chain"
+  ],
+  "indirect": [
+    "No new callback or dispatch in the storage owner"
+  ],
+  "memory": {
+    "owner": "One RandomState.word[4], eight bytes; seconds is high byte of word0",
+    "total_with_prior": 8041,
+    "region": "GAME:4EF7..4EFE",
+    "alias": "RandomSecondsSeedByte = byte1 of word0, not another allocation",
+    "borrowers": [
+      "random_bridge: explicit generator storage view; projection after the time reply; stores preserve 1,2,3,0 order",
+      "water: accepted WW_RANDOM request through PIXEL_PEER_NextRandomBelowAx",
+      "lifecycle: accepted LIFE_SEED_RANDOM request at the single initialization point",
+      "Physical byte windows, streaming palette/ICE audio workspace access and decimal/far-copy live views"
+    ]
+  },
+  "assumptions": [
+    "Accepted random arithmetic domains unchanged: arbitrary four-word state, every16-bit bound including zero, arbitrary time byte patterns",
+    "The accepted A bridge proofs use an ordinary eight-byte RAM view plus guards, disjoint active code/resources/stack, and a time-service reply preserving CS without mutating state RAM; those claims are not widened",
+    "The new B property covers native byte output/frame/dependence; live callback mutation and foreign-CS compatibility views have separate finite C evidence",
+    "Exactly eight canonical physical lanes belong to RandomState.word[4]; seconds is the existing word0 high-byte alias, not an additional allocation; foreign/unmoved byte views delegate",
+    "Cold import is verification fixture setup only; live moved RAM stays sealed and serialization is observation-only, never a writeback or resynchronization",
+    "The time source remains the existing deterministic DOS reply at the existing single lifecycle seed point; no live seed or resource/alias policy is chosen"
+  ],
+  "eliminated": [
+    "RAM ownership of eight random-state bytes"
+  ],
+  "retained": [
+    "Bound-zero advancement, exact carries/word publication order and partial seconds reseed",
+    "Deterministic existing fixed DOS-time reply; no live seed decision"
+  ],
+  "evidence": [
+    {
+      "property": "Actual-C owner and accepted arithmetic/seed seam",
+      "level": "B",
+      "method": "Actual native-owner byte get/put: arbitrary full64-bit state, selected lane/value and arbitrary-other-byte output/frame/dependence. Accepted actual-C L1/native/bridge recurrence and partial seed proofs replayed, all64 state bits/16 bound bits and full service replies/status under their ordinary-RAM assumptions.",
+      "command": "python verif/random_composition.py --proof --router",
+      "result": "PASS: actual-C field profile and accepted next/seed proofs; all8 bytes x256, four full16-bit word slices and neighbor/alias/frame checks",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "Independent RNG/rain API and live byte borrowers",
+      "level": "C",
+      "method": "Unicorn and L1/legacy-native/composed comparisons of RAM, declared live ABI, Devices and ordered request/store prefixes; time failure and callback mutation; full word0/seconds domain and bound slices",
+      "command": "python verif/random_composition.py --api --borrowers --reuse",
+      "result": "PASS: 566 API runs each profile, zero rejections; typed service/store prefixes, stateful zero-bound and reseed histories and explicit compatibility views",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "Native ownership composition",
+      "level": "D",
+      "method": "Committed HEAD archive plus only cut files, scratch promotion; original ASM references, sealed RAM and observation-only serialization",
+      "command": "python verif/random_composition.py --build --projector --census --weather --levels",
+      "result": "PASS: closure54/0, host21/21 both variants, 17955 boundaries,8041 native bytes, zero moved journal publications, fallbacks/L1 bodies/state-island edges;81+7+8 level groups both variants; four rainy openings/random-rain",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "Seeded cut5B seams",
+      "level": "C",
+      "method": "Actual generated bridge/algorithm mutants against independent consuming comparators",
+      "command": "python verif/random_composition.py --defects",
+      "result": "PASS: whole seed-word replacement, recurrence-store reorder, skipped zero-bound, extra rain draw, stale-parent seed and missed serialization all detected",
+      "date": "2026-11-15"
+    }
+  ],
+  "amiga": {
+    "classification": "not-used",
+    "finding": "Composition over accepted DOS contracts"
+  },
+  "uncertainty": [
+    "Storage-first: outside seed ABI still requests existing deterministic DOS time; production service/provider extraction remains later work"
+  ],
+  "dependencies": {
+    "native/random_world.h": {
+      "includes": [
+        "random.h"
+      ],
+      "calls": []
+    },
+    "native/random_world.c": {
+      "includes": [
+        "random_world.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/random_world_bridge.h": {
+      "includes": [
+        "../random_world.h",
+        "stdint.h",
+        "ugh.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/random_world_bridge.c": {
+      "includes": [
+        "platform.h",
+        "random_world_bridge.h",
+        "run_world_bridge.h",
+        "stdio.h",
+        "stdlib.h"
+      ],
+      "calls": [
+        "G",
+        "exit",
+        "fputs",
+        "lin",
+        "native_random_world",
+        "rng_get",
+        "rng_lane",
+        "rng_put",
+        "rng_shared_read",
+        "rng_shared_write",
+        "run_borrowed_byte",
+        "run_borrowed_store",
+        "ugh_read",
+        "ugh_write"
+      ]
+    },
+    "native/bridge/random_borrow.h": {
+      "includes": [
+        "random_world_bridge.h"
+      ],
+      "calls": []
+    }
+  },
+  "verification_inputs": {
+    "c/dos_input.c": "b6a086f3917441a23c4238f582e00605d8a239ded81b03a658ff308890601e53",
+    "c/memory.c": "97f59e3c343cd6911854d0bfc3ff624417de2844f712caa96ec6799d3a9783d9",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "docs/standalone-cuts.md": "ae06aa47864cfbf2cefce111370f82678c75f5198fb95620c4c13e0e633b4d2e",
+    "docs/standalone-ledger.md": "b232c5e0e4ebd04d94aeea9b4369ab3da07eb0725bbf2cba1a1ed0636bbed41c",
+    "host/main.c": "9ffab7edbada0f544f0e65bcfba97904f766eed15d504c702c07ee38c71b1a7c",
+    "metadata/closure/actor_render.json": "7123b5cb1d8e97b631440faf156e791fc751f1e1ccac107880cf16c2a5fa6718",
+    "metadata/closure/audio_world.json": "5ad81ed49683459f1c5e799f572896c846576e4b129360d3e3537af59d42e092",
+    "metadata/closure/decimal.json": "a17de4e5cb5f3596652893a5ad6a3fd955f68b57795288510a7c9df75096c2d7",
+    "metadata/closure/demo_presentation.json": "dd5ea0d219407c10230369e13d87b2917dc118d124bbc6d07e79f1d0faa545b9",
+    "metadata/closure/far_copy.json": "b607e9417591d0724605e6d4fb8bbe50087f4e03755ac77d0e1425e8009f98f3",
+    "metadata/closure/high_scores.json": "d2ad711a5747a555bf4e1d88da13172d38634852a8ff19c903245f499a07a7cf",
+    "metadata/closure/hud.json": "6100933854ec44e6388e8112ca2a28b5e4f9fc15ddd211565e8c15418c5f86bb",
+    "metadata/closure/ice.json": "9952c30fd8cd63eba1c6788e454c7e8aae3aba8998751d1ae0b1027cc99a0c48",
+    "metadata/closure/ice_scratch.json": "056c9f22336eefd8611afb2575becfb73354f6830027b03090b33c5ebbcf6bca",
+    "metadata/closure/input.json": "c703ccb9189d6a65ffd04f195d6d4f9a54586761e5bbbf3b0608d6838607179c",
+    "metadata/closure/input_world.json": "a6ef627ea2028c16ba08873f44fbf87b203d3b1b3c1f5eb3ddcc2c48709348f5",
+    "metadata/closure/menus.json": "552672d8555f6a1f9d4ef603731471212749dc2bda6c4cd03450072bf110e201",
+    "metadata/closure/palette_world.json": "d490430f80d946b56fe32793935f2baf2e8dc7b15241df84dfefd8ae0ab30b2b",
+    "metadata/closure/pictures.json": "5e855c0f2022fa2a77d70231b081e5f56b90e9b0957c8388e3dd1590f83b0b93",
+    "metadata/closure/pixel_world.json": "c0aa72cef46db5b262933697a1632b707028e05b7c6586739febea1d7e89aa2e",
+    "metadata/closure/player_physics.json": "46d8c1a8299445563188ef5a9677e67b059c09031a134c0a3b93f2955899ccfc",
+    "metadata/closure/presentation_world.json": "17e30cde0000d792e96735911985f85196cd0e8fbc69566ae507f57d17f8c47f",
+    "metadata/closure/random.json": "3499f1fa218d51a7310badc7a3c46f86186b0163b131047f7613e34188ec7efb",
+    "metadata/closure/render_primitives.json": "a098a69be83b12d488013249d7494d1706b2e47210621a23d4ec5f0a80b948f5",
+    "metadata/closure/run_world.json": "a3a55e09bb67946b20dc26a8b7630dff90e2f90e82a8f54157a0fd332847a8eb",
+    "metadata/closure/session.json": "e0b1ed5fbd0827c98274e760f845a8e61ea9a000de68891a662b9c4d78846460",
+    "metadata/closure/timing_world.json": "2bffbad2210633771837934c2722a9ce0535fb1f0d9ac493a3de05b540750e4f",
+    "metadata/closure/video_dos.json": "a96884870814e196a53c841bc071980990af944342ef2a33b9800de79fc640a0",
+    "metadata/closure/video_pages.json": "ff2dd79cb0519d1642246c54049f32bff9f74b436ed69748b88d2347b09cc230",
+    "metadata/closure/water_weather.json": "0d3a8af27d3d33c6826b9dc6e1484f201f4c06b46a96e1e0a0f547a149a2ab6b",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
+    "native/bridge/actor_render_bridge.c": "7ba4533fe90d6625450cdedce3a98fd80925cdca2d6a2d4941413e18822853d7",
+    "native/bridge/high_scores_bridge.c": "2145d2e64bfb7712cecedd6ef59dbaae3c06c2b00998f48984950437b708e78a",
+    "native/bridge/hud_bridge.c": "bc1990e4affe4cf22381e6a5a54d7586f0f80294951731858a7e2044f8d0b61b",
+    "native/bridge/hud_support.h": "fb6467efb4879d079ef9c34f73eaf45c386fd6fbfd18ff07347027e05bac4ab4",
+    "native/bridge/lifecycle_bridge.c": "c071659c8a4d82b8946cda5d7cb12fcf5df28dfd152f8ae899657e38228556f6",
+    "native/bridge/menus_bridge.c": "3caad690155071ae5b5a585968d9c3c7d5d128464169cda842634ec393ff8d32",
+    "native/bridge/pixel_world_bridge.c": "6b0ef02880e37be713051c2ba5b45040b23018ba43655ef44e11d87eb30b985b",
+    "native/bridge/random_borrow.h": "7871451fc18b55593f527bfac58c48803bf1ae6de89397c262d86d68ffd32fcd",
+    "native/bridge/random_bridge.c": "3df2829acbc3c96c94154a1d8b062de12033f0df037e9ad1e8a843a77c7453c8",
+    "native/bridge/random_world_bridge.c": "a0e0f424f765a5d94ba3b4bf141ed62587def5d5ed46a56b74ef4560ac5b9749",
+    "native/bridge/random_world_bridge.h": "4c0f8a2dbd5d732b89b157ffa5bdf825726e57c08ac4fb172174207c13e89199",
+    "native/bridge/session_bridge.c": "7515ded717d8b85fd6047c26919d589d3ea796cd1bd6733698bb80a79586a2f3",
+    "native/bridge/water_weather_bridge.c": "ed6cad0dae9675775c3365c4508cc3beaf86a66b04ce7053371a36d47c453d02",
+    "native/hud.c": "f1b1d550b3afe997828e4154b95e290803d9f32461e66ab6f2da86620d4ae53c",
+    "native/hud.h": "186b7d5953017351c3be9f803642d119e83774c7aa5adc0d2405c1a99d2eb74b",
+    "native/input.c": "56550496ffde02a0f1b9625922783721e20fa455e5d1be9c8dc5c3467569b8f9",
+    "native/input.h": "3e1278c1c7218615a3813263dd19fbc6a15c7a8e073b0bf96c4cb2aa5415bf1e",
+    "native/player_physics.c": "dcb90fedbd71fbf58b826a80abbf8307bd9de3d1e1347a9e4e1338543fee7b73",
+    "native/random.c": "5f77b30dd26cc0e6bc5ce30ce05e1163335004530ed4be4ab07339d3da027f99",
+    "native/random.h": "b9f9cabcb38b54a6fec81590179f55aeb036dd21d9cb4eaeb670013dc411d419",
+    "native/random_world.c": "c3564fcf8575eca92732618b3a25a86cf9e4742dc67e74bed3cb6b59d862547f",
+    "native/random_world.h": "0d09abce32879d0517f8a1e7d5f6ee7674aca617b287ca538a558f43f40e07a4",
+    "native/session.c": "731afa9e3ade606e09a77fce94d6a762a5080554863a31cec183a6c7f4121634",
+    "native/session.h": "843e2fa75fc55024f787804ff00c20505238381d4f02dc891e02d937f1e05d20",
+    "native/video_dos.c": "4a8639a8349bf49694dbff5bf052811b89a500882aa8fea492e4c84fb700dcde",
+    "native/video_dos.h": "830cf4e706ce00033be99d4e74831f4f39e348f3b226bd1086128a5f61c26cf5",
+    "native/water_weather.c": "0c7323754d3a2d6eb5f194082096da6ac3dce5d0ac3d09e517d2be9f605a20ba",
+    "native/water_weather.h": "376ea82167cd5afbee4ffb23f70a8cc1c6b2c7c1607e71241647e4cfd2088064",
+    "src/asm/GAME.ASM": "29c9ead3b191a744c59b465a3bd4de29f2e217b92492cf57edb8c13bc3494204",
+    "src/data/DGDATA.ASM": "9d46889e26434a597ed19b91c119029af3dbf3dbcfa9811c4ed5aa18dc157541",
+    "tools/cbuild.py": "b957186e9697f04be43136704d51f727fa5f20aace331919e3ade16468a4a8f1",
+    "tools/cgen.py": "c494a10b08145efeb0dfd7bcef4fa89b3902cebbdd69ee63bae89647026d9aff",
+    "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
+    "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
+    "tools/hostbuild.py": "a9438f5cfa724e7b5eb3bcfbb647ce7ab2c68d8b1c6375340ca4840ec1ee847d",
+    "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
+    "verif/audio_composition.py": "32cf1d267784b30271e030a276abb0424aacf932ae169fc98efa71a9cdb70691",
+    "verif/cbmc_shim/stddef.h": "03e62ec5f7016e0582b92f016d7e4017b56746e2b216ae8d7fad236ae7e723e7",
+    "verif/cbmc_shim/stdint.h": "ff382e7cc9e8ac2ff6cef94767bb680b49944513ebff33b6d7e548fe12a5d7d0",
+    "verif/cbmc_shim/ugh.h": "d23d5fb7f8d14f5c03944d9cce971d6d21fdf32c28ebac1f2710842cd03d7e72",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/entry_retirement.py": "3b52d207fef7b3e51461a2357a06f012f59651b406f1fe9a0253876e55f76529",
+    "verif/input_build.py": "106fc5b7c65a9591f24307c1be970ad5b947d36e020f16c15887d4024e35095b",
+    "verif/input_composition.py": "f40963d216d583f6649f23b2f3138ab207f1b074a7eb560031adb263605d209e",
+    "verif/input_evidence.py": "e84fc96097884dabc2904783c50a1b0dd8b324953008b160c9ed94e81793c897",
+    "verif/input_integration.py": "a81129b645d60c2e7000427f3b1deced03255269c553e5423d9016b7ea741021",
+    "verif/input_inventory.py": "3d6a896a12e35eaf4f698e6047f5a57a95edc302c0f9a3e7571ca4196980939e",
+    "verif/level_suite.py": "c4ba45fc0a2aa239c8023932d03413dcc487000e887b836cac05e24347aaace7",
+    "verif/palette_composition.py": "5d2c122f190aa538bc64d744b0f79ed8c6d02d73c9804b936921a4545eb10ed6",
+    "verif/pixel_composition.py": "b54a9136a4401015985bb976af1aa430f402f513defb749805b0163101effc3b",
+    "verif/player_physics_l0_cases.py": "a3bf551de674f3c6121c023498fdca1641f99f68e75b23fd5dfb28e313fc4948",
+    "verif/presentation_composition.py": "696f65065db4fb3713e36c628596bc1b2ffef771114ff8ed833c5e9d7ddbf2f9",
+    "verif/projector/observer.c": "bc51a154515b409c8f46c6ba040f221b02053eddf1b7c9286913817787c9c3f9",
+    "verif/projector/publications.py": "c0c75157528821c40147ad4f9ee6c44993c1a692c80c2cd021cd1863809f6b01",
+    "verif/projector/schema.py": "1bb39678888b4da7fb5a48ee6b26794d392ee544238c58ede37d85cb38c33228",
+    "verif/projector/timing_serializer.h": "b7e2a109a476b0c4de02d23bfb5bc1d8b28eff4c79e20c0c9502c76e9902be67",
+    "verif/projector/world.h": "fcc3e647a6ba8e5602c705f93be42a50da90723cf904ebfa755de13be121a102",
+    "verif/projector_evidence.py": "0c6ed7cc4fa157009971d96b1e22d3a88812c5730ac36a8a77931ba0756abd64",
+    "verif/random_cases.py": "5daeb49e1a996c94276bd1745b9e948b80bf7ef97276cf2fe51d2afa830853cb",
+    "verif/random_cbmc.c": "0e31d1315634f42dcbcac0440c06492c0bb3e5c46c1c63db6dc5926fe814e321",
+    "verif/random_composition.py": "ee8263d6b9c3d62d5a26a1aeab50e3b3d6378b5222e8d5307b3f4457b1ab82d0",
+    "verif/random_enumeration.c": "7591b83978501a4d6a2f88eb29c395fb087e7e01a17c65266520ff99d1280f97",
+    "verif/random_evidence.py": "005fb9e08acb8d75e1ebcf410cf0a04410a19defdca045f34db2fb19db6dab3e",
+    "verif/random_world_cases.py": "7b560b96f1ececc7323497c1fcf49472b129abd8854fed3ba3af572b80bd1299",
+    "verif/random_world_router.c": "d185fc119e0fba454e604779544ad451ccadddd39ed64498ca09a6ebdc5799af",
+    "verif/run_composition.py": "fcfcaad35ffb749c8e19cc745625f52e7e0bb66cec69beb52fc880f451dfe3ef",
+    "verif/standalone_census.py": "647dd84b82fbeb0871fd992671b0c2279cd98e66bb46854b57c0745ed84b0a6f",
+    "verif/timing_composition.py": "079ee38dca0657725f0449fd78d90df8928a4d2130a95021a07f9aa7195dd757",
+    "verif/vga_state_census.py": "54b8735be14b81c3c1107931cb24b6a2cff069c3759e98c0dd00742135055808",
+    "verif/video_pages_composition.py": "2fb8e8ad727b9ce40da26824d14b1428bc4058488eb1a0e12839f7c8311edf4c",
+    "verif/water_weather_l0_cases.py": "e620b99e61d78aa407458d080fbeabcff8c9958992a4b9b11f6f94d33a6942e0",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574"
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "proposed_status": "migrated"
+}

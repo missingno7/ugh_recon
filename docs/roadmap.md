@@ -179,7 +179,10 @@ owns 7,660 bytes of state in the composed host: audio, timer, palette, input, pa
 presentation state. Their RAM is sealed, the observation view is separate, and their
 peer-to-peer and hardware requests are typed. [standalone-cuts.md](standalone-cuts.md) orders
 the cuts for steps 5 to 7, the ones that move the remaining 229 named cells. It also defines a
-mechanically checkable production target. [standalone-ledger.md](standalone-ledger.md) lists
+mechanically checkable production target. How a cut adds a world to the composition (registry entry, case module, world gate) is in
+[world-registry.md](world-registry.md). `python tools/gate.py` is the parallel supervisor gate,
+covering closure, the build, both hosts and the level groups, in about 80 seconds.
+[standalone-ledger.md](standalone-ledger.md) lists
 every remaining cell, every piece of machine debt, and the five decisions that step 7 and step 8
 need.
 

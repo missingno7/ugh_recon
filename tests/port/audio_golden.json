@@ -1,0 +1,6 @@
+{
+  "sequence_sha256": "3b5fe758ca9f7b3c6d70fa3d9f3deb90a5da0a90843bd27fc2b419b409bc455c",
+  "pcm_sha256": "a5b92751cc92556d703b379458ae028388dbaa5db7128c9c32ebf67df92fba10",
+  "frames": 4800,
+  "provider": "independent direct pinned OPL3 oracle; host buffered write/generate convention"
+}

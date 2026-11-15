@@ -1,0 +1,18 @@
+{
+  "gcc": {
+    "path": "C:/msys64/mingw64/bin/gcc.exe",
+    "sha256": "c5005ba5380351c10743e9ca53ef9632164c54be3bd6b93324795114e4589a7d"
+  },
+  "sdl3": {
+    "path": "C:/tools/sdl3-3.4.16-mingw/SDL3-3.4.16/x86_64-w64-mingw32/bin/SDL3.dll",
+    "sha256": "8d6167e6d27e27e640deb0b259445d606ec011c63e580396dff76fd8d46f9631"
+  },
+  "opl_c": {
+    "path": "C:/tools/nuked-opl3-765ec962e473/opl3.c",
+    "sha256": "59eb873fdb6d52bc7977a0fcbb97c1bae03dd71cc88e3acddbcc01b7121bfe03"
+  },
+  "opl_h": {
+    "path": "C:/tools/nuked-opl3-765ec962e473/opl3.h",
+    "sha256": "a84266b8d71a4929f15f573afbe407fd24310b77757d855835dacabf68763679"
+  }
+}

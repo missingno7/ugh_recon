@@ -1,0 +1,11 @@
+{
+  "result": "PASS",
+  "scenario": "startup",
+  "frame": 12,
+  "script_sha256": "bddaf9054cfb6f1a4a5734e147c2481c28d0fa0768af141c311ddb13a38fbd7b",
+  "state_sha256": "8c2f2ad3185e0588ba137ead686981fdaecc4ace27bbec9863b10b4814de40e2",
+  "source": "reconstructed ASM under Unicorn, all12 frames equal maintained reference",
+  "rgb_sha256": "0ccca26e9ebdec0823433df74bf450859d91888b1990fb6a5ccc5b715d6185e5",
+  "host_video_sha256": "fcf24e4afa71114d8e835f9558eb06d73c74bf1310cbb411fc215d86f2227491",
+  "reference_frames_sha256": "256001e3dd20f95edb4fb3f01616ee128dad00f19f7d148b50670d1a67e096ef"
+}

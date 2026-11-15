@@ -1,4 +1,5 @@
 #include "compose_front_end.h"
+#include "compose_audio.h"
 #include "game_startup.h"
 #include "game_defaults.h"
 #include "high_scores.h"
@@ -144,9 +145,10 @@ GameFrontResult game_front_scores_show(GameWorld *w,GameServices *s) {
     STEP(draw(w,s,text,sizeof text,80));STEP(game_video_swap(w,s));STEP(game_video_fade(w,s,0));
     STEP(game_video_wait(w,s,0x578,&scan));STEP(game_video_fade(w,s,1));return outcome(GS_OK,high_show_result(scan));
 }
-/* The admitted absent-card path is the original audio facade's no-op. Active
- * banks/events require the next audio composition, never a bridge fallback. */
-static GSStatus score_music(GameWorld *w){return (w->audio_reset.devices&1u)?GS_UNSUPPORTED:GS_OK;}
+static GSStatus score_music(GameWorld *w,GameServices *s){
+    TRY(game_audio_music_stop(w,s,17).status);
+    return game_audio_music_start(w,s,game_audio_score_resource(),0,165).status;
+}
 GameFrontResult game_front_scores_insert(GameWorld *w,GameServices *s) {
     GSStatus status;STEP(game_front_digits(w,w->run.score,6));uint8_t significant=0;
     for(unsigned i=0;i<6;i++){HighFormatDigit digit=high_format_digit(w->front_data.digits[i],significant);w->front_data.digits[i]=digit.character;significant=digit.significant;}
@@ -161,7 +163,7 @@ GameFrontResult game_front_scores_insert(GameWorld *w,GameServices *s) {
     }while(high_shift_advance(&insertion));
     size_t start=high_row_offset((uint8_t)insertion.row,w->front.row_stride,1);
     HighDescending digits=high_digits_begin();do{w->front.score_rows[start+digits.position]=w->front_data.digits[digits.position];high_descending_advance(&digits);}while(digits.remaining);
-    STEP(score_music(w));STEP(game_front_recipient(w,s,GAME_FRONT_BIOS_EDITOR));
+    STEP(score_music(w,s));STEP(game_front_recipient(w,s,GAME_FRONT_BIOS_EDITOR));
     HighDescending blank=high_name_begin();do{w->front.name_entry[blank.position]=32;high_descending_advance(&blank);}while(blank.remaining);
     w->run.water_y=159;STEP(wait_count(w,s,40));STEP(game_clear_video(w,s));STEP(game_front_header(w,s));
     uint8_t prompt[87];memcpy(prompt,w->front_data.score_prompt,74);memcpy(prompt+74,w->front.name_entry,13);
@@ -192,7 +194,7 @@ static GSStatus wait_scan(GameWorld *w,GameServices *s) {
     for(;;)switch(input_wait_next(&work,changed)) {
     case INPUT_WAIT_SCAN:TRY(game_poll_input(w,s));if(work.stage!=1)changed=!!w->input.change;break;
     case INPUT_WAIT_RETRACE:TRY(game_video_next(w,s));break;
-    case INPUT_WAIT_SAMPLE:TRY(game_sample_input(w,s));changed=!!(w->input.joysticks[0].buttons|w->input.joysticks[1].buttons);break;
+    case INPUT_WAIT_SAMPLE:TRY(game_sample_input_trigger(w,s,8));changed=!!(w->input.joysticks[0].buttons|w->input.joysticks[1].buttons);break;
     case INPUT_WAIT_SERVICE:TRY(s->input.pump(s->input_context,GS_INPUT_WAIT));break;
     case INPUT_WAIT_DONE:return GS_OK;
     default:return GS_OVERFLOW;
@@ -219,7 +221,9 @@ GSStatus game_front_introduction(GameWorld *w,GameServices *s,GSBytes introducti
     text=(GameFrontText){introduction,0,0,(uint16_t)(text.y+32),0};TRY(game_front_text_block(w,s,&text));
     text=(GameFrontText){{w->front_data.password_title,12},0,0,160,0};TRY(game_front_text_line(w,s,&text));
     text=(GameFrontText){password,0,0,text.y,0};TRY(game_front_text_line(w,s,&text));TRY(game_video_swap(w,s));
-    TRY(score_music(w));TRY(game_video_fade(w,s,0));TRY(wait_scan(w,s));
+    TRY(game_audio_music_stop(w,s,17).status);
+    TRY(game_audio_effect(w,s,game_audio_intro_resource(),225,1).status);
+    TRY(game_video_fade(w,s,0));TRY(wait_scan(w,s));
     w->run.water_y=saved_y;return game_video_fade(w,s,1);
 }
 

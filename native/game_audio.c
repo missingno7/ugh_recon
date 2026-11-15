@@ -1,4 +1,5 @@
 #include "game_startup.h"
+#include "compose_audio.h"
 #include "adlx_facade.h"
 #include "adlx_voice.h"
 #include "adlx_music.h"
@@ -51,7 +52,9 @@ static GSStatus adlib(GameWorld *w,GameServices *s,uint16_t *result) {
         }
     }
 }
-GSStatus game_initialize_audio(GameWorld *w,GameServices *s) {
+GSStatus game_audio_init(GameWorld *w,GameServices *s,uint16_t mask) {
+    if(mask!=1)return GS_UNSUPPORTED;
+    if(w->audio_initialized&&w->audio_reset.devices)TRY(game_audio_shutdown(w,s));
     LifecycleProcess plan;lifecycle_begin(&plan,LIFE_ADLIB_INIT);LifecycleRequest initial=lifecycle_next(&plan);
     if(initial.action!=LIFE_SOUND_INITIALIZE_ADLIB||!lifecycle_consume(&plan,initial.action))return GS_INVALID;
     AudioFacadeWork work=audio_facade_begin(AUDIO_FACADE_INIT);uint16_t reply=0;
@@ -68,30 +71,6 @@ GSStatus game_initialize_audio(GameWorld *w,GameServices *s) {
     }
 }
 GSStatus game_startup_timer(GameWorld *w,GameServices *s) {
-    if(!w->timer.installed)return GS_OK;
-    uint32_t clocks=w->timer.programmed_divisor?w->timer.programmed_divisor:65536;
-    GSStatus status=s->time.interrupt(s->time_context,0,clocks,1);
-    if(status==GS_EMPTY)return GS_OK;
-    if(status!=GS_OK)return status;
-    GSEvent event;TRY(s->time.deliver(s->time_context,GS_TIMER_OPPORTUNITY,&event));
-    (void)timer_account_tick(&w->timer);
-    unsigned cursor=w->timer.count;
-    while(cursor){TimerCallback callback;if(!timer_take_due(&w->timer,--cursor,&callback))continue;
-        if(callback==TIMER_BIOS_CHAIN)TRY(s->audio.clock(s->audio_context,GS_CLOCK_BIOS_CHAIN));
-        else if(callback==TIMER_ADLX_PLAYBACK){
-            int entered=audio_section_tick_begin(&w->audio);
-            if(entered){
-                /* No track has been started in this slice. Unadmitted live
-                 * event streams stop at the consumed timer prefix. */
-                if(w->audio.playing||w->audio.reserved_voices)return GS_UNSUPPORTED;
-                audio_section_tick_end(&w->audio);
-            }
-        }else return GS_UNSUPPORTED;
-    }
-    TRY(s->time.acknowledge(s->time_context));
-    uint16_t divisor=(uint16_t)w->timer.earliest;
-    if(divisor!=w->timer.programmed_divisor){
-        TRY(s->time.pit_command(s->time_context,54));TRY(s->time.pit_counter(s->time_context,(uint8_t)divisor));TRY(s->time.pit_counter(s->time_context,(uint8_t)(divisor>>8)));
-    }
-    w->timer.programmed_divisor=divisor;return GS_OK;
+    return game_audio_timer(w,s);
 }
+GSStatus game_initialize_audio(GameWorld *w,GameServices *s){return game_audio_init(w,s,1);}

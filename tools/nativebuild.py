@@ -59,7 +59,7 @@ def check_text(text,where):
     if match:raise ValueError(f'banned dependency {match[0]} in {where}')
 def check_closure(preprocessed,manifest,out,extra_headers=()):
     headers=set(manifest['headers'])|set(extra_headers)
-    generated={str((out/n).resolve()).lower() for n in ['resource_manifest.h','boot_data.h']}
+    generated={str((out/n).resolve()).lower() for n in ['resource_manifest.h','boot_data.h','audio_data.h']}
     # A prior SDL distribution includes the LGPL relink header beside the
     # executable. -I out can select it on a repeat build; admit only its pinned
     # original content, never arbitrary output-directory headers.
@@ -147,6 +147,8 @@ def data_header(manifest,out):
     import frontend_data
     lines+=frontend_data.generate(rows,symbols)
     (out/'boot_data.h').write_text('\n'.join(lines)+'\n');save(out/'constructors.json',receipt)
+    import audio_data
+    (out/'audio_data.h').write_text('\n'.join(audio_data.generate(rows,symbols))+'\n')
 def build(backend='test',out=None,negative_control=False):
     out=Path(out or ROOT/'build/native').resolve();out.mkdir(parents=True,exist_ok=True)
     # Never leave a stale successful executable/receipt after a failed audit.

@@ -181,7 +181,7 @@ static GSStatus opl_stream(void *ctx,GSOplKind kind,uint8_t v){
 static GSStatus opl(void *ctx,GSRegisterWrite w){opl_stream(ctx,GS_OPL_SELECT,w.reg);return opl_stream(ctx,GS_OPL_DATA,w.value);}
 static GSStatus audio_status(void *ctx,uint8_t *v){(void)ctx;(void)v;return GS_UNSUPPORTED;}
 static GSStatus advance(void *ctx,uint64_t ns){GSTestBackend *b=ctx;if(UINT64_MAX-b->audio_ns<ns)return GS_OVERFLOW;b->audio_ns+=ns;return GS_OK;}
-static GSStatus clock_delivery(void *ctx,GSClockDelivery k){GSTestBackend *b=ctx;return b->startup_enabled&&k==GS_CLOCK_BIOS_CHAIN?GS_OK:GS_UNSUPPORTED;}
+static GSStatus clock_delivery(void *ctx,GSClockDelivery k){GSTestBackend *b=ctx;if(!b->startup_enabled||k!=GS_CLOCK_BIOS_CHAIN)return GS_UNSUPPORTED;effect(b,GST_CLOCK,k,0,0);return GS_OK;}
 static GSStatus calibration(void *ctx,GSCalibrationPhase p,GSCalibrationReply *r){(void)ctx;(void)p;(void)r;return GS_UNSUPPORTED;}
 static GSStatus lifetime(void *ctx,GSTimerLifetimeRequest q,GSBinding *r){(void)ctx;(void)q;(void)r;return GS_UNSUPPORTED;}
 uint64_t gs_test_tick_ns(uint64_t tick){return tick/70*1000000000ull+tick%70*1000000000ull/70;}
@@ -270,7 +270,9 @@ static GSStatus startup_lifetime(void *ctx,GSTimerLifetimeRequest q,GSBinding *r
     GSTestBackend *b=ctx;if(!reply)return GS_INVALID;
     if(q.kind==GS_TIMER_READ_BINDING)*reply=b->timer_binding;
     else if(q.kind==GS_TIMER_BIND_HANDLER){*reply=b->timer_binding;b->timer_binding=(GSBinding){2};}
+    else if(q.kind==GS_TIMER_BIND_SAVED){*reply=b->timer_binding;b->timer_binding=q.binding;}
     else return GS_UNSUPPORTED;
+    effect(b,GST_TIMER_LIFETIME,q.kind,(uint32_t)q.binding.token,(uint32_t)reply->token);
     return GS_OK;
 }
 static GSStatus startup_lifecycle(void *ctx,GSLifecycleRequest q,uint8_t *reply){

@@ -32,6 +32,8 @@ typedef struct GameWorld {
     RandomState random;
     AudioState audio;
     AudioResetCells audio_reset;
+    GSBytes audio_data[11];
+    uint16_t audio_record,audio_shutdown,terminal_audio_latch;
     TimerState timer;
     TimerLifetime timer_life;
     GSBinding keyboard_saved,critical_saved;

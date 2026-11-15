@@ -5,3 +5,9 @@ tests/levels/*.txt text eol=lf
 verif/random_rain.txt text eol=lf
 tools/emu.py text eol=lf
 tools/wholegame.py text eol=lf
+
+# Parallel cuts relock overlapping certificates and append roadmap rows.
+# Certificates merge field-wise (python tools/cert_merge.py --install); afterwards run
+# python verif/contract_locks.py --refresh and python tools/closure.py.
+metadata/closure/*.json merge=certjson
+docs/roadmap.md merge=union

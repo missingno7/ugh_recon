@@ -11,14 +11,23 @@
 #include "adlx_lifetime.h"
 #include "timer_lifetime.h"
 
-/* First production slice. Each member is the sole store for its domain in
- * this target; the verification host continues to use its existing owners. */
+/* Each member is the sole store for its domain in this production target;
+ * the verification host continues to use its existing owners. */
+/* Page templates are immutable scaffolding. Draw calls overlay mutable fields
+ * borrowed from front; digits and renderer scratch have one resident store. */
+typedef struct GameFrontData {
+    uint8_t credits[453],menu[128],score_prompt[74],score_title[11];
+    uint8_t level_title[10],password_title[12],source_palette[384];
+    uint8_t digits[7],divisors[6];
+    uint16_t renderer_water,renderer_plane;
+} GameFrontData;
 typedef struct GameWorld {
     NativeLifecycleWorld lifecycle;
     NativeRunWorld run;
     NativeInputWorld input;
     NativePaletteWorld palette;
     NativeFrontEndWorld front;
+    GameFrontData front_data;
     VideoPages pages;
     RandomState random;
     AudioState audio;

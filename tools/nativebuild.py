@@ -113,14 +113,23 @@ def data_header(manifest,out):
       ('INDEX','DGROUP:KeyboardSequenceIndex',1),('AXES','DGROUP:JoystickEnabledAxisMask',2),
       ('LIMIT','DGROUP:JoystickSampleLoopLimit',2),('ROW_STRIDE','DGROUP:HighScoreRowStride',1),
       ('FILE_HANDLE','DGROUP:HighScoreFileHandle',2),('OPERATOR_INDEX','SOUND:AdlibOperatorOffsets',9),
-      ('SAVED_MODE','DGROUP:SavedBiosVideoMode',1)]
+      ('SAVED_MODE','DGROUP:SavedBiosVideoMode',1),
+      ('NAME','DGROUP:HighScoreNameEntry',13),('PASSWORD','DGROUP:PasswordEditBuffer',21),
+      ('LEVEL_CHARS','DGROUP:LevelNumberTensCharacter',2),('DIFFICULTY_TEXT','DGROUP:Text_0AE4',6,41),
+      ('PLAYERS_TEXT','DGROUP:Text_0AE4',10,53),('CONTROL_TEXT_ONE','DGROUP:Text_0B64',10,15),('CONTROL_TEXT_TWO','DGROUP:Text_0B64',10,41),
+      ('DIGITS','DGROUP:DecimalDigitBuffer',7),('DIVISORS','DGROUP:DecimalTenDivisor',6),
+      ('CREDITS','DGROUP:Text_091F',453),('MENU_TEXT','DGROUP:Text_0AE4',128),
+      ('SCORE_PROMPT','DGROUP:Text_0C23',74),('SCORE_TITLE','DGROUP:Text_0C7B',11),
+      ('LEVEL_TITLE','DGROUP:Text_0BF6',10),('PASSWORD_TITLE','DGROUP:Text_0C00',12),
+      ('SOURCE_PALETTE','B2BC6:GameSourcePalette',384)]
     lines=['/* Generated admitted constructor data views; no image coordinates. */',
-           'static const size_t game_default_sizes[]={'+','.join(str(n) for _,_,n in fields)+'};',
+           'static const size_t game_default_sizes[]={'+','.join(str(field[2]) for field in fields)+'};',
            'static const GameDefaultSpec game_default_specs[]={']
     receipt=[]
-    for field,symbol,size in fields:
+    for entry in fields:
+        field,symbol,size=entry[:3];delta=entry[3] if len(entry)>3 else 0
         if symbol not in symbols:raise ValueError('constructor symbol missing: '+symbol)
-        start=symbols[symbol]['linear'];cursor=start
+        start=symbols[symbol]['linear']+delta;cursor=start
         while cursor<start+size:
             choices=[r for r in rows if r['image_start']<=cursor<r['image_start']+r['size']]
             if not choices:raise ValueError('constructor field outside admitted data: '+field)
@@ -133,6 +142,10 @@ def data_header(manifest,out):
     for name in ['B2D9A','B2BF6','B2F9E','B2FB7']:
         ids.append(next(r['id'] for r in rows if r['name']=='world.allocation.'+name))
     lines+=['};','static const GSResourceId game_picture_ids[]={'+','.join('UINT64_C(%d)'%n for n in ids)+'};']
+    # Build-time pointer evidence becomes data-resource identities and offsets.
+    # No historical pointer words survive into the production API.
+    import frontend_data
+    lines+=frontend_data.generate(rows,symbols)
     (out/'boot_data.h').write_text('\n'.join(lines)+'\n');save(out/'constructors.json',receipt)
 def build(backend='test',out=None,negative_control=False):
     out=Path(out or ROOT/'build/native').resolve();out.mkdir(parents=True,exist_ok=True)

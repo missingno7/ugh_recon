@@ -32,6 +32,15 @@ GSStatus game_world_construct(GameWorld *w,GameServices *s) {
     COPY(GD_FILE_HANDLE,w->front.file_handle_bytes,2);
     COPY(GD_OPERATOR_INDEX,w->audio.operator_index,9);
     COPY(GD_SAVED_MODE,&w->lifecycle.saved_bios_video_mode,1);
+    COPY(GD_NAME,w->front.name_entry,13);COPY(GD_PASSWORD,w->front.password,21);
+    COPY(GD_LEVEL_CHARS,w->front.level_characters,2);
+    COPY(GD_DIFFICULTY_TEXT,w->front.difficulty_text,6);COPY(GD_PLAYERS_TEXT,w->front.players_text,10);
+    COPY(GD_CONTROL_TEXT_ONE,w->front.control_text[0],10);COPY(GD_CONTROL_TEXT_TWO,w->front.control_text[1],10);
+    COPY(GD_DIGITS,w->front_data.digits,7);COPY(GD_DIVISORS,w->front_data.divisors,6);
+    COPY(GD_CREDITS,w->front_data.credits,453);COPY(GD_MENU_TEXT,w->front_data.menu,128);
+    COPY(GD_SCORE_PROMPT,w->front_data.score_prompt,74);COPY(GD_SCORE_TITLE,w->front_data.score_title,11);
+    COPY(GD_LEVEL_TITLE,w->front_data.level_title,10);COPY(GD_PASSWORD_TITLE,w->front_data.password_title,12);
+    COPY(GD_SOURCE_PALETTE,w->front_data.source_palette,384);
     /* The unpack destination is a bounded codec allocation, initially zero.
      * Picture IDs must resolve before platform effects begin. */
     for(unsigned i=0;i<4;i++){GSBytes bytes;GSStatus status=game_picture_resource(s,i,&bytes);if(status!=GS_OK)return status;if(bytes.size<12)return GS_INVALID;}

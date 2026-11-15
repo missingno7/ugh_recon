@@ -101,3 +101,20 @@ picture_done:;
     }
     return GS_OK;
 }
+
+/* Typed additive entry points share the accepted startup implementation. */
+GSStatus game_video_retrace(GameWorld *w,GameServices *s,int active){return retrace(w,s,active);}
+GSStatus game_video_next(GameWorld *w,GameServices *s){return next_retrace(w,s);}
+GSStatus game_video_swap(GameWorld *w,GameServices *s){return swap(w,s);}
+GSStatus game_video_fade(GameWorld *w,GameServices *s,int out){return fade(w,s,out);}
+GSStatus game_video_wait(GameWorld *w,GameServices *s,uint16_t count,uint8_t *scan){return wait_picture(w,s,count,scan);}
+GSStatus game_show_picture(GameWorld *w,GameServices *s,unsigned index,uint16_t retraces,int16_t *result) {
+    GSBytes packed;TRY(game_picture_resource(s,index,&packed));IceResult decoded;
+    if(ice_decode(packed.data,packed.size,w->scratch,sizeof w->scratch,&decoded)!=ICE_OK)return GS_INVALID;
+    PicturePaletteCopy copy=pictures_palette_begin(0,0);
+    do{w->palette.base[copy.destination]=w->scratch[copy.source];w->palette.base[copy.destination+1]=w->scratch[copy.source+1];pictures_palette_advance(&copy);}while(copy.remaining);
+    TRY(control(s,GS_SEQ_INDEX,2));VideoChunkyCursor cursor=video_chunky_begin(0,w->pages.draw,w->pages.plane_copy_bytes,0);
+    do{TRY(control(s,GS_SEQ_DATA,video_chunky_mask(&cursor)));TRY(s->video.store(s->video_context,cursor.destination,w->scratch[cursor.source]));video_chunky_advance(&cursor);}while(cursor.remaining);
+    TRY(control(s,GS_SEQ_DATA,video_all_planes()));TRY(swap(w,s));TRY(fade(w,s,0));
+    uint8_t scan;TRY(wait_picture(w,s,retraces,&scan));TRY(fade(w,s,1));*result=pictures_input_result(scan);return GS_OK;
+}

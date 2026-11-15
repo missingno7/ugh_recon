@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "scope": "Step 7 first vertical slice; stops at first menu entry after gameplay video setup",
+  "scope": "Step 7 production startup boundary plus typed front-end operations",
   "core": [
     "native/game_world.c",
     "native/game_defaults.c",
@@ -28,7 +28,11 @@
     "native/timer.c",
     "native/timer_lifetime.c",
     "port/resources.c",
-    "port/hash.c"
+    "port/hash.c",
+    "native/compose_front_end.c",
+    "native/menus.c",
+    "native/decimal.c",
+    "native/render_primitives.c"
   ],
   "backends": {
     "test": [
@@ -125,7 +129,8 @@
     "port/resources.h",
     "port/sdl/backend.h",
     "port/services.h",
-    "port/test/backend.h"
+    "port/test/backend.h",
+    "native/compose_front_end.h"
   ],
   "vendor": {
     "sdl": [
@@ -159,6 +164,8 @@
     "native/game_input.c",
     "native/game_startup.h",
     "native/game_video.c",
-    "native/game_world.c"
+    "native/game_world.c",
+    "native/compose_front_end.c",
+    "native/compose_front_end.h"
   ]
 }

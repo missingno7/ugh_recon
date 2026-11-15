@@ -38,4 +38,4 @@ static GSStatus clock_delivery(void *ctx,GSClockDelivery kind){
 void gs_audio_close(GSSdlAudio *a){SDL_DestroyAudioStream(a->stream);a->stream=NULL;}
 static GSStatus calibration(void *ctx,GSCalibrationPhase phase,GSCalibrationReply *reply){(void)ctx;(void)phase;(void)reply;return GS_UNSUPPORTED;}
 static GSStatus timer_lifetime(void *ctx,GSTimerLifetimeRequest request,GSBinding *reply){(void)ctx;(void)request;(void)reply;return GS_UNSUPPORTED;}
-GSAudioOps gs_audio_operations(void){return (GSAudioOps){opl,status,advance,clock_delivery,calibration,timer_lifetime};}
+GSAudioOps gs_audio_operations(void){return (GSAudioOps){opl,status,advance,clock_delivery,calibration,timer_lifetime,NULL};}

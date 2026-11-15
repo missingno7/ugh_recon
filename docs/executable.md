@@ -86,3 +86,19 @@ configuration, not a claim about the original development machine.
 - All tools run under `C:\tools\nmlgcdos\msdos.exe` (BCC 3.0 included).
 - TLINK treats `+` in a path as a separator, so nothing under `borland-c++-3.0` can be named on
   its command line. Stage `C0H.OBJ` and `CH.LIB` into the build directory first.
+
+## Native session diagnostics (2026-11-16)
+
+These are behavioral composition diagnostics, not new binary-match evidence.
+`python tools/nativebuild.py --out build/workers/s7-session/production` rejected the
+initial assumption that every actor placement's third word names an itinerary:
+stone placements retain zero there. The extractor now represents that ignored
+payload as an empty typed identity. The same command rejected insufficient braces
+in generated empty enemy initializers under the pinned GCC `-Wall -Wextra -Werror`.
+
+`python verif/s7_session_prefix.py` initially differed in RAM observation at frames
+2..5 while devices, ordered I/O and scalars were equal. Independent literal
+diagnostics (`python verif/s7_session_prefix.py --diagnose`, inside the bounded
+worker runner) identified omitted demo terminator, HUD and reserved record-tail
+publications in the test recorder. Correcting the observer yielded six complete
+equal records for each of 81 physical openings; no native kernel was changed.

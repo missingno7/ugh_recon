@@ -11,6 +11,7 @@
 #include "adlx_lifetime.h"
 #include "timer_lifetime.h"
 #include "game_demo.h"
+#include "session_data.h"
 
 /* Each member is the sole store for its domain in this production target;
  * the verification host continues to use its existing owners. */
@@ -36,6 +37,7 @@ typedef struct GameWorld {
     NativeResourceCatalog sprite_catalog;
     GameDemoResources demo_resources;
     uint16_t demo_exit;
+    GameSessionState session;
     VideoPages pages;
     RandomState random;
     AudioState audio;

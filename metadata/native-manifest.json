@@ -43,7 +43,12 @@
     "native/level_view.c",
     "native/water_weather.c",
     "native/compose_audio.c",
-    "native/adlx_allocation.c"
+    "native/adlx_allocation.c",
+    "native/compose_session.c",
+    "native/session_data.c",
+    "native/session.c",
+    "native/coordinate_scale.c",
+    "native/hud.c"
   ],
   "backends": {
     "test": [
@@ -145,7 +150,9 @@
     "native/compose_demo.h",
     "native/game_demo.h",
     "native/object_identities.h",
-    "native/compose_audio.h"
+    "native/compose_audio.h",
+    "native/compose_session.h",
+    "native/session_data.h"
   ],
   "vendor": {
     "sdl": [
@@ -187,6 +194,10 @@
     "native/compose_demo.h",
     "native/game_demo.h",
     "native/compose_audio.c",
-    "native/compose_audio.h"
+    "native/compose_audio.h",
+    "native/compose_session.c",
+    "native/compose_session.h",
+    "native/session_data.c",
+    "native/session_data.h"
   ]
 }

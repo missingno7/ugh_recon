@@ -182,7 +182,7 @@
     "native/bridge/resource_world_bindings.inc": "485228057b199434911bf100676cefc9c036e2c431cf234cc2f16f923bd9b668",
     "verif/resource_world_router.c": "e6543955db0a5c23927b82c5d643bf335018b2ecf16e20b984e53d7bdc076815",
     "metadata/worlds/resource_world.json": "71f1104b59c35ea4e131607c9275e913dd12af22f4a39d2eaede9609ccc6ddef",
-    "verif/world_cases/resource_data.py": "b6d7efc3a2fbca6116efcf3c080eb249f796d526e960cbdfe6a5f8667056b3ba",
+    "verif/world_cases/resource_data.py": "3408958bb5b0b762f844b5888f4b173477999e9d51118b6a8bc40bc2eb2dfe04",
     "verif/world_cases/resource_data_operators.py": "2e58e04ae59ef33826953c12733f11e963137baf538153e395bcc9593d5e5445",
     "tools/world_registry.py": "06893f72ab80e15b198bf45865a5927a76dac2bf9daddb8f60ef3f6ac0aba9a1",
     "verif/world_gate.py": "2ba63041f75fd9c9c0b368ce40ef6ec1e40bb692bc17940c1dcf06f2b3311763",
@@ -229,6 +229,20 @@
         "verif/world_gate.py"
       ],
       "dependency_change": true
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5x generated typed object identity registry and composed decoder borrowers; only actual changed source inputs or dependency contracts relocked. Direct callback service migration remains outstanding.",
+      "commands": [
+        "python verif/world_gate.py object_identities --jobs 3 --out build/workers/cut-5x/gate",
+        "python verif/world_gate.py object_identities --finalize --locks --out build/workers/cut-5x/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5x/sgate",
+        "python verif/standalone_census.py --all"
+      ],
+      "results": "PASS finalized 11-stage identity gate: API920+810+202 per profile, 3/3 controls, projector21/census21, hosts21+21 and levels81+7+8 both variants. Older root enemy API profile890+890 also passes with the new unit linked. Direct Regs/machine callback transport is not retired.",
+      "inputs": [
+        "verif/world_cases/resource_data.py"
+      ]
     }
   ]
 }

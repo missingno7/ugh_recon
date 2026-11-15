@@ -10,6 +10,9 @@
 #ifdef UGH_NATIVE_INPUT
 #include "input_world_bridge.h"
 #endif
+#ifdef UGH_NATIVE_VIDEO_PAGES
+#include "video_pages_bridge.h"
+#endif
 #endif
 #include <SDL3/SDL_main.h>
 #include <stdlib.h>
@@ -224,6 +227,9 @@ int main(int argc,char **argv) {
 #endif
 #ifdef UGH_NATIVE_INPUT
     input_cold_import(ugh_mem);
+#endif
+#ifdef UGH_NATIVE_VIDEO_PAGES
+    video_pages_cold_import(ugh_mem);
 #endif
 #endif
     HostSymbol entry=host_symbol(scenario.entry);

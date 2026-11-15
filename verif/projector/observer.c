@@ -18,6 +18,11 @@
 #define PROJECT_INPUT_OWNED(a)
 #endif
 #endif
+#ifdef UGH_NATIVE_VIDEO_PAGES
+#define PROJECT_PAGES_OWNED(a) || video_pages_is_owned(a)
+#else
+#define PROJECT_PAGES_OWNED(a)
+#endif
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -85,7 +90,7 @@ static void assign(const Binding *b,uint32_t raw){
 static void byte_write(uint32_t a,uint8_t v){
     if(a>=UGH_MEM_SIZE)fail("RAM write outside observation storage");
 #ifdef UGH_NATIVE_TIMING
-        if((timing_is_owned(a) PROJECT_PALETTE_OWNED(a) PROJECT_INPUT_OWNED(a))){
+        if((timing_is_owned(a) PROJECT_PALETTE_OWNED(a) PROJECT_INPUT_OWNED(a) PROJECT_PAGES_OWNED(a))){
         fprintf(stderr,"projector: moved publication address %05X value %02X RAM %02X\n",a,v,ugh_mem[a]);
         fail("moved owner received a RAM/journal publication");
     }
@@ -145,7 +150,7 @@ static void serialize(void){
     for(unsigned i=0;i<N_BINDINGS;i++){
         const Binding *b=&bindings[i];uint32_t v=value(b);
 #ifdef UGH_NATIVE_TIMING
-        if((timing_is_owned(b->address) PROJECT_PALETTE_OWNED(b->address) PROJECT_INPUT_OWNED(b->address)))continue;
+        if((timing_is_owned(b->address) PROJECT_PALETTE_OWNED(b->address) PROJECT_INPUT_OWNED(b->address) PROJECT_PAGES_OWNED(b->address)))continue;
 #endif
         for(unsigned j=0;j<b->width;j++)output[b->address+j]=(uint8_t)(v>>(8*j));
     }
@@ -156,6 +161,9 @@ static void serialize(void){
 #endif
 #ifdef UGH_NATIVE_INPUT
     input_serialize(output);
+#endif
+#ifdef UGH_NATIVE_VIDEO_PAGES
+    video_pages_serialize(output);
 #endif
 #endif
     memcpy(device_output,device_baseline,sizeof device_output);
@@ -176,6 +184,9 @@ static Difference compare(void){
 #ifdef UGH_NATIVE_INPUT
     if(missed==UINT32_MAX)missed=input_check_serialization(output);
 #endif
+    #ifdef UGH_NATIVE_VIDEO_PAGES
+    if(missed==UINT32_MAX)missed=video_pages_check_serialization(output);
+    #endif
     if(missed!=UINT32_MAX)return (Difference){1,missed};
 #endif
     const uint8_t *actual_memory=observation_memory();
@@ -244,6 +255,9 @@ static void dump(void){
 #ifdef UGH_NATIVE_INPUT
     +input_owned_bytes()
 #endif
+#ifdef UGH_NATIVE_VIDEO_PAGES
+    +video_pages_owned_bytes()
+#endif
     );
 #endif
     fprintf(f,"\"owners\":[");
@@ -276,13 +290,13 @@ void pr_import(void){
             v|=(uint32_t)import_memory[a]<<(8*j);typed_bytes[b->owner]++;
         }
 #ifdef UGH_NATIVE_TIMING
-        if((timing_is_owned(b->address) PROJECT_PALETTE_OWNED(b->address) PROJECT_INPUT_OWNED(b->address)))continue;
+        if((timing_is_owned(b->address) PROJECT_PALETTE_OWNED(b->address) PROJECT_INPUT_OWNED(b->address) PROJECT_PAGES_OWNED(b->address)))continue;
 #endif
         assign(b,v);if(value(b)!=v)fail("cold field codec");
     }
     for(uint32_t a=0;a<UGH_MEM_SIZE;a++)if(!binding_at[a] && baseline[a]!=import_memory[a]){
 #ifdef UGH_NATIVE_TIMING
-        if((timing_is_owned(a) PROJECT_PALETTE_OWNED(a) PROJECT_INPUT_OWNED(a)))continue;
+        if((timing_is_owned(a) PROJECT_PALETTE_OWNED(a) PROJECT_INPUT_OWNED(a) PROJECT_PAGES_OWNED(a)))continue;
 #endif
         dirty[a]=1;journal[a]=import_memory[a];last_frame[a]=host_frame;journal_bytes++;
     }

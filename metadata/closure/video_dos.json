@@ -349,17 +349,18 @@
       "includes": [
         "../video_dos.h",
         "palette_world_bridge.h",
-        "platform.h"
+        "platform.h",
+        "video_pages_bridge.h"
       ],
       "calls": [
         "D",
         "G",
         "PALETTE_CALL",
+        "VIDEO_CALL",
         "add16",
         "c_SwapAndDisplayVgaPage",
         "c_WaitVerticalRetraceActive",
         "c_WaitVerticalRetraceInactive",
-        "call",
         "configure",
         "dac_component",
         "dac_index",
@@ -390,30 +391,46 @@
         "video_attribute_mode",
         "video_blackening_batches",
         "video_blackening_entries",
+        "video_byte",
         "video_chunky_advance",
         "video_chunky_begin",
         "video_chunky_mask",
         "video_clear_advance",
         "video_clear_begin",
         "video_critical_error_result",
+        "video_cut",
         "video_duplicate_advance",
         "video_duplicate_begin",
         "video_duplicate_transfer",
         "video_fade_continue",
         "video_fade_step",
+        "video_frame",
         "video_geometry",
+        "video_in",
         "video_mode_setting",
+        "video_out",
         "video_palette_advance",
         "video_palette_range",
         "video_palette_scale",
         "video_register_value",
         "video_retrace_delivery",
         "video_retrace_level",
+        "video_route",
         "video_scale_advance",
         "video_scale_begin",
+        "video_service_control_read",
+        "video_service_control_write",
+        "video_service_cut",
+        "video_service_frame_end",
+        "video_service_retrace_level",
+        "video_service_source_byte",
+        "video_service_store_byte",
+        "video_service_store_word",
+        "video_source",
         "video_swap",
         "video_timeout_next",
         "video_wait_decrement",
+        "video_word",
         "wr16",
         "wr8"
       ]
@@ -431,12 +448,12 @@
     "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
     "host/video.c": "fcf24e4afa71114d8e835f9558eb06d73c74bf1310cbb411fc215d86f2227491",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
-    "native/bridge/video_dos_bridge.c": "767c542dd15835bdc8963b7bf01dce3b95fd3e7080e979eebbde57745599ac07",
+    "native/bridge/video_dos_bridge.c": "34580d1aec13e9e5dd82375c6ca5e0ba865f70e200ab481acb01e228165c36ca",
     "native/video_dos.c": "4a8639a8349bf49694dbff5bf052811b89a500882aa8fea492e4c84fb700dcde",
     "native/video_dos.h": "830cf4e706ce00033be99d4e74831f4f39e348f3b226bd1086128a5f61c26cf5",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
-    "tools/hostbuild.py": "f0f4369142047fe30252c77e435dfb2eb61ccd7b5418d09508e7916fbc1347f9",
+    "tools/hostbuild.py": "34b67e015df46778d8c3f9c071a06f335dc2a51687905ed02339de3a488cdd51",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/adlx_loader_solver.py": "332c1a46957e398df5865fa5de14a73d259d464c621232f84976f8dfcc1f42d6",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
@@ -550,6 +567,18 @@
       ],
       "results": "PASS",
       "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Page native ownership, typed services and borrowers; prior claim domains/status unchanged",
+      "commands": [
+        "python verif/video_pages_composition.py --gate"
+      ],
+      "results": "PASS",
+      "inputs": [
+        "native/bridge/video_dos_bridge.c",
         "tools/hostbuild.py"
       ]
     }

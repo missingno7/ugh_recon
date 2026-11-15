@@ -1,0 +1,229 @@
+{
+  "component": "video_pages",
+  "status": "migrated",
+  "original": {
+    "owned": [],
+    "composes": [
+      "video_dos",
+      "input_world",
+      "palette_world",
+      "audio_world",
+      "timing_world"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/video_pages.h",
+      "native/video_pages.c",
+      "native/bridge/video_pages_bridge.h",
+      "native/bridge/video_pages_bridge.c"
+    ],
+    "functions": [
+      "native_video_pages"
+    ],
+    "bridge": "Native owner; explicit typed services and verification-only ABI continuations"
+  },
+  "purpose": "Partial step 4 page ownership, configuration, clear/chunky upload, swap and retrace services",
+  "interface": {
+    "inputs": "Cold fixture, opaque bank identities, live source reads, inherited full VGA controls and retrace replies",
+    "outputs": "Native persistent page state, typed ordered requests, separate observation serialization"
+  },
+  "callers": [
+    "Video entry ABI; pictures, session, demos, renderer, physics, water and generic byte windows"
+  ],
+  "callees": [
+    "Typed indexed controls, live lane stores/source reads, retrace/cut/frame services; accepted video kernels and peers"
+  ],
+  "indirect": [
+    "Closed VideoPeerRole; opaque page bank identities; verification continuation only"
+  ],
+  "amiga": {
+    "classification": "not-used",
+    "finding": "Composition only; accepted DOS contracts retained"
+  },
+  "uncertainty": [
+    "Coherent page cut only: HUD/render/weather ownership and sprite/latch-copy/read-plane/collision/water-mark conversions remain",
+    "Four VGA planes and inherited controls remain verification-platform storage; no production backend or narrower port choice made"
+  ],
+  "memory": {
+    "owner": "NativeVideoPages, 20 historical lanes",
+    "total_with_prior": 6435,
+    "remaining": "HUD/render/weather state and raw sprite/copy/collision services remain; player caches, actor histories and Water Y retain shared canonical owners"
+  },
+  "assumptions": [
+    "Accepted video scalar/cursor/timing domains; no narrowing of inherited VGA controls",
+    "Opaque synchronous continuation is verification-only ABI metadata; production state contains no Regs or RAM pointer",
+    "Original disjoint active code/resource/stack domains; arbitrary stored banks/offsets where the video API admits them",
+    "Numeric owner seam is B and complete physical router is C; no whole-handler B claim",
+    "Only canonical GAME code binding for typed near peers; unknown role/binding fails closed",
+    "Compatibility bank words remain opaque outside verification provider; no production backend or narrower VGA controls chosen"
+  ],
+  "eliminated": [
+    "RAM ownership of moved page fields; page-island raw plane/control ports and near dispatch"
+  ],
+  "retained": [
+    "Unchanged bank words, DF and word reductions, zero-count wrap, full inherited GC/latch controls, off-page and live source aliases"
+  ],
+  "evidence": [
+    {
+      "property": "Numeric page owner seam",
+      "level": "B",
+      "method": "Actual ten-way numeric get/put C: arbitrary complete 20-byte owner, selected word/byte and byte value, equality to independently named member, read-only getter, output plus other-byte and arbitrary-other-word frame. These cover all ten words, no padding. Actual provider source/byte/word service C: full bank/position/value slices, full read reply, exact ordered physical accesses, no clipping and physical high-byte carry. Physical routing/serialization separately exhaustively enumerated in C. No blanket whole-handler B claim.",
+      "command": "python verif/video_pages_composition.py --proof --router",
+      "result": "PASS: arbitrary owner output/frame; 655360 word roundtrips, 5120 byte writes, complete physical router and serializer enumeration",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "Typed services and borrowers",
+      "level": "C",
+      "method": "Independent Unicorn/L1 and compiled C; full RAM, ABI, Devices and ordered streams",
+      "command": "python verif/video_pages_composition.py --api --backend --borrowers",
+      "result": "PASS: 1118 matches per native profile; zero declines; 267 borrower pairs; backend full control/mode/plane/lane cases",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "Composition and ownership",
+      "level": "D",
+      "method": "Committed archive and independent reconstructed-ASM references; pure L1 literal; all projected boundaries",
+      "command": "python verif/video_pages_composition.py --build --projector --census --levels",
+      "result": "PASS: 50/0 closure; 21/21 each variant; 17955 boundaries, 6435 native bytes, zero publications; zero island machine edges/L1 game bodies/fallbacks; 81+7+8 levels per variant",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "Seeded owner/service defects",
+      "level": "C",
+      "method": "Generated-copy wrong mask, stale plane, source snapshot, clipping, swapped retrace/CRTC and missed serialization",
+      "command": "python verif/video_pages_composition.py --defects",
+      "result": "PASS: 6/6 detected; snapshot at live source/store seam, remaining copy handlers not claimed",
+      "date": "2026-11-15"
+    }
+  ],
+  "verification_inputs": {
+    "native/video_pages.h": "07601697735a006c274f9e415077bb2176064b5977d49c5bb9ed12a1e210e352",
+    "native/video_pages.c": "816902b56a2fb3e1b0a6ac0cbacfa858a4c630d5a4864507c7947edac0b15680",
+    "native/bridge/video_pages_bridge.h": "fd08416d9a20387bc7dae7e76142993d474c403b930d0643f2b6be463402b6fc",
+    "native/bridge/video_pages_bridge.c": "93bac0c5f932e952cfe13b916ad8cd8b0e66c192c5e6771b3b031e5c97c2862a",
+    "native/bridge/video_dos_bridge.c": "34580d1aec13e9e5dd82375c6ca5e0ba865f70e200ab481acb01e228165c36ca",
+    "verif/video_pages_platform_model.inc": "4d3cb458a42ffb3ddcf6b27da1b0e10c5922e8d8a9bf2dfc9f086fa5c2de949d",
+    "verif/video_pages_composition.py": "2fb8e8ad727b9ce40da26824d14b1428bc4058488eb1a0e12839f7c8311edf4c",
+    "tools/hostbuild.py": "34b67e015df46778d8c3f9c071a06f335dc2a51687905ed02339de3a488cdd51",
+    "host/main.c": "f6dd194d60cb9dda62bb7e8c006ae8ba8430f8ccea0c0a8a01c6c5b5674d6815",
+    "verif/projector/observer.c": "e28d183780d1e00a7ea32785b1063048903eb3d4b32a04cc542aae37743e34a7",
+    "verif/projector/timing_serializer.h": "afd1eb2b0160ffb369fca869e729e5cd09776b2958ac51c6a5e46b4ee396aa55",
+    "verif/projector/publications.py": "b2fc6ab598b1473db717f7bf39930c2b12036204ef754b28e5674c27b8265395",
+    "verif/projector_evidence.py": "b5652578ae7657f1c2e62c477523dafc3bd41bcf584289891616a89af4464514",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
+    "tools/cgen.py": "c494a10b08145efeb0dfd7bcef4fa89b3902cebbdd69ee63bae89647026d9aff",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "verif/audio_composition.py": "32cf1d267784b30271e030a276abb0424aacf932ae169fc98efa71a9cdb70691",
+    "verif/timing_composition.py": "079ee38dca0657725f0449fd78d90df8928a4d2130a95021a07f9aa7195dd757",
+    "verif/entry_retirement.py": "3b52d207fef7b3e51461a2357a06f012f59651b406f1fe9a0253876e55f76529",
+    "verif/standalone_census.py": "647dd84b82fbeb0871fd992671b0c2279cd98e66bb46854b57c0745ed84b0a6f",
+    "verif/level_suite.py": "c4ba45fc0a2aa239c8023932d03413dcc487000e887b836cac05e24347aaace7",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
+    "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
+    "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
+    "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
+    "tools/cbuild.py": "b957186e9697f04be43136704d51f727fa5f20aace331919e3ade16468a4a8f1",
+    "metadata/closure/video_dos.json": "4b15dd22edc49e84c15e540779e154050b93a669ca446902d14fa19d3673f8a4",
+    "metadata/closure/render_primitives.json": "c50a528f60690a4fef59f7b6faf737888de5ca53e56a9fc55b295bd9cefa26ef",
+    "metadata/closure/actor_render.json": "4ddb2c6cd8dc87850792701ee88698628a6926d8e86a1136a4ef9fc37c443149",
+    "metadata/closure/audio_world.json": "7131fb9985812fe3670f97756353cbfd688422ef519b61a588bd27e91deb95c9",
+    "metadata/closure/timing_world.json": "0459d6cc7c99fbb29dd3d3b4b9220b4671cbe8e3887a9e8e658aa07fdffeb801",
+    "metadata/closure/ice.json": "9952c30fd8cd63eba1c6788e454c7e8aae3aba8998751d1ae0b1027cc99a0c48",
+    "metadata/closure/ice_scratch.json": "9b6bc120168dffa9d88cd7a4f488e3366279fff35d0dc7918dd955f2849e7454",
+    "metadata/closure/far_copy.json": "b607e9417591d0724605e6d4fb8bbe50087f4e03755ac77d0e1425e8009f98f3",
+    "metadata/closure/decimal.json": "a17de4e5cb5f3596652893a5ad6a3fd955f68b57795288510a7c9df75096c2d7",
+    "metadata/closure/pictures.json": "07b3a664f260544a6d09209d2815ee9209c451f613a745699b8fe2d9ccf721c7",
+    "verif/cbmc_shim/stddef.h": "03e62ec5f7016e0582b92f016d7e4017b56746e2b216ae8d7fad236ae7e723e7",
+    "verif/cbmc_shim/stdint.h": "ff382e7cc9e8ac2ff6cef94767bb680b49944513ebff33b6d7e548fe12a5d7d0",
+    "verif/cbmc_shim/ugh.h": "d23d5fb7f8d14f5c03944d9cce971d6d21fdf32c28ebac1f2710842cd03d7e72",
+    "verif/palette_composition.py": "5d2c122f190aa538bc64d744b0f79ed8c6d02d73c9804b936921a4545eb10ed6",
+    "native/input.c": "56550496ffde02a0f1b9625922783721e20fa455e5d1be9c8dc5c3467569b8f9",
+    "native/input.h": "3e1278c1c7218615a3813263dd19fbc6a15c7a8e073b0bf96c4cb2aa5415bf1e",
+    "verif/input_evidence.py": "e84fc96097884dabc2904783c50a1b0dd8b324953008b160c9ed94e81793c897",
+    "verif/input_build.py": "106fc5b7c65a9591f24307c1be970ad5b947d36e020f16c15887d4024e35095b",
+    "verif/input_inventory.py": "3d6a896a12e35eaf4f698e6047f5a57a95edc302c0f9a3e7571ca4196980939e",
+    "verif/input_integration.py": "a81129b645d60c2e7000427f3b1deced03255269c553e5423d9016b7ea741021",
+    "metadata/closure/input.json": "e10a36a839a327b0af54958e1182c9c608a9e1a065e14d205f45551fb194cd74",
+    "metadata/closure/palette_world.json": "0a861fa39f1f229f542b3beb1f88d458b70ca259669ee49de31c67b01c1d84f6",
+    "metadata/closure/menus.json": "74e84a280be46700836f577f94c01e4c72382041b3a4dbb7715eb123ca1eeaf8",
+    "metadata/closure/high_scores.json": "dffa9db245284b5b38dd6033cc292366d482b3b69be4805751d91436e8f44779",
+    "native/bridge/menus_bridge.c": "5e58afe6a5f4ced7afea6623d5df2a48371427d377a175fcd530194823676561",
+    "native/bridge/high_scores_bridge.c": "0b953ac00971ad46f04351bf46c58601a5d5c138b3d963317c865c3571e6ae13",
+    "src/data/DGDATA.ASM": "9d46889e26434a597ed19b91c119029af3dbf3dbcfa9811c4ed5aa18dc157541",
+    "verif/input_composition.py": "f40963d216d583f6649f23b2f3138ab207f1b074a7eb560031adb263605d209e",
+    "metadata/closure/input_world.json": "2f09142ac10742533791db0c584c95016a740fea80ea0a7521df74db69e7fa81",
+    "native/video_dos.c": "4a8639a8349bf49694dbff5bf052811b89a500882aa8fea492e4c84fb700dcde",
+    "native/video_dos.h": "830cf4e706ce00033be99d4e74831f4f39e348f3b226bd1086128a5f61c26cf5",
+    "src/asm/GAME.ASM": "29c9ead3b191a744c59b465a3bd4de29f2e217b92492cf57edb8c13bc3494204",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/memory.c": "97f59e3c343cd6911854d0bfc3ff624417de2844f712caa96ec6799d3a9783d9",
+    "verif/vga_state_census.py": "54b8735be14b81c3c1107931cb24b6a2cff069c3759e98c0dd00742135055808",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "metadata/closure/player_physics.json": "46adc919a23320cd4bc44fe51d7fc0c467e3e5fa340089118b4bd3b91ffd2701",
+    "metadata/closure/water_weather.json": "b802c32c970def61f6903a8c939c16ac1d4002ba5f917824e277378b5e5b1362",
+    "metadata/closure/session.json": "9a74f99f9bcdb52b410e640745630267133ea5b2ffd30e47246bc793e761b0e2",
+    "metadata/closure/demo_presentation.json": "c910b1c8925c4ff100b276c94426a4c3e00969d7492177a05de1067161f24a6d"
+  },
+  "dependencies": {
+    "native/video_pages.h": {
+      "includes": [
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/video_pages.c": {
+      "includes": [
+        "video_pages.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/video_pages_bridge.h": {
+      "includes": [
+        "../video_pages.h",
+        "ugh.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/video_pages_bridge.c": {
+      "includes": [
+        "input_world_bridge.h",
+        "platform.h",
+        "stdio.h",
+        "stdlib.h",
+        "video_pages_bridge.h"
+      ],
+      "calls": [
+        "G",
+        "abort",
+        "c_BlackenVgaPalette",
+        "c_ClearAllVgaPlanes",
+        "c_EnableAllVgaWritePlanes",
+        "c_PollKeyboardScanChange",
+        "c_SampleJoystickAxesAndButtons",
+        "c_WaitNextVerticalRetrace",
+        "c_WaitVerticalRetraceActive",
+        "c_WaitVerticalRetraceInactive",
+        "exit",
+        "fputs",
+        "input_borrowed_byte",
+        "input_borrowed_store",
+        "lin",
+        "native_video_pages",
+        "video_pages_get_word",
+        "video_pages_index",
+        "video_pages_owned_bytes",
+        "video_pages_put_word",
+        "video_pages_shared_read",
+        "video_pages_shared_write",
+        "wr16"
+      ]
+    }
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "proposed_status": "migrated"
+}

@@ -1,5 +1,15 @@
 # Standalone service groundwork
 
+The deterministic backend for step 7.2 is `test/backend.c`. It implements the
+same synchronous `GameServices` table using only C runtime storage. Run:
+
+```
+python verif/s7_services.py --all
+```
+
+See [test/README.md](test/README.md) for fixture delivery, coverage, comparison
+boundaries and the operations deliberately left Unsupported for step 7.3.
+
 This target links no game units. `services.h` is the engine-facing synchronous
 capability table; `sdl/backend.h` holds provider state. Run its headless tests with:
 

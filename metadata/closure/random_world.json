@@ -176,7 +176,7 @@
     "metadata/closure/actor_render.json": "contract-v1:ed574ffbc651093186b8b3030d74b6a992a1b4accb591d9497ca12eed1fa02b4",
     "metadata/closure/audio_world.json": "contract-v1:ba1c9f449dee744bbab664ee52385564f226d44ec8bb4dcfb79baca6d93e1c8e",
     "metadata/closure/decimal.json": "contract-v1:4e5f11774db088c2fed258145a1ffb11acd9efacd9ea8f2d8a8029419351c178",
-    "metadata/closure/demo_presentation.json": "contract-v1:0f22dc6eabf7bc0871121e4348c6a0531608708898fd86de9a788795db81fe40",
+    "metadata/closure/demo_presentation.json": "contract-v1:99fd221cc05bb81ddbdba627d7dd9195da3bb2483d896017133b7ca5dcce028a",
     "metadata/closure/far_copy.json": "contract-v1:a7215cfcd21c91032a75393d414f411304049864745e6b5034f850f03aa8ece6",
     "metadata/closure/high_scores.json": "contract-v1:e29e637d7a512bc9c7c830164deabc61769f4fa8a8992de491edc7a3a3535a05",
     "metadata/closure/hud.json": "contract-v1:0f01d1dc347671c24c79558674bc21730aeffdc44725e604e8a3dcdf4ac43e6a",
@@ -193,7 +193,7 @@
     "metadata/closure/random.json": "contract-v1:c2dd4cf64b94a77816c64a4174c2c41ce4029345024d52388ea32808dd56755c",
     "metadata/closure/render_primitives.json": "contract-v1:d486e04667211afe3c657e3d2d8f3dc53fd8bd25ddc61ec9ac9e0ebfe6b81236",
     "metadata/closure/run_world.json": "contract-v1:7e1fa277bb497d7f863f707d29c7cd10ec9abe1bbb535f40ebbf40d7c2e98890",
-    "metadata/closure/session.json": "contract-v1:904561d2fc11c86a6e692a4cd818ac5dfde39804bda868a41d0d73baf78a86bb",
+    "metadata/closure/session.json": "contract-v1:8a2a88a82f78ec14b72be429a6fd76d21a5253fa8a0698bee1c26ef6c536d9ef",
     "metadata/closure/timing_world.json": "contract-v1:a3a4dfaca620a34a5672f56027c9ffdcc31db566a4da812469666947d10c4c6a",
     "metadata/closure/video_dos.json": "contract-v1:012e7fd8ceaffb0443863e995cc409635dfc492b6895061b2411539c7381ac15",
     "metadata/closure/video_pages.json": "contract-v1:446da768622f883de709b9e9f330cb1a430f259aa00bd89fe559b9322f5f5eac",
@@ -211,7 +211,7 @@
     "native/bridge/random_bridge.c": "3df2829acbc3c96c94154a1d8b062de12033f0df037e9ad1e8a843a77c7453c8",
     "native/bridge/random_world_bridge.c": "a0e0f424f765a5d94ba3b4bf141ed62587def5d5ed46a56b74ef4560ac5b9749",
     "native/bridge/random_world_bridge.h": "4c0f8a2dbd5d732b89b157ffa5bdf825726e57c08ac4fb172174207c13e89199",
-    "native/bridge/session_bridge.c": "359c6e1c84c03c03c535fe3e1fa344063f9d651d47acfdfefd78aee03275c8e8",
+    "native/bridge/session_bridge.c": "dc657cd3fd640655b033c915fedffaba477d75fe1c1edf1e7943238c3e64be8d",
     "native/bridge/water_weather_bridge.c": "bcdba927aefb1ef4cc90e4c179e55d2fff90715c195dbf09cde6e0207ae4889a",
     "native/hud.c": "f1b1d550b3afe997828e4154b95e290803d9f32461e66ab6f2da86620d4ae53c",
     "native/hud.h": "186b7d5953017351c3be9f803642d119e83774c7aa5adc0d2405c1a99d2eb74b",
@@ -674,6 +674,21 @@
         "python tools/gate.py --jobs 3 --out build/workers/cut-6a/sgate"
       ],
       "results": "PASS: complete cut6A world gate; byte router/CBMC,144 matching API comparisons per profile (composed142 native plus2 explicitly inventoried existing empty-vector compatibility executions),16/16 controls, native driver failure prefixes, literal loader/demo witnesses, projector/census, both hosts21/21 and81+7+8 levels both variants. Separate supervisor receipt: build/workers/cut-6a/sgate/receipt.json.",
+      "inputs": [
+        "metadata/closure/demo_presentation.json",
+        "metadata/closure/session.json",
+        "native/bridge/session_bridge.c"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "Pending process-refactor replay",
       "inputs": [
         "metadata/closure/demo_presentation.json",
         "metadata/closure/session.json",

@@ -208,8 +208,8 @@
     "native/bridge/hazards_bridge.c": "d8f700db96794f704a87d6a958b06d9d3579f83b1d29dc729a040a20147b49c8",
     "native/bridge/items_bridge.c": "5cb0719e8e21a6e776ca9c9ba7ca857f40bac993507bf94d03f8be518c0c296a",
     "native/bridge/passenger_delivery_bridge.c": "55357194b960fac8bc6dfc7e463988b7e971804dc50016bf8c9518aac032792b",
-    "native/bridge/session_bridge.c": "359c6e1c84c03c03c535fe3e1fa344063f9d651d47acfdfefd78aee03275c8e8",
-    "native/bridge/session_support.h": "f240e422b33c4acb872c0f5521310454c8b199ce69b6376e94661a02b2271dd7",
+    "native/bridge/session_bridge.c": "dc657cd3fd640655b033c915fedffaba477d75fe1c1edf1e7943238c3e64be8d",
+    "native/bridge/session_support.h": "7df8b311866e11d391cea33896ab84a1b1bc8373f933fd7661a131f1fb324226",
     "verif/world_cases/legacy_adapter.py": "9978014371764ca9a123efe557fe62a6b0fef06f0e19a52b944bf72fbb14d677",
     "docs/item-storage.md": "a115a85a88e9e3593a5febd27d771bae7ac366e4adfc98c8c566256d1cc5ef9b"
   },
@@ -268,6 +268,20 @@
         "python tools/gate.py --jobs 3 --out build/workers/cut-6a/sgate"
       ],
       "results": "PASS: complete cut6A world gate; byte router/CBMC,144 matching API comparisons per profile (composed142 native plus2 explicitly inventoried existing empty-vector compatibility executions),16/16 controls, native driver failure prefixes, literal loader/demo witnesses, projector/census, both hosts21/21 and81+7+8 levels both variants. Separate supervisor receipt: build/workers/cut-6a/sgate/receipt.json.",
+      "inputs": [
+        "native/bridge/session_bridge.c",
+        "native/bridge/session_support.h"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "Pending process-refactor replay",
       "inputs": [
         "native/bridge/session_bridge.c",
         "native/bridge/session_support.h"

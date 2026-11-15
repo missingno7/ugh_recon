@@ -26,10 +26,10 @@ def timing_composed(units):
 
 def composition_options(units, base=None):
     if not timing_composed(units): return []
-    return (['-DUGH_NATIVE_AUDIO'] if any(u['component']=='audio_world' for u in units) else [])+['-DUGH_NATIVE_TIMING', '-DNATIVE_AUDIO_BYTE_SERVICE', '-I', str((base or ROOT)/'native/bridge'),
+    return (['-DUGH_NATIVE_PALETTE'] if any(u['component']=='palette_world' for u in units) else [])+(['-DUGH_NATIVE_AUDIO'] if any(u['component']=='audio_world' for u in units) else [])+['-DUGH_NATIVE_TIMING', '-DNATIVE_AUDIO_BYTE_SERVICE', '-I', str((base or ROOT)/'native/bridge'),
             '-I', str(ROOT/'verif/projector')]
 
-def composition_source(relative, text, units):
+def _previous_composition_source(relative, text, units):
     """Generated interop services only; the literal build is unchanged."""
     if relative in ('native/far_copy.c','native/decimal.c') and any(u['component']=='audio_world' for u in units):
         header='far_copy.h' if relative.endswith('far_copy.c') else 'decimal.h'
@@ -65,6 +65,60 @@ def composition_source(relative, text, units):
         'uint8_t ugh_read(uint32_t a) { uint8_t owned; if(timing_shared_read(a,&owned))return owned;')
     text=text.replace('void ugh_write(uint32_t a, uint8_t v) {',
         'void ugh_write(uint32_t a, uint8_t v) { if(timing_shared_write(a,v))return;')
+    return text
+
+
+def composition_source(relative,text,units):
+    text=_previous_composition_source(relative,text,units)
+    if not any(u['component']=='palette_world' for u in units):return text
+    header='#include "'+(ROOT/'native/bridge/palette_world_bridge.h').as_posix()+'"\n'
+    if relative=='c/memory.c':
+        text=header+text
+        text=text.replace('uint8_t ugh_read(uint32_t a) {','uint8_t ugh_read(uint32_t a) { uint8_t colour; if(palette_shared_read(a,&colour))return colour;')
+        text=text.replace('void ugh_write(uint32_t a, uint8_t v) {','void ugh_write(uint32_t a, uint8_t v) { if(palette_shared_write(a,v))return;')
+    if relative in ('native/far_copy.c','native/decimal.c'):
+        text=header+text.replace('audio_borrowed_byte(','palette_borrowed_byte(').replace('audio_borrowed_store(','palette_borrowed_store(')
+    if relative=='native/bridge/timing_world_bridge.c':
+        text=header+text
+        old='timing_shared_read((uint32_t)(source-base+index),&value)'
+        assert text.count(old)==1
+        text=text.replace(old,'(palette_shared_read((uint32_t)(source-base+index),&value)||'+old+')')
+    if relative=='native/bridge/audio_world_bridge.c':
+        text=header+text
+        old='timing_shared_read(address+i,&value)';assert text.count(old)==1
+        text=text.replace(old,'(palette_shared_read(address+i,&value)||'+old+')')
+        old='timing_shared_write((uint32_t)(destination-base+index),value)';assert text.count(old)==1
+        text=text.replace(old,'(palette_shared_write((uint32_t)(destination-base+index),value)||'+old+')')
+        text=text.replace('if(timing_is_owned(address))','if(palette_is_owned(address)||timing_is_owned(address))')
+        old='if(written>distance)timing_shared_write(address,source[i]);';assert text.count(old)==1
+        text=text.replace(old,'if(written>distance){if(!palette_shared_write(address,source[i]))timing_shared_write(address,source[i]);}')
+    if relative=='c/platform.c':
+        text=header+text+"\n"+r'''void palette_service_dac(PaletteDacWrite request){
+#if PALETTE_TEST_FAULT == 2
+ static unsigned held,done;static uint8_t pending;
+ if(!done && request.kind==PALETTE_DAC_COMPONENT){
+  if(held){
+   platform_out(0x3c9,1,pending==request.value?pending:request.value);
+   platform_out(0x3c9,1,pending==request.value?request.value:pending);
+   if(pending!=request.value)done=1;
+   held=0;return;
+  }
+  if(!ugh_devices.dac_component){pending=request.value;held=1;return;}
+ }
+#endif
+#if PALETTE_TEST_FAULT == 4
+ static unsigned dropped;
+ if(!dropped && request.kind==PALETTE_DAC_COMPONENT && request.value){dropped=1;return;}
+#endif
+#if PALETTE_TEST_FAULT == 5
+ ugh_devices.map_mask=0;
+#endif
+#if PALETTE_TEST_FAULT == 6
+ ugh_devices.read_map=0;
+#endif
+ platform_out(request.kind==PALETTE_DAC_SELECT?0x3c8:0x3c9,1,request.value);
+}
+'''
     return text
 
 

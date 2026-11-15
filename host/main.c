@@ -4,6 +4,9 @@
 #include "host.h"
 #ifdef UGH_NATIVE_TIMING
 #include "timing_world_bridge.h"
+#ifdef UGH_NATIVE_PALETTE
+#include "palette_world_bridge.h"
+#endif
 #endif
 #include <SDL3/SDL_main.h>
 #include <stdlib.h>
@@ -213,6 +216,9 @@ int main(int argc,char **argv) {
     ugh_set_frame_observer(boundary); ugh_set_service_observer(service);
 #ifdef UGH_NATIVE_TIMING
     timing_cold_import(ugh_mem);
+#ifdef UGH_NATIVE_PALETTE
+    palette_cold_import(ugh_mem);
+#endif
 #endif
     HostSymbol entry=host_symbol(scenario.entry);
     Regs r={0}; r.cs=entry.segment; r.ip=entry.offset; r.ds=r.es=DATA_SEG;

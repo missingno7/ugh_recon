@@ -7,6 +7,11 @@
 #include "observer.h"
 #ifdef UGH_NATIVE_TIMING
 #include "timing_serializer.h"
+#ifdef UGH_NATIVE_PALETTE
+#define PROJECT_PALETTE_OWNED(a) || palette_is_owned(a)
+#else
+#define PROJECT_PALETTE_OWNED(a)
+#endif
 #endif
 #include <stddef.h>
 #include <stdio.h>
@@ -75,7 +80,7 @@ static void assign(const Binding *b,uint32_t raw){
 static void byte_write(uint32_t a,uint8_t v){
     if(a>=UGH_MEM_SIZE)fail("RAM write outside observation storage");
 #ifdef UGH_NATIVE_TIMING
-    if(timing_is_owned(a)){
+    if((timing_is_owned(a) PROJECT_PALETTE_OWNED(a))){
         fprintf(stderr,"projector: moved publication address %05X value %02X RAM %02X\n",a,v,ugh_mem[a]);
         fail("moved owner received a RAM/journal publication");
     }
@@ -135,12 +140,15 @@ static void serialize(void){
     for(unsigned i=0;i<N_BINDINGS;i++){
         const Binding *b=&bindings[i];uint32_t v=value(b);
 #ifdef UGH_NATIVE_TIMING
-        if(timing_is_owned(b->address))continue;
+        if((timing_is_owned(b->address) PROJECT_PALETTE_OWNED(b->address)))continue;
 #endif
         for(unsigned j=0;j<b->width;j++)output[b->address+j]=(uint8_t)(v>>(8*j));
     }
 #ifdef UGH_NATIVE_TIMING
     timing_serialize(output);
+#ifdef UGH_NATIVE_PALETTE
+    palette_serialize(output);
+#endif
 #endif
     memcpy(device_output,device_baseline,sizeof device_output);
     for(unsigned i=0;i<N_SERVICES;i++){
@@ -153,6 +161,9 @@ static Difference compare(void){
     serialize();
 #ifdef UGH_NATIVE_TIMING
     uint32_t missed=timing_check_serialization(output);
+#ifdef UGH_NATIVE_PALETTE
+    if(missed==UINT32_MAX)missed=palette_check_serialization(output);
+#endif
     if(missed!=UINT32_MAX)return (Difference){1,missed};
 #endif
     const uint8_t *actual_memory=observation_memory();
@@ -214,7 +225,11 @@ static void dump(void){
     }
     fprintf(f,"{\"baseline_verified\":%s,\"boundaries\":%u,\"terminal_boundaries\":%u,\"last_frame\":%u,",baseline_verified?"true":"false",boundaries,terminal_boundaries,host_frame);
 #ifdef UGH_NATIVE_TIMING
-    fprintf(f,"\"canonical_native_owned_bytes\":%u,\"native_owned_journal_publications\":0,",timing_owned_bytes());
+    fprintf(f,"\"canonical_native_owned_bytes\":%u,\"native_owned_journal_publications\":0,",timing_owned_bytes()
+#ifdef UGH_NATIVE_PALETTE
+    +palette_owned_bytes()
+#endif
+    );
 #endif
     fprintf(f,"\"owners\":[");
     for(unsigned i=0;i<N_OWNERS;i++)fprintf(f,"%s{\"name\":\"%s\",\"typed_bytes\":%llu,\"write_deliveries\":%llu,\"touched_bytes\":%llu}",i?",":"",owner_names[i],typed_bytes[i],writes[i],touched[i]);
@@ -246,13 +261,13 @@ void pr_import(void){
             v|=(uint32_t)import_memory[a]<<(8*j);typed_bytes[b->owner]++;
         }
 #ifdef UGH_NATIVE_TIMING
-        if(timing_is_owned(b->address))continue;
+        if((timing_is_owned(b->address) PROJECT_PALETTE_OWNED(b->address)))continue;
 #endif
         assign(b,v);if(value(b)!=v)fail("cold field codec");
     }
     for(uint32_t a=0;a<UGH_MEM_SIZE;a++)if(!binding_at[a] && baseline[a]!=import_memory[a]){
 #ifdef UGH_NATIVE_TIMING
-        if(timing_is_owned(a))continue;
+        if((timing_is_owned(a) PROJECT_PALETTE_OWNED(a)))continue;
 #endif
         dirty[a]=1;journal[a]=import_memory[a];last_frame[a]=host_frame;journal_bytes++;
     }

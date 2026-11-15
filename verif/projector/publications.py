@@ -6,6 +6,8 @@ never at a frame boundary, and do not repair or resynchronize the comparator.
 
 
 def instrument_publication(relative_path, text):
+    if relative_path == 'native/bridge/palette_world_bridge.c':
+        return text # Writes are owner writes, or delegate to the existing audio/unmoved publisher.
     if relative_path == 'native/bridge/audio_world_bridge.c':
         store='ugh_mem[address]=source[i];'
         assert text.count(store)==1

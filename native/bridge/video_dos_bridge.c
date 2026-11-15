@@ -1,5 +1,15 @@
 #include "platform.h"
 #include "../video_dos.h"
+#ifdef UGH_NATIVE_PALETTE
+#include "palette_world_bridge.h"
+#define PALETTE_CALL(n,ret) palette_peer_deliver(PALETTE_PEER_##n,ret,r)
+static void dac_index(uint8_t value){palette_service_dac((PaletteDacWrite){PALETTE_DAC_SELECT,value});}
+static void dac_component(uint8_t value){palette_service_dac((PaletteDacWrite){PALETTE_DAC_COMPONENT,value});}
+#else
+#define PALETTE_CALL(n,ret) call(r,G(n),ret)
+static void dac_index(uint8_t value){platform_out(0x3c8,1,value);}
+static void dac_component(uint8_t value){platform_out(0x3c9,1,value);}
+#endif
 /* Hardware/ABI adapter; borrowed page and palette cells retain their owner. */
 static void push(Regs *r,uint16_t x) {
     r->sp=(uint16_t)(r->sp-2); wr16(r->ss,r->sp,x);
@@ -25,7 +35,7 @@ static int call(Regs *r,uint16_t target,uint16_t ret) {
 static int upload_range(Regs *r) {
     push(r,r->cx); push(r,r->ds); r->ds=r->es; r->si=r->di;
     set_ah(r,0); logic(r,0,8); r->cx&=255; logic(r,0,8); flag(r,IF,0);
-    r->dx=0x3c8; set_al(r,(uint8_t)r->bx); platform_out(r->dx,1,(uint8_t)r->ax);
+    r->dx=0x3c8; set_al(r,(uint8_t)r->bx); dac_index((uint8_t)r->ax);
     r->dx=inc(r,r->dx);
     for(unsigned i=0;i<3;i++) r->si=add16(r,r->si,r->ax,0);
     uint8_t lo=(uint8_t)r->bx,hi=(uint8_t)(r->bx>>8);
@@ -37,7 +47,7 @@ static int upload_range(Regs *r) {
     do {
         for(unsigned j=0;j<3;j++) {
             set_al(r,rd8(r->ds,video_palette_advance(&range)));r->si=range.cursor;
-            platform_out(r->dx,1,(uint8_t)r->ax);
+            dac_component((uint8_t)r->ax);
         }
         r->cx--;
     } while(r->cx);
@@ -85,15 +95,15 @@ static int retrace(Regs *r,int active) {
     }
 }
 EXPORT int c_BlackenVgaPalette(Regs *r) {
-    r->dx=0x3c8; set_al(r,(uint8_t)logic(r,0,8)); platform_out(r->dx,1,0);
+    r->dx=0x3c8; set_al(r,(uint8_t)logic(r,0,8)); dac_index(0);
     r->dx=inc(r,r->dx); r->cx=(uint16_t)((r->cx&255)|(video_blackening_batches()<<8));
     do {
         push(r,r->dx);
-        int status=call(r,G(WaitNextVerticalRetrace),G(BlackenVgaPalette)+13); if(status) return status;
+        int status=PALETTE_CALL(WaitNextVerticalRetrace,G(BlackenVgaPalette)+13); if(status) return status;
         r->dx=pop(r); flag(r,IF,0); set_al(r,(uint8_t)logic(r,0,8));
         r->cx=(uint16_t)((r->cx&0xff00)|video_blackening_entries());
         do {
-            for(unsigned j=0;j<3;j++) platform_out(r->dx,1,(uint8_t)r->ax);
+            for(unsigned j=0;j<3;j++) dac_component((uint8_t)r->ax);
             r->cx=(uint16_t)((r->cx&0xff00)|dec8(r,(uint8_t)r->cx));
         } while(r->cx&255);
         flag(r,IF,1); r->cx=(uint16_t)((uint16_t)dec8(r,(uint8_t)(r->cx>>8))<<8);
@@ -103,7 +113,7 @@ EXPORT int c_BlackenVgaPalette(Regs *r) {
 
 EXPORT int c_UploadBasePalette(Regs *r) {
     r->di=rd16(r->ds,D(BasePalettePointer)); r->es=rd16(r->ds,D(BasePalettePointer)+2);
-    int status=call(r,G(WaitNextVerticalRetrace),G(UploadBasePalette)+7); if(status) return status;
+    int status=PALETTE_CALL(WaitNextVerticalRetrace,G(UploadBasePalette)+7); if(status) return status;
     r->bx=0xff00; return upload_range(r);
 }
 
@@ -139,14 +149,14 @@ EXPORT int c_ScaleAndUploadFadedPalette(Regs *r) {
     } while(cursor.remaining);
     r->di=rd16(r->ds,D(FadedPalettePointer)); r->es=rd16(r->ds,D(FadedPalettePointer)+2);
     r->bx=0xd800;
-    int status=call(r,G(WaitNextVerticalRetrace),G(ScaleAndUploadFadedPalette)+30); if(status) return status;
+    int status=PALETTE_CALL(WaitNextVerticalRetrace,G(ScaleAndUploadFadedPalette)+30); if(status) return status;
     return upload_range(r);
 }
 
 EXPORT int c_FadePaletteIn(Regs *r) {
     r->cx=logic(r,0,16);
     do {
-        int st=call(r,G(ScaleAndUploadFadedPalette),G(FadePaletteIn)+5);
+        int st=PALETTE_CALL(ScaleAndUploadFadedPalette,G(FadePaletteIn)+5);
         if(st) return st;
         add16(r,r->cx,4,0);r->cx=video_fade_step(r->cx,0); sub16(r,r->cx,256,0);
     } while(video_fade_continue(r->cx,0));
@@ -156,7 +166,7 @@ EXPORT int c_FadePaletteIn(Regs *r) {
 EXPORT int c_FadePaletteOut(Regs *r) {
     push(r,r->cx); r->cx=256;
     do {
-        int st=call(r,G(ScaleAndUploadFadedPalette),G(FadePaletteOut)+7);
+        int st=PALETTE_CALL(ScaleAndUploadFadedPalette,G(FadePaletteOut)+7);
         if(st) return st;
         sub16(r,r->cx,4,0);r->cx=video_fade_step(r->cx,1);
     } while(video_fade_continue(r->cx,1));

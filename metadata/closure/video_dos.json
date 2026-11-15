@@ -348,23 +348,28 @@
     "native/bridge/video_dos_bridge.c": {
       "includes": [
         "../video_dos.h",
+        "palette_world_bridge.h",
         "platform.h"
       ],
       "calls": [
         "D",
         "G",
+        "PALETTE_CALL",
         "add16",
         "c_SwapAndDisplayVgaPage",
         "c_WaitVerticalRetraceActive",
         "c_WaitVerticalRetraceInactive",
         "call",
         "configure",
+        "dac_component",
+        "dac_index",
         "dec16",
         "dec8",
         "flag",
         "inc",
         "logic",
         "out_al",
+        "palette_service_dac",
         "platform_frame_boundary",
         "platform_in",
         "platform_interrupt",
@@ -426,12 +431,12 @@
     "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
     "host/video.c": "fcf24e4afa71114d8e835f9558eb06d73c74bf1310cbb411fc215d86f2227491",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
-    "native/bridge/video_dos_bridge.c": "de0b0d978a53ec981979535ea91bf695b258594a2828b04eb1678c849ee9e390",
+    "native/bridge/video_dos_bridge.c": "767c542dd15835bdc8963b7bf01dce3b95fd3e7080e979eebbde57745599ac07",
     "native/video_dos.c": "4a8639a8349bf49694dbff5bf052811b89a500882aa8fea492e4c84fb700dcde",
     "native/video_dos.h": "830cf4e706ce00033be99d4e74831f4f39e348f3b226bd1086128a5f61c26cf5",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
-    "tools/hostbuild.py": "6bb90ae0ef1059cb912fcefc7b8e84744179d3fb5ff639d50884f20eb52b2b24",
+    "tools/hostbuild.py": "0d4d0dbff47bd1693eb5f542add6c0d732fba8db752a01c88f1ec3e5a9b5f2c7",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/adlx_loader_solver.py": "332c1a46957e398df5865fa5de14a73d259d464c621232f84976f8dfcc1f42d6",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
@@ -522,6 +527,18 @@
       ],
       "results": "PASS: default ABI typedef equivalence and unchanged kernels; composition B/C/D replay, hosts and 81 openings, 7 audio and 8 deep scenarios. No old proof domain widened.",
       "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Palette/DAC composition, typed byte borrowers and projector; accepted claims/status unchanged",
+      "commands": [
+        "python verif/palette_composition.py --gate"
+      ],
+      "results": "PASS: legacy kernels retained, L1/Unicorn replay, native owner/byte proof, projector/census/levels; partial step 4 only",
+      "inputs": [
+        "native/bridge/video_dos_bridge.c",
         "tools/hostbuild.py"
       ]
     }

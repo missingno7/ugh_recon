@@ -1,0 +1,220 @@
+{
+  "component": "palette_world",
+  "status": "migrated",
+  "original": {
+    "owned": [],
+    "composes": [
+      "video_dos",
+      "timing_world",
+      "audio_world"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/palette_world.h",
+      "native/palette_world.c",
+      "native/bridge/palette_world_bridge.h",
+      "native/bridge/palette_world_bridge.c"
+    ],
+    "functions": [
+      "native_palette_world"
+    ],
+    "bridge": "native palette owner and verification ABI services"
+  },
+  "purpose": "Partial standalone step 4: both persistent RGB buffers and six palette handlers compose streaming typed DAC requests",
+  "interface": {
+    "inputs": "Cold fixture, borrowed palette/source windows and ordered retrace replies",
+    "outputs": "Native palette ownership, streaming DAC index/component requests and separate observation serialization"
+  },
+  "callers": [
+    "video_dos palette entry ABI",
+    "Pictures and generic byte-view borrowers"
+  ],
+  "callees": [
+    "Accepted video_dos kernels; typed retrace peer and typed DAC provider"
+  ],
+  "indirect": [
+    "Typed PalettePeerRole; unsupported code binding fails closed"
+  ],
+  "memory": {
+    "owner": "NativePaletteWorld.base/faded, 1536 bytes",
+    "observations": "One cold import, sealed RAM, owner-only separate serialization; no writeback/resynchronization",
+    "remaining": "Palette resource-selection pointers, pages, HUD/render fields and input remain under their existing ownership",
+    "native_bytes": 1536,
+    "total_with_timing_audio": 6148
+  },
+  "assumptions": [
+    "Current deterministic full-compatibility platform backend; no port decision narrowed",
+    "Original ABI shells remain verification-only; ordinary accepted resource/stack domains",
+    "Palette peer code binding is the canonical GAME group; unknown roles/bindings fail closed without L1",
+    "Existing ICE disjoint immutable-table and stack/resource admissions are retained; a table-overwriting exploratory fixture is excluded explicitly"
+  ],
+  "eliminated": [
+    "RAM ownership of the two RGB buffers; raw DAC requests and internal palette-to-palette dispatch"
+  ],
+  "retained": [
+    "Forward/backward wrapping palette views, output/read interleaving, all inherited DAC and VGA controls",
+    "Input and raw plane/latch services remain for subsequent coherent cuts"
+  ],
+  "evidence": [
+    {
+      "property": "Byte owner and numeric router",
+      "level": "B",
+      "method": "Actual palette index/get/put/shared byte C. Arbitrary complete owner, selected and arbitrary other byte, active/inactive routing, arbitrary outside address and all byte values: output, frame and dependence.",
+      "command": "python verif/palette_composition.py --router --proof",
+      "result": "PASS: 393216 byte writes; all 1536 lanes and actual-C output/frame/dependence",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "Independent API and borrower replay",
+      "level": "C",
+      "method": "Existing video/video_upload/render/render_primitives cases against Unicorn and independent compiled L1; explicit compatibility scopes",
+      "command": "python verif/palette_composition.py --api --borrowers --backend",
+      "result": "PASS: 1118 legacy and 1118 composed cases; 0 API declines; 231 borrower cases; 196864 typed DAC transactions, inherited controls and three census edges",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "Clean composition and projector",
+      "level": "D",
+      "method": "Committed archive, scratch promotion only, both variants; no expected records supply native state",
+      "command": "python verif/palette_composition.py --build --projector --census --levels",
+      "result": "PASS: 48 certificates/0 errors, 21/21 each host, 17955 projected boundaries; 6148 native-owned lanes and zero owned journal publications; zero palette-island machine edges/fallbacks/L1 game bodies; 81+7+8 each variant",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "Seeded seam defects",
+      "level": "C",
+      "method": "Generated-copy ownership/streaming-service defects; no resynchronization",
+      "command": "python verif/palette_composition.py --defects",
+      "result": "PASS: 6/6 detected; deferred input/plane seams remain listed",
+      "date": "2026-11-15"
+    }
+  ],
+  "amiga": {
+    "classification": "not-used",
+    "finding": "DOS composition only"
+  },
+  "uncertainty": [
+    "Partial step 4; no input, page, plane, renderer or HUD migration claimed"
+  ],
+  "dependencies": {
+    "native/palette_world.h": {
+      "includes": [
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/palette_world.c": {
+      "includes": [
+        "palette_world.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/palette_world_bridge.h": {
+      "includes": [
+        "../palette_world.h",
+        "ugh.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/palette_world_bridge.c": {
+      "includes": [
+        "audio_world_bridge.h",
+        "palette_world_bridge.h",
+        "platform.h",
+        "stdio.h",
+        "stdlib.h",
+        "string.h"
+      ],
+      "calls": [
+        "G",
+        "abort",
+        "audio_borrowed_byte",
+        "audio_borrowed_store",
+        "c_ScaleAndUploadFadedPalette",
+        "c_WaitNextVerticalRetrace",
+        "exit",
+        "fputs",
+        "lin",
+        "native_palette_world",
+        "palette_address",
+        "palette_get",
+        "palette_index",
+        "palette_owned_bytes",
+        "palette_put",
+        "palette_shared_read",
+        "palette_shared_write",
+        "wr16"
+      ]
+    }
+  },
+  "verification_inputs": {
+    "native/palette_world.h": "56de4298ea65d968985a4060ddf70f95e80f0ebd8dad77a3cfeb66921a000d30",
+    "native/palette_world.c": "2a0d8779fadf2a1d6bdd143c37ada6603688c5321eebd9d0cb45e29b2de22e58",
+    "native/bridge/palette_world_bridge.h": "46ad609bc6184762db77066f44053a133e49a941c6009d12f0be7d337c7e8482",
+    "native/bridge/palette_world_bridge.c": "073d9a777ed20f713e08f14e96b019af517b1d42747766d037b286fdce69444d",
+    "verif/palette_composition.py": "5d2c122f190aa538bc64d744b0f79ed8c6d02d73c9804b936921a4545eb10ed6",
+    "native/bridge/video_dos_bridge.c": "767c542dd15835bdc8963b7bf01dce3b95fd3e7080e979eebbde57745599ac07",
+    "tools/hostbuild.py": "0d4d0dbff47bd1693eb5f542add6c0d732fba8db752a01c88f1ec3e5a9b5f2c7",
+    "host/main.c": "0e5e402c39366c9487f8bef609761ce96b214cc905020b7bb80200c9a24fb881",
+    "verif/projector/timing_serializer.h": "dd5f8022f60687cfad9fc41c96906e2eb26f2013846ff84b1429ee9935d3bad1",
+    "verif/projector/observer.c": "a9af4d881f8cf2e05535a0e476493a73836434c4169d6d986de4254bcd7916c2",
+    "verif/projector/publications.py": "231e70633d293594040a12695819a4ab9e16110e8fadab185a7c5180ee47378c",
+    "verif/projector_evidence.py": "71d4a478aa22aa24b9a9ce7781bbe67dd1bf41d4bef04a0125c2688a6b052fc7",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
+    "tools/cgen.py": "c494a10b08145efeb0dfd7bcef4fa89b3902cebbdd69ee63bae89647026d9aff",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "verif/audio_composition.py": "32cf1d267784b30271e030a276abb0424aacf932ae169fc98efa71a9cdb70691",
+    "verif/timing_composition.py": "079ee38dca0657725f0449fd78d90df8928a4d2130a95021a07f9aa7195dd757",
+    "verif/entry_retirement.py": "3b52d207fef7b3e51461a2357a06f012f59651b406f1fe9a0253876e55f76529",
+    "verif/standalone_census.py": "647dd84b82fbeb0871fd992671b0c2279cd98e66bb46854b57c0745ed84b0a6f",
+    "verif/level_suite.py": "c4ba45fc0a2aa239c8023932d03413dcc487000e887b836cac05e24347aaace7",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
+    "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
+    "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
+    "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
+    "tools/cbuild.py": "b957186e9697f04be43136704d51f727fa5f20aace331919e3ade16468a4a8f1",
+    "metadata/closure/video_dos.json": "64a40ff796d52707845f7697503e4609f6605d27fc039a9002d8010d127e0a74",
+    "metadata/closure/render_primitives.json": "dde568658397c4dddf244e88c74801ec05cb9f436cadc5519595fa77581f291f",
+    "metadata/closure/actor_render.json": "fa6d03717685c8c405cfeb7098e17e6e41375f5d567c881a4ccc9f563580abf4",
+    "metadata/closure/audio_world.json": "c47611dc8021324c6cd9da7e9e2f5f839c72f187b981ab6147cc0e1c07454a8b",
+    "metadata/closure/timing_world.json": "4a58b062f2b4ebaf968f8be05fbec343d082bd872c120d23bf2c55dfbf8f005b",
+    "metadata/closure/ice.json": "9952c30fd8cd63eba1c6788e454c7e8aae3aba8998751d1ae0b1027cc99a0c48",
+    "metadata/closure/ice_scratch.json": "80f7dcfa656d3ec77a5bd0dafd8b9105d15bcb4dabf439acff4ed4e1c1bfc8cd",
+    "metadata/closure/far_copy.json": "b607e9417591d0724605e6d4fb8bbe50087f4e03755ac77d0e1425e8009f98f3",
+    "metadata/closure/decimal.json": "a17de4e5cb5f3596652893a5ad6a3fd955f68b57795288510a7c9df75096c2d7",
+    "metadata/closure/pictures.json": "abd1319234b94a87a67c983bcf71901c2ae8cb133a9bea248c495b4a014f1784",
+    "verif/cbmc_shim/stddef.h": "03e62ec5f7016e0582b92f016d7e4017b56746e2b216ae8d7fad236ae7e723e7",
+    "verif/cbmc_shim/stdint.h": "ff382e7cc9e8ac2ff6cef94767bb680b49944513ebff33b6d7e548fe12a5d7d0",
+    "verif/cbmc_shim/ugh.h": "d23d5fb7f8d14f5c03944d9cce971d6d21fdf32c28ebac1f2710842cd03d7e72"
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "proposed_status": "migrated",
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-15",
+      "reason": "New partial step-4 palette/DAC composition; status remains unanalyzed for supervisor review",
+      "commands": [
+        "python verif/palette_composition.py --gate"
+      ],
+      "results": "PASS within the explicit partial-cut scope",
+      "inputs": [
+        "native/palette_world.h",
+        "native/palette_world.c",
+        "native/bridge/palette_world_bridge.h",
+        "native/bridge/palette_world_bridge.c",
+        "verif/palette_composition.py",
+        "native/bridge/video_dos_bridge.c",
+        "tools/hostbuild.py",
+        "host/main.c",
+        "verif/projector/timing_serializer.h",
+        "verif/projector/observer.c",
+        "verif/projector/publications.py",
+        "verif/projector_evidence.py"
+      ]
+    }
+  ]
+}

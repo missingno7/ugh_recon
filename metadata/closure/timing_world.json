@@ -176,21 +176,21 @@
     "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
     "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
     "host/digest.c": "4ae46b129987ad749d7ac90faccc57c6dd8326624e6a40762e77873490b562fa",
-    "host/main.c": "3e99bcff02453d40b1a0fecc2d22706eeac2fb013d9a914404e87e8dc1057ffb",
+    "host/main.c": "0e5e402c39366c9487f8bef609761ce96b214cc905020b7bb80200c9a24fb881",
     "metadata/closure/adlx_allocation.json": "1aa5f70d194a1ef33eabe4eba3929936016d9e5502f2375f41ead29df075c03c",
-    "metadata/closure/adlx_digital.json": "3e2e56d8bb0c1f1820b7cb82b664c50652408d2fb393cdcb59c005cb8975b461",
+    "metadata/closure/adlx_digital.json": "fc5ae6fb9068ca6cf12f774813957d99671047123a43cb3f54ef1f9474d244c7",
     "metadata/closure/adlx_effects.json": "5495a2eb878ca447310d557527151754a5c22daa2f451525e20e072ddcfabc30",
-    "metadata/closure/adlx_facade.json": "37e346de30da87495e3aed750e5d0e1c3dc34c1974cceb137e82f42aab3bd480",
-    "metadata/closure/adlx_lifetime.json": "ddeb5098c6ff5f5ba646aa51cc8e4a2211cb1dd526a1b958a2fe4a58f0d6c713",
+    "metadata/closure/adlx_facade.json": "27b142db35f405aac2285981d21accf21e273a41e1eb750bc7146b3c89ff2730",
+    "metadata/closure/adlx_lifetime.json": "173808a473d72dd01cc11c4655c0c424949edac6c72bb3f2772a41b360a6b321",
     "metadata/closure/adlx_loader.json": "9454cfd26a3fef43c14485797adb8220ffc20410484fc1bfe06e0f96121fc827",
     "metadata/closure/adlx_main.json": "7d0ce5d35abc0cc3176dc5db9d210a7a1660eafa0a92b8b18db67de489238592",
     "metadata/closure/adlx_music.json": "e31040b9f7f9c16554654517990989a78791903302360f5b505b5602b674652a",
-    "metadata/closure/adlx_samples.json": "d1411be2eb09b76e8862c844813352688657f826b7a22d4695a7defc08572b77",
+    "metadata/closure/adlx_samples.json": "4042be279b15aafdf1b37cca7344b42ed41e8a9a97a2d30c6c58549dce43a66d",
     "metadata/closure/adlx_sections.json": "44f00dcad25a1767af151f02ac98f88dba8302caac338472e4406ba01bf9bc71",
     "metadata/closure/adlx_voice.json": "3ac4a6c5464b32574d4d282fb1ba6393c2b71c76ac4da2fb3204a6d67c22c689",
     "metadata/closure/music_clock.json": "8094fca14f1041708070f728a2c0ca5a3d9a78e417e05cc8973a06ad268e834a",
     "metadata/closure/timer.json": "7b053bc337bb8f974e67d4bea5e62441d9717d2d2dfcd1cbbd7dcc40ed96c07c",
-    "metadata/closure/timer_lifetime.json": "97fdd4f193a186e6d8a8d06be6684bc7da5132756920cbdc887b00c580ebbf94",
+    "metadata/closure/timer_lifetime.json": "17bd21aa72242f244ec7da1ff590d9bd1c89939afe232bb4b4fb1398ef8950cd",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
     "native/adlx_allocation.c": "4fd567bf96fd73d071073a7d70bd31ad5d0339df16fcea5dd083e87989bbc858",
     "native/adlx_allocation.h": "e0e5c37e9612494d05042149f923bb0ed8acf223a8eb7f84bd8447ae68ffdc9b",
@@ -242,10 +242,10 @@
     "native/timing_world.c": "283e39b59f5699080e6a0d259ef55ef6d22410ded1608e1c9fc89fda4123efda",
     "native/timing_world.h": "d525ddad1bac66043ec99681ebd95f74217f7688a2fcdf58221c07923564e2f0",
     "tools/cgen.py": "c494a10b08145efeb0dfd7bcef4fa89b3902cebbdd69ee63bae89647026d9aff",
-    "tools/hostbuild.py": "6bb90ae0ef1059cb912fcefc7b8e84744179d3fb5ff639d50884f20eb52b2b24",
-    "verif/projector/observer.c": "9fa65b33ba33f025a4edf9996a095de3d3f708b77927d4918741933aba5016e8",
-    "verif/projector/timing_serializer.h": "940fc4c7b246a360ec3e55b01c2424ec2e1727d143e088b0eac6028bdf0528c4",
-    "verif/projector_evidence.py": "d2117359ead09e9ffd3b01bbe56cf48d4e32a2fd31b338f32aa0fa2767f7e404",
+    "tools/hostbuild.py": "0d4d0dbff47bd1693eb5f542add6c0d732fba8db752a01c88f1ec3e5a9b5f2c7",
+    "verif/projector/observer.c": "a9af4d881f8cf2e05535a0e476493a73836434c4169d6d986de4254bcd7916c2",
+    "verif/projector/timing_serializer.h": "dd5f8022f60687cfad9fc41c96906e2eb26f2013846ff84b1429ee9935d3bad1",
+    "verif/projector_evidence.py": "71d4a478aa22aa24b9a9ce7781bbe67dd1bf41d4bef04a0125c2688a6b052fc7",
     "verif/standalone_census.py": "647dd84b82fbeb0871fd992671b0c2279cd98e66bb46854b57c0745ed84b0a6f",
     "verif/timing_composition.py": "079ee38dca0657725f0449fd78d90df8928a4d2130a95021a07f9aa7195dd757"
   },
@@ -323,6 +323,26 @@
         "verif/projector_evidence.py",
         "verif/standalone_census.py",
         "verif/timing_composition.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Palette/DAC composition, typed byte borrowers and projector; accepted claims/status unchanged",
+      "commands": [
+        "python verif/palette_composition.py --gate"
+      ],
+      "results": "PASS: legacy kernels retained, L1/Unicorn replay, native owner/byte proof, projector/census/levels; partial step 4 only",
+      "inputs": [
+        "host/main.c",
+        "metadata/closure/adlx_digital.json",
+        "metadata/closure/adlx_facade.json",
+        "metadata/closure/adlx_lifetime.json",
+        "metadata/closure/adlx_samples.json",
+        "metadata/closure/timer_lifetime.json",
+        "tools/hostbuild.py",
+        "verif/projector/observer.c",
+        "verif/projector/timing_serializer.h",
+        "verif/projector_evidence.py"
       ]
     }
   ]

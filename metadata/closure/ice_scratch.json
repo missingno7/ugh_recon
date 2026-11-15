@@ -215,7 +215,7 @@
     "native/ice.h": "9dae8b5a177d2d671ae2218035db0af8b83f30bf7b470c6bd5be3f068e26c756",
     "native/bridge/ice_bridge.c": "2394fe3ef094db70ec8e550fdfe40d7a18801712f8b6253bddbaf47219acdd7c",
     "metadata/closure/ice.json": "9952c30fd8cd63eba1c6788e454c7e8aae3aba8998751d1ae0b1027cc99a0c48",
-    "tools/hostbuild.py": "6bb90ae0ef1059cb912fcefc7b8e84744179d3fb5ff639d50884f20eb52b2b24",
+    "tools/hostbuild.py": "0d4d0dbff47bd1693eb5f542add6c0d732fba8db752a01c88f1ec3e5a9b5f2c7",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
@@ -304,6 +304,17 @@
       "inputs": [
         "tools/hostbuild.py",
         "verif/standalone_census.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Palette/DAC composition, typed byte borrowers and projector; accepted claims/status unchanged",
+      "commands": [
+        "python verif/palette_composition.py --gate"
+      ],
+      "results": "PASS: legacy kernels retained, L1/Unicorn replay, native owner/byte proof, projector/census/levels; partial step 4 only",
+      "inputs": [
+        "tools/hostbuild.py"
       ]
     }
   ]

@@ -443,7 +443,7 @@
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
-    "tools/hostbuild.py": "6bb90ae0ef1059cb912fcefc7b8e84744179d3fb5ff639d50884f20eb52b2b24",
+    "tools/hostbuild.py": "0d4d0dbff47bd1693eb5f542add6c0d732fba8db752a01c88f1ec3e5a9b5f2c7",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/cbmc_shim/stddef.h": "03e62ec5f7016e0582b92f016d7e4017b56746e2b216ae8d7fad236ae7e723e7",
     "verif/cbmc_shim/stdint.h": "ff382e7cc9e8ac2ff6cef94767bb680b49944513ebff33b6d7e548fe12a5d7d0",
@@ -501,6 +501,17 @@
         "python verif/audio_composition.py --gate"
       ],
       "results": "PASS: default ABI typedef equivalence and unchanged kernels; composition B/C/D replay, hosts and 81 openings, 7 audio and 8 deep scenarios. No old proof domain widened.",
+      "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Palette/DAC composition, typed byte borrowers and projector; accepted claims/status unchanged",
+      "commands": [
+        "python verif/palette_composition.py --gate"
+      ],
+      "results": "PASS: legacy kernels retained, L1/Unicorn replay, native owner/byte proof, projector/census/levels; partial step 4 only",
       "inputs": [
         "tools/hostbuild.py"
       ]

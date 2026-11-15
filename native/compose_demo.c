@@ -1,5 +1,6 @@
 #include "compose_demo.h"
 #include "compose_front_end.h"
+#include "compose_audio.h"
 #include "game_startup.h"
 #include "game_defaults.h"
 #include "demo_core.h"
@@ -178,11 +179,11 @@ GSStatus game_demo_prepare(GameWorld *w,GameServices *s,int second){
 }
 GSStatus game_demo_music_stop(GameWorld *w,GameServices *s,uint16_t duration){
     if(!w||!s)return GS_INVALID;
-    (void)s;(void)duration;return w->audio_reset.devices&1u?GS_UNSUPPORTED:GS_OK;
+    return game_audio_music_stop(w,s,duration).status;
 }
 GSStatus game_demo_music_start(GameWorld *w,GameServices *s,uint16_t volume){
     if(!w||!s)return GS_INVALID;
-    (void)s;(void)volume;return w->audio_reset.devices&1u?GS_UNSUPPORTED:GS_OK;
+    return game_audio_music_start(w,s,game_audio_score_resource(),0,volume).status;
 }
 static GSStatus palette(GameWorld *w,GameServices *s,uint16_t *work){
     uint16_t factor=w->run.fade_level;

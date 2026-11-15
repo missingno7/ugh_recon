@@ -44,6 +44,8 @@ GSStatus game_world_construct(GameWorld *w,GameServices *s) {
     COPY(GD_SCORE_PROMPT,w->front_data.score_prompt,74);COPY(GD_SCORE_TITLE,w->front_data.score_title,11);
     COPY(GD_LEVEL_TITLE,w->front_data.level_title,10);COPY(GD_PASSWORD_TITLE,w->front_data.password_title,12);
     COPY(GD_SOURCE_PALETTE,w->front_data.source_palette,384);
+    COPY(GD_CONTROLS_TEXT,w->front_data.controls,128);
+    COPY(GD_GAME_OVER_TEXT,w->front_data.game_over,23);
     /* The unpack destination is a bounded codec allocation, initially zero.
      * Picture IDs must resolve before platform effects begin. */
     for(unsigned i=0;i<4;i++){GSBytes bytes;GSStatus status=game_picture_resource(s,i,&bytes);if(status!=GS_OK)return status;if(bytes.size<12)return GS_INVALID;}

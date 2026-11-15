@@ -13,14 +13,14 @@ def verify(out):
     prod=out/'production';exe=nativebuild.build('test',prod)
     cases={}
     for name,args in [('absent',['--no-adlib']),('present',[])]:
-        row=run([exe,'--pack',prod/'ugh.res','--replay',*args],ROOT,out,'boot-'+name)
+        row=run([exe,'--pack',prod/'ugh.res','--replay','--boot-only',*args],ROOT,out,'boot-'+name)
         actual=json.loads(row['stdout']);assert actual['result']=='slice_end' and actual['frames']==6
         cases[name]=actual
     # Only the executable, pack and ordinary runtime DLLs are available in this
     # launch directory. Neither recorder nor executable/MZ fixtures are copied.
     isolated=out/'machine-free';isolated.mkdir(exist_ok=True)
     for source in [exe,prod/'ugh.res',*prod.glob('*.dll')]:shutil.copyfile(source,isolated/source.name)
-    witness=run([isolated/exe.name,'--replay','--no-adlib'],isolated,out,'machine-free')
+    witness=run([isolated/exe.name,'--replay','--boot-only','--no-adlib'],isolated,out,'machine-free')
     assert json.loads(witness['stdout'])['result']=='slice_end'
     negative=run([sys.executable,ROOT/'tools/nativebuild.py','--negative-control','--out',out/'negative'],ROOT,out,'negative-include',allowed=(1,))
     assert 'banned include/source: c/ugh.h' in negative['stderr'],negative
@@ -64,9 +64,9 @@ def verify(out):
     environment=dict(os.environ,SDL_VIDEO_DRIVER='dummy',SDL_AUDIO_DRIVER='dummy')
     sdl_cases={}
     for name,args in [('absent',['--no-adlib']),('present',[])]:
-        row=run([sdlexe,'--pack',sdlout/'ugh.res','--scores',sdlout/'missing.hi','--headless','--unpaced','--replay',*args],ROOT,out,'sdl-'+name,env=environment)
+        row=run([sdlexe,'--pack',sdlout/'ugh.res','--scores',sdlout/'missing.hi','--headless','--unpaced','--replay','--boot-only',*args],ROOT,out,'sdl-'+name,env=environment)
         got=json.loads(row['stdout']);assert got['result']=='slice_end' and got['frames']==6;sdl_cases[name]=got
-    window=run([sdlexe,'--pack',sdlout/'ugh.res','--scores',sdlout/'missing.hi','--unpaced','--replay','--no-adlib'],ROOT,out,'sdl-window',env=environment)
+    window=run([sdlexe,'--pack',sdlout/'ugh.res','--scores',sdlout/'missing.hi','--unpaced','--replay','--boot-only','--no-adlib'],ROOT,out,'sdl-window',env=environment)
     got=json.loads(window['stdout']);assert got['result']=='slice_end' and got['frames']==6 and got['presentations']>6
     sdl_cases['dummy-window']=got
     receipt=dict(result='FAIL' if differences else 'PASS',frames=len(actual),reference_prefix=6,

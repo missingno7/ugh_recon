@@ -18,7 +18,7 @@
 /* Page templates are immutable scaffolding. Draw calls overlay mutable fields
  * borrowed from front; digits and renderer scratch have one resident store. */
 typedef struct GameFrontData {
-    uint8_t credits[453],menu[128],score_prompt[74],score_title[11];
+    uint8_t credits[453],menu[128],controls[128],game_over[23],score_prompt[74],score_title[11];
     uint8_t level_title[10],password_title[12],source_palette[384];
     uint8_t digits[7],divisors[6];
     uint16_t renderer_water,renderer_plane;

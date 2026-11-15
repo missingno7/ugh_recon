@@ -48,7 +48,9 @@
     "native/session_data.c",
     "native/session.c",
     "native/coordinate_scale.c",
-    "native/hud.c"
+    "native/hud.c",
+    "native/compose_menu.c",
+    "native/terminal_tail.c"
   ],
   "backends": {
     "test": [
@@ -152,7 +154,8 @@
     "native/object_identities.h",
     "native/compose_audio.h",
     "native/compose_session.h",
-    "native/session_data.h"
+    "native/session_data.h",
+    "native/compose_menu.h"
   ],
   "vendor": {
     "sdl": [
@@ -198,6 +201,8 @@
     "native/compose_session.c",
     "native/compose_session.h",
     "native/session_data.c",
-    "native/session_data.h"
+    "native/session_data.h",
+    "native/compose_menu.c",
+    "native/compose_menu.h"
   ]
 }

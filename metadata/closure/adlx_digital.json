@@ -286,7 +286,7 @@
     "native/bridge/audio_projection.h": "f8dfd66352954a9efe9e23b97b041cd8c953a88ecbe9c6769448260eccc5dff0",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
-    "tools/hostbuild.py": "49f7a3251924a844a5422076bc26cd113fd4aa43a34b3b6c9713ca6d313228be",
+    "tools/hostbuild.py": "d62c759535f05db764a962403b0adae8af60913bed9b8a5cb5ab911a33dc4745",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/adlx_digital_build.py": "6ca5eab7726797f255a5650348dafcee65097345439fd71dcfbdcc0c70bc87f3",
     "verif/adlx_digital_certificate.py": "4a227f34b6b12b6d620d552f70f130346189b66f4043b123546b1b24aee411b9",
@@ -418,6 +418,17 @@
       "reason": "Both-player ownership and explicit live borrowers; prior claims/status unchanged",
       "commands": [
         "python verif/player_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Reviewed resource catalog and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/resource_composition.py --gate"
       ],
       "results": "PASS within stated domains",
       "inputs": [

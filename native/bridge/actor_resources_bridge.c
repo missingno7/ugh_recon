@@ -1,3 +1,6 @@
+#ifdef UGH_NATIVE_RESOURCES
+#include "resource_catalog_bridge.h"
+#endif
 #include "platform.h"
 #ifndef PLAYER_BORROWER
 #define PLAYER_BORROWER PLAYER_BORROW_RESOURCES
@@ -78,10 +81,15 @@ int actor_bridge_scripts(uint16_t segment,DemoResourceStorage *storage) {
             script->initial_pixel_x=player_read16(segment,begin);script->initial_pixel_y=player_read16(segment,(uint16_t)(begin+2));
             script->period=player_read16(segment,(uint16_t)(begin+4));
             uint16_t handler=player_read16(segment,(uint16_t)(begin+6));
+#ifdef UGH_NATIVE_RESOURCES
+            ResourceToken effect;
+            if(!resource_effect_from_legacy(handler,&effect) || resource_effect(effect,&script->effect)!=RESOURCE_OK)return 0;
+#else
             if(handler==G(IgnoreActorState)) script->effect=DEMO_EFFECT_NONE;
             else if(handler==G(StartDemoFadeWhenSpriteHidden)) script->effect=DEMO_EFFECT_FADE_ON_HIDDEN;
             else if(handler==G(SetDemoRevealSpriteWidth)) script->effect=DEMO_EFFECT_REVEAL_WIDTH;
             else return 0;
+#endif
             script->code=storage->code[n];script->code_size=end-begin-8u;
             for(size_t j=0;j<script->code_size;j++) storage->code[n][j]=player_read8(segment,(uint16_t)(begin+8+j));
             size_t p=0;

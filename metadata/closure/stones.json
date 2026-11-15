@@ -306,7 +306,7 @@
     "native/stones.c": "e66b5f40ab1a855ee6c759ce35f63aa9c6f2704d3e49dfadeb2da3a1692196ca",
     "native/bridge/stones_bridge.c": "6d2ffda9f2d6f69ce3c09efc9b848894e3269cb397ca98c8a49be64e3a924218",
     "native/actor_resources.c": "47e21228ee1d873fa5636e062a955e4a6b5a8f0522a7bde2cf223708c9880137",
-    "native/bridge/actor_resources_bridge.c": "327352980ad3a6a12d07584c4bc6b4d95dc552ce595c046f9ad895779c856e8e",
+    "native/bridge/actor_resources_bridge.c": "4409a8f4faea84bf0f72e8d5256ecd808971bd7a6268b640093e5f81c3e3010a",
     "native/level_view.c": "f0b3db5747f718d7c112c721735ca5a497a9b93a6ecb33096223b188b170353d",
     "native/bridge/level_view_bridge.c": "711962c998445e27ea9a226583f2687f1e378a9a9afa6659b433fbcfdc69f3f3",
     "native/contacts.c": "f809c3af54ddb43b07b60be870e30e404f0b0456f4542585011cb5108dcc8b15",
@@ -334,7 +334,7 @@
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
-    "tools/hostbuild.py": "49f7a3251924a844a5422076bc26cd113fd4aa43a34b3b6c9713ca6d313228be",
+    "tools/hostbuild.py": "d62c759535f05db764a962403b0adae8af60913bed9b8a5cb5ab911a33dc4745",
     "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5"
   },
@@ -461,6 +461,18 @@
         "native/bridge/stones_bridge.c",
         "native/bridge/actor_resources_bridge.c",
         "native/bridge/level_view_bridge.c",
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Reviewed resource catalog and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/resource_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/actor_resources_bridge.c",
         "tools/hostbuild.py"
       ]
     }

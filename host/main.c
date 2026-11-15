@@ -25,6 +25,9 @@
 #ifdef UGH_NATIVE_PLAYER
 #include "player_world_bridge.h"
 #endif
+#ifdef UGH_NATIVE_RESOURCES
+#include "resource_catalog_bridge.h"
+#endif
 #ifdef UGH_NATIVE_RANDOM
 #include "random_world_bridge.h"
 #endif
@@ -260,6 +263,9 @@ int main(int argc,char **argv) {
 #endif
 #ifdef UGH_NATIVE_PLAYER
     player_cold_import(ugh_mem);
+#endif
+#ifdef UGH_NATIVE_RESOURCES
+    resources_cold_import(ugh_mem);
 #endif
 #endif
     HostSymbol entry=host_symbol(scenario.entry);

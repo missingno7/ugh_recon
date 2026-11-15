@@ -221,8 +221,8 @@
     "native/bridge/actor_pass_bridge.c": "23459415521fbef6b51caf306d5ce8d6e414358b96666d1045b244e5dc2dee0f",
     "verif/entry_retirement.py": "3b52d207fef7b3e51461a2357a06f012f59651b406f1fe9a0253876e55f76529",
     "verif/entry_retirement_proof.c": "2796c3423fef93b04f190cb38667b80bda47017806d83ff5e326fb204aebb95f",
-    "verif/projector_evidence.py": "d8ae73edd3829534d1b7ed577e8e530ef43d41bdbcfb99d05aa1e1a5b18c3be8",
-    "verif/projector/publications.py": "977fd3ac73f6e05b2359d4665654c884544a3ce982d10764303f24b39592189b",
+    "verif/projector_evidence.py": "67eac21f90f092d0eb3fd34f79791c0b61c039eb191c41373d5311418bb0756d",
+    "verif/projector/publications.py": "82c0b9f31c8e8bf0676afb6e3f62b87f0cc8c53e88e7341fc1aab5f7ed154c98",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
     "c/abi.c": "5f7c2c2fc015ca43e3786a7f96cb38113211da54acefce19564c1df78d74857a",
@@ -427,6 +427,18 @@
       "results": "PASS within stated domains",
       "inputs": [
         "native/bridge/actor_pass_bridge.c",
+        "verif/projector_evidence.py",
+        "verif/projector/publications.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Reviewed resource catalog and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/resource_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
         "verif/projector_evidence.py",
         "verif/projector/publications.py"
       ]

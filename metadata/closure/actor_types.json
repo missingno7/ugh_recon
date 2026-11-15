@@ -450,6 +450,7 @@
         "actor_projection.h",
         "platform.h",
         "player_borrow.h",
+        "resource_catalog_bridge.h",
         "run_borrow.h"
       ],
       "calls": [
@@ -465,7 +466,9 @@
         "actor_type_resource",
         "demo_script_boundary",
         "player_read16",
-        "player_read8"
+        "player_read8",
+        "resource_effect",
+        "resource_effect_from_legacy"
       ]
     }
   },
@@ -491,7 +494,7 @@
     "native/actor_resources.h": "212fe3bc958c74140f45b9e7a3745f650d22e7a853a2edf273eeacfd93f96247",
     "native/actors.h": "b1c7653a6e566c7f0e3e18ad38fc3f63726d01b78a6fa6843df017d2d155a42c",
     "native/bridge/actor_projection.h": "71e0476afe7c0b082b5eac20957028e58a61f6741ef11c7ca546fe8bbad8b483",
-    "native/bridge/actor_resources_bridge.c": "327352980ad3a6a12d07584c4bc6b4d95dc552ce595c046f9ad895779c856e8e",
+    "native/bridge/actor_resources_bridge.c": "4409a8f4faea84bf0f72e8d5256ecd808971bd7a6268b640093e5f81c3e3010a",
     "native/bridge/demo_core_bridge.c": "bbafae99347a765a6438d167583589d21a1596f41c10369b25adcda98765e6cd",
     "native/bridge/level_projection.h": "d463ba8829671479c3349435080eb7f16ae48551c7a7b0464d27dbc88257df83",
     "native/bridge/level_view_bridge.c": "711962c998445e27ea9a226583f2687f1e378a9a9afa6659b433fbcfdc69f3f3",
@@ -503,7 +506,7 @@
     "src/asm/GAME.ASM": "29c9ead3b191a744c59b465a3bd4de29f2e217b92492cf57edb8c13bc3494204",
     "src/data/DGDATA.ASM": "9d46889e26434a597ed19b91c119029af3dbf3dbcfa9811c4ed5aa18dc157541",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
-    "tools/hostbuild.py": "49f7a3251924a844a5422076bc26cd113fd4aa43a34b3b6c9713ca6d313228be",
+    "tools/hostbuild.py": "d62c759535f05db764a962403b0adae8af60913bed9b8a5cb5ab911a33dc4745",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
@@ -1588,6 +1591,18 @@
         "native/bridge/level_view_bridge.c",
         "tools/hostbuild.py",
         "native/bridge/actor_render_bridge.c"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Reviewed resource catalog and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/resource_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/actor_resources_bridge.c",
+        "tools/hostbuild.py"
       ]
     }
   ]

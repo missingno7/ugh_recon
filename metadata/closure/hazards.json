@@ -625,6 +625,7 @@
       "includes": [
         "../hazards.h",
         "platform.h",
+        "platforms_borrow.h",
         "player_borrow.h",
         "run_borrow.h",
         "ugh.h"
@@ -707,8 +708,8 @@
         "l1_WaitForBirdWarning",
         "lin",
         "logic",
-        "player_read16",
-        "player_write16",
+        "platforms_read16",
+        "platforms_write16",
         "shell_AdvanceTreeRewardCooldown",
         "shell_AnimateTriopterusImpactRecovery",
         "shell_AnimateTriopterusRecovery",
@@ -750,13 +751,13 @@
   "verification_input_hashing": "sha256-lf-text",
   "verification_inputs": {
     "native/hazards.c": "590ad430fc32a4267004492dd602993de903618e7b4da6a79addc0746c692159",
-    "native/bridge/hazards_bridge.c": "497f282828f28a934f157734733b6bbd24d2c3ab50d76421d688ac531b0a592f",
+    "native/bridge/hazards_bridge.c": "e1a14bc65f9dd43a509be49c41d7e7f4f45a5143d5e406f79d63aea8113865b5",
     "native/contacts.c": "f809c3af54ddb43b07b60be870e30e404f0b0456f4542585011cb5108dcc8b15",
-    "native/bridge/contacts_bridge.c": "315249236d90b5127172fb98dae083de832337eb7957c4cbeaf9cac189669889",
+    "native/bridge/contacts_bridge.c": "4eadecd497344d82440b740d38f67fc3aeb3d44b17475317479365f72f172119",
     "native/items.c": "d3ede593a1249fc46da025fc304f90ed8f962a5145a81731c6dc70b2f384b8ec",
-    "native/bridge/items_bridge.c": "7c4eed8ef10f077520da0c96d7969201cbdf555dce59dce9844612b443e4e60a",
+    "native/bridge/items_bridge.c": "9911c74614be8383fd1797fa753cbde14869dbd27177f2b014ddf5dd774870e0",
     "native/level_view.c": "f0b3db5747f718d7c112c721735ca5a497a9b93a6ecb33096223b188b170353d",
-    "native/bridge/level_view_bridge.c": "711962c998445e27ea9a226583f2687f1e378a9a9afa6659b433fbcfdc69f3f3",
+    "native/bridge/level_view_bridge.c": "0be946adae9146d92cd2b0447c6d0edbc83c11eb6ec5cad09468791a60609ebe",
     "native/hazards.h": "9c2086caf6c37a56b8da62cd7a843a13247f2f87d1c5da836158d6dfa0403331",
     "native/contacts.h": "2d329a52985ea628a56afaee703e8b2f84ed9a328e58109c3be4dac3e90c1d29",
     "native/items.h": "167ed4e4d1d4ff78201eb37144bd1b77d6f1d9a6b51b935f0f5ba2142eb55736",
@@ -779,7 +780,7 @@
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
-    "tools/hostbuild.py": "d62c759535f05db764a962403b0adae8af60913bed9b8a5cb5ab911a33dc4745",
+    "tools/hostbuild.py": "8547631a7291cc1ad7a875ff91cc4714066705dd1406c07ac067abe8abd84937",
     "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
     "c/actors.c": "d17c03c844f95780f0647b85aa854a87c3e566b0f56fe89ee0a95d6d689f3ff2",
     "c/actors_states.c": "79a460a0436e773bdd795953f63c6765d71c0e346cdf8bbccbcf707817994447",
@@ -924,6 +925,21 @@
       ],
       "results": "PASS within stated domains",
       "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Ten-slot platform ownership and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/platform_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/hazards_bridge.c",
+        "native/bridge/contacts_bridge.c",
+        "native/bridge/items_bridge.c",
+        "native/bridge/level_view_bridge.c",
         "tools/hostbuild.py"
       ]
     }

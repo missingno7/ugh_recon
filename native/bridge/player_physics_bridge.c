@@ -1,4 +1,9 @@
 #include "platform.h"
+#ifndef PLATFORMS_BORROWER
+#define PLATFORMS_BORROWER PLATFORMS_BORROW_PHYSICS
+#endif
+#include "platforms_borrow.h"
+#include "platform.h"
 #ifndef PLAYER_BORROWER
 #define PLAYER_BORROWER PLAYER_BORROW_PHYSICS
 #endif
@@ -28,7 +33,7 @@ static uint16_t physics_field(PhysicsPlan *p,PlayerPhysicsField field) {
         D(PlayerPlatformIndices),D(PlayerY32),D(PlayerYPixels),D(ScreenFadeStep),D(ScreenFadeLevel)};
     return (uint16_t)(bases[field]+((field==PF_TIMER || field==PF_FADE_RATE || field==PF_FADE_LEVEL)?0:p->index));
 }
-static uint16_t physics_read(Regs *r,uint16_t base) {return player_read16(r->ds,(uint16_t)(base+r->bx));}
+static uint16_t physics_read(Regs *r,uint16_t base) {return platforms_read16(r->ds,(uint16_t)(base+r->bx));}
 static void physics_write(Regs *r,PhysicsPlan *p,uint16_t address,uint16_t expected) {
     uint16_t value=expected;
     if(p->active) {
@@ -36,7 +41,7 @@ static void physics_write(Regs *r,PhysicsPlan *p,uint16_t address,uint16_t expec
         physics_require(!p->process.failed && event.kind==PP_WRITE && physics_field(p,event.field)==address && event.value==expected);
         value=event.value;
     }
-    player_write16(r->ds,address,value);
+    platforms_write16(r->ds,address,value);
 }
 static int physics_projection(Regs *r,PhysicsPlan *p) {
 #ifdef ACTOR_VERIFY
@@ -47,9 +52,9 @@ static int physics_projection(Regs *r,PhysicsPlan *p) {
        v->velocity_y!=physics_read(r,D(PlayerVerticalVelocities)) || v->impact!=physics_read(r,D(PlayerImpactMagnitude)) ||
        v->thrust!=physics_read(r,D(PlayerThrustAnimationRate)) || v->left!=physics_read(r,D(PlayerLeftInput)) ||
        v->right!=physics_read(r,D(PlayerRightInput)) || v->up!=physics_read(r,D(PlayerUpInput)) ||
-       v->down!=physics_read(r,D(PlayerDownInput)) || w->timer!=player_read16(r->ds,D(LevelTimer)) ||
-       w->water_y!=player_read16(r->ds,D(WaterYPixels)) || w->fade_rate!=player_read16(r->ds,D(ScreenFadeStep)) ||
-       w->fade_level!=player_read16(r->ds,D(ScreenFadeLevel)))return 0;
+       v->down!=physics_read(r,D(PlayerDownInput)) || w->timer!=platforms_read16(r->ds,D(LevelTimer)) ||
+       w->water_y!=platforms_read16(r->ds,D(WaterYPixels)) || w->fade_rate!=platforms_read16(r->ds,D(ScreenFadeStep)) ||
+       w->fade_level!=platforms_read16(r->ds,D(ScreenFadeLevel)))return 0;
 #else
     (void)r;(void)p;
 #endif
@@ -70,9 +75,9 @@ static int physics_sample(Regs *r,PhysicsPlan *p,uint16_t return_word) {
         PlayerPhysicsEvent event=player_physics_poll(&p->process);PlayerCollisionProbe probe=event.probe;
         uint16_t x=(uint16_t)(probe.pixel_x+5u);
         uint16_t cell=player_physics_sar(x,2);
-        uint16_t relative=(uint16_t)((int32_t)(int16_t)probe.pixel_y*(int16_t)player_read16(r->ds,D(VgaRowStrideBytes))+cell);
-        uint16_t origin=player_read16(r->cs,G(BackgroundPagePointer));
-        uint16_t segment=player_read16(r->cs,(uint16_t)(G(BackgroundPagePointer)+2));
+        uint16_t relative=(uint16_t)((int32_t)(int16_t)probe.pixel_y*(int16_t)platforms_read16(r->ds,D(VgaRowStrideBytes))+cell);
+        uint16_t origin=platforms_read16(r->cs,G(BackgroundPagePointer));
+        uint16_t segment=platforms_read16(r->cs,(uint16_t)(G(BackgroundPagePointer)+2));
         uint16_t location=(uint16_t)(origin+relative+probe.columns+probe.rows*96u);
         physics_require(!p->process.failed && event.kind==PP_SAMPLE && r->es==segment && r->si==location && physics_projection(r,p));
     }
@@ -89,13 +94,13 @@ static void physics_complete(Regs *r,PhysicsPlan *p) {
 static void physics_open(Regs *r,PhysicsPlan *p) {
     *p=(PhysicsPlan){0};
     if(r->ds!=DATA_SEG || r->cs!=GAME_SEG || (r->bx&1u) || r->bx>=4u)return;
-    uint16_t difficulty=player_read16(r->ds,D(SelectedDifficulty));
+    uint16_t difficulty=platforms_read16(r->ds,D(SelectedDifficulty));
     if(difficulty>=3u)return; /* Corrupt lookup indices can alias live writes. */
     size_t count=0;
     for(;count<10;count++) {
         uint16_t index=(uint16_t)(2u*count);
-        p->platforms[count]=(LevelPlatform){.left=player_read16(r->ds,(uint16_t)(D(PlatformLeftEdges)+index)),
-            .right=player_read16(r->ds,(uint16_t)(D(PlatformRightEdges)+index)),.surface_y=player_read16(r->ds,(uint16_t)(D(PlatformHeights)+index))};
+        p->platforms[count]=(LevelPlatform){.left=platforms_read16(r->ds,(uint16_t)(D(PlatformLeftEdges)+index)),
+            .right=platforms_read16(r->ds,(uint16_t)(D(PlatformRightEdges)+index)),.surface_y=platforms_read16(r->ds,(uint16_t)(D(PlatformHeights)+index))};
         if((int16_t)p->platforms[count].left<0){count++;break;}
     }
     if(count==10 && (int16_t)p->platforms[9].left>=0)return;
@@ -107,9 +112,9 @@ static void physics_open(Regs *r,PhysicsPlan *p) {
         .thrust=physics_read(r,D(PlayerThrustAnimationRate)),.left=physics_read(r,D(PlayerLeftInput)),
         .right=physics_read(r,D(PlayerRightInput)),.up=physics_read(r,D(PlayerUpInput)),.down=physics_read(r,D(PlayerDownInput))};
     uint16_t limit_index=(uint16_t)(difficulty<<1);
-    p->world=(PlayerPhysicsWorld){.timer=player_read16(r->ds,D(LevelTimer)),.water_y=player_read16(r->ds,D(WaterYPixels)),
-        .impact_limit=player_read16(r->ds,(uint16_t)(D(PlayerImpactLimits)+limit_index)),.fade_rate=player_read16(r->ds,D(ScreenFadeStep)),
-        .fade_level=player_read16(r->ds,D(ScreenFadeLevel)),.rain=player_read8(r->ds,D(LevelRainDirection)),.platforms=p->platforms,.platform_count=count};
+    p->world=(PlayerPhysicsWorld){.timer=platforms_read16(r->ds,D(LevelTimer)),.water_y=platforms_read16(r->ds,D(WaterYPixels)),
+        .impact_limit=platforms_read16(r->ds,(uint16_t)(D(PlayerImpactLimits)+limit_index)),.fade_rate=platforms_read16(r->ds,D(ScreenFadeStep)),
+        .fade_level=platforms_read16(r->ds,D(ScreenFadeLevel)),.rain=platforms_read8(r->ds,D(LevelRainDirection)),.platforms=p->platforms,.platform_count=count};
     player_physics_begin(&p->process,&p->player,&p->world);p->active=1;
 }
 
@@ -120,25 +125,25 @@ EXPORT int c_SamplePlayerCollisionPixels(Regs *r) {
         samples[i]=pixel_service_read((VideoCellAddress){{r->es},pixel_collision_position(r->si,i)},PIXEL_COLLISION);
 #else
         static const uint16_t delta[]={0,3,5,0x720,0x723,0x725,0x240,0x245,0x480,0x485};
-        samples[i]=player_read8(r->es,(uint16_t)(r->si+delta[i]));
+        samples[i]=platforms_read8(r->es,(uint16_t)(r->si+delta[i]));
 #endif
     }
     set_al(r,(uint8_t)logic(r,player_collision_sample(samples),8));
     return UGH_OK;
 }
 /* BEGIN CHECKED PLAYER PHYSICS SHELL */
-#define R(n) player_read16(r->ds,D(n))
+#define R(n) platforms_read16(r->ds,D(n))
 #define W(n,v) physics_write(r,plan,D(n),(uint16_t)(v))
-#define RX(n,i) player_read16(r->ds,(uint16_t)(D(n)+(i)))
+#define RX(n,i) platforms_read16(r->ds,(uint16_t)(D(n)+(i)))
 #define WX(n,i,v) physics_write(r,plan,(uint16_t)(D(n)+(i)),(uint16_t)(v))
 #define CALL(n,ret) do { int status=physics_sample(r,plan,ret); if(status) return status; } while(0)
 static uint16_t sar(uint16_t v,unsigned n) {
     return (uint16_t)((v>>n)|((v&0x8000u) ? (0xffffu<<(16-n)) : 0));
 }
 
-static void push(Regs *r,uint16_t v) { r->sp=(uint16_t)(r->sp-2); player_write16(r->ss,r->sp,v); }
+static void push(Regs *r,uint16_t v) { r->sp=(uint16_t)(r->sp-2); platforms_write16(r->ss,r->sp,v); }
 
-static uint16_t pop(Regs *r) { uint16_t v=player_read16(r->ss,r->sp); r->sp=(uint16_t)(r->sp+2); return v; }
+static uint16_t pop(Regs *r) { uint16_t v=platforms_read16(r->ss,r->sp); r->sp=(uint16_t)(r->sp+2); return v; }
 
 static void collision_address(Regs *r) {
     r->ax=RX(PlayerYPixels,r->bx);
@@ -146,8 +151,8 @@ static void collision_address(Regs *r) {
     r->ax=(uint16_t)product; r->dx=(uint16_t)((uint32_t)product>>16);
     r->si=RX(PlayerPixelX,r->bx); r->si=(uint16_t)(r->si+5); r->si=sar(r->si,2);
     r->ax=(uint16_t)(r->ax+r->si);
-    r->si=player_read16(r->cs,G(BackgroundPagePointer));
-    r->es=player_read16(r->cs,(uint16_t)(G(BackgroundPagePointer)+2));
+    r->si=platforms_read16(r->cs,G(BackgroundPagePointer));
+    r->es=platforms_read16(r->cs,(uint16_t)(G(BackgroundPagePointer)+2));
     r->si=(uint16_t)(r->si+r->ax);
 }
 
@@ -164,7 +169,7 @@ static uint16_t limit_velocity(uint16_t v) {
 }
 
 static void reflect_velocity(Regs *r,PhysicsPlan *plan,uint16_t offset) {
-    r->ax=(uint16_t)(0-player_read16(r->ds,offset)); r->ax=sar(r->ax,1);
+    r->ax=(uint16_t)(0-platforms_read16(r->ds,offset)); r->ax=sar(r->ax,1);
     physics_write(r,plan,offset,r->ax); r->ax=(uint16_t)(r->ax<<1);
     if((int16_t)r->ax<0) r->ax=(uint16_t)(0-r->ax);
 }
@@ -176,7 +181,7 @@ EXPORT int c_MovePlayerWithVgaCollisions(Regs *r) { PhysicsPlan storage;physics_
     if((int16_t)r->cx>0) r->cx=(uint16_t)((r->cx&255)|0x100);
     if((int16_t)RX(PlayerPlatformIndices,r->bx)<0) {
         if((int8_t)(r->cx>>8)<0) {
-            set_al(r,player_read8(r->ds,D(LevelRainDirection)));
+            set_al(r,platforms_read8(r->ds,D(LevelRainDirection)));
             if((uint8_t)r->ax) {
                 set_ah(r,0); r->ax=(uint16_t)((((r->ax-1)*2)-1)*32);
                 WX(PlayerHorizontalVelocities,r->bx,RX(PlayerHorizontalVelocities,r->bx)+r->ax);

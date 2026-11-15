@@ -1,3 +1,8 @@
+#include "platform.h"
+#ifndef PLATFORMS_BORROWER
+#define PLATFORMS_BORROWER PLATFORMS_BORROW_RESOURCES
+#endif
+#include "platforms_borrow.h"
 #ifdef UGH_NATIVE_RESOURCES
 #include "resource_catalog_bridge.h"
 #endif
@@ -14,7 +19,7 @@
 #include "actor_projection.h"
 static uint16_t actor_type_identity(size_t index) { return (uint16_t)(D(Data_7720)+74u*index); }
 static uint16_t actor_read(uint16_t segment,uint16_t base,size_t index) {
-    return player_read16(segment,(uint16_t)(base+2u*index));
+    return platforms_read16(segment,(uint16_t)(base+2u*index));
 }
 const ActorType *actor_bridge_type(const ActorResourceStorage *storage,uint16_t identity) {
     for(size_t i=0;i<ACTOR_TYPE_COUNT;i++) if(identity==actor_type_identity(i)) return &storage->types[i];
@@ -23,17 +28,17 @@ const ActorType *actor_bridge_type(const ActorResourceStorage *storage,uint16_t 
 int actor_bridge_resources(uint16_t segment,ActorResourceStorage *storage) {
     for(size_t i=0;i<ACTOR_TYPE_COUNT;i++) {
         uint16_t base=actor_type_identity(i);uint8_t raw[74];ActorAnimation animations[ACTOR_ANIMATION_COUNT];
-        for(size_t j=0;j<74;j++) raw[j]=player_read8(segment,(uint16_t)(base+j));
+        for(size_t j=0;j<74;j++) raw[j]=platforms_read8(segment,(uint16_t)(base+j));
         for(size_t j=0;j<ACTOR_ANIMATION_COUNT;j++) {
-            uint16_t p=player_read16(segment,(uint16_t)(base+46+2*j));size_t count=0;
+            uint16_t p=platforms_read16(segment,(uint16_t)(base+46+2*j));size_t count=0;
             if(p) for(;;) {
                 if(p>65533u || count==ACTOR_RESOURCE_LIMIT) return 0;
-                uint16_t sprite=player_read16(segment,p); if(sprite==65535u) break;
+                uint16_t sprite=platforms_read16(segment,p); if(sprite==65535u) break;
                 storage->animation_words[i][j][count++]=sprite;p=(uint16_t)(p+2);
             }
             animations[j].sprites=storage->animation_words[i][j];animations[j].count=count;
         }
-        uint16_t pair=player_read16(segment,(uint16_t)(base+72));
+        uint16_t pair=platforms_read16(segment,(uint16_t)(base+72));
         const ActorType *paired=pair ? actor_bridge_type(storage,pair) : 0;
         if(pair && !paired) return 0;
         storage->types[i]=actor_type_resource((ActorTypeId)i,raw,animations,paired);
@@ -42,9 +47,9 @@ int actor_bridge_resources(uint16_t segment,ActorResourceStorage *storage) {
 }
 int actor_bridge_journey(uint16_t segment,uint16_t base,PassengerJourneyLeg *legs,PassengerJourney *journey) {
     size_t count=0;uint16_t p=base;
-    while(player_read16(segment,p)!=65535u) {
+    while(platforms_read16(segment,p)!=65535u) {
         if(count==ACTOR_RESOURCE_LIMIT || p>65531u) return 0;
-        legs[count].platform=player_read16(segment,p);legs[count].wait=player_read16(segment,(uint16_t)(p+2));
+        legs[count].platform=platforms_read16(segment,p);legs[count].wait=platforms_read16(segment,(uint16_t)(p+2));
         count++;p=(uint16_t)(p+4);
     }
     journey->legs=legs;journey->count=count;return 1;
@@ -52,25 +57,25 @@ int actor_bridge_journey(uint16_t segment,uint16_t base,PassengerJourneyLeg *leg
 int actor_bridge_level(uint16_t segment,uint16_t record,const LevelDescription *level,
     const ActorResourceStorage *resources,ActorLevelStorage *storage) {
     if(level->actor_count>=ACTOR_CAPACITY) return 0;
-    uint16_t p=player_read16(segment,(uint16_t)(record+4));
+    uint16_t p=platforms_read16(segment,(uint16_t)(record+4));
     for(size_t i=0;i<level->actor_count;i++,p=(uint16_t)(p+6)) {
         if(p>65529u) return 0;
         ActorLevelEntry *entry=&storage->entries[i];
-        entry->type=actor_bridge_type(resources,player_read16(segment,p));if(!entry->type) return 0;
-        entry->initial_platform=player_read16(segment,(uint16_t)(p+2));
+        entry->type=actor_bridge_type(resources,platforms_read16(segment,p));if(!entry->type) return 0;
+        entry->initial_platform=platforms_read16(segment,(uint16_t)(p+2));
         entry->journey=(PassengerJourney){0,0};
-        if(entry->type->id<ACTOR_STONE && !actor_bridge_journey(segment,player_read16(segment,(uint16_t)(p+4)),storage->legs[i],&entry->journey)) return 0;
+        if(entry->type->id<ACTOR_STONE && !actor_bridge_journey(segment,platforms_read16(segment,(uint16_t)(p+4)),storage->legs[i],&entry->journey)) return 0;
     }
-    return player_read16(segment,p)==65535u;
+    return platforms_read16(segment,p)==65535u;
 }
 int actor_bridge_scripts(uint16_t segment,DemoResourceStorage *storage) {
     static const uint16_t tables[]={0x1020,0x1792,0x1e40,0x24de,0x2614};
     storage->count=0;
     for(size_t v=0;v<4;v++) {
         uint16_t starts[ACTOR_CAPACITY];size_t count=0;
-        for(uint16_t p=tables[v];player_read16(segment,p)!=65535u;p=(uint16_t)(p+2)) {
+        for(uint16_t p=tables[v];platforms_read16(segment,p)!=65535u;p=(uint16_t)(p+2)) {
             if(count==ACTOR_CAPACITY-1) return 0;
-            starts[count++]=player_read16(segment,p);
+            starts[count++]=platforms_read16(segment,p);
         }
         for(size_t i=0;i<count;i++) {
             uint16_t begin=starts[i],end=tables[v+1];
@@ -78,9 +83,9 @@ int actor_bridge_scripts(uint16_t segment,DemoResourceStorage *storage) {
             if(storage->count==DEMO_SCRIPT_COUNT || end<begin+10u || (size_t)(end-begin-8)>DEMO_CODE_LIMIT) return 0;
             size_t n=storage->count++;DemoMotionScript *script=&storage->scripts[n];
             storage->headers[n]=begin;
-            script->initial_pixel_x=player_read16(segment,begin);script->initial_pixel_y=player_read16(segment,(uint16_t)(begin+2));
-            script->period=player_read16(segment,(uint16_t)(begin+4));
-            uint16_t handler=player_read16(segment,(uint16_t)(begin+6));
+            script->initial_pixel_x=platforms_read16(segment,begin);script->initial_pixel_y=platforms_read16(segment,(uint16_t)(begin+2));
+            script->period=platforms_read16(segment,(uint16_t)(begin+4));
+            uint16_t handler=platforms_read16(segment,(uint16_t)(begin+6));
 #ifdef UGH_NATIVE_RESOURCES
             ResourceToken effect;
             if(!resource_effect_from_legacy(handler,&effect) || resource_effect(effect,&script->effect)!=RESOURCE_OK)return 0;
@@ -91,7 +96,7 @@ int actor_bridge_scripts(uint16_t segment,DemoResourceStorage *storage) {
             else return 0;
 #endif
             script->code=storage->code[n];script->code_size=end-begin-8u;
-            for(size_t j=0;j<script->code_size;j++) storage->code[n][j]=player_read8(segment,(uint16_t)(begin+8+j));
+            for(size_t j=0;j<script->code_size;j++) storage->code[n][j]=platforms_read8(segment,(uint16_t)(begin+8+j));
             size_t p=0;
             while(p<script->code_size) {
                 if(script->code_size-p<2) return 0;
@@ -161,7 +166,7 @@ int actor_bridge_alias_project(uint16_t segment,size_t index,ActorPhase phase,Pa
     if(valid&ACTOR_ALIAS_REQUEST_TICKS) slot->request_ticks=actor_read(segment,D(ActorPhaseOrDemoLoopCursor),index);
     if(valid&ACTOR_ALIAS_CARRIER) {
         uint16_t value=actor_read(segment,D(ActorPhaseOrDemoLoopCursor),index);
-        if(value!=0 && (value!=2 || player_read16(segment,D(PlayerCount))!=2)) return 0;
+        if(value!=0 && (value!=2 || platforms_read16(segment,D(PlayerCount))!=2)) return 0;
         slot->carrier=value/2u;
     }
     if(valid&ACTOR_ALIAS_JOURNEY_WAIT) slot->journey_wait=actor_read(segment,D(ActorMotionWaitOrDemoRepeats),index);

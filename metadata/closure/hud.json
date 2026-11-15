@@ -1441,6 +1441,7 @@
         "../hud.h",
         "pixel_io.h",
         "platform.h",
+        "platforms_borrow.h",
         "player_borrow.h",
         "run_borrow.h",
         "stdlib.h",
@@ -1483,10 +1484,10 @@
         "pixel_store",
         "platform_in",
         "platform_out",
-        "player_read16",
-        "player_read8",
-        "player_write16",
-        "player_write8",
+        "platforms_read16",
+        "platforms_read8",
+        "platforms_write16",
+        "platforms_write8",
         "rd8",
         "set_al",
         "wr8"
@@ -1497,6 +1498,7 @@
         "hud_support.h",
         "pixel_io.h",
         "platform.h",
+        "platforms_borrow.h",
         "player_borrow.h",
         "run_borrow.h"
       ],
@@ -1563,10 +1565,10 @@
         "pixel_store",
         "platform_in",
         "platform_out",
-        "player_read16",
-        "player_read8",
-        "player_write16",
-        "player_write8",
+        "platforms_read16",
+        "platforms_read8",
+        "platforms_write16",
+        "platforms_write8",
         "pop",
         "push",
         "rd8",
@@ -2099,12 +2101,12 @@
   "verification_inputs": {
     "native/hud.h": "186b7d5953017351c3be9f803642d119e83774c7aa5adc0d2405c1a99d2eb74b",
     "native/hud.c": "f1b1d550b3afe997828e4154b95e290803d9f32461e66ab6f2da86620d4ae53c",
-    "native/bridge/hud_support.h": "f8e3d0273816a9b978b1342862aa26cb122b0648c4fa69fd87d6e0b2f5f6e017",
-    "native/bridge/hud_bridge.c": "d706b7270eec86471794c6821ee84ffe711355462075d546cb9f49c862061e9a",
+    "native/bridge/hud_support.h": "90e8d5095e5b2291ad53991535b876541cb8b3a31970ee18db1f4d0e39b206de",
+    "native/bridge/hud_bridge.c": "20826a77dfc2e68979d2fedc1a5935c3738b9f0002a2d8d8c064d9cc3f4bf6ea",
     "native/render_primitives.h": "00384fd765781b6cfef3568aba6a2641ddedb7064e0730b41284e7612aeb32d1",
     "native/render_primitives.c": "a18ecef8c5f203a8b881fd35169c5914cab2033af6531584831b2fa53c9b0bad",
-    "native/bridge/render_primitives_support.h": "1bcb5a194e42fe1e3df5e8f121abd60c1ebba08f107ea348cf57dd3a53c2d227",
-    "native/bridge/render_primitives_bridge.c": "9f2eef6540c19836b3dbd49db0024b47e2a40fb754b3ef7c91b8af84c94a620f",
+    "native/bridge/render_primitives_support.h": "799f53a5fd196105903efdadedc002391291dd9b7778da513ed4f4165cc9e6f5",
+    "native/bridge/render_primitives_bridge.c": "61c966018acd8281162428dd680dd7dc07f1e1a7236f7af93d5ec5bc396e361d",
     "verif/hud_baseline.py": "6d8bc529177930a1b7ef535ccfaecf71bb65822df62975cc14718e249e8998c1",
     "verif/hud_build.py": "1bda0045d2fc40bf44bc3ce3924229d8ea26416b66ed2f5c529d2f72604121b5",
     "verif/hud_cases.py": "51c3d6ff2638c09df3779c57133452e9f81516df0380eec7d06d40ee36f22293",
@@ -2210,7 +2212,7 @@
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
-    "tools/hostbuild.py": "d62c759535f05db764a962403b0adae8af60913bed9b8a5cb5ab911a33dc4745",
+    "tools/hostbuild.py": "8547631a7291cc1ad7a875ff91cc4714066705dd1406c07ac067abe8abd84937",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
@@ -2354,6 +2356,21 @@
       ],
       "results": "PASS within stated domains",
       "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Ten-slot platform ownership and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/platform_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/hud_support.h",
+        "native/bridge/hud_bridge.c",
+        "native/bridge/render_primitives_support.h",
+        "native/bridge/render_primitives_bridge.c",
         "tools/hostbuild.py"
       ]
     }

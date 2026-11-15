@@ -1,4 +1,9 @@
 #include "platform.h"
+#ifndef PLATFORMS_BORROWER
+#define PLATFORMS_BORROWER PLATFORMS_BORROW_HUD
+#endif
+#include "platforms_borrow.h"
+#include "platform.h"
 #ifndef PLAYER_BORROWER
 #define PLAYER_BORROWER PLAYER_BORROW_HUD
 #endif
@@ -10,9 +15,9 @@
 #include "run_borrow.h"
 #include "pixel_io.h"
 #include "hud_support.h"
-static void push(Regs *r,uint16_t v) { r->sp=(uint16_t)(r->sp-2); player_write16(r->ss,r->sp,v); }
+static void push(Regs *r,uint16_t v) { r->sp=(uint16_t)(r->sp-2); platforms_write16(r->ss,r->sp,v); }
 
-static uint16_t pop(Regs *r) { uint16_t v=player_read16(r->ss,r->sp); r->sp=(uint16_t)(r->sp+2); return v; }
+static uint16_t pop(Regs *r) { uint16_t v=platforms_read16(r->ss,r->sp); r->sp=(uint16_t)(r->sp+2); return v; }
 
 static void cmp8(Regs *r,uint8_t a,uint8_t b) {
     uint8_t v=(uint8_t)(a-b);
@@ -23,21 +28,21 @@ static void cmp8(Regs *r,uint8_t a,uint8_t b) {
 static void set_bl(Regs *r,uint8_t v) { r->bx=(uint16_t)((r->bx&0xff00u)|v); }
 
 #define CALL(target,owner,delta) do { int status=PIXEL_CALL(target,(uint16_t)(G(owner)+(delta))); if(status) return status; } while(0)
-#define R(name) player_read16(r->ds,D(name))
-#define W(name,v) player_write16(r->ds,D(name),(uint16_t)(v))
-#define B(name) player_read8(r->ds,D(name))
-#define WB(name,v) player_write8(r->ds,D(name),(uint8_t)(v))
-#define RI(name,i) player_read16(r->ds,(uint16_t)(D(name)+(i)))
-#define WI(name,i,v) player_write16(r->ds,(uint16_t)(D(name)+(i)),(uint16_t)(v))
+#define R(name) platforms_read16(r->ds,D(name))
+#define W(name,v) platforms_write16(r->ds,D(name),(uint16_t)(v))
+#define B(name) platforms_read8(r->ds,D(name))
+#define WB(name,v) platforms_write8(r->ds,D(name),(uint8_t)(v))
+#define RI(name,i) platforms_read16(r->ds,(uint16_t)(D(name)+(i)))
+#define WI(name,i,v) platforms_write16(r->ds,(uint16_t)(D(name)+(i)),(uint16_t)(v))
 #define HW(n,v) hd_store(r,&plan,D(n),(uint16_t)(v),2)
 #define HWB(n,v) hd_store(r,&plan,D(n),(uint8_t)(v),1)
 #define HP_CALL(target,owner,delta) do{hd_service(r,&plan,G(target));int status=PIXEL_CALL(target,(uint16_t)(G(owner)+(delta)));if(status)return status;hd_returned(&plan);}while(0)
 static int changed_digits(Regs *r) {
     r->si=logic(r,0,16);
     for(;;) {
-        set_al(r,player_read8(r->ds,(uint16_t)(D(DecimalDigitBuffer)+r->si)));
+        set_al(r,platforms_read8(r->ds,(uint16_t)(D(DecimalDigitBuffer)+r->si)));
         cmp8(r,(uint8_t)r->ax,255); if((uint8_t)r->ax==255) {HudDigitDecision end=hud_changed_digit((uint8_t)r->ax,0,R(HudDigitCursorX),r->si);hd_require(end.done && !end.draw);return UGH_OK;}
-        uint8_t old=player_read8(r->ds,(uint16_t)((D(DecimalDigitBuffer)+7)+r->si));
+        uint8_t old=platforms_read8(r->ds,(uint16_t)((D(DecimalDigitBuffer)+7)+r->si));
         HudDigitDecision decision=hud_changed_digit((uint8_t)r->ax,old,R(HudDigitCursorX),r->si);hd_require(!decision.done);unsigned consumed=0;
         cmp8(r,(uint8_t)r->ax,old);
         if((uint8_t)r->ax!=old) { hd_require(decision.draw);consumed++;CALL(DrawHudDigit,RedrawChangedFourDigitNumber,0x27); }
@@ -191,9 +196,9 @@ timer:
     if((int16_t)r->ax<(int16_t)R(CachedTimerBarWidth)) {
         r->bp=r->ax; r->bx=logic(r,r->ax&3,16);
         r->dx=0x3c4; set_al(r,2); pixel_out(r->dx,1,(uint8_t)r->ax);
-        r->dx=0x3c5; set_al(r,hd_mask(&plan,0,r->bx,player_read8(r->ds,(uint16_t)(D(VgaSinglePlaneMasks)+r->bx))));
+        r->dx=0x3c5; set_al(r,hd_mask(&plan,0,r->bx,platforms_read8(r->ds,(uint16_t)(D(VgaSinglePlaneMasks)+r->bx))));
         pixel_out(r->dx,1,(uint8_t)r->ax); r->bp>>=2;
-        r->si=R(TimerBarPointer); r->ds=player_read16(r->ds,D(TimerBarPointer)+2);
+        r->si=R(TimerBarPointer); r->ds=platforms_read16(r->ds,D(TimerBarPointer)+2);
         r->si=add16(r,r->si,r->bp,0); set_al(r,(uint8_t)logic(r,0,8));
         hd_bar_pixels(r,&plan,(uint8_t)r->ax,0);
         set_al(r,15); pixel_out(r->dx,1,(uint8_t)r->ax);
@@ -201,9 +206,9 @@ timer:
         r->di=(uint16_t)(R(CachedTimerBarWidth)>>2); r->ax=dec16(r,r->ax);
         r->bp=r->ax; r->bx=logic(r,r->ax&3,16);
         r->dx=0x3c4; set_al(r,2); pixel_out(r->dx,1,(uint8_t)r->ax);
-        r->dx=0x3c5; set_al(r,hd_mask(&plan,1,r->bx,player_read8(r->ds,(uint16_t)(D(VgaCumulativePlaneMasks)+r->bx))));
+        r->dx=0x3c5; set_al(r,hd_mask(&plan,1,r->bx,platforms_read8(r->ds,(uint16_t)(D(VgaCumulativePlaneMasks)+r->bx))));
         pixel_out(r->dx,1,(uint8_t)r->ax); r->bp>>=2;
-        r->si=R(TimerBarPointer); r->ds=player_read16(r->ds,D(TimerBarPointer)+2);
+        r->si=R(TimerBarPointer); r->ds=platforms_read16(r->ds,D(TimerBarPointer)+2);
         r->si=add16(r,r->si,r->bp,0); set_al(r,50);
         hd_bar_pixels(r,&plan,(uint8_t)r->ax,0);
         set_al(r,15); pixel_out(r->dx,1,(uint8_t)r->ax);

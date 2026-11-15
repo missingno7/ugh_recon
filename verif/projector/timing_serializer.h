@@ -22,6 +22,9 @@
 #ifdef UGH_NATIVE_PLAYER
 #include "player_world_bridge.h"
 #endif
+#ifdef UGH_NATIVE_PLATFORMS
+#include "platform_world_bridge.h"
+#endif
 #ifdef UGH_NATIVE_RESOURCES
 #include "resource_catalog_bridge.h"
 #endif
@@ -61,6 +64,9 @@ static inline const uint8_t *project_timing_observation(const uint8_t *machine) 
 #ifdef UGH_NATIVE_RESOURCES
     resources_require_seal(machine);
 #endif
+#ifdef UGH_NATIVE_PLATFORMS
+    platforms_require_seal(machine);
+#endif
     memcpy(observation,machine,sizeof observation);
     timing_serialize(observation);
 #ifdef UGH_NATIVE_PALETTE
@@ -98,6 +104,10 @@ static inline const uint8_t *project_timing_observation(const uint8_t *machine) 
 #ifdef UGH_NATIVE_RESOURCES
     resources_serialize(observation);
     if(resources_check_serialization(observation)!=UINT32_MAX){fputs("resources: missed serialization\n",stderr);exit(88);}
+#endif
+#ifdef UGH_NATIVE_PLATFORMS
+    platforms_serialize(observation);
+    if(platforms_check_serialization(observation)!=UINT32_MAX){fputs("platforms: missed serialization\n",stderr);exit(88);}
 #endif
     if(timing_check_serialization(observation)!=UINT32_MAX){
         fputs("timing: missed owned serialization\n",stderr);exit(88);

@@ -1,4 +1,9 @@
 #include "platform.h"
+#ifndef PLATFORMS_BORROWER
+#define PLATFORMS_BORROWER PLATFORMS_BORROW_DEMO
+#endif
+#include "platforms_borrow.h"
+#include "platform.h"
 #ifndef PLAYER_BORROWER
 #define PLAYER_BORROWER PLAYER_BORROW_DEMO
 #endif
@@ -15,11 +20,11 @@ int l1_AdvanceDemoScripts(Regs *r);
 int l1_TestAllDemoScriptsFinished(Regs *r);
 static int demo_bridge_environment(const Regs *r) {
     return r->ds==DATA_SEG && r->cs==GAME_SEG && !(r->flags&DF) &&
-        player_read16(r->cs,G(DemoRevealWidthPointer))==UGH_O_B5B63_SpriteDirectory_214+2 &&
-        player_read16(r->cs,(uint16_t)(G(DemoRevealWidthPointer)+2))==UGH_S_B5B63_SpriteDirectory_214;
+        platforms_read16(r->cs,G(DemoRevealWidthPointer))==UGH_O_B5B63_SpriteDirectory_214+2 &&
+        platforms_read16(r->cs,(uint16_t)(G(DemoRevealWidthPointer)+2))==UGH_S_B5B63_SpriteDirectory_214;
 }
 static void demo_bridge_word(Regs *r,uint16_t base,size_t i,uint16_t value) {
-    player_write16(r->ds,(uint16_t)(base+2*i),value);
+    platforms_write16(r->ds,(uint16_t)(base+2*i),value);
 }
 static int demo_bridge_advance(Regs *r,DemoResourceStorage *resources,DemoMotionScene *scene) {
     DemoStep effects[ACTOR_CAPACITY];
@@ -67,7 +72,7 @@ EXPORT int c_InitializeDemoScripts(Regs *r) {
      * fixtures continue to execute the independent literal implementation. */
     if(r->si!=0x1020 && r->si!=0x1792 && r->si!=0x1e40 && r->si!=0x24de) return l1_InitializeDemoScripts(r);
     for(;;) {
-        uint16_t header=player_read16(r->ds,(uint16_t)(r->si+2*count));
+        uint16_t header=platforms_read16(r->ds,(uint16_t)(r->si+2*count));
         if(header==65535u) break;
         if(count==ACTOR_CAPACITY-1) return l1_InitializeDemoScripts(r);
         size_t n=0;while(n<resources.count && resources.headers[n]!=header) n++;
@@ -83,7 +88,7 @@ EXPORT int c_InitializeDemoScripts(Regs *r) {
         demo_bridge_word(r,D(ActorPixelY),i,h->pixel_y);demo_bridge_word(r,D(ActorPreviousDrawY),i,h->previous_y);
         demo_bridge_word(r,D(ActorX32),i,slot->position.x32);demo_bridge_word(r,D(ActorY32),i,slot->position.y32);
         demo_bridge_word(r,D(ActorVerticalOrDemoPeriod),i,slot->script->period);
-        demo_bridge_word(r,D(ActorOverlayOrScriptCallbacks),i,player_read16(r->ds,(uint16_t)(resources.headers[n]+6)));
+        demo_bridge_word(r,D(ActorOverlayOrScriptCallbacks),i,platforms_read16(r->ds,(uint16_t)(resources.headers[n]+6)));
         demo_bridge_word(r,D(ActorUpdateOrScriptCursor),i,(uint16_t)(resources.headers[n]+8));
         demo_bridge_word(r,D(ActorAnimationCountdowns),i,1);demo_bridge_word(r,D(ActorMotionWaitOrDemoRepeats),i,0);
         demo_bridge_word(r,D(ActorPlatformOrScriptDone),i,0);
@@ -104,9 +109,9 @@ EXPORT int c_TestAllDemoScriptsFinished(Regs *r) {
     DemoMotionScene scene;scene.count=0;
     if(!demo_bridge_environment(r)) return l1_TestAllDemoScriptsFinished(r);
     for(size_t i=0;i<ACTOR_CAPACITY;i++) {
-        if(player_read16(r->ds,(uint16_t)(D(ActorUpdateOrScriptCursor)+2*i))==65535u) {scene.count=i;break;}
+        if(platforms_read16(r->ds,(uint16_t)(D(ActorUpdateOrScriptCursor)+2*i))==65535u) {scene.count=i;break;}
         if(i==ACTOR_CAPACITY-1) return l1_TestAllDemoScriptsFinished(r);
-        uint16_t done=player_read16(r->ds,(uint16_t)(D(ActorPlatformOrScriptDone)+2*i));
+        uint16_t done=platforms_read16(r->ds,(uint16_t)(D(ActorPlatformOrScriptDone)+2*i));
         scene.slots[i].finished=done!=0;scene.count=i+1;
     }
     int finished=demo_all_finished(&scene);

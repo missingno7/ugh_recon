@@ -1,4 +1,9 @@
 #include "platform.h"
+#ifndef PLATFORMS_BORROWER
+#define PLATFORMS_BORROWER PLATFORMS_BORROW_INPUT
+#endif
+#include "platforms_borrow.h"
+#include "platform.h"
 #ifndef PLAYER_BORROWER
 #define PLAYER_BORROWER PLAYER_BORROW_INPUT
 #endif
@@ -19,21 +24,21 @@
 /* The only binding of native input decisions to DOS fields, ports, vectors,
  * timing deliveries and near/interrupt frames. No endpoint fallback. */
 static void push(Regs *r,uint16_t x) {
-    r->sp=(uint16_t)(r->sp-2); player_write16(r->ss,r->sp,x);
+    r->sp=(uint16_t)(r->sp-2); platforms_write16(r->ss,r->sp,x);
 }
 static uint16_t pop(Regs *r) {
-    uint16_t x=player_read16(r->ss,r->sp); r->sp=(uint16_t)(r->sp+2); return x;
+    uint16_t x=platforms_read16(r->ss,r->sp); r->sp=(uint16_t)(r->sp+2); return x;
 }
 static InputState input_project(uint16_t bank) {
-    InputState state={0};state.latest_scan=player_read8(GAME_SEG,G(LatestInterruptScanCode));
-    state.current_scan=player_read8(bank,D(CurrentKeyboardScanCode));state.previous_scan=player_read8(bank,D(PreviousPolledScanCode));state.change=player_read8(bank,D(KeyboardScanCodeChangeBits));state.sequence_index=player_read8(bank,D(KeyboardSequenceIndex));
-    state.enabled_axes=player_read8(bank,D(JoystickEnabledAxisMask));state.loop_limit=player_read16(bank,D(JoystickSampleLoopLimit));state.player_count=player_read16(bank,D(PlayerCount));
-    for(unsigned i=0;i<2;i++) {uint16_t d=(uint16_t)(2u*i);InputJoystick *j=&state.joysticks[i];state.control_mode[i]=player_read16(bank,(uint16_t)(D(PlayerOneControlMode)+d));
-        j->present=player_read16(bank,(uint16_t)(D(JoystickPresentFlags)+d));j->x=player_read16(bank,(uint16_t)(D(FirstJoystickXCount)+d));j->y=player_read16(bank,(uint16_t)(D(FirstJoystickYCount)+d));j->buttons=player_read16(bank,(uint16_t)(D(JoystickButtonBits)+d));
-        j->double_x=player_read16(bank,(uint16_t)(D(FirstJoystickXDoubleCenter)+d));j->double_y=player_read16(bank,(uint16_t)(D(FirstJoystickYDoubleCenter)+d));j->left=player_read16(bank,(uint16_t)(D(JoystickLeftThresholds)+d));j->right=player_read16(bank,(uint16_t)(D(JoystickRightThresholds)+d));j->up=player_read16(bank,(uint16_t)(D(JoystickUpThresholds)+d));j->down=player_read16(bank,(uint16_t)(D(JoystickDownThresholds)+d));
-        InputCommands *c=&state.commands[i];c->up=player_read16(bank,(uint16_t)(D(PlayerUpInput)+d));c->down=player_read16(bank,(uint16_t)(D(PlayerDownInput)+d));c->left=player_read16(bank,(uint16_t)(D(PlayerLeftInput)+d));c->right=player_read16(bank,(uint16_t)(D(PlayerRightInput)+d));c->action=player_read16(bank,(uint16_t)(D(PlayerActionInput)+d));
+    InputState state={0};state.latest_scan=platforms_read8(GAME_SEG,G(LatestInterruptScanCode));
+    state.current_scan=platforms_read8(bank,D(CurrentKeyboardScanCode));state.previous_scan=platforms_read8(bank,D(PreviousPolledScanCode));state.change=platforms_read8(bank,D(KeyboardScanCodeChangeBits));state.sequence_index=platforms_read8(bank,D(KeyboardSequenceIndex));
+    state.enabled_axes=platforms_read8(bank,D(JoystickEnabledAxisMask));state.loop_limit=platforms_read16(bank,D(JoystickSampleLoopLimit));state.player_count=platforms_read16(bank,D(PlayerCount));
+    for(unsigned i=0;i<2;i++) {uint16_t d=(uint16_t)(2u*i);InputJoystick *j=&state.joysticks[i];state.control_mode[i]=platforms_read16(bank,(uint16_t)(D(PlayerOneControlMode)+d));
+        j->present=platforms_read16(bank,(uint16_t)(D(JoystickPresentFlags)+d));j->x=platforms_read16(bank,(uint16_t)(D(FirstJoystickXCount)+d));j->y=platforms_read16(bank,(uint16_t)(D(FirstJoystickYCount)+d));j->buttons=platforms_read16(bank,(uint16_t)(D(JoystickButtonBits)+d));
+        j->double_x=platforms_read16(bank,(uint16_t)(D(FirstJoystickXDoubleCenter)+d));j->double_y=platforms_read16(bank,(uint16_t)(D(FirstJoystickYDoubleCenter)+d));j->left=platforms_read16(bank,(uint16_t)(D(JoystickLeftThresholds)+d));j->right=platforms_read16(bank,(uint16_t)(D(JoystickRightThresholds)+d));j->up=platforms_read16(bank,(uint16_t)(D(JoystickUpThresholds)+d));j->down=platforms_read16(bank,(uint16_t)(D(JoystickDownThresholds)+d));
+        InputCommands *c=&state.commands[i];c->up=platforms_read16(bank,(uint16_t)(D(PlayerUpInput)+d));c->down=platforms_read16(bank,(uint16_t)(D(PlayerDownInput)+d));c->left=platforms_read16(bank,(uint16_t)(D(PlayerLeftInput)+d));c->right=platforms_read16(bank,(uint16_t)(D(PlayerRightInput)+d));c->action=platforms_read16(bank,(uint16_t)(D(PlayerActionInput)+d));
     }
-    for(unsigned i=0;i<4;i++) state.calibration_reset_words[i]=player_read16(bank,(uint16_t)(D(ds_3321)+2u*i));
+    for(unsigned i=0;i<4;i++) state.calibration_reset_words[i]=platforms_read16(bank,(uint16_t)(D(ds_3321)+2u*i));
     return state;
 }
 static int input_key_run(Regs *r,uint16_t bank,InputKeyWork *work,int installation) {
@@ -43,15 +48,15 @@ static int input_key_run(Regs *r,uint16_t bank,InputKeyWork *work,int installati
         switch(request.action) {
         case INPUT_KEY_DONE:return UGH_OK;
         case INPUT_KEY_BOUND:return UGH_BUDGET;
-        case INPUT_KEY_READ_TABLE:reply=player_read8(bank,(uint16_t)(D(KeyboardSequenceRecords)+request.position));break;
+        case INPUT_KEY_READ_TABLE:reply=platforms_read8(bank,(uint16_t)(D(KeyboardSequenceRecords)+request.position));break;
         case INPUT_KEY_WRITE_TABLE:
-            player_write8(bank,(uint16_t)(D(KeyboardSequenceRecords)+request.position),request.value);
+            platforms_write8(bank,(uint16_t)(D(KeyboardSequenceRecords)+request.position),request.value);
             if(installation) r->si=add16(r,r->si,6,0);
             break;
-        case INPUT_KEY_READ_MODE:reply=player_read16(bank,(uint16_t)(D(PlayerOneControlMode)+request.position));break;
-        case INPUT_KEY_READ_INDEX:reply=player_read8(bank,D(KeyboardSequenceIndex));break;
-        case INPUT_KEY_WRITE_INDEX:player_write8(bank,D(KeyboardSequenceIndex),request.value);break;
-        case INPUT_KEY_WRITE_ACTION:player_write8(bank,(uint16_t)(D(PlayerUpInput)+request.position),request.value);break;
+        case INPUT_KEY_READ_MODE:reply=platforms_read16(bank,(uint16_t)(D(PlayerOneControlMode)+request.position));break;
+        case INPUT_KEY_READ_INDEX:reply=platforms_read8(bank,D(KeyboardSequenceIndex));break;
+        case INPUT_KEY_WRITE_INDEX:platforms_write8(bank,D(KeyboardSequenceIndex),request.value);break;
+        case INPUT_KEY_WRITE_ACTION:platforms_write8(bank,(uint16_t)(D(PlayerUpInput)+request.position),request.value);break;
         default:return UGH_UNSUPPORTED;
         }
     }
@@ -65,7 +70,7 @@ EXPORT int c_HandleKeyboardScanInterrupt(Regs *r) {
 #else
     uint8_t scan=(uint8_t)platform_in(0x60,1);if(ugh_devices.error) return UGH_UNSUPPORTED;
 #endif
-    player_write8(r->cs,G(LatestInterruptScanCode),scan);InputKeyWork work=input_key_begin(scan,player_read8(DATA_SEG,D(KeyboardSequenceIndex)),0);
+    platforms_write8(r->cs,G(LatestInterruptScanCode),scan);InputKeyWork work=input_key_begin(scan,platforms_read8(DATA_SEG,D(KeyboardSequenceIndex)),0);
     int status=input_key_run(r,DATA_SEG,&work,0);if(status) return status;
 #ifdef UGH_NATIVE_INPUT
     input_service_acknowledge_scan();
@@ -81,9 +86,9 @@ EXPORT int c_PollKeyboardScanChange(Regs *r) {
     int status=platform_service_point_at(SERVICE_IO,r->cs,G(PollKeyboardScanChange),r);
 #endif
     if(status)return status;
-    InputState state=input_project(r->ds);input_state_scan(&state,player_read8(GAME_SEG,G(LatestInterruptScanCode)));
-    player_write8(r->ds,D(PreviousPolledScanCode),state.previous_scan);player_write8(r->ds,D(CurrentKeyboardScanCode),state.current_scan);
-    set_al(r,state.current_scan);set_ah(r,(uint8_t)logic(r,state.change,8));player_write8(r->ds,D(KeyboardScanCodeChangeBits),state.change);return UGH_OK;
+    InputState state=input_project(r->ds);input_state_scan(&state,platforms_read8(GAME_SEG,G(LatestInterruptScanCode)));
+    platforms_write8(r->ds,D(PreviousPolledScanCode),state.previous_scan);platforms_write8(r->ds,D(CurrentKeyboardScanCode),state.current_scan);
+    set_al(r,state.current_scan);set_ah(r,(uint8_t)logic(r,state.change,8));platforms_write8(r->ds,D(KeyboardScanCodeChangeBits),state.change);return UGH_OK;
 }
 EXPORT int c_InstallKeyboardSequenceInterrupt(Regs *r) {
     set_al(r,0);logic(r,0,8);r->si=logic(r,0,16);InputKeyWork work=input_key_begin(0,0,1);
@@ -93,7 +98,7 @@ EXPORT int c_InstallKeyboardSequenceInterrupt(Regs *r) {
     #ifdef UGH_NATIVE_INPUT
     r->ax=input_service_queue_flush();
 #else
-    r->ax=player_read16(r->es,0x1c); player_write16(r->es,0x1a,r->ax);
+    r->ax=platforms_read16(r->es,0x1c); platforms_write16(r->es,0x1a,r->ax);
 #endif
     r->ax=0x3509;
 #ifdef UGH_NATIVE_INPUT
@@ -102,9 +107,9 @@ EXPORT int c_InstallKeyboardSequenceInterrupt(Regs *r) {
     int status=platform_interrupt(0x21,r);
 #endif
     if(status)return status;
-    player_write16(r->ds,D(PreviousKeyboardVector),r->bx); player_write16(r->ds,D(PreviousKeyboardVectorSegment),r->es);
-    uint16_t ds=r->ds; r->ax=0x2509; r->dx=player_read16(r->ds,D(KeyboardHandlerVector));
-    r->ds=player_read16(r->ds,(uint16_t)(D(KeyboardHandlerVector)+2));
+    platforms_write16(r->ds,D(PreviousKeyboardVector),r->bx); platforms_write16(r->ds,D(PreviousKeyboardVectorSegment),r->es);
+    uint16_t ds=r->ds; r->ax=0x2509; r->dx=platforms_read16(r->ds,D(KeyboardHandlerVector));
+    r->ds=platforms_read16(r->ds,(uint16_t)(D(KeyboardHandlerVector)+2));
     #ifdef UGH_NATIVE_INPUT
     status=input_service_vector(INPUT_VECTOR_INSTALL_HANDLER,(InputKeyboardBinding){r->dx,r->ds},(InputServiceContext*)r).status;
 #else
@@ -113,8 +118,8 @@ EXPORT int c_InstallKeyboardSequenceInterrupt(Regs *r) {
     r->ds=ds; flag(r,IF,1); return status;
 }
 EXPORT int c_RestoreKeyboardInterrupt(Regs *r) {
-    uint16_t ds=r->ds; r->ax=0x2509; r->dx=player_read16(r->ds,D(PreviousKeyboardVector));
-    r->ds=player_read16(r->ds,D(PreviousKeyboardVectorSegment));
+    uint16_t ds=r->ds; r->ax=0x2509; r->dx=platforms_read16(r->ds,D(PreviousKeyboardVector));
+    r->ds=platforms_read16(r->ds,D(PreviousKeyboardVectorSegment));
 #ifdef UGH_NATIVE_INPUT
     int status=input_service_vector(INPUT_VECTOR_RESTORE_SAVED,(InputKeyboardBinding){r->dx,r->ds},(InputServiceContext*)r).status;
 #else
@@ -125,7 +130,7 @@ EXPORT int c_RestoreKeyboardInterrupt(Regs *r) {
 #ifdef UGH_NATIVE_INPUT
     r->ax=input_service_queue_flush();
 #else
-    r->ax=player_read16(r->es,0x1c); player_write16(r->es,0x1a,r->ax);
+    r->ax=platforms_read16(r->es,0x1c); platforms_write16(r->es,0x1a,r->ax);
 #endif
     flag(r,IF,1); return status;
 }
@@ -138,20 +143,20 @@ EXPORT int c_SampleJoystickAxesAndButtons(Regs *r) {
     uint16_t saved_flags=r->flags; flag(r,IF,0); r->dx=0x201;
 #ifdef UGH_NATIVE_INPUT
     input_service_joystick_start((uint8_t)r->ax);r->bx=r->bp=r->si=r->di=0;
-    r->cx=player_read16(r->ds,D(JoystickSampleLoopLimit));uint16_t sampled_limit=r->cx;
-    r->ax=input_service_joystick_buttons(0).buttons;player_write16(r->ds,D(JoystickButtonBits),r->ax);
-    r->ax=input_service_joystick_buttons(1).buttons;player_write16(r->ds,D(SecondJoystickButtonBits),r->ax);
-    InputCountsReply measured=input_service_joystick_counts(sampled_limit,player_read8(r->ds,D(JoystickEnabledAxisMask)));
+    r->cx=platforms_read16(r->ds,D(JoystickSampleLoopLimit));uint16_t sampled_limit=r->cx;
+    r->ax=input_service_joystick_buttons(0).buttons;platforms_write16(r->ds,D(JoystickButtonBits),r->ax);
+    r->ax=input_service_joystick_buttons(1).buttons;platforms_write16(r->ds,D(SecondJoystickButtonBits),r->ax);
+    InputCountsReply measured=input_service_joystick_counts(sampled_limit,platforms_read8(r->ds,D(JoystickEnabledAxisMask)));
     r->cx=measured.remaining;r->bx=measured.latched[0];r->bp=measured.latched[1];r->si=measured.latched[2];r->di=measured.latched[3];
     if(measured.status)return measured.status;
 #else
     platform_out(r->dx,1,(uint8_t)r->ax); r->bx=r->bp=r->si=r->di=0;
-    r->cx=player_read16(r->ds,D(JoystickSampleLoopLimit));
+    r->cx=platforms_read16(r->ds,D(JoystickSampleLoopLimit));
     set_al(r,(uint8_t)platform_in(r->dx,1)); r->ax=(uint16_t)~r->ax; r->ax=input_button_bits((uint8_t)~r->ax,0);
-    player_write16(r->ds,D(JoystickButtonBits),r->ax);
+    platforms_write16(r->ds,D(JoystickButtonBits),r->ax);
     set_al(r,(uint8_t)platform_in(r->dx,1)); r->ax=(uint16_t)~r->ax; r->ax=input_button_bits((uint8_t)~r->ax,1);
-    player_write16(r->ds,D(SecondJoystickButtonBits),r->ax);
-    uint8_t mask=player_read8(r->ds,D(JoystickEnabledAxisMask));InputAxisTimer work=input_axis_begin(r->cx,mask);
+    platforms_write16(r->ds,D(SecondJoystickButtonBits),r->ax);
+    uint8_t mask=platforms_read8(r->ds,D(JoystickEnabledAxisMask));InputAxisTimer work=input_axis_begin(r->cx,mask);
     if(mask) for(;;) {
         uint8_t delivery=(uint8_t)platform_in(r->dx,1);if(ugh_devices.error) return UGH_UNSUPPORTED;
         int again=input_axis_delivery(&work,delivery);r->cx=work.remaining;r->bx=work.latched[0];r->bp=work.latched[1];r->si=work.latched[2];r->di=work.latched[3];
@@ -160,27 +165,27 @@ EXPORT int c_SampleJoystickAxesAndButtons(Regs *r) {
     }
     if(ugh_devices.error) return UGH_UNSUPPORTED;
 #endif
-    r->flags=saved_flags; r->ax=player_read16(r->ds,D(JoystickSampleLoopLimit));
-    sub16(r,r->ax,r->di,0);r->dx=INPUT_COUNT(3,r->ax,r->di); player_write16(r->ds,D(SecondJoystickYCount),r->dx);
-    sub16(r,r->ax,r->si,0);r->cx=INPUT_COUNT(2,r->ax,r->si); player_write16(r->ds,D(SecondJoystickXCount),r->cx);
-    sub16(r,r->ax,r->bx,0);r->dx=INPUT_COUNT(0,r->ax,r->bx); player_write16(r->ds,D(FirstJoystickXCount),r->dx);
-    sub16(r,r->ax,r->bp,0);r->ax=INPUT_COUNT(1,r->ax,r->bp); player_write16(r->ds,D(FirstJoystickYCount),r->ax);
-    r->ax=logic(r,player_read16(r->ds,D(JoystickButtonBits))|player_read16(r->ds,D(SecondJoystickButtonBits)),16);
+    r->flags=saved_flags; r->ax=platforms_read16(r->ds,D(JoystickSampleLoopLimit));
+    sub16(r,r->ax,r->di,0);r->dx=INPUT_COUNT(3,r->ax,r->di); platforms_write16(r->ds,D(SecondJoystickYCount),r->dx);
+    sub16(r,r->ax,r->si,0);r->cx=INPUT_COUNT(2,r->ax,r->si); platforms_write16(r->ds,D(SecondJoystickXCount),r->cx);
+    sub16(r,r->ax,r->bx,0);r->dx=INPUT_COUNT(0,r->ax,r->bx); platforms_write16(r->ds,D(FirstJoystickXCount),r->dx);
+    sub16(r,r->ax,r->bp,0);r->ax=INPUT_COUNT(1,r->ax,r->bp); platforms_write16(r->ds,D(FirstJoystickYCount),r->ax);
+    r->ax=logic(r,platforms_read16(r->ds,D(JoystickButtonBits))|platforms_read16(r->ds,D(SecondJoystickButtonBits)),16);
     return UGH_OK;
 }
 static void input_threshold_binding(Regs *r,uint16_t count,uint16_t low,uint16_t high) {
-    r->ax=player_read16(r->ds,count);r->bx=r->ax;InputThresholds result=input_thresholds(r->ax);r->ax=(uint16_t)(r->ax>>1);
-    r->bx=sub16(r,r->bx,r->ax,0);player_write16(r->ds,low,result.low);r->bx=add16(r,r->bx,r->ax,0);r->bx=add16(r,r->bx,r->ax,0);player_write16(r->ds,high,result.high);
+    r->ax=platforms_read16(r->ds,count);r->bx=r->ax;InputThresholds result=input_thresholds(r->ax);r->ax=(uint16_t)(r->ax>>1);
+    r->bx=sub16(r,r->bx,r->ax,0);platforms_write16(r->ds,low,result.low);r->bx=add16(r,r->bx,r->ax,0);r->bx=add16(r,r->bx,r->ax,0);platforms_write16(r->ds,high,result.high);
 }
 EXPORT int c_DetectAndCalibrateJoysticks(Regs *r) {
     flag(r,IF,0); r->ax=sub16(r,r->ax,r->ax,0);
     InputState state=input_project(r->ds);input_calibration_start(&state);
-    player_write16(r->ds,D(JoystickPresentFlags),state.joysticks[0].present); player_write16(r->ds,D(SecondJoystickPresent),state.joysticks[1].present);
-    player_write8(r->ds,D(JoystickEnabledAxisMask),state.enabled_axes);player_write16(r->ds,D(JoystickSampleLoopLimit),state.loop_limit);
+    platforms_write16(r->ds,D(JoystickPresentFlags),state.joysticks[0].present); platforms_write16(r->ds,D(SecondJoystickPresent),state.joysticks[1].present);
+    platforms_write8(r->ds,D(JoystickEnabledAxisMask),state.enabled_axes);platforms_write16(r->ds,D(JoystickSampleLoopLimit),state.loop_limit);
     const uint16_t clear[]={D(ds_3321),D(ds_3325),D(ds_3323),D(ds_3327),
         D(FirstJoystickXDoubleCenter),D(FirstJoystickYDoubleCenter),
         D(SecondJoystickXDoubleCenter),D(SecondJoystickYDoubleCenter)};
-    for(unsigned i=0;i<8;i++) player_write16(r->ds,clear[i],r->ax);
+    for(unsigned i=0;i<8;i++) platforms_write16(r->ds,clear[i],r->ax);
     r->dx=0x201;
 #ifdef UGH_NATIVE_INPUT
     input_service_joystick_start((uint8_t)r->ax);
@@ -196,27 +201,27 @@ EXPORT int c_DetectAndCalibrateJoysticks(Regs *r) {
     push(r,r->ax); logic(r,(uint8_t)r->ax&3,8);
     if(input_joystick_present((uint8_t)r->ax,0)) {
         state=input_project(r->ds);input_calibration_detect(&state,0);
-        player_write16(r->ds,D(JoystickPresentFlags),state.joysticks[0].present);player_write16(r->ds,D(PlayerOneControlMode),state.control_mode[0]);
-        player_write8(r->ds,D(JoystickEnabledAxisMask),(uint8_t)logic(r,state.enabled_axes,8));
+        platforms_write16(r->ds,D(JoystickPresentFlags),state.joysticks[0].present);platforms_write16(r->ds,D(PlayerOneControlMode),state.control_mode[0]);
+        platforms_write8(r->ds,D(JoystickEnabledAxisMask),(uint8_t)logic(r,state.enabled_axes,8));
         int status=INPUT_PEER(SampleJoystickAxesAndButtons,G(DetectAndCalibrateJoysticks)+89); if(status) return status;
         state=input_project(r->ds);input_calibration_apply(&state,0);
-        r->ax=player_read16(r->ds,D(FirstJoystickXCount)); r->bx=player_read16(r->ds,D(FirstJoystickYCount));
+        r->ax=platforms_read16(r->ds,D(FirstJoystickXCount)); r->bx=platforms_read16(r->ds,D(FirstJoystickYCount));
         r->ax=(uint16_t)(r->ax*2); r->bx=(uint16_t)(r->bx*2);
-        player_write16(r->ds,D(FirstJoystickXDoubleCenter),state.joysticks[0].double_x); player_write16(r->ds,D(FirstJoystickYDoubleCenter),state.joysticks[0].double_y);
+        platforms_write16(r->ds,D(FirstJoystickXDoubleCenter),state.joysticks[0].double_x); platforms_write16(r->ds,D(FirstJoystickYDoubleCenter),state.joysticks[0].double_y);
         input_threshold_binding(r,D(FirstJoystickXCount),D(JoystickLeftThresholds),D(JoystickRightThresholds));
         input_threshold_binding(r,D(FirstJoystickYCount),D(JoystickUpThresholds),D(JoystickDownThresholds));
     }
     r->ax=pop(r); logic(r,(uint8_t)r->ax&12,8);
     if(input_joystick_present((uint8_t)r->ax,1)) {
         state=input_project(r->ds);input_calibration_detect(&state,1);
-        player_write16(r->ds,D(SecondJoystickPresent),state.joysticks[1].present);player_write16(r->ds,D(PlayerTwoControlMode),state.control_mode[1]);
-        player_write8(r->ds,D(JoystickEnabledAxisMask),(uint8_t)logic(r,state.enabled_axes,8));
+        platforms_write16(r->ds,D(SecondJoystickPresent),state.joysticks[1].present);platforms_write16(r->ds,D(PlayerTwoControlMode),state.control_mode[1]);
+        platforms_write8(r->ds,D(JoystickEnabledAxisMask),(uint8_t)logic(r,state.enabled_axes,8));
         r->cx=0x1600; do { r->cx=dec16(r,r->cx); } while(r->cx);
         int status=INPUT_PEER(SampleJoystickAxesAndButtons,G(DetectAndCalibrateJoysticks)+188); if(status) return status;
         state=input_project(r->ds);input_calibration_apply(&state,1);
-        r->cx=player_read16(r->ds,D(SecondJoystickXCount)); r->dx=player_read16(r->ds,D(SecondJoystickYCount));
+        r->cx=platforms_read16(r->ds,D(SecondJoystickXCount)); r->dx=platforms_read16(r->ds,D(SecondJoystickYCount));
         r->cx=(uint16_t)(r->cx*2); r->dx=(uint16_t)(r->dx*2);
-        player_write16(r->ds,D(SecondJoystickXDoubleCenter),state.joysticks[1].double_x); player_write16(r->ds,D(SecondJoystickYDoubleCenter),state.joysticks[1].double_y);
+        platforms_write16(r->ds,D(SecondJoystickXDoubleCenter),state.joysticks[1].double_x); platforms_write16(r->ds,D(SecondJoystickYDoubleCenter),state.joysticks[1].double_y);
         input_threshold_binding(r,D(SecondJoystickXCount),D(SecondJoystickXLowThreshold),D(SecondJoystickXHighThreshold));
         input_threshold_binding(r,D(SecondJoystickYCount),D(SecondJoystickYLowThreshold),D(SecondJoystickYHighThreshold));
     }
@@ -225,10 +230,10 @@ EXPORT int c_DetectAndCalibrateJoysticks(Regs *r) {
     /* Only the last CMP flags survive. Its left operand is the native
      * unsigned maximum of the preceding three wrapped measurements. */
     r->ax=input_calibration_limit(prefix);sub16(r,r->ax,doubled[3],0);
-    r->ax=input_calibration_limit(doubled);player_write16(r->ds,D(JoystickSampleLoopLimit),r->ax); flag(r,IF,1); return UGH_OK;
+    r->ax=input_calibration_limit(doubled);platforms_write16(r->ds,D(JoystickSampleLoopLimit),r->ax); flag(r,IF,1); return UGH_OK;
 }
-#define INPUT_READ(n) player_read16(r->ds,D(n))
-#define INPUT_READ_AT(n,i) player_read16(r->ds,(uint16_t)(D(n)+(i)))
+#define INPUT_READ(n) platforms_read16(r->ds,D(n))
+#define INPUT_READ_AT(n,i) platforms_read16(r->ds,(uint16_t)(D(n)+(i)))
 #define INPUT_CALL(n,ret) do {int status=INPUT_PEER(n,ret);if(status) return status;} while(0)
 EXPORT int c_PollPlayerControls(Regs *r) {
     INPUT_CALL(PollKeyboardScanChange,(uint16_t)(G(PollPlayerControls)+3));
@@ -242,19 +247,19 @@ EXPORT int c_PollPlayerControls(Regs *r) {
     for(unsigned player=0;player<visits;player++) {
         InputControlSource source=input_control_source(INPUT_READ_AT(PlayerOneControlMode,r->bx));r->si=source.position;logic(r,r->si,16);
         if(source.joystick) {
-            r->ax=logic(r,0,16);player_write16(r->ds,(uint16_t)(D(PlayerUpInput)+r->bx),0);player_write16(r->ds,(uint16_t)(D(PlayerDownInput)+r->bx),0);player_write16(r->ds,(uint16_t)(D(PlayerLeftInput)+r->bx),0);player_write16(r->ds,(uint16_t)(D(PlayerRightInput)+r->bx),0);player_write16(r->ds,(uint16_t)(D(PlayerActionInput)+r->bx),0);
+            r->ax=logic(r,0,16);platforms_write16(r->ds,(uint16_t)(D(PlayerUpInput)+r->bx),0);platforms_write16(r->ds,(uint16_t)(D(PlayerDownInput)+r->bx),0);platforms_write16(r->ds,(uint16_t)(D(PlayerLeftInput)+r->bx),0);platforms_write16(r->ds,(uint16_t)(D(PlayerRightInput)+r->bx),0);platforms_write16(r->ds,(uint16_t)(D(PlayerActionInput)+r->bx),0);
             /* position<=7FFE: these ordinary source words start at3315 and
              * cannot alias command bytes278C..279F. Reading them together
              * preserves their values; selected stores retain original order. */
             InputJoystick stick={0};stick.x=INPUT_READ_AT(FirstJoystickXCount,r->si);stick.y=INPUT_READ_AT(FirstJoystickYCount,r->si);stick.left=INPUT_READ_AT(JoystickLeftThresholds,r->si);stick.right=INPUT_READ_AT(JoystickRightThresholds,r->si);stick.up=INPUT_READ_AT(JoystickUpThresholds,r->si);stick.down=INPUT_READ_AT(JoystickDownThresholds,r->si);stick.buttons=INPUT_READ_AT(JoystickButtonBits,r->si);
             InputCommands commands=input_control_map(&stick);r->ax=stick.x;
-            if(commands.left) player_write16(r->ds,(uint16_t)(D(PlayerLeftInput)+r->bx),commands.left);else if(commands.right) player_write16(r->ds,(uint16_t)(D(PlayerRightInput)+r->bx),commands.right);
-            r->ax=stick.y;if(commands.up) player_write16(r->ds,(uint16_t)(D(PlayerUpInput)+r->bx),commands.up);else if(commands.down) player_write16(r->ds,(uint16_t)(D(PlayerDownInput)+r->bx),commands.down);
-            if(commands.action) player_write16(r->ds,(uint16_t)(D(PlayerActionInput)+r->bx),commands.action);
+            if(commands.left) platforms_write16(r->ds,(uint16_t)(D(PlayerLeftInput)+r->bx),commands.left);else if(commands.right) platforms_write16(r->ds,(uint16_t)(D(PlayerRightInput)+r->bx),commands.right);
+            r->ax=stick.y;if(commands.up) platforms_write16(r->ds,(uint16_t)(D(PlayerUpInput)+r->bx),commands.up);else if(commands.down) platforms_write16(r->ds,(uint16_t)(D(PlayerDownInput)+r->bx),commands.down);
+            if(commands.action) platforms_write16(r->ds,(uint16_t)(D(PlayerActionInput)+r->bx),commands.action);
         }
         r->bx=add16(r,r->bx,2,0);sub16(r,r->bx,INPUT_READ(PlayerCount),0);
     }
-    set_al(r,player_read8(r->ds,D(CurrentKeyboardScanCode)));set_ah(r,player_read8(r->ds,D(KeyboardScanCodeChangeBits)));return UGH_OK;
+    set_al(r,platforms_read8(r->ds,D(CurrentKeyboardScanCode)));set_ah(r,platforms_read8(r->ds,D(KeyboardScanCodeChangeBits)));return UGH_OK;
 }
 EXPORT int c_WaitForScanChangeOrJoystickButton(Regs *r) {
     InputWaitWork work={1000000,0};int changed=0;

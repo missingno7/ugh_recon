@@ -208,6 +208,7 @@
         "../menus.h",
         "front_end_support.h",
         "platform.h",
+        "platforms_borrow.h",
         "player_borrow.h",
         "run_borrow.h"
       ],
@@ -258,10 +259,10 @@
         "menus_water",
         "platform_interrupt",
         "platform_service_point_at",
-        "player_read16",
-        "player_read8",
-        "player_write16",
-        "player_write8",
+        "platforms_read16",
+        "platforms_read8",
+        "platforms_write16",
+        "platforms_write8",
         "pop",
         "prepare_attract_map",
         "push",
@@ -291,7 +292,7 @@
     "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
     "native/bridge/front_end_support.h": "c8e018a28316b8d9b6af492f97bd5d71f628c2d759cfb2d849b268400802df3e",
-    "native/bridge/menus_bridge.c": "471820da2ce11ed2c75fc4334ab2455dba8ac4b4c83029ae3e0c8849c928263d",
+    "native/bridge/menus_bridge.c": "9702fa35fd12b1bec05684fbc35e5d29d4ed85425f0a8ccfc208fde6d99d2e2f",
     "native/front_end.h": "b6b7977bb81c3fdf8294631a853912cd6dc03c5d295d04c416ece363c2a3d5db",
     "native/high_scores.c": "00fc8da7870acfcf6573d4548e798d2aee82db5af4fe74d653c65e60d4fcd30f",
     "native/high_scores.h": "e2d31207d80276d28158bc186f1bbf6f5909330644ab09028a46c6e943f6429b",
@@ -299,7 +300,7 @@
     "native/menus.h": "cbfdf679a866537eab418e7e95fefeb7915806a2438f434f9ad82ddc79b2f0c4",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
-    "tools/hostbuild.py": "d62c759535f05db764a962403b0adae8af60913bed9b8a5cb5ab911a33dc4745",
+    "tools/hostbuild.py": "8547631a7291cc1ad7a875ff91cc4714066705dd1406c07ac067abe8abd84937",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/adlx_loader_solver.py": "332c1a46957e398df5865fa5de14a73d259d464c621232f84976f8dfcc1f42d6",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
@@ -475,6 +476,18 @@
       ],
       "results": "PASS within stated domains",
       "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Ten-slot platform ownership and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/platform_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/menus_bridge.c",
         "tools/hostbuild.py"
       ]
     }

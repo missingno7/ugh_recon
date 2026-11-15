@@ -754,6 +754,7 @@
         "../water_weather.h",
         "pixel_io.h",
         "platform.h",
+        "platforms_borrow.h",
         "player_borrow.h",
         "run_borrow.h",
         "stdlib.h"
@@ -793,10 +794,10 @@
         "pixel_store",
         "platform_in",
         "platform_out",
-        "player_read16",
-        "player_read8",
-        "player_write16",
-        "player_write8",
+        "platforms_read16",
+        "platforms_read8",
+        "platforms_write16",
+        "platforms_write8",
         "pop",
         "push",
         "rd8",
@@ -990,6 +991,18 @@
       ],
       "results": "PASS within stated domains",
       "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Ten-slot platform ownership and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/platform_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/water_weather_bridge.c",
         "tools/hostbuild.py"
       ]
     }
@@ -1989,7 +2002,7 @@
   "verification_inputs": {
     "native/water_weather.h": "376ea82167cd5afbee4ffb23f70a8cc1c6b2c7c1607e71241647e4cfd2088064",
     "native/water_weather.c": "0c7323754d3a2d6eb5f194082096da6ac3dce5d0ac3d09e517d2be9f605a20ba",
-    "native/bridge/water_weather_bridge.c": "91d991573e49542151b503ec43f14e4b8471b9151b03f74cb074ac08bcebe222",
+    "native/bridge/water_weather_bridge.c": "bcdba927aefb1ef4cc90e4c179e55d2fff90715c195dbf09cde6e0207ae4889a",
     "verif/water_weather_acceptance.py": "3e239b0fe4e1f5956d74a330c793408f6913e255c568a5a0dada74ac69f20900",
     "verif/water_weather_baseline.py": "ccd42a9e88314d13afe9a23a9c1f7e07ab8d73e8def5c8212a773498a8564bae",
     "verif/water_weather_bound.py": "0465978003fdd901db6cdf0762799e1e4f50dff2cbcd6c5061d28ab4cde5a36b",
@@ -2102,7 +2115,7 @@
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
-    "tools/hostbuild.py": "d62c759535f05db764a962403b0adae8af60913bed9b8a5cb5ab911a33dc4745",
+    "tools/hostbuild.py": "8547631a7291cc1ad7a875ff91cc4714066705dd1406c07ac067abe8abd84937",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",

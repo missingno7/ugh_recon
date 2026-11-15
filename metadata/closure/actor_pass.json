@@ -218,8 +218,8 @@
     "native/bridge/actor_pass_bridge.c": "9dc2a3efab97232d265dfc1b3fe0615777ff85634d802c9d1e76d2101db9d351",
     "verif/entry_retirement.py": "3b52d207fef7b3e51461a2357a06f012f59651b406f1fe9a0253876e55f76529",
     "verif/entry_retirement_proof.c": "2796c3423fef93b04f190cb38667b80bda47017806d83ff5e326fb204aebb95f",
-    "verif/projector_evidence.py": "d5309f3870f84a8553c893440580343a092c1f85a3ee46e440969a04fcd48f89",
-    "verif/projector/publications.py": "74654c97ef88d961c0a470d8d50e7af897d2cf70bdc36868860ec0b06cba5b9d",
+    "verif/projector_evidence.py": "d2117359ead09e9ffd3b01bbe56cf48d4e32a2fd31b338f32aa0fa2767f7e404",
+    "verif/projector/publications.py": "91a77f8fdeb8daea3a6cb56d3c2db415b3d54fa35911693f57f909a107397e24",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
     "c/abi.c": "5f7c2c2fc015ca43e3786a7f96cb38113211da54acefce19564c1df78d74857a",
@@ -316,6 +316,18 @@
       "results": "PASS: default profile preprocessed identity/unchanged algorithms; compiled replay and 21/21 native/literal integration. No old claim widened.",
       "inputs": [
         "verif/projector_evidence.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Audio ownership/peer/shared-buffer composition profile; accepted claims and statuses unchanged",
+      "commands": [
+        "python verif/audio_composition.py --gate"
+      ],
+      "results": "PASS: default ABI typedef equivalence and unchanged kernels; composition B/C/D replay, hosts and 81 openings, 7 audio and 8 deep scenarios. No old proof domain widened.",
+      "inputs": [
+        "verif/projector_evidence.py",
+        "verif/projector/publications.py"
       ]
     }
   ]

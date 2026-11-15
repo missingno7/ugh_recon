@@ -6,6 +6,7 @@
 #ifdef NATIVE_AUDIO_BYTE_SERVICE
 #include <stdint.h>
 uint8_t audio_borrowed_byte(const uint8_t *window,uint32_t index);
+void audio_borrowed_store(uint8_t *window,uint32_t index,uint8_t value);
 #define AUDIO_BYTE(window,index) audio_borrowed_byte(window,index)
 #else
 #define AUDIO_BYTE(window,index) window[index]

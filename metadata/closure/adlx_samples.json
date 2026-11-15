@@ -222,10 +222,13 @@
     "native/bridge/adlx_samples_bridge.c": {
       "includes": [
         "../adlx_samples.h",
+        "audio_composition_api.h",
         "audio_projection.h",
         "platform.h"
       ],
       "calls": [
+        "AUDIO_C_PEER",
+        "AUDIO_PEER_TRANSFER",
         "S",
         "arg16",
         "audio_bridge_bank",
@@ -240,6 +243,7 @@
         "audio_sample_mix_begin",
         "audio_sample_mix_next",
         "audio_sample_reset",
+        "audio_world_snapshot",
         "flag",
         "lin",
         "platform_service_point_at",
@@ -255,7 +259,6 @@
         "samples_stop",
         "samples_view",
         "sub16",
-        "ugh_dispatch",
         "wr16",
         "wr8"
       ]
@@ -282,6 +285,20 @@
       "results": "PASS: default profile preprocessed identity/unchanged algorithms; compiled replay and 21/21 native/literal integration. No old claim widened.",
       "inputs": [
         "native/audio.h",
+        "tools/hostbuild.py",
+        "native/audio_bytes.h"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Audio ownership/peer/shared-buffer composition profile; accepted claims and statuses unchanged",
+      "commands": [
+        "python verif/audio_composition.py --gate"
+      ],
+      "results": "PASS: default ABI typedef equivalence and unchanged kernels; composition B/C/D replay, hosts and 81 openings, 7 audio and 8 deep scenarios. No old proof domain widened.",
+      "inputs": [
+        "native/bridge/adlx_samples_bridge.c",
+        "native/bridge/audio_projection.h",
         "tools/hostbuild.py",
         "native/audio_bytes.h"
       ]
@@ -348,8 +365,8 @@
     "native/adlx_samples.c": "8d9c1dd3917034c80b7a2b646a0f258c6bbd7432b258f2cf7160c93de565e5af",
     "native/adlx_samples.h": "893df7a08f251dcb592f39b841443822dd1275dd1bf360c31052690777f0e113",
     "native/audio.h": "31e4dd978a7ecc91d8dfb6de250c7e9f6ef4377bc5b1d3c413df749e94a2a780",
-    "native/bridge/adlx_samples_bridge.c": "969c1e85b45a73d8c5d80a338a7d4a8c6a75d6ddd691e9ba9df1325ead266265",
-    "native/bridge/audio_projection.h": "e15ee379c16623f0dfb9830e154c5c71b0f2d2a424a6073c3dec497c50cd8630",
+    "native/bridge/adlx_samples_bridge.c": "39e13b77b095a5a73c6d24162b8a081853a1b71c149133c694fe63c896b74753",
+    "native/bridge/audio_projection.h": "f8dfd66352954a9efe9e23b97b041cd8c953a88ecbe9c6769448260eccc5dff0",
     "tests/scenarios/adlib.txt": "1db37ba320e4c3c85449c2f4a7f5ecd8543e6de6933e165e534b79adb3386f2f",
     "tests/scenarios/attract.txt": "07339939be35779cc94094221155e97a11c6dec396ab6dce85f238a415896a01",
     "tests/scenarios/completion.txt": "d898ad1f8abd49f7757303b562028cf7f0c10143dfb0358dad4e0a6fee7386bc",
@@ -374,7 +391,7 @@
     "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
-    "tools/hostbuild.py": "5df61bcd7f749f052b70efed60fd0bfe6b38c16bb228f14e5aeb7d774612d9e7",
+    "tools/hostbuild.py": "6bb90ae0ef1059cb912fcefc7b8e84744179d3fb5ff639d50884f20eb52b2b24",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/adlx_loader_solver.py": "332c1a46957e398df5865fa5de14a73d259d464c621232f84976f8dfcc1f42d6",
     "verif/adlx_samples_build.py": "032c882693c3ef52916392a395b33d2bf5197f38db1d6840f2506060037bb44d",
@@ -394,6 +411,6 @@
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/sb_gameplay.txt": "74f6a2651e763fad4d287061446b97ac3e0f1222c5b214bdc640a160f0f06a55",
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
-    "native/audio_bytes.h": "46874b2057f9a2083c503638b79b8d31c1af667a56079bac35945d6fdc612b22"
+    "native/audio_bytes.h": "6edad8dc19515e3fd6009442b7d082317f534a86faea02e6c60fb92823011424"
   }
 }

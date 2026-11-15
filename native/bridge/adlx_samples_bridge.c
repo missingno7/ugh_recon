@@ -1,3 +1,4 @@
+#include "audio_composition_api.h"
 #include "platform.h"
 #include "audio_projection.h"
 #include "../adlx_samples.h"
@@ -60,7 +61,7 @@ static void samples_pointer(Regs *r,SampleFrame f,uint32_t position)
 static int samples_stop(Regs *r,uint16_t slot)
 {
     uint16_t sp=r->sp;samples_push(r,slot);samples_push(r,r->cs);samples_push(r,(uint16_t)(UGH_O_C_LoadIffSample+0x3a5));
-    int status=ugh_dispatch(UGH_SEG_C,UGH_O_C_StopSoundChannel,r);if(status!=UGH_CONTROL_TRANSFER) r->sp=sp;return status;
+    int status=AUDIO_PEER_TRANSFER(UGH_SEG_C,AUDIO_C_PEER(StopSoundChannel),r);if(status!=UGH_CONTROL_TRANSFER) r->sp=sp;return status;
 }
 static void samples_loaded(uint16_t slot,const AudioChannel *voice)
 {

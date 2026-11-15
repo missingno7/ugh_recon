@@ -274,10 +274,10 @@
     "verif/timer_callbacks.py": "4149fe68343ff59647e5baa10beeae519625d099345ec256cdadf92e0c8d0b38",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
-    "tools/hostbuild.py": "5df61bcd7f749f052b70efed60fd0bfe6b38c16bb228f14e5aeb7d774612d9e7",
+    "tools/hostbuild.py": "6bb90ae0ef1059cb912fcefc7b8e84744179d3fb5ff639d50884f20eb52b2b24",
     "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
-    "verif/standalone_census.py": "f8f3bd4475c065e8615a192aef0fdc0eafd068ecdcca9d45f545e9105dce8f09",
+    "verif/standalone_census.py": "647dd84b82fbeb0871fd992671b0c2279cd98e66bb46854b57c0745ed84b0a6f",
     "src/asm/TIMER.ASM": "ef53f29ee97899bf538298d360f6979004f41abcd5e07e2d23ecfb6642f5ae2a",
     "metadata/closure/timer.json": "7b053bc337bb8f974e67d4bea5e62441d9717d2d2dfcd1cbbd7dcc40ed96c07c",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
@@ -370,6 +370,18 @@
         "tools/hostbuild.py",
         "verif/standalone_census.py",
         "metadata/closure/timer.json"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Audio ownership/peer/shared-buffer composition profile; accepted claims and statuses unchanged",
+      "commands": [
+        "python verif/audio_composition.py --gate"
+      ],
+      "results": "PASS: default ABI typedef equivalence and unchanged kernels; composition B/C/D replay, hosts and 81 openings, 7 audio and 8 deep scenarios. No old proof domain widened.",
+      "inputs": [
+        "tools/hostbuild.py",
+        "verif/standalone_census.py"
       ]
     }
   ]

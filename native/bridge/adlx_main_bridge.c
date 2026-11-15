@@ -1,3 +1,4 @@
+#include "audio_composition_api.h"
 #include "platform.h"
 #include "audio_projection.h"
 #include "../adlx_main.h"
@@ -25,7 +26,7 @@ static int audio_bridge_timer(Regs *r,const AudioState *state)
     r->sp=(uint16_t)(r->sp-2);r->bx=state->timer_period;r->ax=state->playback_timer_handle;r->cx=0;
     r->sp=(uint16_t)(r->sp-2);wr16(r->ss,r->sp,r->cs);
     r->sp=(uint16_t)(r->sp-2);wr16(r->ss,r->sp,(uint16_t)(S(HandleMainAdlxTimerPeriod)+0x16));
-    int status=ugh_dispatch(TIMER_SEG,T(SetTimerCallbackInterval),r);
+    int status=AUDIO_PEER_TRANSFER(TIMER_SEG,AUDIO_TIMER_PEER(SetTimerCallbackInterval),r);
     r->sp=(uint16_t)(r->sp+6);r->cx=saved;
     return status;
 }
@@ -47,7 +48,7 @@ static int audio_bridge_event(Regs *r,AudioMainOperation operation)
         for(unsigned i=0;i<12;i++) {
             uint32_t address=lin(r->es,(uint16_t)(r->di+i));
             uint32_t begin=lin(r->cs,S(AdlibVoiceStates));
-            if(address>=begin && address<begin+360) return l1_HandleMainAdlxInstrument(r);
+            if(address>=begin && address<begin+360) return AUDIO_LITERAL(l1_HandleMainAdlxInstrument,r);
         }
     }
     AudioState state;
@@ -152,7 +153,7 @@ EXPORT int c_RunMainAdlxEvents(Regs *r)
         S(HandleMainAdlxGain),S(HandleMainAdlxInstrument),S(HandleMainAdlxNoOp),S(HandleMainAdlxTimerPeriod),
         S(HandleMainAdlxControl),S(HandleMainAdlxShortWait),S(HandleMainAdlxShortWait),S(HandleMainAdlxShortWait),
         S(HandleMainAdlxShortWait),S(HandleMainAdlxShortWait),S(HandleMainAdlxShortWait),S(HandleMainAdlxShortWait),S(HandleMainAdlxShortWait)};
-    for(unsigned i=0;i<16;i++) if(rd16(r->cs,(uint16_t)(S(MainAdlxDispatchTable)+2*i))!=targets[i]) return l1_RunMainAdlxEvents(r);
+    for(unsigned i=0;i<16;i++) if(rd16(r->cs,(uint16_t)(S(MainAdlxDispatchTable)+2*i))!=targets[i]) return AUDIO_LITERAL(l1_RunMainAdlxEvents,r);
     for(unsigned count=0;count<1000000;count++) {
         set_al(r,rd8(r->es,r->di));r->di=audio_bridge_inc(r,r->di);
         set_ah(r,(uint8_t)logic(r,0,8));r->bx=r->ax;

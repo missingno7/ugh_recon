@@ -1,3 +1,4 @@
+#include "audio_composition_api.h"
 #include "platform.h"
 #include "audio_projection.h"
 #include "../adlx_music.h"
@@ -11,10 +12,10 @@ static MusicFrame music_enter(Regs *r,unsigned locals)
 }
 static int music_leave(Regs *r,MusicFrame f,int status)
 {if(status==UGH_CONTROL_TRANSFER) return status;r->sp=f.sp;r->bp=f.bp;r->si=f.si;r->di=f.di;r->ds=f.ds;return status;}
-static int music_call(Regs *r,uint16_t bank,uint16_t target,uint16_t resume,const uint16_t *args,unsigned count)
+static int music_call(Regs *r,uint16_t bank,AudioPeerBinding target,uint16_t resume,const uint16_t *args,unsigned count)
 {
     uint16_t sp=r->sp;for(unsigned i=count;i;i--) music_push(r,args[i-1]);
-    music_push(r,r->cs);music_push(r,resume);int status=ugh_dispatch(bank,target,r);
+    music_push(r,r->cs);music_push(r,resume);int status=AUDIO_PEER_TRANSFER(bank,target,r);
     if(status!=UGH_CONTROL_TRANSFER) r->sp=sp;
     return status;
 }
@@ -42,15 +43,21 @@ static int music_run(Regs *r,AudioMusicOperation operation)
         music_publish_policy(&state);
         if(request.action==AUDIO_MUSIC_DONE) {if(work.result==1) r->es=SOUND_SEG;r->ax=work.result;return music_leave(r,f,UGH_OK);}
         if(request.action==AUDIO_MUSIC_WAIT_BOUND) return music_leave(r,f,UGH_BUDGET);
-        int status;uint16_t args[4];unsigned count=0;uint16_t bank=SOUND_SEG,target=0,resume=0;
+        int status;uint16_t args[4];unsigned count=0;
+#ifdef UGH_NATIVE_AUDIO
+uint16_t bank=SOUND_SEG,resume=0;AudioPeerBinding target=AUDIO_PEER_UNSUPPORTED;
+#else
+uint16_t bank=SOUND_SEG,target=0,resume=0;
+#endif
+
         switch(request.action) {
-        case AUDIO_MUSIC_CANCEL:target=S(CancelMusicFade);resume=operation==AUDIO_MUSIC_START ? UGH_O_C_StartMusicTrack+0x2a : work.stage==2 ? UGH_O_C_StopMusicTrack+0x48 : UGH_O_C_StopMusicTrack+0xb3;break;
-        case AUDIO_MUSIC_LOAD:bank=UGH_SEG_C;target=UGH_O_C_LoadAdlibTrackData;resume=UGH_O_C_StartMusicTrack+0x38;args[0]=request.channel;args[1]=request.resource.index;args[2]=audio_bridge_bank(request.resource);args[3]=0;count=4;break;
-        case AUDIO_MUSIC_START_CHANNEL:bank=UGH_SEG_C;target=UGH_O_C_StartAdlibTrackChannel;resume=UGH_O_C_StartMusicTrack+(duration ? 0x6c : 0x58);args[0]=request.channel;args[1]=request.volume;count=2;break;
-        case AUDIO_MUSIC_SET_VOLUME:bank=UGH_SEG_C;target=UGH_O_C_SetMusicTrackVolume;resume=UGH_O_C_StartMusicTrack+0x61;args[0]=request.volume;count=1;break;
-        case AUDIO_MUSIC_SCHEDULE:target=S(ScheduleMusicFade);resume=operation==AUDIO_MUSIC_START ? UGH_O_C_StartMusicTrack+0xa0 : UGH_O_C_StopMusicTrack+0x93;break;
-        case AUDIO_MUSIC_STOP_CHANNEL:bank=UGH_SEG_C;target=UGH_O_C_StopAdlibTrackChannel;resume=UGH_O_C_StopMusicTrack+0x2d;args[0]=request.channel;count=1;break;
-        case AUDIO_MUSIC_SILENCE:target=S(SilenceAdlibOperators);resume=UGH_O_C_StopMusicTrack+0xc4;break;
+        case AUDIO_MUSIC_CANCEL:target=AUDIO_SOUND_PEER(CancelMusicFade);resume=operation==AUDIO_MUSIC_START ? UGH_O_C_StartMusicTrack+0x2a : work.stage==2 ? UGH_O_C_StopMusicTrack+0x48 : UGH_O_C_StopMusicTrack+0xb3;break;
+        case AUDIO_MUSIC_LOAD:bank=UGH_SEG_C;target=AUDIO_C_PEER(LoadAdlibTrackData);resume=UGH_O_C_StartMusicTrack+0x38;args[0]=request.channel;args[1]=request.resource.index;args[2]=audio_bridge_bank(request.resource);args[3]=0;count=4;break;
+        case AUDIO_MUSIC_START_CHANNEL:bank=UGH_SEG_C;target=AUDIO_C_PEER(StartAdlibTrackChannel);resume=UGH_O_C_StartMusicTrack+(duration ? 0x6c : 0x58);args[0]=request.channel;args[1]=request.volume;count=2;break;
+        case AUDIO_MUSIC_SET_VOLUME:bank=UGH_SEG_C;target=AUDIO_C_PEER(SetMusicTrackVolume);resume=UGH_O_C_StartMusicTrack+0x61;args[0]=request.volume;count=1;break;
+        case AUDIO_MUSIC_SCHEDULE:target=AUDIO_SOUND_PEER(ScheduleMusicFade);resume=operation==AUDIO_MUSIC_START ? UGH_O_C_StartMusicTrack+0xa0 : UGH_O_C_StopMusicTrack+0x93;break;
+        case AUDIO_MUSIC_STOP_CHANNEL:bank=UGH_SEG_C;target=AUDIO_C_PEER(StopAdlibTrackChannel);resume=UGH_O_C_StopMusicTrack+0x2d;args[0]=request.channel;count=1;break;
+        case AUDIO_MUSIC_SILENCE:target=AUDIO_SOUND_PEER(SilenceAdlibOperators);resume=UGH_O_C_StopMusicTrack+0xc4;break;
         case AUDIO_MUSIC_TIMER_WAIT:
             status=platform_service_point_at(SERVICE_TIMER_WAIT,UGH_SEG_C,UGH_O_C_StopMusicTrack+0x95,r);
             if(status) return music_leave(r,f,status);
@@ -79,7 +86,7 @@ EXPORT int c_ScheduleMusicFade(Regs *r)
     AudioState state;audio_bridge_project(r->cs,&state);AudioFadeRequest request=audio_music_schedule(&state);
     if(request.action==AUDIO_FADE_REGISTER) {
         r->bx=(uint16_t)request.interval;r->cx=(uint16_t)(request.interval>>16);r->ax=S(AdvanceMusicFade);r->dx=SOUND_SEG;
-        int status=music_call(r,TIMER_SEG,T(RegisterTimerCallback),S(ScheduleMusicFade)+0x1d,0,0);if(status) return status;
+        int status=music_call(r,TIMER_SEG,AUDIO_TIMER_PEER(RegisterTimerCallback),S(ScheduleMusicFade)+0x1d,0,0);if(status) return status;
         /* Callback storage may have changed during the service; publish only
          * this completion's two owned words, never an old AudioState. */
         audio_music_registered(&state,r->ax);wr16(r->cs,S(MusicFadeTimerHandle),state.fade.timer_handle);wr16(r->cs,S(MusicFadeScheduled),state.fade.scheduled);
@@ -90,7 +97,7 @@ EXPORT int c_CancelMusicFade(Regs *r)
 {
     AudioState state;audio_bridge_project(r->cs,&state);AudioFadeRequest request=audio_music_cancel(&state);
     if(request.action==AUDIO_FADE_REMOVE) {
-        r->ax=request.handle;int status=music_call(r,TIMER_SEG,T(RemoveTimerCallback),S(CancelMusicFade)+0x15,0,0);if(status) return status;
+        r->ax=request.handle;int status=music_call(r,TIMER_SEG,AUDIO_TIMER_PEER(RemoveTimerCallback),S(CancelMusicFade)+0x15,0,0);if(status) return status;
         audio_music_cancelled(&state);wr16(r->cs,S(MusicFadeScheduled),state.fade.scheduled);
     }
     return UGH_OK;
@@ -104,11 +111,11 @@ EXPORT int c_AdvanceMusicFade(Regs *r)
     if(request.action==AUDIO_FADE_FAULT) return UGH_UNSUPPORTED;
     int status;
     if(request.action==AUDIO_FADE_REMOVE) {
-        r->ax=request.handle;status=music_call(r,TIMER_SEG,T(RemoveTimerCallback),S(AdvanceMusicFade)+0x43,0,0);
+        r->ax=request.handle;status=music_call(r,TIMER_SEG,AUDIO_TIMER_PEER(RemoveTimerCallback),S(AdvanceMusicFade)+0x43,0,0);
         if(!status) {audio_music_cancelled(&state);wr16(r->cs,S(MusicFadeScheduled),state.fade.scheduled);}
     } else {
         r->dx=request.remainder;r->ax=request.volume;uint16_t args[1]={request.volume};
-        status=music_call(r,UGH_SEG_C,UGH_O_C_SetMusicTrackVolume,S(AdvanceMusicFade)+0x32,args,1);
+        status=music_call(r,UGH_SEG_C,AUDIO_C_PEER(SetMusicTrackVolume),S(AdvanceMusicFade)+0x32,args,1);
     }
     r->ax=save.ax;r->bx=save.bx;r->cx=save.cx;r->dx=save.dx;r->sp=save.sp;return status;
 }
@@ -118,7 +125,7 @@ EXPORT int c_AdvanceGuardedSoundClock(Regs *r)
     int entered=audio_music_guard_begin(&state);music_inc(r,(uint16_t)old);if(!(uint16_t)state.ticks) music_inc(r,(uint16_t)(old>>16));
     wr32(r->cs,S(AdlxTickCount),state.ticks);
     if(entered) {
-        wr16(r->cs,S(AdlxPlaybackGuard),state.playback_guard);int status=music_call(r,r->cs,S(TickAdlxPlayback),S(AdvanceGuardedSoundClock)+0x27,0,0);if(status) return status;
+        wr16(r->cs,S(AdlxPlaybackGuard),state.playback_guard);int status=music_call(r,r->cs,AUDIO_SOUND_PEER(TickAdlxPlayback),S(AdvanceGuardedSoundClock)+0x27,0,0);if(status) return status;
         audio_music_guard_end(&state);wr16(r->cs,S(AdlxPlaybackGuard),state.playback_guard);
     }
     return UGH_OK;

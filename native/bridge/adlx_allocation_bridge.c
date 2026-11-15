@@ -1,3 +1,4 @@
+#include "audio_composition_api.h"
 #include "platform.h"
 #include "audio_projection.h"
 #include "../adlx_allocation.h"
@@ -20,12 +21,12 @@ static int allocation_leave(Regs *r,AllocationFrame frame,int status)
 {
     r->sp=frame.sp;r->bp=frame.bp;r->si=frame.si;r->di=frame.di;r->ds=frame.ds;return status;
 }
-static int allocation_call(Regs *r,uint16_t target,uint16_t resume,const uint16_t *arguments,unsigned count)
+static int allocation_call(Regs *r,AudioPeerBinding target,uint16_t resume,const uint16_t *arguments,unsigned count)
 {
     uint16_t sp=r->sp;
     for(unsigned i=count;i;i--) allocation_push(r,arguments[i-1]);
     allocation_push(r,r->cs);allocation_push(r,resume);
-    int status=ugh_dispatch(UGH_SEG_C,target,r);
+    int status=AUDIO_PEER_TRANSFER(UGH_SEG_C,target,r);
     if(status!=UGH_CONTROL_TRANSFER) r->sp=sp;
     return status;
 }
@@ -78,9 +79,9 @@ static void allocation_deliver(Regs *r,const AudioAllocationResult *result)
 }
 static int allocation_literal(Regs *r,AudioAllocationOperation operation)
 {
-    if(operation==AUDIO_ALLOCATION_STOP) return l1_StopAdlibTrackChannel(r);
-    if(operation==AUDIO_ALLOCATION_START) return l1_StartAdlibTrackChannel(r);
-    return l1_RestoreAdlibVoiceAllocation(r);
+    if(operation==AUDIO_ALLOCATION_STOP) return AUDIO_LITERAL(l1_StopAdlibTrackChannel,r);
+    if(operation==AUDIO_ALLOCATION_START) return AUDIO_LITERAL(l1_StartAdlibTrackChannel,r);
+    return AUDIO_LITERAL(l1_RestoreAdlibVoiceAllocation,r);
 }
 static int allocation_entry(Regs *r,AudioAllocationOperation operation)
 {
@@ -123,15 +124,15 @@ EXPORT int c_PlayAdlibEffect(Regs *r)
     AudioState state;audio_bridge_project(SOUND_SEG,&state);AudioEffectSelection choice=audio_effect_select(&state);
     args[0]=choice.channel;int status;
     if(choice.replace) {
-        status=allocation_call(r,UGH_O_C_StopAdlibTrackChannel,(uint16_t)(UGH_O_C_PlayAdlibEffect+0xad),args,1);
+        status=allocation_call(r,AUDIO_C_PEER(StopAdlibTrackChannel),(uint16_t)(UGH_O_C_PlayAdlibEffect+0xad),args,1);
         if(status) return allocation_leave(r,frame,status);
         if(rd16(SOUND_SEG,(uint16_t)(S(AudioChannelStates)+42*choice.channel+40))&1u) {r->ax=65535;return allocation_leave(r,frame,UGH_OK);}
     }
-    status=allocation_call(r,UGH_O_C_LoadAdlibChannel,(uint16_t)(UGH_O_C_PlayAdlibEffect+(choice.replace ? 0xd0 : 0x4f)),args,5);
+    status=allocation_call(r,AUDIO_C_PEER(LoadAdlibChannel),(uint16_t)(UGH_O_C_PlayAdlibEffect+(choice.replace ? 0xd0 : 0x4f)),args,5);
     if(status) return allocation_leave(r,frame,status);
     if((int16_t)r->ax>=0) {
         uint16_t start_args[2]={choice.channel,args[3]};
-        status=allocation_call(r,UGH_O_C_StartAdlibTrackChannel,(uint16_t)(UGH_O_C_PlayAdlibEffect+(choice.replace ? 0xdd : 0x5c)),start_args,2);
+        status=allocation_call(r,AUDIO_C_PEER(StartAdlibTrackChannel),(uint16_t)(UGH_O_C_PlayAdlibEffect+(choice.replace ? 0xdd : 0x5c)),start_args,2);
         if(status) return allocation_leave(r,frame,status);
         if(choice.replace && (int16_t)r->ax<0) return allocation_leave(r,frame,UGH_OK);
     } else if(choice.replace) {r->ax=65535;return allocation_leave(r,frame,UGH_OK);}

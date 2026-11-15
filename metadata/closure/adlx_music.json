@@ -196,12 +196,16 @@
     "native/bridge/adlx_music_bridge.c": {
       "includes": [
         "../adlx_music.h",
+        "audio_composition_api.h",
         "audio_projection.h",
         "platform.h"
       ],
       "calls": [
+        "AUDIO_C_PEER",
+        "AUDIO_PEER_TRANSFER",
+        "AUDIO_SOUND_PEER",
+        "AUDIO_TIMER_PEER",
         "S",
-        "T",
         "add16",
         "arg16",
         "audio_bridge_bank",
@@ -221,6 +225,7 @@
         "audio_music_schedule",
         "audio_music_silence",
         "audio_music_volume",
+        "audio_world_snapshot",
         "flag",
         "music_call",
         "music_delay_flags",
@@ -236,7 +241,6 @@
         "rd16",
         "rd32",
         "rd8",
-        "ugh_dispatch",
         "wr16",
         "wr32",
         "wr8"
@@ -283,13 +287,13 @@
     "native/adlx_sections.c": "5d3c99411e0767ad4a63664958bca8064bbb44d7a7aeb1aaff93666c43778a19",
     "native/adlx_sections.h": "d291ad1a7ca94580a327cba7b6f9810fec8bae288baddc30d67cd23351cefb35",
     "native/audio.h": "31e4dd978a7ecc91d8dfb6de250c7e9f6ef4377bc5b1d3c413df749e94a2a780",
-    "native/bridge/adlx_allocation_bridge.c": "ce1bbd8ff5cc2b57bb0ea50a8aa1b667a42cb3e379f5daf26df92de3a7ee6256",
-    "native/bridge/adlx_effects_bridge.c": "720a905d58d47e2c13f342fc2d174c964f17b09a69455dd3b2b34cac8ba8253e",
-    "native/bridge/adlx_loader_bridge.c": "1bbb03af7e750a0aa7834594a426342fabf1722b02815eb64b32e490493006ca",
-    "native/bridge/adlx_main_bridge.c": "91f38d4455d13917b3c7cf4a9fb89a02963be5cf509374e4570d81407f03c9c0",
-    "native/bridge/adlx_music_bridge.c": "1c1cfe6b1d0b1f04d8c38978896c8f8a070d3cf5508267e672b747a46b19edd9",
-    "native/bridge/adlx_sections_bridge.c": "1f2a26248c08e00bddb80c11597ef38f9a19d9b5011632dccafd8f4883c8093e",
-    "native/bridge/audio_projection.h": "e15ee379c16623f0dfb9830e154c5c71b0f2d2a424a6073c3dec497c50cd8630",
+    "native/bridge/adlx_allocation_bridge.c": "5b2cd7033b944ac24806f3d4a9de22712b3e1ce79c4447ec5d6171f8b9b890f6",
+    "native/bridge/adlx_effects_bridge.c": "bd0e009532f62b168a83cd5f0d83168f1c7b3b8f71e87192931c27ccd48928bd",
+    "native/bridge/adlx_loader_bridge.c": "6ec32e8fb703c46046685288ce730769b2b4d27d82ff427268f4d00752370af0",
+    "native/bridge/adlx_main_bridge.c": "dbed26603c4633ccf0aa19560b9933f59e13ea74668c0f1f4e6c6e76c3802941",
+    "native/bridge/adlx_music_bridge.c": "1d4d1e22256b35c8eaa122237c217d749770fc14eaade89ee8f6a7af321f2d16",
+    "native/bridge/adlx_sections_bridge.c": "134bef77a9c68aa650c7b71dd6b181e49e030704129a4df0b8bf5045ec05bad2",
+    "native/bridge/audio_projection.h": "f8dfd66352954a9efe9e23b97b041cd8c953a88ecbe9c6769448260eccc5dff0",
     "src/c/module.c": "e58e54aa3f44fdfd29bdbcbaa471de2a6405235cbe2b276df56ea7193d548ae1",
     "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
     "verif/adlx_allocation_cases.py": "5780ee6d7b094dfe9cff0e8227043de2e340839890bff7a93edc3be5086ccab0",
@@ -319,7 +323,7 @@
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
-    "native/audio_bytes.h": "46874b2057f9a2083c503638b79b8d31c1af667a56079bac35945d6fdc612b22"
+    "native/audio_bytes.h": "6edad8dc19515e3fd6009442b7d082317f534a86faea02e6c60fb92823011424"
   },
   "evidence_refreshed": [
     {
@@ -333,6 +337,24 @@
         "native/adlx_loader.c",
         "native/adlx_sections.c",
         "native/audio.h",
+        "native/audio_bytes.h"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Audio ownership/peer/shared-buffer composition profile; accepted claims and statuses unchanged",
+      "commands": [
+        "python verif/audio_composition.py --gate"
+      ],
+      "results": "PASS: default ABI typedef equivalence and unchanged kernels; composition B/C/D replay, hosts and 81 openings, 7 audio and 8 deep scenarios. No old proof domain widened.",
+      "inputs": [
+        "native/bridge/adlx_allocation_bridge.c",
+        "native/bridge/adlx_effects_bridge.c",
+        "native/bridge/adlx_loader_bridge.c",
+        "native/bridge/adlx_main_bridge.c",
+        "native/bridge/adlx_music_bridge.c",
+        "native/bridge/adlx_sections_bridge.c",
+        "native/bridge/audio_projection.h",
         "native/audio_bytes.h"
       ]
     }

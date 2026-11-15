@@ -2,6 +2,9 @@
 #define NATIVE_AUDIO_PROJECTION_H
 #include "ugh.h"
 #include "../audio.h"
+#ifdef UGH_NATIVE_AUDIO
+#include "audio_world_bridge.h"
+#endif
 
 static AudioCursor audio_bridge_cursor(uint16_t bank,uint16_t offset)
 {
@@ -29,6 +32,9 @@ static void audio_bridge_voice(uint16_t bank,uint16_t offset,AudioVoice *voice)
  * additional state objects. This is a serialized snapshot, not an IRQ lock. */
 static void audio_bridge_project(uint16_t bank,AudioState *state)
 {
+#ifdef UGH_NATIVE_AUDIO
+    if(bank==SOUND_SEG){audio_world_snapshot(state);return;}
+#endif
     for(unsigned i=0;i<AUDIO_CHANNEL_COUNT;i++) {
         uint16_t p=(uint16_t)(S(AudioChannelStates)+42*i);
         AudioChannel *c=&state->channels[i];

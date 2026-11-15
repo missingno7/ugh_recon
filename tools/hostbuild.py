@@ -26,11 +26,39 @@ def timing_composed(units):
 
 def composition_options(units, base=None):
     if not timing_composed(units): return []
-    return ['-DUGH_NATIVE_TIMING', '-DNATIVE_AUDIO_BYTE_SERVICE', '-I', str((base or ROOT)/'native/bridge'),
+    return (['-DUGH_NATIVE_AUDIO'] if any(u['component']=='audio_world' for u in units) else [])+['-DUGH_NATIVE_TIMING', '-DNATIVE_AUDIO_BYTE_SERVICE', '-I', str((base or ROOT)/'native/bridge'),
             '-I', str(ROOT/'verif/projector')]
 
 def composition_source(relative, text, units):
-    """Generated memory service only; the literal build is unchanged."""
+    """Generated interop services only; the literal build is unchanged."""
+    if relative in ('native/far_copy.c','native/decimal.c') and any(u['component']=='audio_world' for u in units):
+        header='far_copy.h' if relative.endswith('far_copy.c') else 'decimal.h'
+        text=text.replace('#include "'+header+'"','#include "'+(ROOT/'native'/header).as_posix()+'"\n#include "'+(ROOT/'native/audio_bytes.h').as_posix()+'"')
+        if header=='far_copy.h':
+            statement='destination[destination_cursor]=source[source_cursor];';assert text.count(statement)==1
+            return text.replace(statement,'audio_borrowed_store(destination,destination_cursor,audio_borrowed_byte(source,source_cursor));')
+        for value in ('digit','255'):
+            statement='output->bytes[output->cursor]='+value+';';assert text.count(statement)==1
+            text=text.replace(statement,'audio_borrowed_store(output->bytes,output->cursor,'+value+');')
+        statement='bytes[0]+(uint16_t)bytes[1]*256u';assert text.count(statement)==1
+        text=text.replace(statement,'audio_borrowed_byte(bytes,0)+(uint16_t)audio_borrowed_byte(bytes,1)*256u')
+        for member in ('ten','hundred'):
+            statement='*divisors.'+member;assert text.count(statement)==1
+            text=text.replace(statement,'audio_borrowed_byte(divisors.'+member+',0)')
+        return text
+    if relative in ('native/bridge/ice_scratch_bridge.c','native/bridge/ice_bridge.c') and any(u['component']=='audio_world' for u in units):
+        # The fixed workspace's trailing seed overlaps the C audio facade flags.
+        # No maintained ICE source changes, and no native state is put into RAM.
+        header='ice_scratch.h' if 'ice_scratch_bridge' in relative else 'ice.h'
+        text=text.replace('#include "../'+header+'"',
+            '#include "'+(ROOT/'native'/header).as_posix()+'"\n#include "audio_world_bridge.h"')
+        seed='memcpy(output,ugh_mem+destination,sizeof output);'
+        publish='memcpy(ugh_mem+destination,output,sizeof output);'
+        assert text.count(seed)==text.count(publish)==1
+        written='result.decoder.bytes_written' if 'ice_scratch_bridge' in relative else 'result.bytes_written'
+        return text.replace('memcpy(input,ugh_mem+source,sizeof input);','audio_workspace_read(input,source,sizeof input);').replace(seed,
+            'audio_workspace_read(output,destination,sizeof output);').replace(publish,
+            'audio_workspace_publish(destination,output,sizeof output,unpacked,'+written+');')
     if not timing_composed(units) or relative!='c/memory.c': return text
     text='#include "timing_world_bridge.h"\n'+text
     text=text.replace('uint8_t ugh_read(uint32_t a) {',
@@ -100,7 +128,12 @@ def build(literal=False):
         else:
             sources.append(source)
     sources += sorted((ROOT/'host').glob('*.c'))
-    sources += [unit['native'] for unit in units] + [unit['bridge'] for unit in units]
+    for original in [unit['native'] for unit in units]+[unit['bridge'] for unit in units]:
+        text=original.read_text()
+        composed=composition_source(original.relative_to(ROOT).as_posix(),text,units)
+        if composed!=text:
+            target=generated/('native_'+original.name);target.write_text(composed);sources.append(target)
+        else:sources.append(original)
     unit_names=[u['component'] for u in units]
     (out/'units.c').write_text('/* Generated host variant metadata. */\n#include "host.h"\n'+
         'const char *host_native_units[] = {'+','.join(json.dumps(x) for x in unit_names)+'};\n'+

@@ -212,7 +212,10 @@ def instrument(text, source, functions, sites):
         # their cost by three hooks per ordinary memory byte.
         if source=='native/bridge/timing_world_bridge.c' and name in {
             'timing_shared_read','timing_shared_write','timing_is_owned',
-            'get','put','require','word_token','token_word','audio_borrowed_byte'}:
+            'get','put','require','word_token','token_word','audio_borrowed_byte','binding_width'}:
+            assert not re.search(r'\b(?:l1_\w+|ugh_dispatch\w*|ugh_call_near\w*)\s*\(',text[b+1:e])
+            continue
+        if source=='native/bridge/audio_world_bridge.c' and name=='audio_borrowed_store':
             assert not re.search(r'\b(?:l1_\w+|ugh_dispatch\w*|ugh_call_near\w*)\s*\(',text[b+1:e])
             continue
         ident=len(functions);body=text[b+1:e]
@@ -277,7 +280,7 @@ def generate(literal=False):
             rel=p.relative_to(ROOT).as_posix();text=p.read_text();inputs.append(p)
             if top=='c' and p.suffix=='.c':
                 for name in sorted(exports):text=re.sub(r'\b'+re.escape(name)+r'\b','l1_'+name[2:],text)
-                text=hostbuild.composition_source(rel,text,units)
+            text=hostbuild.composition_source(rel,text,units)
             if not literal and ((top=='c' and p.name!='dispatch_table.inc') or rel.startswith('native/bridge/')):
                 text=instrument(text,rel,functions,sites)
             if not literal and rel=='host/main.c':

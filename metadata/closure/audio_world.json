@@ -1,0 +1,416 @@
+{
+  "component": "audio_world",
+  "status": "migrated",
+  "original": {
+    "owned": [],
+    "composes": [
+      "timing_world",
+      "adlx_allocation",
+      "adlx_digital",
+      "adlx_effects",
+      "adlx_facade",
+      "adlx_lifetime",
+      "adlx_loader",
+      "adlx_main",
+      "adlx_music",
+      "adlx_samples",
+      "adlx_sections",
+      "adlx_voice"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/audio_world.h",
+      "native/audio_world.c",
+      "native/bridge/audio_world_bridge.h",
+      "native/bridge/audio_world_bridge.c",
+      "native/bridge/audio_composition_api.h"
+    ],
+    "functions": [
+      "audio_world_borrow"
+    ],
+    "bridge": "native owner and typed peer interop"
+  },
+  "purpose": "Remaining audio state leaves the machine: one native owner, address-free typed peer identities and explicit borrowed byte/workspace services",
+  "interface": {
+    "inputs": "Cold fixture; borrowed resources; synchronous ordered services",
+    "outputs": "Native audio ownership and a separate observation serialization"
+  },
+  "callers": [
+    "Existing external entry ABI; typed timer callback delivery"
+  ],
+  "callees": [
+    "Accepted audio/timer pure kernels and native peer adapters; platform services"
+  ],
+  "indirect": [
+    "Typed AudioPeerRole; open peer targets fail closed. Broken external hooks remain explicit services."
+  ],
+  "memory": {
+    "owner": "NativeTimingWorld.audio; clock words remain in NativeTimingWorld.music",
+    "aliases": "One physical binding per byte; record12 and channel9 use existing channel/saved voice records",
+    "observations": "Cold import only; sealed machine lanes, native serializer, no RAM write-back or journal for moved fields",
+    "native_bytes": "4292 newly owned audio bytes plus the earlier 14 clock bytes; timer remains 306 bytes",
+    "service_state": "Opaque calibration/DSP IRQ bindings retain 8 serialized provider bytes; no DOS vector words in game state",
+    "shared_views": "Both ICE windows, ordered copy and decimal buffers use explicit typed borrows; live-DS shutdown writes the original foreign DGROUP:0002 view without inventing ownership"
+  },
+  "assumptions": [
+    "Current deterministic backend; legacy literal/API profile unchanged",
+    "Admitted contracts of accepted audio/timer kernels; unsupported requests fail closed",
+    "Compatibility register/stack shells remain at the current verification ABI. This is state/direct-call composition, not yet a standalone production executable."
+  ],
+  "eliminated": [
+    "RAM ownership/projection of audio state in composed profile; audio/timer peer dispatcher hops"
+  ],
+  "retained": [
+    "Original aliases, raw current record/slot, fades, PCM and DMA stale storage; resource and external IRQ bindings",
+    "Unreachable shipped SB path and all broken external hook transfers remain unchanged"
+  ],
+  "evidence": [
+    {
+      "property": "Owned layout, byte lanes and resource identities",
+      "level": "C",
+      "method": "Independent committed AudioState projection, full byte-domain reads/writes, native output/frame checks and direct alias cases",
+      "command": "python verif/audio_composition.py --router",
+      "result": "PASS: 4612 owned bytes x256, 1966080 resource words, 2097152 original timer callback-word checks; record12/channel9 aliases; no RAM resynchronization",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "Numeric byte-view output/frame/dependence",
+      "level": "B",
+      "method": "Actual get/put/shared-write C, numeric 8/16/32-bit fields and either word/byte lane, arbitrary old value and byte. Frame/dependence; callback token fields separately enumerated, no timer algorithm proof widened.",
+      "command": "python verif/audio_composition.py --proof",
+      "result": "PASS on actual C, 8/16/32-bit fields and arbitrary values/byte lanes; no whole asynchronous machine theorem",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "L1/Unicorn API and persistent native corpus",
+      "level": "C",
+      "method": "Independent compiled reference plus Unicorn; full RAM, live ABI, device/ordered ports; explicit admission failures",
+      "command": "python verif/audio_composition.py --api --corpus --lifetime --sb-api --ice-borrow --borrowers",
+      "result": "PASS: 2382 legacy cases; 2194 composed matches, 188 explicit out-of-contract rejections; all 11 ADLX resources/143 configurations, 24 lifetime cases; 641 DMA bytes=258 fresh+383 stale; both ICE borrowers and foreign shutdown view",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "Clean integration, observation projector and machine-edge census",
+      "level": "D",
+      "method": "Committed HEAD archive plus only this overlay, scratch promotion; native and pure literal hosts; no expected records used as state",
+      "command": "python verif/audio_composition.py --build --projector --census --levels",
+      "result": "PASS: closure 47/0; hosts 21/21 each; 17955 equal boundaries, 4612 native bytes/zero owned journal publications; zero island machine edges/fallbacks/L1 game bodies; 81/81 openings; 7/7 audio and 8/8 deep groups",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "New composition seam defects",
+      "level": "C",
+      "method": "Generated-copy dropped peer, reordered real OPL writes, stale native cursor and missing audio serialization",
+      "command": "python verif/audio_composition.py --defects",
+      "result": "PASS: all four detected; missed serialization stops with no resynchronization",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "Accepted kernel evidence reused within original domains",
+      "level": "B",
+      "method": "Accepted algorithm theorems unchanged; legacy ABI tokens identical after eliding the AudioPeerBinding typedef, which is uint16_t in that profile. New ownership/peer seams have independent evidence.",
+      "command": "python verif/audio_composition.py --reuse",
+      "result": "PASS: pure kernels unchanged; default bridge tokens identical after the exact uint16_t typedef elision; new composition has separate B/C/D evidence",
+      "date": "2026-11-15"
+    }
+  ],
+  "amiga": {
+    "classification": "not-used",
+    "finding": "DOS composition only"
+  },
+  "uncertainty": [
+    "Compatibility ABI shells and resource/port/IRQ machine services remain; this work does not remove the whole machine from the production link.",
+    "188 API fixtures outside the existing typed admissions fail closed; exact cases and poison modes are in the receipt. No all-state equivalence is inferred from scenarios.",
+    "Unreachable in the shipped program: startup requests AdLib only; no shipped sample resource and bank/delay hooks are near RET stubs; the DSP probe far CALL returns through a near RET. No hook is repaired or given invented intent."
+  ],
+  "dependencies": {
+    "native/audio_world.h": {
+      "includes": [
+        "adlx_lifetime.h"
+      ],
+      "calls": []
+    },
+    "native/audio_world.c": {
+      "includes": [
+        "audio_world.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/audio_world_bridge.h": {
+      "includes": [
+        "timing_world_bridge.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/audio_world_bridge.c": {
+      "includes": [
+        "audio_world_bridge.h",
+        "platform.h",
+        "string.h"
+      ],
+      "calls": [
+        "MEMBER",
+        "S",
+        "audio_world_borrow",
+        "c_AdvanceGuardedSoundClock",
+        "c_AdvanceMusicFade",
+        "c_ApplyScannedMusicEvents",
+        "c_BeginSoundDelayMeasurement",
+        "c_CalibrateSoundDelay",
+        "c_CancelMusicFade",
+        "c_ChainSavedTimerInterrupt",
+        "c_ClearSoundState",
+        "c_DelaySoundIo",
+        "c_DisableMusicSectionLoop",
+        "c_FinishSoundDelayMeasurement",
+        "c_GetElapsedMusicTime",
+        "c_GetMusicTrackDuration",
+        "c_HandleDspProbeInterrupt",
+        "c_HandleEffectAdlxControl",
+        "c_HandleEffectAdlxFrequency",
+        "c_HandleEffectAdlxGain",
+        "c_HandleEffectAdlxInstrument",
+        "c_HandleEffectAdlxKeyOff",
+        "c_HandleEffectAdlxLongWait",
+        "c_HandleEffectAdlxNoOp",
+        "c_HandleEffectAdlxShortWait",
+        "c_HandleEffectAdlxTimerPeriod",
+        "c_HandleMainAdlxControl",
+        "c_HandleMainAdlxFrequency",
+        "c_HandleMainAdlxGain",
+        "c_HandleMainAdlxInstrument",
+        "c_HandleMainAdlxKeyOff",
+        "c_HandleMainAdlxLongWait",
+        "c_HandleMainAdlxNoOp",
+        "c_HandleMainAdlxShortWait",
+        "c_HandleMainAdlxTimerPeriod",
+        "c_HandleSampleDmaInterrupt",
+        "c_HandleTimerInterrupt",
+        "c_InitializeAdlibPlayback",
+        "c_InitializeDspPlayback",
+        "c_InitializeSoundSystem",
+        "c_InstallTimerInterrupt",
+        "c_KeyOffAdlibChannel",
+        "c_LoadAdlibChannel",
+        "c_LoadAdlibInstrument",
+        "c_LoadAdlibTrackData",
+        "c_LoadBankSoundByIndex",
+        "c_LoadIffSample",
+        "c_LoadSoundBankResource",
+        "c_LocateDmaMixBuffers",
+        "c_MixSampleVoicePairs",
+        "c_PlayAdlibEffect",
+        "c_PrimeSampleDmaPlayback",
+        "c_ProbeSoundBlasterDmaIrq",
+        "c_RegisterTimerCallback",
+        "c_RegisterTimerCallbackFromStack",
+        "c_RemoveTimerCallback",
+        "c_RemoveTimerCallbackFromStack",
+        "c_ResetAdlibTrackChannelCursor",
+        "c_ResetSampleVoiceCursor",
+        "c_ResetSoundBlasterDsp",
+        "c_RestoreAdlibVoiceAllocation",
+        "c_RestoreTimerInterrupt",
+        "c_RunEffectAdlxEvents",
+        "c_RunMainAdlxEvents",
+        "c_ScanMusicEvents",
+        "c_ScheduleMusicFade",
+        "c_SetAdlibChannelGain",
+        "c_SetAdlibChannelVolume",
+        "c_SetAdlibFrequency",
+        "c_SetDspSampleRate",
+        "c_SetMusicTrackVolume",
+        "c_SetTimerCallbackInterval",
+        "c_ShutdownAdlibPlayback",
+        "c_ShutdownDspPlayback",
+        "c_ShutdownSoundSystem",
+        "c_SilenceAdlibOperators",
+        "c_StartAdlibTrackChannel",
+        "c_StartDmaSampleBlock",
+        "c_StartMusicTrack",
+        "c_StartSoundOutputs",
+        "c_StopAdlibTrackChannel",
+        "c_StopMusicTrack",
+        "c_StopSoundChannel",
+        "c_SwapDwordByteOrder",
+        "c_TickAdlxPlayback",
+        "c_WriteAdlibRegister",
+        "c_WriteSoundBlasterDsp",
+        "c_loc_032F",
+        "lin",
+        "memcpy",
+        "native_timing_world",
+        "timing_bind_audio",
+        "timing_bind_audio_external",
+        "timing_bind_audio_high",
+        "timing_is_owned",
+        "timing_shared_read",
+        "timing_shared_write"
+      ]
+    },
+    "native/bridge/audio_composition_api.h": {
+      "includes": [
+        "audio_world_bridge.h"
+      ],
+      "calls": []
+    }
+  },
+  "verification_inputs": {
+    "c/dispatch.c": "80a97f55a460a21dac9d6295939a8276c83b66cef886f814365e0a823814debf",
+    "c/memory.c": "97f59e3c343cd6911854d0bfc3ff624417de2844f712caa96ec6799d3a9783d9",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "metadata/closure/adlx_allocation.json": "1aa5f70d194a1ef33eabe4eba3929936016d9e5502f2375f41ead29df075c03c",
+    "metadata/closure/adlx_digital.json": "3e2e56d8bb0c1f1820b7cb82b664c50652408d2fb393cdcb59c005cb8975b461",
+    "metadata/closure/adlx_effects.json": "5495a2eb878ca447310d557527151754a5c22daa2f451525e20e072ddcfabc30",
+    "metadata/closure/adlx_facade.json": "37e346de30da87495e3aed750e5d0e1c3dc34c1974cceb137e82f42aab3bd480",
+    "metadata/closure/adlx_lifetime.json": "ddeb5098c6ff5f5ba646aa51cc8e4a2211cb1dd526a1b958a2fe4a58f0d6c713",
+    "metadata/closure/adlx_loader.json": "9454cfd26a3fef43c14485797adb8220ffc20410484fc1bfe06e0f96121fc827",
+    "metadata/closure/adlx_main.json": "7d0ce5d35abc0cc3176dc5db9d210a7a1660eafa0a92b8b18db67de489238592",
+    "metadata/closure/adlx_music.json": "e31040b9f7f9c16554654517990989a78791903302360f5b505b5602b674652a",
+    "metadata/closure/adlx_samples.json": "d1411be2eb09b76e8862c844813352688657f826b7a22d4695a7defc08572b77",
+    "metadata/closure/adlx_sections.json": "44f00dcad25a1767af151f02ac98f88dba8302caac338472e4406ba01bf9bc71",
+    "metadata/closure/adlx_voice.json": "3ac4a6c5464b32574d4d282fb1ba6393c2b71c76ac4da2fb3204a6d67c22c689",
+    "metadata/closure/decimal.json": "a17de4e5cb5f3596652893a5ad6a3fd955f68b57795288510a7c9df75096c2d7",
+    "metadata/closure/far_copy.json": "b607e9417591d0724605e6d4fb8bbe50087f4e03755ac77d0e1425e8009f98f3",
+    "metadata/closure/ice.json": "9952c30fd8cd63eba1c6788e454c7e8aae3aba8998751d1ae0b1027cc99a0c48",
+    "metadata/closure/ice_scratch.json": "0494170f9ceb84beb937266c68138406e4a3c65a4b2696b5ab15de08cc179224",
+    "metadata/closure/music_clock.json": "8094fca14f1041708070f728a2c0ca5a3d9a78e417e05cc8973a06ad268e834a",
+    "metadata/closure/timer.json": "7b053bc337bb8f974e67d4bea5e62441d9717d2d2dfcd1cbbd7dcc40ed96c07c",
+    "metadata/closure/timer_lifetime.json": "97fdd4f193a186e6d8a8d06be6684bc7da5132756920cbdc887b00c580ebbf94",
+    "metadata/closure/timing_world.json": "1e40aefdedaf1b85d4c29dfddd400cd28bd32d29a2cb007df7c17f912cdc70bc",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "native/adlx_allocation.c": "4fd567bf96fd73d071073a7d70bd31ad5d0339df16fcea5dd083e87989bbc858",
+    "native/adlx_allocation.h": "e0e5c37e9612494d05042149f923bb0ed8acf223a8eb7f84bd8447ae68ffdc9b",
+    "native/adlx_digital.c": "fb82aa93c8a9b250ab3fde6e118f5255e3a3b2d1f923313f0c4f88abb5fb0987",
+    "native/adlx_digital.h": "cf7c87afbc174dc1e8a6f607bf8f9427cfc18f4b26237433144a9553756e86cf",
+    "native/adlx_effects.c": "0004628dd7cb88e6990c15b95c95c2f74e3cd8e17d7433375e9f39f637cd1f37",
+    "native/adlx_effects.h": "89fd75bd98516b98178986632b69ab0e1c58dc37d91ab0e08095ce5729e98be6",
+    "native/adlx_facade.c": "0f1e6b9ef3b0cbac61c41c48c8feb8e02e76d9100d05a6571c7a2454374b6cee",
+    "native/adlx_facade.h": "2b1711aea00c0197dc032babf1c7b41a3a8404ab97890fc353f5f58d34e8307a",
+    "native/adlx_lifetime.c": "c24aa540552a69020f3ad3b446fdda23d46b260669c4f1d8855e4d381fce7b7c",
+    "native/adlx_lifetime.h": "34078b03e4b54b19a758204c40b0be2ec70ef73aa099366a5082b4a1a438e67b",
+    "native/adlx_loader.c": "11198219738d1e178a0b471ec1c3d3d1d44ed7252e51c54a6ba0ce6653e93e36",
+    "native/adlx_loader.h": "32cf42c1e9c2136f2ca2fdcbee3fa70b1e727453042aa8021b71afacd36b1539",
+    "native/adlx_main.c": "2e624d0ee0ea20d647b54d811671f52c50706e0cb34529c7bd8ac8c18e0dec42",
+    "native/adlx_main.h": "a67988ae0fa9f4d2c5d0451f02851385a900f96a6fba67c56e4764ffc10469f6",
+    "native/adlx_music.c": "87780ecf6345c5dbdd8a37567e570df03e6d614f226e99f482128dd7fbc8fdec",
+    "native/adlx_music.h": "5cbc00c308886d499c9f786908f01d7cec00108050d23e392223d447005fdb74",
+    "native/adlx_samples.c": "8d9c1dd3917034c80b7a2b646a0f258c6bbd7432b258f2cf7160c93de565e5af",
+    "native/adlx_samples.h": "893df7a08f251dcb592f39b841443822dd1275dd1bf360c31052690777f0e113",
+    "native/adlx_sections.c": "5d3c99411e0767ad4a63664958bca8064bbb44d7a7aeb1aaff93666c43778a19",
+    "native/adlx_sections.h": "d291ad1a7ca94580a327cba7b6f9810fec8bae288baddc30d67cd23351cefb35",
+    "native/adlx_voice.c": "8061b763e6d2d3bbd68e383d6b3538ba84e49aee96cc5bb0c785c55472423090",
+    "native/adlx_voice.h": "d10d2b92ce7fbb9157d8eed291936ce119e1b99f130898587d6d4c95fa90e76d",
+    "native/audio.h": "31e4dd978a7ecc91d8dfb6de250c7e9f6ef4377bc5b1d3c413df749e94a2a780",
+    "native/audio_bytes.h": "6edad8dc19515e3fd6009442b7d082317f534a86faea02e6c60fb92823011424",
+    "native/audio_world.c": "cf56b29c56e98b088e47d1d82676839856965c40c230996ef4d019bf449a510e",
+    "native/audio_world.h": "1036eed4bc6b30cdee642bee011403fd4802f2e2a47367f84e8bd6da6900a255",
+    "native/bridge/adlx_allocation_bridge.c": "5b2cd7033b944ac24806f3d4a9de22712b3e1ce79c4447ec5d6171f8b9b890f6",
+    "native/bridge/adlx_digital_bridge.c": "c01773293be919cde66def8714c874d4b333a24e01fada3a069bb20080578ad7",
+    "native/bridge/adlx_effects_bridge.c": "bd0e009532f62b168a83cd5f0d83168f1c7b3b8f71e87192931c27ccd48928bd",
+    "native/bridge/adlx_facade_bridge.c": "b76a934203948f7c87bd2efd2145a44d9b0b105fe546b0eacc3b567acf59dd87",
+    "native/bridge/adlx_lifetime_bridge.c": "480d6bfd7c7a484aadb89c1a0a213146270fd7b39790009ebe1038d72bce96d6",
+    "native/bridge/adlx_loader_bridge.c": "6ec32e8fb703c46046685288ce730769b2b4d27d82ff427268f4d00752370af0",
+    "native/bridge/adlx_main_bridge.c": "dbed26603c4633ccf0aa19560b9933f59e13ea74668c0f1f4e6c6e76c3802941",
+    "native/bridge/adlx_music_bridge.c": "1d4d1e22256b35c8eaa122237c217d749770fc14eaade89ee8f6a7af321f2d16",
+    "native/bridge/adlx_samples_bridge.c": "39e13b77b095a5a73c6d24162b8a081853a1b71c149133c694fe63c896b74753",
+    "native/bridge/adlx_sections_bridge.c": "134bef77a9c68aa650c7b71dd6b181e49e030704129a4df0b8bf5045ec05bad2",
+    "native/bridge/adlx_voice_bridge.c": "7c4dec6838d4a66d57bb593e980072c557532b2bb0a2192b05b05c0d2a211885",
+    "native/bridge/audio_composition_api.h": "64045102ebac132a5cd8fb018a41b048fd411057d6373d89de7f4539a72fe7de",
+    "native/bridge/audio_projection.h": "f8dfd66352954a9efe9e23b97b041cd8c953a88ecbe9c6769448260eccc5dff0",
+    "native/bridge/audio_world_bridge.c": "220ce19c1f53581b85ac248bdbd3c95efc26b004e3eeaabaed559d21c5c9f403",
+    "native/bridge/audio_world_bridge.h": "ad993fe065c30a2df10bea1be26e283771273a93a0f885753d7dc39f724402ab",
+    "native/bridge/decimal_bridge.c": "225e5f193d95b69bf6544d307beca486a1b3e59b1118c90f33b072d24dfcbde0",
+    "native/bridge/far_copy_bridge.c": "2760bf0ef20fd0193ef7b2578dd253a4f50a0b1534294dc41d510b93f0df9e38",
+    "native/bridge/ice_bridge.c": "2394fe3ef094db70ec8e550fdfe40d7a18801712f8b6253bddbaf47219acdd7c",
+    "native/bridge/ice_scratch_bridge.c": "4ef7b293d9a143b5247e647d8192393ca00c04ca538608039debf278ed5317e6",
+    "native/bridge/music_clock_bridge.c": "3718f53ca922b19b1408f68bc470f7deefde12835d688818e99fcfdd40947c42",
+    "native/bridge/timer_bridge.c": "3ce26047d9e72b02ff7f993a1b38fc0d28fdaca10a71ef3ff8e49cc32a541ab4",
+    "native/bridge/timer_lifetime_bridge.c": "ca969951606c7406837a7e850e9d9c55e0c6193ab6fe133028b1cd1762da8474",
+    "native/bridge/timing_world_bridge.c": "833f8c384642c26065ac4f1926cac7e455156a2bd87f3ce69c5401e54e06b5a4",
+    "native/bridge/timing_world_bridge.h": "a8551a8541add079b8be1a3b5183a95cec86da5fd9dfb5a216fff65232251f4b",
+    "native/decimal.c": "77258d5cece080c041e9a45ad9c863130b7c7615fd1510673d4435ec72615320",
+    "native/decimal.h": "7847c3cd660b44b709dd31fd2fbe6b4031a8440962b1e3cc515cff1c4d37ec34",
+    "native/far_copy.c": "0c9b6e5db629c707b527c83afa87fca09b3d4765bcdcf43153f71819defcb541",
+    "native/far_copy.h": "67fe6bd7ccd288810f43c6726d164619546da14290b0c8c3a313a1ecbda6a751",
+    "native/ice.c": "f370f880688879b5ccff8825b4d904a00df77c5377b8763bfc73c7ee32cdbb5c",
+    "native/ice.h": "9dae8b5a177d2d671ae2218035db0af8b83f30bf7b470c6bd5be3f068e26c756",
+    "native/ice_scratch.c": "4e6f10ec420a543a04c7c53ccc74123b44caa0fe88948e5ecf03289ccaac68d3",
+    "native/ice_scratch.h": "252a6d1617f2c7120e0ea71fb824825b68a47699f2c1f5ba3ea0a7af587d3ae7",
+    "native/music_clock.c": "e89620aaff7554c7fc05dac70a4c1c4404bb0dd755f9b06281069b02920580e4",
+    "native/music_clock.h": "1916c309a59fc9fc5216459efeacdc2c347a814ad96f003e39fd97f96c2b637a",
+    "native/timer.c": "05803307a67871c34cc69e8c8b9a5168103b399c0555638c13998e5838620513",
+    "native/timer.h": "99bb08b73cbd7ea5ef618975b601948a6dcee9d7e331db29d699b9b08eea0403",
+    "native/timer_lifetime.c": "d45ca7afb8fe66332e5b1a0969cafbd90727c866550781e677bd04fb850a3a2f",
+    "native/timer_lifetime.h": "b1460003f1f6bec65701532d231b38e3060dd639dcdc1c15e9d5d0632c0d99c6",
+    "native/timing_world.c": "283e39b59f5699080e6a0d259ef55ef6d22410ded1608e1c9fc89fda4123efda",
+    "native/timing_world.h": "d525ddad1bac66043ec99681ebd95f74217f7688a2fcdf58221c07923564e2f0",
+    "tests/adlib.py": "d834fc01cafb123c16c6489c25239a7ae464b855dd5cb055bf6d0c25c1c39ade",
+    "tests/dsp.py": "1578a2485f23e906c47c98322ce0925337b9544381fcd612ac2288e09aa0a1e0",
+    "tests/music_analysis.py": "b8d670835ad7f932e5108f1bd7443302c8fe54b3ff5cc25ce82a819212677fca",
+    "tests/music_clock.py": "440aed46727e7128a8dd4a2980d33a6eb6b5646da912dbcec626da6421105037",
+    "tests/sound_api.py": "f2ff7e547e026136ecb3abbc2abf139dcdfbd7fa4a5d026d5c19d1ed804b8650",
+    "tests/sound_engine.py": "4a3fbc291f252e8b558e3acaef6cd82b71d404325260d7323d7e975b4819d4a2",
+    "tests/timer.py": "9feb061a861603ed6e75d8b1fe286d4c34c96db9574244b3c8d6663ff5bb6fde",
+    "tests/timer_stack.py": "e6ea2a364a6b062fcc05036dca8cfe1cea83926d3370e3cc3b7e4b3031f20e50",
+    "tests/timer_system.py": "b8e2fb308eaa026ce15f7f598304da4b859b32ada0f514c85130547aff56091c",
+    "tools/hostbuild.py": "6bb90ae0ef1059cb912fcefc7b8e84744179d3fb5ff639d50884f20eb52b2b24",
+    "verif/audio_composition.py": "32cf1d267784b30271e030a276abb0424aacf932ae169fc98efa71a9cdb70691",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/entry_retirement.py": "3b52d207fef7b3e51461a2357a06f012f59651b406f1fe9a0253876e55f76529",
+    "verif/projector/observer.c": "9fa65b33ba33f025a4edf9996a095de3d3f708b77927d4918741933aba5016e8",
+    "verif/projector/publications.py": "91a77f8fdeb8daea3a6cb56d3c2db415b3d54fa35911693f57f909a107397e24",
+    "verif/projector_evidence.py": "d2117359ead09e9ffd3b01bbe56cf48d4e32a2fd31b338f32aa0fa2767f7e404",
+    "verif/standalone_census.py": "647dd84b82fbeb0871fd992671b0c2279cd98e66bb46854b57c0745ed84b0a6f",
+    "verif/timer_callbacks.py": "4149fe68343ff59647e5baa10beeae519625d099345ec256cdadf92e0c8d0b38",
+    "verif/timing_composition.py": "079ee38dca0657725f0449fd78d90df8928a4d2130a95021a07f9aa7195dd757",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574"
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "receipts": {
+    "build/workers/close-adlx-23/verification-receipt.json": "12e333f7e7a193c1388d1b9a7b8a09496873bdd1c0c07974d7b6dbd10a6bb18c"
+  },
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-15",
+      "reason": "New audio ownership and peer composition evidence; status left for supervisor review",
+      "commands": [
+        "python verif/audio_composition.py --gate"
+      ],
+      "results": "PASS within the stated contracts",
+      "inputs": [
+        "native/audio_world.h",
+        "native/audio_world.c",
+        "native/bridge/audio_world_bridge.h",
+        "native/bridge/audio_world_bridge.c",
+        "native/bridge/audio_composition_api.h",
+        "native/timing_world.h",
+        "native/audio_bytes.h",
+        "native/bridge/timing_world_bridge.c",
+        "native/bridge/timing_world_bridge.h",
+        "native/bridge/audio_projection.h",
+        "tools/hostbuild.py",
+        "verif/audio_composition.py",
+        "verif/timing_composition.py",
+        "verif/standalone_census.py",
+        "verif/projector_evidence.py",
+        "verif/projector/observer.c",
+        "verif/projector/publications.py",
+        "native/bridge/adlx_allocation_bridge.c",
+        "native/bridge/adlx_digital_bridge.c",
+        "native/bridge/adlx_effects_bridge.c",
+        "native/bridge/adlx_facade_bridge.c",
+        "native/bridge/adlx_lifetime_bridge.c",
+        "native/bridge/adlx_loader_bridge.c",
+        "native/bridge/adlx_main_bridge.c",
+        "native/bridge/adlx_music_bridge.c",
+        "native/bridge/adlx_samples_bridge.c",
+        "native/bridge/adlx_sections_bridge.c",
+        "native/bridge/adlx_voice_bridge.c"
+      ]
+    }
+  ]
+}

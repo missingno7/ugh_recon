@@ -77,6 +77,11 @@ def snapshot():
  for f in files():
   p=target/f;p.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(ROOT/f,p)
  p=target/'metadata/closure/timing_world.json';c=json.loads(p.read_text());c['status']='migrated';save(p,c)
+ # This driver is the accepted first-cut profile. The second-cut driver
+ # deliberately promotes audio_world after taking this same clean archive.
+ p=target/'metadata/closure/audio_world.json'
+ if p.exists():
+  c=json.loads(p.read_text());c['status']='unanalyzed';save(p,c)
  refs=target/'build/whole';refs.mkdir(parents=True,exist_ok=True)
  for p in (ROOT/'build/whole').glob('*.ref.json'):shutil.copyfile(p,refs/p.name)
  save(target/'build/workers/c-close/call-edges.json',[])
@@ -98,7 +103,7 @@ def api():
  profiles={}
  for composed in [None,False,True]:
   label='reference' if composed is None else 'composed' if composed else 'legacy';folder=OUT/'api'/label;folder.mkdir(parents=True,exist_ok=True)
-  all_units=[u for u in hostbuild.selected_units() if u['component']!='timing_world']
+  all_units=[u for u in hostbuild.selected_units() if u['component'] not in {'timing_world','audio_world'}]
   units=[] if composed is None else all_units
   if composed:units.append(dict(component='timing_world',native=ROOT/'native/timing_world.c',bridge=ROOT/'native/bridge/timing_world_bridge.c',exports=[]))
   exports={n for u in units for n in u['exports']};sources=[]

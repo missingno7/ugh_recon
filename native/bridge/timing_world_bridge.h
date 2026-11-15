@@ -17,4 +17,8 @@ unsigned timing_owned_bytes(void);
 uint32_t timing_check_serialization(const uint8_t *observation);
 int timing_audio_callback_active(void);
 uint8_t audio_borrowed_byte(const uint8_t *window,uint32_t index);
+void timing_bind_audio(uint32_t address,size_t member,unsigned size,unsigned kind);
+void timing_bind_audio_high(uint32_t address,size_t member);
+void timing_bind_audio_external(uint32_t address,unsigned index);
+unsigned timing_audio_owned_bytes(void);
 #endif

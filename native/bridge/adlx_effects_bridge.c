@@ -1,3 +1,4 @@
+#include "audio_composition_api.h"
 #include "platform.h"
 #include "audio_projection.h"
 #include "../adlx_effects.h"
@@ -16,15 +17,15 @@ int l1_HandleEffectAdlxControl(Regs *r);
 static int effects_bridge_literal(Regs *r,AudioMainOperation operation)
 {
     switch(operation) {
-    case AUDIO_LONG_WAIT:return l1_HandleEffectAdlxLongWait(r);
-    case AUDIO_SHORT_WAIT:return l1_HandleEffectAdlxShortWait(r);
-    case AUDIO_FREQUENCY:return l1_HandleEffectAdlxFrequency(r);
-    case AUDIO_KEY_OFF:return l1_HandleEffectAdlxKeyOff(r);
-    case AUDIO_GAIN:return l1_HandleEffectAdlxGain(r);
-    case AUDIO_INSTRUMENT:return l1_HandleEffectAdlxInstrument(r);
-    case AUDIO_NO_OP:return l1_HandleEffectAdlxNoOp(r);
-    case AUDIO_TIMER_PERIOD:return l1_HandleEffectAdlxTimerPeriod(r);
-    case AUDIO_CONTROL:return l1_HandleEffectAdlxControl(r);
+    case AUDIO_LONG_WAIT:return AUDIO_LITERAL(l1_HandleEffectAdlxLongWait,r);
+    case AUDIO_SHORT_WAIT:return AUDIO_LITERAL(l1_HandleEffectAdlxShortWait,r);
+    case AUDIO_FREQUENCY:return AUDIO_LITERAL(l1_HandleEffectAdlxFrequency,r);
+    case AUDIO_KEY_OFF:return AUDIO_LITERAL(l1_HandleEffectAdlxKeyOff,r);
+    case AUDIO_GAIN:return AUDIO_LITERAL(l1_HandleEffectAdlxGain,r);
+    case AUDIO_INSTRUMENT:return AUDIO_LITERAL(l1_HandleEffectAdlxInstrument,r);
+    case AUDIO_NO_OP:return AUDIO_LITERAL(l1_HandleEffectAdlxNoOp,r);
+    case AUDIO_TIMER_PERIOD:return AUDIO_LITERAL(l1_HandleEffectAdlxTimerPeriod,r);
+    case AUDIO_CONTROL:return AUDIO_LITERAL(l1_HandleEffectAdlxControl,r);
     }
     return UGH_UNSUPPORTED;
 }
@@ -37,11 +38,11 @@ static void effects_bridge_delay(Regs *r,unsigned factor)
     unsigned product=factor*rd8(r->cs,S(SoundIoDelayMultiplier));
     flag(r,CF,product>255);flag(r,OF,product>255);
 }
-static int effects_bridge_call(Regs *r,uint16_t bank,uint16_t target,uint16_t resume)
+static int effects_bridge_call(Regs *r,uint16_t bank,AudioPeerBinding target,uint16_t resume)
 {
     r->sp=(uint16_t)(r->sp-2);wr16(r->ss,r->sp,r->cs);
     r->sp=(uint16_t)(r->sp-2);wr16(r->ss,r->sp,resume);
-    int status=ugh_dispatch(bank,target,r);r->sp=(uint16_t)(r->sp+4);return status;
+    int status=AUDIO_PEER_TRANSFER(bank,target,r);r->sp=(uint16_t)(r->sp+4);return status;
 }
 
 /* The only semantic external calls are TIMER interval and C stop/restoration.
@@ -136,7 +137,7 @@ static int effects_bridge_event(Regs *r,AudioMainOperation operation)
         if(result.timer_request) {
             r->bx=state.timer_period;r->ax=state.playback_timer_handle;r->cx=0;
             r->di=old_index;
-            status=effects_bridge_call(r,TIMER_SEG,T(SetTimerCallbackInterval),(uint16_t)(S(HandleEffectAdlxTimerPeriod)+0x2f));
+            status=effects_bridge_call(r,TIMER_SEG,AUDIO_TIMER_PEER(SetTimerCallbackInterval),(uint16_t)(S(HandleEffectAdlxTimerPeriod)+0x2f));
         } else {r->ax=track->step_q8;r->bx=record;}
         r->di=effects_bridge_inc(r,effects_bridge_inc(r,old_index));r->cx=saved_cx;r->dx=saved_dx;
         r->sp=(uint16_t)(r->sp+4);if(status) return status;
@@ -147,7 +148,7 @@ static int effects_bridge_event(Regs *r,AudioMainOperation operation)
             r->bx=record;if(!(old_control&2)) dec16(r,old_repeats);
             if(result.stop_request) {
                 r->sp=(uint16_t)(r->sp-2);wr16(r->ss,r->sp,state.current_channel);
-                int status=effects_bridge_call(r,UGH_SEG_C,UGH_O_C_StopAdlibTrackChannel,(uint16_t)(S(HandleEffectAdlxControl)+0x46));
+                int status=effects_bridge_call(r,UGH_SEG_C,AUDIO_C_PEER(StopAdlibTrackChannel),(uint16_t)(S(HandleEffectAdlxControl)+0x46));
                 r->sp=(uint16_t)(r->sp+2);return status;
             }
             r->ax=track->start.index;
@@ -167,7 +168,7 @@ EXPORT int c_RunEffectAdlxEvents(Regs *r)
         S(HandleEffectAdlxGain),S(HandleEffectAdlxInstrument),S(HandleEffectAdlxNoOp),S(HandleEffectAdlxTimerPeriod),
         S(HandleEffectAdlxControl),S(HandleEffectAdlxShortWait),S(HandleEffectAdlxShortWait),S(HandleEffectAdlxShortWait),
         S(HandleEffectAdlxShortWait),S(HandleEffectAdlxShortWait),S(HandleEffectAdlxShortWait),S(HandleEffectAdlxShortWait),S(HandleEffectAdlxShortWait)};
-    for(unsigned i=0;i<16;i++) if(rd16(r->cs,(uint16_t)(S(EffectAdlxDispatchTable)+2*i))!=targets[i]) return l1_RunEffectAdlxEvents(r);
+    for(unsigned i=0;i<16;i++) if(rd16(r->cs,(uint16_t)(S(EffectAdlxDispatchTable)+2*i))!=targets[i]) return AUDIO_LITERAL(l1_RunEffectAdlxEvents,r);
     for(unsigned count=0;count<1000000;count++) {
         set_al(r,rd8(r->es,r->di));r->di=effects_bridge_inc(r,r->di);
         set_ah(r,(uint8_t)logic(r,0,8));r->bx=r->ax;

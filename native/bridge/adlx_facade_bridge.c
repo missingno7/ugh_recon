@@ -1,3 +1,4 @@
+#include "audio_composition_api.h"
 #include "platform.h"
 #include "audio_projection.h"
 #include "../adlx_facade.h"
@@ -12,10 +13,10 @@ static FacadeFrame facade_enter(Regs *r,AudioFacadeOperation operation)
 }
 static int facade_leave(Regs *r,FacadeFrame f,int status)
 {if(status==UGH_CONTROL_TRANSFER) return status;r->sp=f.sp;r->bp=f.bp;r->si=f.si;r->di=f.di;r->ds=f.ds;return status;}
-static int facade_call(Regs *r,uint16_t bank,uint16_t target,uint16_t resume,const uint16_t *args,unsigned count)
+static int facade_call(Regs *r,uint16_t bank,AudioPeerBinding target,uint16_t resume,const uint16_t *args,unsigned count)
 {
     uint16_t sp=r->sp;for(unsigned i=count;i;i--) facade_push(r,args[i-1]);facade_push(r,r->cs);facade_push(r,resume);
-    int status=ugh_dispatch(bank,target,r);if(status!=UGH_CONTROL_TRANSFER) r->sp=sp;return status;
+    int status=AUDIO_PEER_TRANSFER(bank,target,r);if(status!=UGH_CONTROL_TRANSFER) r->sp=sp;return status;
 }
 static int facade_run(Regs *r,AudioFacadeOperation operation)
 {
@@ -39,18 +40,24 @@ static int facade_run(Regs *r,AudioFacadeOperation operation)
             if(bits!=work.collected) r->si=logic(r,work.collected,16);
         }
         wr16(SOUND_SEG,S(AdlxPlaybackGuard),state.playback_guard);wr16(SOUND_SEG,S(SoundDeviceBits),view.devices);
-        uint16_t bank=SOUND_SEG,target=0,resume=0,args[2];unsigned count=0;int status;
+
+#ifdef UGH_NATIVE_AUDIO
+uint16_t bank=SOUND_SEG,resume=0,args[2];AudioPeerBinding target=AUDIO_PEER_UNSUPPORTED;
+#else
+uint16_t bank=SOUND_SEG,target=0,resume=0,args[2];
+#endif
+unsigned count=0;int status;
         switch(request.action) {
         case AUDIO_FACADE_DONE:if(operation==AUDIO_FACADE_START) r->es=SOUND_SEG;return facade_leave(r,f,UGH_OK);
-        case AUDIO_FACADE_STOP_SYSTEM:bank=UGH_SEG_C;target=UGH_O_C_ShutdownSoundSystem;resume=UGH_O_C_InitializeSoundSystem+0x26;break;
-        case AUDIO_FACADE_CLEAR:target=S(ClearSoundState);resume=UGH_O_C_InitializeSoundSystem+0x2b;break;
-        case AUDIO_FACADE_INIT_DSP:target=S(InitializeDspPlayback);resume=UGH_O_C_InitializeSoundSystem+0x37;break;
-        case AUDIO_FACADE_INIT_ADLIB:target=S(InitializeAdlibPlayback);resume=UGH_O_C_InitializeSoundSystem+0x67;break;
-        case AUDIO_FACADE_CANCEL:target=S(CancelMusicFade);resume=UGH_O_C_ShutdownSoundSystem+0x30;break;
-        case AUDIO_FACADE_STOP_DSP:target=S(ShutdownDspPlayback);resume=UGH_O_C_ShutdownSoundSystem+0x43;break;
-        case AUDIO_FACADE_STOP_ADLIB:target=S(ShutdownAdlibPlayback);resume=UGH_O_C_ShutdownSoundSystem+0x56;break;
-        case AUDIO_FACADE_PRIME:target=S(PrimeSampleDmaPlayback);resume=UGH_O_C_StartSoundOutputs+0x2a;break;
-        case AUDIO_FACADE_START_CHANNEL:bank=UGH_SEG_C;target=UGH_O_C_StartAdlibTrackChannel;resume=UGH_O_C_StartSoundOutputs+0x52;args[0]=request.channel;args[1]=request.volume;count=2;break;
+        case AUDIO_FACADE_STOP_SYSTEM:bank=UGH_SEG_C;target=AUDIO_C_PEER(ShutdownSoundSystem);resume=UGH_O_C_InitializeSoundSystem+0x26;break;
+        case AUDIO_FACADE_CLEAR:target=AUDIO_SOUND_PEER(ClearSoundState);resume=UGH_O_C_InitializeSoundSystem+0x2b;break;
+        case AUDIO_FACADE_INIT_DSP:target=AUDIO_SOUND_PEER(InitializeDspPlayback);resume=UGH_O_C_InitializeSoundSystem+0x37;break;
+        case AUDIO_FACADE_INIT_ADLIB:target=AUDIO_SOUND_PEER(InitializeAdlibPlayback);resume=UGH_O_C_InitializeSoundSystem+0x67;break;
+        case AUDIO_FACADE_CANCEL:target=AUDIO_SOUND_PEER(CancelMusicFade);resume=UGH_O_C_ShutdownSoundSystem+0x30;break;
+        case AUDIO_FACADE_STOP_DSP:target=AUDIO_SOUND_PEER(ShutdownDspPlayback);resume=UGH_O_C_ShutdownSoundSystem+0x43;break;
+        case AUDIO_FACADE_STOP_ADLIB:target=AUDIO_SOUND_PEER(ShutdownAdlibPlayback);resume=UGH_O_C_ShutdownSoundSystem+0x56;break;
+        case AUDIO_FACADE_PRIME:target=AUDIO_SOUND_PEER(PrimeSampleDmaPlayback);resume=UGH_O_C_StartSoundOutputs+0x2a;break;
+        case AUDIO_FACADE_START_CHANNEL:bank=UGH_SEG_C;target=AUDIO_C_PEER(StartAdlibTrackChannel);resume=UGH_O_C_StartSoundOutputs+0x52;args[0]=request.channel;args[1]=request.volume;count=2;break;
         case AUDIO_FACADE_BROKEN_HOOK:
             r->di=logic(r,0,16);status=ugh_call_near_ret_hook(r,G(loc_001F),UGH_O_C_InitializeSoundSystem+0x47);return facade_leave(r,f,status);
         case AUDIO_FACADE_INITIALIZED:

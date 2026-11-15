@@ -1,13 +1,14 @@
+#include "audio_composition_api.h"
 #include "platform.h"
 #include "audio_projection.h"
 #include "../adlx_lifetime.h"
 
 static void lifetime_push(Regs *r,uint16_t value)
 {r->sp=(uint16_t)(r->sp-2);wr16(r->ss,r->sp,value);}
-static int lifetime_call(Regs *r,uint16_t bank,uint16_t target,uint16_t resume)
+static int lifetime_call(Regs *r,uint16_t bank,AudioPeerBinding target,uint16_t resume)
 {
     lifetime_push(r,r->cs);lifetime_push(r,resume);
-    int status=ugh_dispatch(bank,target,r);r->sp=(uint16_t)(r->sp+4);return status;
+    int status=AUDIO_PEER_TRANSFER(bank,target,r);r->sp=(uint16_t)(r->sp+4);return status;
 }
 static void lifetime_pointer(uint16_t offset,AudioCursor cursor)
 {wr16(SOUND_SEG,offset,cursor.index);wr16(SOUND_SEG,(uint16_t)(offset+2),cursor.window ? audio_bridge_bank(cursor) : 0);}
@@ -104,21 +105,21 @@ static int lifetime_run(Regs *r,int stopping)
         case AUDIO_LIFETIME_DONE:
             if(!stopping) {r->ax=work.result ? 1 : logic(r,0,16);r->es=es;r->di=di;r->si=si;r->sp=sp;}
             return UGH_OK;
-        case AUDIO_LIFETIME_CALIBRATE:status=lifetime_call(r,r->cs,S(CalibrateSoundDelay),(uint16_t)(S(InitializeAdlibPlayback)+0x18));break;
+        case AUDIO_LIFETIME_CALIBRATE:status=lifetime_call(r,r->cs,AUDIO_SOUND_PEER(CalibrateSoundDelay),(uint16_t)(S(InitializeAdlibPlayback)+0x18));break;
         case AUDIO_LIFETIME_WRITE:r->bx=request.value;status=c_WriteAdlibRegister(r);break;
         case AUDIO_LIFETIME_DELAY:set_al(r,(uint8_t)request.value);status=c_DelaySoundIo(r);break;
         case AUDIO_LIFETIME_READ:
             r->dx=0x388;set_al(r,(uint8_t)platform_in(r->dx,1));if(ugh_devices.error) return UGH_UNSUPPORTED;reply=(uint8_t)r->ax;break;
         case AUDIO_LIFETIME_SILENCE:status=c_SilenceAdlibOperators(r);break;
-        case AUDIO_LIFETIME_INSTALL:status=lifetime_call(r,TIMER_SEG,T(InstallTimerInterrupt),(uint16_t)(S(InitializeAdlibPlayback)+0x90));break;
+        case AUDIO_LIFETIME_INSTALL:status=lifetime_call(r,TIMER_SEG,AUDIO_TIMER_PEER(InstallTimerInterrupt),(uint16_t)(S(InitializeAdlibPlayback)+0x90));break;
         case AUDIO_LIFETIME_REGISTER:
             r->bx=request.value;r->cx=0;r->ax=S(TickAdlxPlayback);r->dx=SOUND_SEG;
-            status=lifetime_call(r,TIMER_SEG,T(RegisterTimerCallback),(uint16_t)(S(InitializeAdlibPlayback)+0xa0));
+            status=lifetime_call(r,TIMER_SEG,AUDIO_TIMER_PEER(RegisterTimerCallback),(uint16_t)(S(InitializeAdlibPlayback)+0xa0));
             if(!status) wr16(r->cs,S(AdlxPlaybackTimerHandle),r->ax);
             break;
         case AUDIO_LIFETIME_REMOVE:
-            r->ax=request.value;status=lifetime_call(r,TIMER_SEG,T(RemoveTimerCallback),(uint16_t)(S(ShutdownAdlibPlayback)+0x14));break;
-        case AUDIO_LIFETIME_RESTORE:status=lifetime_call(r,TIMER_SEG,T(RestoreTimerInterrupt),(uint16_t)(S(ShutdownAdlibPlayback)+0x19));break;
+            r->ax=request.value;status=lifetime_call(r,TIMER_SEG,AUDIO_TIMER_PEER(RemoveTimerCallback),(uint16_t)(S(ShutdownAdlibPlayback)+0x14));break;
+        case AUDIO_LIFETIME_RESTORE:status=lifetime_call(r,TIMER_SEG,AUDIO_TIMER_PEER(RestoreTimerInterrupt),(uint16_t)(S(ShutdownAdlibPlayback)+0x19));break;
         default:return UGH_UNSUPPORTED;
         }
         if(status) return status;

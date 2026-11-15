@@ -116,7 +116,7 @@ def build(literal=False,revision=BASELINE_REVISION):
             rel=p.relative_to(frozen).as_posix();text=p.read_text()
             if top=='c' and p.suffix=='.c':
                 for n in sorted(exports):text=re.sub(r'\b'+re.escape(n)+r'\b','l1_'+n[2:],text)
-                text=hostbuild.composition_source(rel,text,units)
+            text=hostbuild.composition_source(rel,text,units)
             if not literal and rel=='c/memory.c':
                 text=with_return_hook(text,'ugh_read','pr_vga_read(a);')
                 a,b,e,n=next(x for x in bodies(text) if x[3]=='ugh_write')
@@ -135,13 +135,16 @@ def build(literal=False,revision=BASELINE_REVISION):
                 text=text.replace(needle,needle+'\npr_boundary(r,terminal);',1)
             if not literal and rel=='native/decimal.c':
                 for needle in ['output->bytes[output->cursor]=digit;','output->bytes[output->cursor]=255;']:
-                    assert needle in text;text=text.replace(needle,needle+'pr_pointer_write(output->bytes+output->cursor,output->bytes[output->cursor]);')
+                    if needle in text:text=text.replace(needle,needle+'pr_pointer_write(output->bytes+output->cursor,output->bytes[output->cursor]);')
+                    else:assert 'audio_borrowed_store(' in text
             if not literal and rel=='native/far_copy.c':
-                needle='destination[destination_cursor]=source[source_cursor];';assert needle in text
-                text=text.replace(needle,needle+'pr_pointer_write(destination+destination_cursor,destination[destination_cursor]);')
+                needle='destination[destination_cursor]=source[source_cursor];'
+                if needle in text:text=text.replace(needle,needle+'pr_pointer_write(destination+destination_cursor,destination[destination_cursor]);')
+                else:assert 'audio_borrowed_store(' in text
             if not literal and rel=='native/bridge/ice_bridge.c':
-                needle='memcpy(ugh_mem+destination,output,sizeof output);';assert needle in text
-                text=text.replace(needle,needle+'pr_publish(ugh_mem+destination,sizeof output);')
+                needle='memcpy(ugh_mem+destination,output,sizeof output);'
+                if needle in text:text=text.replace(needle,needle+'pr_publish(ugh_mem+destination,sizeof output);')
+                else:assert 'audio_workspace_publish(' in text
             if not literal:text=instrument_publication(rel,text)
             target=folder/rel;target.parent.mkdir(parents=True,exist_ok=True);target.write_text(text)
     schema=generate_schema(frozen,folder)

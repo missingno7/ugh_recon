@@ -1,3 +1,4 @@
+#include "audio_composition_api.h"
 #include "platform.h"
 #include "audio_projection.h"
 #include "../adlx_voice.h"
@@ -27,7 +28,7 @@ static int voice_entry(Regs *r,AudioVoiceOperation operation)
     uint16_t channel=arg16(r,0),value=operation==AUDIO_VOICE_KEY_OFF || operation==AUDIO_VOICE_INSTRUMENT ? 0 : arg16(r,2);
     if((uint8_t)channel>=9) return UGH_OK;
     AudioInstrumentSource source={{0},{0}};
-    if(operation==AUDIO_VOICE_INSTRUMENT && !voice_source(r,(uint8_t)channel,&source)) return l1_LoadAdlibInstrument(r);
+    if(operation==AUDIO_VOICE_INSTRUMENT && !voice_source(r,(uint8_t)channel,&source)) return AUDIO_LITERAL(l1_LoadAdlibInstrument,r);
     AudioState state;audio_bridge_project(r->cs,&state);
     AudioVoiceResult result=audio_voice_step(&state,operation,channel,value,&source);
     audio_bridge_publish_voice(r->cs,(uint16_t)(S(AdlibVoiceStates)+20u*result.channel),&state.live[result.channel]);

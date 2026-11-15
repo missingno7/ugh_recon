@@ -201,10 +201,14 @@
     "native/bridge/adlx_digital_bridge.c": {
       "includes": [
         "../adlx_digital.h",
+        "audio_composition_api.h",
         "audio_projection.h",
         "platform.h"
       ],
       "calls": [
+        "AUDIO_C_SHORT_PEER",
+        "AUDIO_PEER_TRANSFER",
+        "AUDIO_SOUND_PEER",
         "C",
         "CALL",
         "G",
@@ -231,6 +235,7 @@
         "audio_dsp_constant",
         "audio_dsp_poll",
         "audio_dsp_rate_enabled",
+        "audio_world_snapshot",
         "call_sound",
         "compare_byte",
         "dec16",
@@ -258,7 +263,6 @@
         "sub16",
         "szp",
         "ugh_call_near_ret_hook",
-        "ugh_dispatch",
         "ugh_dispatch_interrupt",
         "words32",
         "wr16",
@@ -278,11 +282,11 @@
     "native/adlx_digital.c": "fb82aa93c8a9b250ab3fde6e118f5255e3a3b2d1f923313f0c4f88abb5fb0987",
     "native/adlx_digital.h": "cf7c87afbc174dc1e8a6f607bf8f9427cfc18f4b26237433144a9553756e86cf",
     "native/audio.h": "31e4dd978a7ecc91d8dfb6de250c7e9f6ef4377bc5b1d3c413df749e94a2a780",
-    "native/bridge/adlx_digital_bridge.c": "6b2397e48bcd6d6f6bae0e425421fc94469448938eff691337d23e2ab1e50ae9",
-    "native/bridge/audio_projection.h": "e15ee379c16623f0dfb9830e154c5c71b0f2d2a424a6073c3dec497c50cd8630",
+    "native/bridge/adlx_digital_bridge.c": "c01773293be919cde66def8714c874d4b333a24e01fada3a069bb20080578ad7",
+    "native/bridge/audio_projection.h": "f8dfd66352954a9efe9e23b97b041cd8c953a88ecbe9c6769448260eccc5dff0",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
-    "tools/hostbuild.py": "5df61bcd7f749f052b70efed60fd0bfe6b38c16bb228f14e5aeb7d774612d9e7",
+    "tools/hostbuild.py": "6bb90ae0ef1059cb912fcefc7b8e84744179d3fb5ff639d50884f20eb52b2b24",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/adlx_digital_build.py": "6ca5eab7726797f255a5650348dafcee65097345439fd71dcfbdcc0c70bc87f3",
     "verif/adlx_digital_certificate.py": "4a227f34b6b12b6d620d552f70f130346189b66f4043b123546b1b24aee411b9",
@@ -293,7 +297,7 @@
     "verif/adlx_digital_sb.py": "e92338af0d1ca4442a1c254a022088a5b676f61fc387dc600eb326bbfab820d8",
     "verif/adlx_facade_limits.py": "5329de2c8fe0e47474eba21d9b483d3114cba4ca4e1faa9149b619d1c71ec7be",
     "verif/adlx_samples_sb.py": "5b61fe583486b3b55dcc4de22906496da3757f59d0e1eb309f13bc7404efb9c3",
-    "native/audio_bytes.h": "46874b2057f9a2083c503638b79b8d31c1af667a56079bac35945d6fdc612b22"
+    "native/audio_bytes.h": "6edad8dc19515e3fd6009442b7d082317f534a86faea02e6c60fb92823011424"
   },
   "evidence_refreshed": [
     {
@@ -314,6 +318,20 @@
       "results": "PASS: default profile preprocessed identity/unchanged algorithms; compiled replay and 21/21 native/literal integration. No old claim widened.",
       "inputs": [
         "native/audio.h",
+        "tools/hostbuild.py",
+        "native/audio_bytes.h"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Audio ownership/peer/shared-buffer composition profile; accepted claims and statuses unchanged",
+      "commands": [
+        "python verif/audio_composition.py --gate"
+      ],
+      "results": "PASS: default ABI typedef equivalence and unchanged kernels; composition B/C/D replay, hosts and 81 openings, 7 audio and 8 deep scenarios. No old proof domain widened.",
+      "inputs": [
+        "native/bridge/adlx_digital_bridge.c",
+        "native/bridge/audio_projection.h",
         "tools/hostbuild.py",
         "native/audio_bytes.h"
       ]

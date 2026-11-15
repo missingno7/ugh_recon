@@ -210,10 +210,12 @@
     "native/bridge/adlx_voice_bridge.c": {
       "includes": [
         "../adlx_voice.h",
+        "audio_composition_api.h",
         "audio_projection.h",
         "platform.h"
       ],
       "calls": [
+        "AUDIO_LITERAL",
         "S",
         "arg16",
         "audio_bridge_bank",
@@ -225,8 +227,8 @@
         "audio_voice_delay",
         "audio_voice_register",
         "audio_voice_step",
+        "audio_world_snapshot",
         "flag",
-        "l1_LoadAdlibInstrument",
         "lin",
         "platform_out",
         "rd16",
@@ -273,6 +275,31 @@
         "native/audio.h",
         "native/audio_bytes.h"
       ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Audio ownership/peer/shared-buffer composition profile; accepted claims and statuses unchanged",
+      "commands": [
+        "python verif/audio_composition.py --gate"
+      ],
+      "results": "PASS: default ABI typedef equivalence and unchanged kernels; composition B/C/D replay, hosts and 81 openings, 7 audio and 8 deep scenarios. No old proof domain widened.",
+      "inputs": [
+        "metadata/closure/adlx_allocation.json",
+        "metadata/closure/adlx_effects.json",
+        "metadata/closure/adlx_loader.json",
+        "metadata/closure/adlx_main.json",
+        "metadata/closure/adlx_music.json",
+        "metadata/closure/adlx_sections.json",
+        "native/bridge/adlx_allocation_bridge.c",
+        "native/bridge/adlx_effects_bridge.c",
+        "native/bridge/adlx_loader_bridge.c",
+        "native/bridge/adlx_main_bridge.c",
+        "native/bridge/adlx_music_bridge.c",
+        "native/bridge/adlx_sections_bridge.c",
+        "native/bridge/adlx_voice_bridge.c",
+        "native/bridge/audio_projection.h",
+        "native/audio_bytes.h"
+      ]
     }
   ],
   "proposed_status_reason": "Seven ordinary facade entries implemented over unchanged accepted semantics. Full compiled facade-only stream corpora and70000 ABI/alias pairs,6508 L0 cases, current20 scenarios and isolated cd48651 baseline native host22 units/19 scenarios plus smoke pass.75 positive B profiles cover explicit kernels/cuts/admission/I/O, not a whole asynchronous machine theorem. MMIO load compatibility explicit. Baseline closure23 certificates0 errors; working-tree actor-render files are foreign in progress. Supervisor promotion only.",
@@ -299,12 +326,12 @@
     "c/sound_engine.c": "5e4116c31806441e464de35d5649894ec4eea28025254a2edea616235e6e6881",
     "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
     "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
-    "metadata/closure/adlx_allocation.json": "401def1ccbab1a3c76412b14d42e63cea3361831a28cd5184bb96641f4e23a8f",
-    "metadata/closure/adlx_effects.json": "84d6e7612cf571c4fa45d96827eda00bef52ffc43b125d84e49cee1142c884aa",
-    "metadata/closure/adlx_loader.json": "b28203754d83c96e64af3f289cdb512261b6847d6943b5b70ab631d25b25f514",
-    "metadata/closure/adlx_main.json": "67acfeb706490b6f61f3397b09c0c109c778746b19dc6ba5f9d45e3eee34d75e",
-    "metadata/closure/adlx_music.json": "3e14f8f97e7c0b1516f42f4c0790bd5c7cc7c45bf0280ea599c70e032eef3051",
-    "metadata/closure/adlx_sections.json": "4e3704bf3e8fe9884dca05b0d69d941d07ca63bc6a8cdb9f74cc8e43a0f7e1c9",
+    "metadata/closure/adlx_allocation.json": "1aa5f70d194a1ef33eabe4eba3929936016d9e5502f2375f41ead29df075c03c",
+    "metadata/closure/adlx_effects.json": "5495a2eb878ca447310d557527151754a5c22daa2f451525e20e072ddcfabc30",
+    "metadata/closure/adlx_loader.json": "9454cfd26a3fef43c14485797adb8220ffc20410484fc1bfe06e0f96121fc827",
+    "metadata/closure/adlx_main.json": "7d0ce5d35abc0cc3176dc5db9d210a7a1660eafa0a92b8b18db67de489238592",
+    "metadata/closure/adlx_music.json": "e31040b9f7f9c16554654517990989a78791903302360f5b505b5602b674652a",
+    "metadata/closure/adlx_sections.json": "44f00dcad25a1767af151f02ac98f88dba8302caac338472e4406ba01bf9bc71",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
     "native/adlx_allocation.c": "4fd567bf96fd73d071073a7d70bd31ad5d0339df16fcea5dd083e87989bbc858",
@@ -322,14 +349,14 @@
     "native/adlx_voice.c": "8061b763e6d2d3bbd68e383d6b3538ba84e49aee96cc5bb0c785c55472423090",
     "native/adlx_voice.h": "d10d2b92ce7fbb9157d8eed291936ce119e1b99f130898587d6d4c95fa90e76d",
     "native/audio.h": "31e4dd978a7ecc91d8dfb6de250c7e9f6ef4377bc5b1d3c413df749e94a2a780",
-    "native/bridge/adlx_allocation_bridge.c": "ce1bbd8ff5cc2b57bb0ea50a8aa1b667a42cb3e379f5daf26df92de3a7ee6256",
-    "native/bridge/adlx_effects_bridge.c": "720a905d58d47e2c13f342fc2d174c964f17b09a69455dd3b2b34cac8ba8253e",
-    "native/bridge/adlx_loader_bridge.c": "1bbb03af7e750a0aa7834594a426342fabf1722b02815eb64b32e490493006ca",
-    "native/bridge/adlx_main_bridge.c": "91f38d4455d13917b3c7cf4a9fb89a02963be5cf509374e4570d81407f03c9c0",
-    "native/bridge/adlx_music_bridge.c": "1c1cfe6b1d0b1f04d8c38978896c8f8a070d3cf5508267e672b747a46b19edd9",
-    "native/bridge/adlx_sections_bridge.c": "1f2a26248c08e00bddb80c11597ef38f9a19d9b5011632dccafd8f4883c8093e",
-    "native/bridge/adlx_voice_bridge.c": "34f69a3adb235131bb703ef9b53f5b1778a20d00caccbfa669ecc085c2b89312",
-    "native/bridge/audio_projection.h": "e15ee379c16623f0dfb9830e154c5c71b0f2d2a424a6073c3dec497c50cd8630",
+    "native/bridge/adlx_allocation_bridge.c": "5b2cd7033b944ac24806f3d4a9de22712b3e1ce79c4447ec5d6171f8b9b890f6",
+    "native/bridge/adlx_effects_bridge.c": "bd0e009532f62b168a83cd5f0d83168f1c7b3b8f71e87192931c27ccd48928bd",
+    "native/bridge/adlx_loader_bridge.c": "6ec32e8fb703c46046685288ce730769b2b4d27d82ff427268f4d00752370af0",
+    "native/bridge/adlx_main_bridge.c": "dbed26603c4633ccf0aa19560b9933f59e13ea74668c0f1f4e6c6e76c3802941",
+    "native/bridge/adlx_music_bridge.c": "1d4d1e22256b35c8eaa122237c217d749770fc14eaade89ee8f6a7af321f2d16",
+    "native/bridge/adlx_sections_bridge.c": "134bef77a9c68aa650c7b71dd6b181e49e030704129a4df0b8bf5045ec05bad2",
+    "native/bridge/adlx_voice_bridge.c": "7c4dec6838d4a66d57bb593e980072c557532b2bb0a2192b05b05c0d2a211885",
+    "native/bridge/audio_projection.h": "f8dfd66352954a9efe9e23b97b041cd8c953a88ecbe9c6769448260eccc5dff0",
     "src/c/module.c": "e58e54aa3f44fdfd29bdbcbaa471de2a6405235cbe2b276df56ea7193d548ae1",
     "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
     "verif/adlx_allocation_cases.py": "5780ee6d7b094dfe9cff0e8227043de2e340839890bff7a93edc3be5086ccab0",
@@ -363,6 +390,6 @@
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
-    "native/audio_bytes.h": "46874b2057f9a2083c503638b79b8d31c1af667a56079bac35945d6fdc612b22"
+    "native/audio_bytes.h": "6edad8dc19515e3fd6009442b7d082317f534a86faea02e6c60fb92823011424"
   }
 }

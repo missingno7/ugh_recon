@@ -75,7 +75,10 @@ static void assign(const Binding *b,uint32_t raw){
 static void byte_write(uint32_t a,uint8_t v){
     if(a>=UGH_MEM_SIZE)fail("RAM write outside observation storage");
 #ifdef UGH_NATIVE_TIMING
-    if(timing_is_owned(a))fail("moved owner received a RAM/journal publication");
+    if(timing_is_owned(a)){
+        fprintf(stderr,"projector: moved publication address %05X value %02X RAM %02X\n",a,v,ugh_mem[a]);
+        fail("moved owner received a RAM/journal publication");
+    }
 #endif
     write_hash=(write_hash^a)*1099511628211ull;write_hash=(write_hash^v)*1099511628211ull;
     uint32_t ident=binding_at[a];

@@ -1,3 +1,4 @@
+#include "audio_composition_api.h"
 #include "platform.h"
 #include "../adlx_loader.h"
 
@@ -33,7 +34,7 @@ static int loader_ordinary(Regs *r,uint16_t bank)
 EXPORT int c_LoadAdlibTrackData(Regs *r)
 {
     uint16_t channel=arg16(r,0),bank=arg16(r,4);
-    if((rd16(SOUND_SEG,S(SoundDeviceBits))&1u) && channel>=8 && channel<=12 && !loader_ordinary(r,bank)) return l1_LoadAdlibTrackData(r);
+    if((rd16(SOUND_SEG,S(SoundDeviceBits))&1u) && channel>=8 && channel<=12 && !loader_ordinary(r,bank)) return AUDIO_LITERAL(l1_LoadAdlibTrackData,r);
     LoaderFrame frame=loader_enter(r,16,3);
     /* This writer's read projection is only reservations. All other machine
      * fields are retained in place; publish only the loader's explicit stores. */
@@ -61,21 +62,21 @@ EXPORT int c_LoadAdlibTrackData(Regs *r)
     r->es=result.stage>=AUDIO_ADLX_ROOT_TAG && result.stage<=AUDIO_ADLX_TRACK_TAG ? bank : SOUND_SEG;
     return loader_leave(r,frame,UGH_OK);
 }
-static int loader_call(Regs *r,uint16_t target,uint16_t resume,const uint16_t *arguments,unsigned count)
+static int loader_call(Regs *r,AudioPeerBinding target,uint16_t resume,const uint16_t *arguments,unsigned count)
 {
     uint16_t sp=r->sp;
     for(unsigned i=count;i;i--) loader_push(r,arguments[i-1]);
     loader_push(r,r->cs);loader_push(r,resume);
-    int status=ugh_dispatch(UGH_SEG_C,target,r);if(status!=UGH_CONTROL_TRANSFER) r->sp=sp;return status;
+    int status=AUDIO_PEER_TRANSFER(UGH_SEG_C,target,r);if(status!=UGH_CONTROL_TRANSFER) r->sp=sp;return status;
 }
 EXPORT int c_LoadAdlibChannel(Regs *r)
 {
     LoaderFrame frame=loader_enter(r,0,1);uint16_t channel=rd16(r->ss,(uint16_t)(frame.sp+4));r->ax=65535;
     if(channel<8) return loader_leave(r,frame,UGH_OK);
-    int status=loader_call(r,UGH_O_C_StopAdlibTrackChannel,(uint16_t)(UGH_O_C_LoadAdlibChannel+0x1d),&channel,1);
+    int status=loader_call(r,AUDIO_C_PEER(StopAdlibTrackChannel),(uint16_t)(UGH_O_C_LoadAdlibChannel+0x1d),&channel,1);
     if(status) return status==UGH_CONTROL_TRANSFER ? status : loader_leave(r,frame,status);
     uint16_t arguments[4]={channel,rd16(r->ss,(uint16_t)(frame.sp+6)),rd16(r->ss,(uint16_t)(frame.sp+8)),rd16(r->ss,(uint16_t)(frame.sp+12))};
-    status=loader_call(r,UGH_O_C_LoadAdlibTrackData,(uint16_t)(UGH_O_C_LoadAdlibChannel+0x2d),arguments,4);
+    status=loader_call(r,AUDIO_C_PEER(LoadAdlibTrackData),(uint16_t)(UGH_O_C_LoadAdlibChannel+0x2d),arguments,4);
     if(status) return status==UGH_CONTROL_TRANSFER ? status : loader_leave(r,frame,status);
     uint16_t p=(uint16_t)(S(AudioChannelStates)+42u*channel);AudioChannel track={0};
     track.volume=rd16(SOUND_SEG,(uint16_t)(p+28));

@@ -1,3 +1,4 @@
+#include "audio_composition_api.h"
 #include "platform.h"
 #include "audio_projection.h"
 #include "../adlx_sections.h"
@@ -14,8 +15,8 @@ static SectionFrame section_enter(Regs *r,unsigned locals,unsigned saves)
 }
 static int section_leave(Regs *r,SectionFrame f,int status)
 {r->sp=f.sp;r->bp=f.bp;r->si=f.si;r->di=f.di;r->ds=f.ds;return status;}
-static int section_call(Regs *r,uint16_t bank,uint16_t target,uint16_t resume)
-{section_push(r,r->cs);section_push(r,resume);int status=ugh_dispatch(bank,target,r);r->sp=(uint16_t)(r->sp+4);return status;}
+static int section_call(Regs *r,uint16_t bank,AudioPeerBinding target,uint16_t resume)
+{section_push(r,r->cs);section_push(r,resume);int status=AUDIO_PEER_TRANSFER(bank,target,r);r->sp=(uint16_t)(r->sp+4);return status;}
 static int section_overlap(uint32_t first,uint32_t last,uint32_t other,uint32_t end)
 {return first<end && other<last;}
 static int section_source(Regs *r,uint16_t bank)
@@ -37,10 +38,10 @@ static void section_table(Regs *r,AudioScanDispatch table[7])
 EXPORT int c_ScanMusicEvents(Regs *r)
 {
     AudioState state;audio_bridge_project(SOUND_SEG,&state);uint16_t devices=rd16(SOUND_SEG,S(SoundDeviceBits));
-    if((devices&1u) && state.playing && !section_source(r,audio_bridge_bank(state.channels[12].start))) return l1_ScanMusicEvents(r);
+    if((devices&1u) && state.playing && !section_source(r,audio_bridge_bank(state.channels[12].start))) return AUDIO_LITERAL(l1_ScanMusicEvents,r);
     AudioScanDispatch table[7];section_table(r,table);
     AudioScanWork work=audio_section_scan(&state,arg16(r,0),arg16(r,2),devices,table);
-    if(work.exit==AUDIO_SCAN_BOUNDARY) return l1_ScanMusicEvents(r);
+    if(work.exit==AUDIO_SCAN_BOUNDARY) return AUDIO_LITERAL(l1_ScanMusicEvents,r);
     SectionFrame f=section_enter(r,24,3);r->es=SOUND_SEG;r->ax=work.exit==AUDIO_SCAN_DONE ? 1 : 65535;
     if(work.entered) {
         flag(r,DF,0);if(work.copied) r->cx=0;
@@ -57,7 +58,7 @@ static void section_delay(Regs *r,unsigned factor)
 EXPORT int c_ApplyScannedMusicEvents(Regs *r)
 {
     AudioState state;audio_bridge_project(SOUND_SEG,&state);uint16_t devices=rd16(SOUND_SEG,S(SoundDeviceBits));
-    if((devices&1u) && (state.channels[12].voice_count>9 || ((r->flags&DF) && state.channels[12].voice_count))) return l1_ApplyScannedMusicEvents(r);
+    if((devices&1u) && (state.channels[12].voice_count>9 || ((r->flags&DF) && state.channels[12].voice_count))) return AUDIO_LITERAL(l1_ApplyScannedMusicEvents,r);
     AudioSectionApply result=audio_section_apply(&state,devices);
     SectionFrame f=section_enter(r,0,1);r->es=SOUND_SEG;
     if(devices&1u) {
@@ -105,10 +106,10 @@ EXPORT int c_TickAdlxPlayback(Regs *r)
             uint16_t es=r->es,di=r->di,workbx=r->bx;r->sp=(uint16_t)(r->sp-6);
             r->di=state.channels[12].cursor.index;r->es=audio_bridge_bank(state.channels[12].cursor);
             if(audio_section_apply_due(&state)) {
-                status=section_call(r,UGH_SEG_C,UGH_O_C_ApplyScannedMusicEvents,(uint16_t)(S(TickAdlxPlayback)+0x84));if(status) return status;
+                status=section_call(r,UGH_SEG_C,AUDIO_C_PEER(ApplyScannedMusicEvents),(uint16_t)(S(TickAdlxPlayback)+0x84));if(status) return status;
                 r->di=rd16(r->cs,S(MainAdlxCursor));r->es=rd16(r->cs,S(MainAdlxCursorSegment));
             }
-            status=section_call(r,r->cs,S(RunMainAdlxEvents),(uint16_t)(S(TickAdlxPlayback)+0x8d));
+            status=section_call(r,r->cs,AUDIO_SOUND_PEER(RunMainAdlxEvents),(uint16_t)(S(TickAdlxPlayback)+0x8d));
             r->sp=(uint16_t)(r->sp+6);r->bx=workbx;r->di=di;r->es=es;if(status) return status;
         }
     }
@@ -124,7 +125,7 @@ EXPORT int c_TickAdlxPlayback(Regs *r)
                     wr16(r->cs,S(CurrentAdlxRecordOffset),r->bx);
                     uint16_t es=r->es,di=r->di,workbx=r->bx;r->sp=(uint16_t)(r->sp-6);
                     r->di=state.channels[i].cursor.index;r->es=audio_bridge_bank(state.channels[i].cursor);
-                    status=section_call(r,r->cs,S(RunEffectAdlxEvents),(uint16_t)(S(TickAdlxPlayback)+0xe2));
+                    status=section_call(r,r->cs,AUDIO_SOUND_PEER(RunEffectAdlxEvents),(uint16_t)(S(TickAdlxPlayback)+0xe2));
                     r->sp=(uint16_t)(r->sp+6);r->es=es;r->di=di;r->bx=workbx;if(status) return status;
                 }
             }

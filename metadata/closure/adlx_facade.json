@@ -147,10 +147,14 @@
     "native/bridge/adlx_facade_bridge.c": {
       "includes": [
         "../adlx_facade.h",
+        "audio_composition_api.h",
         "audio_projection.h",
         "platform.h"
       ],
       "calls": [
+        "AUDIO_C_PEER",
+        "AUDIO_PEER_TRANSFER",
+        "AUDIO_SOUND_PEER",
         "G",
         "S",
         "audio_bridge_bank",
@@ -164,6 +168,7 @@
         "audio_duration_step",
         "audio_facade_begin",
         "audio_facade_next",
+        "audio_world_snapshot",
         "facade_call",
         "facade_duration_arm",
         "facade_enter",
@@ -175,7 +180,6 @@
         "rd32",
         "rd8",
         "ugh_call_near_ret_hook",
-        "ugh_dispatch",
         "wr16",
         "wr8"
       ]
@@ -190,11 +194,11 @@
     "native/adlx_facade.c": "0f1e6b9ef3b0cbac61c41c48c8feb8e02e76d9100d05a6571c7a2454374b6cee",
     "native/adlx_facade.h": "2b1711aea00c0197dc032babf1c7b41a3a8404ab97890fc353f5f58d34e8307a",
     "native/audio.h": "31e4dd978a7ecc91d8dfb6de250c7e9f6ef4377bc5b1d3c413df749e94a2a780",
-    "native/bridge/adlx_facade_bridge.c": "41de5e344734288f815ce70a87b3fb3f5b716a2c372c87ceef7265c9f9fbf9f5",
-    "native/bridge/audio_projection.h": "e15ee379c16623f0dfb9830e154c5c71b0f2d2a424a6073c3dec497c50cd8630",
+    "native/bridge/adlx_facade_bridge.c": "b76a934203948f7c87bd2efd2145a44d9b0b105fe546b0eacc3b567acf59dd87",
+    "native/bridge/audio_projection.h": "f8dfd66352954a9efe9e23b97b041cd8c953a88ecbe9c6769448260eccc5dff0",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
-    "tools/hostbuild.py": "5df61bcd7f749f052b70efed60fd0bfe6b38c16bb228f14e5aeb7d774612d9e7",
+    "tools/hostbuild.py": "6bb90ae0ef1059cb912fcefc7b8e84744179d3fb5ff639d50884f20eb52b2b24",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/adlx_facade_build.py": "eccdbc65cc43520f1d44ce1fb63f1e84e8872e00f7cffeb945da7b2f2a5d456e",
     "verif/adlx_facade_certificate.py": "9a3e02f26bfbc8918f7d894e6e7c2020a61976616de7e95d765ec903d48f2f81",
@@ -205,7 +209,7 @@
     "verif/adlx_facade_limits.py": "5329de2c8fe0e47474eba21d9b483d3114cba4ca4e1faa9149b619d1c71ec7be",
     "verif/adlx_facade_proofs.py": "4bb92b97825e9ac7ec2035e7e7681f161cdb09173aa95cbeff25764b53a0ec91",
     "verif/adlx_facade_reproduce.py": "9dd802cfcfcb6fe1ab77e531e57d249a346e2fda3d34e60f3f8f7431a7d97ba9",
-    "native/audio_bytes.h": "46874b2057f9a2083c503638b79b8d31c1af667a56079bac35945d6fdc612b22"
+    "native/audio_bytes.h": "6edad8dc19515e3fd6009442b7d082317f534a86faea02e6c60fb92823011424"
   },
   "evidence_refreshed": [
     {
@@ -226,6 +230,20 @@
       "results": "PASS: default profile preprocessed identity/unchanged algorithms; compiled replay and 21/21 native/literal integration. No old claim widened.",
       "inputs": [
         "native/audio.h",
+        "tools/hostbuild.py",
+        "native/audio_bytes.h"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Audio ownership/peer/shared-buffer composition profile; accepted claims and statuses unchanged",
+      "commands": [
+        "python verif/audio_composition.py --gate"
+      ],
+      "results": "PASS: default ABI typedef equivalence and unchanged kernels; composition B/C/D replay, hosts and 81 openings, 7 audio and 8 deep scenarios. No old proof domain widened.",
+      "inputs": [
+        "native/bridge/adlx_facade_bridge.c",
+        "native/bridge/audio_projection.h",
         "tools/hostbuild.py",
         "native/audio_bytes.h"
       ]

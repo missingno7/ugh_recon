@@ -200,12 +200,15 @@
     "native/bridge/adlx_lifetime_bridge.c": {
       "includes": [
         "../adlx_lifetime.h",
+        "audio_composition_api.h",
         "audio_projection.h",
         "platform.h"
       ],
       "calls": [
+        "AUDIO_PEER_TRANSFER",
+        "AUDIO_SOUND_PEER",
+        "AUDIO_TIMER_PEER",
         "S",
-        "T",
         "add16",
         "audio_bridge_bank",
         "audio_bridge_cursor",
@@ -220,6 +223,7 @@
         "audio_lifetime_begin",
         "audio_lifetime_next",
         "audio_lifetime_reset",
+        "audio_world_snapshot",
         "c_DelaySoundIo",
         "c_SilenceAdlibOperators",
         "c_WriteAdlibRegister",
@@ -239,7 +243,6 @@
         "rd8",
         "set_al",
         "sub16",
-        "ugh_dispatch",
         "wr16",
         "wr32",
         "wr8"
@@ -285,6 +288,20 @@
       "results": "PASS: default profile preprocessed identity/unchanged algorithms; compiled replay and 21/21 native/literal integration. No old claim widened.",
       "inputs": [
         "native/audio.h",
+        "tools/hostbuild.py",
+        "native/audio_bytes.h"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Audio ownership/peer/shared-buffer composition profile; accepted claims and statuses unchanged",
+      "commands": [
+        "python verif/audio_composition.py --gate"
+      ],
+      "results": "PASS: default ABI typedef equivalence and unchanged kernels; composition B/C/D replay, hosts and 81 openings, 7 audio and 8 deep scenarios. No old proof domain widened.",
+      "inputs": [
+        "native/bridge/adlx_lifetime_bridge.c",
+        "native/bridge/audio_projection.h",
         "tools/hostbuild.py",
         "native/audio_bytes.h"
       ]
@@ -351,8 +368,8 @@
     "native/adlx_lifetime.c": "c24aa540552a69020f3ad3b446fdda23d46b260669c4f1d8855e4d381fce7b7c",
     "native/adlx_lifetime.h": "34078b03e4b54b19a758204c40b0be2ec70ef73aa099366a5082b4a1a438e67b",
     "native/audio.h": "31e4dd978a7ecc91d8dfb6de250c7e9f6ef4377bc5b1d3c413df749e94a2a780",
-    "native/bridge/adlx_lifetime_bridge.c": "f720e4a6ff37af82a637f82bbaa761206f597def90a747bb785d7b7d0865f8c2",
-    "native/bridge/audio_projection.h": "e15ee379c16623f0dfb9830e154c5c71b0f2d2a424a6073c3dec497c50cd8630",
+    "native/bridge/adlx_lifetime_bridge.c": "480d6bfd7c7a484aadb89c1a0a213146270fd7b39790009ebe1038d72bce96d6",
+    "native/bridge/audio_projection.h": "f8dfd66352954a9efe9e23b97b041cd8c953a88ecbe9c6769448260eccc5dff0",
     "tests/scenarios/adlib.txt": "1db37ba320e4c3c85449c2f4a7f5ecd8543e6de6933e165e534b79adb3386f2f",
     "tests/scenarios/attract.txt": "07339939be35779cc94094221155e97a11c6dec396ab6dce85f238a415896a01",
     "tests/scenarios/completion.txt": "d898ad1f8abd49f7757303b562028cf7f0c10143dfb0358dad4e0a6fee7386bc",
@@ -376,7 +393,7 @@
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
-    "tools/hostbuild.py": "5df61bcd7f749f052b70efed60fd0bfe6b38c16bb228f14e5aeb7d774612d9e7",
+    "tools/hostbuild.py": "6bb90ae0ef1059cb912fcefc7b8e84744179d3fb5ff639d50884f20eb52b2b24",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/adlx_lifetime_build.py": "bea68149e9207df753a0bde0bd1f11b5d29b5ef6c9dcab02be8d915bb0de301c",
     "verif/adlx_lifetime_cases.py": "6966f52f7e025bfa3ad125e39bb976c6d5bfe3e827da5d8579710ab5bd5f46f2",
@@ -394,6 +411,6 @@
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
-    "native/audio_bytes.h": "46874b2057f9a2083c503638b79b8d31c1af667a56079bac35945d6fdc612b22"
+    "native/audio_bytes.h": "6edad8dc19515e3fd6009442b7d082317f534a86faea02e6c60fb92823011424"
   }
 }

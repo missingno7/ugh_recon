@@ -211,15 +211,18 @@
     "native/bridge/adlx_loader_bridge.c": {
       "includes": [
         "../adlx_loader.h",
+        "audio_composition_api.h",
         "platform.h"
       ],
       "calls": [
+        "AUDIO_C_PEER",
+        "AUDIO_LITERAL",
+        "AUDIO_PEER_TRANSFER",
         "S",
         "arg16",
         "audio_adlx_load",
         "audio_adlx_loaded_volume",
         "audio_adlx_reset",
-        "l1_LoadAdlibTrackData",
         "loader_bank",
         "loader_call",
         "loader_cursor",
@@ -230,7 +233,6 @@
         "loader_pointer",
         "loader_push",
         "rd16",
-        "ugh_dispatch",
         "wr16"
       ]
     }
@@ -253,10 +255,10 @@
     "native/adlx_main.c": "2e624d0ee0ea20d647b54d811671f52c50706e0cb34529c7bd8ac8c18e0dec42",
     "native/adlx_main.h": "a67988ae0fa9f4d2c5d0451f02851385a900f96a6fba67c56e4764ffc10469f6",
     "native/audio.h": "31e4dd978a7ecc91d8dfb6de250c7e9f6ef4377bc5b1d3c413df749e94a2a780",
-    "native/bridge/adlx_allocation_bridge.c": "ce1bbd8ff5cc2b57bb0ea50a8aa1b667a42cb3e379f5daf26df92de3a7ee6256",
-    "native/bridge/adlx_effects_bridge.c": "720a905d58d47e2c13f342fc2d174c964f17b09a69455dd3b2b34cac8ba8253e",
-    "native/bridge/adlx_loader_bridge.c": "1bbb03af7e750a0aa7834594a426342fabf1722b02815eb64b32e490493006ca",
-    "native/bridge/adlx_main_bridge.c": "91f38d4455d13917b3c7cf4a9fb89a02963be5cf509374e4570d81407f03c9c0",
+    "native/bridge/adlx_allocation_bridge.c": "5b2cd7033b944ac24806f3d4a9de22712b3e1ce79c4447ec5d6171f8b9b890f6",
+    "native/bridge/adlx_effects_bridge.c": "bd0e009532f62b168a83cd5f0d83168f1c7b3b8f71e87192931c27ccd48928bd",
+    "native/bridge/adlx_loader_bridge.c": "6ec32e8fb703c46046685288ce730769b2b4d27d82ff427268f4d00752370af0",
+    "native/bridge/adlx_main_bridge.c": "dbed26603c4633ccf0aa19560b9933f59e13ea74668c0f1f4e6c6e76c3802941",
     "verif/adlx_allocation_cases.py": "5780ee6d7b094dfe9cff0e8227043de2e340839890bff7a93edc3be5086ccab0",
     "verif/adlx_effects_cases.py": "044edb8c6a25ecd2934c926cb9baea66c53f9ab9442744fc4c67495d69099bab",
     "verif/adlx_effects_integration.py": "3cb136d4fdf1abe707c53801cc74d35f8fa036e59d1134a21ad9e86590ba8c5c",
@@ -273,7 +275,7 @@
     "verif/adlx_loader_solver.py": "332c1a46957e398df5865fa5de14a73d259d464c621232f84976f8dfcc1f42d6",
     "verif/adlx_loader_words.py": "b6cbcb03cb70e32f34ffcb0d4062ab10b58537325d36870807a461464115f78a",
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
-    "native/audio_bytes.h": "46874b2057f9a2083c503638b79b8d31c1af667a56079bac35945d6fdc612b22"
+    "native/audio_bytes.h": "6edad8dc19515e3fd6009442b7d082317f534a86faea02e6c60fb92823011424"
   },
   "solver_limits": {
     "job_memory_bytes": 8000000000,
@@ -302,6 +304,21 @@
       "inputs": [
         "native/adlx_loader.c",
         "native/audio.h",
+        "native/audio_bytes.h"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Audio ownership/peer/shared-buffer composition profile; accepted claims and statuses unchanged",
+      "commands": [
+        "python verif/audio_composition.py --gate"
+      ],
+      "results": "PASS: default ABI typedef equivalence and unchanged kernels; composition B/C/D replay, hosts and 81 openings, 7 audio and 8 deep scenarios. No old proof domain widened.",
+      "inputs": [
+        "native/bridge/adlx_allocation_bridge.c",
+        "native/bridge/adlx_effects_bridge.c",
+        "native/bridge/adlx_loader_bridge.c",
+        "native/bridge/adlx_main_bridge.c",
         "native/audio_bytes.h"
       ]
     }

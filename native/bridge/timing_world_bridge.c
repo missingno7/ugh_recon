@@ -1,12 +1,15 @@
 #include "platform.h"
 #include "timing_world_bridge.h"
+#ifdef UGH_NATIVE_AUDIO
+#include "audio_world_bridge.h"
+#endif
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
 typedef struct TimingBinding {uint32_t address;size_t member;unsigned size,shift,kind,index;} TimingBinding;
-static TimingBinding bindings[180];static unsigned count,active;
+static TimingBinding bindings[5000];static unsigned count,active;
 static uint16_t at[UGH_MEM_SIZE],open_words[32],previous[2];
 static unsigned long long shared_reads,shared_writes;
 static uint8_t seal=0xa5;
@@ -40,12 +43,20 @@ static uint16_t token_word(uint16_t token,const uint16_t *words){
  }
 }
 static void bind_word(uint32_t address,size_t member,unsigned size,unsigned shift,unsigned kind,unsigned index){
- require(count<180);TimingBinding b={address,member,size,shift,kind,index};bindings[count]=b;
- for(unsigned j=0;j<2;j++){require(address+j<UGH_MEM_SIZE && !at[address+j]);at[address+j]=(uint16_t)(count+1);}count++;
+ require(count<5000);TimingBinding b={address,member,size,shift,kind,index};bindings[count]=b;
+ for(unsigned j=0;j<(size==1?1u:2u);j++){require(address+j<UGH_MEM_SIZE && !at[address+j]);at[address+j]=(uint16_t)(count+1);}count++;
 }
+void timing_bind_audio(uint32_t address,size_t member,unsigned size,unsigned kind){bind_word(address,member,size,0,kind,0);}
+void timing_bind_audio_high(uint32_t address,size_t member){bind_word(address,member,4,16,0,0);}
+void timing_bind_audio_external(uint32_t address,unsigned index){bind_word(address,0,2,0,4,index);}
+static unsigned binding_width(const TimingBinding *binding){return binding->size==1?1u:2u;}
+unsigned timing_audio_owned_bytes(void){return active?timing_owned_bytes()-320u:0;}
 #define WORLD_MEMBER(member) ((size_t)((uint8_t*)&native_timing_world()->member-(uint8_t*)native_timing_world()))
 static void define_bindings(void){
  if(count)return;
+#ifdef UGH_NATIVE_AUDIO
+ audio_world_bindings();
+#endif
  bind_word(lin(DATA_SEG,D(LastActiveTimerSlotOffset)),WORLD_MEMBER(last_offset),2,0,0,0);
  bind_word(lin(DATA_SEG,D(NextPitQuantumLow)),WORLD_MEMBER(timer.quantum),4,0,0,0);
  bind_word(lin(DATA_SEG,D(NextPitQuantumHigh)),WORLD_MEMBER(timer.quantum),4,16,0,0);
@@ -75,13 +86,21 @@ static void define_bindings(void){
  bind_word(lin(SOUND_SEG,S(MainAdlxSectionLoopEnabled)),WORLD_MEMBER(music.section_loop),2,0,0,0);
 }
 static uint16_t get(const TimingBinding *b){
+#ifdef UGH_NATIVE_AUDIO
+ if(b->kind==4)return audio_external_read(b->index);
+#endif
  if(b->kind==2)return previous[b->index];
  const uint8_t *p=(const uint8_t*)native_timing_world()+b->member;uint32_t value=0;
+ if(b->kind==3){const uint8_t *window;memcpy(&window,p,sizeof window);return window?(uint16_t)((window-ugh_mem)/16):0;}
+ if(b->size==1)return *p;
  if(b->size==2){uint16_t half;memcpy(&half,p,2);value=half;}else memcpy(&value,p,4);
  if(b->kind==1)return token_word((uint16_t)value,open_words);
  return (uint16_t)(value>>b->shift);
 }
 static void put(const TimingBinding *b,uint16_t value){
+#ifdef UGH_NATIVE_AUDIO
+ if(b->kind==4){audio_external_write(b->index,value);return;}
+#endif
  NativeTimingWorld *world=native_timing_world();
  if(b->kind==2){previous[b->index]=value;world->lifetime.saved=(TimerExternalBinding){previous[0]==0x100 && previous[1]==0xf000?TIMER_EXTERNAL_BIOS:TIMER_EXTERNAL_OTHER,1};return;}
  uint8_t *p=(uint8_t*)world+b->member;
@@ -91,6 +110,8 @@ static void put(const TimingBinding *b,uint16_t value){
    * for genuinely open fragments, never a second copy of a known target. */
   open_words[b->index]=token>=32?value:0;value=token;
  }
+ if(b->kind==3){const uint8_t *window=ugh_mem+(uint32_t)value*16u;memcpy(p,&window,sizeof window);return;}
+ if(b->size==1){*p=(uint8_t)value;return;}
  if(b->size==2)memcpy(p,&value,2);
  else {uint32_t full;memcpy(&full,p,4);full=(full&~(65535u<<b->shift))|((uint32_t)value<<b->shift);memcpy(p,&full,4);}
  world->timer.count=world->last_offset/2+1;
@@ -114,34 +135,38 @@ uint8_t audio_borrowed_byte(const uint8_t *window,uint32_t index){
 }
 void timing_cold_import(uint8_t *memory){
  active=0;define_bindings();native_timing_reset();memset(open_words,0,sizeof open_words);memset(previous,0,sizeof previous);
- for(unsigned i=0;i<count;i++){const TimingBinding *b=&bindings[i];put(b,(uint16_t)(memory[b->address]|(uint16_t)memory[b->address+1]*256u));}
- for(unsigned i=0;i<count;i++){memory[bindings[i].address]=seal;memory[bindings[i].address+1]=seal;}active=1;
+ for(unsigned i=0;i<count;i++){const TimingBinding *b=&bindings[i];put(b,(uint16_t)(memory[b->address]|(binding_width(b)==2?(uint16_t)memory[b->address+1]*256u:0)));}
+ for(unsigned i=0;i<count;i++)for(unsigned j=0;j<binding_width(&bindings[i]);j++)memory[bindings[i].address+j]=seal;
+ active=1;
 }
 void timing_require_seal(const uint8_t *memory){
  if(!active)return;
- for(unsigned i=0;i<count;i++)require(memory[bindings[i].address]==seal && memory[bindings[i].address+1]==seal);
+ for(unsigned i=0;i<count;i++)for(unsigned j=0;j<binding_width(&bindings[i]);j++)require(memory[bindings[i].address+j]==seal);
 }
 void timing_serialize(uint8_t *output){
  if(!active)return;
  /* A moved field can never silently fall back to a baseline/journal byte.
   * The independent canonical-view checker detects a missed publication even
   * when its legitimate value is still the cold value. */
- for(unsigned i=0;i<count;i++){output[bindings[i].address]=seal;output[bindings[i].address+1]=seal;}
+ for(unsigned i=0;i<count;i++)for(unsigned j=0;j<binding_width(&bindings[i]);j++)output[bindings[i].address+j]=seal;
  unsigned emitted=0;
  for(unsigned i=0;i<count;i++){const TimingBinding *b=&bindings[i];
 #if TIMING_TEST_FAULT == 4
   if(b->member==WORLD_MEMBER(music.ticks) && b->kind==0)continue;
 #endif
-  uint16_t word=get(b);output[b->address]=(uint8_t)word;output[b->address+1]=(uint8_t)(word>>8);emitted+=2;}
- if(emitted!=count*2){fputs("timing: missed owned serialization\n",stderr);exit(88);}
+#if AUDIO_TEST_FAULT == 4
+  if(b->member==WORLD_MEMBER(audio.playback_guard) && b->kind==0)continue;
+#endif
+  uint16_t word=get(b);for(unsigned j=0;j<binding_width(b);j++)output[b->address+j]=(uint8_t)(word>>(8*j));emitted+=binding_width(b);}
+ if(emitted!=timing_owned_bytes()){fputs("timing: missed owned serialization\n",stderr);exit(88);}
 }
-unsigned timing_owned_bytes(void){return active?count*2:0;}
+unsigned timing_owned_bytes(void){unsigned bytes=0;if(active)for(unsigned i=0;i<count;i++)bytes+=binding_width(&bindings[i]);return bytes;}
 uint32_t timing_check_serialization(const uint8_t *observation){
  if(!active)return UINT32_MAX;
  for(unsigned i=0;i<count;i++){
   uint16_t word=get(&bindings[i]);uint32_t a=bindings[i].address;
   if(observation[a]!=(uint8_t)word)return a;
-  if(observation[a+1]!=(uint8_t)(word>>8))return a+1;
+  if(binding_width(&bindings[i])==2 && observation[a+1]!=(uint8_t)(word>>8))return a+1;
  }
  return UINT32_MAX;
 }

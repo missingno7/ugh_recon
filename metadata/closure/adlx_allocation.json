@@ -183,10 +183,14 @@
     "native/bridge/adlx_allocation_bridge.c": {
       "includes": [
         "../adlx_allocation.h",
+        "audio_composition_api.h",
         "audio_projection.h",
         "platform.h"
       ],
       "calls": [
+        "AUDIO_C_PEER",
+        "AUDIO_LITERAL",
+        "AUDIO_PEER_TRANSFER",
         "S",
         "allocation_call",
         "allocation_delay",
@@ -207,16 +211,13 @@
         "audio_bridge_publish_voice",
         "audio_bridge_voice",
         "audio_effect_select",
+        "audio_world_snapshot",
         "flag",
-        "l1_RestoreAdlibVoiceAllocation",
-        "l1_StartAdlibTrackChannel",
-        "l1_StopAdlibTrackChannel",
         "platform_out",
         "rd16",
         "rd32",
         "rd8",
         "set_al",
-        "ugh_dispatch",
         "wr16",
         "wr32",
         "wr8"
@@ -245,10 +246,10 @@
     "native/adlx_main.c": "2e624d0ee0ea20d647b54d811671f52c50706e0cb34529c7bd8ac8c18e0dec42",
     "native/adlx_main.h": "a67988ae0fa9f4d2c5d0451f02851385a900f96a6fba67c56e4764ffc10469f6",
     "native/audio.h": "31e4dd978a7ecc91d8dfb6de250c7e9f6ef4377bc5b1d3c413df749e94a2a780",
-    "native/bridge/adlx_allocation_bridge.c": "ce1bbd8ff5cc2b57bb0ea50a8aa1b667a42cb3e379f5daf26df92de3a7ee6256",
-    "native/bridge/adlx_effects_bridge.c": "720a905d58d47e2c13f342fc2d174c964f17b09a69455dd3b2b34cac8ba8253e",
-    "native/bridge/adlx_main_bridge.c": "91f38d4455d13917b3c7cf4a9fb89a02963be5cf509374e4570d81407f03c9c0",
-    "native/bridge/audio_projection.h": "e15ee379c16623f0dfb9830e154c5c71b0f2d2a424a6073c3dec497c50cd8630",
+    "native/bridge/adlx_allocation_bridge.c": "5b2cd7033b944ac24806f3d4a9de22712b3e1ce79c4447ec5d6171f8b9b890f6",
+    "native/bridge/adlx_effects_bridge.c": "bd0e009532f62b168a83cd5f0d83168f1c7b3b8f71e87192931c27ccd48928bd",
+    "native/bridge/adlx_main_bridge.c": "dbed26603c4633ccf0aa19560b9933f59e13ea74668c0f1f4e6c6e76c3802941",
+    "native/bridge/audio_projection.h": "f8dfd66352954a9efe9e23b97b041cd8c953a88ecbe9c6769448260eccc5dff0",
     "verif/adlx_allocation_build.py": "9c9833abc9fe71b6d1452a0a8e39e5eea631fb3b6c6493c5f24bd1d62123e2b8",
     "verif/adlx_allocation_cases.py": "5780ee6d7b094dfe9cff0e8227043de2e340839890bff7a93edc3be5086ccab0",
     "verif/adlx_allocation_corpus.py": "ea4de66029405acddc006ecbda70a1895c90c80102d7cf23fe33eba3fbd18dbb",
@@ -265,7 +266,7 @@
     "verif/adlx_effects_harness.c": "e55ad7c704673730bc0a968724b7fa946df37a032724addcfb052b761a059849",
     "verif/adlx_effects_integration.py": "3cb136d4fdf1abe707c53801cc74d35f8fa036e59d1134a21ad9e86590ba8c5c",
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
-    "native/audio_bytes.h": "46874b2057f9a2083c503638b79b8d31c1af667a56079bac35945d6fdc612b22"
+    "native/audio_bytes.h": "6edad8dc19515e3fd6009442b7d082317f534a86faea02e6c60fb92823011424"
   },
   "evidence_refreshed": [
     {
@@ -285,6 +286,21 @@
       "results": "PASS: default profile preprocessed identity/unchanged algorithms; compiled replay and 21/21 native/literal integration. No old claim widened.",
       "inputs": [
         "native/audio.h",
+        "native/audio_bytes.h"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Audio ownership/peer/shared-buffer composition profile; accepted claims and statuses unchanged",
+      "commands": [
+        "python verif/audio_composition.py --gate"
+      ],
+      "results": "PASS: default ABI typedef equivalence and unchanged kernels; composition B/C/D replay, hosts and 81 openings, 7 audio and 8 deep scenarios. No old proof domain widened.",
+      "inputs": [
+        "native/bridge/adlx_allocation_bridge.c",
+        "native/bridge/adlx_effects_bridge.c",
+        "native/bridge/adlx_main_bridge.c",
+        "native/bridge/audio_projection.h",
         "native/audio_bytes.h"
       ]
     }

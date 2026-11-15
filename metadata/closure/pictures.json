@@ -207,7 +207,7 @@
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
-    "tools/hostbuild.py": "211d727a93bdea9b00d8ac14b5959cf058ea2ba565a81dd22dcbe8f47183b88c",
+    "tools/hostbuild.py": "ec46292a8d375eb77d0cb2a9467c77c89f5e512bb2ec2e50b86ba7c99369e9b4",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/adlx_loader_solver.py": "332c1a46957e398df5865fa5de14a73d259d464c621232f84976f8dfcc1f42d6",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
@@ -372,6 +372,17 @@
       "reason": "Shared actor-slot ownership and explicit live borrowers; prior claims/status unchanged",
       "commands": [
         "python verif/actor_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Shared enemy-slot ownership and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/enemy_composition.py --gate"
       ],
       "results": "PASS within stated domains",
       "inputs": [

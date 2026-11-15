@@ -261,6 +261,7 @@
         "../demo_core.h",
         "actor_projection.h",
         "actors_borrow.h",
+        "enemies_borrow.h",
         "platform.h",
         "platforms_borrow.h",
         "player_borrow.h",
@@ -272,14 +273,14 @@
         "actor_bridge_demo_project",
         "actor_bridge_render_project",
         "actor_bridge_scripts",
-        "actors_read16",
-        "actors_write16",
         "demo_advance_slot",
         "demo_all_finished",
         "demo_bridge_advance",
         "demo_bridge_environment",
         "demo_bridge_word",
         "demo_initialize",
+        "enemies_read16",
+        "enemies_write16",
         "flag",
         "l1_AdvanceDemoScripts",
         "l1_InitializeDemoScripts",
@@ -312,8 +313,8 @@
     "native/actor_resources.h": "212fe3bc958c74140f45b9e7a3745f650d22e7a853a2edf273eeacfd93f96247",
     "native/actors.h": "b1c7653a6e566c7f0e3e18ad38fc3f63726d01b78a6fa6843df017d2d155a42c",
     "native/bridge/actor_projection.h": "71e0476afe7c0b082b5eac20957028e58a61f6741ef11c7ca546fe8bbad8b483",
-    "native/bridge/actor_resources_bridge.c": "cfe995cb016a5c1f8a1f94378c58c6db8d71c89502ace0e23cab4a327dca0afd",
-    "native/bridge/demo_core_bridge.c": "ee3ba40be6aeb6a4ffba10d24e7c926b7b3f1d153b8d7212e26addf2ce2c9103",
+    "native/bridge/actor_resources_bridge.c": "153414e54952edd4eee09e247f5fbbd6b03b5b802a99868ea98214c1f4b43b53",
+    "native/bridge/demo_core_bridge.c": "6bf9824be121eab8d197ab5be11abe2f36999d29fe5b89efdf861afc5d06891f",
     "native/bridge/level_projection.h": "d463ba8829671479c3349435080eb7f16ae48551c7a7b0464d27dbc88257df83",
     "native/bridge/level_view_bridge.c": "0be946adae9146d92cd2b0447c6d0edbc83c11eb6ec5cad09468791a60609ebe",
     "native/demo_core.c": "028b9eaa6671c8219d69ad4f34d1fe5569b1ee69d4c4c3cb13f49c24616a4646",
@@ -324,7 +325,7 @@
     "src/asm/GAME.ASM": "29c9ead3b191a744c59b465a3bd4de29f2e217b92492cf57edb8c13bc3494204",
     "src/data/DGDATA.ASM": "9d46889e26434a597ed19b91c119029af3dbf3dbcfa9811c4ed5aa18dc157541",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
-    "tools/hostbuild.py": "211d727a93bdea9b00d8ac14b5959cf058ea2ba565a81dd22dcbe8f47183b88c",
+    "tools/hostbuild.py": "ec46292a8d375eb77d0cb2a9467c77c89f5e512bb2ec2e50b86ba7c99369e9b4",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
@@ -504,6 +505,19 @@
       "reason": "Shared actor-slot ownership and explicit live borrowers; prior claims/status unchanged",
       "commands": [
         "python verif/actor_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/actor_resources_bridge.c",
+        "native/bridge/demo_core_bridge.c",
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Shared enemy-slot ownership and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/enemy_composition.py --gate"
       ],
       "results": "PASS within stated domains",
       "inputs": [

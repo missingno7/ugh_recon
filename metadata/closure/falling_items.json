@@ -447,7 +447,7 @@
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
-    "tools/hostbuild.py": "211d727a93bdea9b00d8ac14b5959cf058ea2ba565a81dd22dcbe8f47183b88c",
+    "tools/hostbuild.py": "ec46292a8d375eb77d0cb2a9467c77c89f5e512bb2ec2e50b86ba7c99369e9b4",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/cbmc_shim/stddef.h": "03e62ec5f7016e0582b92f016d7e4017b56746e2b216ae8d7fad236ae7e723e7",
     "verif/cbmc_shim/stdint.h": "ff382e7cc9e8ac2ff6cef94767bb680b49944513ebff33b6d7e548fe12a5d7d0",
@@ -627,6 +627,17 @@
       "reason": "Shared actor-slot ownership and explicit live borrowers; prior claims/status unchanged",
       "commands": [
         "python verif/actor_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Shared enemy-slot ownership and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/enemy_composition.py --gate"
       ],
       "results": "PASS within stated domains",
       "inputs": [

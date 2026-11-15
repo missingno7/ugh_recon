@@ -215,7 +215,7 @@
     "native/ice.h": "9dae8b5a177d2d671ae2218035db0af8b83f30bf7b470c6bd5be3f068e26c756",
     "native/bridge/ice_bridge.c": "2394fe3ef094db70ec8e550fdfe40d7a18801712f8b6253bddbaf47219acdd7c",
     "metadata/closure/ice.json": "9952c30fd8cd63eba1c6788e454c7e8aae3aba8998751d1ae0b1027cc99a0c48",
-    "tools/hostbuild.py": "211d727a93bdea9b00d8ac14b5959cf058ea2ba565a81dd22dcbe8f47183b88c",
+    "tools/hostbuild.py": "ec46292a8d375eb77d0cb2a9467c77c89f5e512bb2ec2e50b86ba7c99369e9b4",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
@@ -421,6 +421,17 @@
       "reason": "Shared actor-slot ownership and explicit live borrowers; prior claims/status unchanged",
       "commands": [
         "python verif/actor_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Shared enemy-slot ownership and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/enemy_composition.py --gate"
       ],
       "results": "PASS within stated domains",
       "inputs": [

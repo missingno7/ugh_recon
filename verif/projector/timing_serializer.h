@@ -28,6 +28,9 @@
 #ifdef UGH_NATIVE_ACTORS
 #include "actor_world_bridge.h"
 #endif
+#ifdef UGH_NATIVE_ENEMIES
+#include "enemy_world_bridge.h"
+#endif
 #ifdef UGH_NATIVE_RESOURCES
 #include "resource_catalog_bridge.h"
 #endif
@@ -72,6 +75,9 @@ static inline const uint8_t *project_timing_observation(const uint8_t *machine) 
 #endif
 #ifdef UGH_NATIVE_ACTORS
     actors_require_seal(machine);
+#endif
+#ifdef UGH_NATIVE_ENEMIES
+    enemies_require_seal(machine);
 #endif
     memcpy(observation,machine,sizeof observation);
     timing_serialize(observation);
@@ -118,6 +124,10 @@ static inline const uint8_t *project_timing_observation(const uint8_t *machine) 
 #ifdef UGH_NATIVE_ACTORS
     actors_serialize(observation);
     if(actors_check_serialization(observation)!=UINT32_MAX){fputs("actors: missed serialization\n",stderr);exit(88);}
+#endif
+#ifdef UGH_NATIVE_ENEMIES
+    enemies_serialize(observation);
+    if(enemies_check_serialization(observation)!=UINT32_MAX){fputs("enemies: missed serialization\n",stderr);exit(88);}
 #endif
     if(timing_check_serialization(observation)!=UINT32_MAX){
         fputs("timing: missed owned serialization\n",stderr);exit(88);

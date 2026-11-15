@@ -31,6 +31,9 @@
 #ifdef UGH_NATIVE_ACTORS
 #include "actor_world_bridge.h"
 #endif
+#ifdef UGH_NATIVE_ENEMIES
+#include "enemy_world_bridge.h"
+#endif
 #ifdef UGH_NATIVE_RESOURCES
 #include "resource_catalog_bridge.h"
 #endif
@@ -278,6 +281,9 @@ int main(int argc,char **argv) {
 #endif
 #ifdef UGH_NATIVE_ACTORS
     actors_cold_import(ugh_mem);
+#endif
+#ifdef UGH_NATIVE_ENEMIES
+    enemies_cold_import(ugh_mem);
 #endif
 #endif
     HostSymbol entry=host_symbol(scenario.entry);

@@ -1091,6 +1091,7 @@
         "../passenger_delivery.h",
         "actor_projection.h",
         "actors_borrow.h",
+        "enemies_borrow.h",
         "platform.h",
         "platforms_borrow.h",
         "player_borrow.h",
@@ -1111,10 +1112,6 @@
         "actor_alias_value",
         "actor_bridge_alias_project",
         "actor_phase_aliases",
-        "actors_read16",
-        "actors_read8",
-        "actors_write16",
-        "actors_write8",
         "add16",
         "dec16",
         "delivery_complete",
@@ -1130,6 +1127,10 @@
         "delivery_vector",
         "delivery_word",
         "delivery_write8",
+        "enemies_read16",
+        "enemies_read8",
+        "enemies_write16",
+        "enemies_write8",
         "flag",
         "l1_BeginPassengerApproach",
         "l1_BeginPassengerDestinationDisplay",
@@ -1852,13 +1853,13 @@
   "verification_inputs": {
     "native/passenger_delivery.h": "e01d99b23879eb69ad449d6c25a82f44f1a80d800a424f1e7539b951cd166657",
     "native/passenger_delivery.c": "ca71e756fff535f31a132c1bf865a9ef91161ebd84972c39991cddf07c322494",
-    "native/bridge/passenger_delivery_bridge.c": "514b18b2cc52f5052a765114ddf7ea1b273c88d7558c7f7e9bd935a81cf2a224",
+    "native/bridge/passenger_delivery_bridge.c": "2679ff7ddd23f399ced1904f377f2edc0fe52770c9527cc6dfe90c434855b960",
     "native/actor_resources.c": "47e21228ee1d873fa5636e062a955e4a6b5a8f0522a7bde2cf223708c9880137",
-    "native/bridge/actor_resources_bridge.c": "cfe995cb016a5c1f8a1f94378c58c6db8d71c89502ace0e23cab4a327dca0afd",
+    "native/bridge/actor_resources_bridge.c": "153414e54952edd4eee09e247f5fbbd6b03b5b802a99868ea98214c1f4b43b53",
     "native/level_view.c": "f0b3db5747f718d7c112c721735ca5a497a9b93a6ecb33096223b188b170353d",
     "native/bridge/level_view_bridge.c": "0be946adae9146d92cd2b0447c6d0edbc83c11eb6ec5cad09468791a60609ebe",
     "native/contacts.c": "f809c3af54ddb43b07b60be870e30e404f0b0456f4542585011cb5108dcc8b15",
-    "native/bridge/contacts_bridge.c": "0f73b095c006432141f27c4a0559e60268f1492ef9a02f3f0aafe75833c50452",
+    "native/bridge/contacts_bridge.c": "261596ada1a8f81b90d31cd051604583063bc9c6505c50b91607de0dac6fcbaf",
     "native/items.c": "d3ede593a1249fc46da025fc304f90ed8f962a5145a81731c6dc70b2f384b8ec",
     "native/bridge/items_bridge.c": "9911c74614be8383fd1797fa753cbde14869dbd27177f2b014ddf5dd774870e0",
     "verif/delivery_build.py": "db95adccee0bfaa0fa7d08fac8170985b276f840c8504d9dda0ea048620be56e",
@@ -1900,7 +1901,7 @@
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
-    "tools/hostbuild.py": "211d727a93bdea9b00d8ac14b5959cf058ea2ba565a81dd22dcbe8f47183b88c",
+    "tools/hostbuild.py": "ec46292a8d375eb77d0cb2a9467c77c89f5e512bb2ec2e50b86ba7c99369e9b4",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
     "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
@@ -2100,6 +2101,20 @@
       "reason": "Shared actor-slot ownership and explicit live borrowers; prior claims/status unchanged",
       "commands": [
         "python verif/actor_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/passenger_delivery_bridge.c",
+        "native/bridge/actor_resources_bridge.c",
+        "native/bridge/contacts_bridge.c",
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Shared enemy-slot ownership and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/enemy_composition.py --gate"
       ],
       "results": "PASS within stated domains",
       "inputs": [

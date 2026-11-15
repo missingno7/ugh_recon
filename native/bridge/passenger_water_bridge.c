@@ -1,4 +1,9 @@
 #include "platform.h"
+#ifndef ENEMIES_BORROWER
+#define ENEMIES_BORROWER ENEMIES_BORROW_ACTORS
+#endif
+#include "enemies_borrow.h"
+#include "platform.h"
 #ifndef ACTORS_BORROWER
 #define ACTORS_BORROWER ACTORS_BORROW_ACTORS
 #endif
@@ -26,7 +31,7 @@ typedef struct WaterPlan {
  uint16_t frames[4][256];PassengerWaterResult result;size_t consumed;
  int bad,tail_seen,phase_written;ActorPhase published_phase;uint16_t actor_index;
 } WaterPlan;
-static uint16_t water_word(Regs *r,uint16_t base,uint16_t index) {return actors_read16(r->ds,(uint16_t)(base+index));}
+static uint16_t water_word(Regs *r,uint16_t base,uint16_t index) {return enemies_read16(r->ds,(uint16_t)(base+index));}
 static uint16_t water_identity(unsigned id) {return (uint16_t)(D(Data_7720)+74u*id);}
 static uint16_t water_phase(ActorPhase phase) {
  switch(phase) {
@@ -66,7 +71,7 @@ static uint16_t water_consume(WaterPlan *plan,Regs *r,uint16_t address,uint16_t 
  if((uint16_t)(base+index)!=address || value!=expected) plan->bad=1;
  return value;
 }
-static void water_write(WaterPlan *plan,Regs *r,uint16_t address,uint16_t expected) {actors_write16(r->ds,address,water_consume(plan,r,address,expected));}
+static void water_write(WaterPlan *plan,Regs *r,uint16_t address,uint16_t expected) {enemies_write16(r->ds,address,water_consume(plan,r,address,expected));}
 static int water_projection(WaterPlan *plan,Regs *r) {
 #ifdef ACTOR_VERIFY
  PassengerStoneSlot *slot=&plan->slot;uint16_t at=plan->actor_index;
@@ -83,7 +88,7 @@ static int water_projection(WaterPlan *plan,Regs *r) {
  if((aliases&ACTOR_ALIAS_FLOATING_TICKS) && slot->floating_ticks!=observed.floating_ticks) return 0;
  if((aliases&ACTOR_ALIAS_REQUEST_TICKS) && slot->request_ticks!=observed.request_ticks) return 0;
  if(plan->render.pixel_x!=water_word(r,D(ActorPixelX),at) || plan->render.pixel_y!=water_word(r,D(ActorPixelY),at) ||
-    plan->world.surface_y!=actors_read16(r->ds,D(WaterYPixels)) || plan->world.player_count!=actors_read16(r->ds,D(PlayerCount)) || plan->world.platform_count!=10) return 0;
+    plan->world.surface_y!=enemies_read16(r->ds,D(WaterYPixels)) || plan->world.player_count!=enemies_read16(r->ds,D(PlayerCount)) || plan->world.platform_count!=10) return 0;
  for(unsigned i=0;i<2;i++) {
   const WaterCraft *craft=&plan->world.craft[i];uint16_t index=(uint16_t)(2u*i);
   if(craft->pixel_x!=water_word(r,D(PlayerPixelX),index) || craft->pixel_y!=water_word(r,D(PlayerYPixels),index) ||
@@ -107,7 +112,7 @@ static int water_complete(const WaterPlan *plan) {return !plan->bad && plan->con
 static int water_vector(Regs *r,uint16_t pointer,uint16_t words[256],ActorAnimation *animation) {
  size_t count=0;
  while(pointer>=D(Animation_0E20) && pointer<0x1020u && count<256) {
-  uint16_t value=actors_read16(r->ds,pointer);if(value==65535u) {animation->sprites=words;animation->count=count;return count!=0;}
+  uint16_t value=enemies_read16(r->ds,pointer);if(value==65535u) {animation->sprites=words;animation->count=count;return count!=0;}
   words[count++]=value;pointer=(uint16_t)(pointer+2u);
  }
  return 0;
@@ -120,15 +125,15 @@ static int water_prepare(Regs *r,PassengerWaterEntry entry,WaterPlan *plan) {
  const uint16_t callbacks[]={G(BeginPassengerResurfacing),G(UpdatePassengerResurfacing),G(BeginPassengerSinking),G(UpdatePassengerSinking),
   G(BeginPassengerFloating),G(UpdatePassengerFloating),G(BeginPassengerDestinationDisplay),G(UpdateFloatingDestinationDisplay),
   G(BeginPassengerQuestionDisplay),G(UpdateFloatingQuestionDisplay),G(BeginPassengerApproach),G(UpdateFloatingPassengerApproach),G(BoardWaterbornePassenger)};
- for(unsigned i=0;i<13;i++) if(actors_read16(r->ds,(uint16_t)(descriptor+8+2u*i))!=callbacks[i]) return 0;
- if(actors_read16(r->ds,(uint16_t)(descriptor+44))!=G(IgnoreActorState) || actors_read16(r->ds,(uint16_t)(descriptor+72))!=water_identity(id^1u)) return 0;
+ for(unsigned i=0;i<13;i++) if(enemies_read16(r->ds,(uint16_t)(descriptor+8+2u*i))!=callbacks[i]) return 0;
+ if(enemies_read16(r->ds,(uint16_t)(descriptor+44))!=G(IgnoreActorState) || enemies_read16(r->ds,(uint16_t)(descriptor+72))!=water_identity(id^1u)) return 0;
  *plan=(WaterPlan){0};plan->actor_index=r->bx;
  ActorPhase phase=entry==PW_RESURFACE?ACTOR_RESURFACING:entry==PW_SINK?ACTOR_SINKING:entry==PW_FLOAT?ACTOR_FLOATING:
   entry==PW_DESTINATION?ACTOR_FLOATING_DESTINATION_REQUEST:entry==PW_QUESTION?ACTOR_FLOATING_QUESTION:entry==PW_APPROACH?ACTOR_FLOATING_APPROACH:ACTOR_READ_JOURNEY;
  if(!actor_bridge_alias_project(r->ds,r->bx/2u,phase,&plan->slot)) return 0;
  plan->published_phase=phase;plan->type.id=(ActorTypeId)id;plan->slot.type=&plan->type;
- plan->type.geometry=(ObjectGeometry){actors_read16(r->ds,descriptor),actors_read16(r->ds,(uint16_t)(descriptor+2)),actors_read16(r->ds,(uint16_t)(descriptor+4)),actors_read16(r->ds,(uint16_t)(descriptor+6))};
- plan->type.animation_period=actors_read16(r->ds,(uint16_t)(descriptor+62));plan->type.floating_lifetime=actors_read16(r->ds,(uint16_t)(descriptor+68));
+ plan->type.geometry=(ObjectGeometry){enemies_read16(r->ds,descriptor),enemies_read16(r->ds,(uint16_t)(descriptor+2)),enemies_read16(r->ds,(uint16_t)(descriptor+4)),enemies_read16(r->ds,(uint16_t)(descriptor+6))};
+ plan->type.animation_period=enemies_read16(r->ds,(uint16_t)(descriptor+62));plan->type.floating_lifetime=enemies_read16(r->ds,(uint16_t)(descriptor+68));
  plan->slot.source_platform=water_word(r,D(ActorPlatformOrScriptDone),r->bx);plan->slot.destination_platform=water_word(r,D(ActorDestinationPlatforms),r->bx);
  if((entry==PW_BEGIN_RESURFACE || entry==PW_APPROACH) && (plan->slot.source_platform>=10 || water_word(r,D(ActorSourcePlatformByteIndices),r->bx)!=2u*plan->slot.source_platform)) return 0;
  if(entry==PW_APPROACH && (plan->slot.destination_platform>=10 || water_word(r,D(ActorDestinationPlatformByteIndices),r->bx)!=2u*plan->slot.destination_platform)) return 0;
@@ -137,21 +142,21 @@ static int water_prepare(Regs *r,PassengerWaterEntry entry,WaterPlan *plan) {
  plan->slot.animation=(ActorAnimationState){water_word(r,D(ActorAnimationByteOffsets),r->bx),water_word(r,D(ActorAnimationCountdowns),r->bx)};
  plan->slot.vertical_motion=water_word(r,D(ActorVerticalOrDemoPeriod),r->bx);plan->slot.quick_delivery_ticks=water_word(r,D(PassengerQuickDeliveryCountdowns),r->bx);
  plan->render.pixel_x=water_word(r,D(ActorPixelX),r->bx);plan->render.pixel_y=water_word(r,D(ActorPixelY),r->bx);
- plan->world.player_count=actors_read16(r->ds,D(PlayerCount));if(plan->world.player_count!=1 && plan->world.player_count!=2) return 0;
- plan->world.surface_y=actors_read16(r->ds,D(WaterYPixels));plan->world.platform_count=10;
+ plan->world.player_count=enemies_read16(r->ds,D(PlayerCount));if(plan->world.player_count!=1 && plan->world.player_count!=2) return 0;
+ plan->world.surface_y=enemies_read16(r->ds,D(WaterYPixels));plan->world.platform_count=10;
  for(unsigned i=0;i<2;i++) {
   uint16_t index=(uint16_t)(2u*i);plan->world.craft[i]=(WaterCraft){water_word(r,D(PlayerPixelX),index),water_word(r,D(PlayerYPixels),index),water_word(r,D(PlayerVerticalVelocities),index),water_word(r,D(PlayerCarriedKinds),index)};
  }
  if(entry==PW_RESURFACE || entry==PW_SINK || entry==PW_FLOAT || entry==PW_DESTINATION || entry==PW_QUESTION || entry==PW_APPROACH)
-  for(unsigned i=0;i<4;i++) if(!water_vector(r,actors_read16(r->ds,(uint16_t)(descriptor+46+2u*i)),plan->frames[i],&plan->type.animations[i])) return 0;
+  for(unsigned i=0;i<4;i++) if(!water_vector(r,enemies_read16(r->ds,(uint16_t)(descriptor+46+2u*i)),plan->frames[i],&plan->type.animations[i])) return 0;
  plan->result=passenger_water_apply(entry,&plan->slot,&plan->render,&plan->world);return !plan->result.failed;
 }
 /* WATER_SHELLS_BEGIN */
-#define READ(n,i) actors_read16(r->ds,(uint16_t)(D(n)+(i)))
+#define READ(n,i) enemies_read16(r->ds,(uint16_t)(D(n)+(i)))
 #define WRITE(n,i,v) water_write(plan,r,(uint16_t)(D(n)+(i)),(uint16_t)(v))
 #define A(n) READ(n,r->bx)
 #define W(n,v) WRITE(n,r->bx,v)
-#define DESC(n) actors_read16(r->ds,(uint16_t)(r->si+(n)))
+#define DESC(n) enemies_read16(r->ds,(uint16_t)(r->si+(n)))
 static int water_shell_state_jump(Regs *r,WaterPlan *plan,uint16_t target);
 static int water_shell_tail(Regs *r,WaterPlan *plan,unsigned field);
 
@@ -184,7 +189,7 @@ static int water_shell_actor_frame(Regs *r,WaterPlan *plan,unsigned field) {
     for(unsigned budget=0;budget<32768;budget++) {
         r->di=DESC(field);
         r->di=add16(r,r->di,A(ActorAnimationByteOffsets),0);
-        r->ax=actors_read16(r->ds,r->di); sub16(r,r->ax,0xffff,0);
+        r->ax=enemies_read16(r->ds,r->di); sub16(r,r->ax,0xffff,0);
         if(r->ax!=0xffff) { W(ActorSpriteIds,r->ax); return UGH_OK; }
         W(ActorAnimationByteOffsets,0);
     }

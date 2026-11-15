@@ -7,6 +7,9 @@
 #ifdef UGH_NATIVE_PALETTE
 #include "palette_world_bridge.h"
 #endif
+#ifdef UGH_NATIVE_INPUT
+#include "input_world_bridge.h"
+#endif
 #endif
 #include <SDL3/SDL_main.h>
 #include <stdlib.h>
@@ -218,6 +221,9 @@ int main(int argc,char **argv) {
     timing_cold_import(ugh_mem);
 #ifdef UGH_NATIVE_PALETTE
     palette_cold_import(ugh_mem);
+#endif
+#ifdef UGH_NATIVE_INPUT
+    input_cold_import(ugh_mem);
 #endif
 #endif
     HostSymbol entry=host_symbol(scenario.entry);

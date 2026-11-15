@@ -1,0 +1,245 @@
+{
+  "component": "input_world",
+  "status": "migrated",
+  "original": {
+    "owned": [],
+    "composes": [
+      "input",
+      "palette_world",
+      "audio_world",
+      "timing_world"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/input_world.h",
+      "native/input_world.c",
+      "native/bridge/input_world_bridge.h",
+      "native/bridge/input_world_bridge.c"
+    ],
+    "functions": [
+      "native_input_world",
+      "input_rebase_count"
+    ],
+    "bridge": "Native owner; explicit typed services and verification-only ABI continuations"
+  },
+  "purpose": "Standalone step 4 input cut: scans, mutable sequence grammar, deterministic count/calibration state and saved keyboard binding",
+  "interface": {
+    "inputs": "Cold fixture; ordered raw set-1 scans, count/button replies, BIOS queue and opaque vector roles; borrowed configuration/commands",
+    "outputs": "Native persistent input state, typed ordered requests, separate observation serialization"
+  },
+  "callers": [
+    "Input entry ABI; menus, session, demos, IRQ and editors"
+  ],
+  "callees": [
+    "Typed scan/count/queue/vector services; accepted input kernels and retrace peer"
+  ],
+  "indirect": [
+    "Closed InputPeerRole; opaque external keyboard binding; verification continuation only"
+  ],
+  "amiga": {
+    "classification": "not-used",
+    "finding": "Composition only; accepted DOS contracts retained"
+  },
+  "uncertainty": [
+    "No production standalone target; video page/HUD/render and plane/retrace services remain"
+  ],
+  "memory": {
+    "owner": "NativeInputWorld, 267 historical lanes, including allocated scan/mask high bytes",
+    "total_with_prior": 6415,
+    "remaining": "PlayerCount, both control modes, five command words/player and the current handler resource binding remain with existing shared owners"
+  },
+  "assumptions": [
+    "Accepted input scalar/matcher/timing domains; no live joystick or scheduling choice",
+    "Opaque synchronous continuation is verification-only ABI metadata; production state contains no Regs or RAM pointer",
+    "Original disjoint active code/resource/stack and ordinary shared configuration views",
+    "Typed near peers admit canonical GAME code binding; unknown roles/bindings fail closed with recorded verification ABI prefixes",
+    "Current handler resource binding and saved external payload stay opaque; only the verification provider interprets IVT words",
+    "Numeric byte/word layout is B plus complete C router enumeration; no blanket B proof of the complete matcher/calibration/wait loops is claimed"
+  ],
+  "eliminated": [
+    "RAM ownership of moved input fields; input-island raw ports/vectors/BIOS/near dispatch"
+  ],
+  "retained": [
+    "E0/set-1 make/break bytes, stale fields, malformed sequence/table aliases, raw word counts and wrong mode/index behavior"
+  ],
+  "evidence": [
+    {
+      "property": "Authoritative byte owner and count service seam",
+      "level": "B",
+      "method": "Actual field get/put and count-rebase C; arbitrary complete owner and valid member offset, any byte/table or four-word array lane/value, read-only getter, numeric word result plus arbitrary-other-byte frame, and full three-word rebase identity. All registry layouts fit this domain; physical routing is separately exhaustive C.",
+      "command": "python verif/input_composition.py --proof --router",
+      "result": "PASS: 68352 byte writes; 1900544 word roundtrips; full physical router enumeration",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "API, services and borrowers",
+      "level": "C",
+      "method": "Independent Unicorn and compiled L1; full RAM/ABI/Devices and ordered requests; editor and failure-prefix paths",
+      "command": "python verif/input_composition.py --api --compiled --backend --borrowers",
+      "result": "PASS: 184 composed and legacy API matches, 0 declines; 3791 generated complete input pairs; 232 borrower cases; all 256 scan bytes, full vector/queue-tail word slices and 2048 sampler frames",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "Composition and ownership projection",
+      "level": "D",
+      "method": "Committed archive, scratch-only promotion; pure L1 literal; independent reconstructed-ASM references",
+      "command": "python verif/input_composition.py --build --projector --census --levels",
+      "result": "PASS: 49 certificates/0 errors; 21/21 both variants; 17955 projected boundaries, all 6415 moved bytes native, zero moved-owner publications; zero input-island machine edges, L1 game bodies and fallbacks; 81+7+8 levels per variant",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "Seeded service/owner faults",
+      "level": "C",
+      "method": "Generated-copy dropped scan, make/break swap, lost E0, stale count and missed serialization controls",
+      "command": "python verif/input_composition.py --defects",
+      "result": "PASS: 5/5 detected",
+      "date": "2026-11-15"
+    }
+  ],
+  "verification_inputs": {
+    "native/input_world.h": "6546d443d4461e620ea0dd776297c368a5b2aab4e14315b37fc786039620cf77",
+    "native/input_world.c": "8faf83a1712eab4d0abb7ba1d8c2f5ee2eb351815b05dc3f8999f4e3dcd07e66",
+    "native/bridge/input_world_bridge.h": "4aba2634f9e260034b71e5f3bac5910be661e187b5db869d870d16a2aab28b45",
+    "native/bridge/input_world_bridge.c": "fce13da383554541309e4e34557e1b41312a12e568d028113dbb91f12cecc045",
+    "native/bridge/input_bridge.c": "0ae4a17edb33c5eaacaa18fd7499f267f4c11fa46ac55b42c5279cea811f2391",
+    "verif/input_platform_model.inc": "461be8db0ee221bc3f7b9557bac80098a6e5c856ed258350b64737eb33652452",
+    "verif/input_composition.py": "f40963d216d583f6649f23b2f3138ab207f1b074a7eb560031adb263605d209e",
+    "tools/hostbuild.py": "f0f4369142047fe30252c77e435dfb2eb61ccd7b5418d09508e7916fbc1347f9",
+    "host/main.c": "a8ddf3fdce4673ba3ca23ca7233f983c597cc9bbb79415c84556b843146e8a6a",
+    "verif/projector/observer.c": "5aaae0aac5e95a5b9d15784a70aaf636cf79439ca80c45d7665ff1c7fb9620c2",
+    "verif/projector/timing_serializer.h": "980c52cbffa2aea54c688056b6492bdde01a2f699f15910389333e635c61bca1",
+    "verif/projector/publications.py": "63613aed5d0d922cf9e998d70f78bc76ce5903901ed8cca33cd706985cab5481",
+    "verif/projector_evidence.py": "b7b5353ac94b8a555fef9e910c1238aa99e5f23e24074e809a7251cd22df336e",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
+    "tools/cgen.py": "c494a10b08145efeb0dfd7bcef4fa89b3902cebbdd69ee63bae89647026d9aff",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "verif/audio_composition.py": "32cf1d267784b30271e030a276abb0424aacf932ae169fc98efa71a9cdb70691",
+    "verif/timing_composition.py": "079ee38dca0657725f0449fd78d90df8928a4d2130a95021a07f9aa7195dd757",
+    "verif/entry_retirement.py": "3b52d207fef7b3e51461a2357a06f012f59651b406f1fe9a0253876e55f76529",
+    "verif/standalone_census.py": "647dd84b82fbeb0871fd992671b0c2279cd98e66bb46854b57c0745ed84b0a6f",
+    "verif/level_suite.py": "c4ba45fc0a2aa239c8023932d03413dcc487000e887b836cac05e24347aaace7",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
+    "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
+    "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
+    "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
+    "tools/cbuild.py": "b957186e9697f04be43136704d51f727fa5f20aace331919e3ade16468a4a8f1",
+    "metadata/closure/video_dos.json": "2fcf7abc081171e42529c082eae7b93a9eb44f4e3817c33082e8e7235637c9d0",
+    "metadata/closure/render_primitives.json": "a65085152ad6db1e84664efcf8c38e4d1cf413fe3c2dddf74b5969b12e16aa57",
+    "metadata/closure/actor_render.json": "ef197d5f5022aa5bbbeb88fe7ecdbfd242542f00a9a24b9ea4f41943485afed5",
+    "metadata/closure/audio_world.json": "e0eae775a578d14b4faf39ea69a3e58461a7b687c7dc9c53dcdb88552ee69148",
+    "metadata/closure/timing_world.json": "e3b74245da95b8ac58c1f3ddff7cf47e957902b64f07ae75016b3274ec88aca7",
+    "metadata/closure/ice.json": "9952c30fd8cd63eba1c6788e454c7e8aae3aba8998751d1ae0b1027cc99a0c48",
+    "metadata/closure/ice_scratch.json": "71a1f9d7cfd98299386b8be6a6681aee5003ac590c9efb8bfdde20a15f84cc38",
+    "metadata/closure/far_copy.json": "b607e9417591d0724605e6d4fb8bbe50087f4e03755ac77d0e1425e8009f98f3",
+    "metadata/closure/decimal.json": "a17de4e5cb5f3596652893a5ad6a3fd955f68b57795288510a7c9df75096c2d7",
+    "metadata/closure/pictures.json": "66a5f85c6cb366ce5df2bb32cdecaa0703ff26c12e52cc5a93be5a8689d00047",
+    "verif/cbmc_shim/stddef.h": "03e62ec5f7016e0582b92f016d7e4017b56746e2b216ae8d7fad236ae7e723e7",
+    "verif/cbmc_shim/stdint.h": "ff382e7cc9e8ac2ff6cef94767bb680b49944513ebff33b6d7e548fe12a5d7d0",
+    "verif/cbmc_shim/ugh.h": "d23d5fb7f8d14f5c03944d9cce971d6d21fdf32c28ebac1f2710842cd03d7e72",
+    "verif/palette_composition.py": "5d2c122f190aa538bc64d744b0f79ed8c6d02d73c9804b936921a4545eb10ed6",
+    "native/input.c": "56550496ffde02a0f1b9625922783721e20fa455e5d1be9c8dc5c3467569b8f9",
+    "native/input.h": "3e1278c1c7218615a3813263dd19fbc6a15c7a8e073b0bf96c4cb2aa5415bf1e",
+    "verif/input_evidence.py": "e84fc96097884dabc2904783c50a1b0dd8b324953008b160c9ed94e81793c897",
+    "verif/input_build.py": "106fc5b7c65a9591f24307c1be970ad5b947d36e020f16c15887d4024e35095b",
+    "verif/input_inventory.py": "3d6a896a12e35eaf4f698e6047f5a57a95edc302c0f9a3e7571ca4196980939e",
+    "verif/input_integration.py": "a81129b645d60c2e7000427f3b1deced03255269c553e5423d9016b7ea741021",
+    "metadata/closure/input.json": "e59a0c0017502276db06cca3a44d53b961f0583745c61808929507f1650a60c4",
+    "metadata/closure/palette_world.json": "5851897ca4266468146f2c38b495b63379933c70d135818578f2d572eabdd1ba",
+    "metadata/closure/menus.json": "aeacc8c1e26c61b914a16c8e9577781d1f429853cdae7ce2d06ffa37e37462f9",
+    "metadata/closure/high_scores.json": "92805244197a5373ecaee205e33075b3a8ae0fd3857239bb07056ef314dd8622",
+    "native/bridge/menus_bridge.c": "5e58afe6a5f4ced7afea6623d5df2a48371427d377a175fcd530194823676561",
+    "native/bridge/high_scores_bridge.c": "0b953ac00971ad46f04351bf46c58601a5d5c138b3d963317c865c3571e6ae13",
+    "src/data/DGDATA.ASM": "9d46889e26434a597ed19b91c119029af3dbf3dbcfa9811c4ed5aa18dc157541"
+  },
+  "dependencies": {
+    "native/input_world.h": {
+      "includes": [
+        "input.h"
+      ],
+      "calls": []
+    },
+    "native/input_world.c": {
+      "includes": [
+        "input_world.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/input_world_bridge.h": {
+      "includes": [
+        "../input_world.h",
+        "ugh.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/input_world_bridge.c": {
+      "includes": [
+        "input_world_bridge.h",
+        "palette_world_bridge.h",
+        "platform.h",
+        "stddef.h",
+        "stdio.h",
+        "stdlib.h",
+        "string.h"
+      ],
+      "calls": [
+        "A",
+        "B",
+        "G",
+        "J",
+        "MEMBER",
+        "abort",
+        "c_PollKeyboardScanChange",
+        "c_SampleJoystickAxesAndButtons",
+        "c_WaitNextVerticalRetrace",
+        "exit",
+        "flag",
+        "fputs",
+        "input_field",
+        "input_field_get",
+        "input_field_put",
+        "input_owned_bytes",
+        "input_service_queue",
+        "input_service_vector",
+        "input_shared_read",
+        "input_shared_write",
+        "memcpy",
+        "memset",
+        "native_input_world",
+        "palette_borrowed_byte",
+        "palette_borrowed_store",
+        "wr16"
+      ]
+    }
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "proposed_status": "migrated",
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-15",
+      "reason": "New native input owner/services composition; supervisor decides promotion",
+      "commands": [
+        "python verif/input_composition.py --gate"
+      ],
+      "results": "PASS; input cut only, remaining video work explicit",
+      "inputs": [
+        "native/input_world.h",
+        "native/input_world.c",
+        "native/bridge/input_world_bridge.h",
+        "native/bridge/input_world_bridge.c",
+        "native/bridge/input_bridge.c",
+        "verif/input_platform_model.inc",
+        "verif/input_composition.py",
+        "tools/hostbuild.py",
+        "host/main.c",
+        "verif/projector/observer.c",
+        "verif/projector/timing_serializer.h",
+        "verif/projector/publications.py",
+        "verif/projector_evidence.py"
+      ]
+    }
+  ]
+}

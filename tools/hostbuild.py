@@ -26,7 +26,7 @@ def timing_composed(units):
 
 def composition_options(units, base=None):
     if not timing_composed(units): return []
-    return (['-DUGH_NATIVE_PALETTE'] if any(u['component']=='palette_world' for u in units) else [])+(['-DUGH_NATIVE_AUDIO'] if any(u['component']=='audio_world' for u in units) else [])+['-DUGH_NATIVE_TIMING', '-DNATIVE_AUDIO_BYTE_SERVICE', '-I', str((base or ROOT)/'native/bridge'),
+    return (['-DUGH_NATIVE_INPUT'] if any(u['component']=='input_world' for u in units) else [])+(['-DUGH_NATIVE_PALETTE'] if any(u['component']=='palette_world' for u in units) else [])+(['-DUGH_NATIVE_AUDIO'] if any(u['component']=='audio_world' for u in units) else [])+['-DUGH_NATIVE_TIMING', '-DNATIVE_AUDIO_BYTE_SERVICE', '-I', str((base or ROOT)/'native/bridge'),
             '-I', str(ROOT/'verif/projector')]
 
 def _previous_composition_source(relative, text, units):
@@ -68,7 +68,7 @@ def _previous_composition_source(relative, text, units):
     return text
 
 
-def composition_source(relative,text,units):
+def _palette_composition_source(relative,text,units):
     text=_previous_composition_source(relative,text,units)
     if not any(u['component']=='palette_world' for u in units):return text
     header='#include "'+(ROOT/'native/bridge/palette_world_bridge.h').as_posix()+'"\n'
@@ -119,6 +119,36 @@ def composition_source(relative,text,units):
  platform_out(request.kind==PALETTE_DAC_SELECT?0x3c8:0x3c9,1,request.value);
 }
 '''
+    return text
+
+
+def composition_source(relative,text,units):
+    text=_palette_composition_source(relative,text,units)
+    if not any(u['component']=='input_world' for u in units):return text
+    header='#include "'+(ROOT/'native/bridge/input_world_bridge.h').as_posix()+'"\n'
+    if relative=='c/memory.c':
+        text=header+text
+        text=text.replace('uint8_t ugh_read(uint32_t a) {','uint8_t ugh_read(uint32_t a) { uint8_t input; if(input_shared_read(a,&input))return input;')
+        text=text.replace('void ugh_write(uint32_t a, uint8_t v) {','void ugh_write(uint32_t a, uint8_t v) { if(input_shared_write(a,v))return;')
+    if relative in ('native/far_copy.c','native/decimal.c'):
+        text=header+text.replace('palette_borrowed_byte(','input_borrowed_byte(').replace('palette_borrowed_store(','input_borrowed_store(')
+    if relative=='native/bridge/timing_world_bridge.c':
+        text=header+text;old='palette_shared_read((uint32_t)(source-base+index),&value)';assert text.count(old)==1
+        text=text.replace(old,'(input_shared_read((uint32_t)(source-base+index),&value)||'+old+')')
+    if relative=='native/bridge/audio_world_bridge.c':
+        text=header+text
+        old='palette_shared_read(address+i,&value)';assert text.count(old)==1
+        text=text.replace(old,'(input_shared_read(address+i,&value)||'+old+')')
+        old='palette_shared_write((uint32_t)(destination-base+index),value)';assert text.count(old)==1
+        text=text.replace(old,'(input_shared_write((uint32_t)(destination-base+index),value)||'+old+')')
+        text=text.replace('if(palette_is_owned(address)||timing_is_owned(address))','if(input_is_owned(address)||palette_is_owned(address)||timing_is_owned(address))')
+        old='if(!palette_shared_write(address,source[i]))timing_shared_write(address,source[i]);';assert text.count(old)==1
+        text=text.replace(old,'if(!input_shared_write(address,source[i]) && !palette_shared_write(address,source[i]))timing_shared_write(address,source[i]);')
+    if relative in ('native/bridge/menus_bridge.c','native/bridge/high_scores_bridge.c'):
+        text=header+text
+        assert text.count('platform_interrupt(0x16,r)')==2
+        text=text.replace('platform_interrupt(0x16,r)','input_editor_queue(r)')
+    if relative=='c/platform.c':text+='\n'+(ROOT/'verif/input_platform_model.inc').read_text()
     return text
 
 

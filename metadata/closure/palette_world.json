@@ -155,12 +155,12 @@
     "native/bridge/palette_world_bridge.c": "073d9a777ed20f713e08f14e96b019af517b1d42747766d037b286fdce69444d",
     "verif/palette_composition.py": "5d2c122f190aa538bc64d744b0f79ed8c6d02d73c9804b936921a4545eb10ed6",
     "native/bridge/video_dos_bridge.c": "767c542dd15835bdc8963b7bf01dce3b95fd3e7080e979eebbde57745599ac07",
-    "tools/hostbuild.py": "0d4d0dbff47bd1693eb5f542add6c0d732fba8db752a01c88f1ec3e5a9b5f2c7",
-    "host/main.c": "0e5e402c39366c9487f8bef609761ce96b214cc905020b7bb80200c9a24fb881",
-    "verif/projector/timing_serializer.h": "dd5f8022f60687cfad9fc41c96906e2eb26f2013846ff84b1429ee9935d3bad1",
-    "verif/projector/observer.c": "a9af4d881f8cf2e05535a0e476493a73836434c4169d6d986de4254bcd7916c2",
-    "verif/projector/publications.py": "231e70633d293594040a12695819a4ab9e16110e8fadab185a7c5180ee47378c",
-    "verif/projector_evidence.py": "71d4a478aa22aa24b9a9ce7781bbe67dd1bf41d4bef04a0125c2688a6b052fc7",
+    "tools/hostbuild.py": "f0f4369142047fe30252c77e435dfb2eb61ccd7b5418d09508e7916fbc1347f9",
+    "host/main.c": "a8ddf3fdce4673ba3ca23ca7233f983c597cc9bbb79415c84556b843146e8a6a",
+    "verif/projector/timing_serializer.h": "980c52cbffa2aea54c688056b6492bdde01a2f699f15910389333e635c61bca1",
+    "verif/projector/observer.c": "5aaae0aac5e95a5b9d15784a70aaf636cf79439ca80c45d7665ff1c7fb9620c2",
+    "verif/projector/publications.py": "63613aed5d0d922cf9e998d70f78bc76ce5903901ed8cca33cd706985cab5481",
+    "verif/projector_evidence.py": "b7b5353ac94b8a555fef9e910c1238aa99e5f23e24074e809a7251cd22df336e",
     "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
     "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
@@ -177,16 +177,16 @@
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
     "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
     "tools/cbuild.py": "b957186e9697f04be43136704d51f727fa5f20aace331919e3ade16468a4a8f1",
-    "metadata/closure/video_dos.json": "64a40ff796d52707845f7697503e4609f6605d27fc039a9002d8010d127e0a74",
-    "metadata/closure/render_primitives.json": "dde568658397c4dddf244e88c74801ec05cb9f436cadc5519595fa77581f291f",
-    "metadata/closure/actor_render.json": "fa6d03717685c8c405cfeb7098e17e6e41375f5d567c881a4ccc9f563580abf4",
-    "metadata/closure/audio_world.json": "c47611dc8021324c6cd9da7e9e2f5f839c72f187b981ab6147cc0e1c07454a8b",
-    "metadata/closure/timing_world.json": "4a58b062f2b4ebaf968f8be05fbec343d082bd872c120d23bf2c55dfbf8f005b",
+    "metadata/closure/video_dos.json": "2fcf7abc081171e42529c082eae7b93a9eb44f4e3817c33082e8e7235637c9d0",
+    "metadata/closure/render_primitives.json": "a65085152ad6db1e84664efcf8c38e4d1cf413fe3c2dddf74b5969b12e16aa57",
+    "metadata/closure/actor_render.json": "ef197d5f5022aa5bbbeb88fe7ecdbfd242542f00a9a24b9ea4f41943485afed5",
+    "metadata/closure/audio_world.json": "e0eae775a578d14b4faf39ea69a3e58461a7b687c7dc9c53dcdb88552ee69148",
+    "metadata/closure/timing_world.json": "e3b74245da95b8ac58c1f3ddff7cf47e957902b64f07ae75016b3274ec88aca7",
     "metadata/closure/ice.json": "9952c30fd8cd63eba1c6788e454c7e8aae3aba8998751d1ae0b1027cc99a0c48",
-    "metadata/closure/ice_scratch.json": "80f7dcfa656d3ec77a5bd0dafd8b9105d15bcb4dabf439acff4ed4e1c1bfc8cd",
+    "metadata/closure/ice_scratch.json": "71a1f9d7cfd98299386b8be6a6681aee5003ac590c9efb8bfdde20a15f84cc38",
     "metadata/closure/far_copy.json": "b607e9417591d0724605e6d4fb8bbe50087f4e03755ac77d0e1425e8009f98f3",
     "metadata/closure/decimal.json": "a17de4e5cb5f3596652893a5ad6a3fd955f68b57795288510a7c9df75096c2d7",
-    "metadata/closure/pictures.json": "abd1319234b94a87a67c983bcf71901c2ae8cb133a9bea248c495b4a014f1784",
+    "metadata/closure/pictures.json": "66a5f85c6cb366ce5df2bb32cdecaa0703ff26c12e52cc5a93be5a8689d00047",
     "verif/cbmc_shim/stddef.h": "03e62ec5f7016e0582b92f016d7e4017b56746e2b216ae8d7fad236ae7e723e7",
     "verif/cbmc_shim/stdint.h": "ff382e7cc9e8ac2ff6cef94767bb680b49944513ebff33b6d7e548fe12a5d7d0",
     "verif/cbmc_shim/ugh.h": "d23d5fb7f8d14f5c03944d9cce971d6d21fdf32c28ebac1f2710842cd03d7e72"
@@ -214,6 +214,29 @@
         "verif/projector/observer.c",
         "verif/projector/publications.py",
         "verif/projector_evidence.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Input native ownership, typed services and borrowers; prior claim domains/status unchanged",
+      "commands": [
+        "python verif/input_composition.py --gate"
+      ],
+      "results": "PASS",
+      "inputs": [
+        "tools/hostbuild.py",
+        "host/main.c",
+        "verif/projector/timing_serializer.h",
+        "verif/projector/observer.c",
+        "verif/projector/publications.py",
+        "verif/projector_evidence.py",
+        "metadata/closure/video_dos.json",
+        "metadata/closure/render_primitives.json",
+        "metadata/closure/actor_render.json",
+        "metadata/closure/audio_world.json",
+        "metadata/closure/timing_world.json",
+        "metadata/closure/ice_scratch.json",
+        "metadata/closure/pictures.json"
       ]
     }
   ]

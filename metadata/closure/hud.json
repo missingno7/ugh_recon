@@ -2177,7 +2177,7 @@
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
-    "tools/hostbuild.py": "0d4d0dbff47bd1693eb5f542add6c0d732fba8db752a01c88f1ec3e5a9b5f2c7",
+    "tools/hostbuild.py": "f0f4369142047fe30252c77e435dfb2eb61ccd7b5418d09508e7916fbc1347f9",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
@@ -2222,6 +2222,17 @@
         "python verif/palette_composition.py --gate"
       ],
       "results": "PASS: legacy kernels retained, L1/Unicorn replay, native owner/byte proof, projector/census/levels; partial step 4 only",
+      "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Input native ownership, typed services and borrowers; prior claim domains/status unchanged",
+      "commands": [
+        "python verif/input_composition.py --gate"
+      ],
+      "results": "PASS",
       "inputs": [
         "tools/hostbuild.py"
       ]

@@ -227,26 +227,28 @@
     "native/bridge/input_bridge.c": {
       "includes": [
         "../input.h",
+        "input_world_bridge.h",
         "platform.h"
       ],
       "calls": [
         "D",
         "G",
         "INPUT_CALL",
+        "INPUT_COUNT",
+        "INPUT_PEER",
         "INPUT_READ",
         "INPUT_READ_AT",
         "add16",
-        "call",
         "dec16",
         "flag",
         "input_axis_begin",
-        "input_axis_count",
         "input_axis_delivery",
         "input_button_bits",
         "input_calibration_apply",
         "input_calibration_detect",
         "input_calibration_limit",
         "input_calibration_start",
+        "input_capture_keyboard",
         "input_control_map",
         "input_control_source",
         "input_controls_need_sample",
@@ -256,6 +258,15 @@
         "input_key_run",
         "input_player_visits",
         "input_project",
+        "input_service_acknowledge_scan",
+        "input_service_joystick_buttons",
+        "input_service_joystick_counts",
+        "input_service_joystick_presence",
+        "input_service_joystick_start",
+        "input_service_poll",
+        "input_service_queue_flush",
+        "input_service_scan",
+        "input_service_vector",
         "input_state_scan",
         "input_threshold_binding",
         "input_thresholds",
@@ -272,7 +283,6 @@
         "set_ah",
         "set_al",
         "sub16",
-        "ugh_call_near",
         "wr16",
         "wr8"
       ]
@@ -290,12 +300,12 @@
     "c/video.c": "681732591d8efb11cf1d5d5816c999bca718560bd247d9c9cc6c0f36982b2fa2",
     "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
-    "native/bridge/input_bridge.c": "76deeec792abe5c142c7e46cdda831d4b8df85b0cd39291fa7795ac44053992b",
+    "native/bridge/input_bridge.c": "0ae4a17edb33c5eaacaa18fd7499f267f4c11fa46ac55b42c5279cea811f2391",
     "native/input.c": "56550496ffde02a0f1b9625922783721e20fa455e5d1be9c8dc5c3467569b8f9",
     "native/input.h": "3e1278c1c7218615a3813263dd19fbc6a15c7a8e073b0bf96c4cb2aa5415bf1e",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
-    "tools/hostbuild.py": "0d4d0dbff47bd1693eb5f542add6c0d732fba8db752a01c88f1ec3e5a9b5f2c7",
+    "tools/hostbuild.py": "f0f4369142047fe30252c77e435dfb2eb61ccd7b5418d09508e7916fbc1347f9",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/adlx_loader_solver.py": "332c1a46957e398df5865fa5de14a73d259d464c621232f84976f8dfcc1f42d6",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
@@ -394,6 +404,18 @@
       ],
       "results": "PASS: legacy kernels retained, L1/Unicorn replay, native owner/byte proof, projector/census/levels; partial step 4 only",
       "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Input native ownership, typed services and borrowers; prior claim domains/status unchanged",
+      "commands": [
+        "python verif/input_composition.py --gate"
+      ],
+      "results": "PASS",
+      "inputs": [
+        "native/bridge/input_bridge.c",
         "tools/hostbuild.py"
       ]
     }

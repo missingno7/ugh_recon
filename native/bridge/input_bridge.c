@@ -1,5 +1,11 @@
 #include "platform.h"
 #include "../input.h"
+#ifdef UGH_NATIVE_INPUT
+#include "input_world_bridge.h"
+#define INPUT_PEER(n,ret) input_peer_deliver(INPUT_PEER_##n,ret,r)
+#else
+#define INPUT_PEER(n,ret) ugh_call_near(G(n),ret,r)
+#endif
 /* The only binding of native input decisions to DOS fields, ports, vectors,
  * timing deliveries and near/interrupt frames. No endpoint fallback. */
 static void push(Regs *r,uint16_t x) {
@@ -7,9 +13,6 @@ static void push(Regs *r,uint16_t x) {
 }
 static uint16_t pop(Regs *r) {
     uint16_t x=rd16(r->ss,r->sp); r->sp=(uint16_t)(r->sp+2); return x;
-}
-static int call(Regs *r,uint16_t target,uint16_t ret) {
-    return ugh_call_near(target,ret,r);
 }
 static InputState input_project(uint16_t bank) {
     InputState state={0};state.latest_scan=rd8(GAME_SEG,G(LatestInterruptScanCode));
@@ -44,12 +47,30 @@ static int input_key_run(Regs *r,uint16_t bank,InputKeyWork *work,int installati
     }
 }
 EXPORT int c_HandleKeyboardScanInterrupt(Regs *r) {
+    #ifdef UGH_NATIVE_INPUT
+    InputByteReply delivered=input_service_scan();if(delivered.status)return delivered.status;uint8_t scan=delivered.value;
+#if INPUT_TEST_FAULT == 1
+    static unsigned dropped;if(!dropped){dropped=1;input_service_acknowledge_scan();return UGH_OK;}
+#endif
+#else
     uint8_t scan=(uint8_t)platform_in(0x60,1);if(ugh_devices.error) return UGH_UNSUPPORTED;
+#endif
     wr8(r->cs,G(LatestInterruptScanCode),scan);InputKeyWork work=input_key_begin(scan,rd8(DATA_SEG,D(KeyboardSequenceIndex)),0);
-    int status=input_key_run(r,DATA_SEG,&work,0);if(status) return status;platform_out(0x20,1,0x20);return UGH_OK;
+    int status=input_key_run(r,DATA_SEG,&work,0);if(status) return status;
+#ifdef UGH_NATIVE_INPUT
+    input_service_acknowledge_scan();
+#else
+    platform_out(0x20,1,0x20);
+#endif
+    return UGH_OK;
 }
 EXPORT int c_PollKeyboardScanChange(Regs *r) {
-    int status=platform_service_point_at(SERVICE_IO,r->cs,G(PollKeyboardScanChange),r);if(status) return status;
+    #ifdef UGH_NATIVE_INPUT
+    int status=input_service_poll(INPUT_POLL_SCAN,(InputServiceContext*)r);
+#else
+    int status=platform_service_point_at(SERVICE_IO,r->cs,G(PollKeyboardScanChange),r);
+#endif
+    if(status)return status;
     InputState state=input_project(r->ds);input_state_scan(&state,rd8(GAME_SEG,G(LatestInterruptScanCode)));
     wr8(r->ds,D(PreviousPolledScanCode),state.previous_scan);wr8(r->ds,D(CurrentKeyboardScanCode),state.current_scan);
     set_al(r,state.current_scan);set_ah(r,(uint8_t)logic(r,state.change,8));wr8(r->ds,D(KeyboardScanCodeChangeBits),state.change);return UGH_OK;
@@ -59,21 +80,61 @@ EXPORT int c_InstallKeyboardSequenceInterrupt(Regs *r) {
     int reset_status=input_key_run(r,r->ds,&work,1);if(reset_status) return reset_status;
     /* CMP byte,FF defines SF/ZF/PF/CF/OF; equal is all zero except ZF/PF. */
     sub16(r,255,255,0); flag(r,IF,0); r->di=0x40; r->es=r->di;
+    #ifdef UGH_NATIVE_INPUT
+    r->ax=input_service_queue_flush();
+#else
     r->ax=rd16(r->es,0x1c); wr16(r->es,0x1a,r->ax);
-    r->ax=0x3509; int status=platform_interrupt(0x21,r); if(status) return status;
+#endif
+    r->ax=0x3509;
+#ifdef UGH_NATIVE_INPUT
+    int status=input_capture_keyboard(r);
+#else
+    int status=platform_interrupt(0x21,r);
+#endif
+    if(status)return status;
     wr16(r->ds,D(PreviousKeyboardVector),r->bx); wr16(r->ds,D(PreviousKeyboardVectorSegment),r->es);
     uint16_t ds=r->ds; r->ax=0x2509; r->dx=rd16(r->ds,D(KeyboardHandlerVector));
     r->ds=rd16(r->ds,(uint16_t)(D(KeyboardHandlerVector)+2));
-    status=platform_interrupt(0x21,r); r->ds=ds; flag(r,IF,1); return status;
+    #ifdef UGH_NATIVE_INPUT
+    status=input_service_vector(INPUT_VECTOR_INSTALL_HANDLER,(InputKeyboardBinding){r->dx,r->ds},(InputServiceContext*)r).status;
+#else
+    status=platform_interrupt(0x21,r);
+#endif
+    r->ds=ds; flag(r,IF,1); return status;
 }
 EXPORT int c_RestoreKeyboardInterrupt(Regs *r) {
     uint16_t ds=r->ds; r->ax=0x2509; r->dx=rd16(r->ds,D(PreviousKeyboardVector));
-    r->ds=rd16(r->ds,D(PreviousKeyboardVectorSegment)); int status=platform_interrupt(0x21,r); r->ds=ds;
-    flag(r,IF,0); r->di=0x40; r->es=r->di; r->ax=rd16(r->es,0x1c); wr16(r->es,0x1a,r->ax);
+    r->ds=rd16(r->ds,D(PreviousKeyboardVectorSegment));
+#ifdef UGH_NATIVE_INPUT
+    int status=input_service_vector(INPUT_VECTOR_RESTORE_SAVED,(InputKeyboardBinding){r->dx,r->ds},(InputServiceContext*)r).status;
+#else
+    int status=platform_interrupt(0x21,r);
+#endif
+    r->ds=ds;
+    flag(r,IF,0); r->di=0x40; r->es=r->di;
+#ifdef UGH_NATIVE_INPUT
+    r->ax=input_service_queue_flush();
+#else
+    r->ax=rd16(r->es,0x1c); wr16(r->es,0x1a,r->ax);
+#endif
     flag(r,IF,1); return status;
 }
+#ifdef UGH_NATIVE_INPUT
+#define INPUT_COUNT(i,live,latched) input_rebase_count(measured.counts[i],sampled_limit,live)
+#else
+#define INPUT_COUNT(i,live,latched) input_axis_count(live,latched)
+#endif
 EXPORT int c_SampleJoystickAxesAndButtons(Regs *r) {
     uint16_t saved_flags=r->flags; flag(r,IF,0); r->dx=0x201;
+#ifdef UGH_NATIVE_INPUT
+    input_service_joystick_start((uint8_t)r->ax);r->bx=r->bp=r->si=r->di=0;
+    r->cx=rd16(r->ds,D(JoystickSampleLoopLimit));uint16_t sampled_limit=r->cx;
+    r->ax=input_service_joystick_buttons(0).buttons;wr16(r->ds,D(JoystickButtonBits),r->ax);
+    r->ax=input_service_joystick_buttons(1).buttons;wr16(r->ds,D(SecondJoystickButtonBits),r->ax);
+    InputCountsReply measured=input_service_joystick_counts(sampled_limit,rd8(r->ds,D(JoystickEnabledAxisMask)));
+    r->cx=measured.remaining;r->bx=measured.latched[0];r->bp=measured.latched[1];r->si=measured.latched[2];r->di=measured.latched[3];
+    if(measured.status)return measured.status;
+#else
     platform_out(r->dx,1,(uint8_t)r->ax); r->bx=r->bp=r->si=r->di=0;
     r->cx=rd16(r->ds,D(JoystickSampleLoopLimit));
     set_al(r,(uint8_t)platform_in(r->dx,1)); r->ax=(uint16_t)~r->ax; r->ax=input_button_bits((uint8_t)~r->ax,0);
@@ -88,11 +149,12 @@ EXPORT int c_SampleJoystickAxesAndButtons(Regs *r) {
         if(!again) break;
     }
     if(ugh_devices.error) return UGH_UNSUPPORTED;
+#endif
     r->flags=saved_flags; r->ax=rd16(r->ds,D(JoystickSampleLoopLimit));
-    sub16(r,r->ax,r->di,0);r->dx=input_axis_count(r->ax,r->di); wr16(r->ds,D(SecondJoystickYCount),r->dx);
-    sub16(r,r->ax,r->si,0);r->cx=input_axis_count(r->ax,r->si); wr16(r->ds,D(SecondJoystickXCount),r->cx);
-    sub16(r,r->ax,r->bx,0);r->dx=input_axis_count(r->ax,r->bx); wr16(r->ds,D(FirstJoystickXCount),r->dx);
-    sub16(r,r->ax,r->bp,0);r->ax=input_axis_count(r->ax,r->bp); wr16(r->ds,D(FirstJoystickYCount),r->ax);
+    sub16(r,r->ax,r->di,0);r->dx=INPUT_COUNT(3,r->ax,r->di); wr16(r->ds,D(SecondJoystickYCount),r->dx);
+    sub16(r,r->ax,r->si,0);r->cx=INPUT_COUNT(2,r->ax,r->si); wr16(r->ds,D(SecondJoystickXCount),r->cx);
+    sub16(r,r->ax,r->bx,0);r->dx=INPUT_COUNT(0,r->ax,r->bx); wr16(r->ds,D(FirstJoystickXCount),r->dx);
+    sub16(r,r->ax,r->bp,0);r->ax=INPUT_COUNT(1,r->ax,r->bp); wr16(r->ds,D(FirstJoystickYCount),r->ax);
     r->ax=logic(r,rd16(r->ds,D(JoystickButtonBits))|rd16(r->ds,D(SecondJoystickButtonBits)),16);
     return UGH_OK;
 }
@@ -109,15 +171,24 @@ EXPORT int c_DetectAndCalibrateJoysticks(Regs *r) {
         D(FirstJoystickXDoubleCenter),D(FirstJoystickYDoubleCenter),
         D(SecondJoystickXDoubleCenter),D(SecondJoystickYDoubleCenter)};
     for(unsigned i=0;i<8;i++) wr16(r->ds,clear[i],r->ax);
-    r->dx=0x201; platform_out(r->dx,1,(uint8_t)r->ax);
+    r->dx=0x201;
+#ifdef UGH_NATIVE_INPUT
+    input_service_joystick_start((uint8_t)r->ax);
+#else
+    platform_out(r->dx,1,(uint8_t)r->ax);
+#endif
     r->cx=0x1600; do { r->cx=dec16(r,r->cx); } while(r->cx);
+    #ifdef UGH_NATIVE_INPUT
+    InputByteReply presence=input_service_joystick_presence();set_al(r,presence.value);if(presence.status)return presence.status;
+#else
     set_al(r,(uint8_t)platform_in(r->dx,1)); if(ugh_devices.error) return UGH_UNSUPPORTED;
+#endif
     push(r,r->ax); logic(r,(uint8_t)r->ax&3,8);
     if(input_joystick_present((uint8_t)r->ax,0)) {
         state=input_project(r->ds);input_calibration_detect(&state,0);
         wr16(r->ds,D(JoystickPresentFlags),state.joysticks[0].present);wr16(r->ds,D(PlayerOneControlMode),state.control_mode[0]);
         wr8(r->ds,D(JoystickEnabledAxisMask),(uint8_t)logic(r,state.enabled_axes,8));
-        int status=call(r,G(SampleJoystickAxesAndButtons),G(DetectAndCalibrateJoysticks)+89); if(status) return status;
+        int status=INPUT_PEER(SampleJoystickAxesAndButtons,G(DetectAndCalibrateJoysticks)+89); if(status) return status;
         state=input_project(r->ds);input_calibration_apply(&state,0);
         r->ax=rd16(r->ds,D(FirstJoystickXCount)); r->bx=rd16(r->ds,D(FirstJoystickYCount));
         r->ax=(uint16_t)(r->ax*2); r->bx=(uint16_t)(r->bx*2);
@@ -131,7 +202,7 @@ EXPORT int c_DetectAndCalibrateJoysticks(Regs *r) {
         wr16(r->ds,D(SecondJoystickPresent),state.joysticks[1].present);wr16(r->ds,D(PlayerTwoControlMode),state.control_mode[1]);
         wr8(r->ds,D(JoystickEnabledAxisMask),(uint8_t)logic(r,state.enabled_axes,8));
         r->cx=0x1600; do { r->cx=dec16(r,r->cx); } while(r->cx);
-        int status=call(r,G(SampleJoystickAxesAndButtons),G(DetectAndCalibrateJoysticks)+188); if(status) return status;
+        int status=INPUT_PEER(SampleJoystickAxesAndButtons,G(DetectAndCalibrateJoysticks)+188); if(status) return status;
         state=input_project(r->ds);input_calibration_apply(&state,1);
         r->cx=rd16(r->ds,D(SecondJoystickXCount)); r->dx=rd16(r->ds,D(SecondJoystickYCount));
         r->cx=(uint16_t)(r->cx*2); r->dx=(uint16_t)(r->dx*2);
@@ -148,7 +219,7 @@ EXPORT int c_DetectAndCalibrateJoysticks(Regs *r) {
 }
 #define INPUT_READ(n) rd16(r->ds,D(n))
 #define INPUT_READ_AT(n,i) rd16(r->ds,(uint16_t)(D(n)+(i)))
-#define INPUT_CALL(n,ret) do {int status=ugh_call_near(G(n),ret,r);if(status) return status;} while(0)
+#define INPUT_CALL(n,ret) do {int status=INPUT_PEER(n,ret);if(status) return status;} while(0)
 EXPORT int c_PollPlayerControls(Regs *r) {
     INPUT_CALL(PollKeyboardScanChange,(uint16_t)(G(PollPlayerControls)+3));
     logic(r,INPUT_READ(PlayerOneControlMode),16);
@@ -181,11 +252,17 @@ EXPORT int c_WaitForScanChangeOrJoystickButton(Regs *r) {
         InputWaitAction action=input_wait_next(&work,changed);int status=0;
         switch(action) {
         case INPUT_WAIT_SCAN:
-            status=call(r,G(PollKeyboardScanChange),work.stage==1 ? G(loc_44DE) : G(loc_44DE)+14);if(status) return status;
+            status=INPUT_PEER(PollKeyboardScanChange,work.stage==1 ? G(loc_44DE) : G(loc_44DE)+14);if(status) return status;
             if(work.stage!=1) {logic(r,r->ax>>8,8);changed=!!(r->ax>>8);}break;
-        case INPUT_WAIT_RETRACE:status=call(r,G(WaitNextVerticalRetrace),G(loc_44DE)+3);break;
-        case INPUT_WAIT_SAMPLE:status=call(r,G(SampleJoystickAxesAndButtons),G(loc_44DE)+6);changed=!(r->flags&ZF);break;
-        case INPUT_WAIT_SERVICE:status=platform_service_point_at(SERVICE_IO,r->cs,G(loc_44DE)+11,r);break;
+        case INPUT_WAIT_RETRACE:status=INPUT_PEER(WaitNextVerticalRetrace,G(loc_44DE)+3);break;
+        case INPUT_WAIT_SAMPLE:status=INPUT_PEER(SampleJoystickAxesAndButtons,G(loc_44DE)+6);changed=!(r->flags&ZF);break;
+        case INPUT_WAIT_SERVICE:
+#ifdef UGH_NATIVE_INPUT
+            status=input_service_poll(INPUT_POLL_WAIT,(InputServiceContext*)r);
+#else
+            status=platform_service_point_at(SERVICE_IO,r->cs,G(loc_44DE)+11,r);
+#endif
+            break;
         case INPUT_WAIT_DONE:return UGH_OK;
         default:return UGH_BUDGET;
         }

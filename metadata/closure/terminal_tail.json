@@ -168,8 +168,8 @@
     "native/bridge/terminal_tail_bridge.c": "0676680d7e43f742ecb274b0869824043fe6f28e0e62ed2fef2daecaa569bf50",
     "verif/entry_retirement.py": "3b52d207fef7b3e51461a2357a06f012f59651b406f1fe9a0253876e55f76529",
     "verif/entry_retirement_proof.c": "2796c3423fef93b04f190cb38667b80bda47017806d83ff5e326fb204aebb95f",
-    "verif/projector_evidence.py": "71d4a478aa22aa24b9a9ce7781bbe67dd1bf41d4bef04a0125c2688a6b052fc7",
-    "verif/projector/publications.py": "231e70633d293594040a12695819a4ab9e16110e8fadab185a7c5180ee47378c",
+    "verif/projector_evidence.py": "b7b5353ac94b8a555fef9e910c1238aa99e5f23e24074e809a7251cd22df336e",
+    "verif/projector/publications.py": "63613aed5d0d922cf9e998d70f78bc76ce5903901ed8cca33cd706985cab5481",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
     "c/abi.c": "5f7c2c2fc015ca43e3786a7f96cb38113211da54acefce19564c1df78d74857a",
@@ -287,6 +287,18 @@
         "python verif/palette_composition.py --gate"
       ],
       "results": "PASS: legacy kernels retained, L1/Unicorn replay, native owner/byte proof, projector/census/levels; partial step 4 only",
+      "inputs": [
+        "verif/projector_evidence.py",
+        "verif/projector/publications.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Input native ownership, typed services and borrowers; prior claim domains/status unchanged",
+      "commands": [
+        "python verif/input_composition.py --gate"
+      ],
+      "results": "PASS",
       "inputs": [
         "verif/projector_evidence.py",
         "verif/projector/publications.py"

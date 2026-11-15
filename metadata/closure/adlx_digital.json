@@ -286,7 +286,7 @@
     "native/bridge/audio_projection.h": "f8dfd66352954a9efe9e23b97b041cd8c953a88ecbe9c6769448260eccc5dff0",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
-    "tools/hostbuild.py": "0d4d0dbff47bd1693eb5f542add6c0d732fba8db752a01c88f1ec3e5a9b5f2c7",
+    "tools/hostbuild.py": "f0f4369142047fe30252c77e435dfb2eb61ccd7b5418d09508e7916fbc1347f9",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/adlx_digital_build.py": "6ca5eab7726797f255a5650348dafcee65097345439fd71dcfbdcc0c70bc87f3",
     "verif/adlx_digital_certificate.py": "4a227f34b6b12b6d620d552f70f130346189b66f4043b123546b1b24aee411b9",
@@ -343,6 +343,17 @@
         "python verif/palette_composition.py --gate"
       ],
       "results": "PASS: legacy kernels retained, L1/Unicorn replay, native owner/byte proof, projector/census/levels; partial step 4 only",
+      "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Input native ownership, typed services and borrowers; prior claim domains/status unchanged",
+      "commands": [
+        "python verif/input_composition.py --gate"
+      ],
+      "results": "PASS",
       "inputs": [
         "tools/hostbuild.py"
       ]

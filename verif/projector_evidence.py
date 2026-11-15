@@ -136,11 +136,11 @@ def build(literal=False,revision=BASELINE_REVISION):
             if not literal and rel=='native/decimal.c':
                 for needle in ['output->bytes[output->cursor]=digit;','output->bytes[output->cursor]=255;']:
                     if needle in text:text=text.replace(needle,needle+'pr_pointer_write(output->bytes+output->cursor,output->bytes[output->cursor]);')
-                    else:assert any(name+'(' in text for name in ['audio_borrowed_store','palette_borrowed_store'])
+                    else:assert any(name+'(' in text for name in ['audio_borrowed_store','palette_borrowed_store','input_borrowed_store'])
             if not literal and rel=='native/far_copy.c':
                 needle='destination[destination_cursor]=source[source_cursor];'
                 if needle in text:text=text.replace(needle,needle+'pr_pointer_write(destination+destination_cursor,destination[destination_cursor]);')
-                else:assert any(name+'(' in text for name in ['audio_borrowed_store','palette_borrowed_store'])
+                else:assert any(name+'(' in text for name in ['audio_borrowed_store','palette_borrowed_store','input_borrowed_store'])
             if not literal and rel=='native/bridge/ice_bridge.c':
                 needle='memcpy(ugh_mem+destination,output,sizeof output);'
                 if needle in text:text=text.replace(needle,needle+'pr_publish(ugh_mem+destination,sizeof output);')

@@ -2,8 +2,9 @@
 import struct,re
 import s7_core_record,cgen
 
-def generate(out,frontend=None):
-    if frontend:
+def generate(out,frontend=None,source=None):
+    if source is not None:pass
+    elif frontend:
         import s7_frontend_record
         source=s7_frontend_record.generate(out,'high-score')
     else:source=s7_core_record.generate(out)

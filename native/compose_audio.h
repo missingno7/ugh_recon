@@ -8,6 +8,8 @@ typedef struct GameAudioResult {GSStatus status;uint16_t value;} GameAudioResult
 GSStatus game_audio_construct(GameWorld *,GameServices *);
 GSResourceId game_audio_resource_id(unsigned);
 GSResourceId game_audio_score_resource(void);
+GSResourceId game_audio_menu_resource(void);
+GSResourceId game_audio_game_over_resource(void);
 GSResourceId game_audio_intro_resource(void);
 GSStatus game_audio_init(GameWorld *,GameServices *,uint16_t mask);
 GameAudioResult game_audio_music_start(GameWorld *,GameServices *,GSResourceId,uint16_t duration,uint16_t volume);

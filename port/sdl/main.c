@@ -2,16 +2,18 @@
 #include "backend.h"
 #include "../resources.h"
 #include "../../native/game_boot.h"
+#include "../../native/compose_menu.h"
 #include "resource_manifest.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 int main(int argc,char **argv){
-    const char *pack_path="ugh.res",*scores="UGH!.HI";int replay=0,headless=0,adlib=1,unpaced=0;
+    const char *pack_path="ugh.res",*scores="UGH!.HI";int replay=0,headless=0,adlib=1,unpaced=0,boot_only=0;
     for(int n=1;n<argc;n++){
         if(!strcmp(argv[n],"--pack")&&n+1<argc)pack_path=argv[++n];
         else if(!strcmp(argv[n],"--scores")&&n+1<argc)scores=argv[++n];
         else if(!strcmp(argv[n],"--replay"))replay=1;
+        else if(!strcmp(argv[n],"--boot-only"))boot_only=1;
         else if(!strcmp(argv[n],"--headless"))headless=1;
         else if(!strcmp(argv[n],"--no-adlib"))adlib=0;
         else if(!strcmp(argv[n],"--unpaced"))unpaced=1;
@@ -31,9 +33,13 @@ int main(int argc,char **argv){
     gs_sdl_startup(&platform,&services,video,input,&time,audio,&files,&seed,adlib);
     services.resources_context=&pack;services.resources=gs_resources_operations();
     GSStatus status=game_world_construct(world,&services);
-    GameBootResult result={GAME_BOOT_SERVICE_ERROR,status,LIFE_BIND_WORLD};if(status==GS_OK)result=game_boot(world,&services);
-    printf("{\"result\":\"%s\",\"status\":%u,\"action\":%u,\"frames\":%u,\"presentations\":%llu}\n",result.kind==GAME_BOOT_SLICE_END?"slice_end":"error",result.status,result.action,world->frames,(unsigned long long)platform.presentations);
-    code=result.kind==GAME_BOOT_SLICE_END?0:result.kind==GAME_BOOT_QUIT?0:1;
+    GameBootResult result={GAME_BOOT_SERVICE_ERROR,status,LIFE_BIND_WORLD};if(status==GS_OK){
+        if(boot_only)result=game_boot(world,&services);
+        else{GameMenu menu;GameMenuResult run=game_main(world,&services,&menu);
+            result=(GameBootResult){run.kind==GAME_MENU_SESSION_ENTRY?GAME_BOOT_SLICE_END:run.kind==GAME_MENU_EXIT?GAME_BOOT_QUIT:GAME_BOOT_SERVICE_ERROR,run.status,LIFE_MAIN_MENU};}
+    }
+    printf("{\"result\":\"%s\",\"status\":%u,\"action\":%u,\"frames\":%u,\"presentations\":%llu}\n",result.kind==GAME_BOOT_SLICE_END?(boot_only?"slice_end":"session_entry"):result.kind==GAME_BOOT_QUIT?"exit":"error",result.status,result.action,world->frames,(unsigned long long)platform.presentations);
+    code=result.kind==GAME_BOOT_SLICE_END?0:result.kind==GAME_BOOT_QUIT?platform.exit_code:1;
 done:
     if(input)gs_input_close(input);
     if(audio)gs_audio_close(audio);

@@ -121,7 +121,7 @@ def data_header(manifest,out):
       ('CREDITS','DGROUP:Text_091F',453),('MENU_TEXT','DGROUP:Text_0AE4',128),
       ('SCORE_PROMPT','DGROUP:Text_0C23',74),('SCORE_TITLE','DGROUP:Text_0C7B',11),
       ('LEVEL_TITLE','DGROUP:Text_0BF6',10),('PASSWORD_TITLE','DGROUP:Text_0C00',12),
-      ('SOURCE_PALETTE','B2BC6:GameSourcePalette',384)]
+      ('SOURCE_PALETTE','B2BC6:GameSourcePalette',384),('CONTROLS_TEXT','DGROUP:Text_0B64',128),('GAME_OVER_TEXT','DGROUP:Text_0C0C',23)]
     lines=['/* Generated admitted constructor data views; no image coordinates. */',
            'static const size_t game_default_sizes[]={'+','.join(str(field[2]) for field in fields)+'};',
            'static const GameDefaultSpec game_default_specs[]={']

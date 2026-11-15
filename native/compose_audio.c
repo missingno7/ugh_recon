@@ -12,6 +12,8 @@
 #include "audio_data.h"
 static GameAudioResult result(GSStatus s,uint16_t value){return (GameAudioResult){s,value};}
 GSResourceId game_audio_resource_id(unsigned i){return i<11?game_audio_specs[i].id:0;}
+GSResourceId game_audio_game_over_resource(void){return game_audio_specs[GAME_AUDIO_GAME_OVER].id;}
+GSResourceId game_audio_menu_resource(void){return game_audio_specs[GAME_AUDIO_MENU].id;}
 GSResourceId game_audio_score_resource(void){return game_audio_specs[GAME_AUDIO_SCORE].id;}
 GSResourceId game_audio_intro_resource(void){return game_audio_specs[GAME_AUDIO_INTRO].id;}
 GSStatus game_audio_construct(GameWorld *w,GameServices *s){

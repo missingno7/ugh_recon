@@ -70,11 +70,12 @@ int main(int argc,char **argv){
     /* A presentation failure retains page/frame stores that precede it. */
     fresh();CHECK(game_demo_initialize(w,&services,DEMO_PRESENT_REVEAL)==GS_OK);
     services.video.present=stop_present;CHECK(game_video_swap(w,&services)==GS_IO_ERROR);CHECK(w->frames==1);
-    /* Active audio stops exactly after map preparation, before StopMusicTrack.
-     * The two preparation page flips remain visible and no demo is seeded. */
-    fresh();w->audio_reset.devices=1;GameDemoResult result=game_demo_play(w,&services,DEMO_PRESENT_COMPLETION);
-    CHECK(result.status==GS_UNSUPPORTED&&w->frames==2&&w->actors.slot[0].demo==0);
-    CHECK(game_demo_music_start(w,&services,165)==GS_UNSUPPORTED);
+    /* Active music uses the real typed facade, including initialized timers. */
+    fresh();gs_test_startup(b,1);services=gs_test_services(b);
+    CHECK(game_initialize_audio(w,&services)==GS_OK);
+    CHECK(game_demo_music_start(w,&services,165)==GS_OK&&w->audio.playing);
+    CHECK(game_demo_music_stop(w,&services,17)==GS_OK);
+    GameDemoResult result;
     /* The palette service returns its retained factor, then presentation adds
      * the live fade step. A synchronous peer must not replace that factor by
      * a fresh read of the fade-level owner after the upload. */

@@ -43,7 +43,9 @@
     "native/level_view.c",
     "native/water_weather.c",
     "native/compose_audio.c",
-    "native/adlx_allocation.c"
+    "native/adlx_allocation.c",
+    "native/compose_menu.c",
+    "native/terminal_tail.c"
   ],
   "backends": {
     "test": [
@@ -145,7 +147,8 @@
     "native/compose_demo.h",
     "native/game_demo.h",
     "native/object_identities.h",
-    "native/compose_audio.h"
+    "native/compose_audio.h",
+    "native/compose_menu.h"
   ],
   "vendor": {
     "sdl": [
@@ -187,6 +190,8 @@
     "native/compose_demo.h",
     "native/game_demo.h",
     "native/compose_audio.c",
-    "native/compose_audio.h"
+    "native/compose_audio.h",
+    "native/compose_menu.c",
+    "native/compose_menu.h"
   ]
 }

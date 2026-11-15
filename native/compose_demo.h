@@ -15,7 +15,7 @@ GSStatus game_demo_reset(GameWorld *);
 GSStatus game_demo_render(GameWorld *,GameServices *,int);
 GSStatus game_demo_prepare(GameWorld *,GameServices *,int);
 GSStatus game_demo_water(GameWorld *,GameServices *);
-/* Audio continuation seam: absent facade is a no-op; active peers stop here. */
+/* Music peers share the composed audio timeline and service failure prefixes. */
 GSStatus game_demo_music_stop(GameWorld *,GameServices *,uint16_t);
 GSStatus game_demo_music_start(GameWorld *,GameServices *,uint16_t);
 GameDemoResult game_demo_play(GameWorld *,GameServices *,DemoPresentationKind);

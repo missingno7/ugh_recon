@@ -1,4 +1,9 @@
 #include "platform.h"
+#ifndef PLAYER_BORROWER
+#define PLAYER_BORROWER PLAYER_BORROW_ACTORS
+#endif
+#include "player_borrow.h"
+#include "platform.h"
 #ifndef RUN_BORROWER
 #define RUN_BORROWER RUN_BORROW_ACTORS
 #endif
@@ -12,7 +17,7 @@ typedef struct ItineraryPlan {
     PassengerJourney journey;PassengerJourneyLeg legs[256];uint16_t frames[4][256];
     ItineraryResult result;size_t consumed;uint16_t journey_base;int bad;
 } ItineraryPlan;
-static uint16_t itinerary_word(Regs *r,uint16_t base,uint16_t index) {return run_read16(r->ds,(uint16_t)(base+index));}
+static uint16_t itinerary_word(Regs *r,uint16_t base,uint16_t index) {return player_read16(r->ds,(uint16_t)(base+index));}
 static uint16_t itinerary_phase_code(uint16_t phase) {
     if(phase==ACTOR_WAIT_FOR_PLATFORM) return G(WaitForPassengerPlatform);
     if(phase==ACTOR_ARRIVING) return G(AnimatePassengerArrival);
@@ -46,10 +51,10 @@ static uint16_t itinerary_consume(ItineraryPlan *plan,Regs *r,uint16_t address,u
     return value;
 }
 static void itinerary_write16(ItineraryPlan *plan,Regs *r,uint16_t address,uint16_t expected) {
-    uint16_t value=itinerary_consume(plan,r,address,expected,0);run_write16(r->ds,address,value);
+    uint16_t value=itinerary_consume(plan,r,address,expected,0);player_write16(r->ds,address,value);
 }
 static void itinerary_write8(ItineraryPlan *plan,Regs *r,uint16_t address,uint8_t expected) {
-    uint16_t value=itinerary_consume(plan,r,address,expected,1);run_write8(r->ds,address,(uint8_t)value);
+    uint16_t value=itinerary_consume(plan,r,address,expected,1);player_write8(r->ds,address,(uint8_t)value);
 }
 static int itinerary_dispatch(Regs *r,ItineraryPlan *plan,uint16_t target) {
     uint16_t expected=0;
@@ -69,7 +74,7 @@ static int itinerary_vector(Regs *r,uint16_t pointer,uint16_t *words,ActorAnimat
     /* This unit borrows the registered immutable animation bank. Modified
      * references outside it keep L1, including mutable-output aliases. */
     while(pointer>=D(Animation_0E20) && pointer<0x1020u && count<256) {
-        uint16_t sprite=run_read16(r->ds,pointer);
+        uint16_t sprite=player_read16(r->ds,pointer);
         if(sprite==65535u) {animation->sprites=words;animation->count=count;return 1;}
         words[count++]=sprite;pointer=(uint16_t)(pointer+2);
     }
@@ -82,11 +87,11 @@ static int itinerary_prepare(Regs *r,ItineraryEntry entry,ItineraryPlan *plan) {
     const unsigned fields[]={8,10,12,14,16,38,40,42,44};
     const uint16_t targets[]={G(ReadPassengerJourneyLeg),G(WaitForPassengerPlatform),G(PlacePassengerOnPlatform),G(AnimatePassengerArrival),
         G(BeginPassengerPlatformWait),G(WalkPassengerToExit),G(BeginPassengerDeparture),G(AnimatePassengerDeparture),G(IgnoreActorState)};
-    for(size_t i=0;i<9;i++) if(run_read16(r->ds,(uint16_t)(descriptor+fields[i]))!=targets[i]) return 0;
+    for(size_t i=0;i<9;i++) if(player_read16(r->ds,(uint16_t)(descriptor+fields[i]))!=targets[i]) return 0;
     *plan=(ItineraryPlan){0};plan->slot.type=&plan->type;
     plan->type.id=descriptor==D(Data_7720)?ACTOR_PASSENGER_ONE_LAND:descriptor==D(Data_77B4)?ACTOR_PASSENGER_TWO_LAND:ACTOR_PASSENGER_THREE_LAND;
-    plan->type.geometry.anchor_x=run_read16(r->ds,descriptor);plan->type.geometry.anchor_y=run_read16(r->ds,(uint16_t)(descriptor+2));
-    plan->type.animation_period=run_read16(r->ds,(uint16_t)(descriptor+62));
+    plan->type.geometry.anchor_x=player_read16(r->ds,descriptor);plan->type.geometry.anchor_y=player_read16(r->ds,(uint16_t)(descriptor+2));
+    plan->type.animation_period=player_read16(r->ds,(uint16_t)(descriptor+62));
     ActorPhase phase=entry==IT_WAIT || entry==IT_PLACE?ACTOR_WAIT_FOR_PLATFORM:entry==IT_ARRIVAL?ACTOR_ARRIVING:
         entry==IT_WALK || entry==IT_BEGIN_DEPARTURE?ACTOR_WALK_TO_EXIT:entry==IT_DEPARTURE?ACTOR_DEPARTING:ACTOR_READ_JOURNEY;
     if(!actor_bridge_alias_project(r->ds,r->bx/2u,phase,&plan->slot)) return 0;
@@ -107,8 +112,8 @@ static int itinerary_prepare(Regs *r,ItineraryEntry entry,ItineraryPlan *plan) {
         plan->platforms[i].arrival_x=itinerary_word(r,D(PlatformArrivalPointsX),(uint16_t)(2u*i));
         plan->uses[i].available=itinerary_word(r,D(PlatformActorOccupants),(uint16_t)(2u*i))==65535u;
     }
-    plan->world.remaining=run_read8(r->ds,D(RemainingPassengerJourneys));plan->world.completion=run_read8(r->ds,D(LevelCompletionMarker));
-    plan->world.fade_rate=run_read16(r->ds,D(ScreenFadeStep));plan->world.fade_level=run_read16(r->ds,D(ScreenFadeLevel));
+    plan->world.remaining=player_read8(r->ds,D(RemainingPassengerJourneys));plan->world.completion=player_read8(r->ds,D(LevelCompletionMarker));
+    plan->world.fade_rate=player_read16(r->ds,D(ScreenFadeStep));plan->world.fade_level=player_read16(r->ds,D(ScreenFadeLevel));
     plan->journey_base=itinerary_word(r,D(ActorJourneyCursors),r->bx);
     if(entry==IT_READ) {
         uint16_t pointer=plan->journey_base;
@@ -122,18 +127,18 @@ static int itinerary_prepare(Regs *r,ItineraryEntry entry,ItineraryPlan *plan) {
             if(entry==IT_ARRIVAL && i!=2) continue;
             if(entry==IT_DEPARTURE && i!=3) continue;
             if(entry==IT_WALK && i>1) continue;
-            if(!itinerary_vector(r,run_read16(r->ds,(uint16_t)(descriptor+offsets[i])),plan->frames[i],&plan->type.animations[kinds[i]])) return 0;
+            if(!itinerary_vector(r,player_read16(r->ds,(uint16_t)(descriptor+offsets[i])),plan->frames[i],&plan->type.animations[kinds[i]])) return 0;
         }
     }
     plan->result=itinerary_apply(entry,&plan->slot,&plan->render,&plan->world);return !plan->result.failed;
 }
 /* ITINERARY_SHELLS_BEGIN */
 /* Derived machine shell: expected expressions are diagnostics; native journal values alone are published. */
-#define READ(n,i) run_read16(r->ds,(uint16_t)(D(n)+(i)))
+#define READ(n,i) player_read16(r->ds,(uint16_t)(D(n)+(i)))
 #define WRITE(n,i,v) itinerary_write16(plan,r,(uint16_t)(D(n)+(i)),(uint16_t)(v))
 #define A(n) READ(n,r->bx)
 #define W(n,v) WRITE(n,r->bx,v)
-#define DESC(n) run_read16(r->ds,(uint16_t)(r->si+(n)))
+#define DESC(n) player_read16(r->ds,(uint16_t)(r->si+(n)))
 static int it_shell0_state_jump(Regs *r,ItineraryPlan *plan,uint16_t target);
 static int it_shell0_tail(Regs *r,ItineraryPlan *plan,unsigned field);
 static uint16_t it_shell0_shl(Regs *r,uint16_t v,unsigned n) {
@@ -168,7 +173,7 @@ static int it_shell0_actor_frame(Regs *r,ItineraryPlan *plan,unsigned field) {
     for(unsigned budget=0;budget<32768;budget++) {
         r->di=DESC(field);
         r->di=add16(r,r->di,A(ActorAnimationByteOffsets),0);
-        r->ax=run_read16(r->ds,r->di); sub16(r,r->ax,0xffff,0);
+        r->ax=player_read16(r->ds,r->di); sub16(r,r->ax,0xffff,0);
         if(r->ax!=0xffff) { W(ActorSpriteIds,r->ax); return UGH_OK; }
         W(ActorAnimationByteOffsets,0);
     }
@@ -204,7 +209,7 @@ static int shell_AnimatePassengerArrival(Regs *r,ItineraryPlan *plan) {
     r->si=A(ActorDescriptors); r->ax=DESC(0x3e); W(ActorAnimationCountdowns,r->ax);
     W(ActorAnimationByteOffsets,add16(r,A(ActorAnimationByteOffsets),2,0));
     r->di=DESC(0x36); r->di=add16(r,r->di,A(ActorAnimationByteOffsets),0);
-    r->ax=run_read16(r->ds,r->di); sub16(r,r->ax,0xffff,0);
+    r->ax=player_read16(r->ds,r->di); sub16(r,r->ax,0xffff,0);
     if(r->ax==0xffff) return it_shell0_tail(r,plan,0x10);
     W(ActorSpriteIds,r->ax); return UGH_OK;
 }
@@ -231,8 +236,8 @@ static int shell_AnimatePassengerDeparture(Regs *r,ItineraryPlan *plan) {
     r->si=A(ActorDescriptors); r->ax=DESC(0x3e); W(ActorAnimationCountdowns,r->ax);
     W(ActorAnimationByteOffsets,add16(r,A(ActorAnimationByteOffsets),2,0));
     r->di=DESC(0x38); r->di=add16(r,r->di,A(ActorAnimationByteOffsets),0);
-    r->ax=run_read16(r->ds,r->di); W(ActorSpriteIds,r->ax);
-    sub16(r,run_read16(r->ds,(uint16_t)(r->di+2)),0xffff,0);
+    r->ax=player_read16(r->ds,r->di); W(ActorSpriteIds,r->ax);
+    sub16(r,player_read16(r->ds,(uint16_t)(r->di+2)),0xffff,0);
     if(!(r->flags&ZF)) return UGH_OK;
     W(ActorJourneyCursors,add16(r,A(ActorJourneyCursors),4,0)); return it_shell0_tail(r,plan,8);
 }
@@ -245,11 +250,11 @@ static int shell_AnimatePassengerDeparture(Regs *r,ItineraryPlan *plan) {
 #undef R
 #undef B
 #undef F
-#define R(n,i) run_read16(r->ds,(uint16_t)(D(n)+(i)))
+#define R(n,i) player_read16(r->ds,(uint16_t)(D(n)+(i)))
 #define W(n,i,v) itinerary_write16(plan,r,(uint16_t)(D(n)+(i)),(uint16_t)(v))
 #define A(n) R(n,r->bx)
 #define B(n,v) W(n,r->bx,v)
-#define F(n) run_read16(r->ds,(uint16_t)(r->si+(n)))
+#define F(n) player_read16(r->ds,(uint16_t)(r->si+(n)))
 static uint16_t it_shell1_shift(Regs *r,uint16_t v,unsigned n,int right) {
     for(unsigned i=0;i<n;i++) {
         flag(r,CF,right?(v&1):(v&0x8000));
@@ -270,9 +275,9 @@ static uint8_t it_shell1_byte_dec(Regs *r,uint8_t a) {
 }
 
 static int shell_ReadPassengerJourneyLeg(Regs *r,ItineraryPlan *plan) {
-    r->di=A(ActorJourneyCursors); r->ax=run_read16(r->ds,(uint16_t)(r->di+4)); sub16(r,r->ax,0xffff,0);
+    r->di=A(ActorJourneyCursors); r->ax=player_read16(r->ds,(uint16_t)(r->di+4)); sub16(r,r->ax,0xffff,0);
     if(r->ax==0xffff) {
-        set_al(r,run_read8(r->ds,D(RemainingPassengerJourneys))); set_al(r,it_shell1_byte_dec(r,(uint8_t)r->ax));
+        set_al(r,player_read8(r->ds,D(RemainingPassengerJourneys))); set_al(r,it_shell1_byte_dec(r,(uint8_t)r->ax));
         if(!(r->flags&SF)) {
             itinerary_write8(plan,r,D(RemainingPassengerJourneys),(uint8_t)r->ax);
             if(r->flags&ZF) {
@@ -285,9 +290,9 @@ static int shell_ReadPassengerJourneyLeg(Regs *r,ItineraryPlan *plan) {
         B(ActorUpdateOrScriptCursor,r->ax); return itinerary_dispatch(r,plan,r->ax);
     }
     B(ActorDestinationPlatforms,r->ax); r->ax=it_shell1_shift(r,r->ax,1,0); B(ActorDestinationPlatformByteIndices,r->ax);
-    r->ax=run_read16(r->ds,r->di); B(ActorPlatformOrScriptDone,r->ax);
+    r->ax=player_read16(r->ds,r->di); B(ActorPlatformOrScriptDone,r->ax);
     r->ax=it_shell1_shift(r,r->ax,1,0); B(ActorSourcePlatformByteIndices,r->ax);
-    r->ax=run_read16(r->ds,(uint16_t)(r->di+2));
+    r->ax=player_read16(r->ds,(uint16_t)(r->di+2));
     int status=ugh_call_near(G(ScaleLevelSpeedToThreeHalves),(uint16_t)(G(ReadPassengerJourneyLeg)+0x5d),r); if(status) return status;
     B(ActorMotionWaitOrDemoRepeats,r->ax); r->si=A(ActorDescriptors); r->ax=F(0x0a); B(ActorUpdateOrScriptCursor,r->ax); return UGH_OK;
 }

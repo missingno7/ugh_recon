@@ -1091,6 +1091,7 @@
         "../passenger_delivery.h",
         "actor_projection.h",
         "platform.h",
+        "player_borrow.h",
         "run_borrow.h",
         "ugh.h"
       ],
@@ -1158,10 +1159,10 @@
         "pd_shell1_submerged",
         "pd_shell1_tail",
         "pd_shell1_water_swap",
-        "run_read16",
-        "run_read8",
-        "run_write16",
-        "run_write8",
+        "player_read16",
+        "player_read8",
+        "player_write16",
+        "player_write8",
         "shell_BeginPassengerApproach",
         "shell_BeginPassengerDestinationDisplay",
         "shell_BeginPassengerPlatformWait",
@@ -1849,15 +1850,15 @@
   "verification_inputs": {
     "native/passenger_delivery.h": "e01d99b23879eb69ad449d6c25a82f44f1a80d800a424f1e7539b951cd166657",
     "native/passenger_delivery.c": "ca71e756fff535f31a132c1bf865a9ef91161ebd84972c39991cddf07c322494",
-    "native/bridge/passenger_delivery_bridge.c": "a04a39010e679cce32580497ac5fa0734c3e747bcf57efb484b3de85c8e50f08",
+    "native/bridge/passenger_delivery_bridge.c": "80b0dfe1d0a06d382caf7a71dde790096c25a68553d85b2a803a18cb21008edf",
     "native/actor_resources.c": "47e21228ee1d873fa5636e062a955e4a6b5a8f0522a7bde2cf223708c9880137",
-    "native/bridge/actor_resources_bridge.c": "12f73b24fad632338bd665c69bc6da13127a09477cb9188850b1a7e3822f53d0",
+    "native/bridge/actor_resources_bridge.c": "327352980ad3a6a12d07584c4bc6b4d95dc552ce595c046f9ad895779c856e8e",
     "native/level_view.c": "f0b3db5747f718d7c112c721735ca5a497a9b93a6ecb33096223b188b170353d",
-    "native/bridge/level_view_bridge.c": "361b68f28fef3cbb0b5bf44dcdc7fa057a9d0c75186d4e87f53e1eaa4a283ab5",
+    "native/bridge/level_view_bridge.c": "711962c998445e27ea9a226583f2687f1e378a9a9afa6659b433fbcfdc69f3f3",
     "native/contacts.c": "f809c3af54ddb43b07b60be870e30e404f0b0456f4542585011cb5108dcc8b15",
-    "native/bridge/contacts_bridge.c": "ae0355b3a17443a2d39b41b9ac99656041ae63c9bebf3a399e207e6257b1bdab",
+    "native/bridge/contacts_bridge.c": "315249236d90b5127172fb98dae083de832337eb7957c4cbeaf9cac189669889",
     "native/items.c": "d3ede593a1249fc46da025fc304f90ed8f962a5145a81731c6dc70b2f384b8ec",
-    "native/bridge/items_bridge.c": "492f6ecc440d520d9eeda9786f90bd6e7b0c71b3db98367ba2004d9205bcce5a",
+    "native/bridge/items_bridge.c": "7c4eed8ef10f077520da0c96d7969201cbdf555dce59dce9844612b443e4e60a",
     "verif/delivery_build.py": "db95adccee0bfaa0fa7d08fac8170985b276f840c8504d9dda0ea048620be56e",
     "verif/delivery_cases.py": "e6e5bda0b17642007d9e3da8012ef4be41774736c0e2178b51746142c040e785",
     "verif/delivery_certificate.py": "fdade0c85964a3ea10a93a1da663d572c4cfc5025bb9823a0df530287c4c30f6",
@@ -1897,7 +1898,7 @@
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
-    "tools/hostbuild.py": "a9438f5cfa724e7b5eb3bcfbb647ce7ab2c68d8b1c6375340ca4840ec1ee847d",
+    "tools/hostbuild.py": "49f7a3251924a844a5422076bc26cd113fd4aa43a34b3b6c9713ca6d313228be",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
     "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
@@ -2045,6 +2046,22 @@
       ],
       "results": "PASS within stated domains",
       "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Both-player ownership and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/player_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/passenger_delivery_bridge.c",
+        "native/bridge/actor_resources_bridge.c",
+        "native/bridge/level_view_bridge.c",
+        "native/bridge/contacts_bridge.c",
+        "native/bridge/items_bridge.c",
         "tools/hostbuild.py"
       ]
     }

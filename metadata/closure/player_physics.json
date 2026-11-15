@@ -931,6 +931,7 @@
         "../player_physics.h",
         "pixel_io.h",
         "platform.h",
+        "player_borrow.h",
         "run_borrow.h",
         "stdlib.h"
       ],
@@ -974,13 +975,13 @@
         "player_physics_poll",
         "player_physics_reply",
         "player_physics_sar",
+        "player_read16",
+        "player_read8",
+        "player_write16",
         "pop",
         "push",
         "rd8",
         "reflect_velocity",
-        "run_read16",
-        "run_read8",
-        "run_write16",
         "sar",
         "select_collision_plane",
         "set_ah",
@@ -1676,7 +1677,7 @@
   "verification_inputs": {
     "native/player_physics.h": "e20150960c3839746a644e137e88a95162f49a437e76cee26d3a5bc2e1dda4d3",
     "native/player_physics.c": "dcb90fedbd71fbf58b826a80abbf8307bd9de3d1e1347a9e4e1338543fee7b73",
-    "native/bridge/player_physics_bridge.c": "608f333c94950d3ca454572632262f298871e5d33b117ccca5c68b6c46fba0c9",
+    "native/bridge/player_physics_bridge.c": "140cf97d3e26dc8ef35d6d19b7d4e334315a085519c771fcdb0fd9040fabbbe3",
     "verif/player_physics_baseline.py": "5812b15f41f8870378b76ef17d4f017941d3c62b24dac4c13c992094dd02a26a",
     "verif/player_physics_bound.py": "2714b345154cfd8cd2cbf03f451455ca5dc5067b0bdfbf03ecd996f5056d5319",
     "verif/player_physics_build.py": "bdcf2bc8fb0bfa87085cbb19bcf3a1613ac52629f217890a9b00bca50836e09f",
@@ -1789,7 +1790,7 @@
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
-    "tools/hostbuild.py": "a9438f5cfa724e7b5eb3bcfbb647ce7ab2c68d8b1c6375340ca4840ec1ee847d",
+    "tools/hostbuild.py": "49f7a3251924a844a5422076bc26cd113fd4aa43a34b3b6c9713ca6d313228be",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
@@ -1903,6 +1904,18 @@
       ],
       "results": "PASS within stated domains",
       "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Both-player ownership and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/player_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/player_physics_bridge.c",
         "tools/hostbuild.py"
       ]
     }

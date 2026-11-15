@@ -1,3 +1,8 @@
+#include "platform.h"
+#ifndef PLAYER_BORROWER
+#define PLAYER_BORROWER PLAYER_BORROW_RENDER
+#endif
+#include "player_borrow.h"
 #ifndef RENDER_PRIMITIVES_SUPPORT_H
 #define RENDER_PRIMITIVES_SUPPORT_H
 #include "platform.h"
@@ -23,13 +28,13 @@ static RPAnimation rp_animation_begin(Regs *r){
     RPAnimation p={0};p.index=r->bx;p.active=r->bx<4 && !(r->bx&1);
     if(p.active){
         RenderPlayerAnimation a;
-        a.countdown=rd16(r->ds,(uint16_t)(D(PlayerAnimationCountdowns)+p.index));
-        a.sprite=rd16(r->ds,(uint16_t)(D(PlayerSpriteIds)+p.index));
-        a.cycle_start=rd16(r->ds,(uint16_t)(D(PlayerAnimationCycleStarts)+p.index));
-        a.cycle_end=rd16(r->ds,(uint16_t)(D(PlayerAnimationCycleEnds)+p.index));
-        a.rate=rd16(r->ds,(uint16_t)(D(PlayerThrustAnimationRate)+p.index));
-        a.x=rd16(r->ds,(uint16_t)(D(PlayerPixelX)+p.index));
-        a.y=rd16(r->ds,(uint16_t)(D(PlayerYPixels)+p.index));
+        a.countdown=player_read16(r->ds,(uint16_t)(D(PlayerAnimationCountdowns)+p.index));
+        a.sprite=player_read16(r->ds,(uint16_t)(D(PlayerSpriteIds)+p.index));
+        a.cycle_start=player_read16(r->ds,(uint16_t)(D(PlayerAnimationCycleStarts)+p.index));
+        a.cycle_end=player_read16(r->ds,(uint16_t)(D(PlayerAnimationCycleEnds)+p.index));
+        a.rate=player_read16(r->ds,(uint16_t)(D(PlayerThrustAnimationRate)+p.index));
+        a.x=player_read16(r->ds,(uint16_t)(D(PlayerPixelX)+p.index));
+        a.y=player_read16(r->ds,(uint16_t)(D(PlayerYPixels)+p.index));
         p.result=render_player_animation(a);
     }
     return p;
@@ -43,8 +48,8 @@ static void rp_animation_write(Regs *r,RPAnimation *p,uint16_t field,uint16_t in
         else {rp_require(p->stores==2 && p->result.advance && field==D(PlayerSpriteIds));value=rp_word(p->result.sprite,literal);}
         p->stores++;
     }
-    wr16(r->ds,(uint16_t)(field+index),value);
-    if(p->active)rp_require(rd16(r->ds,(uint16_t)(field+index))==value);
+    player_write16(r->ds,(uint16_t)(field+index),value);
+    if(p->active)rp_require(player_read16(r->ds,(uint16_t)(field+index))==value);
 }
 static void rp_animation_draw(Regs *r,RPAnimation *p){
     if(p->active){rp_require(p->stores==(p->result.advance?3u:1u) && !p->draws);rp_draw(r,p->result.request);p->draws++;}
@@ -56,9 +61,9 @@ typedef struct RPRestorePlayer {RenderDrawRequest request;unsigned consumed;int 
 static RPRestorePlayer rp_restore_begin(Regs *r){
     RPRestorePlayer p={0};p.active=r->bx<4 && !(r->bx&1);
     if(p.active){RenderPlayerCache c;
-        c.sprite=rd16(r->ds,(uint16_t)(D(PlayerCachedSpriteIds)+r->bx));
-        c.x=rd16(r->ds,(uint16_t)(D(PlayerCachedPixelX)+r->bx));
-        c.y=rd16(r->ds,(uint16_t)(D(PlayerCachedPixelY)+r->bx));p.request=render_player_restore(c);}
+        c.sprite=player_read16(r->ds,(uint16_t)(D(PlayerCachedSpriteIds)+r->bx));
+        c.x=player_read16(r->ds,(uint16_t)(D(PlayerCachedPixelX)+r->bx));
+        c.y=player_read16(r->ds,(uint16_t)(D(PlayerCachedPixelY)+r->bx));p.request=render_player_restore(c);}
     return p;
 }
 static void rp_restore_request(Regs *r,RPRestorePlayer *p){
@@ -70,6 +75,6 @@ static void rp_cache_write(Regs *r,RenderPlayerCache *cache,uint8_t field,uint16
     render_cache_store(cache,field,value);
     uint16_t destination=field==0?D(PlayerCachedSpriteIds):field==1?D(PlayerCachedPixelX):D(PlayerCachedPixelY);
     uint16_t output=field==0?cache->sprite:field==1?cache->x:cache->y;
-    rp_require(field<3);wr16(r->ds,(uint16_t)(destination+index),rp_word(output,value));
+    rp_require(field<3);player_write16(r->ds,(uint16_t)(destination+index),rp_word(output,value));
 }
 #endif

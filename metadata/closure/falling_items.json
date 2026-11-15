@@ -319,6 +319,7 @@
       "includes": [
         "../items.h",
         "platform.h",
+        "player_borrow.h",
         "run_borrow.h",
         "ugh.h"
       ],
@@ -346,10 +347,10 @@
         "l1_SpawnFallingItem",
         "lin",
         "logic",
-        "run_read16",
-        "run_read8",
-        "run_write16",
-        "run_write8",
+        "player_read16",
+        "player_read8",
+        "player_write16",
+        "player_write8",
         "set_al",
         "sub16",
         "szp",
@@ -415,7 +416,7 @@
     "c/video.h": "35e4d6076edd69e2722cf7d52392871345f5e0eb78af7ce67e13c8ed0c02f192",
     "metadata/oracle.json": "7db8024058b1a1e34c7b02058e49f331f30effb6f35927945abcafaf63f9033f",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
-    "native/bridge/items_bridge.c": "492f6ecc440d520d9eeda9786f90bd6e7b0c71b3db98367ba2004d9205bcce5a",
+    "native/bridge/items_bridge.c": "7c4eed8ef10f077520da0c96d7969201cbdf555dce59dce9844612b443e4e60a",
     "native/contacts.c": "f809c3af54ddb43b07b60be870e30e404f0b0456f4542585011cb5108dcc8b15",
     "native/contacts.h": "2d329a52985ea628a56afaee703e8b2f84ed9a328e58109c3be4dac3e90c1d29",
     "native/geometry.h": "e630be5b080076dfd0f95ff07be51887e5c39d8caa3bdfae7271e06be37c6410",
@@ -445,7 +446,7 @@
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
-    "tools/hostbuild.py": "a9438f5cfa724e7b5eb3bcfbb647ce7ab2c68d8b1c6375340ca4840ec1ee847d",
+    "tools/hostbuild.py": "49f7a3251924a844a5422076bc26cd113fd4aa43a34b3b6c9713ca6d313228be",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/cbmc_shim/stddef.h": "03e62ec5f7016e0582b92f016d7e4017b56746e2b216ae8d7fad236ae7e723e7",
     "verif/cbmc_shim/stdint.h": "ff382e7cc9e8ac2ff6cef94767bb680b49944513ebff33b6d7e548fe12a5d7d0",
@@ -582,6 +583,18 @@
       ],
       "results": "PASS within stated domains",
       "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Both-player ownership and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/player_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/items_bridge.c",
         "tools/hostbuild.py"
       ]
     }

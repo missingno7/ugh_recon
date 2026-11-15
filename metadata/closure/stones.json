@@ -259,6 +259,7 @@
         "../stones.h",
         "actor_projection.h",
         "platform.h",
+        "player_borrow.h",
         "run_borrow.h",
         "ugh.h"
       ],
@@ -276,8 +277,8 @@
         "l1_UpdateThrownStone",
         "l1_WaitForStoneRelease",
         "logic",
-        "run_read16",
-        "run_write16",
+        "player_read16",
+        "player_write16",
         "stone_attach",
         "stone_begin_wait",
         "stone_desc",
@@ -303,11 +304,11 @@
   "verification_inputs": {
     "native/stones.h": "2ccce0eb2fa99a07617f18145eb4c3b965d823edc2840680a2944a7e2436e504",
     "native/stones.c": "e66b5f40ab1a855ee6c759ce35f63aa9c6f2704d3e49dfadeb2da3a1692196ca",
-    "native/bridge/stones_bridge.c": "beeee78e67953290c7a7d932373d5d83bf944070b2a0c0e920917e864b5f48ca",
+    "native/bridge/stones_bridge.c": "6d2ffda9f2d6f69ce3c09efc9b848894e3269cb397ca98c8a49be64e3a924218",
     "native/actor_resources.c": "47e21228ee1d873fa5636e062a955e4a6b5a8f0522a7bde2cf223708c9880137",
-    "native/bridge/actor_resources_bridge.c": "12f73b24fad632338bd665c69bc6da13127a09477cb9188850b1a7e3822f53d0",
+    "native/bridge/actor_resources_bridge.c": "327352980ad3a6a12d07584c4bc6b4d95dc552ce595c046f9ad895779c856e8e",
     "native/level_view.c": "f0b3db5747f718d7c112c721735ca5a497a9b93a6ecb33096223b188b170353d",
-    "native/bridge/level_view_bridge.c": "361b68f28fef3cbb0b5bf44dcdc7fa057a9d0c75186d4e87f53e1eaa4a283ab5",
+    "native/bridge/level_view_bridge.c": "711962c998445e27ea9a226583f2687f1e378a9a9afa6659b433fbcfdc69f3f3",
     "native/contacts.c": "f809c3af54ddb43b07b60be870e30e404f0b0456f4542585011cb5108dcc8b15",
     "verif/stones_build.py": "6f8825fb3168d04c4b1305a2709cc26e12e074f75051d88a63d5e8b9de0516f0",
     "verif/stones_certificate.py": "093bc09376c7ef39658f7bb79f9306a6ba3bfc21c951d185bdcbf8179ce1dfba",
@@ -333,7 +334,7 @@
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
-    "tools/hostbuild.py": "a9438f5cfa724e7b5eb3bcfbb647ce7ab2c68d8b1c6375340ca4840ec1ee847d",
+    "tools/hostbuild.py": "49f7a3251924a844a5422076bc26cd113fd4aa43a34b3b6c9713ca6d313228be",
     "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5"
   },
@@ -446,6 +447,20 @@
       ],
       "results": "PASS within stated domains",
       "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Both-player ownership and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/player_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/stones_bridge.c",
+        "native/bridge/actor_resources_bridge.c",
+        "native/bridge/level_view_bridge.c",
         "tools/hostbuild.py"
       ]
     }

@@ -1,4 +1,9 @@
 #include "platform.h"
+#ifndef PLAYER_BORROWER
+#define PLAYER_BORROWER PLAYER_BORROW_HUD
+#endif
+#include "player_borrow.h"
+#include "platform.h"
 #ifndef RUN_BORROWER
 #define RUN_BORROWER RUN_BORROW_HUD
 #endif
@@ -13,43 +18,43 @@ static void hd_require(int c){if(!c)abort();}
 static uint16_t hd_word(uint16_t native_value,uint16_t old){hd_require(native_value==old);return native_value;}
 static void hd_draw(Regs *r,RenderDrawRequest e){hd_require(e.draw);r->ax=hd_word(e.sprite,r->ax);r->bx=hd_word(e.x,r->bx);r->cx=hd_word(e.y,r->cx);}
 static void hd_import(uint16_t data,HudValues *v){memset(v,0,sizeof(*v));
-v->cursor_x=run_read16(data,D(HudDigitCursorX));
-v->cursor_y=run_read16(data,D(HudDigitCursorY));
-v->cached_lives=run_read8(data,D(HudCachedLives));
-v->score_low=run_read16(data,D(ScoreLowWord));
-v->score_high=run_read16(data,D(ScoreHighWord));
-v->cached_score_low=run_read16(data,D(HudCachedScoreLow));
-v->cached_score_high=run_read16(data,D(HudCachedScoreHigh));
-v->cached_journeys=run_read8(data,D(HudCachedLevelCounter));
-v->cached_icon_one=run_read16(data,D(HudCachedPlayerOneIconState));
-v->cached_icon_two=run_read16(data,D(HudCachedPlayerTwoIconState));
-v->cached_fare=run_read16(data,D(HudCachedFare));
-v->clear_fare=run_read8(data,D(HudFareClearPending));
-v->cached_multiplier=run_read8(data,D(HudCachedMultiplier));
-v->timer=run_read16(data,D(LevelTimer));
-v->fade_step=run_read16(data,D(ScreenFadeStep));
-v->fade_level=run_read16(data,D(ScreenFadeLevel));
-v->bar_width=run_read16(data,D(CachedTimerBarWidth));
-v->lives=run_read8(data,D(LivesRemaining));
-v->journeys=run_read8(data,D(RemainingPassengerJourneys));
-v->icon_one=run_read16(data,D(PlayerCarriedKinds));
-v->icon_two=run_read16(data,D(PlayerTwoPassengerIconState));
-v->destination_one=run_read16(data,D(PlayerDestinationIcons));
-v->destination_two=run_read16(data,D(PlayerTwoDestinationIconIndex));
-v->players=run_read16(data,D(PlayerCount));
-v->fare_one=run_read16(data,D(PlayerPassengerFares));
-v->fare_two=run_read16(data,(uint16_t)(D(PlayerPassengerFares)+2u));
-v->multiplier=run_read8(data,D(ScoreMultiplier));
-v->divisor=run_read16(data,D(TimerBarDivisor));
-v->lives_x=run_read16(data,D(HudLivesX));
-v->score_x=run_read16(data,D(HudScoreX));
-v->journeys_x=run_read16(data,D(HudLevelCounterX));
-v->icon_one_x=run_read16(data,D(HudPlayerOneIconX));
-v->icon_two_x=run_read16(data,D(HudPlayerTwoIconX));
-v->destination_one_x=run_read16(data,D(HudPlayerOneDestinationX));
-v->destination_two_x=run_read16(data,D(HudPlayerTwoDestinationX));
-v->fare_x=run_read16(data,D(HudFareX));
-v->multiplier_x=run_read16(data,D(HudMultiplierX));
+v->cursor_x=player_read16(data,D(HudDigitCursorX));
+v->cursor_y=player_read16(data,D(HudDigitCursorY));
+v->cached_lives=player_read8(data,D(HudCachedLives));
+v->score_low=player_read16(data,D(ScoreLowWord));
+v->score_high=player_read16(data,D(ScoreHighWord));
+v->cached_score_low=player_read16(data,D(HudCachedScoreLow));
+v->cached_score_high=player_read16(data,D(HudCachedScoreHigh));
+v->cached_journeys=player_read8(data,D(HudCachedLevelCounter));
+v->cached_icon_one=player_read16(data,D(HudCachedPlayerOneIconState));
+v->cached_icon_two=player_read16(data,D(HudCachedPlayerTwoIconState));
+v->cached_fare=player_read16(data,D(HudCachedFare));
+v->clear_fare=player_read8(data,D(HudFareClearPending));
+v->cached_multiplier=player_read8(data,D(HudCachedMultiplier));
+v->timer=player_read16(data,D(LevelTimer));
+v->fade_step=player_read16(data,D(ScreenFadeStep));
+v->fade_level=player_read16(data,D(ScreenFadeLevel));
+v->bar_width=player_read16(data,D(CachedTimerBarWidth));
+v->lives=player_read8(data,D(LivesRemaining));
+v->journeys=player_read8(data,D(RemainingPassengerJourneys));
+v->icon_one=player_read16(data,D(PlayerCarriedKinds));
+v->icon_two=player_read16(data,D(PlayerTwoPassengerIconState));
+v->destination_one=player_read16(data,D(PlayerDestinationIcons));
+v->destination_two=player_read16(data,D(PlayerTwoDestinationIconIndex));
+v->players=player_read16(data,D(PlayerCount));
+v->fare_one=player_read16(data,D(PlayerPassengerFares));
+v->fare_two=player_read16(data,(uint16_t)(D(PlayerPassengerFares)+2u));
+v->multiplier=player_read8(data,D(ScoreMultiplier));
+v->divisor=player_read16(data,D(TimerBarDivisor));
+v->lives_x=player_read16(data,D(HudLivesX));
+v->score_x=player_read16(data,D(HudScoreX));
+v->journeys_x=player_read16(data,D(HudLevelCounterX));
+v->icon_one_x=player_read16(data,D(HudPlayerOneIconX));
+v->icon_two_x=player_read16(data,D(HudPlayerTwoIconX));
+v->destination_one_x=player_read16(data,D(HudPlayerOneDestinationX));
+v->destination_two_x=player_read16(data,D(HudPlayerTwoDestinationX));
+v->fare_x=player_read16(data,D(HudFareX));
+v->multiplier_x=player_read16(data,D(HudMultiplierX));
 }
 typedef struct HudPlan {HudValues values;HudResult result;unsigned consumed;uint16_t data;HudBarSpec bar;uint16_t bar_base,bar_segment;int bar_active,partial;} HudPlan;
 static void hd_projection(HudPlan *p){HudValues live;hd_import(p->data,&live);hd_require(!memcmp(&p->values,&live,sizeof(live)));}
@@ -71,7 +76,7 @@ static void hd_store(Regs *r,HudPlan *p,uint16_t field,uint16_t old,unsigned wid
  static const unsigned widths[]={2,2,1,2,2,2,2,1,2,2,2,1,1,2,2,2,2};
  HudEffect e=hd_next(p);hd_require(e.kind==HUD_STORE && (unsigned)e.field<17 && offsets[e.field]==field && widths[e.field]==width);
  uint16_t value=hd_word(e.a,old);hd_require(r->ds==p->data);hud_project_store(&p->values,e);
- if(width==1)run_write8(r->ds,field,(uint8_t)value);else run_write16(r->ds,field,value);hd_projection(p);
+ if(width==1)player_write8(r->ds,field,(uint8_t)value);else player_write16(r->ds,field,value);hd_projection(p);
 }
 static void hd_service(Regs *r,HudPlan *p,uint16_t target){
  hd_projection(p);HudEffect e=hd_next(p);
@@ -80,17 +85,17 @@ static void hd_service(Regs *r,HudPlan *p,uint16_t target){
  else if(e.kind==HUD_NUMBER_FOUR){hd_require(target==G(RedrawChangedFourDigitNumber));r->ax=hd_word(e.a,r->ax);r->bx=hd_word(e.b,r->bx);}
  else {hd_require(e.kind==HUD_NUMBER_SIX && target==G(RedrawChangedSixDigitNumber));r->ax=hd_word(e.a,r->ax);r->bx=hd_word(e.b,r->bx);r->dx=hd_word(e.c,r->dx);r->cx=hd_word(e.d,r->cx);}
 }
-static void hd_returned(HudPlan *p){p->values.cursor_x=run_read16(p->data,D(HudDigitCursorX));hd_projection(p);}
+static void hd_returned(HudPlan *p){p->values.cursor_x=player_read16(p->data,D(HudDigitCursorX));hd_projection(p);}
 static void hd_error(HudPlan *p){HudEffect e=hd_next(p);hd_require(e.kind==HUD_DIVISION_ERROR);hd_finish(p,HUD_DONE);}
 static void hd_bar_begin(HudPlan *p,uint16_t width,uint16_t previous){
  hd_projection(p);HudEffect e=hd_next(p);hd_require(e.kind==HUD_BAR);hd_word(e.a,width);hd_word(e.b,previous);
  p->bar=hud_bar(e.a,e.b);p->bar_active=1;p->partial=0;
- p->bar_base=run_read16(p->data,D(TimerBarPointer));p->bar_segment=run_read16(p->data,D(TimerBarPointer)+2);
+ p->bar_base=player_read16(p->data,D(TimerBarPointer));p->bar_segment=player_read16(p->data,D(TimerBarPointer)+2);
 }
 static uint8_t hd_mask(HudPlan *p,uint8_t cumulative,uint16_t index,uint8_t old){
  hd_require(p->bar_active && p->bar.cumulative==cumulative && p->bar.mask_index==index);
  uint16_t base=p->bar.cumulative?D(VgaCumulativePlaneMasks):D(VgaSinglePlaneMasks);
- return (uint8_t)hd_word(run_read8(p->data,(uint16_t)(base+p->bar.mask_index)),old);
+ return (uint8_t)hd_word(player_read8(p->data,(uint16_t)(base+p->bar.mask_index)),old);
 }
 static void hd_bar_pixels(Regs *r,HudPlan *p,uint8_t value,int full){
  hd_require(p->bar_active && r->ds==p->bar_segment);

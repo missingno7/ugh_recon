@@ -168,8 +168,8 @@
     "native/bridge/terminal_tail_bridge.c": "0676680d7e43f742ecb274b0869824043fe6f28e0e62ed2fef2daecaa569bf50",
     "verif/entry_retirement.py": "3b52d207fef7b3e51461a2357a06f012f59651b406f1fe9a0253876e55f76529",
     "verif/entry_retirement_proof.c": "2796c3423fef93b04f190cb38667b80bda47017806d83ff5e326fb204aebb95f",
-    "verif/projector_evidence.py": "0c6ed7cc4fa157009971d96b1e22d3a88812c5730ac36a8a77931ba0756abd64",
-    "verif/projector/publications.py": "c0c75157528821c40147ad4f9ee6c44993c1a692c80c2cd021cd1863809f6b01",
+    "verif/projector_evidence.py": "d8ae73edd3829534d1b7ed577e8e530ef43d41bdbcfb99d05aa1e1a5b18c3be8",
+    "verif/projector/publications.py": "977fd3ac73f6e05b2359d4665654c884544a3ce982d10764303f24b39592189b",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
     "c/abi.c": "5f7c2c2fc015ca43e3786a7f96cb38113211da54acefce19564c1df78d74857a",
@@ -357,6 +357,18 @@
       "reason": "Random ownership and explicit live borrowers; prior claims/status unchanged",
       "commands": [
         "python verif/random_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "verif/projector_evidence.py",
+        "verif/projector/publications.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Both-player ownership and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/player_composition.py --gate"
       ],
       "results": "PASS within stated domains",
       "inputs": [

@@ -449,6 +449,7 @@
       "includes": [
         "actor_projection.h",
         "platform.h",
+        "player_borrow.h",
         "run_borrow.h"
       ],
       "calls": [
@@ -463,8 +464,8 @@
         "actor_type_identity",
         "actor_type_resource",
         "demo_script_boundary",
-        "run_read16",
-        "run_read8"
+        "player_read16",
+        "player_read8"
       ]
     }
   },
@@ -490,10 +491,10 @@
     "native/actor_resources.h": "212fe3bc958c74140f45b9e7a3745f650d22e7a853a2edf273eeacfd93f96247",
     "native/actors.h": "b1c7653a6e566c7f0e3e18ad38fc3f63726d01b78a6fa6843df017d2d155a42c",
     "native/bridge/actor_projection.h": "71e0476afe7c0b082b5eac20957028e58a61f6741ef11c7ca546fe8bbad8b483",
-    "native/bridge/actor_resources_bridge.c": "12f73b24fad632338bd665c69bc6da13127a09477cb9188850b1a7e3822f53d0",
-    "native/bridge/demo_core_bridge.c": "c70e650036e6b79e3bc4c3cd4b1c1aa20d9e8d33f9c04aa0d6b14da002240261",
+    "native/bridge/actor_resources_bridge.c": "327352980ad3a6a12d07584c4bc6b4d95dc552ce595c046f9ad895779c856e8e",
+    "native/bridge/demo_core_bridge.c": "bbafae99347a765a6438d167583589d21a1596f41c10369b25adcda98765e6cd",
     "native/bridge/level_projection.h": "d463ba8829671479c3349435080eb7f16ae48551c7a7b0464d27dbc88257df83",
-    "native/bridge/level_view_bridge.c": "361b68f28fef3cbb0b5bf44dcdc7fa057a9d0c75186d4e87f53e1eaa4a283ab5",
+    "native/bridge/level_view_bridge.c": "711962c998445e27ea9a226583f2687f1e378a9a9afa6659b433fbcfdc69f3f3",
     "native/demo_core.c": "028b9eaa6671c8219d69ad4f34d1fe5569b1ee69d4c4c3cb13f49c24616a4646",
     "native/demo_core.h": "18d2dd79899671992f6e1f6e2fa2bce933e9eb56c1033a0e60229b7de23f38d6",
     "native/geometry.h": "e630be5b080076dfd0f95ff07be51887e5c39d8caa3bdfae7271e06be37c6410",
@@ -502,7 +503,7 @@
     "src/asm/GAME.ASM": "29c9ead3b191a744c59b465a3bd4de29f2e217b92492cf57edb8c13bc3494204",
     "src/data/DGDATA.ASM": "9d46889e26434a597ed19b91c119029af3dbf3dbcfa9811c4ed5aa18dc157541",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
-    "tools/hostbuild.py": "a9438f5cfa724e7b5eb3bcfbb647ce7ab2c68d8b1c6375340ca4840ec1ee847d",
+    "tools/hostbuild.py": "49f7a3251924a844a5422076bc26cd113fd4aa43a34b3b6c9713ca6d313228be",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
@@ -518,7 +519,7 @@
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
     "native/actor_render.c": "f14a0f219a8a9a056a975ad38d74527512bc48634e0b388bd7aa929d846fd110",
     "native/actor_render.h": "9b68b08b34200616669b59c5c939c2da1dbbaa623fa57c67e3f6372d3ff34015",
-    "native/bridge/actor_render_bridge.c": "7ba4533fe90d6625450cdedce3a98fd80925cdca2d6a2d4941413e18822853d7",
+    "native/bridge/actor_render_bridge.c": "6ec421edbfcaeb8579b187c927974114e1ee7fab1f9c82f8badedb1f7c31a390",
     "verif/cbmc_shim/stddef.h": "03e62ec5f7016e0582b92f016d7e4017b56746e2b216ae8d7fad236ae7e723e7",
     "verif/cbmc_shim/stdint.h": "ff382e7cc9e8ac2ff6cef94767bb680b49944513ebff33b6d7e548fe12a5d7d0",
     "verif/cbmc_shim/ugh.h": "d23d5fb7f8d14f5c03944d9cce971d6d21fdf32c28ebac1f2710842cd03d7e72",
@@ -1572,6 +1573,21 @@
       "results": "PASS within stated domains",
       "inputs": [
         "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Both-player ownership and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/player_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/actor_resources_bridge.c",
+        "native/bridge/demo_core_bridge.c",
+        "native/bridge/level_view_bridge.c",
+        "tools/hostbuild.py",
+        "native/bridge/actor_render_bridge.c"
       ]
     }
   ]

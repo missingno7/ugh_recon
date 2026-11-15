@@ -1,14 +1,19 @@
 #include "platform.h"
+#ifndef PLAYER_BORROWER
+#define PLAYER_BORROWER PLAYER_BORROW_SESSION
+#endif
+#include "player_borrow.h"
+#include "platform.h"
 #ifndef RUN_BORROWER
 #define RUN_BORROWER RUN_BORROW_SESSION
 #endif
 #include "run_borrow.h"
 #include "session_support.h"
-static void push(Regs *r,uint16_t v) { r->sp=(uint16_t)(r->sp-2); run_write16(r->ss,r->sp,v); }
+static void push(Regs *r,uint16_t v) { r->sp=(uint16_t)(r->sp-2); player_write16(r->ss,r->sp,v); }
 
-static uint16_t pop(Regs *r) { uint16_t v=run_read16(r->ss,r->sp); r->sp=(uint16_t)(r->sp+2); return v; }
+static uint16_t pop(Regs *r) { uint16_t v=player_read16(r->ss,r->sp); r->sp=(uint16_t)(r->sp+2); return v; }
 
-static void lodsw(Regs *r) { r->ax=run_read16(r->ds,r->si); r->si=(uint16_t)(r->si+2*step(r)); }
+static void lodsw(Regs *r) { r->ax=player_read16(r->ds,r->si); r->si=(uint16_t)(r->si+2*step(r)); }
 
 static void cmp8(Regs *r,uint8_t a,uint8_t b) {
     uint8_t v=(uint8_t)(a-b);
@@ -25,26 +30,26 @@ static int scene_far_call(Regs *r,uint16_t seg,uint16_t off,uint16_t ret) {
     r->sp=(uint16_t)(r->sp+4); return st;
 }
 
-#define R(n) run_read16(r->ds,D(n))
-#define W(n,v) run_write16(r->ds,D(n),(uint16_t)(v))
-#define RX(n,i) run_read16(r->ds,(uint16_t)(D(n)+(i)))
-#define WX(n,i,v) run_write16(r->ds,(uint16_t)(D(n)+(i)),(uint16_t)(v))
+#define R(n) player_read16(r->ds,D(n))
+#define W(n,v) player_write16(r->ds,D(n),(uint16_t)(v))
+#define RX(n,i) player_read16(r->ds,(uint16_t)(D(n)+(i)))
+#define WX(n,i,v) player_write16(r->ds,(uint16_t)(D(n)+(i)),(uint16_t)(v))
 #define CALL(n,ret) do { int status=ugh_call_near(G(n),ret,r); if(status) return status; } while(0)
 
 static int sq_password(Regs *r,uint16_t key){
  SessionPassword password;session_password_begin(&password);
  r->cx=logic(r,0,16);r->bx=R(PlayerArrayBytes);
- key=sq_word(key,(uint16_t)(r->bx-2u));r->si=run_read16(r->ds,(uint16_t)(D(PasswordListPointers)+key));
+ key=sq_word(key,(uint16_t)(r->bx-2u));r->si=player_read16(r->ds,(uint16_t)(D(PasswordListPointers)+key));
  for(;;){
   session_password_candidate(&password);r->bx=logic(r,0,16);r->bp=logic(r,0,16);
   for(unsigned chars=0;chars<65536;chars++){
-   set_al(r,run_read8(r->ds,r->si));r->si=(uint16_t)(r->si+step(r));logic(r,(uint8_t)r->ax,8);
+   set_al(r,player_read8(r->ds,r->si));r->si=(uint16_t)(r->si+step(r));logic(r,(uint8_t)r->ax,8);
    SessionPasswordResult decision=session_password_byte((uint8_t)r->ax);
    if(sq_bool(decision==PASSWORD_END,!(uint8_t)r->ax))break;
    if(sq_bool(decision==PASSWORD_DEFAULT,(uint8_t)r->ax==255)){r->cx=logic(r,0,16);r->cx=sq_word(session_password_selected(&password,1),r->cx);return UGH_OK;}
    uint16_t carry=r->flags&CF;r->bx=add16(r,r->bx,1,0);flag(r,CF,carry);
    uint16_t index=sq_word((uint16_t)(password.length+1u),r->bx);
-   uint8_t editor=run_read8(r->ds,(uint16_t)(D(PasswordCompareBiasedBase)+index));
+   uint8_t editor=player_read8(r->ds,(uint16_t)(D(PasswordCompareBiasedBase)+index));
    int different=session_password_compare(&password,(uint8_t)r->ax,editor);
    if(sq_bool(different,(uint8_t)r->ax!=editor))r->bp=dec16(r,r->bp);
    sq_require(password.length==r->bx && password.misses==r->bp && password.level==r->cx);
@@ -55,7 +60,7 @@ static int sq_password(Regs *r,uint16_t key){
    for(;;){
     sub16(r,r->bx,20,0);
     if(sq_bool(!session_password_needs_padding(&password),r->bx>=20)){r->cx=sq_word(session_password_selected(&password,0),r->cx);return UGH_OK;}
-    set_al(r,32);uint8_t editor=run_read8(r->ds,(uint16_t)(D(PasswordEditBuffer)+r->bx));
+    set_al(r,32);uint8_t editor=player_read8(r->ds,(uint16_t)(D(PasswordEditBuffer)+r->bx));
     int space=session_password_padding(&password,editor);
     if(sq_bool(!space,editor!=32))break;
     uint16_t carry=r->flags&CF;r->bx=add16(r,r->bx,1,0);flag(r,CF,carry);sq_require(password.length==r->bx);
@@ -183,19 +188,19 @@ EXPORT int c_RunGameFromPassword(Regs *r){
   case SESSION_IO_POINT:status=platform_service_point_at(SERVICE_IO,r->cs,G(RunGameFromPassword)+0x174,r);break;
   case SESSION_ESCAPE:
    if(sq_bool(e.decision,(uint8_t)r->ax==1)){
-    run_write8(r->ds,D(LivesRemaining),0);sub16(r,R(ScreenFadeStep),0,0);
+    player_write8(r->ds,D(LivesRemaining),0);sub16(r,R(ScreenFadeStep),0,0);
     if(sq_bool(e.index,(int16_t)R(ScreenFadeStep)>=0)){r->ax=sq_word(e.other,0xfffe);W(ScreenFadeStep,r->ax);W(ScreenFadeLevel,sq_word(e.value,add16(r,R(ScreenFadeLevel),r->ax,0)));}
    }break;
   case SESSION_MOVE_BEGIN:{
    sub16(r,R(ScreenFadeLevel),192,0);int move=(int16_t)R(ScreenFadeLevel)>192;
    if(!move){sub16(r,R(ScreenFadeStep),0,0);move=(int16_t)R(ScreenFadeStep)<=0;}
    if(sq_bool(e.decision,move)){r->bx=logic(r,0,16);}break;}
-  case SESSION_OUTCOME:logic(r,run_read8(r->ds,D(LevelCompletionMarker)),8);sq_bool(e.decision,!!(r->flags&SF));break;
+  case SESSION_OUTCOME:logic(r,player_read8(r->ds,D(LevelCompletionMarker)),8);sq_bool(e.decision,!!(r->flags&SF));break;
   case SESSION_DECREMENT_LIVES:{
-   uint8_t old=run_read8(r->ds,D(LivesRemaining)),v=(uint8_t)(old-1);uint16_t carry=r->flags&CF;
+   uint8_t old=player_read8(r->ds,D(LivesRemaining)),v=(uint8_t)(old-1);uint16_t carry=r->flags&CF;
    flag(r,OF,old==128);flag(r,AF,((old^v^1)&16)!=0);szp(r,v,8);flag(r,CF,carry);
-   run_write8(r->ds,D(LivesRemaining),(uint8_t)sq_word(e.value,v));sq_bool(e.decision,v && !(r->flags&SF));break;}
-  case SESSION_RESET_MULTIPLIER:run_write8(r->ds,D(ScoreMultiplier),(uint8_t)sq_word(e.value,1));break;
+   player_write8(r->ds,D(LivesRemaining),(uint8_t)sq_word(e.value,v));sq_bool(e.decision,v && !(r->flags&SF));break;}
+  case SESSION_RESET_MULTIPLIER:player_write8(r->ds,D(ScoreMultiplier),(uint8_t)sq_word(e.value,1));break;
   case SESSION_INCREMENT_LEVEL:{
    r->ax=R(CurrentLevelIndex);uint16_t carry=r->flags&CF;r->ax=add16(r,r->ax,1,0);flag(r,CF,carry);W(CurrentLevelIndex,sq_word(e.value,r->ax));break;}
   case SESSION_TEST_LEVEL_LIMIT:
@@ -214,10 +219,10 @@ EXPORT int c_RunGameFromPassword(Regs *r){
 }
 #undef CALL
 #define CALL(target,owner,delta) do { int status=ugh_call_near(G(target),(uint16_t)(G(owner)+(delta)),r); if(status) return status; } while(0)
-#define B(name) run_read8(r->ds,D(name))
-#define WB(name,v) run_write8(r->ds,D(name),(uint8_t)(v))
-#define RI(name,i) run_read16(r->ds,(uint16_t)(D(name)+(i)))
-#define WI(name,i,v) run_write16(r->ds,(uint16_t)(D(name)+(i)),(uint16_t)(v))
+#define B(name) player_read8(r->ds,D(name))
+#define WB(name,v) player_write8(r->ds,D(name),(uint8_t)(v))
+#define RI(name,i) player_read16(r->ds,(uint16_t)(D(name)+(i)))
+#define WI(name,i,v) player_write16(r->ds,(uint16_t)(D(name)+(i)),(uint16_t)(v))
 static uint16_t sq_load_base(SessionLoadField f){switch(f){
 case LF_PLATFORM_LEFT:return D(PlatformLeftEdges);
 case LF_PLATFORM_RIGHT:return D(PlatformRightEdges);
@@ -272,13 +277,13 @@ static int sq_load_lists(Regs *r,SessionLoadFamily family){
    case LOAD_READ_LIST:
     lodsw(r);reply=r->ax;if(!record.cursor){descriptor=reply;kind=sq_load_class(family,reply);}break;
    case LOAD_READ_DESCRIPTOR:
-    r->ax=run_read16(r->ds,(uint16_t)(r->bx+sq_word(e.index,kind==LOAD_STONE?16:8)));reply=r->ax;break;
+    r->ax=player_read16(r->ds,(uint16_t)(r->bx+sq_word(e.index,kind==LOAD_STONE?16:8)));reply=r->ax;break;
    case LOAD_READ_SPAWN:
     if(family==LOAD_ACTORS)r->bx=(uint16_t)(RI(ActorInitialPlatformIndices,r->di)*2u);
     r->bx=sq_word(e.index,r->bx);reply=RI(PlatformSpawnX,r->bx);break;
    case LOAD_READ_HEIGHT:r->bx=sq_word(e.index,r->bx);reply=RI(PlatformHeights,r->bx);break;
    case LOAD_READ_REPEAT:
-    r->ax=(uint16_t)-sar(r->ax,2);repeated=run_read16(r->ds,(uint16_t)(r->si-2));reply=repeated;break;
+    r->ax=(uint16_t)-sar(r->ax,2);repeated=player_read16(r->ds,(uint16_t)(r->si-2));reply=repeated;break;
    case LOAD_SKIP:{
     uint16_t literal=family==LOAD_ENEMIES && kind==LOAD_DINO?4:2;
     r->si=(uint16_t)(r->si+sq_word(e.value,literal));break;}
@@ -305,13 +310,13 @@ static int sq_load_lists(Regs *r,SessionLoadFamily family){
     case LOAD_TRIO_SPEED:r->ax=(uint16_t)(r->ax+repeated);r->ax=(uint16_t)-r->ax;value=r->ax;break;
     default:break;
     }
-    run_write16(r->ds,(uint16_t)(sq_load_base(e.field)+sq_word(e.slot,r->di)),sq_word(e.value,value));
+    player_write16(r->ds,(uint16_t)(sq_load_base(e.field)+sq_word(e.slot,r->di)),sq_word(e.value,value));
     if(e.field==LF_PLATFORM_LEFT)r->ax=logic(r,r->ax,16);
     if(e.field==LF_ACTOR_DESCRIPTOR || e.field==LF_ENEMY_DESCRIPTOR){sub16(r,r->ax,0xffff,0);if(e.field==LF_ACTOR_DESCRIPTOR && r->ax!=0xffff)r->bx=r->ax;}
     if(e.field==LF_ENEMY_PLATFORM)r->bx=(uint16_t)(r->ax*2u);
     break;}
    case LOAD_CALLBACK:
-    sq_require(e.value==(uint16_t)kind);run_write16(r->ds,(uint16_t)(D(EnemyStateCallbacks)+e.slot),sq_load_callback((SessionLoadClass)e.value));break;
+    sq_require(e.value==(uint16_t)kind);player_write16(r->ds,(uint16_t)(D(EnemyStateCallbacks)+e.slot),sq_load_callback((SessionLoadClass)e.value));break;
    case LOAD_END:break;
    default:abort();
    }
@@ -329,19 +334,19 @@ static int sq_load_lists(Regs *r,SessionLoadFamily family){
 }
 EXPORT int c_LoadCurrentLevelState(Regs *r) {
     r->bx=sq_word(session_loader_mode_key(R(PlayerCount)),(uint16_t)((R(PlayerCount)-1u)*2u)); r->bx=RI(LevelOrderTables,r->bx);
-    r->si=sq_word(session_loader_level_key(R(CurrentLevelIndex)),(uint16_t)(R(CurrentLevelIndex)*2u)); r->bx=run_read16(r->ds,(uint16_t)(r->bx+r->si));
+    r->si=sq_word(session_loader_level_key(R(CurrentLevelIndex)),(uint16_t)(R(CurrentLevelIndex)*2u)); r->bx=player_read16(r->ds,(uint16_t)(r->bx+r->si));
     r->si=24;
     do {
-        r->ax=run_read16(r->ds,(uint16_t)(r->bx+r->si)); WI(CurrentLevelRecord,r->si,r->ax);
+        r->ax=player_read16(r->ds,(uint16_t)(r->bx+r->si)); WI(CurrentLevelRecord,r->si,r->ax);
         r->si=sq_word(session_record_previous(r->si),sub16(r,r->si,2,0));
     } while(sq_bool(session_record_more(r->si),!(r->si&0x8000)));
-    run_write16(r->cs,G(RendererScratchWord),r->ax); push(r,r->ds);
-    r->si=R(CompressedTileMapsPointer); r->ds=run_read16(r->ds,D(CompressedTileMapsPointer)+2);
+    player_write16(r->cs,G(RendererScratchWord),r->ax); push(r,r->ds);
+    r->si=R(CompressedTileMapsPointer); r->ds=player_read16(r->ds,D(CompressedTileMapsPointer)+2);
     CALL(UnpackIceToScratch,LoadCurrentLevelState,0x2e);
-    r->ds=r->es; r->si=run_read16(r->cs,G(RendererScratchWord));
+    r->ds=r->es; r->si=player_read16(r->cs,G(RendererScratchWord));
     r->dx=DATA_SEG; r->es=r->dx; r->di=D(Data_264C); r->cx=160;
     do {
-        run_write16(r->es,r->di,run_read16(r->ds,r->si));
+        player_write16(r->es,r->di,player_read16(r->ds,r->si));
         r->si=sq_word(session_copy_next(r->si,!!(r->flags&DF)),(uint16_t)(r->si+2*step(r))); r->di=sq_word(session_copy_next(r->di,!!(r->flags&DF)),(uint16_t)(r->di+2*step(r))); r->cx--;
     } while(sq_bool(session_count_more(r->cx),r->cx));
     r->ds=pop(r);
@@ -395,7 +400,7 @@ EXPORT int c_LoadCurrentLevelState(Regs *r) {
 EXPORT int c_InitializeLevelDisplay(Regs *r) {
     SessionDisplayProcess display;session_display_begin(&display);
     r->cx=196; r->di=R(LevelWorkspacePointer); r->es=RI(LevelWorkspacePointer,2); r->ax=logic(r,0,16);
-    do { run_write16(r->es,r->di,r->ax); r->di=sq_word(session_copy_next(r->di,!!(r->flags&DF)),(uint16_t)(r->di+2*step(r))); r->cx--; } while(sq_bool(session_count_more(r->cx),r->cx));
+    do { player_write16(r->es,r->di,r->ax); r->di=sq_word(session_copy_next(r->di,!!(r->flags&DF)),(uint16_t)(r->di+2*step(r))); r->cx--; } while(sq_bool(session_count_more(r->cx),r->cx));
     W(LevelTimer,0x5a3b); r->ax=0xffff; W(ds_27C8,r->ax); W(ScreenFadeStep,2);
     uint8_t seed_HudCachedLives=session_display_byte(B(LivesRemaining));set_al(r,(uint8_t)(B(LivesRemaining)+11)); cmp8(r,(uint8_t)r->ax,100);
     if((uint8_t)r->ax>=100) set_al(r,(uint8_t)(r->ax-100));
@@ -435,9 +440,9 @@ EXPORT int c_InitializeLevelDisplay(Regs *r) {
 }
 
 EXPORT int c_ResetScoreLivesAndMultiplier(Regs *r) {
-    run_write8(r->ds,D(LivesRemaining),(uint8_t)sq_word(session_reset_value(0),3)); run_write8(r->ds,D(ScoreMultiplier),(uint8_t)sq_word(session_reset_value(1),1));
+    player_write8(r->ds,D(LivesRemaining),(uint8_t)sq_word(session_reset_value(0),3)); player_write8(r->ds,D(ScoreMultiplier),(uint8_t)sq_word(session_reset_value(1),1));
     r->ax=logic(r,0,16);
-    run_write16(r->ds,D(ScoreLowWord),sq_word(session_reset_value(2),r->ax)); run_write16(r->ds,D(ScoreHighWord),sq_word(session_reset_value(3),r->ax));
+    player_write16(r->ds,D(ScoreLowWord),sq_word(session_reset_value(2),r->ax)); player_write16(r->ds,D(ScoreHighWord),sq_word(session_reset_value(3),r->ax));
     return UGH_OK;
 }
 

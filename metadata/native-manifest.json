@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "scope": "Step 7 production startup boundary plus typed front-end operations",
+  "scope": "Step 7 production startup, typed front-end and demo composition",
   "core": [
     "native/game_world.c",
     "native/game_defaults.c",
@@ -32,7 +32,16 @@
     "native/compose_front_end.c",
     "native/menus.c",
     "native/decimal.c",
-    "native/render_primitives.c"
+    "native/render_primitives.c",
+    "native/compose_demo.c",
+    "native/game_demo_data.c",
+    "native/demo_core.c",
+    "native/demo_presentation.c",
+    "native/actor_pass.c",
+    "native/actor_render.c",
+    "native/actor_resources.c",
+    "native/level_view.c",
+    "native/water_weather.c"
   ],
   "backends": {
     "test": [
@@ -130,7 +139,10 @@
     "port/sdl/backend.h",
     "port/services.h",
     "port/test/backend.h",
-    "native/compose_front_end.h"
+    "native/compose_front_end.h",
+    "native/compose_demo.h",
+    "native/game_demo.h",
+    "native/object_identities.h"
   ],
   "vendor": {
     "sdl": [
@@ -166,6 +178,10 @@
     "native/game_video.c",
     "native/game_world.c",
     "native/compose_front_end.c",
-    "native/compose_front_end.h"
+    "native/compose_front_end.h",
+    "native/compose_demo.c",
+    "native/game_demo_data.c",
+    "native/compose_demo.h",
+    "native/game_demo.h"
   ]
 }

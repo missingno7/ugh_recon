@@ -59,7 +59,7 @@ def check_text(text,where):
     if match:raise ValueError(f'banned dependency {match[0]} in {where}')
 def check_closure(preprocessed,manifest,out,extra_headers=()):
     headers=set(manifest['headers'])|set(extra_headers)
-    generated={str((out/n).resolve()).lower() for n in ['resource_manifest.h','boot_data.h']}
+    generated={str((out/n).resolve()).lower() for n in ['resource_manifest.h','boot_data.h','demo_data.h']}
     # A prior SDL distribution includes the LGPL relink header beside the
     # executable. -I out can select it on a repeat build; admit only its pinned
     # original content, never arbitrary output-directory headers.
@@ -144,7 +144,8 @@ def data_header(manifest,out):
     lines+=['};','static const GSResourceId game_picture_ids[]={'+','.join('UINT64_C(%d)'%n for n in ids)+'};']
     # Build-time pointer evidence becomes data-resource identities and offsets.
     # No historical pointer words survive into the production API.
-    import frontend_data
+    import frontend_data,demo_data
+    (out/'demo_data.h').write_text('\n'.join(demo_data.generate(rows,symbols))+'\n')
     lines+=frontend_data.generate(rows,symbols)
     (out/'boot_data.h').write_text('\n'.join(lines)+'\n');save(out/'constructors.json',receipt)
 def build(backend='test',out=None,negative_control=False):

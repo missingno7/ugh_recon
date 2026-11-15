@@ -10,6 +10,7 @@
 #include "random.h"
 #include "adlx_lifetime.h"
 #include "timer_lifetime.h"
+#include "game_demo.h"
 
 /* Each member is the sole store for its domain in this production target;
  * the verification host continues to use its existing owners. */
@@ -28,6 +29,13 @@ typedef struct GameWorld {
     NativePaletteWorld palette;
     NativeFrontEndWorld front;
     GameFrontData front_data;
+    GameActorWorld actors;
+    NativeEnemyWorld enemies;
+    NativeItemWorld items;
+    NativePresentationWorld presentation;
+    NativeResourceCatalog sprite_catalog;
+    GameDemoResources demo_resources;
+    uint16_t demo_exit;
     VideoPages pages;
     RandomState random;
     AudioState audio;

@@ -1,3 +1,8 @@
+#include "platform.h"
+#ifndef RUN_BORROWER
+#define RUN_BORROWER RUN_BORROW_WATER
+#endif
+#include "run_borrow.h"
 #include "pixel_io.h"
 #include "platform.h"
 #include "../water_weather.h"
@@ -8,20 +13,20 @@ typedef struct WeatherPlan {
  WeatherAction service;int active,particle_mode,tail_seen,service_pending;
 } WeatherPlan;
 static void ww_require(int c){if(!c)abort();}
-static uint16_t ww_read(Regs *r,uint16_t base,uint16_t index){return rd16(r->ds,(uint16_t)(base+index));}
+static uint16_t ww_read(Regs *r,uint16_t base,uint16_t index){return run_read16(r->ds,(uint16_t)(base+index));}
 static WeatherAction ww_take(WeatherPlan *p,WeatherActionKind kind){
  ww_require(p->consumed<p->result.count);WeatherAction action=p->result.actions[p->consumed++];ww_require(action.kind==kind);return action;
 }
 static void ww_write(Regs *r,WeatherPlan *p,uint16_t address,uint16_t value,unsigned width){
  if(p->active){WeatherAction e=ww_take(p,WW_STORE);static const uint16_t base[]={D(WaterY32),D(WaterYPixels),D(PreviousWaterSurfaceY),D(WaterSurfaceByteOffset),D(WaterSurfaceFrame),D(WaterSurfaceFrameCountdown),D(WaterStepPhase),D(WaterRestorePending),D(RainParticleOffsets),D(RainPreviousOffsets),D(RainParticleXModuloFour)};
   ww_require(e.field<=WW_MODULO && address==(uint16_t)(base[e.field]+(e.field>=WW_PARTICLE?p->index:0)) && value==e.value && width==((e.field>=WW_COUNTDOWN && e.field<=WW_PENDING)?1u:2u));value=e.value;}
- if(width==1)wr8(r->ds,address,(uint8_t)value);else wr16(r->ds,address,value);
+ if(width==1)run_write8(r->ds,address,(uint8_t)value);else run_write16(r->ds,address,value);
 }
 static int ww_projection(Regs *r,WeatherPlan *p){
 #ifdef ACTOR_VERIFY
  if(p->particle_mode){return p->particle.position==ww_read(r,D(RainParticleOffsets),p->index) && p->particle.previous==ww_read(r,D(RainPreviousOffsets),p->index) && p->particle.modulo_four==ww_read(r,D(RainParticleXModuloFour),p->index);}
  WaterWeatherState *s=&p->state;
- return s->fixed_y==ww_read(r,D(WaterY32),0) && s->surface_y==ww_read(r,D(WaterYPixels),0) && s->previous_y==ww_read(r,D(PreviousWaterSurfaceY),0) && s->byte_position==ww_read(r,D(WaterSurfaceByteOffset),0) && s->frame==ww_read(r,D(WaterSurfaceFrame),0) && s->countdown==rd8(r->ds,D(WaterSurfaceFrameCountdown)) && s->phase==rd8(r->ds,D(WaterStepPhase)) && s->restore_pending==rd8(r->ds,D(WaterRestorePending));
+ return s->fixed_y==ww_read(r,D(WaterY32),0) && s->surface_y==ww_read(r,D(WaterYPixels),0) && s->previous_y==ww_read(r,D(PreviousWaterSurfaceY),0) && s->byte_position==ww_read(r,D(WaterSurfaceByteOffset),0) && s->frame==ww_read(r,D(WaterSurfaceFrame),0) && s->countdown==run_read8(r->ds,D(WaterSurfaceFrameCountdown)) && s->phase==run_read8(r->ds,D(WaterStepPhase)) && s->restore_pending==run_read8(r->ds,D(WaterRestorePending));
 #else
  (void)r;(void)p;return 1;
 #endif
@@ -29,12 +34,12 @@ static int ww_projection(Regs *r,WeatherPlan *p){
 static void ww_complete(Regs *r,WeatherPlan *p){if(p->active)ww_require(!p->service_pending && p->consumed==p->result.count && (p->tail_seen || ww_projection(r,p)));}
 static void ww_open(Regs *r,WeatherPlan *p,unsigned operation,int admitted){
  *p=(WeatherPlan){0};if(!admitted || r->ds!=DATA_SEG || r->cs!=GAME_SEG)return;
- p->data=r->ds;p->index=r->bx;p->surface=rd16(r->ds,D(WaterYPixels));
- p->inputs=(WaterWeatherInputs){rd16(r->ds,D(WaterSurfaceStep)),rd8(r->ds,D(VgaRowStrideBytes)),rd8(r->ds,D(LevelRainDirection))};
- p->state=(WaterWeatherState){rd16(r->ds,D(WaterY32)),p->surface,rd16(r->ds,D(PreviousWaterSurfaceY)),rd16(r->ds,D(WaterSurfaceByteOffset)),rd16(r->ds,D(WaterSurfaceFrame)),rd8(r->ds,D(WaterSurfaceFrameCountdown)),rd8(r->ds,D(WaterStepPhase)),rd8(r->ds,D(WaterRestorePending))};
+ p->data=r->ds;p->index=r->bx;p->surface=run_read16(r->ds,D(WaterYPixels));
+ p->inputs=(WaterWeatherInputs){run_read16(r->ds,D(WaterSurfaceStep)),run_read8(r->ds,D(VgaRowStrideBytes)),run_read8(r->ds,D(LevelRainDirection))};
+ p->state=(WaterWeatherState){run_read16(r->ds,D(WaterY32)),p->surface,run_read16(r->ds,D(PreviousWaterSurfaceY)),run_read16(r->ds,D(WaterSurfaceByteOffset)),run_read16(r->ds,D(WaterSurfaceFrame)),run_read8(r->ds,D(WaterSurfaceFrameCountdown)),run_read8(r->ds,D(WaterStepPhase)),run_read8(r->ds,D(WaterRestorePending))};
  if(operation>=2){if((r->bx&1u) || r->bx>=386u)return;p->particle_mode=1;p->particle=(WeatherParticle){ww_read(r,D(RainParticleOffsets),r->bx),ww_read(r,D(RainPreviousOffsets),r->bx),ww_read(r,D(RainParticleXModuloFour),r->bx)};}
  if(operation==0)p->result=water_weather_advance(&p->state,p->inputs);
- else if(operation==1){p->result=water_weather_prepare(&p->state,p->inputs);uint16_t key=p->result.actions[p->result.count-1].value;if(key>4)return;const uint16_t targets[]={G(DrawWaterSurfaceFrame0),G(DrawWaterSurfaceFrame1),G(DrawWaterSurfaceFrame2)};if(rd16(r->cs,(uint16_t)(G(WaterSurfaceDispatch)+key))!=targets[key/2u])return;}
+ else if(operation==1){p->result=water_weather_prepare(&p->state,p->inputs);uint16_t key=p->result.actions[p->result.count-1].value;if(key>4)return;const uint16_t targets[]={G(DrawWaterSurfaceFrame0),G(DrawWaterSurfaceFrame1),G(DrawWaterSurfaceFrame2)};if(run_read16(r->cs,(uint16_t)(G(WaterSurfaceDispatch)+key))!=targets[key/2u])return;}
  else if(operation==2)p->result=weather_particle_advance(&p->particle,p->state.byte_position,p->inputs.direction,(r->bx&2u)!=0);
  else if(operation==3)p->result=weather_particle_request(p->surface);
  else if(operation==4)p->result=weather_particle_draw(&p->particle);
@@ -47,7 +52,7 @@ static void ww_mark_end(Regs *r,WeatherPlan *p){if(p->active){ww_require(p->serv
 static int ww_tail(Regs *r,WeatherPlan *p,uint16_t target){
  if(p->active){WeatherAction e=ww_take(p,target==G(RestoreBackgroundRectangle)?WW_RESTORE_ROW:WW_FRAME_TAIL);
   if(e.kind==WW_RESTORE_ROW){ww_require(r->ax==0 && r->bx==e.value && r->cx==320 && r->dx==1);r->bx=e.value;}
-  else {ww_require(r->si==e.value && target==rd16(r->cs,(uint16_t)(G(WaterSurfaceDispatch)+e.value)) && r->di==(uint16_t)(rd16(r->cs,G(DrawPagePointer))+e.position) && r->ds==rd16(r->cs,G(DrawPagePointer)+2u));r->si=e.value;r->di=(uint16_t)(rd16(r->cs,G(DrawPagePointer))+e.position);}
+  else {ww_require(r->si==e.value && target==run_read16(r->cs,(uint16_t)(G(WaterSurfaceDispatch)+e.value)) && r->di==(uint16_t)(run_read16(r->cs,G(DrawPagePointer))+e.position) && r->ds==run_read16(r->cs,G(DrawPagePointer)+2u));r->si=e.value;r->di=(uint16_t)(run_read16(r->cs,G(DrawPagePointer))+e.position);}
   Regs data=*r;data.ds=p->data;ww_require(ww_projection(&data,p) && !p->service_pending && p->consumed==p->result.count);p->tail_seen=1;
  }
  return PIXEL_TAIL(target);
@@ -66,8 +71,8 @@ static int ww_respawn(Regs *r,WeatherPlan *p,uint16_t ret){
  return PIXEL_CALL(RespawnRainParticle,ret);
 #endif
 }
-static int ww_rain_admit(Regs *r,int extra){return r->ds==DATA_SEG && r->cs==GAME_SEG && weather_first_particle(rd16(r->ds,D(WaterYPixels)),extra)<386u;}
-static uint16_t ww_first(Regs *r,int extra,uint16_t expected){if(r->ds!=DATA_SEG)return expected;uint16_t actual=weather_first_particle(rd16(r->ds,D(WaterYPixels)),extra);ww_require(actual==expected);return actual;}
+static int ww_rain_admit(Regs *r,int extra){return r->ds==DATA_SEG && r->cs==GAME_SEG && weather_first_particle(run_read16(r->ds,D(WaterYPixels)),extra)<386u;}
+static uint16_t ww_first(Regs *r,int extra,uint16_t expected){if(r->ds!=DATA_SEG)return expected;uint16_t actual=weather_first_particle(run_read16(r->ds,D(WaterYPixels)),extra);ww_require(actual==expected);return actual;}
 static uint16_t ww_previous(Regs *r,uint16_t index){uint16_t value=weather_previous_particle(index);ww_require(value==sub16(r,index,2,0));ww_require(weather_more_particles(value)==((int16_t)value>=0));return value;}
 static uint8_t ww_rain_mask(WeatherPlan *p,uint8_t expected){if(p->active){WeatherAction e=ww_take(p,WW_MASK);ww_require(e.value==expected);return (uint8_t)e.value;}return expected;}
 static void ww_rain_pixel(Regs *r,WeatherPlan *p){if(p->active){WeatherAction e=ww_take(p,WW_PIXEL);ww_require(r->es==0xa000 && r->di==(uint16_t)(r->bp+e.position) && (uint8_t)(r->ax>>8)==e.value);r->di=(uint16_t)(r->bp+e.position);pixel_store(r->es,r->di,(uint8_t)e.value);}else pixel_store(r->es,r->di,(uint8_t)(r->ax>>8));}
@@ -98,9 +103,9 @@ static uint16_t inc(Regs *r,uint16_t v) {
     uint16_t cf=r->flags&CF; v=add16(r,v,1,0); flag(r,CF,cf); return v;
 }
 
-static void push(Regs *r,uint16_t v) { r->sp=(uint16_t)(r->sp-2); wr16(r->ss,r->sp,v); }
+static void push(Regs *r,uint16_t v) { r->sp=(uint16_t)(r->sp-2); run_write16(r->ss,r->sp,v); }
 
-static uint16_t pop(Regs *r) { uint16_t v=rd16(r->ss,r->sp); r->sp=(uint16_t)(r->sp+2); return v; }
+static uint16_t pop(Regs *r) { uint16_t v=run_read16(r->ss,r->sp); r->sp=(uint16_t)(r->sp+2); return v; }
 
 static uint8_t dec8(Regs *r, uint8_t x) {
     uint8_t v=(uint8_t)(x-1);
@@ -116,14 +121,14 @@ static void cmp8(Regs *r,uint8_t a,uint8_t b) {
     flag(r,AF,((a^b^v)&16)!=0); szp(r,v,8);
 }
 
-#define R(n,i) rd16(r->ds,(uint16_t)(D(n)+(i)))
+#define R(n,i) run_read16(r->ds,(uint16_t)(D(n)+(i)))
 #define W(n,i,v) ww_write(r,plan,(uint16_t)(D(n)+(i)),(uint16_t)(v),2)
 EXPORT int c_AdvanceWaterSurface(Regs *r) {WeatherPlan storage;ww_open(r,&storage,0,1);WeatherPlan *plan=&storage;
-    logic(r,rd8(r->ds,D(WaterRestorePending)),8);
+    logic(r,run_read8(r->ds,D(WaterRestorePending)),8);
     if(!(r->flags&ZF)) ww_write(r,plan,D(WaterRestorePending),0,1);
     else {
         r->ax=R(WaterYPixels,0); W(PreviousWaterSurfaceY,0,r->ax); r->ax=R(WaterY32,0);
-        uint8_t phase=(uint8_t)logic(r,rd8(r->ds,D(WaterStepPhase))^1,8); ww_write(r,plan,D(WaterStepPhase),phase,1);
+        uint8_t phase=(uint8_t)logic(r,run_read8(r->ds,D(WaterStepPhase))^1,8); ww_write(r,plan,D(WaterStepPhase),phase,1);
         if(!phase) { r->ax=add16(r,r->ax,R(WaterSurfaceStep,0),0); if(r->flags&SF) r->ax=logic(r,0,16); }
         W(WaterY32,0,r->ax); r->ax=shift(r,r->ax,5,1); W(WaterYPixels,0,r->ax); sub16(r,r->ax,R(PreviousWaterSurfaceY,0),0);
         if(r->flags&ZF) {ww_complete(r,plan);return UGH_OK;}
@@ -131,16 +136,16 @@ EXPORT int c_AdvanceWaterSurface(Regs *r) {WeatherPlan storage;ww_open(r,&storag
         r->dx=inc(r,r->dx); set_al(r,0x40); pixel_out(r->dx,1,(uint8_t)r->ax);
         r->dx=dec16(r,r->dx); set_al(r,3); pixel_out(r->dx,1,(uint8_t)r->ax);
         r->dx=inc(r,r->dx); set_al(r,0x10); pixel_out(r->dx,1,(uint8_t)r->ax);
-        r->ax=R(PreviousWaterSurfaceY,0); r->ax=(uint16_t)((uint8_t)r->ax*rd8(r->ds,D(VgaRowStrideBytes)));r->ax=ww_mark_position(plan,r->ax);
+        r->ax=R(PreviousWaterSurfaceY,0); r->ax=(uint16_t)((uint8_t)r->ax*run_read8(r->ds,D(VgaRowStrideBytes)));r->ax=ww_mark_position(plan,r->ax);
         flag(r,CF,r->ax>255); flag(r,OF,r->ax>255);
-        r->si=rd16(r->cs,G(BackgroundPagePointer)); r->ds=rd16(r->cs,(uint16_t)(G(BackgroundPagePointer)+2)); r->si=add16(r,r->si,r->ax,0);
+        r->si=run_read16(r->cs,G(BackgroundPagePointer)); r->ds=run_read16(r->cs,(uint16_t)(G(BackgroundPagePointer)+2)); r->si=add16(r,r->si,r->ax,0);
         r->bx=79; set_al(r,0x40);
         do { set_ah(r,pixel_mark(r->ds,(uint16_t)(r->bx+r->si))); r->bx=dec16(r,r->bx); } while(!(r->flags&SF));
         r->dx=0x3ce; set_al(r,8); pixel_out(r->dx,1,(uint8_t)r->ax);
         r->dx=inc(r,r->dx); set_al(r,255); pixel_out(r->dx,1,(uint8_t)r->ax);
         r->dx=dec16(r,r->dx); set_al(r,3); pixel_out(r->dx,1,(uint8_t)r->ax);
         r->dx=inc(r,r->dx); set_al(r,(uint8_t)logic(r,0,8)); pixel_out(r->dx,1,(uint8_t)r->ax);
-        r->ds=pop(r);ww_mark_end(r,plan); ww_write(r,plan,D(WaterRestorePending),byte_dec(r,rd8(r->ds,D(WaterRestorePending))),1);
+        r->ds=pop(r);ww_mark_end(r,plan); ww_write(r,plan,D(WaterRestorePending),byte_dec(r,run_read8(r->ds,D(WaterRestorePending))),1);
     }
     r->ax=logic(r,0,16); r->bx=R(PreviousWaterSurfaceY,0); r->cx=320; r->dx=1;
     return ww_tail(r,plan,G(RestoreBackgroundRectangle));
@@ -149,9 +154,9 @@ EXPORT int c_AdvanceWaterSurface(Regs *r) {WeatherPlan storage;ww_open(r,&storag
 #undef R
 #undef W
 EXPORT int c_DrawWaterSurface(Regs *r) {WeatherPlan storage;ww_open(r,&storage,1,1);WeatherPlan *plan=&storage;
-    r->sp=(uint16_t)(r->sp-2); wr16(r->ss,r->sp,r->ds);
-    r->si=rd16(r->ds,D(WaterSurfaceFrame));
-    uint8_t countdown=dec8(r,rd8(r->ds,D(WaterSurfaceFrameCountdown)));
+    r->sp=(uint16_t)(r->sp-2); run_write16(r->ss,r->sp,r->ds);
+    r->si=run_read16(r->ds,D(WaterSurfaceFrame));
+    uint8_t countdown=dec8(r,run_read8(r->ds,D(WaterSurfaceFrameCountdown)));
     ww_write(r,plan,D(WaterSurfaceFrameCountdown),countdown,1);
     if(countdown&128u) {
         ww_write(r,plan,D(WaterSurfaceFrameCountdown),6,1);
@@ -159,9 +164,9 @@ EXPORT int c_DrawWaterSurface(Regs *r) {WeatherPlan storage;ww_open(r,&storage,1
         if((int16_t)r->si<0) r->si=2;
         ww_write(r,plan,D(WaterSurfaceFrame),r->si,2);
     }
-    r->ax=(uint16_t)((uint8_t)rd16(r->ds,D(WaterYPixels))*rd8(r->ds,D(VgaRowStrideBytes)));
+    r->ax=(uint16_t)((uint8_t)run_read16(r->ds,D(WaterYPixels))*run_read8(r->ds,D(VgaRowStrideBytes)));
     ww_write(r,plan,D(WaterSurfaceByteOffset),r->ax,2);
-    r->di=rd16(r->cs,G(DrawPagePointer)); r->ds=rd16(r->cs,G(DrawPagePointer)+2);
+    r->di=run_read16(r->cs,G(DrawPagePointer)); r->ds=run_read16(r->cs,G(DrawPagePointer)+2);
     r->di=add16(r,r->di,r->ax,0);
     r->dx=0x3c4; set_al(r,2); pixel_out(r->dx,1,2);
     uint16_t cf=r->flags&CF;
@@ -170,7 +175,7 @@ EXPORT int c_DrawWaterSurface(Regs *r) {WeatherPlan storage;ww_open(r,&storage,1
     r->bx=0x5655; r->cx=0x5857;
     uint16_t old=r->si; r->si=(uint16_t)(r->si<<1);
     flag(r,CF,old&0x8000); flag(r,OF,((old^r->si)&0x8000)!=0); szp(r,r->si,16);
-    uint16_t target=rd16(r->cs,cell(G(WaterSurfaceDispatch),r->si));
+    uint16_t target=run_read16(r->cs,cell(G(WaterSurfaceDispatch),r->si));
     return ww_tail(r,plan,target);
 }
 
@@ -214,7 +219,7 @@ static int water_tail(Regs *r, const char *pattern) {unsigned frame=pattern==wat
         }
     }
     set_al(r,15); pixel_out(r->dx,1,ww_frame_mask(&cursor,frame,15));
-    r->ds=rd16(r->ss,r->sp); r->sp=(uint16_t)(r->sp+2);
+    r->ds=run_read16(r->ss,r->sp); r->sp=(uint16_t)(r->sp+2);
     ww_require(weather_frame_next(&cursor,frame).kind==WW_DONE);return UGH_OK;
 }
 
@@ -224,10 +229,10 @@ EXPORT int c_DrawWaterSurfaceFrame1(Regs *r) { return water_tail(r,water_frame1)
 
 EXPORT int c_DrawWaterSurfaceFrame2(Regs *r) { return water_tail(r,water_frame2); }
 
-#define R(n) rd16(r->ds,D(n))
-#define RI(n,i) rd16(r->ds,(uint16_t)(D(n)+(i)))
+#define R(n) run_read16(r->ds,D(n))
+#define RI(n,i) run_read16(r->ds,(uint16_t)(D(n)+(i)))
 #define WI(n,i,v) ww_write(r,plan,(uint16_t)(D(n)+(i)),(uint16_t)(v),2)
-#define B(n) rd8(r->ds,D(n))
+#define B(n) run_read8(r->ds,D(n))
 EXPORT int c_RespawnRainParticle(Regs *r) {WeatherPlan storage;ww_open(r,&storage,3,1);WeatherPlan *plan=&storage;
     r->ax=add16(r,320,R(WaterYPixels),0);
     {int status=ww_random(r,plan,G(RespawnRainParticle)+0x0a);if(status)return status;}
@@ -272,15 +277,15 @@ EXPORT int c_AdvanceRainParticles(Regs *r) {int admitted=ww_rain_admit(r,1);
 #undef WI
 #undef B
 EXPORT int c_DrawRainParticles(Regs *r) {int admitted=ww_rain_admit(r,0);
-    r->bx=ww_first(r,0,(uint16_t)(rd16(r->ds,D(WaterYPixels))*2u));
+    r->bx=ww_first(r,0,(uint16_t)(run_read16(r->ds,D(WaterYPixels))*2u));
     r->dx=0x3c4; set_al(r,2); pixel_out(r->dx,1,2); r->dx++;
-    r->es=0xa000; r->bp=rd16(r->cs,G(DrawPagePointer)); set_ah(r,0x5b);
+    r->es=0xa000; r->bp=run_read16(r->cs,G(DrawPagePointer)); set_ah(r,0x5b);
     do {WeatherPlan storage;ww_open(r,&storage,4,admitted);WeatherPlan *plan=&storage;
-        r->cx=rd16(r->ds,(uint16_t)(D(RainParticleXModuloFour)+r->bx));
+        r->cx=run_read16(r->ds,(uint16_t)(D(RainParticleXModuloFour)+r->bx));
         unsigned shift=r->cx&31u;
         set_al(r,shift<8 ? (uint8_t)(1u<<shift) : 0);
         pixel_out(r->dx,1,ww_rain_mask(plan,(uint8_t)r->ax));
-        r->di=rd16(r->ds,(uint16_t)(D(RainParticleOffsets)+r->bx));
+        r->di=run_read16(r->ds,(uint16_t)(D(RainParticleOffsets)+r->bx));
         r->di=(uint16_t)(r->di+r->bp);
         ww_rain_pixel(r,plan);
         ww_complete(r,plan);r->bx=ww_previous(r,r->bx);
@@ -292,13 +297,13 @@ EXPORT int c_DrawRainParticles(Regs *r) {int admitted=ww_rain_admit(r,0);
 EXPORT int c_RestoreRainBackground(Regs *r) {int admitted=ww_rain_admit(r,1);
     r->dx=0x3ce; set_al(r,8); pixel_out(r->dx,1,8);
     r->dx=0x3cf; set_al(r,0); pixel_out(r->dx,1,0);
-    r->di=0xa000; r->es=r->di; r->cx=rd16(r->cs,G(BackgroundPagePointer));
-    r->bp=rd16(r->cs,G(DrawPagePointer));
-    r->bx=ww_first(r,1,(uint16_t)((rd16(r->ds,D(WaterYPixels))+1)*2));
+    r->di=0xa000; r->es=r->di; r->cx=run_read16(r->cs,G(BackgroundPagePointer));
+    r->bp=run_read16(r->cs,G(DrawPagePointer));
+    r->bx=ww_first(r,1,(uint16_t)((run_read16(r->ds,D(WaterYPixels))+1)*2));
     do {WeatherPlan storage;ww_open(r,&storage,5,admitted);WeatherPlan *plan=&storage;
         r->si=r->cx; r->di=r->bp;
-        r->si=add16(r,r->si,rd16(r->ds,(uint16_t)(D(RainPreviousOffsets)+r->bx)),0);
-        r->di=add16(r,r->di,rd16(r->ds,(uint16_t)(D(RainPreviousOffsets)+r->bx)),0);
+        r->si=add16(r,r->si,run_read16(r->ds,(uint16_t)(D(RainPreviousOffsets)+r->bx)),0);
+        r->di=add16(r,r->di,run_read16(r->ds,(uint16_t)(D(RainPreviousOffsets)+r->bx)),0);
         ww_copy(r,plan);
         ww_complete(r,plan);r->bx=ww_previous(r,r->bx);
     } while((int16_t)r->bx>=0);

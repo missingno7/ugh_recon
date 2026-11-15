@@ -216,7 +216,9 @@
     "native/bridge/high_scores_bridge.c": {
       "includes": [
         "../high_scores.h",
-        "front_end_support.h"
+        "front_end_support.h",
+        "platform.h",
+        "run_borrow.h"
       ],
       "calls": [
         "D",
@@ -257,6 +259,10 @@
         "push",
         "rd16",
         "rd8",
+        "run_read16",
+        "run_read8",
+        "run_write16",
+        "run_write8",
         "set_ah",
         "set_al",
         "step",
@@ -264,8 +270,7 @@
         "szp",
         "ugh_call_near",
         "ugh_dispatch",
-        "wr16",
-        "wr8"
+        "wr16"
       ]
     }
   },
@@ -282,13 +287,13 @@
     "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
     "native/bridge/front_end_support.h": "c8e018a28316b8d9b6af492f97bd5d71f628c2d759cfb2d849b268400802df3e",
-    "native/bridge/high_scores_bridge.c": "0b953ac00971ad46f04351bf46c58601a5d5c138b3d963317c865c3571e6ae13",
+    "native/bridge/high_scores_bridge.c": "2145d2e64bfb7712cecedd6ef59dbaae3c06c2b00998f48984950437b708e78a",
     "native/front_end.h": "b6b7977bb81c3fdf8294631a853912cd6dc03c5d295d04c416ece363c2a3d5db",
     "native/high_scores.c": "00fc8da7870acfcf6573d4548e798d2aee82db5af4fe74d653c65e60d4fcd30f",
     "native/high_scores.h": "e2d31207d80276d28158bc186f1bbf6f5909330644ab09028a46c6e943f6429b",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
-    "tools/hostbuild.py": "7f96310ea5c7d2d6751448357dd5ed7a0a527b718189ac08163deb127fb18b24",
+    "tools/hostbuild.py": "a3b61f7de087f65c940f5299147252bc486e3947c177c859c4a2a714d2e2905d",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/adlx_loader_solver.py": "332c1a46957e398df5865fa5de14a73d259d464c621232f84976f8dfcc1f42d6",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
@@ -416,6 +421,18 @@
       ],
       "results": "PASS",
       "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Run ownership and explicit shared borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/run_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/high_scores_bridge.c",
         "tools/hostbuild.py"
       ]
     }

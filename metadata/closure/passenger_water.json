@@ -1436,6 +1436,8 @@
       "includes": [
         "../passenger_water.h",
         "actor_projection.h",
+        "platform.h",
+        "run_borrow.h",
         "ugh.h"
       ],
       "calls": [
@@ -1462,7 +1464,8 @@
         "l1_UpdatePassengerSinking",
         "logic",
         "passenger_water_apply",
-        "rd16",
+        "run_read16",
+        "run_write16",
         "shell_BeginPassengerFloating",
         "shell_BeginPassengerResurfacing",
         "shell_BeginPassengerSinking",
@@ -1495,8 +1498,7 @@
         "water_shell_tail",
         "water_target",
         "water_vector",
-        "water_word",
-        "wr16"
+        "water_word"
       ]
     }
   },
@@ -2439,19 +2441,19 @@
   "verification_inputs": {
     "native/passenger_water.h": "df22ebabf80eef286cf1e2e7776d4e8daca1cf1e5d96524205f8ef93d7577c95",
     "native/passenger_water.c": "193cbc6572e7cd51085bc792a3169e19d694198882ee017c86c38351312a9348",
-    "native/bridge/passenger_water_bridge.c": "0532f92eea91949063da04b29ff31c32948eb1d497463e12e26b9b2a211d582a",
+    "native/bridge/passenger_water_bridge.c": "e816101ebed32ea58f6dcbad4499f3202ee3802e026b5f901bd422c39a364953",
     "native/passenger_delivery.c": "ca71e756fff535f31a132c1bf865a9ef91161ebd84972c39991cddf07c322494",
-    "native/bridge/passenger_delivery_bridge.c": "d13e82cbbc5c2525e5e5115d747910c50d966656cebc5fb81eb1e27b255b290e",
+    "native/bridge/passenger_delivery_bridge.c": "a04a39010e679cce32580497ac5fa0734c3e747bcf57efb484b3de85c8e50f08",
     "native/actor_resources.c": "47e21228ee1d873fa5636e062a955e4a6b5a8f0522a7bde2cf223708c9880137",
-    "native/bridge/actor_resources_bridge.c": "6941d649e3fb35d3898b35c3e461fedd0ceee0210861300ce674ac78aac0acc2",
+    "native/bridge/actor_resources_bridge.c": "12f73b24fad632338bd665c69bc6da13127a09477cb9188850b1a7e3822f53d0",
     "native/level_view.c": "f0b3db5747f718d7c112c721735ca5a497a9b93a6ecb33096223b188b170353d",
-    "native/bridge/level_view_bridge.c": "ff2db79ab215fd6bbf4ed99c5fb64dc39b8fdb060f3c57b07070158b998f4d11",
+    "native/bridge/level_view_bridge.c": "361b68f28fef3cbb0b5bf44dcdc7fa057a9d0c75186d4e87f53e1eaa4a283ab5",
     "native/contacts.c": "f809c3af54ddb43b07b60be870e30e404f0b0456f4542585011cb5108dcc8b15",
     "native/bridge/contacts_bridge.c": "ae0355b3a17443a2d39b41b9ac99656041ae63c9bebf3a399e207e6257b1bdab",
     "native/items.c": "d3ede593a1249fc46da025fc304f90ed8f962a5145a81731c6dc70b2f384b8ec",
-    "native/bridge/items_bridge.c": "badddeb8758636e00216082cbb4e945fd11445c070f400db25b10ccf39506995",
+    "native/bridge/items_bridge.c": "492f6ecc440d520d9eeda9786f90bd6e7b0c71b3db98367ba2004d9205bcce5a",
     "native/passenger_itinerary.c": "111d8dcb3c6528a54ab34adb4c93025f3dd023d92fa53e10a6f0e0546fc75258",
-    "native/bridge/passenger_itinerary_bridge.c": "b83c821b9b8d1be0a7fb991b25b874344215fd588b8221058a1225a112a36212",
+    "native/bridge/passenger_itinerary_bridge.c": "568c5fd3b1345fcdd65bcc272b04279b8ba8f5407e373f034f35bc355bc4ab5b",
     "native/coordinate_scale.c": "7bf708b14dc66fdace02a69b7a1b993b37c2535934a71dc0e5d9d397a5903118",
     "verif/water_bound.py": "ec6ade00359232523bb5dc5dda223d96cacc1f9ec4bf588db4947b0f0ee0ff1a",
     "verif/water_build.py": "22f99677539a0f08ff0392a339f0f8fdfb61c82c998a5e4bdb24b11debd297b9",
@@ -2490,7 +2492,7 @@
     "verif/itinerary_build.py": "b06148d5763c5809dffb67fe436c256d67a2a2d1cfac7dcbf4a50526e3e26811",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
-    "tools/hostbuild.py": "7f96310ea5c7d2d6751448357dd5ed7a0a527b718189ac08163deb127fb18b24",
+    "tools/hostbuild.py": "a3b61f7de087f65c940f5299147252bc486e3947c177c859c4a2a714d2e2905d",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
     "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
@@ -2612,6 +2614,23 @@
       ],
       "results": "PASS",
       "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Run ownership and explicit shared borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/run_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/passenger_water_bridge.c",
+        "native/bridge/passenger_delivery_bridge.c",
+        "native/bridge/actor_resources_bridge.c",
+        "native/bridge/level_view_bridge.c",
+        "native/bridge/items_bridge.c",
+        "native/bridge/passenger_itinerary_bridge.c",
         "tools/hostbuild.py"
       ]
     }

@@ -1,0 +1,327 @@
+{
+  "component": "run_world",
+  "status": "migrated",
+  "original": {
+    "owned": [],
+    "composes": [
+      "session",
+      "menus",
+      "high_scores",
+      "input_world",
+      "presentation_world",
+      "water_weather",
+      "player_physics",
+      "hazards",
+      "falling_items",
+      "demo_presentation"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/run_world.h",
+      "native/run_world.c",
+      "native/bridge/run_world_bridge.h",
+      "native/bridge/run_world_bridge.c",
+      "native/bridge/run_borrow.h"
+    ],
+    "functions": [
+      "native_run_world"
+    ],
+    "bridge": "Run-state native owner, typed borrower roles and observation serializer"
+  },
+  "purpose": "Cut 5A: one shared configuration/run store, one live level record and tile map",
+  "interface": {
+    "inputs": "Cold fixture once; explicit shared field and byte-window borrowers",
+    "outputs": "373 native historical bytes, sealed RAM and a separate observation serialization",
+    "borrowers": {
+      "session": "Explicit live field/byte service; foreign/unmoved lanes delegated to the existing owner chain",
+      "water": "Explicit live field/byte service; foreign/unmoved lanes delegated to the existing owner chain",
+      "menus": "Explicit live field/byte service; foreign/unmoved lanes delegated to the existing owner chain",
+      "scores": "Explicit live field/byte service; foreign/unmoved lanes delegated to the existing owner chain",
+      "input": "Explicit live field/byte service; foreign/unmoved lanes delegated to the existing owner chain",
+      "HUD": "Explicit live field/byte service; foreign/unmoved lanes delegated to the existing owner chain",
+      "physics": "Explicit live field/byte service; foreign/unmoved lanes delegated to the existing owner chain",
+      "actors": "Explicit live field/byte service; foreign/unmoved lanes delegated to the existing owner chain",
+      "items": "Explicit live field/byte service; foreign/unmoved lanes delegated to the existing owner chain",
+      "demo": "Explicit live field/byte service; foreign/unmoved lanes delegated to the existing owner chain",
+      "render": "Explicit live field/byte service; foreign/unmoved lanes delegated to the existing owner chain",
+      "resources": "Explicit live field/byte service; foreign/unmoved lanes delegated to the existing owner chain"
+    }
+  },
+  "callers": [
+    "Input, menu, score, session, gameplay, renderer, resource and weather borrowers"
+  ],
+  "callees": [
+    "Existing owner chain for foreign/unmoved byte views"
+  ],
+  "indirect": [
+    "No callback or dispatcher in the new owner/borrower service"
+  ],
+  "memory": {
+    "owner": "NativeRunWorld: configuration10 + run scalars17 + live record26 + tile map320",
+    "total_with_prior": 8033,
+    "retained_owners": "PreviousWaterSurfaceY and ds_27C8 remain presentation-owned",
+    "fields": [
+      "CurrentLevelIndex",
+      "CurrentLevelRecord",
+      "LevelActorList",
+      "LevelCompletionMarker",
+      "LevelEnemyList",
+      "LevelIntroTextPointer",
+      "LevelPlatformList",
+      "LevelPlayerOneStartX",
+      "LevelPlayerOneStartY",
+      "LevelPlayerTwoStartX",
+      "LevelPlayerTwoStartY",
+      "LevelRainDirection",
+      "LevelTimer",
+      "LivesRemaining",
+      "PlayerArrayBytes",
+      "PlayerCount",
+      "PlayerOneControlMode",
+      "PlayerTwoControlMode",
+      "RemainingPassengerJourneys",
+      "ScoreHighWord",
+      "ScoreLowWord",
+      "ScoreMultiplier",
+      "ScreenFadeLevel",
+      "ScreenFadeStep",
+      "SelectedDifficulty",
+      "WaterSurfaceStep",
+      "WaterY32",
+      "WaterYPixels"
+    ],
+    "reserved": "26-byte record includes retained +9/+25 bytes; score halves, player count/bytes and fixed/pixel/previous water remain independent",
+    "allocation": "373 new historical bytes = configuration10 + run17 + record26 + tiles320; PreviousWaterSurfaceY and ds_27C8 stay in presentation_world; native padding is not serialized"
+  },
+  "assumptions": [
+    "Existing accepted algorithm/resource/stack domains; verification ABI remains at outside entries",
+    "Cold import is fixture initialization, never resynchronization"
+  ],
+  "eliminated": [
+    "RAM ownership of 5A storage and its shared-state projections"
+  ],
+  "retained": [
+    "Raw counts/modes, score halves, water fixed/pixel distinction, reserved record bytes and ordered partial writes"
+  ],
+  "evidence": [
+    {
+      "property": "Actual-C numeric byte-view seam",
+      "level": "B",
+      "method": "Actual run_field_get/put C, valid arbitrary8/16/32-bit descriptor,320 byte/array indices, arbitrary native world/value/lane. Numeric output/selected-byte frame and arbitrary-other-byte frame/dependence. No universal resource/asynchronous/registry theorem.",
+      "command": "python verif/run_composition.py --proof --router",
+      "result": "PASS: split read/store profiles; all373 lanes x256 and23 full16-bit word slices, aliases/record straddles/borrower roles/frame checks",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "Independent APIs and live shared writers",
+      "level": "C",
+      "method": "Unicorn/L1/legacy-native/composed replay; whole RAM and ordered device ports. Extra compiled L1/composed ordered record-store prefixes, DF clear, live intro IRQ mutation and alias windows; atomic ICE returned-state exception explicit.",
+      "command": "python verif/run_composition.py --api-front --api-world --api-input --borrowers --reuse",
+      "result": "PASS: 2132 replay runs each profile, zero rejections; 454 composed broader compatibility cases enumerated; accepted algorithm proofs unchanged",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "Composed ownership integration",
+      "level": "D",
+      "method": "Committed HEAD archive plus only owned overlay, scratch promotion, independent ASM frames; moved RAM sealed and observation-only serialization",
+      "command": "python verif/run_composition.py --build --projector --census --levels",
+      "result": "PASS: clean closure53/0; host21/21 both variants with literal pure L1; 17955 projector boundaries,8033 native bytes, zero moved-owner journal publications; zero state-island machine edges/fallbacks/L1 bodies in maintained runs;81+7+8 levels both variants",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "Composition defect sensitivity",
+      "level": "C",
+      "method": "Ten deliberately wrong new ownership/borrower seams; independent literal layout/value oracle. Two also injected into the whole composed host. Existing accepted algorithms are not mutated.",
+      "command": "python verif/run_composition.py --defects",
+      "result": "PASS: ten independent router controls and two whole-host controls detected, including missed serialization",
+      "date": "2026-11-15"
+    }
+  ],
+  "amiga": {
+    "classification": "not-used",
+    "finding": "Composition over accepted DOS contracts"
+  },
+  "uncertainty": [
+    "Storage-first cut: session/menu/gameplay control orchestration remains outside the state island until 6A/B; no new claim that those machine edges are retired",
+    "Live record resource words are opaque data identities, not executable pointers; provider extraction stays with 5R",
+    "Existing broad API fixtures can use accepted compatibility fallbacks; these are enumerated separately, not credited as native algorithm executions",
+    "Existing atomic ICE service decodes backwards in L1 and publishes completed output ascending natively; only returned state/ports are an observation contract inside that atomic service"
+  ],
+  "dependencies": {
+    "native/run_world.h": {
+      "includes": [
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/run_world.c": {
+      "includes": [
+        "run_world.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/run_world_bridge.h": {
+      "includes": [
+        "../run_world.h",
+        "ugh.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/run_world_bridge.c": {
+      "includes": [
+        "platform.h",
+        "presentation_world_bridge.h",
+        "run_world_bridge.h",
+        "stddef.h",
+        "stdio.h",
+        "stdlib.h",
+        "string.h"
+      ],
+      "calls": [
+        "A",
+        "BYTE",
+        "D",
+        "MEMBER",
+        "WORD",
+        "exit",
+        "fputs",
+        "lin",
+        "memcpy",
+        "memset",
+        "native_run_world",
+        "presentation_borrowed_byte",
+        "presentation_borrowed_store",
+        "run_field",
+        "run_field_get",
+        "run_field_put",
+        "run_owned_bytes",
+        "run_shared_read",
+        "run_shared_write",
+        "ugh_read",
+        "ugh_write"
+      ]
+    },
+    "native/bridge/run_borrow.h": {
+      "includes": [
+        "run_world_bridge.h"
+      ],
+      "calls": []
+    }
+  },
+  "verification_inputs": {
+    "c/memory.c": "97f59e3c343cd6911854d0bfc3ff624417de2844f712caa96ec6799d3a9783d9",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "docs/standalone-cuts.md": "ae06aa47864cfbf2cefce111370f82678c75f5198fb95620c4c13e0e633b4d2e",
+    "docs/standalone-ledger.md": "b232c5e0e4ebd04d94aeea9b4369ab3da07eb0725bbf2cba1a1ed0636bbed41c",
+    "host/main.c": "0e0026e4f506da6a3b6754b1d4e41888bd8eb60e30af2eae62d1d5b3afa193fb",
+    "metadata/closure/actor_render.json": "e6a92e50b798c5f737c0dceff1f63c0d819ecb07843ec1c16bedc741cc7058a7",
+    "metadata/closure/audio_world.json": "e63e9b2eaf4b13dea4882c789eed7bed422cec955da3aa132621b6d9f1a7fe40",
+    "metadata/closure/decimal.json": "a17de4e5cb5f3596652893a5ad6a3fd955f68b57795288510a7c9df75096c2d7",
+    "metadata/closure/demo_presentation.json": "2cdc6ef481c06e69797f397fdf5efa40a882412fb96a3e670d259395add85cbc",
+    "metadata/closure/far_copy.json": "b607e9417591d0724605e6d4fb8bbe50087f4e03755ac77d0e1425e8009f98f3",
+    "metadata/closure/high_scores.json": "7af33c60b91f352f508c64df5dbfad6e12acd4329437a7abba85a82b4d9f8040",
+    "metadata/closure/hud.json": "b2ca8eb88709d96f6b78c3a19b9722aacd9f5b4e73e72332c064dde771755a38",
+    "metadata/closure/ice.json": "9952c30fd8cd63eba1c6788e454c7e8aae3aba8998751d1ae0b1027cc99a0c48",
+    "metadata/closure/ice_scratch.json": "7c680e0ce376c6bd4aafc07a8740ef5b633302dd5eb0e7f047bd01397d205c2d",
+    "metadata/closure/input.json": "8dc97ecd12198dab3443c15fe7033f8c14c5d5f208909e7aea572d0ae4b309f7",
+    "metadata/closure/input_world.json": "5fc478ee4682328956b4e172ac1f2b9ba5a0dddd9231b3ede392b511d8fcd000",
+    "metadata/closure/menus.json": "0b4dbcf45a24f44189309c744d562a9b7585150d09be88f2e06bbe4ff20ae6ba",
+    "metadata/closure/palette_world.json": "2c5c15411d2614c99d297cc12e592cc3d5f0e25ff258e608c7ef93120f9f3d66",
+    "metadata/closure/pictures.json": "d473128e271eed22be78df3eabbca25b7200304a137a033c7e63dbb7cf7e6113",
+    "metadata/closure/pixel_world.json": "a2263aca0f9c791c22b07f084af6588b0c00d0aed480146be43ca61093d3797b",
+    "metadata/closure/player_physics.json": "6e6dbd01548d900bb906fb5efbfac35cddd092d70d0689ed5cc9046125774834",
+    "metadata/closure/presentation_world.json": "41f406ae4bb5265821fdae1962c25a7b003be9c69381453e5ae68f1365ba59f2",
+    "metadata/closure/render_primitives.json": "6f8fa53f73f673987407906a0233c97324dd4c419131b1647c366e267f5f96a5",
+    "metadata/closure/session.json": "30e70423c62dfb03c9bc6bef8d094e0699303127b8cfcdbe734dab86b4d95410",
+    "metadata/closure/timing_world.json": "9bfa0ba0d3b1e01886ed69619747938717c1d0f0d08b15714b466c55686d218c",
+    "metadata/closure/video_dos.json": "40cddfaf1618e19b49477b5bb66bda4d0798e4c511e0b82f37da51730d105677",
+    "metadata/closure/video_pages.json": "1560c8ad2ff69f49f1d0a6ced20d67fcd3ad52722193c9654e79dc9f4c467529",
+    "metadata/closure/water_weather.json": "5cfe72eabd2ecb8c5f976c6aac7c35e73730285bb0221f424fe26d8c339417bf",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
+    "native/bridge/actor_pass_bridge.c": "2bfa90df452d080d62e8f6b9b45a6b4d71e56f8e21deade07b8d7cb0c34f012b",
+    "native/bridge/actor_render_bridge.c": "7ba4533fe90d6625450cdedce3a98fd80925cdca2d6a2d4941413e18822853d7",
+    "native/bridge/actor_resources_bridge.c": "12f73b24fad632338bd665c69bc6da13127a09477cb9188850b1a7e3822f53d0",
+    "native/bridge/demo_core_bridge.c": "c70e650036e6b79e3bc4c3cd4b1c1aa20d9e8d33f9c04aa0d6b14da002240261",
+    "native/bridge/demo_presentation_bridge.c": "4fc23d7f3c127fdee2c0ce5762ff5fc2b8348efcae9a408c2ab1644b7bcb2f3b",
+    "native/bridge/hazards_bridge.c": "d66383e56c31dd4bd28c2617ced0d2346a993f6fbd862ab69574109c3fe3096b",
+    "native/bridge/high_scores_bridge.c": "2145d2e64bfb7712cecedd6ef59dbaae3c06c2b00998f48984950437b708e78a",
+    "native/bridge/hud_bridge.c": "bc1990e4affe4cf22381e6a5a54d7586f0f80294951731858a7e2044f8d0b61b",
+    "native/bridge/hud_support.h": "fb6467efb4879d079ef9c34f73eaf45c386fd6fbfd18ff07347027e05bac4ab4",
+    "native/bridge/input_bridge.c": "7d1dede22cbce10365035f1c34ac66cd7ec1dfc480907c15b2eabec4f8a9c307",
+    "native/bridge/items_bridge.c": "492f6ecc440d520d9eeda9786f90bd6e7b0c71b3db98367ba2004d9205bcce5a",
+    "native/bridge/level_view_bridge.c": "361b68f28fef3cbb0b5bf44dcdc7fa057a9d0c75186d4e87f53e1eaa4a283ab5",
+    "native/bridge/menus_bridge.c": "3caad690155071ae5b5a585968d9c3c7d5d128464169cda842634ec393ff8d32",
+    "native/bridge/passenger_delivery_bridge.c": "a04a39010e679cce32580497ac5fa0734c3e747bcf57efb484b3de85c8e50f08",
+    "native/bridge/passenger_itinerary_bridge.c": "568c5fd3b1345fcdd65bcc272b04279b8ba8f5407e373f034f35bc355bc4ab5b",
+    "native/bridge/passenger_water_bridge.c": "e816101ebed32ea58f6dcbad4499f3202ee3802e026b5f901bd422c39a364953",
+    "native/bridge/player_physics_bridge.c": "608f333c94950d3ca454572632262f298871e5d33b117ccca5c68b6c46fba0c9",
+    "native/bridge/render_primitives_bridge.c": "615ae7409f798395fbcff6ca71667ab00d3e01aa8cf4f6bf83ff426f32413e44",
+    "native/bridge/run_borrow.h": "3ac1ff8f8e888fe2027185529355be0f718bfec48de599bfbbb0e35a4ab485cf",
+    "native/bridge/run_world_bridge.c": "509235930c25c3a4e278256aea81799da62630e6cafedb0f8c870f34d5dd1b53",
+    "native/bridge/run_world_bridge.h": "1420a75d1a80b13d71dd40d7793eb383c6a5abb27fd6479c5cfb20f8bc940597",
+    "native/bridge/session_bridge.c": "7515ded717d8b85fd6047c26919d589d3ea796cd1bd6733698bb80a79586a2f3",
+    "native/bridge/session_support.h": "bb952e3c7d90b999dd5417e60250a7b018631359b16b1e6f855501dba3d31795",
+    "native/bridge/stones_bridge.c": "beeee78e67953290c7a7d932373d5d83bf944070b2a0c0e920917e864b5f48ca",
+    "native/bridge/water_weather_bridge.c": "ed6cad0dae9675775c3365c4508cc3beaf86a66b04ce7053371a36d47c453d02",
+    "native/hud.c": "f1b1d550b3afe997828e4154b95e290803d9f32461e66ab6f2da86620d4ae53c",
+    "native/hud.h": "186b7d5953017351c3be9f803642d119e83774c7aa5adc0d2405c1a99d2eb74b",
+    "native/input.c": "56550496ffde02a0f1b9625922783721e20fa455e5d1be9c8dc5c3467569b8f9",
+    "native/input.h": "3e1278c1c7218615a3813263dd19fbc6a15c7a8e073b0bf96c4cb2aa5415bf1e",
+    "native/player_physics.c": "dcb90fedbd71fbf58b826a80abbf8307bd9de3d1e1347a9e4e1338543fee7b73",
+    "native/run_world.c": "c4e63840ebc54183db984ef885f7ec2008c355481c0d85d82db180b541c9729a",
+    "native/run_world.h": "6a750d12fc053d308a94d5e431eed7362b166cf45474162a62fc1a11b36dc0c7",
+    "native/session.c": "731afa9e3ade606e09a77fce94d6a762a5080554863a31cec183a6c7f4121634",
+    "native/session.h": "843e2fa75fc55024f787804ff00c20505238381d4f02dc891e02d937f1e05d20",
+    "native/video_dos.c": "4a8639a8349bf49694dbff5bf052811b89a500882aa8fea492e4c84fb700dcde",
+    "native/video_dos.h": "830cf4e706ce00033be99d4e74831f4f39e348f3b226bd1086128a5f61c26cf5",
+    "native/water_weather.c": "0c7323754d3a2d6eb5f194082096da6ac3dce5d0ac3d09e517d2be9f605a20ba",
+    "native/water_weather.h": "376ea82167cd5afbee4ffb23f70a8cc1c6b2c7c1607e71241647e4cfd2088064",
+    "src/asm/GAME.ASM": "29c9ead3b191a744c59b465a3bd4de29f2e217b92492cf57edb8c13bc3494204",
+    "src/data/DGDATA.ASM": "9d46889e26434a597ed19b91c119029af3dbf3dbcfa9811c4ed5aa18dc157541",
+    "tools/cbuild.py": "b957186e9697f04be43136704d51f727fa5f20aace331919e3ade16468a4a8f1",
+    "tools/cgen.py": "c494a10b08145efeb0dfd7bcef4fa89b3902cebbdd69ee63bae89647026d9aff",
+    "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
+    "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
+    "tools/hostbuild.py": "a3b61f7de087f65c940f5299147252bc486e3947c177c859c4a2a714d2e2905d",
+    "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
+    "verif/audio_composition.py": "32cf1d267784b30271e030a276abb0424aacf932ae169fc98efa71a9cdb70691",
+    "verif/cbmc_shim/stddef.h": "03e62ec5f7016e0582b92f016d7e4017b56746e2b216ae8d7fad236ae7e723e7",
+    "verif/cbmc_shim/stdint.h": "ff382e7cc9e8ac2ff6cef94767bb680b49944513ebff33b6d7e548fe12a5d7d0",
+    "verif/cbmc_shim/ugh.h": "d23d5fb7f8d14f5c03944d9cce971d6d21fdf32c28ebac1f2710842cd03d7e72",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/entry_retirement.py": "3b52d207fef7b3e51461a2357a06f012f59651b406f1fe9a0253876e55f76529",
+    "verif/input_build.py": "106fc5b7c65a9591f24307c1be970ad5b947d36e020f16c15887d4024e35095b",
+    "verif/input_composition.py": "f40963d216d583f6649f23b2f3138ab207f1b074a7eb560031adb263605d209e",
+    "verif/input_evidence.py": "e84fc96097884dabc2904783c50a1b0dd8b324953008b160c9ed94e81793c897",
+    "verif/input_integration.py": "a81129b645d60c2e7000427f3b1deced03255269c553e5423d9016b7ea741021",
+    "verif/input_inventory.py": "3d6a896a12e35eaf4f698e6047f5a57a95edc302c0f9a3e7571ca4196980939e",
+    "verif/level_suite.py": "c4ba45fc0a2aa239c8023932d03413dcc487000e887b836cac05e24347aaace7",
+    "verif/palette_composition.py": "5d2c122f190aa538bc64d744b0f79ed8c6d02d73c9804b936921a4545eb10ed6",
+    "verif/pixel_composition.py": "b54a9136a4401015985bb976af1aa430f402f513defb749805b0163101effc3b",
+    "verif/player_physics_l0_cases.py": "a3bf551de674f3c6121c023498fdca1641f99f68e75b23fd5dfb28e313fc4948",
+    "verif/presentation_composition.py": "696f65065db4fb3713e36c628596bc1b2ffef771114ff8ed833c5e9d7ddbf2f9",
+    "verif/projector/observer.c": "d74000e907ab554a9b7c9f937c7d00ee36a9f756c6496bbcac9f9be39cb3dd37",
+    "verif/projector/publications.py": "2918f0f0b2b411074a2bf84d89eecee911200c8ac359eff68f4a5a6f8815ac3c",
+    "verif/projector/schema.py": "1bb39678888b4da7fb5a48ee6b26794d392ee544238c58ede37d85cb38c33228",
+    "verif/projector/timing_serializer.h": "818683fb2777f98cd49c8a44b2784364d48b1b79c85dc8859419d5c915d1cc32",
+    "verif/projector/world.h": "fcc3e647a6ba8e5602c705f93be42a50da90723cf904ebfa755de13be121a102",
+    "verif/projector_evidence.py": "05f67cde377f06e95e891cf1e1914a77b27a21f6049779cba9286afebb946f2a",
+    "verif/run_borrowers.py": "f7d90162b47e40aa53bf6f90aed9c4a1b61b98b90944173d74e9fa16dd534d67",
+    "verif/run_byte_proof.c": "05baebe8c463ec7544bd284c8684e58072579a4b9b47b5ed8cb2c1ba1dc23a4e",
+    "verif/run_composition.py": "fcfcaad35ffb749c8e19cc745625f52e7e0bb66cec69beb52fc880f451dfe3ef",
+    "verif/run_router.c": "4cfa82b36d779e501f22bfcecabc068ab28c5ab437a30cd848f2231e30ab1498",
+    "verif/standalone_census.py": "647dd84b82fbeb0871fd992671b0c2279cd98e66bb46854b57c0745ed84b0a6f",
+    "verif/timing_composition.py": "079ee38dca0657725f0449fd78d90df8928a4d2130a95021a07f9aa7195dd757",
+    "verif/vga_state_census.py": "54b8735be14b81c3c1107931cb24b6a2cff069c3759e98c0dd00742135055808",
+    "verif/video_pages_composition.py": "2fb8e8ad727b9ce40da26824d14b1428bc4058488eb1a0e12839f7c8311edf4c",
+    "verif/water_weather_l0_cases.py": "e620b99e61d78aa407458d080fbeabcff8c9958992a4b9b11f6f94d33a6942e0",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574"
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "proposed_status": "migrated"
+}

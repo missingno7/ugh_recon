@@ -33,6 +33,11 @@
 #else
 #define PROJECT_PRESENTATION_OWNED(a)
 #endif
+#ifdef UGH_NATIVE_RUN
+#define PROJECT_RUN_OWNED(a) || run_is_owned(a)
+#else
+#define PROJECT_RUN_OWNED(a)
+#endif
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -67,6 +72,11 @@ static U64 service_calls,service_changed_bytes,publication_calls,publication_byt
 static unsigned enabled,baseline_verified,boundaries,terminal_boundaries,controls_done,control_frame;
 static uint32_t control_offsets[5];static unsigned control_kinds[5];
 static const char *control_targets[5];
+/* Controls compare against a frozen actual boundary, never against a second
+ * serialization of the deliberately corrupted canonical owner. Test-only; this
+ * buffer is not an input to the world and is never used for repair. */
+static const uint8_t *control_actual;
+static uint8_t control_boundary[UGH_MEM_SIZE];
 static U64 effect_hash=1469598103934665603ull;
 
 static void fail(const char *why){fprintf(stderr,"projector: %s at frame %u\n",why,host_frame);fflush(stderr);ExitProcess(87);}
@@ -100,7 +110,7 @@ static void assign(const Binding *b,uint32_t raw){
 static void byte_write(uint32_t a,uint8_t v){
     if(a>=UGH_MEM_SIZE)fail("RAM write outside observation storage");
 #ifdef UGH_NATIVE_TIMING
-        if((timing_is_owned(a) PROJECT_PALETTE_OWNED(a) PROJECT_INPUT_OWNED(a) PROJECT_PAGES_OWNED(a) PROJECT_PIXEL_OWNED(a) PROJECT_PRESENTATION_OWNED(a))){
+        if((timing_is_owned(a) PROJECT_PALETTE_OWNED(a) PROJECT_INPUT_OWNED(a) PROJECT_PAGES_OWNED(a) PROJECT_PIXEL_OWNED(a) PROJECT_PRESENTATION_OWNED(a) PROJECT_RUN_OWNED(a))){
         fprintf(stderr,"projector: moved publication address %05X value %02X RAM %02X\n",a,v,ugh_mem[a]);
         fail("moved owner received a RAM/journal publication");
     }
@@ -160,7 +170,7 @@ static void serialize(void){
     for(unsigned i=0;i<N_BINDINGS;i++){
         const Binding *b=&bindings[i];uint32_t v=value(b);
 #ifdef UGH_NATIVE_TIMING
-        if((timing_is_owned(b->address) PROJECT_PALETTE_OWNED(b->address) PROJECT_INPUT_OWNED(b->address) PROJECT_PAGES_OWNED(b->address) PROJECT_PIXEL_OWNED(b->address) PROJECT_PRESENTATION_OWNED(b->address)))continue;
+        if((timing_is_owned(b->address) PROJECT_PALETTE_OWNED(b->address) PROJECT_INPUT_OWNED(b->address) PROJECT_PAGES_OWNED(b->address) PROJECT_PIXEL_OWNED(b->address) PROJECT_PRESENTATION_OWNED(b->address) PROJECT_RUN_OWNED(b->address)))continue;
 #endif
         for(unsigned j=0;j<b->width;j++)output[b->address+j]=(uint8_t)(v>>(8*j));
     }
@@ -180,6 +190,9 @@ static void serialize(void){
 #endif
 #ifdef UGH_NATIVE_PRESENTATION
     presentation_serialize(output);
+#endif
+#ifdef UGH_NATIVE_RUN
+    run_serialize(output);
 #endif
 #endif
     memcpy(device_output,device_baseline,sizeof device_output);
@@ -209,9 +222,12 @@ static Difference compare(void){
     #ifdef UGH_NATIVE_PRESENTATION
     if(missed==UINT32_MAX)missed=presentation_check_serialization(output);
     #endif
+#ifdef UGH_NATIVE_RUN
+    if(missed==UINT32_MAX)missed=run_check_serialization(output);
+#endif
     if(missed!=UINT32_MAX)return (Difference){1,missed};
 #endif
-    const uint8_t *actual_memory=observation_memory();
+    const uint8_t *actual_memory=control_actual?control_actual:observation_memory();
     for(uint32_t a=0;a<UGH_MEM_SIZE;a++)if(observed(a) && output[a]!=actual_memory[a])return (Difference){1,a};
     const uint8_t *device=(const uint8_t*)&ugh_devices;
     for(uint32_t a=0;a<DEVICE_BYTES;a++)if(device_output[a]!=device[a])return (Difference){2,a};
@@ -235,17 +251,25 @@ static void controls(void){
     }
     size_t second=1;while(second<nevents && !memcmp(events,events+second,sizeof(ProjectEvent)))second++;
     if(stale==UGH_MEM_SIZE || identity==N_BINDINGS || second==nevents)return;
+    memcpy(control_boundary,observation_memory(),sizeof control_boundary);
+    control_actual=control_boundary;
     control_targets[0]="session.level";control_targets[1]="unclassified retained ICE-workspace byte";
     control_targets[2]="services.video.map_mask";control_targets[3]="cumulative ordered event journal";
     control_targets[4]=bindings[identity].name;
+#ifdef UGH_NATIVE_RUN
+    uint16_t level=native_run_world()->level;native_run_world()->level^=1;
+    require_control(0,compare());native_run_world()->level=level;
+#else
     uint16_t level=world.session.level;world.session.level^=1;require_control(0,compare());world.session.level=level;
+#endif
     journal[stale]^=1;require_control(1,compare());journal[stale]^=1;
     services.video.map_mask^=1;require_control(2,compare());services.video.map_mask^=1;
     ProjectEvent temp=events[0];events[0]=events[second];events[second]=temp;require_control(3,compare());
     temp=events[0];events[0]=events[second];events[second]=temp;
     ProjectIdentity *p=(ProjectIdentity*)((uint8_t*)&world+bindings[identity].offset);
     identities[p->token].word^=1;require_control(4,compare());identities[p->token].word^=1;
-    if(compare().kind){fail("corruption control not restored");}controls_done=1;control_frame=host_frame;
+    if(compare().kind){fail("corruption control not restored");}
+    control_actual=NULL;controls_done=1;control_frame=host_frame;
 }
 void pr_boundary(Regs *r,const char *terminal){
     if(!enabled)fail("boundary before cold import");
@@ -286,6 +310,9 @@ static void dump(void){
 #ifdef UGH_NATIVE_PRESENTATION
     +presentation_owned_bytes()
 #endif
+#ifdef UGH_NATIVE_RUN
+    +run_owned_bytes()
+#endif
     );
 #endif
     fprintf(f,"\"owners\":[");
@@ -318,13 +345,13 @@ void pr_import(void){
             v|=(uint32_t)import_memory[a]<<(8*j);typed_bytes[b->owner]++;
         }
 #ifdef UGH_NATIVE_TIMING
-        if((timing_is_owned(b->address) PROJECT_PALETTE_OWNED(b->address) PROJECT_INPUT_OWNED(b->address) PROJECT_PAGES_OWNED(b->address) PROJECT_PIXEL_OWNED(b->address) PROJECT_PRESENTATION_OWNED(b->address)))continue;
+        if((timing_is_owned(b->address) PROJECT_PALETTE_OWNED(b->address) PROJECT_INPUT_OWNED(b->address) PROJECT_PAGES_OWNED(b->address) PROJECT_PIXEL_OWNED(b->address) PROJECT_PRESENTATION_OWNED(b->address) PROJECT_RUN_OWNED(b->address)))continue;
 #endif
         assign(b,v);if(value(b)!=v)fail("cold field codec");
     }
     for(uint32_t a=0;a<UGH_MEM_SIZE;a++)if(!binding_at[a] && baseline[a]!=import_memory[a]){
 #ifdef UGH_NATIVE_TIMING
-        if((timing_is_owned(a) PROJECT_PALETTE_OWNED(a) PROJECT_INPUT_OWNED(a) PROJECT_PAGES_OWNED(a) PROJECT_PIXEL_OWNED(a) PROJECT_PRESENTATION_OWNED(a)))continue;
+        if((timing_is_owned(a) PROJECT_PALETTE_OWNED(a) PROJECT_INPUT_OWNED(a) PROJECT_PAGES_OWNED(a) PROJECT_PIXEL_OWNED(a) PROJECT_PRESENTATION_OWNED(a) PROJECT_RUN_OWNED(a)))continue;
 #endif
         dirty[a]=1;journal[a]=import_memory[a];last_frame[a]=host_frame;journal_bytes++;
     }

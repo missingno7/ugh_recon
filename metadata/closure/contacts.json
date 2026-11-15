@@ -322,7 +322,7 @@
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
     "native/bridge/contacts_bridge.c": "ae0355b3a17443a2d39b41b9ac99656041ae63c9bebf3a399e207e6257b1bdab",
     "native/bridge/level_projection.h": "d463ba8829671479c3349435080eb7f16ae48551c7a7b0464d27dbc88257df83",
-    "native/bridge/level_view_bridge.c": "ff2db79ab215fd6bbf4ed99c5fb64dc39b8fdb060f3c57b07070158b998f4d11",
+    "native/bridge/level_view_bridge.c": "361b68f28fef3cbb0b5bf44dcdc7fa057a9d0c75186d4e87f53e1eaa4a283ab5",
     "native/contacts.c": "f809c3af54ddb43b07b60be870e30e404f0b0456f4542585011cb5108dcc8b15",
     "native/contacts.h": "2d329a52985ea628a56afaee703e8b2f84ed9a328e58109c3be4dac3e90c1d29",
     "native/geometry.h": "e630be5b080076dfd0f95ff07be51887e5c39d8caa3bdfae7271e06be37c6410",
@@ -339,5 +339,18 @@
     "verif/contacts_integration.py": "a94fea3cda4d06225ace693930e53dc64d47c38a1ba46acf5e533451d08e6a92",
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574"
-  }
+  },
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-15",
+      "reason": "Run ownership and explicit shared borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/run_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/level_view_bridge.c"
+      ]
+    }
+  ]
 }

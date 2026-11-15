@@ -624,6 +624,8 @@
     "native/bridge/hazards_bridge.c": {
       "includes": [
         "../hazards.h",
+        "platform.h",
+        "run_borrow.h",
         "ugh.h"
       ],
       "calls": [
@@ -704,7 +706,8 @@
         "l1_WaitForBirdWarning",
         "lin",
         "logic",
-        "rd16",
+        "run_read16",
+        "run_write16",
         "shell_AdvanceTreeRewardCooldown",
         "shell_AnimateTriopterusImpactRecovery",
         "shell_AnimateTriopterusRecovery",
@@ -738,8 +741,7 @@
         "szp",
         "tail",
         "ugh_call_near",
-        "ugh_dispatch",
-        "wr16"
+        "ugh_dispatch"
       ]
     }
   },
@@ -747,13 +749,13 @@
   "verification_input_hashing": "sha256-lf-text",
   "verification_inputs": {
     "native/hazards.c": "590ad430fc32a4267004492dd602993de903618e7b4da6a79addc0746c692159",
-    "native/bridge/hazards_bridge.c": "586941b1aacbc6f942795033dd4b215ac9091bbbf1af6b754b1903628bba20ab",
+    "native/bridge/hazards_bridge.c": "d66383e56c31dd4bd28c2617ced0d2346a993f6fbd862ab69574109c3fe3096b",
     "native/contacts.c": "f809c3af54ddb43b07b60be870e30e404f0b0456f4542585011cb5108dcc8b15",
     "native/bridge/contacts_bridge.c": "ae0355b3a17443a2d39b41b9ac99656041ae63c9bebf3a399e207e6257b1bdab",
     "native/items.c": "d3ede593a1249fc46da025fc304f90ed8f962a5145a81731c6dc70b2f384b8ec",
-    "native/bridge/items_bridge.c": "badddeb8758636e00216082cbb4e945fd11445c070f400db25b10ccf39506995",
+    "native/bridge/items_bridge.c": "492f6ecc440d520d9eeda9786f90bd6e7b0c71b3db98367ba2004d9205bcce5a",
     "native/level_view.c": "f0b3db5747f718d7c112c721735ca5a497a9b93a6ecb33096223b188b170353d",
-    "native/bridge/level_view_bridge.c": "ff2db79ab215fd6bbf4ed99c5fb64dc39b8fdb060f3c57b07070158b998f4d11",
+    "native/bridge/level_view_bridge.c": "361b68f28fef3cbb0b5bf44dcdc7fa057a9d0c75186d4e87f53e1eaa4a283ab5",
     "native/hazards.h": "9c2086caf6c37a56b8da62cd7a843a13247f2f87d1c5da836158d6dfa0403331",
     "native/contacts.h": "2d329a52985ea628a56afaee703e8b2f84ed9a328e58109c3be4dac3e90c1d29",
     "native/items.h": "167ed4e4d1d4ff78201eb37144bd1b77d6f1d9a6b51b935f0f5ba2142eb55736",
@@ -776,7 +778,7 @@
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
-    "tools/hostbuild.py": "7f96310ea5c7d2d6751448357dd5ed7a0a527b718189ac08163deb127fb18b24",
+    "tools/hostbuild.py": "a3b61f7de087f65c940f5299147252bc486e3947c177c859c4a2a714d2e2905d",
     "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
     "c/actors.c": "d17c03c844f95780f0647b85aa854a87c3e566b0f56fe89ee0a95d6d689f3ff2",
     "c/actors_states.c": "79a460a0436e773bdd795953f63c6765d71c0e346cdf8bbccbcf707817994447",
@@ -870,6 +872,20 @@
       ],
       "results": "PASS",
       "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Run ownership and explicit shared borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/run_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/hazards_bridge.c",
+        "native/bridge/items_bridge.c",
+        "native/bridge/level_view_bridge.c",
         "tools/hostbuild.py"
       ]
     }

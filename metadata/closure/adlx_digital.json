@@ -286,7 +286,7 @@
     "native/bridge/audio_projection.h": "f8dfd66352954a9efe9e23b97b041cd8c953a88ecbe9c6769448260eccc5dff0",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
-    "tools/hostbuild.py": "7f96310ea5c7d2d6751448357dd5ed7a0a527b718189ac08163deb127fb18b24",
+    "tools/hostbuild.py": "a3b61f7de087f65c940f5299147252bc486e3947c177c859c4a2a714d2e2905d",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/adlx_digital_build.py": "6ca5eab7726797f255a5650348dafcee65097345439fd71dcfbdcc0c70bc87f3",
     "verif/adlx_digital_certificate.py": "4a227f34b6b12b6d620d552f70f130346189b66f4043b123546b1b24aee411b9",
@@ -387,6 +387,17 @@
         "python verif/presentation_composition.py --gate"
       ],
       "results": "PASS",
+      "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Run ownership and explicit shared borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/run_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
       "inputs": [
         "tools/hostbuild.py"
       ]

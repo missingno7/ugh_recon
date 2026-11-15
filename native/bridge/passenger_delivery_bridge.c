@@ -1,3 +1,8 @@
+#include "platform.h"
+#ifndef RUN_BORROWER
+#define RUN_BORROWER RUN_BORROW_ACTORS
+#endif
+#include "run_borrow.h"
 #include "ugh.h"
 #include "../passenger_delivery.h"
 #include "actor_projection.h"
@@ -7,7 +12,7 @@ typedef struct DeliveryPlan {
     PassengerDeliveryResult result;size_t consumed;int bad,spawn_seen,sound_seen,tail_seen;
     ActorPhase input_phase,published_phase;int phase_written;PassengerDeliveryEntry entry;uint16_t actor_index;
 } DeliveryPlan;
-static uint16_t delivery_word(Regs *r,uint16_t base,uint16_t index) {return rd16(r->ds,(uint16_t)(base+index));}
+static uint16_t delivery_word(Regs *r,uint16_t base,uint16_t index) {return run_read16(r->ds,(uint16_t)(base+index));}
 static uint16_t delivery_identity(unsigned id) {return id<6?(uint16_t)(D(Data_7720)+74u*id):0;}
 static int delivery_id(uint16_t identity) {
     for(unsigned i=0;i<6;i++) if(identity==delivery_identity(i)) return (int)i;
@@ -58,10 +63,10 @@ static uint16_t delivery_consume(DeliveryPlan *plan,Regs *r,uint16_t address,uin
     return value;
 }
 static void delivery_write16(DeliveryPlan *plan,Regs *r,uint16_t address,uint16_t expected) {
-    uint16_t value=delivery_consume(plan,r,address,expected,0);wr16(r->ds,address,value);
+    uint16_t value=delivery_consume(plan,r,address,expected,0);run_write16(r->ds,address,value);
 }
 static void delivery_write8(DeliveryPlan *plan,Regs *r,uint16_t address,uint8_t expected) {
-    uint16_t value=delivery_consume(plan,r,address,expected,1);wr8(r->ds,address,(uint8_t)value);
+    uint16_t value=delivery_consume(plan,r,address,expected,1);run_write8(r->ds,address,(uint8_t)value);
 }
 static int delivery_projection(DeliveryPlan *plan,Regs *r) {
 #ifdef ACTOR_VERIFY
@@ -92,12 +97,12 @@ static int delivery_projection(DeliveryPlan *plan,Regs *r) {
         if(members[i]==ACTOR_ALIAS_CARRIER && slot->carrier!=observed.carrier) return 0;
     }
     if(plan->render.pixel_x!=delivery_word(r,D(ActorPixelX),index) || plan->render.pixel_y!=delivery_word(r,D(ActorPixelY),index)) return 0;
-    if(plan->world.player_count!=rd16(r->ds,D(PlayerCount)) || plan->world.player_slots!=(size_t)(rd16(r->ds,D(PlayerArrayBytes))/2u) ||
+    if(plan->world.player_count!=run_read16(r->ds,D(PlayerCount)) || plan->world.player_slots!=(size_t)(run_read16(r->ds,D(PlayerArrayBytes))/2u) ||
        plan->world.platform_count!=10 || plan->world.platforms!=plan->platforms ||
-       plan->world.water_pixel_y!=rd16(r->ds,D(WaterYPixels)) || plan->world.multiplier!=rd16(r->ds,D(ScoreMultiplier)) ||
-       plan->world.score!=((uint32_t)rd16(r->ds,D(ScoreLowWord))|((uint32_t)rd16(r->ds,D(ScoreHighWord))<<16)) ||
-       plan->world.hud_clear!=rd8(r->ds,D(HudFareClearPending))) return 0;
-    if(plan->entry==PD_DELIVER && plan->world.multiplier_limit!=delivery_word(r,D(MultiplierLimitsByDifficulty),(uint16_t)(2u*rd16(r->ds,D(SelectedDifficulty))))) return 0;
+       plan->world.water_pixel_y!=run_read16(r->ds,D(WaterYPixels)) || plan->world.multiplier!=run_read16(r->ds,D(ScoreMultiplier)) ||
+       plan->world.score!=((uint32_t)run_read16(r->ds,D(ScoreLowWord))|((uint32_t)run_read16(r->ds,D(ScoreHighWord))<<16)) ||
+       plan->world.hud_clear!=run_read8(r->ds,D(HudFareClearPending))) return 0;
+    if(plan->entry==PD_DELIVER && plan->world.multiplier_limit!=delivery_word(r,D(MultiplierLimitsByDifficulty),(uint16_t)(2u*run_read16(r->ds,D(SelectedDifficulty))))) return 0;
     for(unsigned i=0;i<2;i++) {
         const PassengerCraft *craft=&plan->world.craft[i];uint16_t at=(uint16_t)(2u*i);
         if(craft->position.x32!=delivery_word(r,D(PlayerX32),at) || craft->position.y32!=delivery_word(r,D(PlayerY32),at) ||
@@ -166,7 +171,7 @@ static int delivery_sound(Regs *r,DeliveryPlan *plan,uint16_t segment,uint16_t t
 static int delivery_vector(Regs *r,uint16_t pointer,uint16_t *words,ActorAnimation *animation) {
     size_t count=0;
     while(pointer>=D(Animation_0E20) && pointer<0x1020u && count<256) {
-        uint16_t value=rd16(r->ds,pointer);if(value==65535u) {animation->sprites=words;animation->count=count;return count!=0;}
+        uint16_t value=run_read16(r->ds,pointer);if(value==65535u) {animation->sprites=words;animation->count=count;return count!=0;}
         words[count++]=value;pointer=(uint16_t)(pointer+2u);
     }
     return 0;
@@ -176,22 +181,22 @@ static int delivery_prepare(Regs *r,PassengerDeliveryEntry entry,DeliveryPlan *p
     uint16_t descriptor=delivery_word(r,D(ActorDescriptors),r->bx);int id=delivery_id(descriptor);if(id<0) return 0;
     int shared=entry==PD_BEGIN_DESTINATION || entry==PD_BEGIN_QUESTION || entry==PD_BEGIN_APPROACH;
     if(entry==PD_RESCUE ? !(id&1) : (!shared && (id&1))) return 0;
-    if((entry==PD_BOARD || entry==PD_RESCUE || entry==PD_DELIVER) && (r->di>2u || (r->di&1u) || (r->di==2u && rd16(r->ds,D(PlayerCount))!=2))) return 0;
+    if((entry==PD_BOARD || entry==PD_RESCUE || entry==PD_DELIVER) && (r->di>2u || (r->di&1u) || (r->di==2u && run_read16(r->ds,D(PlayerCount))!=2))) return 0;
     *plan=(DeliveryPlan){0};
     for(unsigned i=0;i<2;i++) {
         unsigned selected=(unsigned)id^i;uint16_t base=delivery_identity(selected);ActorType *type=&plan->types[i];
-        if(rd16(r->ds,(uint16_t)(base+72))!=delivery_identity(selected^1u)) return 0;
+        if(run_read16(r->ds,(uint16_t)(base+72))!=delivery_identity(selected^1u)) return 0;
         type->id=(ActorTypeId)selected;type->paired_type=&plan->types[1-i];
-        type->geometry=(ObjectGeometry){rd16(r->ds,base),rd16(r->ds,(uint16_t)(base+2)),rd16(r->ds,(uint16_t)(base+4)),rd16(r->ds,(uint16_t)(base+6))};
-        type->animation_period=rd16(r->ds,(uint16_t)(base+62));type->initial_fare=rd16(r->ds,(uint16_t)(base+64));
-        type->minimum_fare=rd16(r->ds,(uint16_t)(base+66));type->carried_kind=rd16(r->ds,(uint16_t)(base+70));
+        type->geometry=(ObjectGeometry){run_read16(r->ds,base),run_read16(r->ds,(uint16_t)(base+2)),run_read16(r->ds,(uint16_t)(base+4)),run_read16(r->ds,(uint16_t)(base+6))};
+        type->animation_period=run_read16(r->ds,(uint16_t)(base+62));type->initial_fare=run_read16(r->ds,(uint16_t)(base+64));
+        type->minimum_fare=run_read16(r->ds,(uint16_t)(base+66));type->carried_kind=run_read16(r->ds,(uint16_t)(base+70));
         if(selected&1u) {
-            if(rd16(r->ds,(uint16_t)(base+8))!=G(BeginPassengerResurfacing) || rd16(r->ds,(uint16_t)(base+22))!=G(UpdateFloatingDestinationDisplay) ||
-               rd16(r->ds,(uint16_t)(base+26))!=G(UpdateFloatingQuestionDisplay) || rd16(r->ds,(uint16_t)(base+30))!=G(UpdateFloatingPassengerApproach)) return 0;
+            if(run_read16(r->ds,(uint16_t)(base+8))!=G(BeginPassengerResurfacing) || run_read16(r->ds,(uint16_t)(base+22))!=G(UpdateFloatingDestinationDisplay) ||
+               run_read16(r->ds,(uint16_t)(base+26))!=G(UpdateFloatingQuestionDisplay) || run_read16(r->ds,(uint16_t)(base+30))!=G(UpdateFloatingPassengerApproach)) return 0;
         } else {
             const uint16_t targets[]={G(BeginPassengerPlatformWait),G(UpdatePassengerPlatformWait),G(BeginPassengerDestinationDisplay),G(UpdatePassengerDestinationDisplay),
                 G(BeginPassengerQuestionDisplay),G(UpdatePassengerQuestionDisplay),G(BeginPassengerApproach),G(UpdatePassengerApproach),G(BoardPassenger),G(UpdateCarriedPassenger),G(DeliverPassenger),G(WalkPassengerToExit)};
-            for(unsigned j=0;j<12;j++) if(rd16(r->ds,(uint16_t)(base+16+2*j))!=targets[j]) return 0;
+            for(unsigned j=0;j<12;j++) if(run_read16(r->ds,(uint16_t)(base+16+2*j))!=targets[j]) return 0;
         }
     }
     plan->slot.type=&plan->types[0];
@@ -210,15 +215,15 @@ static int delivery_prepare(Regs *r,PassengerDeliveryEntry entry,DeliveryPlan *p
     plan->slot.animation=(ActorAnimationState){delivery_word(r,D(ActorAnimationByteOffsets),r->bx),delivery_word(r,D(ActorAnimationCountdowns),r->bx)};
     plan->slot.quick_delivery_ticks=delivery_word(r,D(PassengerQuickDeliveryCountdowns),r->bx);
     plan->render.pixel_x=delivery_word(r,D(ActorPixelX),r->bx);plan->render.pixel_y=delivery_word(r,D(ActorPixelY),r->bx);
-    plan->world.player_count=rd16(r->ds,D(PlayerCount));uint16_t bytes=rd16(r->ds,D(PlayerArrayBytes));
+    plan->world.player_count=run_read16(r->ds,D(PlayerCount));uint16_t bytes=run_read16(r->ds,D(PlayerArrayBytes));
     if((plan->world.player_count!=1 && plan->world.player_count!=2) || bytes!=2u*plan->world.player_count) return 0;
     plan->world.player_slots=bytes/2u;
-    plan->world.platform_count=10;plan->world.platforms=plan->platforms;plan->world.water_pixel_y=rd16(r->ds,D(WaterYPixels));
-    plan->world.multiplier=rd16(r->ds,D(ScoreMultiplier));uint16_t difficulty=rd16(r->ds,D(SelectedDifficulty));
+    plan->world.platform_count=10;plan->world.platforms=plan->platforms;plan->world.water_pixel_y=run_read16(r->ds,D(WaterYPixels));
+    plan->world.multiplier=run_read16(r->ds,D(ScoreMultiplier));uint16_t difficulty=run_read16(r->ds,D(SelectedDifficulty));
     if(entry==PD_DELIVER && difficulty>2) return 0;
     if(entry==PD_DELIVER) plan->world.multiplier_limit=delivery_word(r,D(MultiplierLimitsByDifficulty),(uint16_t)(2u*difficulty));
-    plan->world.score=(uint32_t)rd16(r->ds,D(ScoreLowWord))|((uint32_t)rd16(r->ds,D(ScoreHighWord))<<16);
-    plan->world.hud_clear=rd8(r->ds,D(HudFareClearPending));
+    plan->world.score=(uint32_t)run_read16(r->ds,D(ScoreLowWord))|((uint32_t)run_read16(r->ds,D(ScoreHighWord))<<16);
+    plan->world.hud_clear=run_read8(r->ds,D(HudFareClearPending));
     for(unsigned i=0;i<2;i++) {
         uint16_t index=(uint16_t)(2u*i);PassengerCraft *craft=&plan->world.craft[i];
         craft->position=(ObjectPosition){delivery_word(r,D(PlayerX32),index),delivery_word(r,D(PlayerY32),index)};
@@ -234,18 +239,18 @@ static int delivery_prepare(Regs *r,PassengerDeliveryEntry entry,DeliveryPlan *p
     int frames=entry==PD_WAIT || entry==PD_DESTINATION || entry==PD_QUESTION || entry==PD_APPROACH;
     if(frames) {
         const unsigned offsets[]={46,48,50,52};
-        for(unsigned i=0;i<4;i++) if(!delivery_vector(r,rd16(r->ds,(uint16_t)(descriptor+offsets[i])),plan->frames[i],&plan->types[0].animations[i])) return 0;
+        for(unsigned i=0;i<4;i++) if(!delivery_vector(r,run_read16(r->ds,(uint16_t)(descriptor+offsets[i])),plan->frames[i],&plan->types[0].animations[i])) return 0;
     }
     size_t incoming=entry==PD_BOARD || entry==PD_RESCUE || entry==PD_DELIVER?r->di/2u:0;
     plan->result=passenger_delivery_apply(entry,&plan->slot,&plan->render,&plan->world,incoming);return !plan->result.failed;
 }
 /* DELIVERY_SHELLS_BEGIN */
 /* Actual L1 expressions reconstruct the machine shell; native outputs supply every owned persistent store. */
-#define READ(n,i) rd16(r->ds,(uint16_t)(D(n)+(i)))
+#define READ(n,i) run_read16(r->ds,(uint16_t)(D(n)+(i)))
 #define WRITE(n,i,v) delivery_write16(plan,r,(uint16_t)(D(n)+(i)),(uint16_t)(v))
 #define A(n) READ(n,r->bx)
 #define W(n,v) WRITE(n,r->bx,v)
-#define DESC(n) rd16(r->ds,(uint16_t)(r->si+(n)))
+#define DESC(n) run_read16(r->ds,(uint16_t)(r->si+(n)))
 static int pd_shell0_state_jump(Regs *r,DeliveryPlan *plan,uint16_t target);
 static int pd_shell0_tail(Regs *r,DeliveryPlan *plan,unsigned field);
 static int pd_shell0_less(const Regs *r) { return !!(r->flags&SF)!=!!(r->flags&OF); }
@@ -311,11 +316,11 @@ static int shell_UpdateCarriedPassenger(Regs *r,DeliveryPlan *plan) {
 #undef R
 #undef B
 #undef F
-#define R(n,i) rd16(r->ds,(uint16_t)(D(n)+(i)))
+#define R(n,i) run_read16(r->ds,(uint16_t)(D(n)+(i)))
 #define W(n,i,v) delivery_write16(plan,r,(uint16_t)(D(n)+(i)),(uint16_t)(v))
 #define A(n) R(n,r->bx)
 #define B(n,v) W(n,r->bx,v)
-#define F(n) rd16(r->ds,(uint16_t)(r->si+(n)))
+#define F(n) run_read16(r->ds,(uint16_t)(r->si+(n)))
 static int pd_shell1_tail(Regs *r,DeliveryPlan *plan,unsigned field);
 static int pd_shell1_lt(const Regs *r) { return !!(r->flags&SF)!=!!(r->flags&OF); }
 
@@ -334,9 +339,9 @@ static uint16_t pd_shell1_inc(Regs *r,uint16_t v) {
     uint16_t cf=r->flags&CF; v=add16(r,v,1,0); flag(r,CF,cf); return v;
 }
 
-static void pd_shell1_push(Regs *r,uint16_t v) { r->sp=(uint16_t)(r->sp-2); wr16(r->ss,r->sp,v); }
+static void pd_shell1_push(Regs *r,uint16_t v) { r->sp=(uint16_t)(r->sp-2); run_write16(r->ss,r->sp,v); }
 
-static uint16_t pd_shell1_pop(Regs *r) { uint16_t v=rd16(r->ss,r->sp); r->sp=(uint16_t)(r->sp+2); return v; }
+static uint16_t pd_shell1_pop(Regs *r) { uint16_t v=run_read16(r->ss,r->sp); r->sp=(uint16_t)(r->sp+2); return v; }
 
 static int pd_shell1_effect(Regs *r,DeliveryPlan *plan,uint16_t segment,uint16_t offset,uint16_t ret) {
     pd_shell1_push(r,1); pd_shell1_push(r,255); pd_shell1_push(r,segment); pd_shell1_push(r,offset);
@@ -349,9 +354,9 @@ static int pd_shell1_effect(Regs *r,DeliveryPlan *plan,uint16_t segment,uint16_t
 static int pd_shell1_frame(Regs *r,DeliveryPlan *plan,int enemy,unsigned field,int directional) {
     for(unsigned budget=0;budget<32768;budget++) {
         if(directional) r->bp=A(EnemyDirectionOrTargetPlayer);
-        r->di=rd16(r->ds,(uint16_t)(r->si+field+(directional?r->bp:0)));
+        r->di=run_read16(r->ds,(uint16_t)(r->si+field+(directional?r->bp:0)));
         r->di=add16(r,r->di,enemy?A(EnemyAnimationByteOffsets):A(ActorAnimationByteOffsets),0);
-        r->ax=rd16(r->ds,r->di); sub16(r,r->ax,0xffff,0);
+        r->ax=run_read16(r->ds,r->di); sub16(r,r->ax,0xffff,0);
         if(r->ax!=0xffff) {
             if(enemy) B(EnemySpriteIds,r->ax); else B(ActorSpriteIds,r->ax);
             return UGH_OK;

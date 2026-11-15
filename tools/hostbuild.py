@@ -26,7 +26,7 @@ def timing_composed(units):
 
 def composition_options(units, base=None):
     if not timing_composed(units): return []
-    return (['-DUGH_NATIVE_PRESENTATION'] if any(u['component']=='presentation_world' for u in units) else [])+(['-DUGH_NATIVE_PIXEL'] if any(u['component']=='pixel_world' for u in units) else [])+(['-DUGH_NATIVE_VIDEO_PAGES'] if any(u['component']=='video_pages' for u in units) else [])+(['-DUGH_NATIVE_INPUT'] if any(u['component']=='input_world' for u in units) else [])+(['-DUGH_NATIVE_PALETTE'] if any(u['component']=='palette_world' for u in units) else [])+(['-DUGH_NATIVE_AUDIO'] if any(u['component']=='audio_world' for u in units) else [])+['-DUGH_NATIVE_TIMING', '-DNATIVE_AUDIO_BYTE_SERVICE', '-I', str((base or ROOT)/'native/bridge'),
+    return (['-DUGH_NATIVE_RUN'] if any(u['component']=='run_world' for u in units) else [])+(['-DUGH_NATIVE_PRESENTATION'] if any(u['component']=='presentation_world' for u in units) else [])+(['-DUGH_NATIVE_PIXEL'] if any(u['component']=='pixel_world' for u in units) else [])+(['-DUGH_NATIVE_VIDEO_PAGES'] if any(u['component']=='video_pages' for u in units) else [])+(['-DUGH_NATIVE_INPUT'] if any(u['component']=='input_world' for u in units) else [])+(['-DUGH_NATIVE_PALETTE'] if any(u['component']=='palette_world' for u in units) else [])+(['-DUGH_NATIVE_AUDIO'] if any(u['component']=='audio_world' for u in units) else [])+['-DUGH_NATIVE_TIMING', '-DNATIVE_AUDIO_BYTE_SERVICE', '-I', str((base or ROOT)/'native/bridge'),
             '-I', str(ROOT/'verif/projector')]
 
 def _previous_composition_source(relative, text, units):
@@ -202,7 +202,7 @@ def _pixel_composition_source(relative,text,units):
     return text
 
 
-def composition_source(relative,text,units):
+def _presentation_composition_source(relative,text,units):
     text=_pixel_composition_source(relative,text,units)
     if not any(u['component']=='presentation_world' for u in units):return text
     header='#include "'+(ROOT/'native/bridge/presentation_world_bridge.h').as_posix()+'"\n'
@@ -222,6 +222,30 @@ def composition_source(relative,text,units):
             ('pixel_shared_write((uint32_t)(destination-base+index),value)','(presentation_shared_write((uint32_t)(destination-base+index),value)||pixel_shared_write((uint32_t)(destination-base+index),value))'),
             ('if(pixel_is_owned(address)||','if(presentation_is_owned(address)||pixel_is_owned(address)||'),
             ('if(!pixel_shared_write(address,source[i])','if(!presentation_shared_write(address,source[i]) && !pixel_shared_write(address,source[i])')]:
+            assert text.count(old)==1;text=text.replace(old,new)
+    return text
+
+
+def composition_source(relative,text,units):
+    text=_presentation_composition_source(relative,text,units)
+    if not any(u['component']=='run_world' for u in units):return text
+    header='#include "'+(ROOT/'native/bridge/run_world_bridge.h').as_posix()+'"\n'
+    if relative=='c/memory.c':
+        text=header+text
+        text=text.replace('uint8_t ugh_read(uint32_t a) {','uint8_t ugh_read(uint32_t a) { uint8_t run; if(run_shared_read(a,&run))return run;')
+        text=text.replace('void ugh_write(uint32_t a, uint8_t v) {','void ugh_write(uint32_t a, uint8_t v) { if(run_shared_write(a,v))return;')
+    if relative in ('native/far_copy.c','native/decimal.c'):
+        text=header+text.replace('presentation_borrowed_byte(','run_borrowed_byte(').replace('presentation_borrowed_store(','run_borrowed_store(')
+    if relative=='native/bridge/timing_world_bridge.c':
+        text=header+text;old='presentation_shared_read((uint32_t)(source-base+index),&value)';assert text.count(old)==1
+        text=text.replace(old,'(run_shared_read((uint32_t)(source-base+index),&value)||'+old+')')
+    if relative=='native/bridge/audio_world_bridge.c':
+        text=header+text
+        for old,new in [
+            ('presentation_shared_read(address+i,&value)','(run_shared_read(address+i,&value)||presentation_shared_read(address+i,&value))'),
+            ('presentation_shared_write((uint32_t)(destination-base+index),value)','(run_shared_write((uint32_t)(destination-base+index),value)||presentation_shared_write((uint32_t)(destination-base+index),value))'),
+            ('if(presentation_is_owned(address)||','if(run_is_owned(address)||presentation_is_owned(address)||'),
+            ('if(!presentation_shared_write(address,source[i])','if(!run_shared_write(address,source[i]) && !presentation_shared_write(address,source[i])')]:
             assert text.count(old)==1;text=text.replace(old,new)
     return text
 

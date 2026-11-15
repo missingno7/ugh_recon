@@ -259,7 +259,9 @@
     "native/bridge/demo_core_bridge.c": {
       "includes": [
         "../demo_core.h",
-        "actor_projection.h"
+        "actor_projection.h",
+        "platform.h",
+        "run_borrow.h"
       ],
       "calls": [
         "D",
@@ -278,10 +280,10 @@
         "l1_InitializeDemoScripts",
         "l1_TestAllDemoScriptsFinished",
         "logic",
-        "rd16",
+        "run_read16",
+        "run_write16",
         "sub16",
-        "ugh_call_near",
-        "wr16"
+        "ugh_call_near"
       ]
     }
   },
@@ -307,10 +309,10 @@
     "native/actor_resources.h": "212fe3bc958c74140f45b9e7a3745f650d22e7a853a2edf273eeacfd93f96247",
     "native/actors.h": "b1c7653a6e566c7f0e3e18ad38fc3f63726d01b78a6fa6843df017d2d155a42c",
     "native/bridge/actor_projection.h": "71e0476afe7c0b082b5eac20957028e58a61f6741ef11c7ca546fe8bbad8b483",
-    "native/bridge/actor_resources_bridge.c": "6941d649e3fb35d3898b35c3e461fedd0ceee0210861300ce674ac78aac0acc2",
-    "native/bridge/demo_core_bridge.c": "00a2eba3c7a2e6a8d449fd07aa51b1c9544ec3d97b0176d6cd59d99892803ce4",
+    "native/bridge/actor_resources_bridge.c": "12f73b24fad632338bd665c69bc6da13127a09477cb9188850b1a7e3822f53d0",
+    "native/bridge/demo_core_bridge.c": "c70e650036e6b79e3bc4c3cd4b1c1aa20d9e8d33f9c04aa0d6b14da002240261",
     "native/bridge/level_projection.h": "d463ba8829671479c3349435080eb7f16ae48551c7a7b0464d27dbc88257df83",
-    "native/bridge/level_view_bridge.c": "ff2db79ab215fd6bbf4ed99c5fb64dc39b8fdb060f3c57b07070158b998f4d11",
+    "native/bridge/level_view_bridge.c": "361b68f28fef3cbb0b5bf44dcdc7fa057a9d0c75186d4e87f53e1eaa4a283ab5",
     "native/demo_core.c": "028b9eaa6671c8219d69ad4f34d1fe5569b1ee69d4c4c3cb13f49c24616a4646",
     "native/demo_core.h": "18d2dd79899671992f6e1f6e2fa2bce933e9eb56c1033a0e60229b7de23f38d6",
     "native/geometry.h": "e630be5b080076dfd0f95ff07be51887e5c39d8caa3bdfae7271e06be37c6410",
@@ -319,7 +321,7 @@
     "src/asm/GAME.ASM": "29c9ead3b191a744c59b465a3bd4de29f2e217b92492cf57edb8c13bc3494204",
     "src/data/DGDATA.ASM": "9d46889e26434a597ed19b91c119029af3dbf3dbcfa9811c4ed5aa18dc157541",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
-    "tools/hostbuild.py": "7f96310ea5c7d2d6751448357dd5ed7a0a527b718189ac08163deb127fb18b24",
+    "tools/hostbuild.py": "a3b61f7de087f65c940f5299147252bc486e3947c177c859c4a2a714d2e2905d",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
@@ -426,6 +428,20 @@
       ],
       "results": "PASS",
       "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Run ownership and explicit shared borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/run_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/actor_resources_bridge.c",
+        "native/bridge/demo_core_bridge.c",
+        "native/bridge/level_view_bridge.c",
         "tools/hostbuild.py"
       ]
     }

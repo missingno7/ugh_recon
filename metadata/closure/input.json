@@ -228,7 +228,8 @@
       "includes": [
         "../input.h",
         "input_world_bridge.h",
-        "platform.h"
+        "platform.h",
+        "run_borrow.h"
       ],
       "calls": [
         "D",
@@ -278,13 +279,13 @@
         "platform_service_point_at",
         "pop",
         "push",
-        "rd16",
-        "rd8",
+        "run_read16",
+        "run_read8",
+        "run_write16",
+        "run_write8",
         "set_ah",
         "set_al",
-        "sub16",
-        "wr16",
-        "wr8"
+        "sub16"
       ]
     }
   },
@@ -300,12 +301,12 @@
     "c/video.c": "681732591d8efb11cf1d5d5816c999bca718560bd247d9c9cc6c0f36982b2fa2",
     "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
-    "native/bridge/input_bridge.c": "0ae4a17edb33c5eaacaa18fd7499f267f4c11fa46ac55b42c5279cea811f2391",
+    "native/bridge/input_bridge.c": "7d1dede22cbce10365035f1c34ac66cd7ec1dfc480907c15b2eabec4f8a9c307",
     "native/input.c": "56550496ffde02a0f1b9625922783721e20fa455e5d1be9c8dc5c3467569b8f9",
     "native/input.h": "3e1278c1c7218615a3813263dd19fbc6a15c7a8e073b0bf96c4cb2aa5415bf1e",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
-    "tools/hostbuild.py": "7f96310ea5c7d2d6751448357dd5ed7a0a527b718189ac08163deb127fb18b24",
+    "tools/hostbuild.py": "a3b61f7de087f65c940f5299147252bc486e3947c177c859c4a2a714d2e2905d",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/adlx_loader_solver.py": "332c1a46957e398df5865fa5de14a73d259d464c621232f84976f8dfcc1f42d6",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
@@ -449,6 +450,18 @@
       ],
       "results": "PASS",
       "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Run ownership and explicit shared borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/run_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/input_bridge.c",
         "tools/hostbuild.py"
       ]
     }

@@ -19,6 +19,9 @@
 #ifdef UGH_NATIVE_PRESENTATION
 #include "presentation_world_bridge.h"
 #endif
+#ifdef UGH_NATIVE_RUN
+#include "run_world_bridge.h"
+#endif
 #endif
 #include <SDL3/SDL_main.h>
 #include <stdlib.h>
@@ -242,6 +245,9 @@ int main(int argc,char **argv) {
 #endif
 #ifdef UGH_NATIVE_PRESENTATION
     presentation_cold_import(ugh_mem);
+#endif
+#ifdef UGH_NATIVE_RUN
+    run_cold_import(ugh_mem);
 #endif
 #endif
     HostSymbol entry=host_symbol(scenario.entry);

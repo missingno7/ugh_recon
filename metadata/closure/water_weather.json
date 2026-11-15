@@ -754,6 +754,7 @@
         "../water_weather.h",
         "pixel_io.h",
         "platform.h",
+        "run_borrow.h",
         "stdlib.h"
       ],
       "calls": [
@@ -793,8 +794,11 @@
         "platform_out",
         "pop",
         "push",
-        "rd16",
         "rd8",
+        "run_read16",
+        "run_read8",
+        "run_write16",
+        "run_write8",
         "set_ah",
         "set_al",
         "shift",
@@ -814,7 +818,6 @@
         "weather_particle_restore",
         "weather_particle_spawn",
         "weather_previous_particle",
-        "wr16",
         "wr8",
         "ww_complete",
         "ww_copy",
@@ -936,6 +939,18 @@
         "python verif/presentation_composition.py --gate"
       ],
       "results": "PASS",
+      "inputs": [
+        "native/bridge/water_weather_bridge.c",
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Run ownership and explicit shared borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/run_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
       "inputs": [
         "native/bridge/water_weather_bridge.c",
         "tools/hostbuild.py"
@@ -1937,7 +1952,7 @@
   "verification_inputs": {
     "native/water_weather.h": "376ea82167cd5afbee4ffb23f70a8cc1c6b2c7c1607e71241647e4cfd2088064",
     "native/water_weather.c": "0c7323754d3a2d6eb5f194082096da6ac3dce5d0ac3d09e517d2be9f605a20ba",
-    "native/bridge/water_weather_bridge.c": "4347632e48e0b00c803a28ac60a69887b2b81a6207e31a9eb4512a451a4f2fe9",
+    "native/bridge/water_weather_bridge.c": "ed6cad0dae9675775c3365c4508cc3beaf86a66b04ce7053371a36d47c453d02",
     "verif/water_weather_acceptance.py": "3e239b0fe4e1f5956d74a330c793408f6913e255c568a5a0dada74ac69f20900",
     "verif/water_weather_baseline.py": "ccd42a9e88314d13afe9a23a9c1f7e07ab8d73e8def5c8212a773498a8564bae",
     "verif/water_weather_bound.py": "0465978003fdd901db6cdf0762799e1e4f50dff2cbcd6c5061d28ab4cde5a36b",
@@ -2050,7 +2065,7 @@
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
-    "tools/hostbuild.py": "7f96310ea5c7d2d6751448357dd5ed7a0a527b718189ac08163deb127fb18b24",
+    "tools/hostbuild.py": "a3b61f7de087f65c940f5299147252bc486e3947c177c859c4a2a714d2e2905d",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",

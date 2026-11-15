@@ -156,6 +156,8 @@
     "native/bridge/actor_pass_bridge.c": {
       "includes": [
         "../actor_pass.h",
+        "platform.h",
+        "run_borrow.h",
         "ugh.h"
       ],
       "calls": [
@@ -205,9 +207,9 @@
         "callback_identity",
         "invoke_actor",
         "logic",
-        "rd16",
-        "sub16",
-        "wr16"
+        "run_read16",
+        "run_write16",
+        "sub16"
       ]
     }
   },
@@ -215,11 +217,11 @@
   "verification_inputs": {
     "native/actor_pass.c": "51af4b214987bf35bdfdadd60c06d7722eaefbb0efb06f33f894c031f25c7a1e",
     "native/actor_pass.h": "bacd12e4aefb60987f641e3e814d83c799068588e443417456fe9ff2e2a7a8ad",
-    "native/bridge/actor_pass_bridge.c": "9dc2a3efab97232d265dfc1b3fe0615777ff85634d802c9d1e76d2101db9d351",
+    "native/bridge/actor_pass_bridge.c": "2bfa90df452d080d62e8f6b9b45a6b4d71e56f8e21deade07b8d7cb0c34f012b",
     "verif/entry_retirement.py": "3b52d207fef7b3e51461a2357a06f012f59651b406f1fe9a0253876e55f76529",
     "verif/entry_retirement_proof.c": "2796c3423fef93b04f190cb38667b80bda47017806d83ff5e326fb204aebb95f",
-    "verif/projector_evidence.py": "637e1a98f5efebc0ad0ba0b026ac3b74a02f971fef645872b1ecb6ad307c8489",
-    "verif/projector/publications.py": "665115ddbc96a4e7be63c6fa24d1a664de706c8ec27d9ebbdabda833ed2663d5",
+    "verif/projector_evidence.py": "05f67cde377f06e95e891cf1e1914a77b27a21f6049779cba9286afebb946f2a",
+    "verif/projector/publications.py": "2918f0f0b2b411074a2bf84d89eecee911200c8ac359eff68f4a5a6f8815ac3c",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
     "c/abi.c": "5f7c2c2fc015ca43e3786a7f96cb38113211da54acefce19564c1df78d74857a",
@@ -386,6 +388,19 @@
       ],
       "results": "PASS",
       "inputs": [
+        "verif/projector_evidence.py",
+        "verif/projector/publications.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Run ownership and explicit shared borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/run_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/actor_pass_bridge.c",
         "verif/projector_evidence.py",
         "verif/projector/publications.py"
       ]

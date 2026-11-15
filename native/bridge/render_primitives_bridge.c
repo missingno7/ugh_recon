@@ -1,8 +1,13 @@
+#include "platform.h"
+#ifndef RUN_BORROWER
+#define RUN_BORROWER RUN_BORROW_RENDER
+#endif
+#include "run_borrow.h"
 #include "pixel_io.h"
 #include "render_primitives_support.h"
-static void push(Regs *r,uint16_t v) { r->sp=(uint16_t)(r->sp-2); wr16(r->ss,r->sp,v); }
+static void push(Regs *r,uint16_t v) { r->sp=(uint16_t)(r->sp-2); run_write16(r->ss,r->sp,v); }
 
-static uint16_t pop(Regs *r) { uint16_t v=rd16(r->ss,r->sp); r->sp=(uint16_t)(r->sp+2); return v; }
+static uint16_t pop(Regs *r) { uint16_t v=run_read16(r->ss,r->sp); r->sp=(uint16_t)(r->sp+2); return v; }
 
 static uint8_t inc8(Regs *r,uint8_t a) {
     uint8_t v=(uint8_t)(a+1); flag(r,OF,a==127); flag(r,AF,((a^v^1)&16)!=0); szp(r,v,8); return v;
@@ -35,37 +40,37 @@ static void copy_mode(Regs *r,int enable) {
 }
 
 #define CALL(target,owner,delta) do { int status=PIXEL_CALL(target,(uint16_t)(G(owner)+(delta))); if(status) return status; } while(0)
-#define R(name) rd16(r->ds,D(name))
-#define W(name,v) wr16(r->ds,D(name),(uint16_t)(v))
-#define B(name) rd8(r->ds,D(name))
-#define WB(name,v) wr8(r->ds,D(name),(uint8_t)(v))
-#define RI(name,i) rd16(r->ds,(uint16_t)(D(name)+(i)))
-#define WI(name,i,v) wr16(r->ds,(uint16_t)(D(name)+(i)),(uint16_t)(v))
+#define R(name) run_read16(r->ds,D(name))
+#define W(name,v) run_write16(r->ds,D(name),(uint16_t)(v))
+#define B(name) run_read8(r->ds,D(name))
+#define WB(name,v) run_write8(r->ds,D(name),(uint8_t)(v))
+#define RI(name,i) run_read16(r->ds,(uint16_t)(D(name)+(i)))
+#define WI(name,i,v) run_write16(r->ds,(uint16_t)(D(name)+(i)),(uint16_t)(v))
 EXPORT int c_DrawTransparentSprite(Regs *r) {
-    RenderSpritePlacement placement=render_sprite_place(r->ax,r->bx,r->cx,rd16(r->ds,D(WaterYPixels)),rd16(r->cs,G(PlayfieldHeight)),rd16(r->cs,G(DrawPagePointer)),rd16(r->cs,G(FixedVgaPagePointer)));
+    RenderSpritePlacement placement=render_sprite_place(r->ax,r->bx,r->cx,run_read16(r->ds,D(WaterYPixels)),run_read16(r->cs,G(PlayfieldHeight)),run_read16(r->cs,G(DrawPagePointer)),run_read16(r->cs,G(FixedVgaPagePointer)));
     uint16_t id=r->ax, y=r->cx;
-    uint16_t dest=rd16(r->cs,G(DrawPagePointer));
-    if((int16_t)y >= (int16_t)rd16(r->cs,G(PlayfieldHeight))) {
-        dest=rd16(r->cs,G(FixedVgaPagePointer)); y=(uint16_t)(y-192u);
+    uint16_t dest=run_read16(r->cs,G(DrawPagePointer));
+    if((int16_t)y >= (int16_t)run_read16(r->cs,G(PlayfieldHeight))) {
+        dest=run_read16(r->cs,G(FixedVgaPagePointer)); y=(uint16_t)(y-192u);
     }
-    uint16_t water=(uint16_t)(rd16(r->ds,D(WaterYPixels))-y);
-    wr16(r->cs,G(RendererScratchWord),rp_word(placement.water,water));
+    uint16_t water=(uint16_t)(run_read16(r->ds,D(WaterYPixels))-y);
+    run_write16(r->cs,G(RendererScratchWord),rp_word(placement.water,water));
     dest=(uint16_t)(dest+sar_word(r->bx,2)+(uint16_t)(y*96u));
     dest=rp_word(placement.destination,dest);y=rp_word(placement.y,y);
     pixel_out(0x3c4,1,2);
     uint8_t plane=rp_byte(placement.plane,(uint8_t)(1u<<(r->bx&3u)));
-    wr16(r->cs,G(SpritePlaneStateScratch),(uint16_t)((uint16_t)plane*256u+2));
-    uint16_t directory=rd16(r->cs,G(SpriteDirectoryPointer));
-    uint16_t dirseg=rd16(r->cs,G(SpriteDirectoryPointer)+2);
+    run_write16(r->cs,G(SpritePlaneStateScratch),(uint16_t)((uint16_t)plane*256u+2));
+    uint16_t directory=run_read16(r->cs,G(SpriteDirectoryPointer));
+    uint16_t dirseg=run_read16(r->cs,G(SpriteDirectoryPointer)+2);
     directory=(uint16_t)(directory+rp_word(placement.directory_index,(uint16_t)(id*4u)));
-    uint16_t offset=rd16(dirseg,directory), dimensions=rd16(dirseg,(uint16_t)(directory+2));
+    uint16_t offset=run_read16(dirseg,directory), dimensions=run_read16(dirseg,(uint16_t)(directory+2));
     uint16_t bank=G(SpritePixels0To216Pointer);
     if(id>=217) bank=G(SpritePixels217To297Pointer);
     if(id>=298) bank=G(SpritePixels298To546Pointer);
     if(id>=547) bank=G(SpritePixels547AndUpPointer);
     const uint16_t banks[4]={G(SpritePixels0To216Pointer),G(SpritePixels217To297Pointer),G(SpritePixels298To546Pointer),G(SpritePixels547AndUpPointer)};
     rp_require(placement.bank<4);bank=rp_word(banks[placement.bank],bank);
-    uint16_t source=(uint16_t)(rd16(r->cs,bank)+offset), source_seg=rd16(r->cs,(uint16_t)(bank+2));
+    uint16_t source=(uint16_t)(run_read16(r->cs,bank)+offset), source_seg=run_read16(r->cs,(uint16_t)(bank+2));
     uint8_t columns=(uint8_t)dimensions, height=(uint8_t)(dimensions>>8);
     RenderSpriteCursor cursor;render_sprite_begin(&cursor,placement,source,dimensions,(uint8_t)!!(r->flags&DF));
     r->bp=water;
@@ -75,7 +80,7 @@ EXPORT int c_DrawTransparentSprite(Regs *r) {
         pixel_out(0x3c5,1,rp_byte(cursor.plane,plane));
         uint16_t row_dest=dest;
         uint8_t rows=height;
-        if(crossing) r->bp=rd16(r->cs,G(RendererScratchWord));
+        if(crossing) r->bp=run_read16(r->cs,G(RendererScratchWord));
         do {
             uint8_t pixel=pixel_read(source_seg,rp_word(cursor.source,source));
             RenderPixelRequest request=render_sprite_pixel(&cursor,pixel);rp_require(request.write==(pixel!=0));
@@ -112,12 +117,12 @@ EXPORT int c_DrawMapTile(Regs *r) {
 
 EXPORT int c_DrawTileMap(Regs *r) {
     uint16_t ordinal=0;
-    r->si=R(CurrentTileMapPointer); r->ds=rd16(r->ds,D(CurrentTileMapPointer)+2);
+    r->si=R(CurrentTileMapPointer); r->ds=run_read16(r->ds,D(CurrentTileMapPointer)+2);
     r->dx&=255;
     do {
         r->dx&=0xff00;
         do {
-            set_al(r,rd8(r->ds,r->si)); r->si=(uint16_t)(r->si+step(r));
+            set_al(r,run_read8(r->ds,r->si)); r->si=(uint16_t)(r->si+step(r));
             rp_require(ordinal<320);RenderDrawRequest request=render_map_cell(ordinal,(uint8_t)r->ax);
             r->dx=rp_word((uint16_t)((request.y/12u)*256u+request.x/16u),r->dx);set_al(r,rp_byte((uint8_t)request.sprite,(uint8_t)r->ax));ordinal++;
             CALL(DrawMapTile,DrawTileMap,0xc);
@@ -132,9 +137,9 @@ EXPORT int c_DrawTileMap(Regs *r) {
 
 EXPORT int c_SaveDrawPageBackground(Regs *r) {
     copy_mode(r,1); uint16_t ds=r->ds;
-    r->si=rd16(r->cs,G(DrawPagePointer)); r->ds=rd16(r->cs,(uint16_t)(G(DrawPagePointer)+2));
-    r->di=rd16(r->cs,G(BackgroundPagePointer)); r->es=rd16(r->cs,(uint16_t)(G(BackgroundPagePointer)+2));
-    r->cx=rd16(r->cs,G(VgaPlaneCopyByteCount));
+    r->si=run_read16(r->cs,G(DrawPagePointer)); r->ds=run_read16(r->cs,(uint16_t)(G(DrawPagePointer)+2));
+    r->di=run_read16(r->cs,G(BackgroundPagePointer)); r->es=run_read16(r->cs,(uint16_t)(G(BackgroundPagePointer)+2));
+    r->cx=run_read16(r->cs,G(VgaPlaneCopyByteCount));
     RenderCopyRequest copy=render_save(r->si,r->di,r->cx,(uint8_t)!!(r->flags&DF));
     r->si=rp_word(copy.source,r->si);r->di=rp_word(copy.destination,r->di);r->cx=rp_word(copy.count,r->cx);
     while(r->cx) { pixel_copy(r->ds,r->si,r->es,r->di); r->si=(uint16_t)(r->si+step(r)); r->di=(uint16_t)(r->di+step(r)); r->cx--; }
@@ -143,9 +148,9 @@ EXPORT int c_SaveDrawPageBackground(Regs *r) {
 }
 
 EXPORT int c_RestorePlayfieldBackground(Regs *r) {
-    RenderRectangleSpec request=render_playfield_rectangle(rd16(r->cs,G(PlayfieldHeight)));
+    RenderRectangleSpec request=render_playfield_rectangle(run_read16(r->cs,G(PlayfieldHeight)));
     push(r,r->bx); push(r,r->si); r->ax=logic(r,0,16); r->bx=r->ax;
-    r->cx=320; r->dx=rd16(r->cs,G(PlayfieldHeight));
+    r->cx=320; r->dx=run_read16(r->cs,G(PlayfieldHeight));
     rp_rectangle(r,request);
     CALL(RestoreBackgroundRectangle,RestorePlayfieldBackground,0x11);
     r->si=pop(r); r->bx=pop(r); return UGH_OK;
@@ -156,11 +161,11 @@ EXPORT int c_RestoreBackgroundRectangle(Regs *r) {
     uint16_t x=saved.ax,y=saved.bx;
     uint16_t quarter=(uint16_t)((x>>2)|((x&0x8000)?0xc000:0));
     uint16_t base=(uint16_t)(y*96+quarter);
-    uint16_t src=(uint16_t)(base+rd16(r->cs,G(BackgroundPagePointer)));
-    uint16_t dst=(uint16_t)(base+rd16(r->cs,G(DrawPagePointer)));
+    uint16_t src=(uint16_t)(base+run_read16(r->cs,G(BackgroundPagePointer)));
+    uint16_t dst=(uint16_t)(base+run_read16(r->cs,G(DrawPagePointer)));
     uint16_t width=(uint16_t)((uint16_t)((uint16_t)((x&3)+saved.cx)+3)>>2);
     uint16_t rows=saved.dx;
-    RenderCopyRows copy=render_rectangle(x,y,saved.cx,saved.dx,rd16(r->cs,G(BackgroundPagePointer)),rd16(r->cs,G(DrawPagePointer)));
+    RenderCopyRows copy=render_rectangle(x,y,saved.cx,saved.dx,run_read16(r->cs,G(BackgroundPagePointer)),run_read16(r->cs,G(DrawPagePointer)));
     src=rp_word(copy.source,src);dst=rp_word(copy.destination,dst);width=rp_word(copy.width,width);rows=rp_word(copy.remaining,rows);
     do {
         flag(r,DF,0);
@@ -175,9 +180,9 @@ EXPORT int c_RestoreBackgroundRectangle(Regs *r) {
 EXPORT int c_RestoreSpriteBackground(Regs *r) {
     uint16_t index=render_restore_sprite_index(r->cx);
     push(r,r->dx); push(r,r->si); push(r,r->ds);
-    r->si=rd16(r->cs,G(SpriteDirectoryPointer)); r->ds=rd16(r->cs,G(SpriteDirectoryPointer)+2);
-    r->si=rp_word(index,(uint16_t)(r->cx*4u)); r->cx=rd8(r->ds,(uint16_t)(r->si+2));
-    r->dx=rd8(r->ds,(uint16_t)(r->si+3));
+    r->si=run_read16(r->cs,G(SpriteDirectoryPointer)); r->ds=run_read16(r->cs,G(SpriteDirectoryPointer)+2);
+    r->si=rp_word(index,(uint16_t)(r->cx*4u)); r->cx=run_read8(r->ds,(uint16_t)(r->si+2));
+    r->dx=run_read8(r->ds,(uint16_t)(r->si+3));
     RenderRectangleSpec request=render_sprite_rectangle(r->ax,r->bx,(uint16_t)(r->cx+r->dx*256u));rp_rectangle(r,request);
     CALL(RestoreBackgroundRectangle,RestoreSpriteBackground,0x1a);
     r->ds=pop(r); r->si=pop(r); r->dx=pop(r); return UGH_OK;
@@ -239,11 +244,11 @@ EXPORT int c_AnimateAndDrawPlayer(Regs *r) {
 EXPORT int c_CachePlayerDrawState(Regs *r) {
     RenderPlayerCache cache={0};
     rp_cache_write(r,&cache,0,r->bx,
-         rd16(r->ds,(uint16_t)(D(PlayerSpriteIds)+r->bx)));
+         run_read16(r->ds,(uint16_t)(D(PlayerSpriteIds)+r->bx)));
     rp_cache_write(r,&cache,1,r->bx,
-         rd16(r->ds,(uint16_t)(D(PlayerPixelX)+r->bx)));
+         run_read16(r->ds,(uint16_t)(D(PlayerPixelX)+r->bx)));
     rp_cache_write(r,&cache,2,r->bx,
-         rd16(r->ds,(uint16_t)(D(PlayerYPixels)+r->bx)));
+         run_read16(r->ds,(uint16_t)(D(PlayerYPixels)+r->bx)));
     return UGH_OK;
 }
 

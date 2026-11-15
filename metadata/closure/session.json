@@ -7467,6 +7467,21 @@
       "inputs": [
         "native/bridge/session_bridge.c"
       ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut 6C: lifecycle saved-mode owner and typed startup/terminal binding. Only these actually changed inputs were relocked; prior claims/status unchanged.",
+      "commands": [
+        "python verif/world_gate.py lifecycle_world --jobs 3 --out build/workers/cut-6c/gate",
+        "python verif/world_gate.py lifecycle_world --finalize --locks --out build/workers/cut-6c/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-6c/sgate"
+      ],
+      "results": "PASS finalized cut-6C world gate: API22/22 both profiles, 12/12 controls, projector17955/11960 bytes/no moved journal, census, host21+21 and levels81+7+8 both variants; separate supervisor gate receipt in build/workers/cut-6c/sgate.",
+      "inputs": [
+        "native/bridge/lifecycle_bridge.c",
+        "verif/lifecycle_shells.py"
+      ],
+      "dependency_change": false
     }
   ]
 }

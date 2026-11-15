@@ -1,0 +1,18 @@
+"""Cut 6C: one saved-mode lane and typed lifecycle/terminal continuation."""
+SPEC = {'component': 'lifecycle_world',
+ 'legacy': 'world_cases.lifecycle_operators',
+ 'api': {'lifecycle': {'suites': ['menu', 'video', 'scene'], 'filter': True,
+                       'expected_cases': 22, 'allowed_rejections': [],
+                       'extra_case_function': 'terminal_cases'}},
+ 'defects': [{'kind': 'historical-case', 'id': 'swapped-teardown'},
+             {'kind': 'historical-case', 'id': 'double-input-restore'},
+             {'kind': 'historical-case', 'id': 'post-init-mode'},
+             {'kind': 'historical-case', 'id': 'stale-parent-mode'},
+             {'kind': 'historical-case', 'id': 'zero-exit-byte'},
+             {'kind': 'historical-case', 'id': 'zero-terminal-result'},
+             {'kind': 'historical-case', 'id': 'swallowed-hook-transfer'},
+             {'kind': 'historical-case', 'id': 'cleanup-after-failure'},
+             {'kind': 'historical-case', 'id': 'device-bit-two'},
+             {'kind': 'historical-case', 'id': 'extra-seed'},
+             {'kind': 'historical-case', 'id': 'skip-startup-pictures'},
+             {'kind': 'historical-case', 'id': 'missed-serialization'}]}

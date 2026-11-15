@@ -62,22 +62,27 @@ static void api_start(void){if(!continuing||!started){memcpy(ugh_mem,timing_api_
  command=[hostbuild.GCC,'-shared','-O2','-std=c11','-Wall','-Wextra','-Werror','-fwrapv',*hostbuild.composition_options(units,folder/'registry'),'-include',fallbacks,'-I',ROOT/'c','-I',ROOT/'native/bridge','-o',folder/'api.dll',*sources]
  run(command,ROOT,out,'api-'+profile+'-compile');return folder/'api.dll'
 
-def replay(group,cases,out,allowed_rejections=None,worlds_enabled=None):
+def replay(group,cases,out,allowed_rejections=None,worlds_enabled=None,poisons=None,profiles_enabled=None):
  import nbuild,difftest
- out=Path(out);profiles={};paths={p:build(p,out,worlds_enabled) for p in ['reference','legacy','composed']}
- for profile in ['legacy','composed']:
+ poisons=[False,True] if poisons is None else list(poisons)
+ selected=['legacy','composed'] if profiles_enabled is None else list(profiles_enabled)
+ assert poisons and all(type(p) is bool for p in poisons) and len(set(poisons))==len(poisons),'invalid poison slice'
+ assert selected and set(selected)<=set(['legacy','composed']) and len(set(selected))==len(selected),'invalid profile slice'
+ out=Path(out);profiles={};paths={p:build(p,out,worlds_enabled) for p in ['reference',*selected]}
+ for profile in selected:
   dll=nbuild.load_l1(paths[profile]);machine=difftest.Machine();rows=[]
   for suite,case in cases:
    prior=case.cfunc;case.cfunc='api_'+(prior or 'c_'+case.routine.split(':')[1])
    try:
-    for poison in [False,True]:
+    for poison in poisons:
      problems=difftest.run(case,machine,dll,poison);rows.append(dict(suite=suite,case=case.title,poison=poison,problems=problems,timer_fallbacks=C.c_uint.in_dll(dll,'api_timer_fallbacks').value,status=C.c_int.in_dll(dll,'api_status').value))
    finally:case.cfunc=prior
   profiles[profile]=dict(cases=rows)
- assert all(not r['problems'] for r in profiles['legacy']['cases']),[r for r in profiles['legacy']['cases'] if r['problems']][:3]
- rejects=[r for r in profiles['composed']['cases'] if r['problems']]
+ legacy=profiles.get('legacy',{}).get('cases',[]);composed=profiles.get('composed',{}).get('cases',[])
+ assert all(not r['problems'] for r in legacy),[r for r in legacy if r['problems']][:3]
+ rejects=[r for r in composed if r['problems']]
  expected={tuple(r) for r in (allowed_rejections or [])};actual={(r['suite'],r['case'],r['poison']) for r in rejects}
  assert actual==expected,dict(new=list(actual-expected),missing=list(expected-actual))
  assert all(r['status'] in [1,3] for r in rejects)
- result=dict(result='PASS',group=group,composed_matching=len(cases)*2-len(rejects),legacy_matching=len(cases)*2,explicit_out_of_domain=rejects,compatibility_cases=[r for r in profiles['composed']['cases'] if r['timer_fallbacks']],profiles=profiles)
+ result=dict(result='PASS',group=group,composed_matching=len(composed)-len(rejects),legacy_matching=len(legacy),explicit_out_of_domain=rejects,compatibility_cases=[r for r in composed if r['timer_fallbacks']],profiles=profiles)
  save(out/'receipt.json',result);return result

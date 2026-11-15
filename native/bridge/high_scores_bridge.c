@@ -1,4 +1,9 @@
 #include "platform.h"
+#ifndef FRONTEND_BORROWER
+#define FRONTEND_BORROWER FRONTEND_BORROW_SCORES
+#endif
+#include "frontend_borrow.h"
+#include "platform.h"
 #ifndef PLATFORMS_BORROWER
 #define PLATFORMS_BORROWER PLATFORMS_BORROW_SCORES
 #endif
@@ -18,43 +23,44 @@
 #define MCALL(n,ret) do { int st=ugh_call_near(G(n),ret,r); if(st) return st; } while(0)
 #define MFAR(seg,off,ret,n) do { int st=menu_far(r,seg,off,ret,n); if(st) return st; } while(0)
 static int edit_score_name(Regs *r) {
-    r->si=logic(r,0,16);
+    NativeFrontEditor editor={r->si,r->bx};
+    editor.position=logic(r,0,16);
 reset:
-    r->bx&=0xff00; logic(r,0,8);
+    editor.blink_word&=0xff00; logic(r,0,8);
     for(unsigned budget=0;budget<100000;budget++) {
-        MCALL(WaitVerticalRetraceActive,G(InsertHighScoreAndClearScore)+0xcd);
-        FrontBlink blink=front_blink(r->si,12,(uint8_t)r->bx);uint16_t cf=r->flags&CF; uint8_t b=compare_byte(r,(uint8_t)r->bx,1); flag(r,CF,cf);
-        r->bx=(uint16_t)((r->bx&0xff00)|b); logic(r,b&16,8); set_al(r,blink.character);
-        sub16(r,r->si,12,0); if(blink.write) platforms_write8(r->ds,(uint16_t)(D(HighScoreNameEntry)+r->si),(uint8_t)r->ax);
-        MCALL(DrawHighScoreNameEntry,G(InsertHighScoreAndClearScore)+0xed);
-        set_ah(r,1); int st=platform_interrupt(0x16,r); if(st) return st;
+        ECALL(WaitVerticalRetraceActive,G(InsertHighScoreAndClearScore)+0xcd);
+        FrontBlink blink=front_blink(editor.position,12,(uint8_t)editor.blink_word);uint16_t cf=r->flags&CF; uint8_t b=compare_byte(r,(uint8_t)editor.blink_word,1); flag(r,CF,cf);
+        editor.blink_word=(uint16_t)((editor.blink_word&0xff00)|b); logic(r,b&16,8); set_al(r,blink.character);
+        sub16(r,editor.position,12,0); if(blink.write) frontend_write8(r->ds,(uint16_t)(D(HighScoreNameEntry)+editor.position),(uint8_t)r->ax);
+        ECALL(DrawHighScoreNameEntry,G(InsertHighScoreAndClearScore)+0xed);
+        set_ah(r,1); front_editor_request(r,&editor);int st=platform_interrupt(0x16,r);front_editor_reply(&editor,r); if(st) return st;
         if(r->flags&ZF) continue;
-        set_ah(r,0); logic(r,0,8); st=platform_interrupt(0x16,r); if(st) return st;
-        uint8_t ch=(uint8_t)r->ax;FrontEditCommand command=front_edit_command(r->si,12,ch,1); compare_byte(r,ch,8);
+        set_ah(r,0); logic(r,0,8); front_editor_request(r,&editor);st=platform_interrupt(0x16,r);front_editor_reply(&editor,r); if(st) return st;
+        uint8_t ch=(uint8_t)r->ax;FrontEditCommand command=front_edit_command(editor.position,12,ch,1); compare_byte(r,ch,8);
         if(ch==8) {
-            logic(r,r->si,16); if(!r->si) continue;
-            set_al(r,32); sub16(r,r->si,12,0);
-            if(command.erase_count==2) platforms_write8(r->ds,(uint16_t)(D(HighScoreNameEntry)+command.erase[0]),32);
-            dec16(r,r->si);r->si=command.position;platforms_write8(r->ds,(uint16_t)(D(HighScoreNameEntry)+command.position),32); goto reset;
+            logic(r,editor.position,16); if(!editor.position) continue;
+            set_al(r,32); sub16(r,editor.position,12,0);
+            if(command.erase_count==2) frontend_write8(r->ds,(uint16_t)(D(HighScoreNameEntry)+command.erase[0]),32);
+            dec16(r,editor.position);editor.position=command.position;frontend_write8(r->ds,(uint16_t)(D(HighScoreNameEntry)+command.position),32); goto reset;
         }
         editor_compare_trace(r,ch,1);
         if(command.accepted) {
-            sub16(r,r->si,12,0); if(command.kind!=FRONT_EDIT_STORE) continue;
-            platforms_write8(r->ds,(uint16_t)(D(HighScoreNameEntry)+r->si),command.character); increment_word(r,r->si);r->si=command.position; goto reset;
+            sub16(r,editor.position,12,0); if(command.kind!=FRONT_EDIT_STORE) continue;
+            frontend_write8(r->ds,(uint16_t)(D(HighScoreNameEntry)+editor.position),command.character); increment_word(r,editor.position);editor.position=command.position; goto reset;
         }
         compare_byte(r,ch,13); if(command.kind!=FRONT_EDIT_FINISH) continue;
-        sub16(r,r->si,12,0);
+        sub16(r,editor.position,12,0);
         if(command.clear_current) {
-            platforms_write8(r->ds,(uint16_t)(D(HighScoreNameEntry)+r->si),32);
-            MCALL(DrawHighScoreNameEntry,G(InsertHighScoreAndClearScore)+0x177);
-            logic(r,r->si,16);
-            FrontEditCommand after_draw=front_edit_command(r->si,12,13,1);if(after_draw.empty) {
-                for(unsigned i=0;i<5;i++) platforms_write16(r->ds,(uint16_t)(D(HighScoreNameEntry)+2u*i),high_default_name_word(i));
+            frontend_write8(r->ds,(uint16_t)(D(HighScoreNameEntry)+editor.position),32);
+            ECALL(DrawHighScoreNameEntry,G(InsertHighScoreAndClearScore)+0x177);
+            logic(r,editor.position,16);
+            FrontEditCommand after_draw=front_edit_command(editor.position,12,13,1);if(after_draw.empty) {
+                for(unsigned i=0;i<5;i++) frontend_write16(r->ds,(uint16_t)(D(HighScoreNameEntry)+2u*i),high_default_name_word(i));
             }
         }
-        return UGH_OK;
+        front_editor_request(r,&editor);return UGH_OK;
     }
-    return UGH_BUDGET;
+    front_editor_request(r,&editor);return UGH_BUDGET;
 }
 EXPORT int c_LoadHighScores(Regs *r) {
     HighFileFlow flow={0,0};
@@ -67,9 +73,9 @@ EXPORT int c_LoadHighScores(Regs *r) {
         case HIGH_FILE_CREATE:r->dx=D(Data_0CF1);r->cx=0;set_ah(r,0x3c);status=platform_interrupt(0x21,r);if(status) return status;break;
         case HIGH_FILE_OPEN:r->dx=D(Data_0CF1);r->ax=0x3d00;status=platform_interrupt(0x21,r);if(status) return status;break;
         case HIGH_FILE_READ:case HIGH_FILE_WRITE:
-            platforms_write16(r->ds,D(HighScoreFileHandle),r->ax);r->cx=high_file_size();r->dx=D(HighScoreRows);r->bx=platforms_read16(r->ds,D(HighScoreFileHandle));set_ah(r,action==HIGH_FILE_READ ? 0x3f : 0x40);
+            frontend_write16(r->ds,D(HighScoreFileHandle),r->ax);r->cx=high_file_size();r->dx=D(HighScoreRows);r->bx=frontend_read16(r->ds,D(HighScoreFileHandle));set_ah(r,action==HIGH_FILE_READ ? 0x3f : 0x40);
             status=platform_interrupt(0x21,r);if(status) return status;break;
-        case HIGH_FILE_CLOSE:r->bx=platforms_read16(r->ds,D(HighScoreFileHandle));set_ah(r,0x3e);status=platform_interrupt(0x21,r);if(status) return status;break;
+        case HIGH_FILE_CLOSE:r->bx=frontend_read16(r->ds,D(HighScoreFileHandle));set_ah(r,0x3e);status=platform_interrupt(0x21,r);if(status) return status;break;
         default:return UGH_OK;
         }
     }
@@ -85,9 +91,9 @@ EXPORT int c_SaveHighScores(Regs *r) {
         case HIGH_FILE_CREATE:r->dx=D(Data_0CF1);r->cx=0;set_ah(r,0x3c);status=platform_interrupt(0x21,r);if(status) return status;break;
         case HIGH_FILE_OPEN:r->dx=D(Data_0CF1);r->ax=0x3d00;status=platform_interrupt(0x21,r);if(status) return status;break;
         case HIGH_FILE_READ:case HIGH_FILE_WRITE:
-            platforms_write16(r->ds,D(HighScoreFileHandle),r->ax);r->cx=high_file_size();r->dx=D(HighScoreRows);r->bx=platforms_read16(r->ds,D(HighScoreFileHandle));set_ah(r,action==HIGH_FILE_READ ? 0x3f : 0x40);
+            frontend_write16(r->ds,D(HighScoreFileHandle),r->ax);r->cx=high_file_size();r->dx=D(HighScoreRows);r->bx=frontend_read16(r->ds,D(HighScoreFileHandle));set_ah(r,action==HIGH_FILE_READ ? 0x3f : 0x40);
             status=platform_interrupt(0x21,r);if(status) return status;break;
-        case HIGH_FILE_CLOSE:r->bx=platforms_read16(r->ds,D(HighScoreFileHandle));set_ah(r,0x3e);status=platform_interrupt(0x21,r);if(status) return status;break;
+        case HIGH_FILE_CLOSE:r->bx=frontend_read16(r->ds,D(HighScoreFileHandle));set_ah(r,0x3e);status=platform_interrupt(0x21,r);if(status) return status;break;
         default:return UGH_OK;
         }
     }
@@ -96,19 +102,19 @@ EXPORT int c_ComplementHighScoreTable(Regs *r) {
     HighDescending cursor=high_complement_begin();r->si=cursor.position;
     do {
         uint16_t o=(uint16_t)(D(HighScoreRows)+r->si);
-        platforms_write8(r->ds,o,(uint8_t)logic(r,(uint8_t)(high_complement_byte(platforms_read8(r->ds,o))),8));
+        frontend_write8(r->ds,o,(uint8_t)logic(r,(uint8_t)(high_complement_byte(frontend_read8(r->ds,o))),8));
         dec16(r,r->si);high_descending_advance(&cursor);r->si=cursor.position;
     } while(cursor.remaining);
     return UGH_OK;
 }
 EXPORT int c_GetHighScoreRow(Regs *r) {
-    uint8_t stride=platforms_read8(r->ds,D(HighScoreRowStride));uint16_t product=(uint16_t)((uint8_t)r->cx * stride);
+    uint8_t stride=frontend_read8(r->ds,D(HighScoreRowStride));uint16_t product=(uint16_t)((uint8_t)r->cx * stride);
     r->ax=add16(r,product,D(HighScoreRows),0);
     r->bx=(uint16_t)(D(HighScoreRows)+high_row_offset((uint8_t)r->cx,stride,0));
     return UGH_OK;
 }
 EXPORT int c_GetHighScoreDigits(Regs *r) {
-    uint8_t stride=platforms_read8(r->ds,D(HighScoreRowStride));uint16_t product=(uint16_t)((uint8_t)r->cx * stride);
+    uint8_t stride=frontend_read8(r->ds,D(HighScoreRowStride));uint16_t product=(uint16_t)((uint8_t)r->cx * stride);
     r->ax=add16(r,product,(uint16_t)(D(HighScoreRows)+14),0);
     r->bx=(uint16_t)(D(HighScoreRows)+high_row_offset((uint8_t)r->cx,stride,1));
     return UGH_OK;
@@ -119,7 +125,7 @@ EXPORT int c_CopyHighScoreRowDown(Regs *r) {
     if(status) return status;
     HighCopy copy=high_copy_begin(r->bx);add16(r,r->bx,21,0);r->di=copy.destination;r->dx=(uint16_t)(copy.remaining-1u);
     do {
-        set_al(r,platforms_read8(r->ds,copy.source));platforms_write8(r->ds,copy.destination,(uint8_t)r->ax);
+        set_al(r,frontend_read8(r->ds,copy.source));frontend_write8(r->ds,copy.destination,(uint8_t)r->ax);
         increment_word(r,r->bx);increment_word(r,r->di);
         r->dx=dec16(r,r->dx);high_copy_advance(&copy);r->bx=copy.source;r->di=copy.destination;
     } while(copy.remaining);
@@ -130,25 +136,25 @@ EXPORT int c_TestHighScoreQualification(Regs *r) {
                             (uint16_t)(G(TestHighScoreQualification)+3),r);
     if(status) return status;
     HighQualification test={0,0,0};for(;;) {unsigned i=test.position;
-        uint8_t a=platforms_read8(r->ds,(uint16_t)(D(DecimalDigitBuffer)+i));
-        uint8_t b=platforms_read8(r->ds,(uint16_t)(r->bx+i));
+        uint8_t a=frontend_read8(r->ds,(uint16_t)(D(DecimalDigitBuffer)+i));
+        uint8_t b=frontend_read8(r->ds,(uint16_t)(r->bx+i));
         set_al(r,a); compare_byte(r,a,b);
         high_compare_step(&test,a,b);if(test.done) {flag(r,CF,test.qualifies);return UGH_OK;}
     }
     return UGH_OK;
 }
 EXPORT int c_InsertHighScoreAndClearScore(Regs *r) {
-    r->si=D(DecimalDigitBuffer); r->ax=platforms_read16(r->ds,D(ScoreLowWord)); r->dx=platforms_read16(r->ds,D(ScoreHighWord));
+    r->si=D(DecimalDigitBuffer); r->ax=frontend_read16(r->ds,D(ScoreLowWord)); r->dx=frontend_read16(r->ds,D(ScoreHighWord));
     MCALL(EncodeSixDecimalDigits,G(InsertHighScoreAndClearScore)+13);
     set_ah(r,0); logic(r,0,8); r->si=logic(r,0,16);
     do {
-        uint8_t digit=platforms_read8(r->ds,(uint16_t)(D(DecimalDigitBuffer)+r->si));HighFormatDigit formatted=high_format_digit(digit,(uint8_t)(r->ax>>8));
+        uint8_t digit=frontend_read8(r->ds,(uint16_t)(D(DecimalDigitBuffer)+r->si));HighFormatDigit formatted=high_format_digit(digit,(uint8_t)(r->ax>>8));
         set_al(r,add_byte(r,digit,48));
         compare_byte(r,(uint8_t)r->ax,48);
         if((uint8_t)r->ax!=48) { uint16_t cf=r->flags&CF; set_ah(r,compare_byte(r,(uint8_t)(r->ax>>8),1)); flag(r,CF,cf); }
         logic(r,r->ax>>8,8);
         if(!(r->ax>>8)) { compare_byte(r,(uint8_t)r->ax,48); if((uint8_t)r->ax==48) set_al(r,32); }
-        set_al(r,formatted.character);set_ah(r,formatted.significant);platforms_write8(r->ds,(uint16_t)(D(DecimalDigitBuffer)+r->si),(uint8_t)r->ax);
+        set_al(r,formatted.character);set_ah(r,formatted.significant);frontend_write8(r->ds,(uint16_t)(D(DecimalDigitBuffer)+r->si),(uint8_t)r->ax);
         r->si=increment_word(r,r->si); sub16(r,r->si,6,0);
     } while(r->si!=6);
     r->cx&=0xff00; logic(r,0,8);
@@ -163,7 +169,7 @@ EXPORT int c_InsertHighScoreAndClearScore(Regs *r) {
     } while(high_shift_advance(&insertion));
     r->cx=r->bp; MCALL(GetHighScoreDigits,G(InsertHighScoreAndClearScore)+0x66); HighDescending digits=high_digits_begin();r->si=digits.position;
     do {
-        set_al(r,platforms_read8(r->ds,(uint16_t)(D(DecimalDigitBuffer)+r->si))); platforms_write8(r->ds,(uint16_t)(r->bx+r->si),(uint8_t)r->ax);
+        set_al(r,frontend_read8(r->ds,(uint16_t)(D(DecimalDigitBuffer)+r->si))); frontend_write8(r->ds,(uint16_t)(r->bx+r->si),(uint8_t)r->ax);
         dec16(r,r->si);high_descending_advance(&digits);r->si=digits.position;
     } while(digits.remaining);
     push(r,0x11); MFAR(UGH_S_C_StopMusicTrack,UGH_O_C_StopMusicTrack,G(InsertHighScoreAndClearScore)+0x79,2);
@@ -171,8 +177,8 @@ EXPORT int c_InsertHighScoreAndClearScore(Regs *r) {
     MFAR(UGH_S_C_StartMusicTrack,UGH_O_C_StartMusicTrack,G(InsertHighScoreAndClearScore)+0x8c,8);
     MCALL(RestoreKeyboardInterrupt,G(InsertHighScoreAndClearScore)+0x92);
     HighDescending blank=high_name_begin();r->si=blank.position;set_al(r,32);
-    do {platforms_write8(r->ds,(uint16_t)(D(HighScoreNameEntry)+blank.position),32);dec16(r,r->si);high_descending_advance(&blank);r->si=blank.position;} while(blank.remaining);
-    platforms_write16(r->ds,D(WaterYPixels),159); r->cx=40; MCALL(WaitRetraceCount,G(InsertHighScoreAndClearScore)+0xab);
+    do {frontend_write8(r->ds,(uint16_t)(D(HighScoreNameEntry)+blank.position),32);dec16(r,r->si);high_descending_advance(&blank);r->si=blank.position;} while(blank.remaining);
+    frontend_write16(r->ds,D(WaterYPixels),159); r->cx=40; MCALL(WaitRetraceCount,G(InsertHighScoreAndClearScore)+0xab);
     MCALL(ClearAllVgaPlanes,G(InsertHighScoreAndClearScore)+0xae); MCALL(DrawMenuHeaderSprites,G(InsertHighScoreAndClearScore)+0xb1);
     r->si=D(Text_0C23); r->cx=80; MCALL(DrawTextBlock,G(InsertHighScoreAndClearScore)+0xba);
     MCALL(SaveDrawPageBackground,G(InsertHighScoreAndClearScore)+0xbd);
@@ -181,17 +187,17 @@ EXPORT int c_InsertHighScoreAndClearScore(Regs *r) {
     { int st=edit_score_name(r); if(st) return st; }
     r->cx=pop(r); MCALL(GetHighScoreRow,G(InsertHighScoreAndClearScore)+0x1a0); HighDescending name=high_name_begin();r->si=name.position;
     do {
-        set_al(r,platforms_read8(r->ds,(uint16_t)(D(HighScoreNameEntry)+r->si))); platforms_write8(r->ds,(uint16_t)(r->bx+r->si),(uint8_t)r->ax);
+        set_al(r,frontend_read8(r->ds,(uint16_t)(D(HighScoreNameEntry)+r->si))); frontend_write8(r->ds,(uint16_t)(r->bx+r->si),(uint8_t)r->ax);
         dec16(r,r->si);high_descending_advance(&name);r->si=name.position;
     } while(name.remaining);
     MCALL(InstallKeyboardSequenceInterrupt,G(InsertHighScoreAndClearScore)+0x1b0);
     MCALL(FadePaletteOut,G(InsertHighScoreAndClearScore)+0x1b3); MCALL(SaveHighScores,G(InsertHighScoreAndClearScore)+0x1b6);
     MCALL(ShowHighScores,G(InsertHighScoreAndClearScore)+0x1b9);
 clear_score:
-    r->ax=logic(r,0,16); platforms_write16(r->ds,D(ScoreLowWord),r->ax); platforms_write16(r->ds,D(ScoreHighWord),r->ax); return UGH_OK;
+    r->ax=logic(r,0,16); frontend_write16(r->ds,D(ScoreLowWord),r->ax); frontend_write16(r->ds,D(ScoreHighWord),r->ax); return UGH_OK;
 }
 EXPORT int c_ShowHighScores(Regs *r) {
-    platforms_write16(r->ds,D(WaterYPixels),200); r->cx=40; MCALL(WaitRetraceCount,G(ShowHighScores)+0xc);
+    frontend_write16(r->ds,D(WaterYPixels),200); r->cx=40; MCALL(WaitRetraceCount,G(ShowHighScores)+0xc);
     MCALL(ClearAllVgaPlanes,G(ShowHighScores)+0xf); MCALL(DrawMenuHeaderSprites,G(ShowHighScores)+0x12);
     r->si=D(Text_0C7B); r->cx=0x50; MCALL(DrawTextBlock,G(ShowHighScores)+0x1b);
     MCALL(SwapAndDisplayVgaPage,G(ShowHighScores)+0x1e); MCALL(FadePaletteIn,G(ShowHighScores)+0x21);

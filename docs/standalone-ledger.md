@@ -477,3 +477,13 @@ Read committed certificates, docs/standalone-plan.md, docs/port-contract.md, doc
 - Policy constraints: [standalone plan](standalone-plan.md), [port contract](port-contract.md). No policy is chosen by this audit.
 
 All maintained-source links refer to the pinned revision named at the top, not to pending edits. Its source text is preserved under this worker's `head/` snapshot.
+
+## Cut 6B allocation delta
+
+The front-end allocation audit is in [front-end-storage.md](front-end-storage.md).
+It moves 182 bytes beyond the accepted enemy-world baseline of 11,959, for
+12,141 native observation bytes. The twelve named cells include word aliases,
+not twelve allocations. Four embedded indexed-label destinations add 36 bytes;
+the name/password terminators belong to their existing physical fields.
+PasswordCompareBiasedBase remains a view and adds no allocation. File contents
+remain service state. No step 7/8 port policy or resource identity is added.

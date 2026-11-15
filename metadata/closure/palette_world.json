@@ -193,8 +193,8 @@
     "tools/world_registry.py": "54fdfc61a0509112ab2049af29f7321f56718084637a1fce04b0b89429159b99",
     "metadata/worlds/palette_world.json": "90212148c0c40cfc72c280788d8d133d33e3ca513ef8d59cfc8b400ad2691267",
     "verif/world_cases/palette.py": "fbaf3253d954c62d3e34363f081451dbf056fd24b391a0e7f4ed1509ff7c18b7",
-    "verif/world_gate.py": "8b6fe931efea911a385cb7cf8244011a3783f547ba2f7f0028ccec33196d4681",
-    "verif/world_api.py": "f366496fb7ecc0b16516ada42fd7ca75ddb191e74be5e67f5a03fdcbf2a81f33",
+    "verif/world_gate.py": "2ba63041f75fd9c9c0b368ce40ef6ec1e40bb692bc17940c1dcf06f2b3311763",
+    "verif/world_api.py": "a83bc75b4264a5ed575e8716eba52478a858556dfdba447107dc90e0e982569e",
     "verif/job_pool.py": "fd3a52cb8cb4dacd758e930a00ead9c5016776817d18d687a59d5399aa46348a",
     "verif/world_cases/legacy_adapter.py": "9978014371764ca9a123efe557fe62a6b0fef06f0e19a52b944bf72fbb14d677",
     "verif/world_cases/legacy_palette.py": "a5070c7878230a8f37868acde6137cfd7699eaceece789027cf3c45b2ac57a4f",
@@ -520,6 +520,20 @@
         "verif/world_cases/legacy_palette.py",
         "verif/world_cases/legacy_timing.py",
         "verif/world_cases/palette.py",
+        "verif/world_gate.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut6B native front-end ownership and bounded API profile/poison slices; direct changed implementation/verification inputs only. No lock/note-only cascade.",
+      "commands": [
+        "python verif/world_gate.py front_end_world --jobs 3 --out build/workers/cut-6b/gate",
+        "python verif/world_gate.py front_end_world --finalize --locks --out build/workers/cut-6b/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-6b/sgate"
+      ],
+      "results": "PASS: complete world gate;956 independent L1/native comparisons, no rejections or compatibility fallbacks; exact profile/poison coverage;757 score +805 menu/text +156 session cases;15/15 controls;182 moved bytes,12141 native total; both hosts21/21, projector/census,81+7+8 levels both variants. Final supervisor receipt is build/workers/cut-6b/sgate/receipt.json.",
+      "inputs": [
+        "verif/world_api.py",
         "verif/world_gate.py"
       ]
     }

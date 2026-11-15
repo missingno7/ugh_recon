@@ -1,0 +1,239 @@
+{
+  "component": "front_end_world",
+  "status": "migrated",
+  "original": {
+    "owned": [],
+    "composes": [
+      "high_scores",
+      "menus",
+      "session",
+      "input_world"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/front_end_world.h",
+      "native/front_end_world.c",
+      "native/bridge/front_end_world_bridge.h",
+      "native/bridge/front_end_world_bridge.c",
+      "native/bridge/frontend_borrow.h"
+    ],
+    "functions": [
+      "native_front_end_world"
+    ],
+    "bridge": "One cold native high-score/editor/mutable-text owner; explicit borrowers and observation-only serialization"
+  },
+  "purpose": "Cut6B: native front-end table, editor and mutable text storage; session retains password lookup and files remain services",
+  "interface": {
+    "inputs": "Cold fixture once and live ordered byte/word stores plus synchronous file/input/draw service replies",
+    "outputs": "182 native observation bytes; sealed historical lanes; native invocation-lifetime editor/menu/text/file continuations"
+  },
+  "callers": [
+    "High-score file, insertion, shift and decimal consumers",
+    "Menu label copy, text layout, password/name editors and session lookup",
+    "Generic raw copy/codec/decimal borrower windows"
+  ],
+  "callees": [
+    "Input world typed BIOS editor queue",
+    "File open/read/write/close services",
+    "Existing run/configuration, drawing/audio/palette/page services"
+  ],
+  "indirect": [
+    "Existing service dispatch unchanged; no new game callback resolver"
+  ],
+  "memory": {
+    "owner": "NativeFrontEndWorld",
+    "bytes": 182,
+    "native_bytes_before": 11959,
+    "native_bytes_after": 12141,
+    "ranges": {
+      "00BB": 2,
+      "00C7": 1,
+      "0B0D": 6,
+      "0B19": 10,
+      "0B4E": 21,
+      "0B73": 10,
+      "0B8D": 10,
+      "0BFD": 2,
+      "0C6D": 13,
+      "0C86": 107
+    },
+    "borrowers": [
+      "native/bridge/menus_bridge.c",
+      "native/bridge/high_scores_bridge.c",
+      "native/bridge/session_bridge.c",
+      "native/bridge/front_end_support.h"
+    ],
+    "observation": "Every owned lane from native fields only, no journals or RAM resynchronization",
+    "continuations": "Native invocation-local MenusMain, MenusStringCopy, HighFileFlow and editor/text cursors; no extra RAM ownership counted"
+  },
+  "assumptions": [
+    "Existing deterministic verification profile; existing string/editor budgets and full raw-window alias domain unchanged",
+    "Import once at fixture construction; no write-back",
+    "File contents/positions/handle active state remain service state, not another high-score table"
+  ],
+  "eliminated": [
+    "RAM ownership of182 physical front-end bytes"
+  ],
+  "retained": [
+    "107-byte XOR-FF score file and short-read stale tail, logical save handle leak and failed-read/close prefixes",
+    "Five21-byte rows;20-byte row copy excludes CR;12-character name with retained field tail; ties qualify",
+    "20-byte password with biased/word aliases,69/81 shipped tables; unknown/empty maps to0 in session",
+    "Indexed copy omits NUL, retains DF/wrap/alias behavior; no clipping or normalization",
+    "Raw scan menu dispatch, wrap, centering and live intro water save/restore unchanged",
+    "Editors consume the input_world typed BIOS queue"
+  ],
+  "evidence": [
+    {
+      "property": "Byte seam",
+      "level": "B",
+      "method": "Split actual-C output/frame/dependence plus exhaustive address/byte/straddle router",
+      "command": "python verif/world_gate.py front_end_world --out build/workers/cut-6b/pre-gate (router/proof stages)",
+      "result": "PASS:182 lanes x256 byte values, aliases/word straddles, split actual-C read/store output/frame/dependence",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "Independent API and live composition",
+      "level": "D",
+      "method": "L1/Unicorn API corpus, complete front-end service drivers, projector, census, host and81+7+8 levels",
+      "command": "python verif/world_gate.py front_end_world --out build/workers/cut-6b/pre-gate (completed integration stages; API timeout is not credited)",
+      "result": "PASS: build/projector/census/levels stages of pre-gate: both hosts21/21;21 observation runs;12141 native bytes; zero owner journals/fallbacks/L1 bodies;81+7+8 levels both variants. Combined session API timed out; final profile/poison slices required.",
+      "date": "2026-11-15"
+    }
+  ],
+  "amiga": {
+    "role": "Meaning only; no byte or behavior claim"
+  },
+  "uncertainty": [
+    "No step7/8 live production policy added; broader foreign resource/string windows retain existing explicit admission"
+  ],
+  "dependencies": {
+    "native/front_end_world.h": {
+      "includes": [
+        "stdint.h"
+      ],
+      "calls": []
+    },
+    "native/front_end_world.c": {
+      "includes": [
+        "front_end_world.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/front_end_world_bridge.h": {
+      "includes": [
+        "../front_end_world.h",
+        "ugh.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/front_end_world_bridge.c": {
+      "includes": [
+        "enemy_world_bridge.h",
+        "front_end_world_bridge.h",
+        "platform.h",
+        "stddef.h",
+        "stdio.h",
+        "stdlib.h",
+        "string.h"
+      ],
+      "calls": [
+        "A",
+        "BYTES",
+        "enemies_borrowed_byte",
+        "enemies_borrowed_store",
+        "exit",
+        "fputs",
+        "frontend_field",
+        "frontend_field_get",
+        "frontend_field_put",
+        "frontend_owned_bytes",
+        "frontend_shared_read",
+        "frontend_shared_write",
+        "lin",
+        "memcpy",
+        "memset",
+        "native_front_end_world",
+        "offsetof",
+        "ugh_read",
+        "ugh_write"
+      ]
+    },
+    "native/bridge/frontend_borrow.h": {
+      "includes": [
+        "front_end_world_bridge.h"
+      ],
+      "calls": []
+    }
+  },
+  "verification_inputs": {
+    "native/front_end_world.h": "997df7d3985dfb84d26a8030f4dca323edd543e70dc338ca1bfdac24e7047f3f",
+    "native/front_end_world.c": "4a303466b9cd5790caf82a06f8c8c1826a6b0be2516c5c44996a0460c97ca67c",
+    "native/bridge/front_end_world_bridge.h": "dcb469ffe641d9222ec0c70685f114bab2939c0572c3ff3dbd9d52f346bc5a7c",
+    "native/bridge/front_end_world_bridge.c": "983696c9ce72046d4194d2447aa654d81649c362ac899e94191d000619bdba56",
+    "native/bridge/frontend_borrow.h": "871b0c43aa2963777d97a8357d61158a1c633aecbaa6d984ce88688ac5fcd4af",
+    "native/bridge/menus_bridge.c": "b8757935ff1041f79e66305e166a9ab20bce5a279ccc242c33719371c48aa0a8",
+    "native/bridge/high_scores_bridge.c": "75a65b2430f4f3b25b71293ece798fcbc3ea7cc9f53813e2dd7c919fc4826270",
+    "native/bridge/session_bridge.c": "bfe0bc0928f2c18f815382af933df4a4b7804f8cb40a7ed446c4cd3558d0b72d",
+    "native/bridge/front_end_support.h": "f0c88cd3f6cc6aa07123a7345aa9a7d5fcf1fe713903ee6cc8cbaf457daeb8ec",
+    "verif/front_end_world_router.c": "59b8d0558f7873deb542bcb1992aea2fe9d60a5b2b6d7bea126a5609149fda41",
+    "verif/front_end_world_byte_proof.c": "deded1c2fe41368627a34dd90032aff12c8bc4ae7a29eec236e67dd7e65cf035",
+    "verif/front_end_world_cases.py": "ccb977b233926c3237944c89d0db2cff850e84807745abe969e25eae19dfdda8",
+    "metadata/worlds/front_end_world.json": "4188c4faf67de7209de045ac053096994377d9c174c2cedfc71b41db2e9c941e",
+    "verif/world_cases/front_end.py": "069cda37a7e658f841da0fe3e65a23b32cf202ca2286fbb01d495dec621928fa",
+    "src/data/DGDATA.ASM": "9d46889e26434a597ed19b91c119029af3dbf3dbcfa9811c4ed5aa18dc157541",
+    "src/asm/GAME.ASM": "29c9ead3b191a744c59b465a3bd4de29f2e217b92492cf57edb8c13bc3494204",
+    "tools/world_registry.py": "54fdfc61a0509112ab2049af29f7321f56718084637a1fce04b0b89429159b99",
+    "verif/world_gate.py": "2ba63041f75fd9c9c0b368ce40ef6ec1e40bb692bc17940c1dcf06f2b3311763",
+    "verif/world_api.py": "a83bc75b4264a5ed575e8716eba52478a858556dfdba447107dc90e0e982569e",
+    "verif/job_pool.py": "fd3a52cb8cb4dacd758e930a00ead9c5016776817d18d687a59d5399aa46348a",
+    "verif/world_cases/legacy_adapter.py": "9978014371764ca9a123efe557fe62a6b0fef06f0e19a52b944bf72fbb14d677",
+    "docs/front-end-storage.md": "95ee4259b5aae9fe43524491243da6ceb0930ad50e44c2c987f24f6731a1f73b",
+    "verif/high_scores_evidence.py": "45a5c1dea9c7a53935e6a4a95f5200aa7e2f1b274ea7715f5da721151f5f4801",
+    "verif/menus_evidence.py": "69465298a02387ce2eb961cdecd3971e6375a2bfa576808eba603ec97d0c0922",
+    "verif/high_scores_build.py": "3ee6a1e25ad6912fa194651ee07ead007479090a5ae4736ef8ee8cbeb17f8800",
+    "verif/menus_build.py": "bf2a5391af743bf0a7d2289bf7e39307216a3595fff7ea62fa339d5d8568a305"
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-15",
+      "inputs": [
+        "docs/front-end-storage.md",
+        "metadata/worlds/front_end_world.json",
+        "native/bridge/front_end_support.h",
+        "native/bridge/front_end_world_bridge.c",
+        "native/bridge/front_end_world_bridge.h",
+        "native/bridge/frontend_borrow.h",
+        "native/bridge/high_scores_bridge.c",
+        "native/bridge/menus_bridge.c",
+        "native/bridge/session_bridge.c",
+        "native/front_end_world.c",
+        "native/front_end_world.h",
+        "src/asm/GAME.ASM",
+        "src/data/DGDATA.ASM",
+        "tools/world_registry.py",
+        "verif/front_end_world_byte_proof.c",
+        "verif/front_end_world_cases.py",
+        "verif/front_end_world_router.c",
+        "verif/high_scores_build.py",
+        "verif/high_scores_evidence.py",
+        "verif/job_pool.py",
+        "verif/menus_build.py",
+        "verif/menus_evidence.py",
+        "verif/world_api.py",
+        "verif/world_cases/front_end.py",
+        "verif/world_cases/legacy_adapter.py",
+        "verif/world_gate.py"
+      ],
+      "lock_kind": "initial certificate",
+      "reason": "Cut6B native front-end ownership and bounded API profile/poison slices; direct changed implementation/verification inputs only. No lock/note-only cascade.",
+      "commands": [
+        "python verif/world_gate.py front_end_world --jobs 3 --out build/workers/cut-6b/gate",
+        "python verif/world_gate.py front_end_world --finalize --locks --out build/workers/cut-6b/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-6b/sgate"
+      ],
+      "results": "PASS: complete world gate;956 independent L1/native comparisons, no rejections or compatibility fallbacks; exact profile/poison coverage;757 score +805 menu/text +156 session cases;15/15 controls;182 moved bytes,12141 native total; both hosts21/21, projector/census,81+7+8 levels both variants. Final supervisor receipt is build/workers/cut-6b/sgate/receipt.json."
+    }
+  ]
+}

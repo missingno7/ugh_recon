@@ -196,6 +196,7 @@
     "native/bridge/front_end_support.h": {
       "includes": [
         "../front_end.h",
+        "../front_end_world.h",
         "platform.h"
       ],
       "calls": [
@@ -203,9 +204,10 @@
         "add_byte",
         "compare_byte",
         "flag",
+        "front_text_character",
+        "frontend_read8",
         "push",
         "rd16",
-        "rd8",
         "set_al",
         "step",
         "szp",
@@ -217,6 +219,7 @@
       "includes": [
         "../high_scores.h",
         "front_end_support.h",
+        "frontend_borrow.h",
         "platform.h",
         "platforms_borrow.h",
         "player_borrow.h",
@@ -224,6 +227,7 @@
       ],
       "calls": [
         "D",
+        "ECALL",
         "G",
         "MCALL",
         "MFAR",
@@ -236,7 +240,14 @@
         "flag",
         "front_blink",
         "front_edit_command",
+        "front_editor_reply",
+        "front_editor_request",
         "front_entry_rectangle",
+        "front_text_character",
+        "frontend_read16",
+        "frontend_read8",
+        "frontend_write16",
+        "frontend_write8",
         "high_compare_step",
         "high_complement_begin",
         "high_complement_byte",
@@ -257,14 +268,9 @@
         "increment_word",
         "logic",
         "platform_interrupt",
-        "platforms_read16",
-        "platforms_read8",
-        "platforms_write16",
-        "platforms_write8",
         "pop",
         "push",
         "rd16",
-        "rd8",
         "set_ah",
         "set_al",
         "step",
@@ -288,8 +294,8 @@
     "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
     "host/check.py": "f88a901c22501da281fdfc6ff19c7096c67eada2ac21953c809b9e25d5addc87",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
-    "native/bridge/front_end_support.h": "c8e018a28316b8d9b6af492f97bd5d71f628c2d759cfb2d849b268400802df3e",
-    "native/bridge/high_scores_bridge.c": "83a4bd65acae9bb5d260f32083d7f2a41ec4f5654ddfa4ac3703dd12821a94ff",
+    "native/bridge/front_end_support.h": "f0c88cd3f6cc6aa07123a7345aa9a7d5fcf1fe713903ee6cc8cbaf457daeb8ec",
+    "native/bridge/high_scores_bridge.c": "75a65b2430f4f3b25b71293ece798fcbc3ea7cc9f53813e2dd7c919fc4826270",
     "native/front_end.h": "b6b7977bb81c3fdf8294631a853912cd6dc03c5d295d04c416ece363c2a3d5db",
     "native/high_scores.c": "00fc8da7870acfcf6573d4548e798d2aee82db5af4fe74d653c65e60d4fcd30f",
     "native/high_scores.h": "e2d31207d80276d28158bc186f1bbf6f5909330644ab09028a46c6e943f6429b",
@@ -519,6 +525,20 @@
         "host/check.py",
         "tools/closure.py",
         "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut6B native front-end ownership and bounded API profile/poison slices; direct changed implementation/verification inputs only. No lock/note-only cascade.",
+      "commands": [
+        "python verif/world_gate.py front_end_world --jobs 3 --out build/workers/cut-6b/gate",
+        "python verif/world_gate.py front_end_world --finalize --locks --out build/workers/cut-6b/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-6b/sgate"
+      ],
+      "results": "PASS: complete world gate;956 independent L1/native comparisons, no rejections or compatibility fallbacks; exact profile/poison coverage;757 score +805 menu/text +156 session cases;15/15 controls;182 moved bytes,12141 native total; both hosts21/21, projector/census,81+7+8 levels both variants. Final supervisor receipt is build/workers/cut-6b/sgate/receipt.json.",
+      "inputs": [
+        "native/bridge/front_end_support.h",
+        "native/bridge/high_scores_bridge.c"
       ]
     }
   ]

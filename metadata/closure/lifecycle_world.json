@@ -188,7 +188,7 @@
     "verif/lifecycle_world_router.c": "130043020f311f99be1a9ad18dc80869d08f5800b8e80f816b318a1496eceb77",
     "verif/lifecycle_world_proof.c": "19c7c44a3db9a73e08d13643d41276e706553ed1110fc6129f8228348aac7eae",
     "verif/lifecycle_world_terminal_fixture.c": "621a438c6c22da3851ea53c3b778576f7a0f5f9f12acf7bbc9e6803c5e80e506",
-    "metadata/worlds/lifecycle_world.json": "d21fa9f11b86e89dfe19f13d6e80340fb9376cc03434e56a173077cefc5c63c2",
+    "metadata/worlds/lifecycle_world.json": "1b1ad27d328621827807ff0118a83a19fd2f95fd80cdad1ff129c70b8299ea31",
     "verif/world_cases/lifecycle.py": "112ed82c07b19e9e7b82f1c446901d3d27df5373983c1ecb8375f57a145cc2d2",
     "native/lifecycle.c": "d7025a233b3c1425d6599b810b81cc3bb5b9ee7f5aeca7823cd64ad422e5960b",
     "native/lifecycle.h": "5fc8cf0e93f77e1ebe03da39ec8d294d7ad3ef853234c52cf99b8088042517cb",
@@ -198,8 +198,8 @@
     "native/bridge/terminal_tail_bridge.c": "8376211c4b0e5a8756acd79209af7777406b9d5430c98c8b7f109682b8e99e5e",
     "c/video.c": "681732591d8efb11cf1d5d5816c999bca718560bd247d9c9cc6c0f36982b2fa2",
     "c/menu.c": "b2ea585a4cb2b40c349fd7a017642534ea2b4982140a25a6dcacd12ce3b418b0",
-    "verif/world_gate.py": "8b6fe931efea911a385cb7cf8244011a3783f547ba2f7f0028ccec33196d4681",
-    "verif/world_api.py": "f366496fb7ecc0b16516ada42fd7ca75ddb191e74be5e67f5a03fdcbf2a81f33",
+    "verif/world_gate.py": "2ba63041f75fd9c9c0b368ce40ef6ec1e40bb692bc17940c1dcf06f2b3311763",
+    "verif/world_api.py": "a83bc75b4264a5ed575e8716eba52478a858556dfdba447107dc90e0e982569e",
     "verif/job_pool.py": "fd3a52cb8cb4dacd758e930a00ead9c5016776817d18d687a59d5399aa46348a",
     "tools/world_registry.py": "54fdfc61a0509112ab2049af29f7321f56718084637a1fce04b0b89429159b99",
     "verif/world_cases/legacy_adapter.py": "9978014371764ca9a123efe557fe62a6b0fef06f0e19a52b944bf72fbb14d677"
@@ -238,6 +238,21 @@
         "verif/world_cases/legacy_adapter.py",
         "verif/world_cases/lifecycle.py",
         "verif/world_cases/lifecycle_operators.py",
+        "verif/world_gate.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "Pending process-refactor replay",
+      "inputs": [
+        "metadata/worlds/lifecycle_world.json",
+        "verif/world_api.py",
         "verif/world_gate.py"
       ]
     }

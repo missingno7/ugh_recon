@@ -204,7 +204,7 @@
     "native/bridge/high_scores_bridge.c": "75a65b2430f4f3b25b71293ece798fcbc3ea7cc9f53813e2dd7c919fc4826270",
     "native/bridge/hud_bridge.c": "20826a77dfc2e68979d2fedc1a5935c3738b9f0002a2d8d8c064d9cc3f4bf6ea",
     "native/bridge/hud_support.h": "90e8d5095e5b2291ad53991535b876541cb8b3a31970ee18db1f4d0e39b206de",
-    "native/bridge/lifecycle_bridge.c": "c071659c8a4d82b8946cda5d7cb12fcf5df28dfd152f8ae899657e38228556f6",
+    "native/bridge/lifecycle_bridge.c": "55367727d28612cbd78da2373affbdb81d086ed8160f3f968013df16a0b4467e",
     "native/bridge/menus_bridge.c": "b8757935ff1041f79e66305e166a9ab20bce5a279ccc242c33719371c48aa0a8",
     "native/bridge/pixel_world_bridge.c": "6b0ef02880e37be713051c2ba5b45040b23018ba43655ef44e11d87eb30b985b",
     "native/bridge/random_borrow.h": "7871451fc18b55593f527bfac58c48803bf1ae6de89397c262d86d68ffd32fcd",
@@ -597,6 +597,19 @@
         "native/bridge/lifecycle_bridge.c"
       ],
       "dependency_change": false
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "Pending process-refactor replay",
+      "inputs": [
+        "native/bridge/lifecycle_bridge.c"
+      ]
     }
   ]
 }

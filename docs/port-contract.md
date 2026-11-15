@@ -704,7 +704,22 @@ open platform-service decision. Sources: `lifecycle.evidence_refreshed` (host-ch
 
 ## Decisions for the port layer
 
-These choices remain open; the certificates constrain their observable boundaries.
+### Adopted (2026-11-15)
+
+The user adopted these five choices. The bullet list after this section records the options and
+the certificate constraints that each choice must keep.
+
+| Decision | Adopted choice |
+|---|---|
+| D1 Event scheduling | Deterministic virtual retrace and timer events at 70 Hz. Wall time only paces those events: it never adds, drops or reorders them. No game step runs on SDL vsync or audio callbacks. Replays stay exact. |
+| D2 Live joystick units | Gamepad axes are converted into the synthetic calibrated counts that the game's own calibration expects, in the same wrapping 16-bit units. Thresholds, direction and mapping decisions stay in native input. |
+| D3 Resources and missing data | A data-only resource pack with stable identities, extracted at build time from the rebuilt image. It keeps mutable metadata as `resource_catalog` classifies it. A missing or malformed pack is rejected at startup with a clear error, with no partial play. The original executable is never loaded at run time. |
+| D4 Live random seed | Live system seconds at the single existing seed point, replacing only the high byte of RNG word 0, for normal play. A replay/test option keeps the fixed DOS-time reply. |
+| D5 Compatibility profile | The production executable admits exactly the shipped domain: registered resources, admitted modes and callbacks. Every other edge returns an explicit Unsupported at its documented prefix. Bit-exact behaviour for wider literal and API edges stays in the separate verification build, which keeps the emulated machine and the projector. This covers the 188 audio and 32 timing rejections, pixel_world's two opaque services and the unreachable SB path. No retained bug is fixed silently. |
+
+### Options and constraints
+
+The certificates constrain the observable boundaries of each choice.
 
 * **Event scheduling:** use deterministic virtual retrace/PIT events, or a real-time scheduler
   with a documented mapping to them. Either must preserve level/edge sequences, timer phase,

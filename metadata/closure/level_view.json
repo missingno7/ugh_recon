@@ -253,7 +253,7 @@
     "native/level_view.c": "f0b3db5747f718d7c112c721735ca5a497a9b93a6ecb33096223b188b170353d",
     "src/asm/GAME.ASM": "29c9ead3b191a744c59b465a3bd4de29f2e217b92492cf57edb8c13bc3494204",
     "src/data/DGDATA.ASM": "9d46889e26434a597ed19b91c119029af3dbf3dbcfa9811c4ed5aa18dc157541",
-    "tools/closure.py": "4fc04bad986fabe519acd6cfb3b360a66bdfb9c13d204a600e65e0c91e605126",
+    "tools/closure.py": "0217eaf308b2bc19851d4e08a9671c89c6fe74adb3312bb3715348efaae52197",
     "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/contacts_build.py": "4654ca8ef9ef7fd0d14656c37f2b191e16b0ec7858e7aee6d5140c15741515f8",

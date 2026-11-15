@@ -2494,7 +2494,7 @@
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
     "verif/delivery_build.py": "db95adccee0bfaa0fa7d08fac8170985b276f840c8504d9dda0ea048620be56e",
     "verif/itinerary_build.py": "b06148d5763c5809dffb67fe436c256d67a2a2d1cfac7dcbf4a50526e3e26811",
-    "tools/closure.py": "4fc04bad986fabe519acd6cfb3b360a66bdfb9c13d204a600e65e0c91e605126",
+    "tools/closure.py": "0217eaf308b2bc19851d4e08a9671c89c6fe74adb3312bb3715348efaae52197",
     "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
     "tools/hostbuild.py": "bbefb2573d32e1ac7cc2286af2eff27bf03cdd708b3c1e423b66429647487b15",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",

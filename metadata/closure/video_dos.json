@@ -451,7 +451,7 @@
     "native/bridge/video_dos_bridge.c": "34580d1aec13e9e5dd82375c6ca5e0ba865f70e200ab481acb01e228165c36ca",
     "native/video_dos.c": "4a8639a8349bf49694dbff5bf052811b89a500882aa8fea492e4c84fb700dcde",
     "native/video_dos.h": "830cf4e706ce00033be99d4e74831f4f39e348f3b226bd1086128a5f61c26cf5",
-    "tools/closure.py": "4fc04bad986fabe519acd6cfb3b360a66bdfb9c13d204a600e65e0c91e605126",
+    "tools/closure.py": "0217eaf308b2bc19851d4e08a9671c89c6fe74adb3312bb3715348efaae52197",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
     "tools/hostbuild.py": "bbefb2573d32e1ac7cc2286af2eff27bf03cdd708b3c1e423b66429647487b15",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",

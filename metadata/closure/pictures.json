@@ -204,7 +204,7 @@
     "native/ice.h": "9dae8b5a177d2d671ae2218035db0af8b83f30bf7b470c6bd5be3f068e26c756",
     "native/pictures.c": "ccc339ec71a745a87737bb8d7b6a4a4a645cc33f5b1ad33f9334cf5afc46558c",
     "native/pictures.h": "9832161a91a541413efaab4672c7fe658f9b6bcb39cf52d1d14d6b5977077878",
-    "tools/closure.py": "4fc04bad986fabe519acd6cfb3b360a66bdfb9c13d204a600e65e0c91e605126",
+    "tools/closure.py": "0217eaf308b2bc19851d4e08a9671c89c6fe74adb3312bb3715348efaae52197",
     "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
     "tools/hostbuild.py": "bbefb2573d32e1ac7cc2286af2eff27bf03cdd708b3c1e423b66429647487b15",

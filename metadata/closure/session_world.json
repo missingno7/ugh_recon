@@ -193,7 +193,7 @@
     "verif/session_world_loader.c": "f0a8eb52ed09789d91ffaaf870701f64219967585154c8a36178a2e330743f33",
     "metadata/program-model.json": "fc421cdeff861f7fecc194339a376ba3a23356806a1107af46e3b84ee7c28709",
     "tools/hostbuild.py": "bbefb2573d32e1ac7cc2286af2eff27bf03cdd708b3c1e423b66429647487b15",
-    "tools/closure.py": "4fc04bad986fabe519acd6cfb3b360a66bdfb9c13d204a600e65e0c91e605126",
+    "tools/closure.py": "0217eaf308b2bc19851d4e08a9671c89c6fe74adb3312bb3715348efaae52197",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/sequencing_cases.py": "6a92694aa2ed62d7dba4f04fda36d663ae86ee31ed7c7c5ac66fb13c1d13c52d",
     "verif/sequencing_proof.py": "6719663dc9c4a591cde282a1a712b8782bf22dd1cd77002e0fc2a6c95f7e2ac1",

@@ -1,5 +1,6 @@
 #include "backend.h"
 #include <string.h>
+#include <time.h>
 
 static void effect(GSTestBackend *b,GSTestEffectKind kind,uint32_t a,uint32_t v,uint32_t c){
     if(b->recorder)b->recorder(b->record_context,(GSTestEffect){kind,a,v,c});
@@ -95,6 +96,7 @@ static GSStatus dac(void *ctx,GSDacWrite w){
 }
 static GSStatus retrace(void *ctx,uint8_t *v){
     GSTestBackend *b=ctx;if(!v)return GS_INVALID;b->attribute_phase=0;*v=b->retrace;
+    if(b->retrace_samples.count){uint32_t value;GSStatus status=next(&b->retrace_samples,&value,0);if(status!=GS_OK)return status;*v=(uint8_t)value;}
     effect(b,GST_CONTROL_READ,8,*v,0);return GS_OK;
 }
 static GSStatus present(void *ctx){GSTestBackend *b=ctx;b->presents++;effect(b,GST_PRESENT,0,0,0);return GS_OK;}
@@ -179,7 +181,7 @@ static GSStatus opl_stream(void *ctx,GSOplKind kind,uint8_t v){
 static GSStatus opl(void *ctx,GSRegisterWrite w){opl_stream(ctx,GS_OPL_SELECT,w.reg);return opl_stream(ctx,GS_OPL_DATA,w.value);}
 static GSStatus audio_status(void *ctx,uint8_t *v){(void)ctx;(void)v;return GS_UNSUPPORTED;}
 static GSStatus advance(void *ctx,uint64_t ns){GSTestBackend *b=ctx;if(UINT64_MAX-b->audio_ns<ns)return GS_OVERFLOW;b->audio_ns+=ns;return GS_OK;}
-static GSStatus clock_delivery(void *ctx,GSClockDelivery k){(void)ctx;(void)k;return GS_UNSUPPORTED;}
+static GSStatus clock_delivery(void *ctx,GSClockDelivery k){GSTestBackend *b=ctx;return b->startup_enabled&&k==GS_CLOCK_BIOS_CHAIN?GS_OK:GS_UNSUPPORTED;}
 static GSStatus calibration(void *ctx,GSCalibrationPhase p,GSCalibrationReply *r){(void)ctx;(void)p;(void)r;return GS_UNSUPPORTED;}
 static GSStatus lifetime(void *ctx,GSTimerLifetimeRequest q,GSBinding *r){(void)ctx;(void)q;(void)r;return GS_UNSUPPORTED;}
 uint64_t gs_test_tick_ns(uint64_t tick){return tick/70*1000000000ull+tick%70*1000000000ull/70;}
@@ -245,9 +247,46 @@ static GSStatus close_scores(void *ctx,uint16_t h,GSFileReply *r){
 static GSStatus persist(void *ctx){GSTestBackend *b=ctx;b->dirty=0;return GS_OK;}
 static GSStatus resource(void *ctx,GSResourceId id,GSBytes *v,GSResourceClass *c){GSTestBackend *b=ctx;return b->resources.view?b->resources.view(b->resource_context,id,v,c):GS_UNSUPPORTED;}
 static GSStatus mutable_resource(void *ctx,GSResourceId id,GSMutableBytes *v){GSTestBackend *b=ctx;return b->resources.mutable_view?b->resources.mutable_view(b->resource_context,id,v):GS_UNSUPPORTED;}
-static GSStatus seed(void *ctx,GSSeedReply *r){GSTestBackend *b=ctx;if(!r)return GS_INVALID;*r=b->seed;effect(b,GST_SEED,0,0,0);return GS_OK;}
+static GSStatus seed(void *ctx,GSSeedReply *r){
+    GSTestBackend *b=ctx;if(!r)return GS_INVALID;
+    if(b->live_seed){time_t now=time(NULL);struct tm *t=localtime(&now);if(!t)return GS_IO_ERROR;*r=(GSSeedReply){(uint8_t)t->tm_hour,(uint8_t)t->tm_min,(uint8_t)t->tm_sec,0};effect(b,GST_SEED,0,0,0);return GS_OK;}
+    *r=b->seed;effect(b,GST_SEED,0,0,0);return GS_OK;
+}
 static GSStatus lifecycle(void *ctx,GSLifecycleRequest q,uint8_t *r){(void)ctx;(void)q;(void)r;return GS_UNSUPPORTED;}
 static GSStatus binding(void *ctx,GSLifecycleBindingRole role,GSVectorOp op,GSBinding value,GSBinding *r){(void)ctx;(void)role;(void)op;(void)value;(void)r;return GS_UNSUPPORTED;}
+static GSStatus startup_status(void *ctx,uint8_t *v){
+    GSTestBackend *b=ctx;if(!v)return GS_INVALID;
+    *v=b->adlib_present?(b->probe_reads++?192:0):224;
+    effect(b,GST_AUDIO_STATUS,0,*v,0);return GS_OK;
+}
+static GSStatus startup_calibration(void *ctx,GSCalibrationPhase phase,GSCalibrationReply *reply){
+    GSTestBackend *b=ctx;if(!reply||(unsigned)phase>GS_CALIBRATION_FINISH)return GS_INVALID;
+    *reply=b->calibration_reply;
+    if(phase==GS_CALIBRATION_BEGIN)reply->marker=256;
+    if(phase==GS_CALIBRATION_WAIT)reply->remainder=1;
+    effect(b,GST_CALIBRATION,phase,reply->remainder,reply->progress);return GS_OK;
+}
+static GSStatus startup_lifetime(void *ctx,GSTimerLifetimeRequest q,GSBinding *reply){
+    GSTestBackend *b=ctx;if(!reply)return GS_INVALID;
+    if(q.kind==GS_TIMER_READ_BINDING)*reply=b->timer_binding;
+    else if(q.kind==GS_TIMER_BIND_HANDLER){*reply=b->timer_binding;b->timer_binding=(GSBinding){2};}
+    else return GS_UNSUPPORTED;
+    return GS_OK;
+}
+static GSStatus startup_lifecycle(void *ctx,GSLifecycleRequest q,uint8_t *reply){
+    GSTestBackend *b=ctx;if(!reply)return GS_INVALID;
+    if(q.action!=GS_LIFECYCLE_CPU_QUERY)return GS_UNSUPPORTED;
+    *reply=1;effect(b,GST_CPU_QUERY,0,*reply,0);return GS_OK;
+}
+static GSStatus startup_binding(void *ctx,GSLifecycleBindingRole role,GSVectorOp op,GSBinding value,GSBinding *reply){
+    GSTestBackend *b=ctx;if(!reply||role!=GS_BIND_CRITICAL_ERROR_FAIL)return GS_INVALID;
+    if(op!=GS_VECTOR_INSTALL||value.token!=2)return GS_UNSUPPORTED;
+    *reply=b->critical;b->critical=value;effect(b,GST_LIFECYCLE_BINDING,role,op,(uint32_t)value.token);return GS_OK;
+}
+void gs_test_startup(GSTestBackend *b,int adlib){
+    b->startup_enabled=1;b->adlib_present=(uint8_t)!!adlib;b->probe_reads=0;
+    b->timer_binding=(GSBinding){1};b->calibration_reply=(GSCalibrationReply){0,1,1};
+}
 static GSStatus query_mode(void *ctx,GSVideoModeReply *r){GSTestBackend *b=ctx;if(!r)return GS_INVALID;*r=(GSVideoModeReply){b->video_mode,b->video_columns,b->video_page};effect(b,GST_VIDEO_MODE,1,0,0);return GS_OK;}
 static GSStatus set_mode(void *ctx,uint8_t mode){GSTestBackend *b=ctx;b->video_mode=mode;b->video_page=0;effect(b,GST_VIDEO_MODE,0,mode,0);return GS_OK;}
 static GSStatus terminate(void *ctx,uint8_t code){GSTestBackend *b=ctx;b->exited=1;b->exit_code=code;effect(b,GST_TERMINAL,0,code,0);return GS_OK;}
@@ -260,5 +299,7 @@ GameServices gs_test_services(GSTestBackend *b){
     s.time=(GSTimeOps){deliver,suspend_time,pace,pit_command,pit_counter,mask_write,mask_read,acknowledge,interrupt};
     s.files=(GSFilesOps){open_scores,read_scores,write_scores,close_scores,persist};
     s.resources=(GSResourceOps){resource,mutable_resource};s.seed=(GSSeedOps){seed};
-    s.lifecycle=(GSLifecycleOps){lifecycle,binding,query_mode,set_mode,terminate};return s;
+    s.lifecycle=(GSLifecycleOps){lifecycle,binding,query_mode,set_mode,terminate};
+    if(b->startup_enabled){s.audio.status=startup_status;s.audio.calibration=startup_calibration;s.audio.timer_lifetime=startup_lifetime;s.lifecycle.request=startup_lifecycle;s.lifecycle.binding=startup_binding;}
+    return s;
 }

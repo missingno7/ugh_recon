@@ -117,6 +117,12 @@ def validate():
                 if actual!={k:sorted(set(v)) for k,v in declared.items()}:raise ValueError(f'{name}: declared dependencies differ: actual={actual}')
         except Exception as exc:errors.append(f'{path.relative_to(ROOT)}: {exc}')
     if not count:errors.append('no closure certificates')
+    # Production composition has a separate positive source owner. It earns no
+    # migration status and cannot exempt an existing certified dependency graph.
+    try:
+        import nativebuild
+        for name in nativebuild.production_owners(owners):owners[name]='native-manifest.json'
+    except Exception as exc:errors.append(f'production source ownership: {exc}')
     for path in sorted((ROOT/'native').rglob('*')):
         if path.suffix not in ('.c','.h'):continue
         name=path.relative_to(ROOT).as_posix()

@@ -1,0 +1,27 @@
+{
+  "component": "presentation_world",
+  "flag": "UGH_NATIVE_PRESENTATION",
+  "order": 6,
+  "header": "native/bridge/presentation_world_bridge.h",
+  "bridge": "native/bridge/presentation_world_bridge.c",
+  "lanes": {
+    "predicate": "presentation_is_owned",
+    "declaration": "Authoritative physical-byte membership in this world bridge; aliases are lanes, never independent allocations",
+    "stability": "Fixed physical membership after cold construction; availability may be inactive before import",
+    "bytes": 1221
+  },
+  "cold_import": "presentation_cold_import",
+  "seal": "presentation_require_seal",
+  "read": "presentation_shared_read",
+  "write": "presentation_shared_write",
+  "serialize": "presentation_serialize",
+  "check": "presentation_check_serialization",
+  "owned_bytes": "presentation_owned_bytes",
+  "borrowed_byte": "presentation_borrowed_byte",
+  "borrowed_store": "presentation_borrowed_store",
+  "platform_provider": null,
+  "compile_flags": [],
+  "gate": {
+    "cases": "verif/world_cases/presentation.py"
+  }
+}

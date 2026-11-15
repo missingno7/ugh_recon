@@ -274,12 +274,12 @@
     "verif/timer_callbacks.py": "4149fe68343ff59647e5baa10beeae519625d099345ec256cdadf92e0c8d0b38",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
-    "tools/hostbuild.py": "ec46292a8d375eb77d0cb2a9467c77c89f5e512bb2ec2e50b86ba7c99369e9b4",
-    "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
+    "tools/hostbuild.py": "bbefb2573d32e1ac7cc2286af2eff27bf03cdd708b3c1e423b66429647487b15",
+    "host/check.py": "f88a901c22501da281fdfc6ff19c7096c67eada2ac21953c809b9e25d5addc87",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/standalone_census.py": "647dd84b82fbeb0871fd992671b0c2279cd98e66bb46854b57c0745ed84b0a6f",
     "src/asm/TIMER.ASM": "ef53f29ee97899bf538298d360f6979004f41abcd5e07e2d23ecfb6642f5ae2a",
-    "metadata/closure/timer.json": "7b053bc337bb8f974e67d4bea5e62441d9717d2d2dfcd1cbbd7dcc40ed96c07c",
+    "metadata/closure/timer.json": "contract-v1:dd45c3fd62bc452d05cb461e4656ccc9e11f9e950385253b23e3dd953749f6d9",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
     "tests/timer.py": "9feb061a861603ed6e75d8b1fe286d4c34c96db9574244b3c8d6663ff5bb6fde",
     "tests/timer_stack.py": "e6ea2a364a6b062fcc05036dca8cfe1cea83926d3370e3cc3b7e4b3031f20e50",
@@ -513,6 +513,21 @@
       ],
       "results": "PASS within stated domains",
       "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "PASS: existing contract claims unchanged; full representative gate, all 111 controls (including one positive rejection barrier), registry/contract controls and supervisor gate; receipts in build/workers/close-adlx-29",
+      "inputs": [
+        "host/check.py",
+        "metadata/closure/timer.json",
         "tools/hostbuild.py"
       ]
     }

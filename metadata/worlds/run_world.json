@@ -1,0 +1,27 @@
+{
+  "component": "run_world",
+  "flag": "UGH_NATIVE_RUN",
+  "order": 7,
+  "header": "native/bridge/run_world_bridge.h",
+  "bridge": "native/bridge/run_world_bridge.c",
+  "lanes": {
+    "predicate": "run_is_owned",
+    "declaration": "Authoritative physical-byte membership in this world bridge; aliases are lanes, never independent allocations",
+    "stability": "Fixed physical membership after cold construction; availability may be inactive before import",
+    "bytes": 373
+  },
+  "cold_import": "run_cold_import",
+  "seal": "run_require_seal",
+  "read": "run_shared_read",
+  "write": "run_shared_write",
+  "serialize": "run_serialize",
+  "check": "run_check_serialization",
+  "owned_bytes": "run_owned_bytes",
+  "borrowed_byte": "run_borrowed_byte",
+  "borrowed_store": "run_borrowed_store",
+  "platform_provider": null,
+  "compile_flags": [],
+  "gate": {
+    "cases": "verif/world_cases/run.py"
+  }
+}

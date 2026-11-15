@@ -359,7 +359,7 @@
     "tests/sound_api.py": "f2ff7e547e026136ecb3abbc2abf139dcdfbd7fa4a5d026d5c19d1ed804b8650",
     "tools/cgen.py": "c494a10b08145efeb0dfd7bcef4fa89b3902cebbdd69ee63bae89647026d9aff",
     "tools/cjudge.py": "42e8c965812e188f8281adbea466072863ec0a6660353ee39883c28d0ecd7a0e",
-    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/closure.py": "4fc04bad986fabe519acd6cfb3b360a66bdfb9c13d204a600e65e0c91e605126",
     "tools/common.py": "1d9a28e45a491eed6e5154fea9fbd53a2aac9d6f772614fdf37f8dc3fae3483e",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
     "tools/dos.py": "df2a7a83777a15d467bca6e32e5bd123b2c0886551512b95669b09ca89ecefc7",
@@ -418,6 +418,19 @@
       "results": "PASS: default profile preprocessed identity/unchanged algorithms; compiled replay and 21/21 native/literal integration. No old claim widened.",
       "inputs": [
         "native/bridge/music_clock_bridge.c"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "PASS: existing contract claims unchanged; full representative gate, all 111 controls (including one positive rejection barrier), registry/contract controls and supervisor gate; receipts in build/workers/close-adlx-29",
+      "inputs": [
+        "tools/closure.py"
       ]
     }
   ]

@@ -1,0 +1,27 @@
+{
+  "component": "enemy_world",
+  "flag": "UGH_NATIVE_ENEMIES",
+  "order": 13,
+  "header": "native/bridge/enemy_world_bridge.h",
+  "bridge": "native/bridge/enemy_world_bridge.c",
+  "lanes": {
+    "predicate": "enemies_is_owned",
+    "declaration": "Authoritative physical-byte membership in this world bridge; aliases are lanes, never independent allocations",
+    "stability": "Fixed physical membership after cold construction; availability may be inactive before import",
+    "bytes": 190
+  },
+  "cold_import": "enemies_cold_import",
+  "seal": "enemies_require_seal",
+  "read": "enemies_shared_read",
+  "write": "enemies_shared_write",
+  "serialize": "enemies_serialize",
+  "check": "enemies_check_serialization",
+  "owned_bytes": "enemies_owned_bytes",
+  "borrowed_byte": "enemies_borrowed_byte",
+  "borrowed_store": "enemies_borrowed_store",
+  "platform_provider": null,
+  "compile_flags": [],
+  "gate": {
+    "cases": "verif/world_cases/enemy.py"
+  }
+}

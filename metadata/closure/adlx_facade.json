@@ -189,16 +189,16 @@
   "verification_inputs": {
     "c/music_analysis.c": "604fc3c80dec56a6740444b908da8baeff325357760ab8b82e9db72f5e022fe5",
     "c/sound_api.c": "ba1c98bf3a03b5f48a71d4491bdebf3acfc17b0f6cce51db370a0e58c0507e4c",
-    "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
+    "host/check.py": "f88a901c22501da281fdfc6ff19c7096c67eada2ac21953c809b9e25d5addc87",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
     "native/adlx_facade.c": "0f1e6b9ef3b0cbac61c41c48c8feb8e02e76d9100d05a6571c7a2454374b6cee",
     "native/adlx_facade.h": "2b1711aea00c0197dc032babf1c7b41a3a8404ab97890fc353f5f58d34e8307a",
     "native/audio.h": "31e4dd978a7ecc91d8dfb6de250c7e9f6ef4377bc5b1d3c413df749e94a2a780",
     "native/bridge/adlx_facade_bridge.c": "b76a934203948f7c87bd2efd2145a44d9b0b105fe546b0eacc3b567acf59dd87",
     "native/bridge/audio_projection.h": "f8dfd66352954a9efe9e23b97b041cd8c953a88ecbe9c6769448260eccc5dff0",
-    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/closure.py": "4fc04bad986fabe519acd6cfb3b360a66bdfb9c13d204a600e65e0c91e605126",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
-    "tools/hostbuild.py": "ec46292a8d375eb77d0cb2a9467c77c89f5e512bb2ec2e50b86ba7c99369e9b4",
+    "tools/hostbuild.py": "bbefb2573d32e1ac7cc2286af2eff27bf03cdd708b3c1e423b66429647487b15",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/adlx_facade_build.py": "eccdbc65cc43520f1d44ce1fb63f1e84e8872e00f7cffeb945da7b2f2a5d456e",
     "verif/adlx_facade_certificate.py": "9a3e02f26bfbc8918f7d894e6e7c2020a61976616de7e95d765ec903d48f2f81",
@@ -377,6 +377,21 @@
       ],
       "results": "PASS within stated domains",
       "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "PASS: existing contract claims unchanged; full representative gate, all 111 controls (including one positive rejection barrier), registry/contract controls and supervisor gate; receipts in build/workers/close-adlx-29",
+      "inputs": [
+        "host/check.py",
+        "tools/closure.py",
         "tools/hostbuild.py"
       ]
     }

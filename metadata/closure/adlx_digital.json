@@ -277,16 +277,16 @@
     "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
     "c/sound_api.c": "ba1c98bf3a03b5f48a71d4491bdebf3acfc17b0f6cce51db370a0e58c0507e4c",
     "c/sound_engine.c": "5e4116c31806441e464de35d5649894ec4eea28025254a2edea616235e6e6881",
-    "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
+    "host/check.py": "f88a901c22501da281fdfc6ff19c7096c67eada2ac21953c809b9e25d5addc87",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
     "native/adlx_digital.c": "fb82aa93c8a9b250ab3fde6e118f5255e3a3b2d1f923313f0c4f88abb5fb0987",
     "native/adlx_digital.h": "cf7c87afbc174dc1e8a6f607bf8f9427cfc18f4b26237433144a9553756e86cf",
     "native/audio.h": "31e4dd978a7ecc91d8dfb6de250c7e9f6ef4377bc5b1d3c413df749e94a2a780",
     "native/bridge/adlx_digital_bridge.c": "c01773293be919cde66def8714c874d4b333a24e01fada3a069bb20080578ad7",
     "native/bridge/audio_projection.h": "f8dfd66352954a9efe9e23b97b041cd8c953a88ecbe9c6769448260eccc5dff0",
-    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/closure.py": "4fc04bad986fabe519acd6cfb3b360a66bdfb9c13d204a600e65e0c91e605126",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
-    "tools/hostbuild.py": "ec46292a8d375eb77d0cb2a9467c77c89f5e512bb2ec2e50b86ba7c99369e9b4",
+    "tools/hostbuild.py": "bbefb2573d32e1ac7cc2286af2eff27bf03cdd708b3c1e423b66429647487b15",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/adlx_digital_build.py": "6ca5eab7726797f255a5650348dafcee65097345439fd71dcfbdcc0c70bc87f3",
     "verif/adlx_digital_certificate.py": "4a227f34b6b12b6d620d552f70f130346189b66f4043b123546b1b24aee411b9",
@@ -465,6 +465,21 @@
       ],
       "results": "PASS within stated domains",
       "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "PASS: existing contract claims unchanged; full representative gate, all 111 controls (including one positive rejection barrier), registry/contract controls and supervisor gate; receipts in build/workers/close-adlx-29",
+      "inputs": [
+        "host/check.py",
+        "tools/closure.py",
         "tools/hostbuild.py"
       ]
     }

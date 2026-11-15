@@ -1,0 +1,27 @@
+{
+  "component": "random_world",
+  "flag": "UGH_NATIVE_RANDOM",
+  "order": 8,
+  "header": "native/bridge/random_world_bridge.h",
+  "bridge": "native/bridge/random_world_bridge.c",
+  "lanes": {
+    "predicate": "rng_is_owned",
+    "declaration": "Authoritative physical-byte membership in this world bridge; aliases are lanes, never independent allocations",
+    "stability": "Fixed physical membership after cold construction; availability may be inactive before import",
+    "bytes": 8
+  },
+  "cold_import": "rng_cold_import",
+  "seal": "rng_require_seal",
+  "read": "rng_shared_read",
+  "write": "rng_shared_write",
+  "serialize": "rng_serialize",
+  "check": "rng_check_serialization",
+  "owned_bytes": "rng_owned_bytes",
+  "borrowed_byte": "rng_borrowed_byte",
+  "borrowed_store": "rng_borrowed_store",
+  "platform_provider": null,
+  "compile_flags": [],
+  "gate": {
+    "cases": "verif/world_cases/random.py"
+  }
+}

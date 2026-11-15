@@ -1,0 +1,29 @@
+{
+  "component": "timing_world",
+  "flag": "UGH_NATIVE_TIMING",
+  "order": 0,
+  "header": "native/bridge/timing_world_bridge.h",
+  "bridge": "native/bridge/timing_world_bridge.c",
+  "lanes": {
+    "predicate": "timing_is_owned",
+    "declaration": "Authoritative physical-byte membership in this world bridge; aliases are lanes, never independent allocations",
+    "stability": "Fixed physical membership after cold construction; availability may be inactive before import",
+    "bytes": 320
+  },
+  "cold_import": "timing_cold_import",
+  "seal": "timing_require_seal",
+  "read": "timing_shared_read",
+  "write": "timing_shared_write",
+  "serialize": "timing_serialize",
+  "check": "timing_check_serialization",
+  "owned_bytes": "timing_owned_bytes",
+  "borrowed_byte": "timing_borrowed_byte",
+  "borrowed_store": "timing_borrowed_store",
+  "platform_provider": null,
+  "compile_flags": [
+    "-DNATIVE_AUDIO_BYTE_SERVICE"
+  ],
+  "gate": {
+    "cases": "verif/world_cases/timing.py"
+  }
+}

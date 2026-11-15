@@ -21,330 +21,13 @@ STATUS_ORDER = ['unanalyzed', 'analyzed', 'boundary-established', 'migrated',
                 'verified-under-assumptions', 'verified-within-contract',
                 'integration-validated']
 
+import world_registry
+
 def timing_composed(units):
     return any(u['component']=='timing_world' for u in units)
 
-def composition_options(units, base=None):
-    if not timing_composed(units): return []
-    return (['-DUGH_NATIVE_ENEMIES'] if any(u['component']=='enemy_world' for u in units) else [])+(['-DUGH_NATIVE_ACTORS'] if any(u['component']=='actor_world' for u in units) else [])+(['-DUGH_NATIVE_PLATFORMS'] if any(u['component']=='platform_world' for u in units) else [])+(['-DUGH_NATIVE_RESOURCES'] if any(u['component']=='resource_catalog' for u in units) else [])+(['-DUGH_NATIVE_PLAYER'] if any(u['component']=='player_world' for u in units) else [])+(['-DUGH_NATIVE_RANDOM'] if any(u['component']=='random_world' for u in units) else [])+(['-DUGH_NATIVE_RUN'] if any(u['component']=='run_world' for u in units) else [])+(['-DUGH_NATIVE_PRESENTATION'] if any(u['component']=='presentation_world' for u in units) else [])+(['-DUGH_NATIVE_PIXEL'] if any(u['component']=='pixel_world' for u in units) else [])+(['-DUGH_NATIVE_VIDEO_PAGES'] if any(u['component']=='video_pages' for u in units) else [])+(['-DUGH_NATIVE_INPUT'] if any(u['component']=='input_world' for u in units) else [])+(['-DUGH_NATIVE_PALETTE'] if any(u['component']=='palette_world' for u in units) else [])+(['-DUGH_NATIVE_AUDIO'] if any(u['component']=='audio_world' for u in units) else [])+['-DUGH_NATIVE_TIMING', '-DNATIVE_AUDIO_BYTE_SERVICE', '-I', str((base or ROOT)/'native/bridge'),
-            '-I', str(ROOT/'verif/projector')]
-
-def _previous_composition_source(relative, text, units):
-    """Generated interop services only; the literal build is unchanged."""
-    if relative in ('native/far_copy.c','native/decimal.c') and any(u['component']=='audio_world' for u in units):
-        header='far_copy.h' if relative.endswith('far_copy.c') else 'decimal.h'
-        text=text.replace('#include "'+header+'"','#include "'+(ROOT/'native'/header).as_posix()+'"\n#include "'+(ROOT/'native/audio_bytes.h').as_posix()+'"')
-        if header=='far_copy.h':
-            statement='destination[destination_cursor]=source[source_cursor];';assert text.count(statement)==1
-            return text.replace(statement,'audio_borrowed_store(destination,destination_cursor,audio_borrowed_byte(source,source_cursor));')
-        for value in ('digit','255'):
-            statement='output->bytes[output->cursor]='+value+';';assert text.count(statement)==1
-            text=text.replace(statement,'audio_borrowed_store(output->bytes,output->cursor,'+value+');')
-        statement='bytes[0]+(uint16_t)bytes[1]*256u';assert text.count(statement)==1
-        text=text.replace(statement,'audio_borrowed_byte(bytes,0)+(uint16_t)audio_borrowed_byte(bytes,1)*256u')
-        for member in ('ten','hundred'):
-            statement='*divisors.'+member;assert text.count(statement)==1
-            text=text.replace(statement,'audio_borrowed_byte(divisors.'+member+',0)')
-        return text
-    if relative in ('native/bridge/ice_scratch_bridge.c','native/bridge/ice_bridge.c') and any(u['component']=='audio_world' for u in units):
-        # The fixed workspace's trailing seed overlaps the C audio facade flags.
-        # No maintained ICE source changes, and no native state is put into RAM.
-        header='ice_scratch.h' if 'ice_scratch_bridge' in relative else 'ice.h'
-        text=text.replace('#include "../'+header+'"',
-            '#include "'+(ROOT/'native'/header).as_posix()+'"\n#include "audio_world_bridge.h"')
-        seed='memcpy(output,ugh_mem+destination,sizeof output);'
-        publish='memcpy(ugh_mem+destination,output,sizeof output);'
-        assert text.count(seed)==text.count(publish)==1
-        written='result.decoder.bytes_written' if 'ice_scratch_bridge' in relative else 'result.bytes_written'
-        return text.replace('memcpy(input,ugh_mem+source,sizeof input);','audio_workspace_read(input,source,sizeof input);').replace(seed,
-            'audio_workspace_read(output,destination,sizeof output);').replace(publish,
-            'audio_workspace_publish(destination,output,sizeof output,unpacked,'+written+');')
-    if not timing_composed(units) or relative!='c/memory.c': return text
-    text='#include "timing_world_bridge.h"\n'+text
-    text=text.replace('uint8_t ugh_read(uint32_t a) {',
-        'uint8_t ugh_read(uint32_t a) { uint8_t owned; if(timing_shared_read(a,&owned))return owned;')
-    text=text.replace('void ugh_write(uint32_t a, uint8_t v) {',
-        'void ugh_write(uint32_t a, uint8_t v) { if(timing_shared_write(a,v))return;')
-    return text
-
-
-def _palette_composition_source(relative,text,units):
-    text=_previous_composition_source(relative,text,units)
-    if not any(u['component']=='palette_world' for u in units):return text
-    header='#include "'+(ROOT/'native/bridge/palette_world_bridge.h').as_posix()+'"\n'
-    if relative=='c/memory.c':
-        text=header+text
-        text=text.replace('uint8_t ugh_read(uint32_t a) {','uint8_t ugh_read(uint32_t a) { uint8_t colour; if(palette_shared_read(a,&colour))return colour;')
-        text=text.replace('void ugh_write(uint32_t a, uint8_t v) {','void ugh_write(uint32_t a, uint8_t v) { if(palette_shared_write(a,v))return;')
-    if relative in ('native/far_copy.c','native/decimal.c'):
-        text=header+text.replace('audio_borrowed_byte(','palette_borrowed_byte(').replace('audio_borrowed_store(','palette_borrowed_store(')
-    if relative=='native/bridge/timing_world_bridge.c':
-        text=header+text
-        old='timing_shared_read((uint32_t)(source-base+index),&value)'
-        assert text.count(old)==1
-        text=text.replace(old,'(palette_shared_read((uint32_t)(source-base+index),&value)||'+old+')')
-    if relative=='native/bridge/audio_world_bridge.c':
-        text=header+text
-        old='timing_shared_read(address+i,&value)';assert text.count(old)==1
-        text=text.replace(old,'(palette_shared_read(address+i,&value)||'+old+')')
-        old='timing_shared_write((uint32_t)(destination-base+index),value)';assert text.count(old)==1
-        text=text.replace(old,'(palette_shared_write((uint32_t)(destination-base+index),value)||'+old+')')
-        text=text.replace('if(timing_is_owned(address))','if(palette_is_owned(address)||timing_is_owned(address))')
-        old='if(written>distance)timing_shared_write(address,source[i]);';assert text.count(old)==1
-        text=text.replace(old,'if(written>distance){if(!palette_shared_write(address,source[i]))timing_shared_write(address,source[i]);}')
-    if relative=='c/platform.c':
-        text=header+text+"\n"+r'''void palette_service_dac(PaletteDacWrite request){
-#if PALETTE_TEST_FAULT == 2
- static unsigned held,done;static uint8_t pending;
- if(!done && request.kind==PALETTE_DAC_COMPONENT){
-  if(held){
-   platform_out(0x3c9,1,pending==request.value?pending:request.value);
-   platform_out(0x3c9,1,pending==request.value?request.value:pending);
-   if(pending!=request.value)done=1;
-   held=0;return;
-  }
-  if(!ugh_devices.dac_component){pending=request.value;held=1;return;}
- }
-#endif
-#if PALETTE_TEST_FAULT == 4
- static unsigned dropped;
- if(!dropped && request.kind==PALETTE_DAC_COMPONENT && request.value){dropped=1;return;}
-#endif
-#if PALETTE_TEST_FAULT == 5
- ugh_devices.map_mask=0;
-#endif
-#if PALETTE_TEST_FAULT == 6
- ugh_devices.read_map=0;
-#endif
- platform_out(request.kind==PALETTE_DAC_SELECT?0x3c8:0x3c9,1,request.value);
-}
-'''
-    return text
-
-
-def _input_composition_source(relative,text,units):
-    text=_palette_composition_source(relative,text,units)
-    if not any(u['component']=='input_world' for u in units):return text
-    header='#include "'+(ROOT/'native/bridge/input_world_bridge.h').as_posix()+'"\n'
-    if relative=='c/memory.c':
-        text=header+text
-        text=text.replace('uint8_t ugh_read(uint32_t a) {','uint8_t ugh_read(uint32_t a) { uint8_t input; if(input_shared_read(a,&input))return input;')
-        text=text.replace('void ugh_write(uint32_t a, uint8_t v) {','void ugh_write(uint32_t a, uint8_t v) { if(input_shared_write(a,v))return;')
-    if relative in ('native/far_copy.c','native/decimal.c'):
-        text=header+text.replace('palette_borrowed_byte(','input_borrowed_byte(').replace('palette_borrowed_store(','input_borrowed_store(')
-    if relative=='native/bridge/timing_world_bridge.c':
-        text=header+text;old='palette_shared_read((uint32_t)(source-base+index),&value)';assert text.count(old)==1
-        text=text.replace(old,'(input_shared_read((uint32_t)(source-base+index),&value)||'+old+')')
-    if relative=='native/bridge/audio_world_bridge.c':
-        text=header+text
-        old='palette_shared_read(address+i,&value)';assert text.count(old)==1
-        text=text.replace(old,'(input_shared_read(address+i,&value)||'+old+')')
-        old='palette_shared_write((uint32_t)(destination-base+index),value)';assert text.count(old)==1
-        text=text.replace(old,'(input_shared_write((uint32_t)(destination-base+index),value)||'+old+')')
-        text=text.replace('if(palette_is_owned(address)||timing_is_owned(address))','if(input_is_owned(address)||palette_is_owned(address)||timing_is_owned(address))')
-        old='if(!palette_shared_write(address,source[i]))timing_shared_write(address,source[i]);';assert text.count(old)==1
-        text=text.replace(old,'if(!input_shared_write(address,source[i]) && !palette_shared_write(address,source[i]))timing_shared_write(address,source[i]);')
-    if relative in ('native/bridge/menus_bridge.c','native/bridge/high_scores_bridge.c'):
-        text=header+text
-        assert text.count('platform_interrupt(0x16,r)')==2
-        text=text.replace('platform_interrupt(0x16,r)','input_editor_queue(r)')
-    if relative=='c/platform.c':text+='\n'+(ROOT/'verif/input_platform_model.inc').read_text()
-    return text
-
-
-def _pages_composition_source(relative,text,units):
-    text=_input_composition_source(relative,text,units)
-    if not any(u['component']=='video_pages' for u in units):return text
-    header='#include "'+(ROOT/'native/bridge/video_pages_bridge.h').as_posix()+'"\n'
-    if relative=='c/memory.c':
-        text=header+text
-        text=text.replace('uint8_t ugh_read(uint32_t a) {','uint8_t ugh_read(uint32_t a) { uint8_t page; if(video_pages_shared_read(a,&page))return page;')
-        text=text.replace('void ugh_write(uint32_t a, uint8_t v) {','void ugh_write(uint32_t a, uint8_t v) { if(video_pages_shared_write(a,v))return;')
-    if relative in ('native/far_copy.c','native/decimal.c'):
-        text=header+text.replace('input_borrowed_byte(','video_pages_borrowed_byte(').replace('input_borrowed_store(','video_pages_borrowed_store(')
-    if relative=='native/bridge/timing_world_bridge.c':
-        text=header+text;old='input_shared_read((uint32_t)(source-base+index),&value)';assert text.count(old)==1
-        text=text.replace(old,'(video_pages_shared_read((uint32_t)(source-base+index),&value)||'+old+')')
-    if relative=='native/bridge/audio_world_bridge.c':
-        text=header+text
-        for old,new in [
-            ('input_shared_read(address+i,&value)','(video_pages_shared_read(address+i,&value)||input_shared_read(address+i,&value))'),
-            ('input_shared_write((uint32_t)(destination-base+index),value)','(video_pages_shared_write((uint32_t)(destination-base+index),value)||input_shared_write((uint32_t)(destination-base+index),value))'),
-            ('if(input_is_owned(address)||','if(video_pages_is_owned(address)||input_is_owned(address)||'),
-            ('if(!input_shared_write(address,source[i])','if(!video_pages_shared_write(address,source[i]) && !input_shared_write(address,source[i])')]:
-            assert text.count(old)==1; text=text.replace(old,new)
-    if relative=='c/platform.c':text+='\n'+(ROOT/'verif/video_pages_platform_model.inc').read_text()
-    return text
-
-
-def _pixel_composition_source(relative,text,units):
-    text=_pages_composition_source(relative,text,units)
-    if not any(u['component']=='pixel_world' for u in units):return text
-    header='#include "'+(ROOT/'native/bridge/pixel_world_bridge.h').as_posix()+'"\n'
-    if relative=='c/memory.c':
-        text=header+text
-        text=text.replace('uint8_t ugh_read(uint32_t a) {','uint8_t ugh_read(uint32_t a) { uint8_t renderer; if(pixel_shared_read(a,&renderer))return renderer;')
-        text=text.replace('void ugh_write(uint32_t a, uint8_t v) {','void ugh_write(uint32_t a, uint8_t v) { if(pixel_shared_write(a,v))return;')
-    if relative in ('native/far_copy.c','native/decimal.c'):
-        text=header+text.replace('video_pages_borrowed_byte(','pixel_borrowed_byte(').replace('video_pages_borrowed_store(','pixel_borrowed_store(')
-    if relative=='native/bridge/timing_world_bridge.c':
-        text=header+text;old='video_pages_shared_read((uint32_t)(source-base+index),&value)';assert text.count(old)==1
-        text=text.replace(old,'(pixel_shared_read((uint32_t)(source-base+index),&value)||'+old+')')
-    if relative=='native/bridge/audio_world_bridge.c':
-        text=header+text
-        for old,new in [
-            ('video_pages_shared_read(address+i,&value)','(pixel_shared_read(address+i,&value)||video_pages_shared_read(address+i,&value))'),
-            ('video_pages_shared_write((uint32_t)(destination-base+index),value)','(pixel_shared_write((uint32_t)(destination-base+index),value)||video_pages_shared_write((uint32_t)(destination-base+index),value))'),
-            ('if(video_pages_is_owned(address)||','if(pixel_is_owned(address)||video_pages_is_owned(address)||'),
-            ('if(!video_pages_shared_write(address,source[i])','if(!pixel_shared_write(address,source[i]) && !video_pages_shared_write(address,source[i])')]:
-            assert text.count(old)==1;text=text.replace(old,new)
-    if relative=='c/platform.c':text+='\n'+(ROOT/'verif/pixel_platform_model.inc').read_text()
-    return text
-
-
-def _presentation_composition_source(relative,text,units):
-    text=_pixel_composition_source(relative,text,units)
-    if not any(u['component']=='presentation_world' for u in units):return text
-    header='#include "'+(ROOT/'native/bridge/presentation_world_bridge.h').as_posix()+'"\n'
-    if relative=='c/memory.c':
-        text=header+text
-        text=text.replace('uint8_t ugh_read(uint32_t a) {','uint8_t ugh_read(uint32_t a) { uint8_t presentation; if(presentation_shared_read(a,&presentation))return presentation;')
-        text=text.replace('void ugh_write(uint32_t a, uint8_t v) {','void ugh_write(uint32_t a, uint8_t v) { if(presentation_shared_write(a,v))return;')
-    if relative in ('native/far_copy.c','native/decimal.c'):
-        text=header+text.replace('pixel_borrowed_byte(','presentation_borrowed_byte(').replace('pixel_borrowed_store(','presentation_borrowed_store(')
-    if relative=='native/bridge/timing_world_bridge.c':
-        text=header+text;old='pixel_shared_read((uint32_t)(source-base+index),&value)';assert text.count(old)==1
-        text=text.replace(old,'(presentation_shared_read((uint32_t)(source-base+index),&value)||'+old+')')
-    if relative=='native/bridge/audio_world_bridge.c':
-        text=header+text
-        for old,new in [
-            ('pixel_shared_read(address+i,&value)','(presentation_shared_read(address+i,&value)||pixel_shared_read(address+i,&value))'),
-            ('pixel_shared_write((uint32_t)(destination-base+index),value)','(presentation_shared_write((uint32_t)(destination-base+index),value)||pixel_shared_write((uint32_t)(destination-base+index),value))'),
-            ('if(pixel_is_owned(address)||','if(presentation_is_owned(address)||pixel_is_owned(address)||'),
-            ('if(!pixel_shared_write(address,source[i])','if(!presentation_shared_write(address,source[i]) && !pixel_shared_write(address,source[i])')]:
-            assert text.count(old)==1;text=text.replace(old,new)
-    return text
-
-
-def _run_composition_source(relative,text,units):
-    text=_presentation_composition_source(relative,text,units)
-    if not any(u['component']=='run_world' for u in units):return text
-    header='#include "'+(ROOT/'native/bridge/run_world_bridge.h').as_posix()+'"\n'
-    if relative=='c/memory.c':
-        text=header+text
-        text=text.replace('uint8_t ugh_read(uint32_t a) {','uint8_t ugh_read(uint32_t a) { uint8_t run; if(run_shared_read(a,&run))return run;')
-        text=text.replace('void ugh_write(uint32_t a, uint8_t v) {','void ugh_write(uint32_t a, uint8_t v) { if(run_shared_write(a,v))return;')
-    if relative in ('native/far_copy.c','native/decimal.c'):
-        text=header+text.replace('presentation_borrowed_byte(','run_borrowed_byte(').replace('presentation_borrowed_store(','run_borrowed_store(')
-    if relative=='native/bridge/timing_world_bridge.c':
-        text=header+text;old='presentation_shared_read((uint32_t)(source-base+index),&value)';assert text.count(old)==1
-        text=text.replace(old,'(run_shared_read((uint32_t)(source-base+index),&value)||'+old+')')
-    if relative=='native/bridge/audio_world_bridge.c':
-        text=header+text
-        for old,new in [
-            ('presentation_shared_read(address+i,&value)','(run_shared_read(address+i,&value)||presentation_shared_read(address+i,&value))'),
-            ('presentation_shared_write((uint32_t)(destination-base+index),value)','(run_shared_write((uint32_t)(destination-base+index),value)||presentation_shared_write((uint32_t)(destination-base+index),value))'),
-            ('if(presentation_is_owned(address)||','if(run_is_owned(address)||presentation_is_owned(address)||'),
-            ('if(!presentation_shared_write(address,source[i])','if(!run_shared_write(address,source[i]) && !presentation_shared_write(address,source[i])')]:
-            assert text.count(old)==1;text=text.replace(old,new)
-    return text
-
-
-def _random_composition_source(relative,text,units):
-    text=_run_composition_source(relative,text,units)
-    if not any(u['component']=='random_world' for u in units):return text
-    header='#include "'+(ROOT/'native/bridge/random_world_bridge.h').as_posix()+'"\n'
-    if relative=='c/memory.c':
-        text=header+text
-        text=text.replace('uint8_t ugh_read(uint32_t a) {','uint8_t ugh_read(uint32_t a) { uint8_t rng; if(rng_shared_read(a,&rng))return rng;')
-        text=text.replace('void ugh_write(uint32_t a, uint8_t v) {','void ugh_write(uint32_t a, uint8_t v) { if(rng_shared_write(a,v))return;')
-    if relative in ('native/far_copy.c','native/decimal.c'):
-        text=header+text.replace('run_borrowed_byte(','rng_borrowed_byte(').replace('run_borrowed_store(','rng_borrowed_store(')
-    if relative=='native/bridge/timing_world_bridge.c':
-        text=header+text;old='run_shared_read((uint32_t)(source-base+index),&value)';assert text.count(old)==1
-        text=text.replace(old,'(rng_shared_read((uint32_t)(source-base+index),&value)||'+old+')')
-    if relative=='native/bridge/audio_world_bridge.c':
-        text=header+text
-        for old,new in [
-            ('run_shared_read(address+i,&value)','(rng_shared_read(address+i,&value)||run_shared_read(address+i,&value))'),
-            ('run_shared_write((uint32_t)(destination-base+index),value)','(rng_shared_write((uint32_t)(destination-base+index),value)||run_shared_write((uint32_t)(destination-base+index),value))'),
-            ('if(run_is_owned(address)||','if(rng_is_owned(address)||run_is_owned(address)||'),
-            ('if(!run_shared_write(address,source[i])','if(!rng_shared_write(address,source[i]) && !run_shared_write(address,source[i])')]:
-            assert text.count(old)==1;text=text.replace(old,new)
-    return text
-
-
-def _player_composition_source(relative,text,units):
-    text=_random_composition_source(relative,text,units)
-    if not any(u['component']=='player_world' for u in units):return text
-    header='#include "'+(ROOT/'native/bridge/player_world_bridge.h').as_posix()+'"\n'
-    if relative=='c/memory.c':
-        text=header+text
-        text=text.replace('uint8_t ugh_read(uint32_t a) {','uint8_t ugh_read(uint32_t a) { uint8_t player; if(player_shared_read(a,&player))return player;')
-        text=text.replace('void ugh_write(uint32_t a, uint8_t v) {','void ugh_write(uint32_t a, uint8_t v) { if(player_shared_write(a,v))return;')
-    if relative in ('native/far_copy.c','native/decimal.c'):
-        text=header+text.replace('rng_borrowed_byte(','player_borrowed_byte(').replace('rng_borrowed_store(','player_borrowed_store(')
-    if relative=='native/bridge/timing_world_bridge.c':
-        text=header+text;old='rng_shared_read((uint32_t)(source-base+index),&value)';assert text.count(old)==1
-        text=text.replace(old,'(player_shared_read((uint32_t)(source-base+index),&value)||'+old+')')
-    if relative=='native/bridge/audio_world_bridge.c':
-        text=header+text
-        for old,new in [
-            ('rng_shared_read(address+i,&value)','(player_shared_read(address+i,&value)||rng_shared_read(address+i,&value))'),
-            ('rng_shared_write((uint32_t)(destination-base+index),value)','(player_shared_write((uint32_t)(destination-base+index),value)||rng_shared_write((uint32_t)(destination-base+index),value))'),
-            ('if(rng_is_owned(address)||','if(player_is_owned(address)||rng_is_owned(address)||'),
-            ('if(!rng_shared_write(address,source[i])','if(!player_shared_write(address,source[i]) && !rng_shared_write(address,source[i])')]:
-            assert text.count(old)==1;text=text.replace(old,new)
-    return text
-
-
-def _resources_composition_source(relative,text,units):
-    text=_player_composition_source(relative,text,units)
-    if not any(u['component']=='resource_catalog' for u in units):return text
-    header='#include "'+(ROOT/'native/bridge/resource_catalog_bridge.h').as_posix()+'"\n'
-    if relative=='c/memory.c':
-        text=header+text
-        text=text.replace('uint8_t ugh_read(uint32_t a) {','uint8_t ugh_read(uint32_t a) { uint8_t resource; if(resources_shared_read(a,&resource))return resource;')
-        text=text.replace('void ugh_write(uint32_t a, uint8_t v) {','void ugh_write(uint32_t a, uint8_t v) { if(resources_shared_write(a,v))return;')
-    if relative in ('native/far_copy.c','native/decimal.c'):
-        text=header+text.replace('player_borrowed_byte(','resources_borrowed_byte(').replace('player_borrowed_store(','resources_borrowed_store(')
-    if relative=='native/bridge/timing_world_bridge.c':
-        text=header+text;old='player_shared_read((uint32_t)(source-base+index),&value)';assert text.count(old)==1
-        text=text.replace(old,'(resources_shared_read((uint32_t)(source-base+index),&value)||'+old+')')
-    if relative=='native/bridge/audio_world_bridge.c':
-        text=header+text
-        for old,new in [
-            ('player_shared_read(address+i,&value)','(resources_shared_read(address+i,&value)||player_shared_read(address+i,&value))'),
-            ('player_shared_write((uint32_t)(destination-base+index),value)','(resources_shared_write((uint32_t)(destination-base+index),value)||player_shared_write((uint32_t)(destination-base+index),value))'),
-            ('if(player_is_owned(address)||','if(resources_is_owned(address)||player_is_owned(address)||'),
-            ('if(!player_shared_write(address,source[i])','if(!resources_shared_write(address,source[i]) && !player_shared_write(address,source[i])')]:
-            assert text.count(old)==1;text=text.replace(old,new)
-    return text
-
-
-def _platforms_composition_source(relative,text,units):
-    text=_resources_composition_source(relative,text,units)
-    if not any(u['component']=='platform_world' for u in units):return text
-    header='#include "'+(ROOT/'native/bridge/platform_world_bridge.h').as_posix()+'"\n'
-    if relative=='c/memory.c':
-        text=header+text
-        text=text.replace('uint8_t ugh_read(uint32_t a) {','uint8_t ugh_read(uint32_t a) { uint8_t platforms; if(platforms_shared_read(a,&platforms))return platforms;')
-        text=text.replace('void ugh_write(uint32_t a, uint8_t v) {','void ugh_write(uint32_t a, uint8_t v) { if(platforms_shared_write(a,v))return;')
-    if relative in ('native/far_copy.c','native/decimal.c'):
-        text=header+text.replace('resources_borrowed_byte(','platforms_borrowed_byte(').replace('resources_borrowed_store(','platforms_borrowed_store(')
-    if relative=='native/bridge/timing_world_bridge.c':
-        text=header+text;old='resources_shared_read((uint32_t)(source-base+index),&value)';assert text.count(old)==1
-        text=text.replace(old,'(platforms_shared_read((uint32_t)(source-base+index),&value)||'+old+')')
-    if relative=='native/bridge/audio_world_bridge.c':
-        text=header+text
-        for old,new in [
-            ('resources_shared_read(address+i,&value)','(platforms_shared_read(address+i,&value)||resources_shared_read(address+i,&value))'),
-            ('resources_shared_write((uint32_t)(destination-base+index),value)','(platforms_shared_write((uint32_t)(destination-base+index),value)||resources_shared_write((uint32_t)(destination-base+index),value))'),
-            ('if(resources_is_owned(address)||','if(platforms_is_owned(address)||resources_is_owned(address)||'),
-            ('if(!resources_shared_write(address,source[i])','if(!platforms_shared_write(address,source[i]) && !resources_shared_write(address,source[i])')]:
-            assert text.count(old)==1;text=text.replace(old,new)
-    return text
-
+def composition_options(units,base=None):
+    return world_registry.options(units,base)
 
 def selected_units(literal=False):
     if literal:
@@ -369,61 +52,17 @@ def selected_units(literal=False):
     return selected
 
 
-def _actors_composition_source(relative,text,units):
-    text=_platforms_composition_source(relative,text,units)
-    if not any(u['component']=='actor_world' for u in units):return text
-    header='#include "'+(ROOT/'native/bridge/actor_world_bridge.h').as_posix()+'"\n'
-    if relative=='c/memory.c':
-        text=header+text
-        text=text.replace('uint8_t ugh_read(uint32_t a) {','uint8_t ugh_read(uint32_t a) { uint8_t actors; if(actors_shared_read(a,&actors))return actors;')
-        text=text.replace('void ugh_write(uint32_t a, uint8_t v) {','void ugh_write(uint32_t a, uint8_t v) { if(actors_shared_write(a,v))return;')
-    if relative in ('native/far_copy.c','native/decimal.c'):
-        text=header+text.replace('platforms_borrowed_byte(','actors_borrowed_byte(').replace('platforms_borrowed_store(','actors_borrowed_store(')
-    if relative=='native/bridge/timing_world_bridge.c':
-        text=header+text;old='platforms_shared_read((uint32_t)(source-base+index),&value)';assert text.count(old)==1
-        text=text.replace(old,'(actors_shared_read((uint32_t)(source-base+index),&value)||'+old+')')
-    if relative=='native/bridge/audio_world_bridge.c':
-        text=header+text
-        for old,new in [
-            ('platforms_shared_read(address+i,&value)','(actors_shared_read(address+i,&value)||platforms_shared_read(address+i,&value))'),
-            ('platforms_shared_write((uint32_t)(destination-base+index),value)','(actors_shared_write((uint32_t)(destination-base+index),value)||platforms_shared_write((uint32_t)(destination-base+index),value))'),
-            ('if(platforms_is_owned(address)||','if(actors_is_owned(address)||platforms_is_owned(address)||'),
-            ('if(!platforms_shared_write(address,source[i])','if(!actors_shared_write(address,source[i]) && !platforms_shared_write(address,source[i])')]:
-            assert text.count(old)==1;text=text.replace(old,new)
-    return text
-
-
 def composition_source(relative,text,units):
-    text=_actors_composition_source(relative,text,units)
-    if not any(u['component']=='enemy_world' for u in units):return text
-    header='#include "'+(ROOT/'native/bridge/enemy_world_bridge.h').as_posix()+'"\n'
-    if relative=='c/memory.c':
-        text=header+text
-        text=text.replace('uint8_t ugh_read(uint32_t a) {','uint8_t ugh_read(uint32_t a) { uint8_t enemies; if(enemies_shared_read(a,&enemies))return enemies;')
-        text=text.replace('void ugh_write(uint32_t a, uint8_t v) {','void ugh_write(uint32_t a, uint8_t v) { if(enemies_shared_write(a,v))return;')
-    if relative in ('native/far_copy.c','native/decimal.c'):
-        text=header+text.replace('actors_borrowed_byte(','enemies_borrowed_byte(').replace('actors_borrowed_store(','enemies_borrowed_store(')
-    if relative=='native/bridge/timing_world_bridge.c':
-        text=header+text;old='actors_shared_read((uint32_t)(source-base+index),&value)';assert text.count(old)==1
-        text=text.replace(old,'(enemies_shared_read((uint32_t)(source-base+index),&value)||'+old+')')
-    if relative=='native/bridge/audio_world_bridge.c':
-        text=header+text
-        for old,new in [
-            ('actors_shared_read(address+i,&value)','(enemies_shared_read(address+i,&value)||actors_shared_read(address+i,&value))'),
-            ('actors_shared_write((uint32_t)(destination-base+index),value)','(enemies_shared_write((uint32_t)(destination-base+index),value)||actors_shared_write((uint32_t)(destination-base+index),value))'),
-            ('if(actors_is_owned(address)||','if(enemies_is_owned(address)||actors_is_owned(address)||'),
-            ('if(!actors_shared_write(address,source[i])','if(!enemies_shared_write(address,source[i]) && !actors_shared_write(address,source[i])')]:
-            assert text.count(old)==1;text=text.replace(old,new)
-    return text
+    return world_registry.compose(relative,text,units)
 
 
-def build(literal=False):
-    out = ROOT/'build/host'
+def build(literal=False,out=None,generate=True):
+    out = Path(out).resolve() if out else ROOT/'build/host'
     out.mkdir(parents=True, exist_ok=True)
     units=selected_units(literal)
     # This checks the rebuilt image, relocation list, source receipts and symbols.
     mz, symbols = cgen.read_symbols()
-    cgen.generate()
+    if generate:cgen.generate()
     shutil.copyfile(ROOT/'build/link/plain/UGH.EXE', out/'ugh-data.exe')
     lines = ['/* Generated from rebuilt symbols; no game code. */', '#include "host.h"',
              'const HostSymbol host_symbols[] = {']
@@ -470,7 +109,7 @@ def build(literal=False):
         for name in sorted(substitutions)))
     sources.append(out/'units.c')
     cmd = [str(GCC), '-O2', '-g', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fwrapv',
-           *composition_options(units),
+           *composition_options(units,out/'registry'),
            '-include',str(fallbacks),'-I', str(ROOT/'c'), '-I', str(ROOT/'host'), '-I', str(SDL/'include'),
            '-I', str(OPL), '-o', str(out/'ugh.exe'), *map(str,sources),
            str(out/'symbols.c'), str(OPL/'opl3.c'), '-L', str(SDL/'lib'), '-lSDL3', '-lbcrypt']
@@ -486,7 +125,9 @@ def build(literal=False):
     # Preserve the exact LGPL source and relink command beside the application.
     for name in ('opl3.c','opl3.h'): shutil.copyfile(OPL/name,out/name)
     inputs = sources+[fallbacks,out/'symbols.c']+sorted((ROOT/'c').glob('*.c'))+sorted((ROOT/'c').glob('*.h'))+sorted((ROOT/'host').glob('*.h'))+[
-        OPL/'opl3.c',OPL/'opl3.h',ROOT/'tools/hostbuild.py']
+        OPL/'opl3.c',OPL/'opl3.h',ROOT/'tools/hostbuild.py',ROOT/'tools/world_registry.py']
+    inputs += [Path(r['registry_file']) for r in world_registry.selected(units)]+[ROOT/r['platform_provider'] for r in world_registry.selected(units) if r['platform_provider']]
+    if world_registry.selected(units):inputs.append(out/'registry/world_registry_generated.h')
     inputs += [ROOT/'metadata/closure'/f"{unit['component']}.json" for unit in units]
     inputs += [unit['native'] for unit in units]+[unit['bridge'] for unit in units]
     inputs += [header for unit in units for header in sorted(unit['native'].parent.glob('*.h'))]
@@ -507,4 +148,9 @@ if __name__ == '__main__':
     import argparse
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--literal',action='store_true',help='build pure L1 host without native bridges')
-    build(parser.parse_args().literal)
+    parser.add_argument('--out',type=Path,help='isolated host output directory (default build/host)')
+    parser.add_argument('--no-generate',action='store_true',help='use already prepared stable L1 sources')
+    parser.add_argument('--prepare-only',action='store_true',help='validate symbols and generate L1 sources once')
+    args=parser.parse_args()
+    if args.prepare_only:cgen.read_symbols();cgen.generate()
+    else:build(args.literal,args.out,not args.no_generate)

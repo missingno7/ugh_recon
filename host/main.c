@@ -2,44 +2,8 @@
  * IRQ placement is wholegame.Clock's deterministic policy. Wall time only
  * paces those placements; it cannot add, drop or reorder game interrupts. */
 #include "host.h"
-#ifdef UGH_NATIVE_TIMING
-#include "timing_world_bridge.h"
-#ifdef UGH_NATIVE_PALETTE
-#include "palette_world_bridge.h"
-#endif
-#ifdef UGH_NATIVE_INPUT
-#include "input_world_bridge.h"
-#endif
-#ifdef UGH_NATIVE_VIDEO_PAGES
-#include "video_pages_bridge.h"
-#endif
-#ifdef UGH_NATIVE_PIXEL
-#include "pixel_world_bridge.h"
-#endif
-#ifdef UGH_NATIVE_PRESENTATION
-#include "presentation_world_bridge.h"
-#endif
-#ifdef UGH_NATIVE_RUN
-#include "run_world_bridge.h"
-#endif
-#ifdef UGH_NATIVE_PLAYER
-#include "player_world_bridge.h"
-#endif
-#ifdef UGH_NATIVE_PLATFORMS
-#include "platform_world_bridge.h"
-#endif
-#ifdef UGH_NATIVE_ACTORS
-#include "actor_world_bridge.h"
-#endif
-#ifdef UGH_NATIVE_ENEMIES
-#include "enemy_world_bridge.h"
-#endif
-#ifdef UGH_NATIVE_RESOURCES
-#include "resource_catalog_bridge.h"
-#endif
-#ifdef UGH_NATIVE_RANDOM
-#include "random_world_bridge.h"
-#endif
+#ifdef UGH_WORLD_REGISTRY
+#include "world_registry_generated.h"
 #endif
 #include <SDL3/SDL_main.h>
 #include <stdlib.h>
@@ -247,44 +211,8 @@ int main(int argc,char **argv) {
     if(!host_audio_init(audio,wav)) host_fail("SDL audio failed; use --no-audio on machines without an audio device");
     ugh_set_output_observer(host_audio_out);
     ugh_set_frame_observer(boundary); ugh_set_service_observer(service);
-#ifdef UGH_NATIVE_TIMING
-    timing_cold_import(ugh_mem);
-#ifdef UGH_NATIVE_PALETTE
-    palette_cold_import(ugh_mem);
-#endif
-#ifdef UGH_NATIVE_INPUT
-    input_cold_import(ugh_mem);
-#endif
-#ifdef UGH_NATIVE_VIDEO_PAGES
-    video_pages_cold_import(ugh_mem);
-#endif
-#ifdef UGH_NATIVE_PIXEL
-    pixel_cold_import(ugh_mem);
-#endif
-#ifdef UGH_NATIVE_PRESENTATION
-    presentation_cold_import(ugh_mem);
-#endif
-#ifdef UGH_NATIVE_RUN
-    run_cold_import(ugh_mem);
-#endif
-#ifdef UGH_NATIVE_RANDOM
-    rng_cold_import(ugh_mem);
-#endif
-#ifdef UGH_NATIVE_PLAYER
-    player_cold_import(ugh_mem);
-#endif
-#ifdef UGH_NATIVE_RESOURCES
-    resources_cold_import(ugh_mem);
-#endif
-#ifdef UGH_NATIVE_PLATFORMS
-    platforms_cold_import(ugh_mem);
-#endif
-#ifdef UGH_NATIVE_ACTORS
-    actors_cold_import(ugh_mem);
-#endif
-#ifdef UGH_NATIVE_ENEMIES
-    enemies_cold_import(ugh_mem);
-#endif
+#ifdef UGH_WORLD_REGISTRY
+    world_registry_cold_import(ugh_mem);
 #endif
     HostSymbol entry=host_symbol(scenario.entry);
     Regs r={0}; r.cs=entry.segment; r.ip=entry.offset; r.ds=r.es=DATA_SEG;

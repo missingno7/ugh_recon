@@ -109,7 +109,7 @@ def build(literal=False,revision=BASELINE_REVISION):
     info=freeze(revision);frozen=OUT/'frozen';folder=OUT/('literal' if literal else 'instrumented');folder.mkdir(exist_ok=True)
     units=[] if literal else units_at(frozen);exports={n for u in units for n in u['exports']}
     inputs=[Path(__file__),*sorted((ROOT/'verif/projector').glob('*')),
-            ROOT/'verif/standalone_census.py',ROOT/'verif/windows_job.py',ROOT/'tools/hostbuild.py',ROOT/'tools/cgen.py',ROOT/'tools/common.py']
+            ROOT/'verif/standalone_census.py',ROOT/'verif/windows_job.py',ROOT/'tools/hostbuild.py',ROOT/'tools/world_registry.py',*sorted((ROOT/'metadata/worlds').glob('*.json')),ROOT/'tools/cgen.py',ROOT/'tools/common.py']
     for top in ['c','native','host']:
         for p in sorted((frozen/top).rglob('*')):
             if p.suffix not in ['.c','.h','.inc']:continue
@@ -136,11 +136,11 @@ def build(literal=False,revision=BASELINE_REVISION):
             if not literal and rel=='native/decimal.c':
                 for needle in ['output->bytes[output->cursor]=digit;','output->bytes[output->cursor]=255;']:
                     if needle in text:text=text.replace(needle,needle+'pr_pointer_write(output->bytes+output->cursor,output->bytes[output->cursor]);')
-                    else:assert any(name+'(' in text for name in ['audio_borrowed_store','palette_borrowed_store','input_borrowed_store','video_pages_borrowed_store','pixel_borrowed_store','presentation_borrowed_store','run_borrowed_store','rng_borrowed_store','player_borrowed_store','resources_borrowed_store','platforms_borrowed_store','actors_borrowed_store','enemies_borrowed_store'])
+                    else:assert any(name+'(' in text for name in ['audio_borrowed_store','palette_borrowed_store','input_borrowed_store','video_pages_borrowed_store','pixel_borrowed_store','presentation_borrowed_store','run_borrowed_store','rng_borrowed_store','player_borrowed_store','resources_borrowed_store','platforms_borrowed_store','actors_borrowed_store','enemies_borrowed_store','world_borrowed_store'])
             if not literal and rel=='native/far_copy.c':
                 needle='destination[destination_cursor]=source[source_cursor];'
                 if needle in text:text=text.replace(needle,needle+'pr_pointer_write(destination+destination_cursor,destination[destination_cursor]);')
-                else:assert any(name+'(' in text for name in ['audio_borrowed_store','palette_borrowed_store','input_borrowed_store','video_pages_borrowed_store','pixel_borrowed_store','presentation_borrowed_store','run_borrowed_store','rng_borrowed_store','player_borrowed_store','resources_borrowed_store','platforms_borrowed_store','actors_borrowed_store','enemies_borrowed_store'])
+                else:assert any(name+'(' in text for name in ['audio_borrowed_store','palette_borrowed_store','input_borrowed_store','video_pages_borrowed_store','pixel_borrowed_store','presentation_borrowed_store','run_borrowed_store','rng_borrowed_store','player_borrowed_store','resources_borrowed_store','platforms_borrowed_store','actors_borrowed_store','enemies_borrowed_store','world_borrowed_store'])
             if not literal and rel=='native/bridge/ice_bridge.c':
                 needle='memcpy(ugh_mem+destination,output,sizeof output);'
                 if needle in text:text=text.replace(needle,needle+'pr_publish(ugh_mem+destination,sizeof output);')

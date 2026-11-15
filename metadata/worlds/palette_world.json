@@ -1,0 +1,27 @@
+{
+  "component": "palette_world",
+  "flag": "UGH_NATIVE_PALETTE",
+  "order": 2,
+  "header": "native/bridge/palette_world_bridge.h",
+  "bridge": "native/bridge/palette_world_bridge.c",
+  "lanes": {
+    "predicate": "palette_is_owned",
+    "declaration": "Authoritative physical-byte membership in this world bridge; aliases are lanes, never independent allocations",
+    "stability": "Fixed physical membership after cold construction; availability may be inactive before import",
+    "bytes": 1536
+  },
+  "cold_import": "palette_cold_import",
+  "seal": "palette_require_seal",
+  "read": "palette_shared_read",
+  "write": "palette_shared_write",
+  "serialize": "palette_serialize",
+  "check": "palette_check_serialization",
+  "owned_bytes": "palette_owned_bytes",
+  "borrowed_byte": "palette_borrowed_byte",
+  "borrowed_store": "palette_borrowed_store",
+  "platform_provider": "verif/palette_platform_model.inc",
+  "compile_flags": [],
+  "gate": {
+    "cases": "verif/world_cases/palette.py"
+  }
+}

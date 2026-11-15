@@ -6,14 +6,22 @@ never at a frame boundary, and do not repair or resynchronize the comparator.
 
 
 def instrument_publication(relative_path, text):
-    if relative_path in ('native/bridge/palette_world_bridge.c','native/bridge/input_world_bridge.c','native/bridge/video_pages_bridge.c','native/bridge/pixel_world_bridge.c','native/bridge/presentation_world_bridge.c','native/bridge/run_world_bridge.c','native/bridge/random_world_bridge.c','native/bridge/player_world_bridge.c','native/bridge/resource_catalog_bridge.c','native/bridge/platform_world_bridge.c','native/bridge/actor_world_bridge.c','native/bridge/enemy_world_bridge.c'):
-        return text # Writes are owner writes, or delegate to the existing audio/unmoved publisher.
+    import world_registry
+    if relative_path == 'c/memory.c' and 'void world_borrowed_store(' in text:
+        store='window[index]=value;'
+        if store in text:text=text.replace(store,store+'pr_pointer_write(window+index,value);')
+        else:assert 'world_borrowed_store(window,index,value)' in text
+        return text
+    if relative_path in {r['bridge'] for r in world_registry.entries()}-{'native/bridge/audio_world_bridge.c','native/bridge/timing_world_bridge.c'}:
+        return text
     if relative_path == 'native/bridge/audio_world_bridge.c':
         store='ugh_mem[address]=source[i];'
         assert text.count(store)==1
         text=text.replace(store,store+'pr_pointer_write(ugh_mem+address,source[i]);')
-        store='window[index]=value;';assert text.count(store)==1
-        return text.replace(store,store+'pr_pointer_write(window+index,value);')
+        store='window[index]=value;'
+        if store in text:text=text.replace(store,store+'pr_pointer_write(window+index,value);')
+        else:assert 'world_borrowed_store(window,index,value)' in text
+        return text
     if relative_path != 'native/bridge/ice_scratch_bridge.c':
         return text
     if 'audio_workspace_publish(' in text:

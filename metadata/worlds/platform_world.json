@@ -1,0 +1,27 @@
+{
+  "component": "platform_world",
+  "flag": "UGH_NATIVE_PLATFORMS",
+  "order": 11,
+  "header": "native/bridge/platform_world_bridge.h",
+  "bridge": "native/bridge/platform_world_bridge.c",
+  "lanes": {
+    "predicate": "platforms_is_owned",
+    "declaration": "Authoritative physical-byte membership in this world bridge; aliases are lanes, never independent allocations",
+    "stability": "Fixed physical membership after cold construction; availability may be inactive before import",
+    "bytes": 160
+  },
+  "cold_import": "platforms_cold_import",
+  "seal": "platforms_require_seal",
+  "read": "platforms_shared_read",
+  "write": "platforms_shared_write",
+  "serialize": "platforms_serialize",
+  "check": "platforms_check_serialization",
+  "owned_bytes": "platforms_owned_bytes",
+  "borrowed_byte": "platforms_borrowed_byte",
+  "borrowed_store": "platforms_borrowed_store",
+  "platform_provider": null,
+  "compile_flags": [],
+  "gate": {
+    "cases": "verif/world_cases/platform.py"
+  }
+}

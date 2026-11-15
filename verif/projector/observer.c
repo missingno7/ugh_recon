@@ -5,68 +5,8 @@
 #include "platform.h"
 #include "world.h"
 #include "observer.h"
-#ifdef UGH_NATIVE_TIMING
+#ifdef UGH_WORLD_REGISTRY
 #include "timing_serializer.h"
-#ifdef UGH_NATIVE_PALETTE
-#define PROJECT_PALETTE_OWNED(a) || palette_is_owned(a)
-#else
-#define PROJECT_PALETTE_OWNED(a)
-#endif
-#ifdef UGH_NATIVE_INPUT
-#define PROJECT_INPUT_OWNED(a) || input_is_owned(a)
-#else
-#define PROJECT_INPUT_OWNED(a)
-#endif
-#endif
-#ifdef UGH_NATIVE_VIDEO_PAGES
-#define PROJECT_PAGES_OWNED(a) || video_pages_is_owned(a)
-#else
-#define PROJECT_PAGES_OWNED(a)
-#endif
-#ifdef UGH_NATIVE_PIXEL
-#define PROJECT_PIXEL_OWNED(a) || pixel_is_owned(a)
-#else
-#define PROJECT_PIXEL_OWNED(a)
-#endif
-#ifdef UGH_NATIVE_PRESENTATION
-#define PROJECT_PRESENTATION_OWNED(a) || presentation_is_owned(a)
-#else
-#define PROJECT_PRESENTATION_OWNED(a)
-#endif
-#ifdef UGH_NATIVE_RUN
-#define PROJECT_RUN_OWNED(a) || run_is_owned(a)
-#else
-#define PROJECT_RUN_OWNED(a)
-#endif
-#ifdef UGH_NATIVE_RANDOM
-#define PROJECT_RANDOM_OWNED(a) || rng_is_owned(a)
-#else
-#define PROJECT_RANDOM_OWNED(a)
-#endif
-#ifdef UGH_NATIVE_PLAYER
-#define PROJECT_PLAYER_OWNED(a) || player_is_owned(a)
-#else
-#define PROJECT_PLAYER_OWNED(a)
-#endif
-#ifdef UGH_NATIVE_RESOURCES
-#define PROJECT_RESOURCES_OWNED(a) || resources_is_owned(a)
-#else
-#define PROJECT_RESOURCES_OWNED(a)
-#endif
-#ifdef UGH_NATIVE_PLATFORMS
-#define PROJECT_PLATFORMS_OWNED(a) || platforms_is_owned(a)
-#else
-#define PROJECT_PLATFORMS_OWNED(a)
-#endif
-#ifdef UGH_NATIVE_ACTORS
-#define PROJECT_ACTORS_OWNED(a) || actors_is_owned(a)
-#else
-#define PROJECT_ACTORS_OWNED(a)
-#endif
-#ifdef UGH_NATIVE_ENEMIES
-#define PROJECT_ENEMIES_OWNED(a) || enemies_is_owned(a)
-#else
-#define PROJECT_ENEMIES_OWNED(a)
 #endif
 #include <stddef.h>
 #include <stdio.h>
@@ -139,8 +79,8 @@ static void assign(const Binding *b,uint32_t raw){
 }
 static void byte_write(uint32_t a,uint8_t v){
     if(a>=UGH_MEM_SIZE)fail("RAM write outside observation storage");
-#ifdef UGH_NATIVE_TIMING
-        if((timing_is_owned(a) PROJECT_PALETTE_OWNED(a) PROJECT_INPUT_OWNED(a) PROJECT_PAGES_OWNED(a) PROJECT_PIXEL_OWNED(a) PROJECT_PRESENTATION_OWNED(a) PROJECT_RUN_OWNED(a) PROJECT_RANDOM_OWNED(a) PROJECT_PLAYER_OWNED(a) PROJECT_RESOURCES_OWNED(a) PROJECT_PLATFORMS_OWNED(a) PROJECT_ACTORS_OWNED(a) PROJECT_ENEMIES_OWNED(a))){
+#ifdef UGH_WORLD_REGISTRY
+        if((world_registry_is_owned(a))){
         fprintf(stderr,"projector: moved publication address %05X value %02X RAM %02X\n",a,v,ugh_mem[a]);
         fail("moved owner received a RAM/journal publication");
     }
@@ -188,7 +128,7 @@ void pr_event(unsigned kind,uint16_t port,unsigned width,uint32_t v){
     if(enabled)append(&events,&nevents,&event_capacity,(ProjectEvent){kind,port,width,v});
 }
 static const uint8_t *observation_memory(void){
-#ifdef UGH_NATIVE_TIMING
+#ifdef UGH_WORLD_REGISTRY
     return project_timing_observation(ugh_mem);
 #else
     return ugh_mem;
@@ -199,49 +139,13 @@ static void serialize(void){
     for(uint32_t a=0;a<UGH_MEM_SIZE;a++)if(dirty[a])output[a]=journal[a];
     for(unsigned i=0;i<N_BINDINGS;i++){
         const Binding *b=&bindings[i];uint32_t v=value(b);
-#ifdef UGH_NATIVE_TIMING
-        if((timing_is_owned(b->address) PROJECT_PALETTE_OWNED(b->address) PROJECT_INPUT_OWNED(b->address) PROJECT_PAGES_OWNED(b->address) PROJECT_PIXEL_OWNED(b->address) PROJECT_PRESENTATION_OWNED(b->address) PROJECT_RUN_OWNED(b->address) PROJECT_RANDOM_OWNED(b->address) PROJECT_PLAYER_OWNED(b->address) PROJECT_RESOURCES_OWNED(b->address) PROJECT_PLATFORMS_OWNED(b->address) PROJECT_ACTORS_OWNED(b->address) PROJECT_ENEMIES_OWNED(b->address)))continue;
+#ifdef UGH_WORLD_REGISTRY
+        if((world_registry_is_owned(b->address)))continue;
 #endif
         for(unsigned j=0;j<b->width;j++)output[b->address+j]=(uint8_t)(v>>(8*j));
     }
-#ifdef UGH_NATIVE_TIMING
-    timing_serialize(output);
-#ifdef UGH_NATIVE_PALETTE
-    palette_serialize(output);
-#endif
-#ifdef UGH_NATIVE_INPUT
-    input_serialize(output);
-#endif
-#ifdef UGH_NATIVE_VIDEO_PAGES
-    video_pages_serialize(output);
-#endif
-#ifdef UGH_NATIVE_PIXEL
-    pixel_serialize(output);
-#endif
-#ifdef UGH_NATIVE_PRESENTATION
-    presentation_serialize(output);
-#endif
-#ifdef UGH_NATIVE_RUN
-    run_serialize(output);
-#endif
-#ifdef UGH_NATIVE_RANDOM
-    rng_serialize(output);
-#endif
-#ifdef UGH_NATIVE_PLAYER
-    player_serialize(output);
-#endif
-#ifdef UGH_NATIVE_RESOURCES
-    resources_serialize(output);
-#endif
-#ifdef UGH_NATIVE_PLATFORMS
-    platforms_serialize(output);
-#endif
-#ifdef UGH_NATIVE_ACTORS
-    actors_serialize(output);
-#endif
-#ifdef UGH_NATIVE_ENEMIES
-    enemies_serialize(output);
-#endif
+#ifdef UGH_WORLD_REGISTRY
+    world_registry_serialize(output);
 #endif
     memcpy(device_output,device_baseline,sizeof device_output);
     for(unsigned i=0;i<N_SERVICES;i++){
@@ -252,45 +156,8 @@ static void serialize(void){
 typedef struct Difference {unsigned kind;uint32_t offset;} Difference;
 static Difference compare(void){
     serialize();
-#ifdef UGH_NATIVE_TIMING
-    uint32_t missed=timing_check_serialization(output);
-#ifdef UGH_NATIVE_PALETTE
-    if(missed==UINT32_MAX)missed=palette_check_serialization(output);
-#endif
-
-#ifdef UGH_NATIVE_INPUT
-    if(missed==UINT32_MAX)missed=input_check_serialization(output);
-#endif
-    #ifdef UGH_NATIVE_VIDEO_PAGES
-    if(missed==UINT32_MAX)missed=video_pages_check_serialization(output);
-    #endif
-    #ifdef UGH_NATIVE_PIXEL
-    if(missed==UINT32_MAX)missed=pixel_check_serialization(output);
-    #endif
-    #ifdef UGH_NATIVE_PRESENTATION
-    if(missed==UINT32_MAX)missed=presentation_check_serialization(output);
-    #endif
-#ifdef UGH_NATIVE_RUN
-    if(missed==UINT32_MAX)missed=run_check_serialization(output);
-#endif
-#ifdef UGH_NATIVE_RANDOM
-    if(missed==UINT32_MAX)missed=rng_check_serialization(output);
-#endif
-#ifdef UGH_NATIVE_PLAYER
-    if(missed==UINT32_MAX)missed=player_check_serialization(output);
-#endif
-#ifdef UGH_NATIVE_RESOURCES
-    if(missed==UINT32_MAX)missed=resources_check_serialization(output);
-#endif
-#ifdef UGH_NATIVE_PLATFORMS
-    if(missed==UINT32_MAX)missed=platforms_check_serialization(output);
-#endif
-#ifdef UGH_NATIVE_ACTORS
-    if(missed==UINT32_MAX)missed=actors_check_serialization(output);
-#endif
-#ifdef UGH_NATIVE_ENEMIES
-    if(missed==UINT32_MAX)missed=enemies_check_serialization(output);
-#endif
+#ifdef UGH_WORLD_REGISTRY
+    uint32_t missed=world_registry_check(output);
     if(missed!=UINT32_MAX)return (Difference){1,missed};
 #endif
     const uint8_t *actual_memory=control_actual?control_actual:observation_memory();
@@ -381,45 +248,8 @@ static void dump(void){
         if(!binding_at[a]){if(dirty[a])unclassified++;else baseline_bytes++;}
     }
     fprintf(f,"{\"baseline_verified\":%s,\"boundaries\":%u,\"terminal_boundaries\":%u,\"last_frame\":%u,",baseline_verified?"true":"false",boundaries,terminal_boundaries,host_frame);
-#ifdef UGH_NATIVE_TIMING
-    fprintf(f,"\"canonical_native_owned_bytes\":%u,\"native_owned_journal_publications\":0,",timing_owned_bytes()
-#ifdef UGH_NATIVE_PALETTE
-    +palette_owned_bytes()
-#endif
-#ifdef UGH_NATIVE_INPUT
-    +input_owned_bytes()
-#endif
-#ifdef UGH_NATIVE_VIDEO_PAGES
-    +video_pages_owned_bytes()
-#endif
-#ifdef UGH_NATIVE_PIXEL
-    +pixel_owned_bytes()
-#endif
-#ifdef UGH_NATIVE_PRESENTATION
-    +presentation_owned_bytes()
-#endif
-#ifdef UGH_NATIVE_RUN
-    +run_owned_bytes()
-#endif
-#ifdef UGH_NATIVE_RANDOM
-    +rng_owned_bytes()
-#endif
-#ifdef UGH_NATIVE_PLAYER
-    +player_owned_bytes()
-#endif
-#ifdef UGH_NATIVE_RESOURCES
-    +resources_owned_bytes()
-#endif
-#ifdef UGH_NATIVE_PLATFORMS
-    +platforms_owned_bytes()
-#endif
-#ifdef UGH_NATIVE_ACTORS
-    +actors_owned_bytes()
-#endif
-#ifdef UGH_NATIVE_ENEMIES
-    +enemies_owned_bytes()
-#endif
-    );
+#ifdef UGH_WORLD_REGISTRY
+    fprintf(f,"\"canonical_native_owned_bytes\":%u,\"native_owned_journal_publications\":0,",world_registry_owned_bytes());
 #endif
     fprintf(f,"\"owners\":[");
     for(unsigned i=0;i<N_OWNERS;i++)fprintf(f,"%s{\"name\":\"%s\",\"typed_bytes\":%llu,\"write_deliveries\":%llu,\"touched_bytes\":%llu}",i?",":"",owner_names[i],typed_bytes[i],writes[i],touched[i]);
@@ -450,14 +280,14 @@ void pr_import(void){
             uint32_t a=b->address+j;if(a>=UGH_MEM_SIZE || binding_at[a])fail("overlapping canonical bindings");binding_at[a]=i+1;
             v|=(uint32_t)import_memory[a]<<(8*j);typed_bytes[b->owner]++;
         }
-#ifdef UGH_NATIVE_TIMING
-        if((timing_is_owned(b->address) PROJECT_PALETTE_OWNED(b->address) PROJECT_INPUT_OWNED(b->address) PROJECT_PAGES_OWNED(b->address) PROJECT_PIXEL_OWNED(b->address) PROJECT_PRESENTATION_OWNED(b->address) PROJECT_RUN_OWNED(b->address) PROJECT_RANDOM_OWNED(b->address) PROJECT_PLAYER_OWNED(b->address) PROJECT_RESOURCES_OWNED(b->address) PROJECT_PLATFORMS_OWNED(b->address) PROJECT_ACTORS_OWNED(b->address) PROJECT_ENEMIES_OWNED(b->address)))continue;
+#ifdef UGH_WORLD_REGISTRY
+        if((world_registry_is_owned(b->address)))continue;
 #endif
         assign(b,v);if(value(b)!=v)fail("cold field codec");
     }
     for(uint32_t a=0;a<UGH_MEM_SIZE;a++)if(!binding_at[a] && baseline[a]!=import_memory[a]){
-#ifdef UGH_NATIVE_TIMING
-        if((timing_is_owned(a) PROJECT_PALETTE_OWNED(a) PROJECT_INPUT_OWNED(a) PROJECT_PAGES_OWNED(a) PROJECT_PIXEL_OWNED(a) PROJECT_PRESENTATION_OWNED(a) PROJECT_RUN_OWNED(a) PROJECT_RANDOM_OWNED(a) PROJECT_PLAYER_OWNED(a) PROJECT_RESOURCES_OWNED(a) PROJECT_PLATFORMS_OWNED(a) PROJECT_ACTORS_OWNED(a) PROJECT_ENEMIES_OWNED(a)))continue;
+#ifdef UGH_WORLD_REGISTRY
+        if((world_registry_is_owned(a)))continue;
 #endif
         dirty[a]=1;journal[a]=import_memory[a];last_frame[a]=host_frame;journal_bytes++;
     }

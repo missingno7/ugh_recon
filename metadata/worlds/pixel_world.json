@@ -1,0 +1,27 @@
+{
+  "component": "pixel_world",
+  "flag": "UGH_NATIVE_PIXEL",
+  "order": 5,
+  "header": "native/bridge/pixel_world_bridge.h",
+  "bridge": "native/bridge/pixel_world_bridge.c",
+  "lanes": {
+    "predicate": "pixel_is_owned",
+    "declaration": "Authoritative physical-byte membership in this world bridge; aliases are lanes, never independent allocations",
+    "stability": "Fixed physical membership after cold construction; availability may be inactive before import",
+    "bytes": 8
+  },
+  "cold_import": "pixel_cold_import",
+  "seal": "pixel_require_seal",
+  "read": "pixel_shared_read",
+  "write": "pixel_shared_write",
+  "serialize": "pixel_serialize",
+  "check": "pixel_check_serialization",
+  "owned_bytes": "pixel_owned_bytes",
+  "borrowed_byte": "pixel_borrowed_byte",
+  "borrowed_store": "pixel_borrowed_store",
+  "platform_provider": "verif/pixel_platform_model.inc",
+  "compile_flags": [],
+  "gate": {
+    "cases": "verif/world_cases/pixel.py"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "component": "input_world",
+  "flag": "UGH_NATIVE_INPUT",
+  "order": 3,
+  "header": "native/bridge/input_world_bridge.h",
+  "bridge": "native/bridge/input_world_bridge.c",
+  "lanes": {
+    "predicate": "input_is_owned",
+    "declaration": "Authoritative physical-byte membership in this world bridge; aliases are lanes, never independent allocations",
+    "stability": "Fixed physical membership after cold construction; availability may be inactive before import",
+    "bytes": 267
+  },
+  "cold_import": "input_cold_import",
+  "seal": "input_require_seal",
+  "read": "input_shared_read",
+  "write": "input_shared_write",
+  "serialize": "input_serialize",
+  "check": "input_check_serialization",
+  "owned_bytes": "input_owned_bytes",
+  "borrowed_byte": "input_borrowed_byte",
+  "borrowed_store": "input_borrowed_store",
+  "platform_provider": "verif/input_platform_model.inc",
+  "compile_flags": [],
+  "gate": {
+    "cases": "verif/world_cases/input.py"
+  }
+}

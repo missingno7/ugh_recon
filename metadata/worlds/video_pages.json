@@ -1,0 +1,27 @@
+{
+  "component": "video_pages",
+  "flag": "UGH_NATIVE_VIDEO_PAGES",
+  "order": 4,
+  "header": "native/bridge/video_pages_bridge.h",
+  "bridge": "native/bridge/video_pages_bridge.c",
+  "lanes": {
+    "predicate": "video_pages_is_owned",
+    "declaration": "Authoritative physical-byte membership in this world bridge; aliases are lanes, never independent allocations",
+    "stability": "Fixed physical membership after cold construction; availability may be inactive before import",
+    "bytes": 16
+  },
+  "cold_import": "video_pages_cold_import",
+  "seal": "video_pages_require_seal",
+  "read": "video_pages_shared_read",
+  "write": "video_pages_shared_write",
+  "serialize": "video_pages_serialize",
+  "check": "video_pages_check_serialization",
+  "owned_bytes": "video_pages_owned_bytes",
+  "borrowed_byte": "video_pages_borrowed_byte",
+  "borrowed_store": "video_pages_borrowed_store",
+  "platform_provider": "verif/video_pages_platform_model.inc",
+  "compile_flags": [],
+  "gate": {
+    "cases": "verif/world_cases/video_pages.py"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "component": "audio_world",
+  "flag": "UGH_NATIVE_AUDIO",
+  "order": 1,
+  "header": "native/bridge/audio_world_bridge.h",
+  "bridge": "native/bridge/audio_world_bridge.c",
+  "lanes": {
+    "predicate": null,
+    "declaration": "Audio bindings are registered by audio_world_bindings into timing_world, preserving the accepted single owner and record12/channel9 aliases.",
+    "stability": "Fixed physical membership after cold construction; availability may be inactive before import",
+    "bytes": 4292
+  },
+  "cold_import": null,
+  "seal": null,
+  "read": null,
+  "write": null,
+  "serialize": null,
+  "check": null,
+  "owned_bytes": null,
+  "borrowed_byte": "audio_borrowed_byte",
+  "borrowed_store": "audio_borrowed_store",
+  "platform_provider": null,
+  "compile_flags": [],
+  "storage_owner": "timing_world",
+  "gate": {
+    "cases": "verif/world_cases/audio.py"
+  }
+}

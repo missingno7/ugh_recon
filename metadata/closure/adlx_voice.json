@@ -300,6 +300,24 @@
         "native/bridge/audio_projection.h",
         "native/audio_bytes.h"
       ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "PASS: existing contract claims unchanged; full representative gate, all 111 controls (including one positive rejection barrier), registry/contract controls and supervisor gate; receipts in build/workers/close-adlx-29",
+      "inputs": [
+        "metadata/closure/adlx_allocation.json",
+        "metadata/closure/adlx_effects.json",
+        "metadata/closure/adlx_loader.json",
+        "metadata/closure/adlx_main.json",
+        "metadata/closure/adlx_music.json",
+        "metadata/closure/adlx_sections.json"
+      ]
     }
   ],
   "proposed_status_reason": "Seven ordinary facade entries implemented over unchanged accepted semantics. Full compiled facade-only stream corpora and70000 ABI/alias pairs,6508 L0 cases, current20 scenarios and isolated cd48651 baseline native host22 units/19 scenarios plus smoke pass.75 positive B profiles cover explicit kernels/cuts/admission/I/O, not a whole asynchronous machine theorem. MMIO load compatibility explicit. Baseline closure23 certificates0 errors; working-tree actor-render files are foreign in progress. Supervisor promotion only.",
@@ -326,12 +344,12 @@
     "c/sound_engine.c": "5e4116c31806441e464de35d5649894ec4eea28025254a2edea616235e6e6881",
     "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
     "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
-    "metadata/closure/adlx_allocation.json": "1aa5f70d194a1ef33eabe4eba3929936016d9e5502f2375f41ead29df075c03c",
-    "metadata/closure/adlx_effects.json": "5495a2eb878ca447310d557527151754a5c22daa2f451525e20e072ddcfabc30",
-    "metadata/closure/adlx_loader.json": "9454cfd26a3fef43c14485797adb8220ffc20410484fc1bfe06e0f96121fc827",
-    "metadata/closure/adlx_main.json": "7d0ce5d35abc0cc3176dc5db9d210a7a1660eafa0a92b8b18db67de489238592",
-    "metadata/closure/adlx_music.json": "e31040b9f7f9c16554654517990989a78791903302360f5b505b5602b674652a",
-    "metadata/closure/adlx_sections.json": "44f00dcad25a1767af151f02ac98f88dba8302caac338472e4406ba01bf9bc71",
+    "metadata/closure/adlx_allocation.json": "contract-v1:78407fa320627bf902f4100e19c27105cf911bd56e06c5157dc620e157e7b858",
+    "metadata/closure/adlx_effects.json": "contract-v1:d7af399ddf3e88d00da6481b7cab101bd06464a1dc2f9e9baa60ee2b378a95e7",
+    "metadata/closure/adlx_loader.json": "contract-v1:8caf7257da607c089e8949607366a343e70682f228e417c43228b64c6a4fcd7f",
+    "metadata/closure/adlx_main.json": "contract-v1:2fa56868bf2a8a101ec7f82f2ed10a108fed065118f1769ad7cbd33859b7cb85",
+    "metadata/closure/adlx_music.json": "contract-v1:7b97103926ab15324510479fabd20c68031d2964d3a7111b42cdec56f6ad46b8",
+    "metadata/closure/adlx_sections.json": "contract-v1:2b81b8f8ab7bb2e0a4de71384c1c9d7fa54526e1e746c2b97086644ca975dcc7",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
     "native/adlx_allocation.c": "4fd567bf96fd73d071073a7d70bd31ad5d0339df16fcea5dd083e87989bbc858",

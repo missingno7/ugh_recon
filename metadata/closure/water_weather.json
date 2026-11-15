@@ -1027,6 +1027,22 @@
       "inputs": [
         "tools/hostbuild.py"
       ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "PASS: existing contract claims unchanged; full representative gate, all 111 controls (including one positive rejection barrier), registry/contract controls and supervisor gate; receipts in build/workers/close-adlx-29",
+      "inputs": [
+        "host/check.py",
+        "metadata/closure/random.json",
+        "tools/closure.py",
+        "tools/hostbuild.py"
+      ]
     }
   ],
   "water_accesses": [
@@ -2127,7 +2143,7 @@
     "tests/menu.py": "968fb180e88fe43264642f12a21650663f31c79df511290879d476d3bd0f5d08",
     "tests/demo_scripts.py": "b71d2044f43b58e9b79cce9039e1a3a8d71a7ca96a6f385abcbdc47edefa95be",
     "verif/random_rain.txt": "817ae7a6551eba3de98b2318cea09a26f0e68f68d368595bd9f570efc9f82ed0",
-    "metadata/closure/random.json": "3499f1fa218d51a7310badc7a3c46f86186b0163b131047f7613e34188ec7efb",
+    "metadata/closure/random.json": "contract-v1:c2dd4cf64b94a77816c64a4174c2c41ce4029345024d52388ea32808dd56755c",
     "native/random.c": "5f77b30dd26cc0e6bc5ce30ce05e1163335004530ed4be4ab07339d3da027f99",
     "native/random.h": "b9f9cabcb38b54a6fec81590179f55aeb036dd21d9cb4eaeb670013dc411d419",
     "native/bridge/random_bridge.c": "3df2829acbc3c96c94154a1d8b062de12033f0df037e9ad1e8a843a77c7453c8",
@@ -2135,13 +2151,13 @@
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
-    "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
+    "tools/closure.py": "4fc04bad986fabe519acd6cfb3b360a66bdfb9c13d204a600e65e0c91e605126",
     "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
-    "tools/hostbuild.py": "ec46292a8d375eb77d0cb2a9467c77c89f5e512bb2ec2e50b86ba7c99369e9b4",
+    "tools/hostbuild.py": "bbefb2573d32e1ac7cc2286af2eff27bf03cdd708b3c1e423b66429647487b15",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
-    "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
+    "host/check.py": "f88a901c22501da281fdfc6ff19c7096c67eada2ac21953c809b9e25d5addc87",
     "docs/architecture-model.md": "7f9bc1f120cf6acceb32858eb178fe0e370219a4a238fb63a6fbc2014ae62dcd",
     "docs/amiga.md": "e0db247ec323f74c2a01aaece7b403125bf9d36c63d0b7282040c8c04b16bcb4"
   }

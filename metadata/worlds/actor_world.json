@@ -1,0 +1,27 @@
+{
+  "component": "actor_world",
+  "flag": "UGH_NATIVE_ACTORS",
+  "order": 12,
+  "header": "native/bridge/actor_world_bridge.h",
+  "bridge": "native/bridge/actor_world_bridge.c",
+  "lanes": {
+    "predicate": "actors_is_owned",
+    "declaration": "Authoritative physical-byte membership in this world bridge; aliases are lanes, never independent allocations",
+    "stability": "Fixed physical membership after cold construction; availability may be inactive before import",
+    "bytes": 768
+  },
+  "cold_import": "actors_cold_import",
+  "seal": "actors_require_seal",
+  "read": "actors_shared_read",
+  "write": "actors_shared_write",
+  "serialize": "actors_serialize",
+  "check": "actors_check_serialization",
+  "owned_bytes": "actors_owned_bytes",
+  "borrowed_byte": "actors_borrowed_byte",
+  "borrowed_store": "actors_borrowed_store",
+  "platform_provider": null,
+  "compile_flags": [],
+  "gate": {
+    "cases": "verif/world_cases/actor.py"
+  }
+}

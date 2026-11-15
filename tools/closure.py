@@ -52,6 +52,33 @@ def actual_dependencies(path):
     Calls().visit(tree)
     return dict(includes=sorted(set(includes)),calls=sorted(calls))
 
+CONTRACT_VERSION='contract-v1:'
+CONTRACT_EXCLUDED={'verification_inputs','evidence_refreshed'}
+
+def contract_projection(certificate):
+    """Everything that can state a contract/claim, excluding lock bookkeeping.
+
+    Keeping unknown fields is deliberate: a newly added claim cannot accidentally
+    escape dependent invalidation. Arrays retain order; JSON object keys do not.
+    """
+    return {k:v for k,v in certificate.items() if k not in CONTRACT_EXCLUDED}
+
+def contract_digest(certificate):
+    data=json.dumps(contract_projection(certificate),sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False).encode('utf-8')
+    return CONTRACT_VERSION+hashlib.sha256(data).hexdigest()
+
+def certificate_input(path):
+    path=Path(path).resolve()
+    return path.parent==(ROOT/'metadata/closure').resolve() and path.suffix=='.json'
+
+def input_digest(path,mode='sha256-bytes'):
+    path=Path(path)
+    if certificate_input(path):return contract_digest(json.loads(path.read_text(encoding='utf-8')))
+    if mode not in ('sha256-bytes','sha256-lf-text'):raise ValueError('invalid verification_input_hashing')
+    data=path.read_bytes()
+    if mode=='sha256-lf-text':data=data.replace(b'\r\n',b'\n')
+    return hashlib.sha256(data).hexdigest()
+
 def validate():
     errors=[];owners={};count=0;original_offsets=set()
     for path in sorted((ROOT/'metadata/closure').glob('*.json')):
@@ -73,9 +100,7 @@ def validate():
                 if not p.is_relative_to(ROOT.resolve()) or not p.is_file():raise ValueError(f'invalid verification input {name}')
                 mode=cert.get('verification_input_hashing','sha256-bytes')
                 if mode not in ('sha256-bytes','sha256-lf-text'):raise ValueError('invalid verification_input_hashing')
-                data=p.read_bytes()
-                if mode=='sha256-lf-text':data=data.replace(b'\r\n',b'\n')
-                if hashlib.sha256(data).hexdigest()!=expected:raise ValueError(f'stale verification input {name}; rerun evidence and review certificate')
+                if input_digest(p,mode)!=expected:raise ValueError(f'stale verification input {name}; rerun evidence and review certificate')
             for evidence in cert['evidence']:
                 for key in ('property','level','method','command','result','date'):
                     if not evidence.get(key):raise ValueError(f'evidence missing {key}')

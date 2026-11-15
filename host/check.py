@@ -16,13 +16,14 @@ OUT = ROOT/'build/workers/host-native'
 BUILD_VARIANT = {'native': 'native-bridged', 'literal': 'literal'}
 
 
-def require_built_variant(variant):
+def require_built_variant(variant,output=None):
+    output=Path(output) if output else ROOT/'build/host'
     """Refuse to check an executable that tools/hostbuild.py did not build as this variant."""
-    receipt = json.loads((ROOT/'build/host/hostbuild.json').read_text())
+    receipt = json.loads((output/'hostbuild.json').read_text())
     if receipt.get('variant') != BUILD_VARIANT[variant]:
         raise SystemExit(f"build/host/ugh.exe is the {receipt.get('variant')!r} build; "
                          f"run python tools/hostbuild.py{' --literal' if variant == 'literal' else ''} first")
-    digest = hashlib.sha256((ROOT/'build/host/ugh.exe').read_bytes()).hexdigest()
+    digest = hashlib.sha256((output/'ugh.exe').read_bytes()).hexdigest()
     if receipt.get('executable_sha256') != digest:
         raise SystemExit('build/host/ugh.exe does not match build/host/hostbuild.json; rebuild it')
     return receipt
@@ -32,9 +33,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('scenarios', nargs='*')
     parser.add_argument('--variant',choices=('native','literal'),default='native')
+    parser.add_argument('--out',type=Path,help='host build directory (default build/host)')
+    parser.add_argument('--receipt-dir',type=Path,help='check receipt directory')
     args = parser.parse_args()
-    build = require_built_variant(args.variant)
-    OUT.mkdir(parents=True,exist_ok=True)
+    output=args.out or ROOT/'build/host'
+    build = require_built_variant(args.variant,output)
+    receipt_dir=args.receipt_dir or OUT
+    receipt_dir.mkdir(parents=True,exist_ok=True)
     paths=sorted((ROOT/'tests/scenarios').glob('*.txt'))
     if args.scenarios:
         missing=set(args.scenarios)-{p.stem for p in paths}
@@ -45,7 +50,7 @@ def main():
         reference=json.loads((ROOT/'build/whole'/f'{path.stem}.ref.json').read_text())['frames']
         # Scenario frame bound includes room for a terminal record.
         frames=next(int(line.split()[1]) for line in path.read_text().splitlines() if line.startswith('frames '))
-        command=[str(ROOT/'build/host/ugh.exe'),'--headless',str(frames),'--script',str(path),'--timeout','90']
+        command=[str(output/'ugh.exe'),'--headless',str(frames),'--script',str(path),'--timeout','90']
         started=time.perf_counter()
         try:
             p=subprocess.run(command,capture_output=True,text=True,timeout=95,cwd=ROOT)
@@ -60,13 +65,13 @@ def main():
         results.append(row)
         print(('PASS' if row['passed'] else 'FAIL')+f' {path.stem}: '+str(row.get('boundaries',0))+' boundaries',flush=True)
     # The smoke mode runs the original recorded attract scripts, bounded by flips.
-    p=subprocess.run([str(ROOT/'build/host/ugh.exe'),'--headless','256','--smoke','256','--timeout','30'],
+    p=subprocess.run([str(output/'ugh.exe'),'--headless','256','--smoke','256','--timeout','30'],
                      capture_output=True,text=True,timeout=35,cwd=ROOT)
     smoke=dict(passed=p.returncode==0 and len(p.stdout.splitlines())==256,stderr=p.stderr)
     print('PASS smoke: 256 attract frames' if smoke['passed'] else 'FAIL smoke',flush=True)
     receipt=dict(variant=args.variant,executable_sha256=build['executable_sha256'],
                  linked_units=len(build.get('linked_units',[])),passed=all(r['passed'] for r in results) and smoke['passed'],scenarios=results,smoke=smoke)
-    (OUT/f'host-check-{args.variant}.json').write_text(json.dumps(receipt,indent=2)+'\n')
+    (receipt_dir/f'host-check-{args.variant}.json').write_text(json.dumps(receipt,indent=2)+'\n')
     return 0 if receipt['passed'] else 1
 
 

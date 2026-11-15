@@ -1,0 +1,27 @@
+{
+  "component": "player_world",
+  "flag": "UGH_NATIVE_PLAYER",
+  "order": 9,
+  "header": "native/bridge/player_world_bridge.h",
+  "bridge": "native/bridge/player_world_bridge.c",
+  "lanes": {
+    "predicate": "player_is_owned",
+    "declaration": "Authoritative physical-byte membership in this world bridge; aliases are lanes, never independent allocations",
+    "stability": "Fixed physical membership after cold construction; availability may be inactive before import",
+    "bytes": 92
+  },
+  "cold_import": "player_cold_import",
+  "seal": "player_require_seal",
+  "read": "player_shared_read",
+  "write": "player_shared_write",
+  "serialize": "player_serialize",
+  "check": "player_check_serialization",
+  "owned_bytes": "player_owned_bytes",
+  "borrowed_byte": "player_borrowed_byte",
+  "borrowed_store": "player_borrowed_store",
+  "platform_provider": null,
+  "compile_flags": [],
+  "gate": {
+    "cases": "verif/world_cases/player.py"
+  }
+}

@@ -174,7 +174,7 @@
     "native/bridge/frontend_borrow.h": "871b0c43aa2963777d97a8357d61158a1c633aecbaa6d984ce88688ac5fcd4af",
     "native/bridge/menus_bridge.c": "b8757935ff1041f79e66305e166a9ab20bce5a279ccc242c33719371c48aa0a8",
     "native/bridge/high_scores_bridge.c": "75a65b2430f4f3b25b71293ece798fcbc3ea7cc9f53813e2dd7c919fc4826270",
-    "native/bridge/session_bridge.c": "bfe0bc0928f2c18f815382af933df4a4b7804f8cb40a7ed446c4cd3558d0b72d",
+    "native/bridge/session_bridge.c": "359c6e1c84c03c03c535fe3e1fa344063f9d651d47acfdfefd78aee03275c8e8",
     "native/bridge/front_end_support.h": "f0c88cd3f6cc6aa07123a7345aa9a7d5fcf1fe713903ee6cc8cbaf457daeb8ec",
     "verif/front_end_world_router.c": "59b8d0558f7873deb542bcb1992aea2fe9d60a5b2b6d7bea126a5609149fda41",
     "verif/front_end_world_byte_proof.c": "deded1c2fe41368627a34dd90032aff12c8bc4ae7a29eec236e67dd7e65cf035",
@@ -234,6 +234,19 @@
         "python tools/gate.py --jobs 3 --out build/workers/cut-6b/sgate"
       ],
       "results": "PASS: complete world gate;956 independent L1/native comparisons, no rejections or compatibility fallbacks; exact profile/poison coverage;757 score +805 menu/text +156 session cases;15/15 controls;182 moved bytes,12141 native total; both hosts21/21, projector/census,81+7+8 levels both variants. Final supervisor receipt is build/workers/cut-6b/sgate/receipt.json."
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "Pending process-refactor replay",
+      "inputs": [
+        "native/bridge/session_bridge.c"
+      ]
     }
   ]
 }

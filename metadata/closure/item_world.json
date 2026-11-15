@@ -191,24 +191,24 @@
     "native/bridge/item_world_bridge.h": "559d7319efda35d9a52767da802f29fd8792ba1a89949483ba195cddf19b8465",
     "native/bridge/item_world_bridge.c": "d99b6899f36141d0590585e23266edc8c7afd8707e6b6453ab6d6613fabefaf0",
     "native/bridge/items_borrow.h": "ba843ddc46e6e1d423a3d178fd811cbbd952710433ce920e04c84f435939bdeb",
-    "metadata/worlds/item_world.json": "fb2a8998ecea11b59d9cee6708735534a0d862c2f8412eec612e07dbfd9d3761",
+    "metadata/worlds/item_world.json": "5e1b3143a0720dc814a5e94cdfc9bdef04aaa1a6a58e81fc8cef46189e1576f5",
     "verif/world_cases/item.py": "b25212a00c5d542ad4fb98c7bdcaf518f6323778add7449b7a502922184df61b",
     "verif/world_cases/legacy_item.py": "078303198c7b74853c5411e8b9a035639d5ca8d51547a09d4189540c0afa39f4",
     "verif/item_world_router.c": "401240f60f48c712a51ca3218fac35a3acc2c75dae71ce01b065fa1487ee3c3e",
     "verif/item_world_byte_proof.c": "a59b2ffa5503cba54a4225a456634f3dec71d4e200b6266266f597952ed5f77a",
     "verif/item_world_cases.py": "eb60421affc550596fe9f67e0102a7282a019da4fb8eaf715d1d87bef001b59a",
     "docs/standalone-cuts.md": "ae06aa47864cfbf2cefce111370f82678c75f5198fb95620c4c13e0e633b4d2e",
-    "docs/standalone-ledger.md": "b232c5e0e4ebd04d94aeea9b4369ab3da07eb0725bbf2cba1a1ed0636bbed41c",
+    "docs/standalone-ledger.md": "624beb95ebaa6f3e585be85d8c96bc9e04612228dc563d12a06f16fc6a437b6a",
     "tools/world_registry.py": "54fdfc61a0509112ab2049af29f7321f56718084637a1fce04b0b89429159b99",
-    "verif/world_gate.py": "8b6fe931efea911a385cb7cf8244011a3783f547ba2f7f0028ccec33196d4681",
-    "verif/world_api.py": "f366496fb7ecc0b16516ada42fd7ca75ddb191e74be5e67f5a03fdcbf2a81f33",
+    "verif/world_gate.py": "2ba63041f75fd9c9c0b368ce40ef6ec1e40bb692bc17940c1dcf06f2b3311763",
+    "verif/world_api.py": "a83bc75b4264a5ed575e8716eba52478a858556dfdba447107dc90e0e982569e",
     "verif/job_pool.py": "fd3a52cb8cb4dacd758e930a00ead9c5016776817d18d687a59d5399aa46348a",
     "native/bridge/actor_render_bridge.c": "fb5336186ea4b0e2016a6e7a9fb8ea79aa6ba391a23cc51b37aed4b4f798cf4e",
     "native/bridge/contacts_bridge.c": "fb4807cf6ac7d2415d64c02b25e9981febf5a3e746bb0e9a9fa53f740bc68059",
     "native/bridge/hazards_bridge.c": "d8f700db96794f704a87d6a958b06d9d3579f83b1d29dc729a040a20147b49c8",
     "native/bridge/items_bridge.c": "5cb0719e8e21a6e776ca9c9ba7ca857f40bac993507bf94d03f8be518c0c296a",
     "native/bridge/passenger_delivery_bridge.c": "55357194b960fac8bc6dfc7e463988b7e971804dc50016bf8c9518aac032792b",
-    "native/bridge/session_bridge.c": "88d19ef8e11d8789e2e81c787eeb79568c346ae5eb11706b3ce30ab74c054b40",
+    "native/bridge/session_bridge.c": "359c6e1c84c03c03c535fe3e1fa344063f9d651d47acfdfefd78aee03275c8e8",
     "native/bridge/session_support.h": "f240e422b33c4acb872c0f5521310454c8b199ce69b6376e94661a02b2271dd7",
     "verif/world_cases/legacy_adapter.py": "9978014371764ca9a123efe557fe62a6b0fef06f0e19a52b944bf72fbb14d677",
     "docs/item-storage.md": "a115a85a88e9e3593a5febd27d771bae7ac366e4adfc98c8c566256d1cc5ef9b"
@@ -227,6 +227,23 @@
       "results": "PASS: native12247 bytes (+288),15 stages,17,955 projector boundaries, zero owner journals/fallbacks/L1 game bodies,820 borrower cases,2,568 API runs per profile,11 declared defects, both hosts21/21 and81+7+8 levels;116 instrumented runs match. Native item_land reached; landing/contact adapter zero counts have explicit direct API witnesses.",
       "receipt": "build/workers/cut-5g/gate/receipt.json",
       "supervisor": "build/workers/cut-5g/sgate/receipt.json"
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "Pending process-refactor replay",
+      "inputs": [
+        "docs/standalone-ledger.md",
+        "metadata/worlds/item_world.json",
+        "native/bridge/session_bridge.c",
+        "verif/world_api.py",
+        "verif/world_gate.py"
+      ]
     }
   ]
 }

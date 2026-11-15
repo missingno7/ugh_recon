@@ -178,8 +178,8 @@
     "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
     "metadata/closure/player_physics.json": "contract-v1:6372b8740111c0a23fd48e558cf3d148b8132c4580b9657cdac3d9346d3a684e",
     "metadata/closure/water_weather.json": "contract-v1:01d982a43fc467bd40a206d21b72fe3f232fe8e293ea9b6b835e504e9c6f67c6",
-    "metadata/closure/session.json": "contract-v1:904561d2fc11c86a6e692a4cd818ac5dfde39804bda868a41d0d73baf78a86bb",
-    "metadata/closure/demo_presentation.json": "contract-v1:0f22dc6eabf7bc0871121e4348c6a0531608708898fd86de9a788795db81fe40",
+    "metadata/closure/session.json": "contract-v1:8a2a88a82f78ec14b72be429a6fd76d21a5253fa8a0698bee1c26ef6c536d9ef",
+    "metadata/closure/demo_presentation.json": "contract-v1:99fd221cc05bb81ddbdba627d7dd9195da3bb2483d896017133b7ca5dcce028a",
     "verif/video_pages_composition.py": "3d7bb7b8d3a2ae397b1dc73e963f88e727c268608339df14b9b17ee98ee313be",
     "metadata/closure/video_pages.json": "contract-v1:446da768622f883de709b9e9f330cb1a430f259aa00bd89fe559b9322f5f5eac",
     "metadata/closure/hud.json": "contract-v1:0f01d1dc347671c24c79558674bc21730aeffdc44725e604e8a3dcdf4ac43e6a",
@@ -697,6 +697,20 @@
         "native/bridge/menus_bridge.c",
         "verif/world_api.py",
         "verif/world_gate.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut6A native session/demo scratch ownership and native synchronous frame driver; relock only changed direct source inputs or actual dependency contracts, with no note/lock-only cascade.",
+      "commands": [
+        "python verif/world_gate.py session_world --jobs 3 --out build/workers/cut-6a/gate",
+        "python verif/world_gate.py session_world --finalize --locks --out build/workers/cut-6a/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-6a/sgate"
+      ],
+      "results": "PASS: complete cut6A world gate; byte router/CBMC,144 matching API comparisons per profile (composed142 native plus2 explicitly inventoried existing empty-vector compatibility executions),16/16 controls, native driver failure prefixes, literal loader/demo witnesses, projector/census, both hosts21/21 and81+7+8 levels both variants. Separate supervisor receipt: build/workers/cut-6a/sgate/receipt.json.",
+      "inputs": [
+        "metadata/closure/demo_presentation.json",
+        "metadata/closure/session.json"
       ]
     }
   ]

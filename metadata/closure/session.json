@@ -186,16 +186,17 @@
         "player_borrow.h",
         "run_borrow.h",
         "session_actor_render.h",
+        "sessionstate_borrow.h",
         "stdlib.h"
       ],
       "calls": [
         "D",
         "abort",
-        "itemstate_read16",
-        "itemstate_read8",
-        "itemstate_write16",
         "session_draw_layer",
         "session_erase_layer",
+        "sessionstate_read16",
+        "sessionstate_read8",
+        "sessionstate_write16",
         "sq_layer_view",
         "sq_require",
         "sq_word"
@@ -209,6 +210,7 @@
     },
     "native/bridge/session_bridge.c": {
       "includes": [
+        "../session_world.h",
         "actors_borrow.h",
         "enemies_borrow.h",
         "frontend_borrow.h",
@@ -217,7 +219,8 @@
         "platforms_borrow.h",
         "player_borrow.h",
         "run_borrow.h",
-        "session_support.h"
+        "session_support.h",
+        "sessionstate_borrow.h"
       ],
       "calls": [
         "B",
@@ -239,10 +242,6 @@
         "dec16",
         "flag",
         "frontend_read8",
-        "itemstate_read16",
-        "itemstate_read8",
-        "itemstate_write16",
-        "itemstate_write8",
         "lodsw",
         "logic",
         "platform_service_point_at",
@@ -288,6 +287,11 @@
         "session_record_previous",
         "session_reset_value",
         "session_water_cap",
+        "session_world_run",
+        "sessionstate_read16",
+        "sessionstate_read8",
+        "sessionstate_write16",
+        "sessionstate_write8",
         "set_al",
         "sq_bool",
         "sq_draw_enemies",
@@ -323,9 +327,9 @@
     "native/bridge/lifecycle_bridge.c": "55367727d28612cbd78da2373affbdb81d086ed8160f3f968013df16a0b4467e",
     "native/session.h": "843e2fa75fc55024f787804ff00c20505238381d4f02dc891e02d937f1e05d20",
     "native/session.c": "731afa9e3ade606e09a77fce94d6a762a5080554863a31cec183a6c7f4121634",
-    "native/bridge/session_support.h": "f240e422b33c4acb872c0f5521310454c8b199ce69b6376e94661a02b2271dd7",
+    "native/bridge/session_support.h": "7df8b311866e11d391cea33896ab84a1b1bc8373f933fd7661a131f1fb324226",
     "native/bridge/session_actor_render.h": "f90681ea84d69ee4491d4453d1229afe5cb7477cd1941061b3956e4e5a6dd9d0",
-    "native/bridge/session_bridge.c": "359c6e1c84c03c03c535fe3e1fa344063f9d651d47acfdfefd78aee03275c8e8",
+    "native/bridge/session_bridge.c": "dc657cd3fd640655b033c915fedffaba477d75fe1c1edf1e7943238c3e64be8d",
     "verif/sequencing_actor_refresh.py": "c3ed724e359d4518f0a500a28d8ffcd04b98f8b40825e8b1e26b2a3ef4b5a041",
     "verif/sequencing_baseline.py": "a06616efc43adda5c8c114170b9a879b396d0f2ed7dceaa1275f1cb9141bff70",
     "verif/sequencing_build.py": "bd643b01f6781f48eab591d8a33fa9346fec85bb903fb1136a1c9f39e5b4f98f",
@@ -7524,6 +7528,20 @@
         "native/bridge/lifecycle_bridge.c",
         "native/bridge/session_bridge.c",
         "verif/lifecycle_shells.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut6A native session/demo scratch ownership and native synchronous frame driver; relock only changed direct source inputs or actual dependency contracts, with no note/lock-only cascade.",
+      "commands": [
+        "python verif/world_gate.py session_world --jobs 3 --out build/workers/cut-6a/gate",
+        "python verif/world_gate.py session_world --finalize --locks --out build/workers/cut-6a/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-6a/sgate"
+      ],
+      "results": "PASS: complete cut6A world gate; byte router/CBMC,144 matching API comparisons per profile (composed142 native plus2 explicitly inventoried existing empty-vector compatibility executions),16/16 controls, native driver failure prefixes, literal loader/demo witnesses, projector/census, both hosts21/21 and81+7+8 levels both variants. Separate supervisor receipt: build/workers/cut-6a/sgate/receipt.json.",
+      "inputs": [
+        "native/bridge/session_bridge.c",
+        "native/bridge/session_support.h"
       ]
     }
   ]

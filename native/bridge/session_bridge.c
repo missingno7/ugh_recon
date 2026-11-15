@@ -1,4 +1,9 @@
 #include "platform.h"
+#ifndef SESSIONSTATE_BORROWER
+#define SESSIONSTATE_BORROWER SESSIONSTATE_BORROW_SESSION
+#endif
+#include "sessionstate_borrow.h"
+#include "platform.h"
 #ifndef ITEMSTATE_BORROWER
 #define ITEMSTATE_BORROWER ITEMSTATE_BORROW_SESSION
 #endif
@@ -33,11 +38,11 @@
 #endif
 #include "run_borrow.h"
 #include "session_support.h"
-static void push(Regs *r,uint16_t v) { r->sp=(uint16_t)(r->sp-2); itemstate_write16(r->ss,r->sp,v); }
+static void push(Regs *r,uint16_t v) { r->sp=(uint16_t)(r->sp-2); sessionstate_write16(r->ss,r->sp,v); }
 
-static uint16_t pop(Regs *r) { uint16_t v=itemstate_read16(r->ss,r->sp); r->sp=(uint16_t)(r->sp+2); return v; }
+static uint16_t pop(Regs *r) { uint16_t v=sessionstate_read16(r->ss,r->sp); r->sp=(uint16_t)(r->sp+2); return v; }
 
-static void lodsw(Regs *r) { r->ax=itemstate_read16(r->ds,r->si); r->si=(uint16_t)(r->si+2*step(r)); }
+static void lodsw(Regs *r) { r->ax=sessionstate_read16(r->ds,r->si); r->si=(uint16_t)(r->si+2*step(r)); }
 
 static void cmp8(Regs *r,uint8_t a,uint8_t b) {
     uint8_t v=(uint8_t)(a-b);
@@ -54,20 +59,20 @@ static int scene_far_call(Regs *r,uint16_t seg,uint16_t off,uint16_t ret) {
     r->sp=(uint16_t)(r->sp+4); return st;
 }
 
-#define R(n) itemstate_read16(r->ds,D(n))
-#define W(n,v) itemstate_write16(r->ds,D(n),(uint16_t)(v))
-#define RX(n,i) itemstate_read16(r->ds,(uint16_t)(D(n)+(i)))
-#define WX(n,i,v) itemstate_write16(r->ds,(uint16_t)(D(n)+(i)),(uint16_t)(v))
+#define R(n) sessionstate_read16(r->ds,D(n))
+#define W(n,v) sessionstate_write16(r->ds,D(n),(uint16_t)(v))
+#define RX(n,i) sessionstate_read16(r->ds,(uint16_t)(D(n)+(i)))
+#define WX(n,i,v) sessionstate_write16(r->ds,(uint16_t)(D(n)+(i)),(uint16_t)(v))
 #define CALL(n,ret) do { int status=ugh_call_near(G(n),ret,r); if(status) return status; } while(0)
 
 static int sq_password(Regs *r,uint16_t key){
  SessionPassword password;session_password_begin(&password);
  r->cx=logic(r,0,16);r->bx=R(PlayerArrayBytes);
- key=sq_word(key,(uint16_t)(r->bx-2u));r->si=itemstate_read16(r->ds,(uint16_t)(D(PasswordListPointers)+key));
+ key=sq_word(key,(uint16_t)(r->bx-2u));r->si=sessionstate_read16(r->ds,(uint16_t)(D(PasswordListPointers)+key));
  for(;;){
   session_password_candidate(&password);r->bx=logic(r,0,16);r->bp=logic(r,0,16);
   for(unsigned chars=0;chars<65536;chars++){
-   set_al(r,itemstate_read8(r->ds,r->si));r->si=(uint16_t)(r->si+step(r));logic(r,(uint8_t)r->ax,8);
+   set_al(r,sessionstate_read8(r->ds,r->si));r->si=(uint16_t)(r->si+step(r));logic(r,(uint8_t)r->ax,8);
    SessionPasswordResult decision=session_password_byte((uint8_t)r->ax);
    if(sq_bool(decision==PASSWORD_END,!(uint8_t)r->ax))break;
    if(sq_bool(decision==PASSWORD_DEFAULT,(uint8_t)r->ax==255)){r->cx=logic(r,0,16);r->cx=sq_word(session_password_selected(&password,1),r->cx);return UGH_OK;}
@@ -176,6 +181,78 @@ case SESSION_SWAP_PAGE:target=G(SwapAndDisplayVgaPage);ret=(uint16_t)(G(RunGameF
 default:abort();}
 return ugh_call_near(target,ret,r);}
 
+#ifdef UGH_NATIVE_SESSION
+#include "../session_world.h"
+static SessionWorld sq_observe(void *context,SessionPhase phase){return sq_world(context,phase);}
+static int sq_execute(void *context,SessionRequest e){
+ Regs *r=context;int status=0;
+  switch(e.action){
+  case SESSION_PASSWORD:status=sq_password(r,e.index);break;
+  case SESSION_SELECT_LEVEL:W(CurrentLevelIndex,sq_word(e.value,r->cx));break;
+  case SESSION_START_MUSIC:
+   push(r,sq_word(e.value,0xa5));push(r,0);push(r,UGH_S_B3444_ext_3444);push(r,0);
+   status=scene_far_call(r,UGH_S_C_StartMusicTrack,UGH_O_C_StartMusicTrack,G(RunGameFromPassword)+0x73);
+   if(!status){r->sp=add16(r,r->sp,8,0);}break;
+  case SESSION_STOP_INITIAL_MUSIC:case SESSION_STOP_LEVEL_MUSIC:
+   if(e.action==SESSION_STOP_LEVEL_MUSIC){r->cx=R(ScreenFadeLevel);sub16(r,r->cx,0,0);sq_require((int16_t)r->cx<0);}
+   push(r,sq_word(e.value,0x11));status=scene_far_call(r,UGH_S_C_StopMusicTrack,UGH_O_C_StopMusicTrack,(uint16_t)(G(RunGameFromPassword)+(e.action==SESSION_STOP_INITIAL_MUSIC?0x57:0x3a7)));
+   if(!status){r->sp=add16(r,r->sp,2,0);}break;
+  case SESSION_FADE_UPLOAD:case SESSION_WAIT_RETRACE:
+   r->cx=R(ScreenFadeLevel);sub16(r,r->cx,0,0);sq_require((int16_t)r->cx>=0);sub16(r,r->cx,256,0);
+   sq_require((e.action==SESSION_FADE_UPLOAD)==((int16_t)r->cx<=256));r->cx=sq_word(e.value,r->cx);status=sq_near(r,e);break;
+  case SESSION_FADE_ADVANCE:r->cx=add16(r,r->cx,R(ScreenFadeStep),0);W(ScreenFadeLevel,sq_word(e.value,r->cx));break;
+  case SESSION_ERASE_PLAYER_BEGIN:case SESSION_DRAW_PLAYER_BEGIN:r->bx=logic(r,0,16);break;
+  case SESSION_ERASE_PLAYER_NEXT:case SESSION_DRAW_PLAYER_NEXT:case SESSION_MOVE_NEXT:
+   r->bx=add16(r,r->bx,2,0);r->bx=sq_word(e.index,r->bx);
+   if(e.action==SESSION_MOVE_NEXT){sub16(r,r->bx,R(PlayerCount),0);sq_bool(e.decision,r->bx==R(PlayerCount));}
+   else {sub16(r,r->bx,R(PlayerArrayBytes),0);sq_bool(e.decision,r->bx!=R(PlayerArrayBytes));}break;
+  case SESSION_ERASE_PLAYER:case SESSION_DRAW_PLAYER:case SESSION_MOVE_PLAYER:r->bx=sq_word(e.index,r->bx);status=sq_near(r,e);break;
+  case SESSION_ERASE_ACTORS:status=actor_render_session_GAME_ERASE(r);break;
+  case SESSION_DRAW_ACTORS:status=actor_render_session_GAME_DRAW(r);break;
+  case SESSION_DRAW_OVERLAYS:status=actor_render_session_GAME_OVERLAY(r);break;
+  case SESSION_ERASE_ENEMIES:status=sq_erase_enemies(r);break;
+  case SESSION_ERASE_ITEMS:status=sq_erase_items(r);break;
+  case SESSION_DRAW_ITEMS:status=sq_draw_items(r);break;
+  case SESSION_DRAW_ENEMIES_BACK:status=sq_draw_enemies(r,0);break;
+  case SESSION_DRAW_ENEMIES_FRONT:status=sq_draw_enemies(r,1);break;
+  case SESSION_IO_POINT:status=platform_service_point_at(SERVICE_IO,r->cs,G(RunGameFromPassword)+0x174,r);break;
+  case SESSION_ESCAPE:
+   if(sq_bool(e.decision,(uint8_t)r->ax==1)){
+    sessionstate_write8(r->ds,D(LivesRemaining),0);sub16(r,R(ScreenFadeStep),0,0);
+    if(sq_bool(e.index,(int16_t)R(ScreenFadeStep)>=0)){r->ax=sq_word(e.other,0xfffe);W(ScreenFadeStep,r->ax);W(ScreenFadeLevel,sq_word(e.value,add16(r,R(ScreenFadeLevel),r->ax,0)));}
+   }break;
+  case SESSION_MOVE_BEGIN:{
+   sub16(r,R(ScreenFadeLevel),192,0);int move=(int16_t)R(ScreenFadeLevel)>192;
+   if(!move){sub16(r,R(ScreenFadeStep),0,0);move=(int16_t)R(ScreenFadeStep)<=0;}
+   if(sq_bool(e.decision,move)){r->bx=logic(r,0,16);}break;}
+  case SESSION_OUTCOME:logic(r,sessionstate_read8(r->ds,D(LevelCompletionMarker)),8);sq_bool(e.decision,!!(r->flags&SF));break;
+  case SESSION_DECREMENT_LIVES:{
+   uint8_t old=sessionstate_read8(r->ds,D(LivesRemaining)),v=(uint8_t)(old-1);uint16_t carry=r->flags&CF;
+   flag(r,OF,old==128);flag(r,AF,((old^v^1)&16)!=0);szp(r,v,8);flag(r,CF,carry);
+   sessionstate_write8(r->ds,D(LivesRemaining),(uint8_t)sq_word(e.value,v));sq_bool(e.decision,v && !(r->flags&SF));break;}
+  case SESSION_RESET_MULTIPLIER:sessionstate_write8(r->ds,D(ScoreMultiplier),(uint8_t)sq_word(e.value,1));break;
+  case SESSION_INCREMENT_LEVEL:{
+   r->ax=R(CurrentLevelIndex);uint16_t carry=r->flags&CF;r->ax=add16(r,r->ax,1,0);flag(r,CF,carry);W(CurrentLevelIndex,sq_word(e.value,r->ax));break;}
+  case SESSION_TEST_LEVEL_LIMIT:
+   r->bx=sub16(r,R(PlayerArrayBytes),2,0);r->bx=sq_word(e.index,r->bx);
+   sub16(r,r->ax,RX(LevelCountsByPlayerMode,r->bx),0);sq_bool(e.decision,!!(r->flags&CF));break;
+  case SESSION_RETURN:break;
+  case SESSION_FINISHED:abort();
+  case SESSION_INVALID:abort();
+  default:status=sq_near(r,e);break;
+  }
+ return status;
+}
+static int sq_diagnostic(void *context,const SessionProcess *process){
+ (void)context;
+ /* Verification-only guard. Native orchestration has no gameplay frame limit. */
+ return process->completed_frames==100000?UGH_BUDGET:UGH_OK;
+}
+EXPORT int c_RunGameFromPassword(Regs *r){
+ const SessionServices services={sq_observe,sq_execute,sq_diagnostic};
+ return session_world_run(&services,r);
+}
+#else
 EXPORT int c_RunGameFromPassword(Regs *r){
  SessionProcess process;session_begin(&process);
  for(;;){
@@ -212,19 +289,19 @@ EXPORT int c_RunGameFromPassword(Regs *r){
   case SESSION_IO_POINT:status=platform_service_point_at(SERVICE_IO,r->cs,G(RunGameFromPassword)+0x174,r);break;
   case SESSION_ESCAPE:
    if(sq_bool(e.decision,(uint8_t)r->ax==1)){
-    itemstate_write8(r->ds,D(LivesRemaining),0);sub16(r,R(ScreenFadeStep),0,0);
+    sessionstate_write8(r->ds,D(LivesRemaining),0);sub16(r,R(ScreenFadeStep),0,0);
     if(sq_bool(e.index,(int16_t)R(ScreenFadeStep)>=0)){r->ax=sq_word(e.other,0xfffe);W(ScreenFadeStep,r->ax);W(ScreenFadeLevel,sq_word(e.value,add16(r,R(ScreenFadeLevel),r->ax,0)));}
    }break;
   case SESSION_MOVE_BEGIN:{
    sub16(r,R(ScreenFadeLevel),192,0);int move=(int16_t)R(ScreenFadeLevel)>192;
    if(!move){sub16(r,R(ScreenFadeStep),0,0);move=(int16_t)R(ScreenFadeStep)<=0;}
    if(sq_bool(e.decision,move)){r->bx=logic(r,0,16);}break;}
-  case SESSION_OUTCOME:logic(r,itemstate_read8(r->ds,D(LevelCompletionMarker)),8);sq_bool(e.decision,!!(r->flags&SF));break;
+  case SESSION_OUTCOME:logic(r,sessionstate_read8(r->ds,D(LevelCompletionMarker)),8);sq_bool(e.decision,!!(r->flags&SF));break;
   case SESSION_DECREMENT_LIVES:{
-   uint8_t old=itemstate_read8(r->ds,D(LivesRemaining)),v=(uint8_t)(old-1);uint16_t carry=r->flags&CF;
+   uint8_t old=sessionstate_read8(r->ds,D(LivesRemaining)),v=(uint8_t)(old-1);uint16_t carry=r->flags&CF;
    flag(r,OF,old==128);flag(r,AF,((old^v^1)&16)!=0);szp(r,v,8);flag(r,CF,carry);
-   itemstate_write8(r->ds,D(LivesRemaining),(uint8_t)sq_word(e.value,v));sq_bool(e.decision,v && !(r->flags&SF));break;}
-  case SESSION_RESET_MULTIPLIER:itemstate_write8(r->ds,D(ScoreMultiplier),(uint8_t)sq_word(e.value,1));break;
+   sessionstate_write8(r->ds,D(LivesRemaining),(uint8_t)sq_word(e.value,v));sq_bool(e.decision,v && !(r->flags&SF));break;}
+  case SESSION_RESET_MULTIPLIER:sessionstate_write8(r->ds,D(ScoreMultiplier),(uint8_t)sq_word(e.value,1));break;
   case SESSION_INCREMENT_LEVEL:{
    r->ax=R(CurrentLevelIndex);uint16_t carry=r->flags&CF;r->ax=add16(r,r->ax,1,0);flag(r,CF,carry);W(CurrentLevelIndex,sq_word(e.value,r->ax));break;}
   case SESSION_TEST_LEVEL_LIMIT:
@@ -241,12 +318,14 @@ EXPORT int c_RunGameFromPassword(Regs *r){
   if(process.completed_frames==100000)return UGH_BUDGET;
  }
 }
+#endif
+
 #undef CALL
 #define CALL(target,owner,delta) do { int status=ugh_call_near(G(target),(uint16_t)(G(owner)+(delta)),r); if(status) return status; } while(0)
-#define B(name) itemstate_read8(r->ds,D(name))
-#define WB(name,v) itemstate_write8(r->ds,D(name),(uint8_t)(v))
-#define RI(name,i) itemstate_read16(r->ds,(uint16_t)(D(name)+(i)))
-#define WI(name,i,v) itemstate_write16(r->ds,(uint16_t)(D(name)+(i)),(uint16_t)(v))
+#define B(name) sessionstate_read8(r->ds,D(name))
+#define WB(name,v) sessionstate_write8(r->ds,D(name),(uint8_t)(v))
+#define RI(name,i) sessionstate_read16(r->ds,(uint16_t)(D(name)+(i)))
+#define WI(name,i,v) sessionstate_write16(r->ds,(uint16_t)(D(name)+(i)),(uint16_t)(v))
 static uint16_t sq_load_base(SessionLoadField f){switch(f){
 case LF_PLATFORM_LEFT:return D(PlatformLeftEdges);
 case LF_PLATFORM_RIGHT:return D(PlatformRightEdges);
@@ -301,13 +380,13 @@ static int sq_load_lists(Regs *r,SessionLoadFamily family){
    case LOAD_READ_LIST:
     lodsw(r);reply=r->ax;if(!record.cursor){descriptor=reply;kind=sq_load_class(family,reply);}break;
    case LOAD_READ_DESCRIPTOR:
-    r->ax=itemstate_read16(r->ds,(uint16_t)(r->bx+sq_word(e.index,kind==LOAD_STONE?16:8)));reply=r->ax;break;
+    r->ax=sessionstate_read16(r->ds,(uint16_t)(r->bx+sq_word(e.index,kind==LOAD_STONE?16:8)));reply=r->ax;break;
    case LOAD_READ_SPAWN:
     if(family==LOAD_ACTORS)r->bx=(uint16_t)(RI(ActorInitialPlatformIndices,r->di)*2u);
     r->bx=sq_word(e.index,r->bx);reply=RI(PlatformSpawnX,r->bx);break;
    case LOAD_READ_HEIGHT:r->bx=sq_word(e.index,r->bx);reply=RI(PlatformHeights,r->bx);break;
    case LOAD_READ_REPEAT:
-    r->ax=(uint16_t)-sar(r->ax,2);repeated=itemstate_read16(r->ds,(uint16_t)(r->si-2));reply=repeated;break;
+    r->ax=(uint16_t)-sar(r->ax,2);repeated=sessionstate_read16(r->ds,(uint16_t)(r->si-2));reply=repeated;break;
    case LOAD_SKIP:{
     uint16_t literal=family==LOAD_ENEMIES && kind==LOAD_DINO?4:2;
     r->si=(uint16_t)(r->si+sq_word(e.value,literal));break;}
@@ -334,13 +413,13 @@ static int sq_load_lists(Regs *r,SessionLoadFamily family){
     case LOAD_TRIO_SPEED:r->ax=(uint16_t)(r->ax+repeated);r->ax=(uint16_t)-r->ax;value=r->ax;break;
     default:break;
     }
-    itemstate_write16(r->ds,(uint16_t)(sq_load_base(e.field)+sq_word(e.slot,r->di)),sq_word(e.value,value));
+    sessionstate_write16(r->ds,(uint16_t)(sq_load_base(e.field)+sq_word(e.slot,r->di)),sq_word(e.value,value));
     if(e.field==LF_PLATFORM_LEFT)r->ax=logic(r,r->ax,16);
     if(e.field==LF_ACTOR_DESCRIPTOR || e.field==LF_ENEMY_DESCRIPTOR){sub16(r,r->ax,0xffff,0);if(e.field==LF_ACTOR_DESCRIPTOR && r->ax!=0xffff)r->bx=r->ax;}
     if(e.field==LF_ENEMY_PLATFORM)r->bx=(uint16_t)(r->ax*2u);
     break;}
    case LOAD_CALLBACK:
-    sq_require(e.value==(uint16_t)kind);itemstate_write16(r->ds,(uint16_t)(D(EnemyStateCallbacks)+e.slot),sq_load_callback((SessionLoadClass)e.value));break;
+    sq_require(e.value==(uint16_t)kind);sessionstate_write16(r->ds,(uint16_t)(D(EnemyStateCallbacks)+e.slot),sq_load_callback((SessionLoadClass)e.value));break;
    case LOAD_END:break;
    default:abort();
    }
@@ -358,19 +437,19 @@ static int sq_load_lists(Regs *r,SessionLoadFamily family){
 }
 EXPORT int c_LoadCurrentLevelState(Regs *r) {
     r->bx=sq_word(session_loader_mode_key(R(PlayerCount)),(uint16_t)((R(PlayerCount)-1u)*2u)); r->bx=RI(LevelOrderTables,r->bx);
-    r->si=sq_word(session_loader_level_key(R(CurrentLevelIndex)),(uint16_t)(R(CurrentLevelIndex)*2u)); r->bx=itemstate_read16(r->ds,(uint16_t)(r->bx+r->si));
+    r->si=sq_word(session_loader_level_key(R(CurrentLevelIndex)),(uint16_t)(R(CurrentLevelIndex)*2u)); r->bx=sessionstate_read16(r->ds,(uint16_t)(r->bx+r->si));
     r->si=24;
     do {
-        r->ax=itemstate_read16(r->ds,(uint16_t)(r->bx+r->si)); WI(CurrentLevelRecord,r->si,r->ax);
+        r->ax=sessionstate_read16(r->ds,(uint16_t)(r->bx+r->si)); WI(CurrentLevelRecord,r->si,r->ax);
         r->si=sq_word(session_record_previous(r->si),sub16(r,r->si,2,0));
     } while(sq_bool(session_record_more(r->si),!(r->si&0x8000)));
-    itemstate_write16(r->cs,G(RendererScratchWord),r->ax); push(r,r->ds);
-    r->si=R(CompressedTileMapsPointer); r->ds=itemstate_read16(r->ds,D(CompressedTileMapsPointer)+2);
+    sessionstate_write16(r->cs,G(RendererScratchWord),r->ax); push(r,r->ds);
+    r->si=R(CompressedTileMapsPointer); r->ds=sessionstate_read16(r->ds,D(CompressedTileMapsPointer)+2);
     CALL(UnpackIceToScratch,LoadCurrentLevelState,0x2e);
-    r->ds=r->es; r->si=itemstate_read16(r->cs,G(RendererScratchWord));
+    r->ds=r->es; r->si=sessionstate_read16(r->cs,G(RendererScratchWord));
     r->dx=DATA_SEG; r->es=r->dx; r->di=D(Data_264C); r->cx=160;
     do {
-        itemstate_write16(r->es,r->di,itemstate_read16(r->ds,r->si));
+        sessionstate_write16(r->es,r->di,sessionstate_read16(r->ds,r->si));
         r->si=sq_word(session_copy_next(r->si,!!(r->flags&DF)),(uint16_t)(r->si+2*step(r))); r->di=sq_word(session_copy_next(r->di,!!(r->flags&DF)),(uint16_t)(r->di+2*step(r))); r->cx--;
     } while(sq_bool(session_count_more(r->cx),r->cx));
     r->ds=pop(r);
@@ -424,7 +503,7 @@ EXPORT int c_LoadCurrentLevelState(Regs *r) {
 EXPORT int c_InitializeLevelDisplay(Regs *r) {
     SessionDisplayProcess display;session_display_begin(&display);
     r->cx=196; r->di=R(LevelWorkspacePointer); r->es=RI(LevelWorkspacePointer,2); r->ax=logic(r,0,16);
-    do { itemstate_write16(r->es,r->di,r->ax); r->di=sq_word(session_copy_next(r->di,!!(r->flags&DF)),(uint16_t)(r->di+2*step(r))); r->cx--; } while(sq_bool(session_count_more(r->cx),r->cx));
+    do { sessionstate_write16(r->es,r->di,r->ax); r->di=sq_word(session_copy_next(r->di,!!(r->flags&DF)),(uint16_t)(r->di+2*step(r))); r->cx--; } while(sq_bool(session_count_more(r->cx),r->cx));
     W(LevelTimer,0x5a3b); r->ax=0xffff; W(ds_27C8,r->ax); W(ScreenFadeStep,2);
     uint8_t seed_HudCachedLives=session_display_byte(B(LivesRemaining));set_al(r,(uint8_t)(B(LivesRemaining)+11)); cmp8(r,(uint8_t)r->ax,100);
     if((uint8_t)r->ax>=100) set_al(r,(uint8_t)(r->ax-100));
@@ -464,9 +543,9 @@ EXPORT int c_InitializeLevelDisplay(Regs *r) {
 }
 
 EXPORT int c_ResetScoreLivesAndMultiplier(Regs *r) {
-    itemstate_write8(r->ds,D(LivesRemaining),(uint8_t)sq_word(session_reset_value(0),3)); itemstate_write8(r->ds,D(ScoreMultiplier),(uint8_t)sq_word(session_reset_value(1),1));
+    sessionstate_write8(r->ds,D(LivesRemaining),(uint8_t)sq_word(session_reset_value(0),3)); sessionstate_write8(r->ds,D(ScoreMultiplier),(uint8_t)sq_word(session_reset_value(1),1));
     r->ax=logic(r,0,16);
-    itemstate_write16(r->ds,D(ScoreLowWord),sq_word(session_reset_value(2),r->ax)); itemstate_write16(r->ds,D(ScoreHighWord),sq_word(session_reset_value(3),r->ax));
+    sessionstate_write16(r->ds,D(ScoreLowWord),sq_word(session_reset_value(2),r->ax)); sessionstate_write16(r->ds,D(ScoreHighWord),sq_word(session_reset_value(3),r->ax));
     return UGH_OK;
 }
 

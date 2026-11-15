@@ -239,8 +239,8 @@
     "metadata/closure/audio_world.json": "contract-v1:ba1c9f449dee744bbab664ee52385564f226d44ec8bb4dcfb79baca6d93e1c8e",
     "metadata/closure/contacts.json": "contract-v1:07b53f4ae3da3f0ea957e0ff39d11c541fd0b52496e6ac23ee90ab8ba677d065",
     "metadata/closure/decimal.json": "contract-v1:4e5f11774db088c2fed258145a1ffb11acd9efacd9ea8f2d8a8029419351c178",
-    "metadata/closure/demo_core.json": "contract-v1:9ec54b6372cb835168ecb7befd3bd843ef94817626855f20e949ac9251c121de",
-    "metadata/closure/demo_presentation.json": "contract-v1:0f22dc6eabf7bc0871121e4348c6a0531608708898fd86de9a788795db81fe40",
+    "metadata/closure/demo_core.json": "contract-v1:abbdcd84833c3657575e6ff5b617cef35d086957d2a695f5ac64899085013992",
+    "metadata/closure/demo_presentation.json": "contract-v1:99fd221cc05bb81ddbdba627d7dd9195da3bb2483d896017133b7ca5dcce028a",
     "metadata/closure/falling_items.json": "contract-v1:954e597c80e032d3692a12141c0bdf1a84bfbaacba04a8d870d14c377968af47",
     "metadata/closure/far_copy.json": "contract-v1:a7215cfcd21c91032a75393d414f411304049864745e6b5034f850f03aa8ece6",
     "metadata/closure/hazards.json": "contract-v1:218868096faf605b2f23ddb7066b66ca784a05753d8b1f94c2e5f4a1a6db78ba",
@@ -267,7 +267,7 @@
     "metadata/closure/render_primitives.json": "contract-v1:d486e04667211afe3c657e3d2d8f3dc53fd8bd25ddc61ec9ac9e0ebfe6b81236",
     "metadata/closure/resource_catalog.json": "contract-v1:32a3bb368814b24abae028bb1a34f4f585044d4763910bb798561a5b5a5aeb05",
     "metadata/closure/run_world.json": "contract-v1:7e1fa277bb497d7f863f707d29c7cd10ec9abe1bbb535f40ebbf40d7c2e98890",
-    "metadata/closure/session.json": "contract-v1:904561d2fc11c86a6e692a4cd818ac5dfde39804bda868a41d0d73baf78a86bb",
+    "metadata/closure/session.json": "contract-v1:8a2a88a82f78ec14b72be429a6fd76d21a5253fa8a0698bee1c26ef6c536d9ef",
     "metadata/closure/stones.json": "contract-v1:24eeff61590582fcf8c22bd4ce3545880504fd8582737dd48cc8fd094add000d",
     "metadata/closure/timing_world.json": "contract-v1:a3a4dfaca620a34a5672f56027c9ffdcc31db566a4da812469666947d10c4c6a",
     "metadata/closure/video_dos.json": "contract-v1:012e7fd8ceaffb0443863e995cc409635dfc492b6895061b2411539c7381ac15",
@@ -291,8 +291,8 @@
     "native/bridge/actor_world_bridge.c": "491379319a4031e35096bc2404d3d43d3e11bad42cdd4b3049c48cf6dbde5069",
     "native/bridge/actor_world_bridge.h": "9761edf716fa17e21e425b00d74e7bb53bd4ed7ff512c9c316011254249c6d69",
     "native/bridge/contacts_bridge.c": "fb4807cf6ac7d2415d64c02b25e9981febf5a3e746bb0e9a9fa53f740bc68059",
-    "native/bridge/demo_core_bridge.c": "6bf9824be121eab8d197ab5be11abe2f36999d29fe5b89efdf861afc5d06891f",
-    "native/bridge/demo_presentation_bridge.c": "f3a215e862a05e7ebd09c47bb6e3c81bba49946f5de5627888a47ea648ee2f71",
+    "native/bridge/demo_core_bridge.c": "c96a14bea3108105130c6a99a6da021625fa180fe25b7473ab0c6116a92bb899",
+    "native/bridge/demo_presentation_bridge.c": "8c1e4a6b7ed13078d76207391dbbcb0e942d78c2c68d671e433d6da18607d980",
     "native/bridge/enemies_borrow.h": "01fd182b0172dd0022b24a29fcdb0408dc2badc5e5877687daed29f65b0525ad",
     "native/bridge/enemy_world_bridge.c": "2547fe625b43eb7af6a91d0e2f88d9bf03e6fcd9647d62baf3c886395f0540ee",
     "native/bridge/enemy_world_bridge.h": "5ff2bda648eacc411ebe086335df04192774e186c5ec40eca549370c3b17e9be",
@@ -319,8 +319,8 @@
     "native/bridge/render_primitives_bridge.c": "61c966018acd8281162428dd680dd7dc07f1e1a7236f7af93d5ec5bc396e361d",
     "native/bridge/render_primitives_support.h": "799f53a5fd196105903efdadedc002391291dd9b7778da513ed4f4165cc9e6f5",
     "native/bridge/session_actor_render.h": "f90681ea84d69ee4491d4453d1229afe5cb7477cd1941061b3956e4e5a6dd9d0",
-    "native/bridge/session_bridge.c": "359c6e1c84c03c03c535fe3e1fa344063f9d651d47acfdfefd78aee03275c8e8",
-    "native/bridge/session_support.h": "f240e422b33c4acb872c0f5521310454c8b199ce69b6376e94661a02b2271dd7",
+    "native/bridge/session_bridge.c": "dc657cd3fd640655b033c915fedffaba477d75fe1c1edf1e7943238c3e64be8d",
+    "native/bridge/session_support.h": "7df8b311866e11d391cea33896ab84a1b1bc8373f933fd7661a131f1fb324226",
     "native/bridge/stones_bridge.c": "0de8ff98e946c9047363e0b544db78dfb5d2c06515592e8151be0942095e4f8d",
     "native/bridge/water_weather_bridge.c": "bcdba927aefb1ef4cc90e4c179e55d2fff90715c195dbf09cde6e0207ae4889a",
     "native/contacts.c": "f809c3af54ddb43b07b60be870e30e404f0b0456f4542585011cb5108dcc8b15",
@@ -633,6 +633,25 @@
         "native/bridge/session_bridge.c",
         "verif/world_api.py",
         "verif/world_gate.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut6A native session/demo scratch ownership and native synchronous frame driver; relock only changed direct source inputs or actual dependency contracts, with no note/lock-only cascade.",
+      "commands": [
+        "python verif/world_gate.py session_world --jobs 3 --out build/workers/cut-6a/gate",
+        "python verif/world_gate.py session_world --finalize --locks --out build/workers/cut-6a/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-6a/sgate"
+      ],
+      "results": "PASS: complete cut6A world gate; byte router/CBMC,144 matching API comparisons per profile (composed142 native plus2 explicitly inventoried existing empty-vector compatibility executions),16/16 controls, native driver failure prefixes, literal loader/demo witnesses, projector/census, both hosts21/21 and81+7+8 levels both variants. Separate supervisor receipt: build/workers/cut-6a/sgate/receipt.json.",
+      "inputs": [
+        "metadata/closure/demo_core.json",
+        "metadata/closure/demo_presentation.json",
+        "metadata/closure/session.json",
+        "native/bridge/demo_core_bridge.c",
+        "native/bridge/demo_presentation_bridge.c",
+        "native/bridge/session_bridge.c",
+        "native/bridge/session_support.h"
       ]
     }
   ]

@@ -174,7 +174,7 @@
     "native/bridge/frontend_borrow.h": "871b0c43aa2963777d97a8357d61158a1c633aecbaa6d984ce88688ac5fcd4af",
     "native/bridge/menus_bridge.c": "b8757935ff1041f79e66305e166a9ab20bce5a279ccc242c33719371c48aa0a8",
     "native/bridge/high_scores_bridge.c": "75a65b2430f4f3b25b71293ece798fcbc3ea7cc9f53813e2dd7c919fc4826270",
-    "native/bridge/session_bridge.c": "359c6e1c84c03c03c535fe3e1fa344063f9d651d47acfdfefd78aee03275c8e8",
+    "native/bridge/session_bridge.c": "dc657cd3fd640655b033c915fedffaba477d75fe1c1edf1e7943238c3e64be8d",
     "native/bridge/front_end_support.h": "f0c88cd3f6cc6aa07123a7345aa9a7d5fcf1fe713903ee6cc8cbaf457daeb8ec",
     "verif/front_end_world_router.c": "59b8d0558f7873deb542bcb1992aea2fe9d60a5b2b6d7bea126a5609149fda41",
     "verif/front_end_world_byte_proof.c": "deded1c2fe41368627a34dd90032aff12c8bc4ae7a29eec236e67dd7e65cf035",
@@ -244,6 +244,19 @@
         "python tools/gate.py"
       ],
       "results": "Pending process-refactor replay",
+      "inputs": [
+        "native/bridge/session_bridge.c"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut6A native session/demo scratch ownership and native synchronous frame driver; relock only changed direct source inputs or actual dependency contracts, with no note/lock-only cascade.",
+      "commands": [
+        "python verif/world_gate.py session_world --jobs 3 --out build/workers/cut-6a/gate",
+        "python verif/world_gate.py session_world --finalize --locks --out build/workers/cut-6a/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-6a/sgate"
+      ],
+      "results": "PASS: complete cut6A world gate; byte router/CBMC,144 matching API comparisons per profile (composed142 native plus2 explicitly inventoried existing empty-vector compatibility executions),16/16 controls, native driver failure prefixes, literal loader/demo witnesses, projector/census, both hosts21/21 and81+7+8 levels both variants. Separate supervisor receipt: build/workers/cut-6a/sgate/receipt.json.",
       "inputs": [
         "native/bridge/session_bridge.c"
       ]

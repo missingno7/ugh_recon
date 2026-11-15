@@ -389,6 +389,7 @@
     "native/bridge/actor_render_bridge.c": {
       "includes": [
         "../actor_render.h",
+        "pixel_io.h",
         "platform.h",
         "stdlib.h"
       ],
@@ -410,9 +411,21 @@
         "ar_require",
         "ar_write",
         "logic",
+        "pixel_route",
+        "pixel_service_compatibility_write",
+        "pixel_service_control_read",
+        "pixel_service_control_write",
+        "pixel_service_copy",
+        "pixel_service_read",
+        "pixel_service_store",
+        "pixel_service_water_mark",
+        "platform_in",
+        "platform_out",
+        "rd8",
         "sar",
         "sub16",
-        "wr16"
+        "wr16",
+        "wr8"
       ]
     }
   },
@@ -1099,7 +1112,7 @@
   "verification_inputs": {
     "native/actor_render.h": "9b68b08b34200616669b59c5c939c2da1dbbaa623fa57c67e3f6372d3ff34015",
     "native/actor_render.c": "f14a0f219a8a9a056a975ad38d74527512bc48634e0b388bd7aa929d846fd110",
-    "native/bridge/actor_render_bridge.c": "93a42d17baa152706352eb3eedf7cbb8fb202402f6e9a66e9e99bdadc1862bc5",
+    "native/bridge/actor_render_bridge.c": "236b9943c30f6bf093ab6cd440f39190bf7a9e37163cc32e899e6bffbec030d5",
     "verif/render_history_bound.py": "4f23cb26b2583a82a6890bac41440513a99e53d0595f5f99eb762d5850fad18e",
     "verif/render_history_build.py": "921feed96e1bcb475d1841f6d68e496b2cdbd102ffd4f1d621cb4d5e056e2df1",
     "verif/render_history_cases.py": "fb785370c0997ab015e8aa323c69f43323d580646a8372f2c0a7eb0cb2b6b779",
@@ -1154,7 +1167,7 @@
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
-    "tools/hostbuild.py": "34b67e015df46778d8c3f9c071a06f335dc2a51687905ed02339de3a488cdd51",
+    "tools/hostbuild.py": "cd958993232dd11e30269c4c278381741a9f3e9c92a554b2e66180b8d41b7f3f",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
     "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
@@ -1342,6 +1355,18 @@
       ],
       "results": "PASS",
       "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Pixel services and renderer ownership; prior claim domains/status unchanged",
+      "commands": [
+        "python verif/pixel_composition.py --gate"
+      ],
+      "results": "PASS",
+      "inputs": [
+        "native/bridge/actor_render_bridge.c",
         "tools/hostbuild.py"
       ]
     }

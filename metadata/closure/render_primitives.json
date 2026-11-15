@@ -1160,6 +1160,7 @@
     },
     "native/bridge/render_primitives_bridge.c": {
       "includes": [
+        "pixel_io.h",
         "render_primitives_support.h"
       ],
       "calls": [
@@ -1177,6 +1178,19 @@
         "flag",
         "inc8",
         "logic",
+        "pixel_copy",
+        "pixel_in",
+        "pixel_out",
+        "pixel_read",
+        "pixel_route",
+        "pixel_service_compatibility_write",
+        "pixel_service_control_read",
+        "pixel_service_control_write",
+        "pixel_service_copy",
+        "pixel_service_read",
+        "pixel_service_store",
+        "pixel_service_water_mark",
+        "pixel_store",
         "platform_in",
         "platform_out",
         "pop",
@@ -1932,7 +1946,7 @@
     "native/render_primitives.h": "00384fd765781b6cfef3568aba6a2641ddedb7064e0730b41284e7612aeb32d1",
     "native/render_primitives.c": "a18ecef8c5f203a8b881fd35169c5914cab2033af6531584831b2fa53c9b0bad",
     "native/bridge/render_primitives_support.h": "4ae8825ab95bac042cb5d44542e9192adcf3d0a2cc9909452b116fc784bb52a9",
-    "native/bridge/render_primitives_bridge.c": "c705219bab9b74ca99d9f463fd4443bb92887158a7aa454f5d1315d48e027fcd",
+    "native/bridge/render_primitives_bridge.c": "5002913bc734eb8a2b215c4fce8e1b67e0381bab54d8b2c6f615d49133110c2e",
     "verif/render_primitives_baseline.py": "40ef32004caed417661a96557983643ba18c32fe548c39f1857534554a445d67",
     "verif/render_primitives_build.py": "97481cd0b035622706cd7fd846d40f810367d820425a7c1e52892d664d92955c",
     "verif/render_primitives_cases.py": "cd62915980fe1f79514a4a7f3d596bf3805d07697689928da6699ec6170835a1",
@@ -2035,7 +2049,7 @@
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
-    "tools/hostbuild.py": "34b67e015df46778d8c3f9c071a06f335dc2a51687905ed02339de3a488cdd51",
+    "tools/hostbuild.py": "cd958993232dd11e30269c4c278381741a9f3e9c92a554b2e66180b8d41b7f3f",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
@@ -2103,6 +2117,18 @@
       ],
       "results": "PASS",
       "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Pixel services and renderer ownership; prior claim domains/status unchanged",
+      "commands": [
+        "python verif/pixel_composition.py --gate"
+      ],
+      "results": "PASS",
+      "inputs": [
+        "native/bridge/render_primitives_bridge.c",
         "tools/hostbuild.py"
       ]
     }

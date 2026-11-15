@@ -1439,7 +1439,7 @@
     "native/bridge/hud_support.h": {
       "includes": [
         "../hud.h",
-        "platform.h",
+        "pixel_io.h",
         "stdlib.h",
         "string.h"
       ],
@@ -1469,6 +1469,17 @@
         "hud_timer",
         "memcmp",
         "memset",
+        "pixel_route",
+        "pixel_service_compatibility_write",
+        "pixel_service_control_read",
+        "pixel_service_control_write",
+        "pixel_service_copy",
+        "pixel_service_read",
+        "pixel_service_store",
+        "pixel_service_water_mark",
+        "pixel_store",
+        "platform_in",
+        "platform_out",
         "rd16",
         "rd8",
         "set_al",
@@ -1478,7 +1489,8 @@
     },
     "native/bridge/hud_bridge.c": {
       "includes": [
-        "hud_support.h"
+        "hud_support.h",
+        "pixel_io.h"
       ],
       "calls": [
         "B",
@@ -1488,6 +1500,7 @@
         "HP_CALL",
         "HW",
         "HWB",
+        "PIXEL_TAIL",
         "R",
         "RI",
         "W",
@@ -1530,6 +1543,17 @@
         "logic",
         "memcmp",
         "memset",
+        "pixel_out",
+        "pixel_route",
+        "pixel_service_compatibility_write",
+        "pixel_service_control_read",
+        "pixel_service_control_write",
+        "pixel_service_copy",
+        "pixel_service_read",
+        "pixel_service_store",
+        "pixel_service_water_mark",
+        "pixel_store",
+        "platform_in",
         "platform_out",
         "pop",
         "push",
@@ -1540,7 +1564,6 @@
         "set_bl",
         "sub16",
         "szp",
-        "ugh_dispatch",
         "wr16",
         "wr8"
       ]
@@ -2066,12 +2089,12 @@
   "verification_inputs": {
     "native/hud.h": "186b7d5953017351c3be9f803642d119e83774c7aa5adc0d2405c1a99d2eb74b",
     "native/hud.c": "f1b1d550b3afe997828e4154b95e290803d9f32461e66ab6f2da86620d4ae53c",
-    "native/bridge/hud_support.h": "143f1ded23097ce47adc02f83f477760e5af9fd116acd33c8a48257b3884920c",
-    "native/bridge/hud_bridge.c": "125ff42a9c497011df404173dcab4bd7975d039a432abdbc51c96df1508e9fec",
+    "native/bridge/hud_support.h": "b79b65cc5ac09c7bffb153bf6aedc14b2cc88487b5b3b9acfecb276c95cd2d3d",
+    "native/bridge/hud_bridge.c": "7aa964fbbc799ee7d0e2ebf45b0f80821c76782636c557231638080d68679d33",
     "native/render_primitives.h": "00384fd765781b6cfef3568aba6a2641ddedb7064e0730b41284e7612aeb32d1",
     "native/render_primitives.c": "a18ecef8c5f203a8b881fd35169c5914cab2033af6531584831b2fa53c9b0bad",
     "native/bridge/render_primitives_support.h": "4ae8825ab95bac042cb5d44542e9192adcf3d0a2cc9909452b116fc784bb52a9",
-    "native/bridge/render_primitives_bridge.c": "c705219bab9b74ca99d9f463fd4443bb92887158a7aa454f5d1315d48e027fcd",
+    "native/bridge/render_primitives_bridge.c": "5002913bc734eb8a2b215c4fce8e1b67e0381bab54d8b2c6f615d49133110c2e",
     "verif/hud_baseline.py": "6d8bc529177930a1b7ef535ccfaecf71bb65822df62975cc14718e249e8998c1",
     "verif/hud_build.py": "1bda0045d2fc40bf44bc3ce3924229d8ea26416b66ed2f5c529d2f72604121b5",
     "verif/hud_cases.py": "51c3d6ff2638c09df3779c57133452e9f81516df0380eec7d06d40ee36f22293",
@@ -2177,7 +2200,7 @@
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
-    "tools/hostbuild.py": "34b67e015df46778d8c3f9c071a06f335dc2a51687905ed02339de3a488cdd51",
+    "tools/hostbuild.py": "cd958993232dd11e30269c4c278381741a9f3e9c92a554b2e66180b8d41b7f3f",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
@@ -2245,6 +2268,20 @@
       ],
       "results": "PASS",
       "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Pixel services and renderer ownership; prior claim domains/status unchanged",
+      "commands": [
+        "python verif/pixel_composition.py --gate"
+      ],
+      "results": "PASS",
+      "inputs": [
+        "native/bridge/hud_support.h",
+        "native/bridge/hud_bridge.c",
+        "native/bridge/render_primitives_bridge.c",
         "tools/hostbuild.py"
       ]
     }

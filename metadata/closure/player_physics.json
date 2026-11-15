@@ -929,6 +929,7 @@
     "native/bridge/player_physics_bridge.c": {
       "includes": [
         "../player_physics.h",
+        "pixel_io.h",
         "platform.h",
         "stdlib.h"
       ],
@@ -936,6 +937,7 @@
         "CALL",
         "D",
         "G",
+        "PIXEL_CALL",
         "R",
         "RX",
         "W",
@@ -954,6 +956,17 @@
         "physics_read",
         "physics_require",
         "physics_write",
+        "pixel_collision_position",
+        "pixel_out",
+        "pixel_route",
+        "pixel_service_compatibility_write",
+        "pixel_service_control_read",
+        "pixel_service_control_write",
+        "pixel_service_copy",
+        "pixel_service_read",
+        "pixel_service_store",
+        "pixel_service_water_mark",
+        "platform_in",
         "platform_out",
         "player_collision_sample",
         "player_physics_begin",
@@ -970,8 +983,8 @@
         "set_ah",
         "set_al",
         "sub16",
-        "ugh_call_near",
-        "wr16"
+        "wr16",
+        "wr8"
       ]
     }
   },
@@ -1661,7 +1674,7 @@
   "verification_inputs": {
     "native/player_physics.h": "e20150960c3839746a644e137e88a95162f49a437e76cee26d3a5bc2e1dda4d3",
     "native/player_physics.c": "dcb90fedbd71fbf58b826a80abbf8307bd9de3d1e1347a9e4e1338543fee7b73",
-    "native/bridge/player_physics_bridge.c": "a516cb0f86933c3ce5e8e79cebdaf764c71282bb057c6b2719eb98068cf396c1",
+    "native/bridge/player_physics_bridge.c": "ffa60fac2e659ce357897531a10a64d9e55dea186e59ea725be4c3e937164bf5",
     "verif/player_physics_baseline.py": "5812b15f41f8870378b76ef17d4f017941d3c62b24dac4c13c992094dd02a26a",
     "verif/player_physics_bound.py": "2714b345154cfd8cd2cbf03f451455ca5dc5067b0bdfbf03ecd996f5056d5319",
     "verif/player_physics_build.py": "bdcf2bc8fb0bfa87085cbb19bcf3a1613ac52629f217890a9b00bca50836e09f",
@@ -1774,7 +1787,7 @@
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
-    "tools/hostbuild.py": "34b67e015df46778d8c3f9c071a06f335dc2a51687905ed02339de3a488cdd51",
+    "tools/hostbuild.py": "cd958993232dd11e30269c4c278381741a9f3e9c92a554b2e66180b8d41b7f3f",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
@@ -1842,6 +1855,18 @@
       ],
       "results": "PASS",
       "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Pixel services and renderer ownership; prior claim domains/status unchanged",
+      "commands": [
+        "python verif/pixel_composition.py --gate"
+      ],
+      "results": "PASS",
+      "inputs": [
+        "native/bridge/player_physics_bridge.c",
         "tools/hostbuild.py"
       ]
     }

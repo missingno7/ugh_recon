@@ -1,3 +1,4 @@
+#include "pixel_io.h"
 #include "hud_support.h"
 static void push(Regs *r,uint16_t v) { r->sp=(uint16_t)(r->sp-2); wr16(r->ss,r->sp,v); }
 
@@ -11,7 +12,7 @@ static void cmp8(Regs *r,uint8_t a,uint8_t b) {
 
 static void set_bl(Regs *r,uint8_t v) { r->bx=(uint16_t)((r->bx&0xff00u)|v); }
 
-#define CALL(target,owner,delta) do { int status=ugh_call_near(G(target),(uint16_t)(G(owner)+(delta)),r); if(status) return status; } while(0)
+#define CALL(target,owner,delta) do { int status=PIXEL_CALL(target,(uint16_t)(G(owner)+(delta))); if(status) return status; } while(0)
 #define R(name) rd16(r->ds,D(name))
 #define W(name,v) wr16(r->ds,D(name),(uint16_t)(v))
 #define B(name) rd8(r->ds,D(name))
@@ -20,7 +21,7 @@ static void set_bl(Regs *r,uint8_t v) { r->bx=(uint16_t)((r->bx&0xff00u)|v); }
 #define WI(name,i,v) wr16(r->ds,(uint16_t)(D(name)+(i)),(uint16_t)(v))
 #define HW(n,v) hd_store(r,&plan,D(n),(uint16_t)(v),2)
 #define HWB(n,v) hd_store(r,&plan,D(n),(uint8_t)(v),1)
-#define HP_CALL(target,owner,delta) do{hd_service(r,&plan,G(target));int status=ugh_call_near(G(target),(uint16_t)(G(owner)+(delta)),r);if(status)return status;hd_returned(&plan);}while(0)
+#define HP_CALL(target,owner,delta) do{hd_service(r,&plan,G(target));int status=PIXEL_CALL(target,(uint16_t)(G(owner)+(delta)));if(status)return status;hd_returned(&plan);}while(0)
 static int changed_digits(Regs *r) {
     r->si=logic(r,0,16);
     for(;;) {
@@ -42,7 +43,7 @@ EXPORT int c_DrawHudBorders(Regs *r) {
     hd_draw(r,first);
     CALL(DrawTransparentSprite,DrawHudBorders,0x21);
     r->ax=pop(r); r->bx=255;
-    hd_draw(r,second);return ugh_dispatch(r->cs,G(DrawTransparentSprite),r);
+    hd_draw(r,second);return PIXEL_TAIL(G(DrawTransparentSprite));
 }
 
 EXPORT int c_DrawHudDigit(Regs *r) {
@@ -179,23 +180,23 @@ timer:
     hd_bar_begin(&plan,r->ax,R(CachedTimerBarWidth));
     if((int16_t)r->ax<(int16_t)R(CachedTimerBarWidth)) {
         r->bp=r->ax; r->bx=logic(r,r->ax&3,16);
-        r->dx=0x3c4; set_al(r,2); platform_out(r->dx,1,(uint8_t)r->ax);
+        r->dx=0x3c4; set_al(r,2); pixel_out(r->dx,1,(uint8_t)r->ax);
         r->dx=0x3c5; set_al(r,hd_mask(&plan,0,r->bx,rd8(r->ds,(uint16_t)(D(VgaSinglePlaneMasks)+r->bx))));
-        platform_out(r->dx,1,(uint8_t)r->ax); r->bp>>=2;
+        pixel_out(r->dx,1,(uint8_t)r->ax); r->bp>>=2;
         r->si=R(TimerBarPointer); r->ds=rd16(r->ds,D(TimerBarPointer)+2);
         r->si=add16(r,r->si,r->bp,0); set_al(r,(uint8_t)logic(r,0,8));
         hd_bar_pixels(r,&plan,(uint8_t)r->ax,0);
-        set_al(r,15); platform_out(r->dx,1,(uint8_t)r->ax);
+        set_al(r,15); pixel_out(r->dx,1,(uint8_t)r->ax);
     } else {
         r->di=(uint16_t)(R(CachedTimerBarWidth)>>2); r->ax=dec16(r,r->ax);
         r->bp=r->ax; r->bx=logic(r,r->ax&3,16);
-        r->dx=0x3c4; set_al(r,2); platform_out(r->dx,1,(uint8_t)r->ax);
+        r->dx=0x3c4; set_al(r,2); pixel_out(r->dx,1,(uint8_t)r->ax);
         r->dx=0x3c5; set_al(r,hd_mask(&plan,1,r->bx,rd8(r->ds,(uint16_t)(D(VgaCumulativePlaneMasks)+r->bx))));
-        platform_out(r->dx,1,(uint8_t)r->ax); r->bp>>=2;
+        pixel_out(r->dx,1,(uint8_t)r->ax); r->bp>>=2;
         r->si=R(TimerBarPointer); r->ds=rd16(r->ds,D(TimerBarPointer)+2);
         r->si=add16(r,r->si,r->bp,0); set_al(r,50);
         hd_bar_pixels(r,&plan,(uint8_t)r->ax,0);
-        set_al(r,15); platform_out(r->dx,1,(uint8_t)r->ax);
+        set_al(r,15); pixel_out(r->dx,1,(uint8_t)r->ax);
         r->bp=sub16(r,r->bp,r->di,0);
         if(r->bp) {
             set_al(r,50);

@@ -334,7 +334,7 @@
     "verif/session_loader.py": "4db743f71ea32f8b5c51e51033953a2970ea4c2290a758d1cdbb5177587a4341",
     "verif/session_record_proof.py": "343c7dfffcbd4c44185e0099d4dcf2c03fc7bc2d2e31211989f9647118a090a4",
     "verif/session_copy_proof.py": "476e4d8a1c12b068f666378c2513d3882d7ebe8068fbb211ad20960c6c50cdb8",
-    "native/bridge/actor_render_bridge.c": "93a42d17baa152706352eb3eedf7cbb8fb202402f6e9a66e9e99bdadc1862bc5",
+    "native/bridge/actor_render_bridge.c": "236b9943c30f6bf093ab6cd440f39190bf7a9e37163cc32e899e6bffbec030d5",
     "native/actors.h": "b1c7653a6e566c7f0e3e18ad38fc3f63726d01b78a6fa6843df017d2d155a42c",
     "c/abi.c": "5f7c2c2fc015ca43e3786a7f96cb38113211da54acefce19564c1df78d74857a",
     "c/actors.c": "d17c03c844f95780f0647b85aa854a87c3e566b0f56fe89ee0a95d6d689f3ff2",
@@ -392,7 +392,7 @@
     "c/video.h": "35e4d6076edd69e2722cf7d52392871345f5e0eb78af7ce67e13c8ed0c02f192",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
-    "tools/hostbuild.py": "34b67e015df46778d8c3f9c071a06f335dc2a51687905ed02339de3a488cdd51",
+    "tools/hostbuild.py": "cd958993232dd11e30269c4c278381741a9f3e9c92a554b2e66180b8d41b7f3f",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
@@ -7310,6 +7310,18 @@
       ],
       "results": "PASS",
       "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Pixel services and renderer ownership; prior claim domains/status unchanged",
+      "commands": [
+        "python verif/pixel_composition.py --gate"
+      ],
+      "results": "PASS",
+      "inputs": [
+        "native/bridge/actor_render_bridge.c",
         "tools/hostbuild.py"
       ]
     }

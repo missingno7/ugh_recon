@@ -1,3 +1,4 @@
+#include "pixel_io.h"
 #include "platform.h"
 #include "../player_physics.h"
 #include <stdlib.h>
@@ -52,7 +53,7 @@ static void physics_out(Regs *r,PhysicsPlan *p,uint16_t port,unsigned width,uint
             ((event.kind==PP_SELECT_PLANE_REGISTER && port==0x3ce) || (event.kind==PP_READ_PLANE && port==0x3cf)));
         value=event.value;
     }
-    platform_out(port,width,value);(void)r;
+    pixel_out(port,width,value);(void)r;
 }
 static int physics_sample(Regs *r,PhysicsPlan *p,uint16_t return_word) {
     if(p->active) {
@@ -65,7 +66,7 @@ static int physics_sample(Regs *r,PhysicsPlan *p,uint16_t return_word) {
         uint16_t location=(uint16_t)(origin+relative+probe.columns+probe.rows*96u);
         physics_require(!p->process.failed && event.kind==PP_SAMPLE && r->es==segment && r->si==location && physics_projection(r,p));
     }
-    int status=ugh_call_near(G(SamplePlayerCollisionPixels),return_word,r);
+    int status=PIXEL_CALL(SamplePlayerCollisionPixels,return_word);
     if(p->active && !status)player_physics_reply(&p->process,(uint8_t)r->ax);
     return status;
 }
@@ -103,9 +104,15 @@ static void physics_open(Regs *r,PhysicsPlan *p) {
 }
 
 EXPORT int c_SamplePlayerCollisionPixels(Regs *r) {
-    static const uint16_t delta[]={0,3,5,0x720,0x723,0x725,0x240,0x245,0x480,0x485};
     uint8_t samples[10];
-    for(unsigned i=0;i<10;i++)samples[i]=rd8(r->es,(uint16_t)(r->si+delta[i]));
+    for(unsigned i=0;i<10;i++){
+#ifdef UGH_NATIVE_PIXEL
+        samples[i]=pixel_service_read((VideoCellAddress){{r->es},pixel_collision_position(r->si,i)},PIXEL_COLLISION);
+#else
+        static const uint16_t delta[]={0,3,5,0x720,0x723,0x725,0x240,0x245,0x480,0x485};
+        samples[i]=rd8(r->es,(uint16_t)(r->si+delta[i]));
+#endif
+    }
     set_al(r,(uint8_t)logic(r,player_collision_sample(samples),8));
     return UGH_OK;
 }

@@ -1,3 +1,4 @@
+#include "pixel_io.h"
 /* Actor history decisions are native; the measured machine shell and pixel
  * services remain here. Generated shells are checked against unchanged L1. */
 #include "platform.h"
@@ -8,8 +9,8 @@
 #define W(n,v) wr16(r->ds,D(n),(uint16_t)(v))
 #define RX(n,i) rd16(r->ds,(uint16_t)(D(n)+(i)))
 #define WX(n,i,v) wr16(r->ds,(uint16_t)(D(n)+(i)),(uint16_t)(v))
-#define CALL(n,ret) do { int status=ugh_call_near(G(n),ret,r); if(status) return status; } while(0)
-#define AR_CALL(n,ret) do { ar_request(r,&plan,G(n)); int status=ugh_call_near(G(n),ret,r); if(status) return status; } while(0)
+#define CALL(n,ret) do { int status=PIXEL_CALL(n,ret); if(status) return status; } while(0)
+#define AR_CALL(n,ret) do { ar_request(r,&plan,G(n)); int status=PIXEL_CALL(n,ret); if(status) return status; } while(0)
 
 typedef struct RenderPlan {
     ActorRenderStorage storage;

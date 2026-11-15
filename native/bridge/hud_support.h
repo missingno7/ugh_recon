@@ -1,6 +1,6 @@
 #ifndef HUD_SUPPORT_H
 #define HUD_SUPPORT_H
-#include "platform.h"
+#include "pixel_io.h"
 #include "../hud.h"
 #include <stdlib.h>
 #include <string.h>
@@ -93,7 +93,7 @@ static void hd_bar_pixels(Regs *r,HudPlan *p,uint8_t value,int full){
  if(full){hd_require(p->partial && p->bar.remaining);cell=hud_bar_next(&p->bar);}
  else {hd_require(!p->partial);cell=p->bar.cell;p->partial=1;}
  uint16_t position=(uint16_t)(p->bar_base+cell);hd_word(position,r->si);hd_word(p->bar.value,value);
- for(uint8_t row=0;row<3;row++)wr8(r->ds,(uint16_t)(p->bar_base+hud_bar_row(cell,row)),p->bar.value);
+ for(uint8_t row=0;row<3;row++)pixel_store(r->ds,(uint16_t)(p->bar_base+hud_bar_row(cell,row)),p->bar.value);
 }
 static void hd_bar_end(HudPlan *p){if(p->bar_active){hd_require(p->partial && !p->bar.remaining);p->bar_active=0;}}
 #endif

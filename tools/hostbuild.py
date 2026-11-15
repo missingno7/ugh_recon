@@ -26,7 +26,7 @@ def timing_composed(units):
 
 def composition_options(units, base=None):
     if not timing_composed(units): return []
-    return (['-DUGH_NATIVE_VIDEO_PAGES'] if any(u['component']=='video_pages' for u in units) else [])+(['-DUGH_NATIVE_INPUT'] if any(u['component']=='input_world' for u in units) else [])+(['-DUGH_NATIVE_PALETTE'] if any(u['component']=='palette_world' for u in units) else [])+(['-DUGH_NATIVE_AUDIO'] if any(u['component']=='audio_world' for u in units) else [])+['-DUGH_NATIVE_TIMING', '-DNATIVE_AUDIO_BYTE_SERVICE', '-I', str((base or ROOT)/'native/bridge'),
+    return (['-DUGH_NATIVE_PIXEL'] if any(u['component']=='pixel_world' for u in units) else [])+(['-DUGH_NATIVE_VIDEO_PAGES'] if any(u['component']=='video_pages' for u in units) else [])+(['-DUGH_NATIVE_INPUT'] if any(u['component']=='input_world' for u in units) else [])+(['-DUGH_NATIVE_PALETTE'] if any(u['component']=='palette_world' for u in units) else [])+(['-DUGH_NATIVE_AUDIO'] if any(u['component']=='audio_world' for u in units) else [])+['-DUGH_NATIVE_TIMING', '-DNATIVE_AUDIO_BYTE_SERVICE', '-I', str((base or ROOT)/'native/bridge'),
             '-I', str(ROOT/'verif/projector')]
 
 def _previous_composition_source(relative, text, units):
@@ -152,7 +152,7 @@ def _input_composition_source(relative,text,units):
     return text
 
 
-def composition_source(relative,text,units):
+def _pages_composition_source(relative,text,units):
     text=_input_composition_source(relative,text,units)
     if not any(u['component']=='video_pages' for u in units):return text
     header='#include "'+(ROOT/'native/bridge/video_pages_bridge.h').as_posix()+'"\n'
@@ -174,6 +174,31 @@ def composition_source(relative,text,units):
             ('if(!input_shared_write(address,source[i])','if(!video_pages_shared_write(address,source[i]) && !input_shared_write(address,source[i])')]:
             assert text.count(old)==1; text=text.replace(old,new)
     if relative=='c/platform.c':text+='\n'+(ROOT/'verif/video_pages_platform_model.inc').read_text()
+    return text
+
+
+def composition_source(relative,text,units):
+    text=_pages_composition_source(relative,text,units)
+    if not any(u['component']=='pixel_world' for u in units):return text
+    header='#include "'+(ROOT/'native/bridge/pixel_world_bridge.h').as_posix()+'"\n'
+    if relative=='c/memory.c':
+        text=header+text
+        text=text.replace('uint8_t ugh_read(uint32_t a) {','uint8_t ugh_read(uint32_t a) { uint8_t renderer; if(pixel_shared_read(a,&renderer))return renderer;')
+        text=text.replace('void ugh_write(uint32_t a, uint8_t v) {','void ugh_write(uint32_t a, uint8_t v) { if(pixel_shared_write(a,v))return;')
+    if relative in ('native/far_copy.c','native/decimal.c'):
+        text=header+text.replace('video_pages_borrowed_byte(','pixel_borrowed_byte(').replace('video_pages_borrowed_store(','pixel_borrowed_store(')
+    if relative=='native/bridge/timing_world_bridge.c':
+        text=header+text;old='video_pages_shared_read((uint32_t)(source-base+index),&value)';assert text.count(old)==1
+        text=text.replace(old,'(pixel_shared_read((uint32_t)(source-base+index),&value)||'+old+')')
+    if relative=='native/bridge/audio_world_bridge.c':
+        text=header+text
+        for old,new in [
+            ('video_pages_shared_read(address+i,&value)','(pixel_shared_read(address+i,&value)||video_pages_shared_read(address+i,&value))'),
+            ('video_pages_shared_write((uint32_t)(destination-base+index),value)','(pixel_shared_write((uint32_t)(destination-base+index),value)||video_pages_shared_write((uint32_t)(destination-base+index),value))'),
+            ('if(video_pages_is_owned(address)||','if(pixel_is_owned(address)||video_pages_is_owned(address)||'),
+            ('if(!video_pages_shared_write(address,source[i])','if(!pixel_shared_write(address,source[i]) && !video_pages_shared_write(address,source[i])')]:
+            assert text.count(old)==1;text=text.replace(old,new)
+    if relative=='c/platform.c':text+='\n'+(ROOT/'verif/pixel_platform_model.inc').read_text()
     return text
 
 

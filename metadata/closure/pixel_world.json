@@ -1,0 +1,278 @@
+{
+  "component": "pixel_world",
+  "status": "migrated",
+  "original": {
+    "owned": [],
+    "composes": [
+      "render_primitives",
+      "hud",
+      "water_weather",
+      "actor_render",
+      "player_physics",
+      "video_pages"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/pixel_world.h",
+      "native/pixel_world.c",
+      "native/bridge/pixel_world_bridge.h",
+      "native/bridge/pixel_world_bridge.c",
+      "native/bridge/pixel_io.h"
+    ],
+    "functions": [
+      "native_pixel_world",
+      "pixel_collision_position"
+    ],
+    "bridge": "Native owner; explicit typed services and verification-only ABI continuations"
+  },
+  "purpose": "Standalone step 4 pixel-service cut: all renderer/HUD/weather/actor/physics pixel paths and exclusive renderer scratch. HUD/weather ownership remains a recorded continuation.",
+  "interface": {
+    "inputs": "Live typed control, source/collision/copy/mark requests; native renderer words; explicit shared state borrowers",
+    "outputs": "Full read replies, ordered live pixel/control effects, native-only renderer ownership and separate observation serialization"
+  },
+  "callers": [
+    "Video entry ABI; pictures, session, demos, renderer, physics, water and generic byte windows"
+  ],
+  "callees": [
+    "Typed indexed controls, live lane stores/source reads, retrace/cut/frame services; accepted video kernels and peers"
+  ],
+  "indirect": [
+    "Closed native near/tail roles for ordinary GAME bindings",
+    "Accepted unknown frame tails and noncanonical bindings retain an opaque typed external continuation; verification provider preserves the old dispatch/near ABI and error prefixes; unobserved in maintained scenarios"
+  ],
+  "amiga": {
+    "classification": "not-used",
+    "finding": "Composition only; accepted DOS contracts retained"
+  },
+  "uncertainty": [
+    "Partial step 4: HUD/history, rain and weather native ownership remain; their buffers and the slot-193 alias need a separate ownership audit",
+    "Shared Water Y, player draw caches and actor render histories remain with their canonical world owners",
+    "Full inherited VGA controls retained. No production provider or narrower compatibility decision is chosen."
+  ],
+  "memory": {
+    "owner": "NativePixelWorld.plane_state/water_distance: GAME:45FC..45FF, four bytes; loader and byte windows are explicit borrowers",
+    "total_with_prior": 6439,
+    "remaining": "HUD/weather ownership remains for a separate cut; player caches, actor histories and Water Y remain canonical and unmoved"
+  },
+  "assumptions": [
+    "Accepted renderer, HUD, water/weather and player physics semantic/data/stack/resource domains remain unchanged",
+    "VGA services are synchronous: live full-byte reads update all four latches; writes obey inherited controls and unclipped word-address reductions",
+    "Opaque external compatibility continuations preserve admitted unknown/noncanonical bindings; unknown typed enum requests fail closed",
+    "Actual-C B covers the new owner and service/sampler seams; no monolithic whole-handler or complete hardware A/B theorem is claimed",
+    "Cold import is verification fixture setup only; moved RAM stays sealed and serialization is observation-only"
+  ],
+  "eliminated": [
+    "RAM ownership of renderer scratch; raw pixel/control ports and internal machine call edges in the five composed caller bridges"
+  ],
+  "retained": [
+    "Both page layouts, hidden storage/padding, foreign latches, full inherited GC/SEQ controls, live copy sources and unclipped destinations",
+    "Full-byte ten-read collision order and independent word reductions; water OR-40 recipe; every existing branch/cursor/animation and scalar quirk",
+    "Unknown frame/noncanonical-code literal compatibility remains only through an explicit typed external service; no broken hook repaired"
+  ],
+  "evidence": [
+    {
+      "property": "New owner and pixel/sampler seams",
+      "level": "B",
+      "method": "Actual-C renderer-word output/frame/dependence; full bank/word address and full reply slices; read-before-write copy/mark streams; actual sampler ten-read order, independent word reductions, full-byte reply use and other-register frame. No whole-physics/HUD/weather B claim.",
+      "command": "python verif/pixel_composition.py --proof --router",
+      "result": "PASS: three actual-C profiles; all physical router cells; 131072 word roundtrips and 1024 byte writes",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "API, actual hardware provider, borrowers and retained continuation prefixes",
+      "level": "C",
+      "method": "Independent Unicorn and L1; compiled full RAM/Devices/ordered service effects and ABI; complete collision bit-pattern/full-byte reply slices",
+      "command": "python verif/pixel_composition.py --api --backend --borrowers",
+      "result": "PASS: 3770 legacy and composed API matches each; 0 declines; 3584 generated sampler cases, 3072 copies, 32 marks; 3 compatibility continuation cases",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "Composition and named regressions",
+      "level": "D",
+      "method": "Committed-baseline archive, scratch promotion, independent rebuilt-ASM references; all projector boundaries and exact named frame/address/provenance witnesses",
+      "command": "python verif/pixel_composition.py --build --projector --census --regressions --levels",
+      "result": "PASS: 51/0 closure; 21/21 each host variant; 17955 boundaries, 6439 native bytes, 0 moved publications; zero L1 game bodies/fallbacks/island machine edges; 81+7+8 levels each variant; departure 292, rain 23, water-physics 897/899 and same-frame save regressions",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "Seeded defects",
+      "level": "C",
+      "method": "Actual consuming service/sampler paths plus host serialization guard",
+      "command": "python verif/pixel_composition.py --defects",
+      "result": "PASS: all seven detected; snapshot caught in one live copy epoch and dropped read by actual ten-sample handler",
+      "date": "2026-11-15"
+    }
+  ],
+  "verification_inputs": {
+    "native/pixel_world.h": "87b09b592a7273bb530ca40633ed3df8c7ce6223bd2d0bcc9821284d89934cb2",
+    "native/pixel_world.c": "70b621a4ff2f7cb588c353dd0715aed35a2bad8a46b616de8d4edaa243f441a5",
+    "native/bridge/pixel_world_bridge.h": "d9a5c58c750fdd734d3e4d4394d35c145e83f4639bee20312c61c46d37c3c93d",
+    "native/bridge/pixel_world_bridge.c": "6b0ef02880e37be713051c2ba5b45040b23018ba43655ef44e11d87eb30b985b",
+    "native/bridge/pixel_io.h": "6097be2a1f36eab99d9ca6e553db9cad4971de2f7dbaf0e97ddc0777128f9b05",
+    "native/bridge/render_primitives_bridge.c": "5002913bc734eb8a2b215c4fce8e1b67e0381bab54d8b2c6f615d49133110c2e",
+    "native/bridge/hud_bridge.c": "7aa964fbbc799ee7d0e2ebf45b0f80821c76782636c557231638080d68679d33",
+    "native/bridge/water_weather_bridge.c": "8c88b910766ba14e66eafd9f0a982aeaafb4f864428230b5d38c74a8efcb46ff",
+    "native/bridge/actor_render_bridge.c": "236b9943c30f6bf093ab6cd440f39190bf7a9e37163cc32e899e6bffbec030d5",
+    "native/bridge/player_physics_bridge.c": "ffa60fac2e659ce357897531a10a64d9e55dea186e59ea725be4c3e937164bf5",
+    "native/bridge/hud_support.h": "b79b65cc5ac09c7bffb153bf6aedc14b2cc88487b5b3b9acfecb276c95cd2d3d",
+    "verif/pixel_platform_model.inc": "b8e1daa2000db0ec4034b2dd10e953082233a331c668209cd1411500c1404992",
+    "verif/pixel_composition.py": "b54a9136a4401015985bb976af1aa430f402f513defb749805b0163101effc3b",
+    "tools/hostbuild.py": "cd958993232dd11e30269c4c278381741a9f3e9c92a554b2e66180b8d41b7f3f",
+    "host/main.c": "b828aedbc84e5f59b2faa711ef4cfda75e535ae8049d76a491c74841033d2a15",
+    "verif/projector/observer.c": "b8b3fc19003c1a50140c8ffa3caa441700d3f8eb8aaecd58b6f958b0d0de6411",
+    "verif/projector/timing_serializer.h": "f784234d41752fadbab44da8641e4765d2017a3b7ea2cdb8f6dd9baef5430832",
+    "verif/projector/publications.py": "63edad838f2604e2e5bd7e51203b33964239e1ca6f4c1c481ac9b576bf0cca2f",
+    "verif/projector_evidence.py": "ca731962f8d80b7a285cd17d10e2f661fb793b5f4b8f394bdd928e8217107a13",
+    "c/ugh.h": "08f205d3c288354787a83887e0fd007eea850087736e51d2cd6dacf7e5f84887",
+    "c/ugh_sym.h": "61651f2da575d9176fddfcde8ee370c57bf16644b0dd1dd7c2bd87bdb42ae49d",
+    "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
+    "tools/cgen.py": "c494a10b08145efeb0dfd7bcef4fa89b3902cebbdd69ee63bae89647026d9aff",
+    "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
+    "verif/audio_composition.py": "32cf1d267784b30271e030a276abb0424aacf932ae169fc98efa71a9cdb70691",
+    "verif/timing_composition.py": "079ee38dca0657725f0449fd78d90df8928a4d2130a95021a07f9aa7195dd757",
+    "verif/entry_retirement.py": "3b52d207fef7b3e51461a2357a06f012f59651b406f1fe9a0253876e55f76529",
+    "verif/standalone_census.py": "647dd84b82fbeb0871fd992671b0c2279cd98e66bb46854b57c0745ed84b0a6f",
+    "verif/level_suite.py": "c4ba45fc0a2aa239c8023932d03413dcc487000e887b836cac05e24347aaace7",
+    "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
+    "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
+    "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
+    "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
+    "tools/dataprobe.py": "388517636b2f9d75ed3ba7d66dee24a41e03b60bfd89ab955c1902d79e81019b",
+    "tools/cbuild.py": "b957186e9697f04be43136704d51f727fa5f20aace331919e3ade16468a4a8f1",
+    "metadata/closure/video_dos.json": "478086b7b5c517b69efec8540b5e2c9391d5411a3db0f9caf44a478adba1656f",
+    "metadata/closure/render_primitives.json": "db6aa678cd82c53c1a25ba2b54c2b165dea05a0183e855db545f84e21a9b1f8d",
+    "metadata/closure/actor_render.json": "6ade9716485beacdf991784becf55615a43b601989aacce038543683294dbb35",
+    "metadata/closure/audio_world.json": "65b199b00565e818393d61b30c0a35a37d1d7a8f4dd0d268e7972dab89440d5e",
+    "metadata/closure/timing_world.json": "0095e66302a36e07334ba906cae8ed32f205a460f759e303a9831e0994e5709b",
+    "metadata/closure/ice.json": "9952c30fd8cd63eba1c6788e454c7e8aae3aba8998751d1ae0b1027cc99a0c48",
+    "metadata/closure/ice_scratch.json": "527aa21f612306ab12749e391a37655bccd47b2c36658fc7e0698e723daa7c36",
+    "metadata/closure/far_copy.json": "b607e9417591d0724605e6d4fb8bbe50087f4e03755ac77d0e1425e8009f98f3",
+    "metadata/closure/decimal.json": "a17de4e5cb5f3596652893a5ad6a3fd955f68b57795288510a7c9df75096c2d7",
+    "metadata/closure/pictures.json": "c942911e8e0eb4f243e7c2e99e7b3fccccb00d7f4f239f417a0282403f619259",
+    "verif/cbmc_shim/stddef.h": "03e62ec5f7016e0582b92f016d7e4017b56746e2b216ae8d7fad236ae7e723e7",
+    "verif/cbmc_shim/stdint.h": "ff382e7cc9e8ac2ff6cef94767bb680b49944513ebff33b6d7e548fe12a5d7d0",
+    "verif/cbmc_shim/ugh.h": "d23d5fb7f8d14f5c03944d9cce971d6d21fdf32c28ebac1f2710842cd03d7e72",
+    "verif/palette_composition.py": "5d2c122f190aa538bc64d744b0f79ed8c6d02d73c9804b936921a4545eb10ed6",
+    "native/input.c": "56550496ffde02a0f1b9625922783721e20fa455e5d1be9c8dc5c3467569b8f9",
+    "native/input.h": "3e1278c1c7218615a3813263dd19fbc6a15c7a8e073b0bf96c4cb2aa5415bf1e",
+    "verif/input_evidence.py": "e84fc96097884dabc2904783c50a1b0dd8b324953008b160c9ed94e81793c897",
+    "verif/input_build.py": "106fc5b7c65a9591f24307c1be970ad5b947d36e020f16c15887d4024e35095b",
+    "verif/input_inventory.py": "3d6a896a12e35eaf4f698e6047f5a57a95edc302c0f9a3e7571ca4196980939e",
+    "verif/input_integration.py": "a81129b645d60c2e7000427f3b1deced03255269c553e5423d9016b7ea741021",
+    "metadata/closure/input.json": "e260acf89cdaaa2233888cbd056cde4fcc09a6d06fed94a196b42079ce9d4617",
+    "metadata/closure/palette_world.json": "4045f4c3e4d94fe25993f4dae48c4855812dee0acc6f844fb86e2e547676339a",
+    "metadata/closure/menus.json": "8317d4b8f8571cd4fd362e01354c555e7f641245fcef0a6d9e9911afb464040b",
+    "metadata/closure/high_scores.json": "acae41a7c088be67eb0f502b9a3f50334041e4045840acada2667193a81b9c91",
+    "native/bridge/menus_bridge.c": "5e58afe6a5f4ced7afea6623d5df2a48371427d377a175fcd530194823676561",
+    "native/bridge/high_scores_bridge.c": "0b953ac00971ad46f04351bf46c58601a5d5c138b3d963317c865c3571e6ae13",
+    "src/data/DGDATA.ASM": "9d46889e26434a597ed19b91c119029af3dbf3dbcfa9811c4ed5aa18dc157541",
+    "verif/input_composition.py": "f40963d216d583f6649f23b2f3138ab207f1b074a7eb560031adb263605d209e",
+    "metadata/closure/input_world.json": "3a13f76ea59eb13ad5c5718e5758127879f6c9dccf570930d946c63c4150784b",
+    "native/video_dos.c": "4a8639a8349bf49694dbff5bf052811b89a500882aa8fea492e4c84fb700dcde",
+    "native/video_dos.h": "830cf4e706ce00033be99d4e74831f4f39e348f3b226bd1086128a5f61c26cf5",
+    "src/asm/GAME.ASM": "29c9ead3b191a744c59b465a3bd4de29f2e217b92492cf57edb8c13bc3494204",
+    "c/platform.c": "237f93d94d1b30b9a1fe0d8ebeba23e71796d5d137bad9a70f2c788b035cd542",
+    "c/memory.c": "97f59e3c343cd6911854d0bfc3ff624417de2844f712caa96ec6799d3a9783d9",
+    "verif/vga_state_census.py": "54b8735be14b81c3c1107931cb24b6a2cff069c3759e98c0dd00742135055808",
+    "c/platform.h": "f256dfd3c7f2f41c31d9a4278f569231bd0672a28268dc36ccc2ac5dee484ffc",
+    "metadata/closure/player_physics.json": "8c1f379313b410a18edab76110ad2585f963e41475e589e3feb6fb449c7c578f",
+    "metadata/closure/water_weather.json": "25309de65a0738cb04bf32df5d82bd06f2e645a8f67ca784c41ab2b16d9d30c9",
+    "metadata/closure/session.json": "97114f7bf268982a1ff8d10ed31dec93d2b5d918f9968538804e894dfd462029",
+    "metadata/closure/demo_presentation.json": "ffc469dc0090cb3aaa5253379f2d62b63ae70f457be6bacc0bc423d1ba6b9090",
+    "verif/video_pages_composition.py": "2fb8e8ad727b9ce40da26824d14b1428bc4058488eb1a0e12839f7c8311edf4c",
+    "metadata/closure/video_pages.json": "fc7cdac83c8ade9ddd26dccd4357e6df0bc7b824b5d2110b0637da17eecb5d7c",
+    "metadata/closure/hud.json": "ee98d93e2eadfde759208df1cf0b352f91e520aee807712b411f21746aaa7942",
+    "native/player_physics.c": "dcb90fedbd71fbf58b826a80abbf8307bd9de3d1e1347a9e4e1338543fee7b73",
+    "verif/player_physics_l0_cases.py": "a3bf551de674f3c6121c023498fdca1641f99f68e75b23fd5dfb28e313fc4948",
+    "verif/water_weather_l0_cases.py": "e620b99e61d78aa407458d080fbeabcff8c9958992a4b9b11f6f94d33a6942e0"
+  },
+  "dependencies": {
+    "native/pixel_world.h": {
+      "includes": [
+        "video_pages.h"
+      ],
+      "calls": []
+    },
+    "native/pixel_world.c": {
+      "includes": [
+        "pixel_world.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/pixel_world_bridge.h": {
+      "includes": [
+        "../pixel_world.h",
+        "ugh.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/pixel_world_bridge.c": {
+      "includes": [
+        "pixel_world_bridge.h",
+        "platform.h",
+        "stdio.h",
+        "stdlib.h",
+        "video_pages_bridge.h"
+      ],
+      "calls": [
+        "G",
+        "abort",
+        "c_CachePlayerDrawState",
+        "c_DrawHudDigit",
+        "c_DrawMapTile",
+        "c_DrawTransparentSprite",
+        "c_DrawWaterSurfaceFrame0",
+        "c_DrawWaterSurfaceFrame1",
+        "c_DrawWaterSurfaceFrame2",
+        "c_EncodeFourDecimalDigits",
+        "c_EncodeSixDecimalDigits",
+        "c_EncodeTwoDecimalDigits",
+        "c_NextRandomBelowAx",
+        "c_RedrawChangedFourDigitNumber",
+        "c_RedrawChangedSixDigitNumber",
+        "c_RedrawChangedTwoDigitNumber",
+        "c_RespawnRainParticle",
+        "c_RestoreBackgroundRectangle",
+        "c_RestoreSpriteBackground",
+        "c_SamplePlayerCollisionPixels",
+        "exit",
+        "fputs",
+        "lin",
+        "native_pixel_world",
+        "pixel_get_word",
+        "pixel_index",
+        "pixel_owned_bytes",
+        "pixel_put_word",
+        "pixel_service_continuation",
+        "pixel_shared_read",
+        "pixel_shared_write",
+        "video_pages_borrowed_byte",
+        "video_pages_borrowed_store",
+        "wr16"
+      ]
+    },
+    "native/bridge/pixel_io.h": {
+      "includes": [
+        "pixel_world_bridge.h",
+        "platform.h"
+      ],
+      "calls": [
+        "pixel_route",
+        "pixel_service_compatibility_write",
+        "pixel_service_control_read",
+        "pixel_service_control_write",
+        "pixel_service_copy",
+        "pixel_service_read",
+        "pixel_service_store",
+        "pixel_service_water_mark",
+        "platform_in",
+        "platform_out",
+        "rd8",
+        "wr8"
+      ]
+    }
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "proposed_status": "migrated"
+}

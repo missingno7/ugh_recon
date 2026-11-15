@@ -1,3 +1,4 @@
+#include "pixel_io.h"
 #include "render_primitives_support.h"
 static void push(Regs *r,uint16_t v) { r->sp=(uint16_t)(r->sp-2); wr16(r->ss,r->sp,v); }
 
@@ -26,14 +27,14 @@ static uint8_t dec_byte(Regs *r, uint8_t v) {
 
 static void copy_mode(Regs *r,int enable) {
     r->dx=enable?0x3ce:0x3cf;
-    if(enable) { set_al(r,5); platform_out(r->dx,1,5); r->dx=0x3cf; }
-    set_al(r,(uint8_t)platform_in(r->dx,1));
+    if(enable) { set_al(r,5); pixel_out(r->dx,1,5); r->dx=0x3cf; }
+    set_al(r,(uint8_t)pixel_in(r->dx,1));
     set_al(r,(uint8_t)logic(r,(uint8_t)r->ax&0xfc,8));
     if(enable) set_al(r,(uint8_t)((uint8_t)r->ax+1));
-    platform_out(r->dx,1,(uint8_t)r->ax);
+    pixel_out(r->dx,1,(uint8_t)r->ax);
 }
 
-#define CALL(target,owner,delta) do { int status=ugh_call_near(G(target),(uint16_t)(G(owner)+(delta)),r); if(status) return status; } while(0)
+#define CALL(target,owner,delta) do { int status=PIXEL_CALL(target,(uint16_t)(G(owner)+(delta))); if(status) return status; } while(0)
 #define R(name) rd16(r->ds,D(name))
 #define W(name,v) wr16(r->ds,D(name),(uint16_t)(v))
 #define B(name) rd8(r->ds,D(name))
@@ -51,7 +52,7 @@ EXPORT int c_DrawTransparentSprite(Regs *r) {
     wr16(r->cs,G(RendererScratchWord),rp_word(placement.water,water));
     dest=(uint16_t)(dest+sar_word(r->bx,2)+(uint16_t)(y*96u));
     dest=rp_word(placement.destination,dest);y=rp_word(placement.y,y);
-    platform_out(0x3c4,1,2);
+    pixel_out(0x3c4,1,2);
     uint8_t plane=rp_byte(placement.plane,(uint8_t)(1u<<(r->bx&3u)));
     wr16(r->cs,G(SpritePlaneStateScratch),(uint16_t)((uint16_t)plane*256u+2));
     uint16_t directory=rd16(r->cs,G(SpriteDirectoryPointer));
@@ -71,17 +72,17 @@ EXPORT int c_DrawTransparentSprite(Regs *r) {
     int crossing=(int16_t)water>=0 && (int16_t)water<height;
     int submerged=(int16_t)water<0;
     do {
-        platform_out(0x3c5,1,rp_byte(cursor.plane,plane));
+        pixel_out(0x3c5,1,rp_byte(cursor.plane,plane));
         uint16_t row_dest=dest;
         uint8_t rows=height;
         if(crossing) r->bp=rd16(r->cs,G(RendererScratchWord));
         do {
-            uint8_t pixel=rd8(source_seg,rp_word(cursor.source,source));
+            uint8_t pixel=pixel_read(source_seg,rp_word(cursor.source,source));
             RenderPixelRequest request=render_sprite_pixel(&cursor,pixel);rp_require(request.write==(pixel!=0));
             source=(uint16_t)(source+step(r));source=rp_word(cursor.source,source);
             if(pixel) {
                 if(submerged || (crossing && (r->bp&0x8000u))) pixel|=0x40;
-                wr8(0xa000,rp_word(request.destination,row_dest),rp_byte(request.value,pixel));
+                pixel_store(0xa000,rp_word(request.destination,row_dest),rp_byte(request.value,pixel));
             }
             row_dest=(uint16_t)(row_dest+96u);
             if(crossing) r->bp=(uint16_t)(r->bp-1);
@@ -95,7 +96,7 @@ EXPORT int c_DrawTransparentSprite(Regs *r) {
         columns=dec_byte(r,columns);render_sprite_column(&cursor);
         plane=rp_byte(cursor.plane,plane);dest=rp_word(cursor.destination,dest);columns=rp_byte(cursor.columns,columns);
     } while(columns);
-    platform_out(0x3c5,1,15);
+    pixel_out(0x3c5,1,15);
     return UGH_OK;
 }
 
@@ -136,7 +137,7 @@ EXPORT int c_SaveDrawPageBackground(Regs *r) {
     r->cx=rd16(r->cs,G(VgaPlaneCopyByteCount));
     RenderCopyRequest copy=render_save(r->si,r->di,r->cx,(uint8_t)!!(r->flags&DF));
     r->si=rp_word(copy.source,r->si);r->di=rp_word(copy.destination,r->di);r->cx=rp_word(copy.count,r->cx);
-    while(r->cx) { uint8_t v=rd8(r->ds,r->si); wr8(r->es,r->di,v); r->si=(uint16_t)(r->si+step(r)); r->di=(uint16_t)(r->di+step(r)); r->cx--; }
+    while(r->cx) { pixel_copy(r->ds,r->si,r->es,r->di); r->si=(uint16_t)(r->si+step(r)); r->di=(uint16_t)(r->di+step(r)); r->cx--; }
     r->si=rp_word(copy.source_end,r->si);r->di=rp_word(copy.destination_end,r->di);
     r->ds=ds; copy_mode(r,0); return UGH_OK;
 }
@@ -163,7 +164,7 @@ EXPORT int c_RestoreBackgroundRectangle(Regs *r) {
     src=rp_word(copy.source,src);dst=rp_word(copy.destination,dst);width=rp_word(copy.width,width);rows=rp_word(copy.remaining,rows);
     do {
         flag(r,DF,0);
-        for(unsigned i=0;i<width;i++) wr8(0xa000,(uint16_t)(dst+i),rd8(0xa000,(uint16_t)(src+i)));
+        for(unsigned i=0;i<width;i++) pixel_copy(0xa000,(uint16_t)(src+i),0xa000,(uint16_t)(dst+i));
         src=(uint16_t)(src+96); dst=(uint16_t)(dst+96); rows--;render_next_row(&copy);
         src=rp_word(copy.source,src);dst=rp_word(copy.destination,dst);rows=rp_word(copy.remaining,rows);
     } while(rows);

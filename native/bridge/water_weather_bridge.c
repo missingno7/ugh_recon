@@ -1,3 +1,4 @@
+#include "pixel_io.h"
 #include "platform.h"
 #include "../water_weather.h"
 #include <stdlib.h>
@@ -49,24 +50,24 @@ static int ww_tail(Regs *r,WeatherPlan *p,uint16_t target){
   else {ww_require(r->si==e.value && target==rd16(r->cs,(uint16_t)(G(WaterSurfaceDispatch)+e.value)) && r->di==(uint16_t)(rd16(r->cs,G(DrawPagePointer))+e.position) && r->ds==rd16(r->cs,G(DrawPagePointer)+2u));r->si=e.value;r->di=(uint16_t)(rd16(r->cs,G(DrawPagePointer))+e.position);}
   Regs data=*r;data.ds=p->data;ww_require(ww_projection(&data,p) && !p->service_pending && p->consumed==p->result.count);p->tail_seen=1;
  }
- return ugh_dispatch(r->cs,target,r);
+ return PIXEL_TAIL(target);
 }
 static int ww_random(Regs *r,WeatherPlan *p,uint16_t ret){
  if(p->active){WeatherAction e=ww_take(p,WW_RANDOM);ww_require(r->ax==e.value && p->consumed==p->result.count && !p->service_pending && ww_projection(r,p));r->ax=e.value;p->service_pending=1;}
- int status=ugh_call_near(G(NextRandomBelowAx),ret,r);
+ int status=PIXEL_CALL(NextRandomBelowAx,ret);
  if(p->active && !status){p->service_pending=0;p->result=weather_particle_spawn(&p->particle,r->ax,p->inputs);p->consumed=0;}
  return status;
 }
 static int ww_respawn(Regs *r,WeatherPlan *p,uint16_t ret){
  if(p->active){ww_take(p,WW_RESPAWN);ww_require(p->consumed==p->result.count && r->bx==p->index && ww_projection(r,p));r->bx=p->index;p->tail_seen=1;}
- return ugh_call_near(G(RespawnRainParticle),ret,r);
+ return PIXEL_CALL(RespawnRainParticle,ret);
 }
 static int ww_rain_admit(Regs *r,int extra){return r->ds==DATA_SEG && r->cs==GAME_SEG && weather_first_particle(rd16(r->ds,D(WaterYPixels)),extra)<386u;}
 static uint16_t ww_first(Regs *r,int extra,uint16_t expected){if(r->ds!=DATA_SEG)return expected;uint16_t actual=weather_first_particle(rd16(r->ds,D(WaterYPixels)),extra);ww_require(actual==expected);return actual;}
 static uint16_t ww_previous(Regs *r,uint16_t index){uint16_t value=weather_previous_particle(index);ww_require(value==sub16(r,index,2,0));ww_require(weather_more_particles(value)==((int16_t)value>=0));return value;}
 static uint8_t ww_rain_mask(WeatherPlan *p,uint8_t expected){if(p->active){WeatherAction e=ww_take(p,WW_MASK);ww_require(e.value==expected);return (uint8_t)e.value;}return expected;}
-static void ww_rain_pixel(Regs *r,WeatherPlan *p){if(p->active){WeatherAction e=ww_take(p,WW_PIXEL);ww_require(r->es==0xa000 && r->di==(uint16_t)(r->bp+e.position) && (uint8_t)(r->ax>>8)==e.value);r->di=(uint16_t)(r->bp+e.position);wr8(r->es,r->di,(uint8_t)e.value);}else wr8(r->es,r->di,(uint8_t)(r->ax>>8));}
-static void ww_copy(Regs *r,WeatherPlan *p){if(p->active){WeatherAction e=ww_take(p,WW_COPY);ww_require(r->es==0xa000 && r->si==(uint16_t)(r->cx+e.position) && r->di==(uint16_t)(r->bp+e.position) && ww_projection(r,p));r->si=(uint16_t)(r->cx+e.position);r->di=(uint16_t)(r->bp+e.position);}set_al(r,rd8(r->es,r->si));wr8(r->es,r->di,(uint8_t)r->ax);}
+static void ww_rain_pixel(Regs *r,WeatherPlan *p){if(p->active){WeatherAction e=ww_take(p,WW_PIXEL);ww_require(r->es==0xa000 && r->di==(uint16_t)(r->bp+e.position) && (uint8_t)(r->ax>>8)==e.value);r->di=(uint16_t)(r->bp+e.position);pixel_store(r->es,r->di,(uint8_t)e.value);}else pixel_store(r->es,r->di,(uint8_t)(r->ax>>8));}
+static void ww_copy(Regs *r,WeatherPlan *p){if(p->active){WeatherAction e=ww_take(p,WW_COPY);ww_require(r->es==0xa000 && r->si==(uint16_t)(r->cx+e.position) && r->di==(uint16_t)(r->bp+e.position) && ww_projection(r,p));r->si=(uint16_t)(r->cx+e.position);r->di=(uint16_t)(r->bp+e.position);}set_al(r,pixel_copy(r->es,r->si,r->es,r->di));}
 static uint8_t ww_frame_pixel(WeatherFrameCursor *c,unsigned frame,unsigned column,uint8_t expected){WeatherAction e=weather_frame_next(c,frame);ww_require(e.kind==WW_PIXEL && e.position==column && e.value==expected);return (uint8_t)e.value;}
 static uint8_t ww_frame_mask(WeatherFrameCursor *c,unsigned frame,uint8_t expected){WeatherAction e=weather_frame_next(c,frame);ww_require(e.kind==WW_MASK && e.value==expected);return (uint8_t)e.value;}
 /* BEGIN CHECKED WEATHER SHELLS */
@@ -122,19 +123,19 @@ EXPORT int c_AdvanceWaterSurface(Regs *r) {WeatherPlan storage;ww_open(r,&storag
         if(!phase) { r->ax=add16(r,r->ax,R(WaterSurfaceStep,0),0); if(r->flags&SF) r->ax=logic(r,0,16); }
         W(WaterY32,0,r->ax); r->ax=shift(r,r->ax,5,1); W(WaterYPixels,0,r->ax); sub16(r,r->ax,R(PreviousWaterSurfaceY,0),0);
         if(r->flags&ZF) {ww_complete(r,plan);return UGH_OK;}
-        ww_mark_begin(r,plan);push(r,r->ds); r->dx=0x3ce; set_al(r,8); platform_out(r->dx,1,(uint8_t)r->ax);
-        r->dx=inc(r,r->dx); set_al(r,0x40); platform_out(r->dx,1,(uint8_t)r->ax);
-        r->dx=dec16(r,r->dx); set_al(r,3); platform_out(r->dx,1,(uint8_t)r->ax);
-        r->dx=inc(r,r->dx); set_al(r,0x10); platform_out(r->dx,1,(uint8_t)r->ax);
+        ww_mark_begin(r,plan);push(r,r->ds); r->dx=0x3ce; set_al(r,8); pixel_out(r->dx,1,(uint8_t)r->ax);
+        r->dx=inc(r,r->dx); set_al(r,0x40); pixel_out(r->dx,1,(uint8_t)r->ax);
+        r->dx=dec16(r,r->dx); set_al(r,3); pixel_out(r->dx,1,(uint8_t)r->ax);
+        r->dx=inc(r,r->dx); set_al(r,0x10); pixel_out(r->dx,1,(uint8_t)r->ax);
         r->ax=R(PreviousWaterSurfaceY,0); r->ax=(uint16_t)((uint8_t)r->ax*rd8(r->ds,D(VgaRowStrideBytes)));r->ax=ww_mark_position(plan,r->ax);
         flag(r,CF,r->ax>255); flag(r,OF,r->ax>255);
         r->si=rd16(r->cs,G(BackgroundPagePointer)); r->ds=rd16(r->cs,(uint16_t)(G(BackgroundPagePointer)+2)); r->si=add16(r,r->si,r->ax,0);
         r->bx=79; set_al(r,0x40);
-        do { set_ah(r,rd8(r->ds,(uint16_t)(r->bx+r->si))); wr8(r->ds,(uint16_t)(r->bx+r->si),(uint8_t)r->ax); r->bx=dec16(r,r->bx); } while(!(r->flags&SF));
-        r->dx=0x3ce; set_al(r,8); platform_out(r->dx,1,(uint8_t)r->ax);
-        r->dx=inc(r,r->dx); set_al(r,255); platform_out(r->dx,1,(uint8_t)r->ax);
-        r->dx=dec16(r,r->dx); set_al(r,3); platform_out(r->dx,1,(uint8_t)r->ax);
-        r->dx=inc(r,r->dx); set_al(r,(uint8_t)logic(r,0,8)); platform_out(r->dx,1,(uint8_t)r->ax);
+        do { set_ah(r,pixel_mark(r->ds,(uint16_t)(r->bx+r->si))); r->bx=dec16(r,r->bx); } while(!(r->flags&SF));
+        r->dx=0x3ce; set_al(r,8); pixel_out(r->dx,1,(uint8_t)r->ax);
+        r->dx=inc(r,r->dx); set_al(r,255); pixel_out(r->dx,1,(uint8_t)r->ax);
+        r->dx=dec16(r,r->dx); set_al(r,3); pixel_out(r->dx,1,(uint8_t)r->ax);
+        r->dx=inc(r,r->dx); set_al(r,(uint8_t)logic(r,0,8)); pixel_out(r->dx,1,(uint8_t)r->ax);
         r->ds=pop(r);ww_mark_end(r,plan); ww_write(r,plan,D(WaterRestorePending),byte_dec(r,rd8(r->ds,D(WaterRestorePending))),1);
     }
     r->ax=logic(r,0,16); r->bx=R(PreviousWaterSurfaceY,0); r->cx=320; r->dx=1;
@@ -158,10 +159,10 @@ EXPORT int c_DrawWaterSurface(Regs *r) {WeatherPlan storage;ww_open(r,&storage,1
     ww_write(r,plan,D(WaterSurfaceByteOffset),r->ax,2);
     r->di=rd16(r->cs,G(DrawPagePointer)); r->ds=rd16(r->cs,G(DrawPagePointer)+2);
     r->di=add16(r,r->di,r->ax,0);
-    r->dx=0x3c4; set_al(r,2); platform_out(r->dx,1,2);
+    r->dx=0x3c4; set_al(r,2); pixel_out(r->dx,1,2);
     uint16_t cf=r->flags&CF;
     r->dx=add16(r,r->dx,1,0); flag(r,CF,cf);
-    r->ax=0x5401; platform_out(r->dx,1,1);
+    r->ax=0x5401; pixel_out(r->dx,1,1);
     r->bx=0x5655; r->cx=0x5857;
     uint16_t old=r->si; r->si=(uint16_t)(r->si<<1);
     flag(r,CF,old&0x8000); flag(r,OF,((old^r->si)&0x8000)!=0); szp(r,r->si,16);
@@ -199,16 +200,16 @@ static int water_tail(Regs *r, const char *pattern) {unsigned frame=pattern==wat
             case 'D': value=(uint8_t)r->cx; break;
             default: value=(uint8_t)(r->cx>>8); break;
             }
-            wr8(r->ds,(uint16_t)(r->di+x),ww_frame_pixel(&cursor,frame,x,value));
+            pixel_store(r->ds,(uint16_t)(r->di+x),ww_frame_pixel(&cursor,frame,x,value));
         }
         if(plane<3) {
             uint8_t old=(uint8_t)r->ax, value=(uint8_t)(old<<1);
             flag(r,CF,old&128); flag(r,OF,((old^value)&128)!=0);
             szp(r,value,8); set_al(r,value);
-            platform_out(r->dx,1,ww_frame_mask(&cursor,frame,value));
+            pixel_out(r->dx,1,ww_frame_mask(&cursor,frame,value));
         }
     }
-    set_al(r,15); platform_out(r->dx,1,ww_frame_mask(&cursor,frame,15));
+    set_al(r,15); pixel_out(r->dx,1,ww_frame_mask(&cursor,frame,15));
     r->ds=rd16(r->ss,r->sp); r->sp=(uint16_t)(r->sp+2);
     ww_require(weather_frame_next(&cursor,frame).kind==WW_DONE);return UGH_OK;
 }
@@ -268,25 +269,25 @@ EXPORT int c_AdvanceRainParticles(Regs *r) {int admitted=ww_rain_admit(r,1);
 #undef B
 EXPORT int c_DrawRainParticles(Regs *r) {int admitted=ww_rain_admit(r,0);
     r->bx=ww_first(r,0,(uint16_t)(rd16(r->ds,D(WaterYPixels))*2u));
-    r->dx=0x3c4; set_al(r,2); platform_out(r->dx,1,2); r->dx++;
+    r->dx=0x3c4; set_al(r,2); pixel_out(r->dx,1,2); r->dx++;
     r->es=0xa000; r->bp=rd16(r->cs,G(DrawPagePointer)); set_ah(r,0x5b);
     do {WeatherPlan storage;ww_open(r,&storage,4,admitted);WeatherPlan *plan=&storage;
         r->cx=rd16(r->ds,(uint16_t)(D(RainParticleXModuloFour)+r->bx));
         unsigned shift=r->cx&31u;
         set_al(r,shift<8 ? (uint8_t)(1u<<shift) : 0);
-        platform_out(r->dx,1,ww_rain_mask(plan,(uint8_t)r->ax));
+        pixel_out(r->dx,1,ww_rain_mask(plan,(uint8_t)r->ax));
         r->di=rd16(r->ds,(uint16_t)(D(RainParticleOffsets)+r->bx));
         r->di=(uint16_t)(r->di+r->bp);
         ww_rain_pixel(r,plan);
         ww_complete(r,plan);r->bx=ww_previous(r,r->bx);
     } while(!(r->bx&0x8000u));
-    set_al(r,15); platform_out(r->dx,1,15);
+    set_al(r,15); pixel_out(r->dx,1,15);
     return UGH_OK;
 }
 
 EXPORT int c_RestoreRainBackground(Regs *r) {int admitted=ww_rain_admit(r,1);
-    r->dx=0x3ce; set_al(r,8); platform_out(r->dx,1,8);
-    r->dx=0x3cf; set_al(r,0); platform_out(r->dx,1,0);
+    r->dx=0x3ce; set_al(r,8); pixel_out(r->dx,1,8);
+    r->dx=0x3cf; set_al(r,0); pixel_out(r->dx,1,0);
     r->di=0xa000; r->es=r->di; r->cx=rd16(r->cs,G(BackgroundPagePointer));
     r->bp=rd16(r->cs,G(DrawPagePointer));
     r->bx=ww_first(r,1,(uint16_t)((rd16(r->ds,D(WaterYPixels))+1)*2));
@@ -297,6 +298,6 @@ EXPORT int c_RestoreRainBackground(Regs *r) {int admitted=ww_rain_admit(r,1);
         ww_copy(r,plan);
         ww_complete(r,plan);r->bx=ww_previous(r,r->bx);
     } while((int16_t)r->bx>=0);
-    set_al(r,255); platform_out(r->dx,1,255); return UGH_OK;
+    set_al(r,255); pixel_out(r->dx,1,255); return UGH_OK;
 }
 

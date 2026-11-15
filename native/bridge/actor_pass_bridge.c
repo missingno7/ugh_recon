@@ -1,4 +1,9 @@
 #include "platform.h"
+#ifndef ACTORS_BORROWER
+#define ACTORS_BORROWER ACTORS_BORROW_ACTORS
+#endif
+#include "actors_borrow.h"
+#include "platform.h"
 #ifndef PLATFORMS_BORROWER
 #define PLATFORMS_BORROWER PLATFORMS_BORROW_ACTORS
 #endif
@@ -59,7 +64,7 @@ static ActorCallback callback_identity(uint16_t word) {
 static int invoke_actor(ActorCallback callback,Regs *r) {
     uint16_t saved_cs=r->cs;
     r->sp=(uint16_t)(r->sp-2);
-    platforms_write16(r->ss,r->sp,(uint16_t)(G(DispatchActorUpdates)+0x10));
+    actors_write16(r->ss,r->sp,(uint16_t)(G(DispatchActorUpdates)+0x10));
     if (r->cs!=GAME_SEG) return UGH_BAD_CALLBACK;
     int status;
     switch (callback) {
@@ -108,11 +113,11 @@ static int invoke_actor(ActorCallback callback,Regs *r) {
 EXPORT int c_DispatchActorUpdates(Regs *r) {
     ActorPass pass; actor_pass_begin(&pass); r->bx=logic(r,pass.cursor,16);
     while (pass.remaining) {
-        uint16_t descriptor=platforms_read16(r->ds,(uint16_t)(D(ActorDescriptors)+pass.cursor));
+        uint16_t descriptor=actors_read16(r->ds,(uint16_t)(D(ActorDescriptors)+pass.cursor));
         sub16(r,descriptor,0xffff,0);
         ActorCallback callback=ACTOR_CALLBACK_UNSUPPORTED;
         if (descriptor!=0xffff)
-            callback=callback_identity(platforms_read16(r->ds,(uint16_t)(D(ActorUpdateOrScriptCursor)+pass.cursor)));
+            callback=callback_identity(actors_read16(r->ds,(uint16_t)(D(ActorUpdateOrScriptCursor)+pass.cursor)));
         ActorPassAction action=actor_pass_select(&pass,descriptor,callback);
         if (action==ACTOR_PASS_DONE) return UGH_OK;
         int status=invoke_actor(callback,r); if(status) return status;

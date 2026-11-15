@@ -1,4 +1,9 @@
 #include "platform.h"
+#ifndef ACTORS_BORROWER
+#define ACTORS_BORROWER ACTORS_BORROW_ACTORS
+#endif
+#include "actors_borrow.h"
+#include "platform.h"
 #ifndef PLATFORMS_BORROWER
 #define PLATFORMS_BORROWER PLATFORMS_BORROW_ACTORS
 #endif
@@ -23,10 +28,10 @@ int l1_WaitForStoneRelease(Regs *r);
 int l1_ThrowCarriedStone(Regs *r);
 int l1_UpdateThrownStone(Regs *r);
 static uint16_t stone_word(Regs *r,uint16_t base,uint16_t index) {
-    return platforms_read16(r->ds,(uint16_t)(base+index));
+    return actors_read16(r->ds,(uint16_t)(base+index));
 }
-static uint16_t stone_desc(Regs *r,unsigned field) { return platforms_read16(r->ds,(uint16_t)(r->si+field)); }
-static void stone_write(Regs *r,uint16_t base,uint16_t value) { platforms_write16(r->ds,(uint16_t)(base+r->bx),value); }
+static uint16_t stone_desc(Regs *r,unsigned field) { return actors_read16(r->ds,(uint16_t)(r->si+field)); }
+static void stone_write(Regs *r,uint16_t base,uint16_t value) { actors_write16(r->ds,(uint16_t)(base+r->bx),value); }
 static uint16_t stone_shift(Regs *r,uint16_t value,unsigned n,int right) {
     for(unsigned i=0;i<n;i++) {
         flag(r,CF,right?(value&1):(value&32768u));
@@ -42,11 +47,11 @@ static int stone_project(Regs *r,ActorPhase phase,PassengerStoneSlot *slot,Actor
     const unsigned fields[]={0x10,0x12,0x20,0x22,0x24,0x26,0x2c};
     const uint16_t handlers[]={G(BeginStonePickupWait),G(UpdateStonePickupWait),G(AttachStoneToPlayer),
         G(WaitForStoneRelease),G(ThrowCarriedStone),G(UpdateThrownStone),G(IgnoreActorState)};
-    for(size_t i=0;i<7;i++) if(platforms_read16(r->ds,(uint16_t)(descriptor+fields[i]))!=handlers[i]) return 0;
+    for(size_t i=0;i<7;i++) if(actors_read16(r->ds,(uint16_t)(descriptor+fields[i]))!=handlers[i]) return 0;
     *type=(ActorType){0};type->id=descriptor==D(Data_78DC)?ACTOR_STONE:ACTOR_STONE_ALTERNATE;
-    type->geometry.anchor_x=platforms_read16(r->ds,descriptor);type->geometry.anchor_y=platforms_read16(r->ds,(uint16_t)(descriptor+2));
-    type->geometry.extent_x=platforms_read16(r->ds,(uint16_t)(descriptor+4));type->geometry.extent_y=platforms_read16(r->ds,(uint16_t)(descriptor+6));
-    type->carried_kind=platforms_read16(r->ds,(uint16_t)(descriptor+0x46));
+    type->geometry.anchor_x=actors_read16(r->ds,descriptor);type->geometry.anchor_y=actors_read16(r->ds,(uint16_t)(descriptor+2));
+    type->geometry.extent_x=actors_read16(r->ds,(uint16_t)(descriptor+4));type->geometry.extent_y=actors_read16(r->ds,(uint16_t)(descriptor+6));
+    type->carried_kind=actors_read16(r->ds,(uint16_t)(descriptor+0x46));
     *slot=(PassengerStoneSlot){0};slot->type=type;
     if(!actor_bridge_alias_project(r->ds,r->bx/2u,phase,slot)) return 0;
     slot->position.x32=stone_word(r,D(ActorX32),r->bx);slot->position.y32=stone_word(r,D(ActorY32),r->bx);
@@ -65,14 +70,14 @@ static int stone_project(Regs *r,ActorPhase phase,PassengerStoneSlot *slot,Actor
     }
     return 1;
 }
-static void stone_push(Regs *r,uint16_t value) { r->sp=(uint16_t)(r->sp-2);platforms_write16(r->ss,r->sp,value); }
+static void stone_push(Regs *r,uint16_t value) { r->sp=(uint16_t)(r->sp-2);actors_write16(r->ss,r->sp,value); }
 static int stone_effect(Regs *r) {
     stone_push(r,r->bx);stone_push(r,1);stone_push(r,255);stone_push(r,UGH_S_B3632_ext_3632);stone_push(r,0);
     stone_push(r,r->cs);stone_push(r,G(ThrowCarriedStone)+0x68);
     int status=ugh_dispatch(UGH_S_C_PlayAdlibEffect,UGH_O_C_PlayAdlibEffect,r);
     if(status) return status;
     r->sp=(uint16_t)(r->sp+4);r->sp=add16(r,r->sp,8,0);
-    r->bx=platforms_read16(r->ss,r->sp);r->sp=(uint16_t)(r->sp+2);return UGH_OK;
+    r->bx=actors_read16(r->ss,r->sp);r->sp=(uint16_t)(r->sp+2);return UGH_OK;
 }
 EXPORT int c_BeginStonePickupWait(Regs *r) {
     PassengerStoneSlot slot;ActorType type;StonePlayer players[2];
@@ -85,7 +90,7 @@ EXPORT int c_BeginStonePickupWait(Regs *r) {
 EXPORT int c_UpdateStonePickupWait(Regs *r) {
     PassengerStoneSlot slot;ActorType type;StonePlayer players[2];
     if(!stone_project(r,ACTOR_STONE_WAIT,&slot,&type,players)) return l1_UpdateStonePickupWait(r);
-    StoneResult result=stone_pickup_wait(&slot,players,platforms_read16(r->ds,D(PlayerCount)));
+    StoneResult result=stone_pickup_wait(&slot,players,actors_read16(r->ds,D(PlayerCount)));
     r->si=stone_word(r,D(ActorDescriptors),r->bx);
     int status=ugh_call_near(G(FindPlayerTouchingActor),G(UpdateStonePickupWait)+7,r);if(status) return status;
     if(result.contact.index>=0) logic(r,stone_word(r,D(PlayerCarriedKinds),r->di),16);
@@ -94,12 +99,12 @@ EXPORT int c_UpdateStonePickupWait(Regs *r) {
 }
 EXPORT int c_AttachStoneToPlayer(Regs *r) {
     PassengerStoneSlot slot;ActorType type;StonePlayer players[2];
-    if(r->di>2u || (r->di&1u) || (r->di==2 && platforms_read16(r->ds,D(PlayerCount))!=2) ||
+    if(r->di>2u || (r->di&1u) || (r->di==2 && actors_read16(r->ds,D(PlayerCount))!=2) ||
        !stone_project(r,ACTOR_STONE_WAIT,&slot,&type,players)) return l1_AttachStoneToPlayer(r);
     stone_attach(&slot,players,r->di/2u);r->si=stone_word(r,D(ActorDescriptors),r->bx);r->ax=stone_desc(r,0x22);
     stone_write(r,D(ActorUpdateOrScriptCursor),r->ax);r->ax=type.carried_kind;
-    platforms_write16(r->ds,(uint16_t)(D(PlayerCarriedKinds)+r->di),players[r->di/2u].carried_kind);
-    platforms_write16(r->ds,(uint16_t)(D(PlayerDestinationIcons)+r->di),players[r->di/2u].destination_icon);
+    actors_write16(r->ds,(uint16_t)(D(PlayerCarriedKinds)+r->di),players[r->di/2u].carried_kind);
+    actors_write16(r->ds,(uint16_t)(D(PlayerDestinationIcons)+r->di),players[r->di/2u].destination_icon);
     stone_write(r,D(ActorPhaseOrDemoLoopCursor),(uint16_t)(slot.carrier*2u));stone_write(r,D(ActorSpriteIds),slot.sprite);
     return UGH_OK;
 }
@@ -113,12 +118,12 @@ EXPORT int c_WaitForStoneRelease(Regs *r) {
 }
 EXPORT int c_ThrowCarriedStone(Regs *r) {
     PassengerStoneSlot slot;ActorType type;StonePlayer players[2];
-    if(r->di>2u || (r->di&1u) || (r->di==2 && platforms_read16(r->ds,D(PlayerCount))!=2) ||
+    if(r->di>2u || (r->di&1u) || (r->di==2 && actors_read16(r->ds,D(PlayerCount))!=2) ||
        !stone_project(r,ACTOR_CARRIED_STONE,&slot,&type,players)) return l1_ThrowCarriedStone(r);
     StonePlayer before=players[r->di/2u];stone_throw(&slot,players,r->di/2u);
     r->si=stone_word(r,D(ActorDescriptors),r->bx);r->ax=logic(r,0,16);
-    platforms_write16(r->ds,(uint16_t)(D(PlayerCarriedKinds)+r->di),players[r->di/2u].carried_kind);
-    platforms_write16(r->ds,(uint16_t)(D(PlayerDestinationIcons)+r->di),players[r->di/2u].destination_icon);
+    actors_write16(r->ds,(uint16_t)(D(PlayerCarriedKinds)+r->di),players[r->di/2u].carried_kind);
+    actors_write16(r->ds,(uint16_t)(D(PlayerDestinationIcons)+r->di),players[r->di/2u].destination_icon);
     r->ax=stone_shift(r,before.horizontal_velocity,5,1);stone_write(r,D(ActorMotionWaitOrDemoRepeats),slot.horizontal_step);
     r->ax=stone_shift(r,before.vertical_velocity,5,1);stone_write(r,D(ActorVerticalOrDemoPeriod),slot.vertical_motion);
     r->ax=before.position.x32;r->bp=before.position.y32;

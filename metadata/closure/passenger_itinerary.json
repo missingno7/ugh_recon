@@ -289,6 +289,7 @@
       "includes": [
         "../passenger_itinerary.h",
         "actor_projection.h",
+        "actors_borrow.h",
         "platform.h",
         "platforms_borrow.h",
         "player_borrow.h",
@@ -308,6 +309,10 @@
         "WRITE",
         "actor_bridge_alias_project",
         "actor_bridge_journey",
+        "actors_read16",
+        "actors_read8",
+        "actors_write16",
+        "actors_write8",
         "add16",
         "dec16",
         "flag",
@@ -338,10 +343,6 @@
         "l1_WaitForPassengerPlatform",
         "l1_WalkPassengerToExit",
         "logic",
-        "platforms_read16",
-        "platforms_read8",
-        "platforms_write16",
-        "platforms_write8",
         "set_al",
         "shell_AnimatePassengerArrival",
         "shell_AnimatePassengerDeparture",
@@ -362,9 +363,9 @@
   "verification_inputs": {
     "native/passenger_itinerary.h": "4b56d468f1a87f50a209a46cf4868dc2895c85f8ceb77823c4d8806fbccfc4cb",
     "native/passenger_itinerary.c": "111d8dcb3c6528a54ab34adb4c93025f3dd023d92fa53e10a6f0e0546fc75258",
-    "native/bridge/passenger_itinerary_bridge.c": "7896934df4f7e76211b43c2370e71d4740229d97c166b817f1d611594867a54c",
+    "native/bridge/passenger_itinerary_bridge.c": "48af4895a23ba218ca039b9da3ad147f1f9948af9842d90ed8ad4efcc2e791cf",
     "native/actor_resources.c": "47e21228ee1d873fa5636e062a955e4a6b5a8f0522a7bde2cf223708c9880137",
-    "native/bridge/actor_resources_bridge.c": "46dba2c784e0c8a514e21a63449c6f32dc24049ffa0291b5b7efe5ae2d6b868e",
+    "native/bridge/actor_resources_bridge.c": "cfe995cb016a5c1f8a1f94378c58c6db8d71c89502ace0e23cab4a327dca0afd",
     "native/coordinate_scale.c": "7bf708b14dc66fdace02a69b7a1b993b37c2535934a71dc0e5d9d397a5903118",
     "native/level_view.c": "f0b3db5747f718d7c112c721735ca5a497a9b93a6ecb33096223b188b170353d",
     "native/bridge/level_view_bridge.c": "0be946adae9146d92cd2b0447c6d0edbc83c11eb6ec5cad09468791a60609ebe",
@@ -393,7 +394,7 @@
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
-    "tools/hostbuild.py": "8547631a7291cc1ad7a875ff91cc4714066705dd1406c07ac067abe8abd84937",
+    "tools/hostbuild.py": "211d727a93bdea9b00d8ac14b5959cf058ea2ba565a81dd22dcbe8f47183b88c",
     "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5"
   },
@@ -546,6 +547,19 @@
         "native/bridge/passenger_itinerary_bridge.c",
         "native/bridge/actor_resources_bridge.c",
         "native/bridge/level_view_bridge.c",
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Shared actor-slot ownership and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/actor_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/passenger_itinerary_bridge.c",
+        "native/bridge/actor_resources_bridge.c",
         "tools/hostbuild.py"
       ]
     }

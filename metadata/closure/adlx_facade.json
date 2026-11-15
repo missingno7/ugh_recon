@@ -198,7 +198,7 @@
     "native/bridge/audio_projection.h": "f8dfd66352954a9efe9e23b97b041cd8c953a88ecbe9c6769448260eccc5dff0",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
-    "tools/hostbuild.py": "8547631a7291cc1ad7a875ff91cc4714066705dd1406c07ac067abe8abd84937",
+    "tools/hostbuild.py": "211d727a93bdea9b00d8ac14b5959cf058ea2ba565a81dd22dcbe8f47183b88c",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/adlx_facade_build.py": "eccdbc65cc43520f1d44ce1fb63f1e84e8872e00f7cffeb945da7b2f2a5d456e",
     "verif/adlx_facade_certificate.py": "9a3e02f26bfbc8918f7d894e6e7c2020a61976616de7e95d765ec903d48f2f81",
@@ -352,6 +352,17 @@
       "reason": "Ten-slot platform ownership and explicit live borrowers; prior claims/status unchanged",
       "commands": [
         "python verif/platform_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Shared actor-slot ownership and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/actor_composition.py --gate"
       ],
       "results": "PASS within stated domains",
       "inputs": [

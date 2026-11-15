@@ -260,6 +260,7 @@
       "includes": [
         "../demo_core.h",
         "actor_projection.h",
+        "actors_borrow.h",
         "platform.h",
         "platforms_borrow.h",
         "player_borrow.h",
@@ -271,6 +272,8 @@
         "actor_bridge_demo_project",
         "actor_bridge_render_project",
         "actor_bridge_scripts",
+        "actors_read16",
+        "actors_write16",
         "demo_advance_slot",
         "demo_all_finished",
         "demo_bridge_advance",
@@ -282,8 +285,6 @@
         "l1_InitializeDemoScripts",
         "l1_TestAllDemoScriptsFinished",
         "logic",
-        "platforms_read16",
-        "platforms_write16",
         "sub16",
         "ugh_call_near"
       ]
@@ -311,8 +312,8 @@
     "native/actor_resources.h": "212fe3bc958c74140f45b9e7a3745f650d22e7a853a2edf273eeacfd93f96247",
     "native/actors.h": "b1c7653a6e566c7f0e3e18ad38fc3f63726d01b78a6fa6843df017d2d155a42c",
     "native/bridge/actor_projection.h": "71e0476afe7c0b082b5eac20957028e58a61f6741ef11c7ca546fe8bbad8b483",
-    "native/bridge/actor_resources_bridge.c": "46dba2c784e0c8a514e21a63449c6f32dc24049ffa0291b5b7efe5ae2d6b868e",
-    "native/bridge/demo_core_bridge.c": "a48f1564a5db14cc98297cd6e31d7908bea8dac7039306c4b91296e2a2bbfe41",
+    "native/bridge/actor_resources_bridge.c": "cfe995cb016a5c1f8a1f94378c58c6db8d71c89502ace0e23cab4a327dca0afd",
+    "native/bridge/demo_core_bridge.c": "ee3ba40be6aeb6a4ffba10d24e7c926b7b3f1d153b8d7212e26addf2ce2c9103",
     "native/bridge/level_projection.h": "d463ba8829671479c3349435080eb7f16ae48551c7a7b0464d27dbc88257df83",
     "native/bridge/level_view_bridge.c": "0be946adae9146d92cd2b0447c6d0edbc83c11eb6ec5cad09468791a60609ebe",
     "native/demo_core.c": "028b9eaa6671c8219d69ad4f34d1fe5569b1ee69d4c4c3cb13f49c24616a4646",
@@ -323,7 +324,7 @@
     "src/asm/GAME.ASM": "29c9ead3b191a744c59b465a3bd4de29f2e217b92492cf57edb8c13bc3494204",
     "src/data/DGDATA.ASM": "9d46889e26434a597ed19b91c119029af3dbf3dbcfa9811c4ed5aa18dc157541",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
-    "tools/hostbuild.py": "8547631a7291cc1ad7a875ff91cc4714066705dd1406c07ac067abe8abd84937",
+    "tools/hostbuild.py": "211d727a93bdea9b00d8ac14b5959cf058ea2ba565a81dd22dcbe8f47183b88c",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
@@ -495,6 +496,19 @@
         "native/bridge/actor_resources_bridge.c",
         "native/bridge/demo_core_bridge.c",
         "native/bridge/level_view_bridge.c",
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Shared actor-slot ownership and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/actor_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/actor_resources_bridge.c",
+        "native/bridge/demo_core_bridge.c",
         "tools/hostbuild.py"
       ]
     }

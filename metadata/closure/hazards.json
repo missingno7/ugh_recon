@@ -624,6 +624,7 @@
     "native/bridge/hazards_bridge.c": {
       "includes": [
         "../hazards.h",
+        "actors_borrow.h",
         "platform.h",
         "platforms_borrow.h",
         "player_borrow.h",
@@ -641,6 +642,8 @@
         "READ",
         "W",
         "WRITE",
+        "actors_read16",
+        "actors_write16",
         "add16",
         "dec16",
         "flag",
@@ -708,8 +711,6 @@
         "l1_WaitForBirdWarning",
         "lin",
         "logic",
-        "platforms_read16",
-        "platforms_write16",
         "shell_AdvanceTreeRewardCooldown",
         "shell_AnimateTriopterusImpactRecovery",
         "shell_AnimateTriopterusRecovery",
@@ -751,9 +752,9 @@
   "verification_input_hashing": "sha256-lf-text",
   "verification_inputs": {
     "native/hazards.c": "590ad430fc32a4267004492dd602993de903618e7b4da6a79addc0746c692159",
-    "native/bridge/hazards_bridge.c": "e1a14bc65f9dd43a509be49c41d7e7f4f45a5143d5e406f79d63aea8113865b5",
+    "native/bridge/hazards_bridge.c": "4ba44d3f26bb8b05e29ca40f9fd5be16253ad4e6839609c56302f8944099a62a",
     "native/contacts.c": "f809c3af54ddb43b07b60be870e30e404f0b0456f4542585011cb5108dcc8b15",
-    "native/bridge/contacts_bridge.c": "4eadecd497344d82440b740d38f67fc3aeb3d44b17475317479365f72f172119",
+    "native/bridge/contacts_bridge.c": "0f73b095c006432141f27c4a0559e60268f1492ef9a02f3f0aafe75833c50452",
     "native/items.c": "d3ede593a1249fc46da025fc304f90ed8f962a5145a81731c6dc70b2f384b8ec",
     "native/bridge/items_bridge.c": "9911c74614be8383fd1797fa753cbde14869dbd27177f2b014ddf5dd774870e0",
     "native/level_view.c": "f0b3db5747f718d7c112c721735ca5a497a9b93a6ecb33096223b188b170353d",
@@ -780,7 +781,7 @@
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
-    "tools/hostbuild.py": "8547631a7291cc1ad7a875ff91cc4714066705dd1406c07ac067abe8abd84937",
+    "tools/hostbuild.py": "211d727a93bdea9b00d8ac14b5959cf058ea2ba565a81dd22dcbe8f47183b88c",
     "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
     "c/actors.c": "d17c03c844f95780f0647b85aa854a87c3e566b0f56fe89ee0a95d6d689f3ff2",
     "c/actors_states.c": "79a460a0436e773bdd795953f63c6765d71c0e346cdf8bbccbcf707817994447",
@@ -940,6 +941,19 @@
         "native/bridge/contacts_bridge.c",
         "native/bridge/items_bridge.c",
         "native/bridge/level_view_bridge.c",
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Shared actor-slot ownership and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/actor_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/hazards_bridge.c",
+        "native/bridge/contacts_bridge.c",
         "tools/hostbuild.py"
       ]
     }

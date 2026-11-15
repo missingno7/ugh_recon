@@ -217,7 +217,7 @@
     "native/session.c": "731afa9e3ade606e09a77fce94d6a762a5080554863a31cec183a6c7f4121634",
     "native/bridge/session_support.h": "edc2b4bbce67f6fe64ce012d4329be9ab04f0d103f6358c70fb6fd6c246633c9",
     "native/bridge/session_actor_render.h": "f90681ea84d69ee4491d4453d1229afe5cb7477cd1941061b3956e4e5a6dd9d0",
-    "native/bridge/session_bridge.c": "0944ca103fb8670ab0b7e6a306eff7168f57839b6e56b20817a6b69c68f81ee7",
+    "native/bridge/session_bridge.c": "d12faffacf259b71c6caa8099b1c286334c4e5f9932782432a858f18ea861bae",
     "verif/sequencing_actor_refresh.py": "c3ed724e359d4518f0a500a28d8ffcd04b98f8b40825e8b1e26b2a3ef4b5a041",
     "verif/sequencing_baseline.py": "a06616efc43adda5c8c114170b9a879b396d0f2ed7dceaa1275f1cb9141bff70",
     "verif/sequencing_build.py": "bd643b01f6781f48eab591d8a33fa9346fec85bb903fb1136a1c9f39e5b4f98f",
@@ -239,7 +239,7 @@
     "verif/session_loader.py": "4db743f71ea32f8b5c51e51033953a2970ea4c2290a758d1cdbb5177587a4341",
     "verif/session_record_proof.py": "343c7dfffcbd4c44185e0099d4dcf2c03fc7bc2d2e31211989f9647118a090a4",
     "verif/session_copy_proof.py": "476e4d8a1c12b068f666378c2513d3882d7ebe8068fbb211ad20960c6c50cdb8",
-    "native/bridge/actor_render_bridge.c": "7753857ae8ed7120204ca727b92e4cbfe0a38cadd06ce2ab8a03d5cb97f4abfd",
+    "native/bridge/actor_render_bridge.c": "cfee3b4d330232cc9a5f781a8610fd610d1ca98baff1b8b52fac5d7b01b98933",
     "native/actors.h": "b1c7653a6e566c7f0e3e18ad38fc3f63726d01b78a6fa6843df017d2d155a42c",
     "c/abi.c": "5f7c2c2fc015ca43e3786a7f96cb38113211da54acefce19564c1df78d74857a",
     "c/actors.c": "d17c03c844f95780f0647b85aa854a87c3e566b0f56fe89ee0a95d6d689f3ff2",
@@ -297,7 +297,7 @@
     "c/video.h": "35e4d6076edd69e2722cf7d52392871345f5e0eb78af7ce67e13c8ed0c02f192",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
     "tools/nbuild.py": "bd3076ae308613ce06f15e3b548e2353d4b2237b0d300e588e15e2290b98b047",
-    "tools/hostbuild.py": "8547631a7291cc1ad7a875ff91cc4714066705dd1406c07ac067abe8abd84937",
+    "tools/hostbuild.py": "211d727a93bdea9b00d8ac14b5959cf058ea2ba565a81dd22dcbe8f47183b88c",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "tools/emu.py": "170ff225248a2a60eff44cd4997206ea5dbfc85ce2075f3c55435e8b4a6ed046",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
@@ -7300,6 +7300,19 @@
       "results": "PASS within stated domains",
       "inputs": [
         "native/bridge/session_support.h",
+        "native/bridge/session_bridge.c",
+        "native/bridge/actor_render_bridge.c",
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Shared actor-slot ownership and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/actor_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
         "native/bridge/session_bridge.c",
         "native/bridge/actor_render_bridge.c",
         "tools/hostbuild.py"

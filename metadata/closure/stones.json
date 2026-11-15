@@ -258,6 +258,7 @@
       "includes": [
         "../stones.h",
         "actor_projection.h",
+        "actors_borrow.h",
         "platform.h",
         "platforms_borrow.h",
         "player_borrow.h",
@@ -269,6 +270,8 @@
         "G",
         "actor_bridge_alias_project",
         "actor_bridge_alias_read",
+        "actors_read16",
+        "actors_write16",
         "add16",
         "flag",
         "l1_AttachStoneToPlayer",
@@ -278,8 +281,6 @@
         "l1_UpdateThrownStone",
         "l1_WaitForStoneRelease",
         "logic",
-        "platforms_read16",
-        "platforms_write16",
         "stone_attach",
         "stone_begin_wait",
         "stone_desc",
@@ -305,9 +306,9 @@
   "verification_inputs": {
     "native/stones.h": "2ccce0eb2fa99a07617f18145eb4c3b965d823edc2840680a2944a7e2436e504",
     "native/stones.c": "e66b5f40ab1a855ee6c759ce35f63aa9c6f2704d3e49dfadeb2da3a1692196ca",
-    "native/bridge/stones_bridge.c": "a8c490a619d7e71ed05973c82c6ad5dcd019c27da817ab2043782576fcb284ea",
+    "native/bridge/stones_bridge.c": "527b961fd2dc15ea2bd8b74d0804c5b5e7ab951339bbeaf590c8bd4f41cdcdeb",
     "native/actor_resources.c": "47e21228ee1d873fa5636e062a955e4a6b5a8f0522a7bde2cf223708c9880137",
-    "native/bridge/actor_resources_bridge.c": "46dba2c784e0c8a514e21a63449c6f32dc24049ffa0291b5b7efe5ae2d6b868e",
+    "native/bridge/actor_resources_bridge.c": "cfe995cb016a5c1f8a1f94378c58c6db8d71c89502ace0e23cab4a327dca0afd",
     "native/level_view.c": "f0b3db5747f718d7c112c721735ca5a497a9b93a6ecb33096223b188b170353d",
     "native/bridge/level_view_bridge.c": "0be946adae9146d92cd2b0447c6d0edbc83c11eb6ec5cad09468791a60609ebe",
     "native/contacts.c": "f809c3af54ddb43b07b60be870e30e404f0b0456f4542585011cb5108dcc8b15",
@@ -335,7 +336,7 @@
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
-    "tools/hostbuild.py": "8547631a7291cc1ad7a875ff91cc4714066705dd1406c07ac067abe8abd84937",
+    "tools/hostbuild.py": "211d727a93bdea9b00d8ac14b5959cf058ea2ba565a81dd22dcbe8f47183b88c",
     "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5"
   },
@@ -488,6 +489,19 @@
         "native/bridge/stones_bridge.c",
         "native/bridge/actor_resources_bridge.c",
         "native/bridge/level_view_bridge.c",
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Shared actor-slot ownership and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/actor_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/stones_bridge.c",
+        "native/bridge/actor_resources_bridge.c",
         "tools/hostbuild.py"
       ]
     }

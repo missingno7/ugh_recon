@@ -531,6 +531,7 @@
     "native/bridge/demo_presentation_bridge.c": {
       "includes": [
         "../demo_presentation.h",
+        "actors_borrow.h",
         "platform.h",
         "platforms_borrow.h",
         "player_borrow.h",
@@ -544,6 +545,9 @@
         "R",
         "W",
         "abort",
+        "actors_read16",
+        "actors_write16",
+        "actors_write8",
         "add16",
         "c_RunScriptedDemo",
         "demo_presentation_begin",
@@ -569,9 +573,6 @@
         "dp_vector_pointer",
         "dp_width_byte",
         "logic",
-        "platforms_read16",
-        "platforms_write16",
-        "platforms_write8",
         "pop",
         "push",
         "scene_far_call",
@@ -1607,7 +1608,7 @@
   "verification_inputs": {
     "native/demo_presentation.h": "f48152b51d6321f89d307ca9fdfbf89a69efd77ffa3cfdf47e0b70e8cad2b7b0",
     "native/demo_presentation.c": "34c6600013690323da87b129cdca749c76f65c78a8d91c7cec3eaa0ca2e799bc",
-    "native/bridge/demo_presentation_bridge.c": "dd3e5698a706aff854e4d1d19cc5b31f7a0123ed777cc426b5d9bd98a4153174",
+    "native/bridge/demo_presentation_bridge.c": "d13622b70a3a3ab8cf5c86ef2564c78f9929e3dbb402fa6cc032d491acdf8c4a",
     "verif/demo_scene_baseline.py": "c224bfc3844ea877402896166d5fcf8f398512c7ed748322f9259a4bbb35540a",
     "verif/demo_scene_bound.py": "5de9807938399ad784ec668901ab3fa19c52e56734122641e3319f865af4f8bb",
     "verif/demo_scene_build.py": "3655f100656fddae12906521e4c6f5e59fe145b49a1269d5a41154aa9ccea0c9",
@@ -1707,23 +1708,23 @@
     "tests/actors.py": "80b0aed22ae70e2b8eeead4a4176ce5b5935ac93ee517869df14035ffa9ea7ad",
     "tests/render.py": "ac899241858dd7dd0f2d175a7f5b7229257b5b59a24291c65078881281c86e7e",
     "tests/scene.py": "1eb8b5d2a3fb51b9eaa123d3f5d9efe2637ef131f333f696b71dc1f3a9069a81",
-    "metadata/closure/actor_types.json": "8ab1d8b0d846f2e44b78c3558ab545f076112cbb515ab73ebaf30bc62aeca1aa",
-    "metadata/closure/actor_render.json": "0cc867b34f111ffd4f539e2b588ca4dee6a21d0d96c5493258cc3d62fc50220c",
-    "metadata/closure/demo_core.json": "9884a478a47c9a460c22e8aa92e395ff1f96950f4638804c366bc6f29c0c46cd",
+    "metadata/closure/actor_types.json": "78d5f6736d6a49cb53c6d9bfc63aec4dce2b1ad0ccf5af53b7d78fe23cc4088f",
+    "metadata/closure/actor_render.json": "7beac966b715bf73cb8388f35c1cf0e92e49fe68effd162336f153330fa1ebfc",
+    "metadata/closure/demo_core.json": "201ec30af033091ae9702717141ae052ffab03f156ec77babb61211caca10d18",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
     "native/actors.h": "b1c7653a6e566c7f0e3e18ad38fc3f63726d01b78a6fa6843df017d2d155a42c",
     "native/actor_render.c": "f14a0f219a8a9a056a975ad38d74527512bc48634e0b388bd7aa929d846fd110",
     "native/actor_render.h": "9b68b08b34200616669b59c5c939c2da1dbbaa623fa57c67e3f6372d3ff34015",
-    "native/bridge/actor_render_bridge.c": "7753857ae8ed7120204ca727b92e4cbfe0a38cadd06ce2ab8a03d5cb97f4abfd",
+    "native/bridge/actor_render_bridge.c": "cfee3b4d330232cc9a5f781a8610fd610d1ca98baff1b8b52fac5d7b01b98933",
     "native/demo_core.c": "028b9eaa6671c8219d69ad4f34d1fe5569b1ee69d4c4c3cb13f49c24616a4646",
     "native/demo_core.h": "18d2dd79899671992f6e1f6e2fa2bce933e9eb56c1033a0e60229b7de23f38d6",
-    "native/bridge/demo_core_bridge.c": "a48f1564a5db14cc98297cd6e31d7908bea8dac7039306c4b91296e2a2bbfe41",
-    "native/bridge/actor_resources_bridge.c": "46dba2c784e0c8a514e21a63449c6f32dc24049ffa0291b5b7efe5ae2d6b868e",
+    "native/bridge/demo_core_bridge.c": "ee3ba40be6aeb6a4ffba10d24e7c926b7b3f1d153b8d7212e26addf2ce2c9103",
+    "native/bridge/actor_resources_bridge.c": "cfe995cb016a5c1f8a1f94378c58c6db8d71c89502ace0e23cab4a327dca0afd",
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/windows_job.py": "3ac1853c3d5af319d490b8c26e643c37d8a4ef1119f23928b6043dc3e159d574",
     "verif/contacts_reference.py": "f4508db87b595ce2af846e63b226cb27675959d4aa51cc95a1c108bb56fc2fde",
     "tools/closure.py": "74fa2ac8a9a94be8f5ffba315822c6861e95109bb75435489b1cc29f48e49d97",
-    "tools/hostbuild.py": "8547631a7291cc1ad7a875ff91cc4714066705dd1406c07ac067abe8abd84937",
+    "tools/hostbuild.py": "211d727a93bdea9b00d8ac14b5959cf058ea2ba565a81dd22dcbe8f47183b88c",
     "tools/wholegame.py": "028cd806fd47aeca58a38fc8dc6c5ca7a2c4e030d7e891e048e6d785e9dff337",
     "tools/difftest.py": "a63f2ebdb268e7c2fba33333e694d07da3188ccf404725cc309e199c183f9d6b",
     "host/check.py": "57b6be9bee6255f80f53159275df518b22ece23250d4d02ee43018cfe72ccdde"
@@ -1979,6 +1980,24 @@
       "reason": "Ten-slot platform ownership and explicit live borrowers; prior claims/status unchanged",
       "commands": [
         "python verif/platform_composition.py --gate"
+      ],
+      "results": "PASS within stated domains",
+      "inputs": [
+        "native/bridge/demo_presentation_bridge.c",
+        "metadata/closure/actor_types.json",
+        "metadata/closure/actor_render.json",
+        "metadata/closure/demo_core.json",
+        "native/bridge/actor_render_bridge.c",
+        "native/bridge/demo_core_bridge.c",
+        "native/bridge/actor_resources_bridge.c",
+        "tools/hostbuild.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Shared actor-slot ownership and explicit live borrowers; prior claims/status unchanged",
+      "commands": [
+        "python verif/actor_composition.py --gate"
       ],
       "results": "PASS within stated domains",
       "inputs": [

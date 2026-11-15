@@ -6,7 +6,7 @@ never at a frame boundary, and do not repair or resynchronize the comparator.
 
 
 def instrument_publication(relative_path, text):
-    if relative_path in ('native/bridge/palette_world_bridge.c','native/bridge/input_world_bridge.c','native/bridge/video_pages_bridge.c','native/bridge/pixel_world_bridge.c'):
+    if relative_path in ('native/bridge/palette_world_bridge.c','native/bridge/input_world_bridge.c','native/bridge/video_pages_bridge.c','native/bridge/pixel_world_bridge.c','native/bridge/presentation_world_bridge.c'):
         return text # Writes are owner writes, or delegate to the existing audio/unmoved publisher.
     if relative_path == 'native/bridge/audio_world_bridge.c':
         store='ugh_mem[address]=source[i];'

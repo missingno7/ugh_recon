@@ -13,6 +13,9 @@
 #ifdef UGH_NATIVE_PIXEL
 #include "pixel_world_bridge.h"
 #endif
+#ifdef UGH_NATIVE_PRESENTATION
+#include "presentation_world_bridge.h"
+#endif
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,6 +34,9 @@ static inline const uint8_t *project_timing_observation(const uint8_t *machine) 
 #ifdef UGH_NATIVE_PIXEL
     pixel_require_seal(machine);
 #endif
+#ifdef UGH_NATIVE_PRESENTATION
+    presentation_require_seal(machine);
+#endif
     memcpy(observation,machine,sizeof observation);
     timing_serialize(observation);
 #ifdef UGH_NATIVE_PALETTE
@@ -48,6 +54,10 @@ static inline const uint8_t *project_timing_observation(const uint8_t *machine) 
     #ifdef UGH_NATIVE_PIXEL
     pixel_serialize(observation);
     if(pixel_check_serialization(observation)!=UINT32_MAX){fputs("pixels: missed serialization\n",stderr);exit(88);}
+    #endif
+    #ifdef UGH_NATIVE_PRESENTATION
+    presentation_serialize(observation);
+    if(presentation_check_serialization(observation)!=UINT32_MAX){fputs("presentation: missed serialization\n",stderr);exit(88);}
     #endif
     if(timing_check_serialization(observation)!=UINT32_MAX){
         fputs("timing: missed owned serialization\n",stderr);exit(88);

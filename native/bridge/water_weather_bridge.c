@@ -60,7 +60,11 @@ static int ww_random(Regs *r,WeatherPlan *p,uint16_t ret){
 }
 static int ww_respawn(Regs *r,WeatherPlan *p,uint16_t ret){
  if(p->active){ww_take(p,WW_RESPAWN);ww_require(p->consumed==p->result.count && r->bx==p->index && ww_projection(r,p));r->bx=p->index;p->tail_seen=1;}
+#if defined(UGH_NATIVE_PRESENTATION) && PRESENTATION_TEST_FAULT == 2
+ (void)ret;return UGH_OK;
+#else
  return PIXEL_CALL(RespawnRainParticle,ret);
+#endif
 }
 static int ww_rain_admit(Regs *r,int extra){return r->ds==DATA_SEG && r->cs==GAME_SEG && weather_first_particle(rd16(r->ds,D(WaterYPixels)),extra)<386u;}
 static uint16_t ww_first(Regs *r,int extra,uint16_t expected){if(r->ds!=DATA_SEG)return expected;uint16_t actual=weather_first_particle(rd16(r->ds,D(WaterYPixels)),extra);ww_require(actual==expected);return actual;}

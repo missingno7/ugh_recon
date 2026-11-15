@@ -218,8 +218,8 @@
     "native/bridge/actor_pass_bridge.c": "9dc2a3efab97232d265dfc1b3fe0615777ff85634d802c9d1e76d2101db9d351",
     "verif/entry_retirement.py": "3b52d207fef7b3e51461a2357a06f012f59651b406f1fe9a0253876e55f76529",
     "verif/entry_retirement_proof.c": "2796c3423fef93b04f190cb38667b80bda47017806d83ff5e326fb204aebb95f",
-    "verif/projector_evidence.py": "ca731962f8d80b7a285cd17d10e2f661fb793b5f4b8f394bdd928e8217107a13",
-    "verif/projector/publications.py": "63edad838f2604e2e5bd7e51203b33964239e1ca6f4c1c481ac9b576bf0cca2f",
+    "verif/projector_evidence.py": "637e1a98f5efebc0ad0ba0b026ac3b74a02f971fef645872b1ecb6ad307c8489",
+    "verif/projector/publications.py": "665115ddbc96a4e7be63c6fa24d1a664de706c8ec27d9ebbdabda833ed2663d5",
     "metadata/program-model.json": "b8dd6007f28f57c1a33fd91aefb7fdc73377ca0b7e853ff6f8f4512b79a67397",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
     "c/abi.c": "5f7c2c2fc015ca43e3786a7f96cb38113211da54acefce19564c1df78d74857a",
@@ -371,6 +371,18 @@
       "reason": "Pixel services and renderer ownership; prior claim domains/status unchanged",
       "commands": [
         "python verif/pixel_composition.py --gate"
+      ],
+      "results": "PASS",
+      "inputs": [
+        "verif/projector_evidence.py",
+        "verif/projector/publications.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "HUD/weather native ownership and borrowers; prior claim domains/status unchanged",
+      "commands": [
+        "python verif/presentation_composition.py --gate"
       ],
       "results": "PASS",
       "inputs": [

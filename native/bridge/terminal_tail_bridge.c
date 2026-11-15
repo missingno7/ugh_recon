@@ -1,3 +1,7 @@
+#ifdef UGH_NATIVE_LIFECYCLE_WORLD
+#include "lifecycle_world_bridge.h"
+EXPORT int c_DosShutdownTail(Regs *r){return lifecycle_adapter_terminal(r);}
+#else
 #include "platform.h"
 #include "../terminal_tail.h"
 /* These are peer native services. Only this retiring machine adapter carries
@@ -31,3 +35,4 @@ EXPORT int c_DosShutdownTail(Regs *r) {
         }
     }
 }
+#endif

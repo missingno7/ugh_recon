@@ -171,6 +171,7 @@
     "native/bridge/lifecycle_bridge.c": {
       "includes": [
         "../lifecycle.h",
+        "lifecycle_world_bridge.h",
         "platform.h",
         "stdlib.h"
       ],
@@ -187,6 +188,7 @@
         "lc_require",
         "lc_take",
         "lc_word",
+        "lifecycle_adapter_run",
         "lifecycle_begin",
         "lifecycle_complete",
         "lifecycle_consume",
@@ -212,7 +214,7 @@
   "verification_inputs": {
     "native/lifecycle.h": "5fc8cf0e93f77e1ebe03da39ec8d294d7ad3ef853234c52cf99b8088042517cb",
     "native/lifecycle.c": "d7025a233b3c1425d6599b810b81cc3bb5b9ee7f5aeca7823cd64ad422e5960b",
-    "native/bridge/lifecycle_bridge.c": "c071659c8a4d82b8946cda5d7cb12fcf5df28dfd152f8ae899657e38228556f6",
+    "native/bridge/lifecycle_bridge.c": "55367727d28612cbd78da2373affbdb81d086ed8160f3f968013df16a0b4467e",
     "native/session.h": "843e2fa75fc55024f787804ff00c20505238381d4f02dc891e02d937f1e05d20",
     "native/session.c": "731afa9e3ade606e09a77fce94d6a762a5080554863a31cec183a6c7f4121634",
     "native/bridge/session_support.h": "edc2b4bbce67f6fe64ce012d4329be9ab04f0d103f6358c70fb6fd6c246633c9",
@@ -234,7 +236,7 @@
     "verif/sequencing_proofs.py": "e0d30dee417ba33b5d7eafcebdca62667e9646c2be94512855c715dcb84fdb03",
     "verif/sequencing_records.py": "61ae2f1bfe0736d873efc98e6716c9ce234d4c43853322b1cbd759263eb33526",
     "verif/sequencing_reproduce.py": "cc5f56812abac76e515b222f2ea2749af67acc415e5d381b3c06c6ed1bb88c58",
-    "verif/lifecycle_shells.py": "55f86943053717aaa41f01cdbb822aa6624ebe206f1dc442e2a3897f0be9005a",
+    "verif/lifecycle_shells.py": "780d6802983ed6500fb0a116380282651d4388345345c4cf97a8bcfca4fc1b88",
     "verif/session_bridge.py": "bb395627266a5bada85aa93e9536f30b26fdf550302ed578dd62f73cea9c77cd",
     "verif/session_loader.py": "4db743f71ea32f8b5c51e51033953a2970ea4c2290a758d1cdbb5177587a4341",
     "verif/session_record_proof.py": "343c7dfffcbd4c44185e0099d4dcf2c03fc7bc2d2e31211989f9647118a090a4",
@@ -7345,6 +7347,21 @@
         "tools/closure.py",
         "tools/hostbuild.py"
       ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut 6C: lifecycle saved-mode owner and typed startup/terminal binding. Only these actually changed inputs were relocked; prior claims/status unchanged.",
+      "commands": [
+        "python verif/world_gate.py lifecycle_world --jobs 3 --out build/workers/cut-6c/gate",
+        "python verif/world_gate.py lifecycle_world --finalize --locks --out build/workers/cut-6c/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-6c/sgate"
+      ],
+      "results": "PASS finalized cut-6C world gate: API22/22 both profiles, 12/12 controls, projector17955/11960 bytes/no moved journal, census, host21+21 and levels81+7+8 both variants; separate supervisor gate receipt in build/workers/cut-6c/sgate.",
+      "inputs": [
+        "native/bridge/lifecycle_bridge.c",
+        "verif/lifecycle_shells.py"
+      ],
+      "dependency_change": true
     }
   ]
 }

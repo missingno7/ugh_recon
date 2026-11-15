@@ -1,0 +1,34 @@
+{
+  "component": "lifecycle_world",
+  "flag": "UGH_NATIVE_LIFECYCLE_WORLD",
+  "order": 14,
+  "header": "native/bridge/lifecycle_world_bridge.h",
+  "bridge": "native/bridge/lifecycle_world_bridge.c",
+  "lanes": {
+    "predicate": "lifecycle_is_owned",
+    "declaration": "Authoritative physical-byte membership in this world bridge; aliases are lanes, never independent allocations",
+    "stability": "Fixed physical membership after cold construction; availability may be inactive before import",
+    "bytes": 1
+  },
+  "cold_import": "lifecycle_cold_import",
+  "seal": "lifecycle_require_seal",
+  "read": "lifecycle_shared_read",
+  "write": "lifecycle_shared_write",
+  "serialize": "lifecycle_serialize",
+  "check": "lifecycle_check_serialization",
+  "owned_bytes": "lifecycle_owned_bytes",
+  "borrowed_byte": "lifecycle_borrowed_byte",
+  "borrowed_store": "lifecycle_borrowed_store",
+  "platform_provider": null,
+  "compile_flags": [],
+  "gate": {
+    "cases": "verif/world_cases/lifecycle.py"
+  },
+  "files": [
+    "verif/world_cases/lifecycle_operators.py",
+    "verif/lifecycle_world_cases.c",
+    "verif/lifecycle_world_router.c",
+    "verif/lifecycle_world_proof.c",
+    "verif/lifecycle_world_terminal_fixture.c"
+  ]
+}

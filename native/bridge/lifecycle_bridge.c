@@ -1,3 +1,10 @@
+#ifdef UGH_NATIVE_LIFECYCLE_WORLD
+#include "lifecycle_world_bridge.h"
+EXPORT int c_RunDosGame(Regs *r){return lifecycle_adapter_run(r,LIFE_PROGRAM);}
+EXPORT int c_InitializeDosVideoInputAndSound(Regs *r){return lifecycle_adapter_run(r,LIFE_PLATFORM_INIT);}
+EXPORT int c_InitializeAdLibSound(Regs *r){return lifecycle_adapter_run(r,LIFE_ADLIB_INIT);}
+EXPORT int c_FadeAndShutdownSound(Regs *r){return lifecycle_adapter_run(r,LIFE_SOUND_SHUTDOWN);}
+#else
 #include "platform.h"
 #include "../lifecycle.h"
 #include <stdlib.h>
@@ -78,4 +85,5 @@ EXPORT int c_FadeAndShutdownSound(Regs *r) {
     r->sp=add16(r,r->sp,2,0);
     lc_take(&plan,LIFE_SOUND_STOP);lc_finish(&plan);return video_far_call(r,UGH_S_C_ShutdownSoundSystem,UGH_O_C_ShutdownSoundSystem,G(FadeAndShutdownSound)+15);
 }
+#endif
 

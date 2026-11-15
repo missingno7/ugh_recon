@@ -50,6 +50,17 @@ static void lc_finish(LifecycleProcess *p){lc_require(lifecycle_complete(p));}
     return s
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--write',action='store_true');a=ap.parse_args();s=generated()
-    if a.write:BRIDGE.write_text(s)
-    assert BRIDGE.read_text()==s;print('PASS four lifecycle ABI shells and exact request cuts')
+    text=BRIDGE.read_text()
+    # Cut 6C keeps these exact historical shells for the noncomposed API profile.
+    # The composed branch delegates to the typed owner through verification bindings.
+    prefix=''
+    if text.startswith('#ifdef UGH_NATIVE_LIFECYCLE_WORLD\n'):
+        prefix,text=text.split('#else\n',1)
+        assert 'return lifecycle_adapter_run(r,LIFE_PROGRAM);' in prefix
+        assert 'return lifecycle_adapter_run(r,LIFE_PLATFORM_INIT);' in prefix
+        assert 'return lifecycle_adapter_run(r,LIFE_ADLIB_INIT);' in prefix
+        assert 'return lifecycle_adapter_run(r,LIFE_SOUND_SHUTDOWN);' in prefix
+        assert text.endswith('#endif\n\n');text=text[:-len('#endif\n\n')]+'\n'
+    if a.write:BRIDGE.write_text((prefix+'#else\n' if prefix else '')+s.rstrip('\n')+'\n'+('#endif\n\n' if prefix else '\n'))
+    assert text==s;print('PASS four lifecycle ABI shells and exact request cuts')
 if __name__=='__main__':main()

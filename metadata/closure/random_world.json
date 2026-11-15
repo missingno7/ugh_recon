@@ -204,7 +204,7 @@
     "native/bridge/high_scores_bridge.c": "83a4bd65acae9bb5d260f32083d7f2a41ec4f5654ddfa4ac3703dd12821a94ff",
     "native/bridge/hud_bridge.c": "20826a77dfc2e68979d2fedc1a5935c3738b9f0002a2d8d8c064d9cc3f4bf6ea",
     "native/bridge/hud_support.h": "90e8d5095e5b2291ad53991535b876541cb8b3a31970ee18db1f4d0e39b206de",
-    "native/bridge/lifecycle_bridge.c": "c071659c8a4d82b8946cda5d7cb12fcf5df28dfd152f8ae899657e38228556f6",
+    "native/bridge/lifecycle_bridge.c": "55367727d28612cbd78da2373affbdb81d086ed8160f3f968013df16a0b4467e",
     "native/bridge/menus_bridge.c": "9702fa35fd12b1bec05684fbc35e5d29d4ed85425f0a8ccfc208fde6d99d2e2f",
     "native/bridge/pixel_world_bridge.c": "6b0ef02880e37be713051c2ba5b45040b23018ba43655ef44e11d87eb30b985b",
     "native/bridge/random_borrow.h": "7871451fc18b55593f527bfac58c48803bf1ae6de89397c262d86d68ffd32fcd",
@@ -562,6 +562,20 @@
         "verif/world_cases/random.py",
         "verif/world_gate.py"
       ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut 6C: lifecycle saved-mode owner and typed startup/terminal binding. Only these actually changed inputs were relocked; prior claims/status unchanged.",
+      "commands": [
+        "python verif/world_gate.py lifecycle_world --jobs 3 --out build/workers/cut-6c/gate",
+        "python verif/world_gate.py lifecycle_world --finalize --locks --out build/workers/cut-6c/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-6c/sgate"
+      ],
+      "results": "PASS finalized cut-6C world gate: API22/22 both profiles, 12/12 controls, projector17955/11960 bytes/no moved journal, census, host21+21 and levels81+7+8 both variants; separate supervisor gate receipt in build/workers/cut-6c/sgate.",
+      "inputs": [
+        "native/bridge/lifecycle_bridge.c"
+      ],
+      "dependency_change": false
     }
   ]
 }

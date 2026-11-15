@@ -141,6 +141,7 @@
     "native/bridge/terminal_tail_bridge.c": {
       "includes": [
         "../terminal_tail.h",
+        "lifecycle_world_bridge.h",
         "platform.h"
       ],
       "calls": [
@@ -148,6 +149,7 @@
         "G",
         "c_FadeAndShutdownSound",
         "c_RestoreKeyboardInterrupt",
+        "lifecycle_adapter_terminal",
         "logic",
         "platform_interrupt",
         "rd8",
@@ -165,7 +167,7 @@
   "verification_inputs": {
     "native/terminal_tail.c": "572e0f54097b80e0672bcc9dc4d46a16d80aeabc2657497faa51c944986ab1a4",
     "native/terminal_tail.h": "2bddbe7c8b549c3452ce4bad15c02837ce478b6f0a502ba27cfafe9ed804c0b0",
-    "native/bridge/terminal_tail_bridge.c": "0676680d7e43f742ecb274b0869824043fe6f28e0e62ed2fef2daecaa569bf50",
+    "native/bridge/terminal_tail_bridge.c": "8376211c4b0e5a8756acd79209af7777406b9d5430c98c8b7f109682b8e99e5e",
     "verif/entry_retirement.py": "3b52d207fef7b3e51461a2357a06f012f59651b406f1fe9a0253876e55f76529",
     "verif/entry_retirement_proof.c": "2796c3423fef93b04f190cb38667b80bda47017806d83ff5e326fb204aebb95f",
     "verif/projector_evidence.py": "9427aa4eb3f4661b647b71596a42f0e9aa720746f52a552baec20fd3b43d923e",
@@ -437,6 +439,20 @@
         "verif/projector/publications.py",
         "verif/projector_evidence.py"
       ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut 6C: lifecycle saved-mode owner and typed startup/terminal binding. Only these actually changed inputs were relocked; prior claims/status unchanged.",
+      "commands": [
+        "python verif/world_gate.py lifecycle_world --jobs 3 --out build/workers/cut-6c/gate",
+        "python verif/world_gate.py lifecycle_world --finalize --locks --out build/workers/cut-6c/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-6c/sgate"
+      ],
+      "results": "PASS finalized cut-6C world gate: API22/22 both profiles, 12/12 controls, projector17955/11960 bytes/no moved journal, census, host21+21 and levels81+7+8 both variants; separate supervisor gate receipt in build/workers/cut-6c/sgate.",
+      "inputs": [
+        "native/bridge/terminal_tail_bridge.c"
+      ],
+      "dependency_change": true
     }
   ]
 }

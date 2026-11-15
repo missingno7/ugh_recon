@@ -1,7 +1,7 @@
 {
   "component": "item_world",
   "flag": "UGH_NATIVE_ITEMS",
-  "order": 14,
+  "order": 16,
   "header": "native/bridge/item_world_bridge.h",
   "bridge": "native/bridge/item_world_bridge.c",
   "lanes": {

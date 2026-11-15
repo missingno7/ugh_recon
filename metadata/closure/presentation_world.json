@@ -636,6 +636,26 @@
         "native/bridge/actor_render_bridge.c",
         "native/bridge/session_bridge.c"
       ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut6B native front-end ownership and bounded API profile/poison slices; direct changed implementation/verification inputs only. No lock/note-only cascade.",
+      "commands": [
+        "python verif/world_gate.py front_end_world --jobs 3 --out build/workers/cut-6b/gate",
+        "python verif/world_gate.py front_end_world --finalize --locks --out build/workers/cut-6b/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-6b/sgate"
+      ],
+      "results": "PASS: complete world gate;956 independent L1/native comparisons, no rejections or compatibility fallbacks; exact profile/poison coverage;757 score +805 menu/text +156 session cases;15/15 controls;182 moved bytes,12141 native total; both hosts21/21, projector/census,81+7+8 levels both variants. Final supervisor receipt is build/workers/cut-6b/sgate/receipt.json.",
+      "inputs": [
+        "metadata/closure/high_scores.json",
+        "metadata/closure/menus.json",
+        "metadata/closure/session.json",
+        "native/bridge/high_scores_bridge.c",
+        "native/bridge/menus_bridge.c",
+        "native/bridge/session_bridge.c",
+        "verif/world_api.py",
+        "verif/world_gate.py"
+      ]
     }
   ]
 }

@@ -1,0 +1,260 @@
+{
+  "component": "lifecycle_world",
+  "status": "migrated",
+  "original": {
+    "composes": [
+      "lifecycle",
+      "terminal_tail"
+    ],
+    "owned_cells": [
+      "DGROUP:SavedBiosVideoMode"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/lifecycle_world.h",
+      "native/lifecycle_world.c",
+      "native/bridge/lifecycle_world_bridge.h",
+      "native/bridge/lifecycle_world_bridge.c"
+    ],
+    "functions": [
+      "native_lifecycle_world",
+      "lifecycle_world_execute",
+      "lifecycle_world_terminate"
+    ]
+  },
+  "purpose": "Cut 6C: native saved-video-mode owner and typed synchronous startup/terminal continuation.",
+  "interface": {
+    "inputs": "One cold saved byte; role-named synchronous services and live saved-mode binding. Machine statuses, CPU probe and INT24 frames stay in verification adapters.",
+    "outputs": "Typed GameExit preserves the live low input-restoration reply; consumed failure prefix without cleanup. No semantic API contains Regs."
+  },
+  "callers": [
+    "Program entry, startup pictures Q path and external compatibility API shells; all physical byte-window borrowers"
+  ],
+  "callees": [
+    "Typed lifecycle and terminal services; accepted native lifecycle/terminal planners and subsystem owners"
+  ],
+  "indirect": [
+    "Explicit typed synchronous service function parameters; no code-word resolver in the native core"
+  ],
+  "memory": {
+    "owner": "Exactly DGROUP:0092, one byte; continuation[4] and terminal cursor have no independent historical RAM allocation.",
+    "bytes": 1,
+    "total_with_prior": 11960,
+    "borrowers": [
+      "STARTUP masked query reply store through live DS",
+      "TERMINAL unmasked saved byte read through live DS after sound",
+      "WINDOW copy/ICE/decimal and ordinary byte/word router"
+    ],
+    "excluded": "Saved keyboard/timer vectors, sound flags and provider installation lifetimes remain in existing owners."
+  },
+  "assumptions": [
+    "Accepted synchronous deterministic verification domain; foreign DS uses an explicit borrowed byte binding.",
+    "Cold fixture import once per scenario, RAM lane sealed A5; serialization only into separate observation view, never resynchronized.",
+    "Existing subsystem admission and unsupported boundaries are unchanged. Typed production service extraction remains step 7."
+  ],
+  "eliminated": [
+    "RAM ownership of the saved-mode byte; native lifecycle peer dispatcher hops in the admitted composition."
+  ],
+  "retained": [
+    "Full startup order: platform/query/save, CPU/critical-error binding, scores, single seed point, mode19, picture pages, input install, calibration, AdLib mask1, clear, startup pictures, gameplay pages, menu/session.",
+    "Sound stop/fade before live saved video restore before keyboard restore before terminal exit using the low BIOS-queue-flush reply; no synthetic zero exit code or cleanup on failure.",
+    "Audio shutdown latch remains the existing live DS store, DGROUP:0002, not a repaired C flag; no external hook repair."
+  ],
+  "evidence": [
+    {
+      "property": "Actual-C terminal protocol and startup prefixes",
+      "level": "B",
+      "method": "Symbolic actual maintained terminal C with arbitrary old/new mode, full input word, arbitrary terminal acknowledgement code, and every failure position; exhaustive startup/task scalar slices. This is a protocol theorem, not unrestricted L1 equivalence.",
+      "command": "python verif/world_gate.py lifecycle_world --stages proof --out build/workers/cut-6c/gate",
+      "result": "PASS symbolic terminal output/prefix/frame conditions; 6,400 startup/task and 655,360 terminal scalar-prefix witnesses",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "Independent ASM/L1 API and live terminal adapter",
+      "level": "C",
+      "method": "Independent Unicorn API and literal-C tail versus actual typed adapter, full registers/RAM/ordered nonempty terminal services; live DS, mode mutation after sound, DF, full mode/exit-byte slices and five abnormal status codes.",
+      "command": "python verif/world_gate.py lifecycle_world --stages api-lifecycle borrowers --out build/workers/cut-6c/gate",
+      "result": "PASS 22/22 each legacy/composed API profile, no rejections/fallbacks; 204,800 independent literal/adapter cases",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "Native ownership composition",
+      "level": "D",
+      "method": "Frozen committed HEAD plus declared overlay, separate serializer, all scenarios and smoke, census, both hosts and level groups; actual results retained in gate receipt.",
+      "command": "python verif/world_gate.py lifecycle_world --jobs 3 --out build/workers/cut-6c/gate",
+      "result": "PASS frozen owner/projector/census/host/level composition; final gate receipt and finalized snapshot identify accepted source inputs",
+      "date": "2026-11-15"
+    },
+    {
+      "property": "Declared cut defects",
+      "level": "C",
+      "method": "Actual maintained core/bridge mutants, positive ordered startup/terminal comparator and literal-adapter seam; omitted serialization fails closed.",
+      "command": "python verif/world_gate.py lifecycle_world --stages defects --out build/workers/cut-6c/gate",
+      "result": "PASS all 12 local controls detected; same inventory required by final frozen gate",
+      "date": "2026-11-15"
+    }
+  ],
+  "amiga": {
+    "classification": "not-used"
+  },
+  "uncertainty": [
+    "One historical byte moved; vectors and sound lifetimes stay borrowed. Production backend extraction is not claimed."
+  ],
+  "dependencies": {
+    "native/lifecycle_world.h": {
+      "includes": [
+        "lifecycle.h",
+        "terminal_tail.h"
+      ],
+      "calls": []
+    },
+    "native/lifecycle_world.c": {
+      "includes": [
+        "lifecycle_world.h"
+      ],
+      "calls": [
+        "lifecycle_begin",
+        "lifecycle_consume",
+        "lifecycle_next",
+        "lifecycle_video_reply",
+        "saved_mode",
+        "service",
+        "terminal_tail_begin",
+        "terminal_tail_next"
+      ]
+    },
+    "native/bridge/lifecycle_world_bridge.h": {
+      "includes": [
+        "../lifecycle_world.h",
+        "ugh.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/lifecycle_world_bridge.c": {
+      "includes": [
+        "lifecycle_world_bridge.h",
+        "platform.h",
+        "stdio.h",
+        "stdlib.h",
+        "string.h"
+      ],
+      "calls": [
+        "D",
+        "G",
+        "abort",
+        "add16",
+        "c_ClearAllVgaPlanes",
+        "c_DosShutdownTail",
+        "exit",
+        "flag",
+        "fputs",
+        "lifecycle_borrow_read",
+        "lifecycle_borrow_write",
+        "lifecycle_far",
+        "lifecycle_field",
+        "lifecycle_is_owned",
+        "lifecycle_near",
+        "lifecycle_pop",
+        "lifecycle_push",
+        "lifecycle_reply",
+        "lifecycle_shared_read",
+        "lifecycle_shared_write",
+        "lifecycle_world_execute",
+        "lifecycle_world_terminate",
+        "lin",
+        "logic",
+        "memset",
+        "native_lifecycle_world",
+        "peer",
+        "platform_interrupt",
+        "rd16",
+        "rd8",
+        "set_ah",
+        "set_al",
+        "sub16",
+        "wr16",
+        "wr8"
+      ]
+    }
+  },
+  "verification_inputs": {
+    "native/lifecycle_world.h": "d744424b6153c875fd91fe3d1d6766fac8d39ce0f7e5664367bb6da50a0a2c2e",
+    "native/lifecycle_world.c": "ab226019e37b5827d0405d1d20679cf0282b908761995ab469934c69aaa91447",
+    "native/bridge/lifecycle_world_bridge.h": "a2d5e3fddb9de535ef23053ef2ab5738763e94fd88bc9afcfd208c4dda76a96c",
+    "native/bridge/lifecycle_world_bridge.c": "429126b934a4c225d955113755ad1eb714b8747b1529eb4ade860d4f84c51584",
+    "verif/world_cases/lifecycle_operators.py": "6e4d98d61e9a6b26ebaf1e9b2f1f01c3ac8f3761917f82f4a1add2c56ef1a876",
+    "verif/lifecycle_world_cases.c": "ffd04fd16380947607c00174bf56473124d2ffc203574909e886cc5f05cdd02b",
+    "verif/lifecycle_world_router.c": "130043020f311f99be1a9ad18dc80869d08f5800b8e80f816b318a1496eceb77",
+    "verif/lifecycle_world_proof.c": "19c7c44a3db9a73e08d13643d41276e706553ed1110fc6129f8228348aac7eae",
+    "verif/lifecycle_world_terminal_fixture.c": "621a438c6c22da3851ea53c3b778576f7a0f5f9f12acf7bbc9e6803c5e80e506",
+    "metadata/worlds/lifecycle_world.json": "1b1ad27d328621827807ff0118a83a19fd2f95fd80cdad1ff129c70b8299ea31",
+    "verif/world_cases/lifecycle.py": "112ed82c07b19e9e7b82f1c446901d3d27df5373983c1ecb8375f57a145cc2d2",
+    "native/lifecycle.c": "d7025a233b3c1425d6599b810b81cc3bb5b9ee7f5aeca7823cd64ad422e5960b",
+    "native/lifecycle.h": "5fc8cf0e93f77e1ebe03da39ec8d294d7ad3ef853234c52cf99b8088042517cb",
+    "native/terminal_tail.c": "572e0f54097b80e0672bcc9dc4d46a16d80aeabc2657497faa51c944986ab1a4",
+    "native/terminal_tail.h": "2bddbe7c8b549c3452ce4bad15c02837ce478b6f0a502ba27cfafe9ed804c0b0",
+    "native/bridge/lifecycle_bridge.c": "55367727d28612cbd78da2373affbdb81d086ed8160f3f968013df16a0b4467e",
+    "native/bridge/terminal_tail_bridge.c": "8376211c4b0e5a8756acd79209af7777406b9d5430c98c8b7f109682b8e99e5e",
+    "c/video.c": "681732591d8efb11cf1d5d5816c999bca718560bd247d9c9cc6c0f36982b2fa2",
+    "c/menu.c": "b2ea585a4cb2b40c349fd7a017642534ea2b4982140a25a6dcacd12ce3b418b0",
+    "verif/world_gate.py": "2ba63041f75fd9c9c0b368ce40ef6ec1e40bb692bc17940c1dcf06f2b3311763",
+    "verif/world_api.py": "a83bc75b4264a5ed575e8716eba52478a858556dfdba447107dc90e0e982569e",
+    "verif/job_pool.py": "fd3a52cb8cb4dacd758e930a00ead9c5016776817d18d687a59d5399aa46348a",
+    "tools/world_registry.py": "54fdfc61a0509112ab2049af29f7321f56718084637a1fce04b0b89429159b99",
+    "verif/world_cases/legacy_adapter.py": "9978014371764ca9a123efe557fe62a6b0fef06f0e19a52b944bf72fbb14d677"
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-15",
+      "reason": "New cut-6C allocation/typed continuation certificate; finalized proof against the declared overlay.",
+      "commands": [
+        "python verif/world_gate.py lifecycle_world --jobs 3 --out build/workers/cut-6c/gate",
+        "python verif/world_gate.py lifecycle_world --finalize --locks --out build/workers/cut-6c/gate"
+      ],
+      "results": "PASS every standard stage; symbolic acknowledgement preservation, 22/22 API profiles, 204800 literal-adapter pairs, 12/12 defects, projector17955 with11960 owned bytes/no moved journal, census and both hosts/level groups.",
+      "inputs": [
+        "c/menu.c",
+        "c/video.c",
+        "metadata/worlds/lifecycle_world.json",
+        "native/bridge/lifecycle_bridge.c",
+        "native/bridge/lifecycle_world_bridge.c",
+        "native/bridge/lifecycle_world_bridge.h",
+        "native/bridge/terminal_tail_bridge.c",
+        "native/lifecycle.c",
+        "native/lifecycle.h",
+        "native/lifecycle_world.c",
+        "native/lifecycle_world.h",
+        "native/terminal_tail.c",
+        "native/terminal_tail.h",
+        "tools/world_registry.py",
+        "verif/job_pool.py",
+        "verif/lifecycle_world_cases.c",
+        "verif/lifecycle_world_proof.c",
+        "verif/lifecycle_world_router.c",
+        "verif/lifecycle_world_terminal_fixture.c",
+        "verif/world_api.py",
+        "verif/world_cases/legacy_adapter.py",
+        "verif/world_cases/lifecycle.py",
+        "verif/world_cases/lifecycle_operators.py",
+        "verif/world_gate.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "Pending process-refactor replay",
+      "inputs": [
+        "metadata/worlds/lifecycle_world.json",
+        "verif/world_api.py",
+        "verif/world_gate.py"
+      ]
+    }
+  ]
+}

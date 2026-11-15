@@ -209,7 +209,7 @@ def child(component,stage,out,revision,dependencies):
   import world_api
   group=stage[4:];cases=api_cases(cfg,module,group)
   if not cases:result=dict(result='PASS',group=group,composed_matching=0,legacy_matching=0,explicit_out_of_domain=[],compatibility_cases=[],scope='Zero relevant API cases explicitly inventoried')
-  else:result=world_api.replay(group,cases,out/'api',cfg['api'][group].get('allowed_rejections',[]),cfg.get('worlds_enabled'))
+  else:result=world_api.replay(group,cases,out/'api',cfg['api'][group].get('allowed_rejections',[]),cfg.get('worlds_enabled'),cfg['api'][group].get('poisons'),cfg['api'][group].get('profiles'))
  elif stage=='projector':result=stage_projector(out,revision)
  elif stage=='census':result=stage_census(out,bounded,revision)
  elif stage=='build':

@@ -10,6 +10,10 @@ files list. gate.cases names a Python file with a docstring followed by literal 
 key names the case-operator module (new modules need not be historical). Declare API groups,
 case selectors/admitted rejections and defect IDs there. Operators provide their unique
 router/proof/borrower cases; the framework supplies scheduling, fixtures, bounds and receipts.
+API groups may declare `poisons` (booleans) and `profiles` (`legacy`/`composed`) to
+split a long case within the child budget. Defaults retain both of each. Such a
+cut must verify the complete original case/profile/poison multiset across groups;
+an omitted profile has zero matching cases and is never credited as executed.
 Optional result_files maps historical result names. scenario-flag defects declare id, flag,
 scenario, frames and either an expected diagnostic exit or a difference from its reference.
 

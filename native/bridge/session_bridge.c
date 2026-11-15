@@ -3,6 +3,10 @@
 #define ITEMSTATE_BORROWER ITEMSTATE_BORROW_SESSION
 #endif
 #include "items_borrow.h"
+#ifndef FRONTEND_BORROWER
+#define FRONTEND_BORROWER FRONTEND_BORROW_SESSION
+#endif
+#include "frontend_borrow.h"
 #include "platform.h"
 #ifndef ENEMIES_BORROWER
 #define ENEMIES_BORROWER ENEMIES_BORROW_SESSION
@@ -69,7 +73,7 @@ static int sq_password(Regs *r,uint16_t key){
    if(sq_bool(decision==PASSWORD_DEFAULT,(uint8_t)r->ax==255)){r->cx=logic(r,0,16);r->cx=sq_word(session_password_selected(&password,1),r->cx);return UGH_OK;}
    uint16_t carry=r->flags&CF;r->bx=add16(r,r->bx,1,0);flag(r,CF,carry);
    uint16_t index=sq_word((uint16_t)(password.length+1u),r->bx);
-   uint8_t editor=itemstate_read8(r->ds,(uint16_t)(D(PasswordCompareBiasedBase)+index));
+   uint8_t editor=frontend_read8(r->ds,(uint16_t)(D(PasswordCompareBiasedBase)+index));
    int different=session_password_compare(&password,(uint8_t)r->ax,editor);
    if(sq_bool(different,(uint8_t)r->ax!=editor))r->bp=dec16(r,r->bp);
    sq_require(password.length==r->bx && password.misses==r->bp && password.level==r->cx);
@@ -80,7 +84,7 @@ static int sq_password(Regs *r,uint16_t key){
    for(;;){
     sub16(r,r->bx,20,0);
     if(sq_bool(!session_password_needs_padding(&password),r->bx>=20)){r->cx=sq_word(session_password_selected(&password,0),r->cx);return UGH_OK;}
-    set_al(r,32);uint8_t editor=itemstate_read8(r->ds,(uint16_t)(D(PasswordEditBuffer)+r->bx));
+    set_al(r,32);uint8_t editor=frontend_read8(r->ds,(uint16_t)(D(PasswordEditBuffer)+r->bx));
     int space=session_password_padding(&password,editor);
     if(sq_bool(!space,editor!=32))break;
     uint16_t carry=r->flags&CF;r->bx=add16(r,r->bx,1,0);flag(r,CF,carry);sq_require(password.length==r->bx);

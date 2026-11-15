@@ -1,0 +1,35 @@
+{
+  "component": "front_end_world",
+  "flag": "UGH_NATIVE_FRONT_END",
+  "order": 14,
+  "header": "native/bridge/front_end_world_bridge.h",
+  "bridge": "native/bridge/front_end_world_bridge.c",
+  "lanes": {
+    "predicate": "frontend_is_owned",
+    "declaration": "Authoritative physical-byte membership in this world bridge; aliases are lanes, never independent allocations",
+    "stability": "Fixed physical membership after cold construction; availability may be inactive before import",
+    "bytes": 182
+  },
+  "cold_import": "frontend_cold_import",
+  "seal": "frontend_require_seal",
+  "read": "frontend_shared_read",
+  "write": "frontend_shared_write",
+  "serialize": "frontend_serialize",
+  "check": "frontend_check_serialization",
+  "owned_bytes": "frontend_owned_bytes",
+  "borrowed_byte": "frontend_borrowed_byte",
+  "borrowed_store": "frontend_borrowed_store",
+  "platform_provider": null,
+  "compile_flags": [],
+  "gate": {
+    "cases": "verif/world_cases/front_end.py"
+  },
+  "files": [
+    "native/front_end_world.h",
+    "native/front_end_world.c",
+    "native/bridge/frontend_borrow.h",
+    "verif/front_end_world_router.c",
+    "verif/front_end_world_byte_proof.c",
+    "verif/front_end_world_cases.py"
+  ]
+}

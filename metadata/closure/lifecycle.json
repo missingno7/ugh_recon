@@ -171,6 +171,7 @@
     "native/bridge/lifecycle_bridge.c": {
       "includes": [
         "../lifecycle.h",
+        "lifecycle_world_bridge.h",
         "platform.h",
         "stdlib.h"
       ],
@@ -187,6 +188,7 @@
         "lc_require",
         "lc_take",
         "lc_word",
+        "lifecycle_adapter_run",
         "lifecycle_begin",
         "lifecycle_complete",
         "lifecycle_consume",
@@ -7359,6 +7361,48 @@
         "native/bridge/actor_render_bridge.c",
         "native/bridge/session_bridge.c",
         "native/bridge/session_support.h"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut6B native front-end ownership and bounded API profile/poison slices; direct changed implementation/verification inputs only. No lock/note-only cascade.",
+      "commands": [
+        "python verif/world_gate.py front_end_world --jobs 3 --out build/workers/cut-6b/gate",
+        "python verif/world_gate.py front_end_world --finalize --locks --out build/workers/cut-6b/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-6b/sgate"
+      ],
+      "results": "PASS: complete world gate;956 independent L1/native comparisons, no rejections or compatibility fallbacks; exact profile/poison coverage;757 score +805 menu/text +156 session cases;15/15 controls;182 moved bytes,12141 native total; both hosts21/21, projector/census,81+7+8 levels both variants. Final supervisor receipt is build/workers/cut-6b/sgate/receipt.json.",
+      "inputs": [
+        "native/bridge/session_bridge.c"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut 6C: lifecycle saved-mode owner and typed startup/terminal binding. Only these actually changed inputs were relocked; prior claims/status unchanged.",
+      "commands": [
+        "python verif/world_gate.py lifecycle_world --jobs 3 --out build/workers/cut-6c/gate",
+        "python verif/world_gate.py lifecycle_world --finalize --locks --out build/workers/cut-6c/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-6c/sgate"
+      ],
+      "results": "PASS finalized cut-6C world gate: API22/22 both profiles, 12/12 controls, projector17955/11960 bytes/no moved journal, census, host21+21 and levels81+7+8 both variants; separate supervisor gate receipt in build/workers/cut-6c/sgate.",
+      "inputs": [
+        "native/bridge/lifecycle_bridge.c",
+        "verif/lifecycle_shells.py"
+      ],
+      "dependency_change": true
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "Pending process-refactor replay",
+      "inputs": [
+        "native/bridge/lifecycle_bridge.c",
+        "verif/lifecycle_shells.py"
       ]
     }
   ]

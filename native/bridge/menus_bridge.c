@@ -1,4 +1,9 @@
 #include "platform.h"
+#ifndef FRONTEND_BORROWER
+#define FRONTEND_BORROWER FRONTEND_BORROW_MENUS
+#endif
+#include "frontend_borrow.h"
+#include "platform.h"
 #ifndef PLATFORMS_BORROWER
 #define PLATFORMS_BORROWER PLATFORMS_BORROW_MENUS
 #endif
@@ -22,13 +27,13 @@ static int prepare_attract_map(Regs *r) {
     MCALL(BlackenVgaPalette,G(PrepareAttractMap0)+0x10);
     MCALL(ClearAllVgaPlanes,G(PrepareAttractMap0)+0x13);
     MCALL(DuplicateSourcePaletteHalves,G(PrepareAttractMap0)+0x16);
-    uint16_t o=platforms_read16(r->ds,D(CompressedTileMapsPointer)); r->ds=platforms_read16(r->ds,D(CompressedTileMapsPointer)+2); r->si=o;
+    uint16_t o=frontend_read16(r->ds,D(CompressedTileMapsPointer)); r->ds=frontend_read16(r->ds,D(CompressedTileMapsPointer)+2); r->si=o;
     MCALL(UnpackIceToScratch,G(PrepareAttractMap0)+0x1d);
     push(r,r->es); r->ds=pop(r); r->si=pop(r); r->di=DATA_SEG; r->es=r->di;
     r->di=D(Data_264C);MenusMapCopy copy=menus_map_begin(r->si,r->di,!!(r->flags&DF));r->cx=copy.remaining;
     do {
-        uint16_t v=platforms_read16(r->ds,r->si); r->si=(uint16_t)(copy.source+2*copy.direction);
-        platforms_write16(r->es,r->di,v); menus_map_advance(&copy);r->di=copy.destination;r->cx=copy.remaining;
+        uint16_t v=frontend_read16(r->ds,r->si); r->si=(uint16_t)(copy.source+2*copy.direction);
+        frontend_write16(r->es,r->di,v); menus_map_advance(&copy);r->di=copy.destination;r->cx=copy.remaining;
     } while(r->cx);
     r->ds=pop(r); MCALL(DrawTileMap,G(PrepareAttractMap0)+0x31);
     r->di=pop(r); logic(r,r->di,16);
@@ -36,7 +41,7 @@ static int prepare_attract_map(Regs *r) {
     MCALL(SaveDrawPageBackground,G(PrepareAttractMap0)+0x3f);
     MCALL(SwapAndDisplayVgaPage,G(PrepareAttractMap0)+0x42);
     MCALL(RestorePlayfieldBackground,G(PrepareAttractMap0)+0x45);
-    uint16_t y=platforms_read16(r->ds,D(WaterYPixels)); sub16(r,y,192,0);
+    uint16_t y=frontend_read16(r->ds,D(WaterYPixels)); sub16(r,y,192,0);
     if(menus_draw_water(y)) { MCALL(DrawWaterSurface,G(PrepareAttractMap0)+0x53); }
     return ugh_dispatch(r->cs,G(SwapAndDisplayVgaPage),r);
 }
@@ -61,7 +66,7 @@ EXPORT int c_RunMainMenuAndAttractLoop(Regs *r) {
         case MENUS_MAIN_SCORES:MCALL(ShowHighScores,G(RunMainMenuAndAttractLoop)+0x47);break;
         case MENUS_MAIN_PREPARE_PALETTE:MCALL(DuplicateSourcePaletteHalves,G(RunMainMenuAndAttractLoop)+0x4f);break;
         case MENUS_MAIN_PREPARE_SCREEN:
-            platforms_write16(r->ds,D(WaterYPixels),menus_water(2));r->cx=40;
+            frontend_write16(r->ds,D(WaterYPixels),menus_water(2));r->cx=40;
             MCALL(WaitRetraceCount,G(RunMainMenuAndAttractLoop)+0x5b);
             MCALL(ClearAllVgaPlanes,G(RunMainMenuAndAttractLoop)+0x5e);
             MCALL(DrawMenuHeaderSprites,G(RunMainMenuAndAttractLoop)+0x61);
@@ -82,25 +87,25 @@ EXPORT int c_RunMainMenuAndAttractLoop(Regs *r) {
         case MENUS_MAIN_CONTROLS_FADE:MCALL(FadePaletteOut,G(RunMainMenuAndAttractLoop)+0xa6);break;
         case MENUS_MAIN_CONTROLS:MCALL(SelectPlayerControls,G(RunMainMenuAndAttractLoop)+0xa9);break;
         case MENUS_MAIN_PLAYERS: {
-            FrontConfiguration configuration={0};configuration.players=platforms_read16(r->ds,D(PlayerCount));menus_toggle_players(&configuration);
-            r->ax=logic(r,configuration.players,16);platforms_write16(r->ds,D(PlayerCount),configuration.players);
-            flag(r,CF,r->ax&0x8000);r->ax=configuration.player_bytes;szp(r,r->ax,16);platforms_write16(r->ds,D(PlayerArrayBytes),configuration.player_bytes);break;
+            FrontConfiguration configuration={0};configuration.players=frontend_read16(r->ds,D(PlayerCount));menus_toggle_players(&configuration);
+            r->ax=logic(r,configuration.players,16);frontend_write16(r->ds,D(PlayerCount),configuration.players);
+            flag(r,CF,r->ax&0x8000);r->ax=configuration.player_bytes;szp(r,r->ax,16);frontend_write16(r->ds,D(PlayerArrayBytes),configuration.player_bytes);break;
         }
         case MENUS_MAIN_DIFFICULTY: {
-            uint16_t difficulty=platforms_read16(r->ds,D(SelectedDifficulty));r->ax=increment_word(r,difficulty);sub16(r,r->ax,3,0);if(r->ax>=3) logic(r,0,16);
-            r->ax=menus_difficulty_next(difficulty);platforms_write16(r->ds,D(SelectedDifficulty),r->ax);break;
+            uint16_t difficulty=frontend_read16(r->ds,D(SelectedDifficulty));r->ax=increment_word(r,difficulty);sub16(r,r->ax,3,0);if(r->ax>=3) logic(r,0,16);
+            r->ax=menus_difficulty_next(difficulty);frontend_write16(r->ds,D(SelectedDifficulty),r->ax);break;
         }
         case MENUS_MAIN_PASSWORD:MCALL(EditLevelPassword,G(RunMainMenuAndAttractLoop)+0xe6);break;
         case MENUS_MAIN_PLAY_FADE:MCALL(FadePaletteOut,G(RunMainMenuAndAttractLoop)+0xef);break;
         case MENUS_MAIN_SESSION:MCALL(RunGameFromPassword,G(RunMainMenuAndAttractLoop)+0xf2);break;
         case MENUS_MAIN_CLEAR_SESSION:MCALL(ClearAllVgaPlanes,G(RunMainMenuAndAttractLoop)+0xf5);break;
         case MENUS_MAIN_CHECK_SESSION: {
-            r->bx=sub16(r,platforms_read16(r->ds,D(PlayerArrayBytes)),2,0);r->ax=platforms_read16(r->ds,D(CurrentLevelIndex));
-            uint16_t limit=platforms_read16(r->ds,(uint16_t)(D(LevelCountsByPlayerMode)+r->bx));sub16(r,r->ax,limit,0);completed=(uint8_t)menus_session_complete(r->ax,limit);break;
+            r->bx=sub16(r,frontend_read16(r->ds,D(PlayerArrayBytes)),2,0);r->ax=frontend_read16(r->ds,D(CurrentLevelIndex));
+            uint16_t limit=frontend_read16(r->ds,(uint16_t)(D(LevelCountsByPlayerMode)+r->bx));sub16(r,r->ax,limit,0);completed=(uint8_t)menus_session_complete(r->ax,limit);break;
         }
         case MENUS_MAIN_COMPLETION:MCALL(PlayGameCompletionDemo,G(RunMainMenuAndAttractLoop)+0x14c);break;
         case MENUS_MAIN_GAME_OVER:
-            platforms_write16(r->ds,D(WaterYPixels),menus_water(3));r->si=D(Text_0C0C);r->cx=72;
+            frontend_write16(r->ds,D(WaterYPixels),menus_water(3));r->si=D(Text_0C0C);r->cx=72;
             MCALL(DrawTextBlock,G(RunMainMenuAndAttractLoop)+0x117);MCALL(SwapAndDisplayVgaPage,G(RunMainMenuAndAttractLoop)+0x11a);
             push(r,0x11);MFAR(UGH_S_C_StopMusicTrack,UGH_O_C_StopMusicTrack,G(RunMainMenuAndAttractLoop)+0x121,2);
             push(r,1);push(r,0xe1);push(r,UGH_S_B326B_ext_326B);push(r,0);
@@ -116,9 +121,9 @@ EXPORT int c_RunMainMenuAndAttractLoop(Regs *r) {
 }
 EXPORT int c_DrawMainMenu(Regs *r) {
     MCALL(RestorePlayfieldBackground,G(DrawMainMenu)+3);
-    MenusLabel difficulty=menus_label(0,platforms_read16(r->ds,D(SelectedDifficulty)));r->bx=difficulty.index; r->si=D(DifficultyLabelPointers); r->di=(uint16_t)(D(Text_0AE4)+difficulty.destination);
+    MenusLabel difficulty=menus_label(0,frontend_read16(r->ds,D(SelectedDifficulty)));r->bx=difficulty.index; r->si=D(DifficultyLabelPointers); r->di=(uint16_t)(D(Text_0AE4)+difficulty.destination);
     MCALL(CopyIndexedMenuString,G(DrawMainMenu)+0x10);
-    uint16_t count=platforms_read16(r->ds,D(PlayerCount));MenusLabel players=menus_label(1,count);r->bx=count;dec16(r,r->bx);r->bx=players.index;r->si=D(PlayerCountLabelPointers);r->di=(uint16_t)(D(Text_0AE4)+players.destination);
+    uint16_t count=frontend_read16(r->ds,D(PlayerCount));MenusLabel players=menus_label(1,count);r->bx=count;dec16(r,r->bx);r->bx=players.index;r->si=D(PlayerCountLabelPointers);r->di=(uint16_t)(D(Text_0AE4)+players.destination);
     MCALL(CopyIndexedMenuString,G(DrawMainMenu)+0x1e);
     r->si=D(Text_0AE4); r->cx=0x48; MCALL(DrawTextBlock,G(DrawMainMenu)+0x27);
     return ugh_dispatch(r->cs,G(SwapAndDisplayVgaPage),r);
@@ -136,7 +141,7 @@ EXPORT int c_DrawMenuHeaderSprites(Regs *r) {
     return ugh_dispatch(r->cs,G(DrawTransparentSprite),r);
 }
 EXPORT int c_SelectPlayerControls(Regs *r) {
-    platforms_write16(r->ds,D(WaterYPixels),menus_water(3)); r->cx=40;
+    frontend_write16(r->ds,D(WaterYPixels),menus_water(3)); r->cx=40;
     MCALL(WaitRetraceCount,G(SelectPlayerControls)+0xc);
     MCALL(DrawControlOptions,G(SelectPlayerControls)+0xf);
     MCALL(FadePaletteIn,G(SelectPlayerControls)+0x12);
@@ -157,110 +162,112 @@ restart:
             if(key!=MENUS_CONTROL_PLAYER1) goto restart;
             r->bx=2;
         }
-        r->ax=platforms_read16(r->ds,(uint16_t)(D(PlayerOneControlMode)+r->bx));
+        r->ax=frontend_read16(r->ds,(uint16_t)(D(PlayerOneControlMode)+r->bx));
         uint16_t presence=0;do {
             MenusControlCandidate candidate=menus_control_next(r->ax);r->ax=increment_word(r,r->ax); sub16(r,r->ax,2,0);
             if(candidate.keyboard) {r->ax=candidate.mode;break;}
             r->si=candidate.index;
             flag(r,CF,r->ax&0x8000); flag(r,OF,!!(r->ax&0x8000)^!!(r->si&0x8000)); szp(r,r->si,16);
-            presence=platforms_read16(r->ds,(uint16_t)(D(JoystickPresentFlags)+r->si));logic(r,presence,16);
+            presence=frontend_read16(r->ds,(uint16_t)(D(JoystickPresentFlags)+r->si));logic(r,presence,16);
         } while(!menus_control_present(presence));
-        platforms_write16(r->ds,(uint16_t)(D(PlayerOneControlMode)+r->bx),r->ax);
+        frontend_write16(r->ds,(uint16_t)(D(PlayerOneControlMode)+r->bx),r->ax);
         MCALL(DrawControlOptions,G(SelectPlayerControls)+0x17); goto restart;
     }
     return UGH_BUDGET;
 }
 EXPORT int c_DrawControlOptions(Regs *r) {
     MCALL(RestorePlayfieldBackground,G(DrawControlOptions)+3);
-    uint16_t mode0=platforms_read16(r->ds,D(PlayerOneControlMode));MenusLabel first=menus_label(2,mode0);increment_word(r,mode0);r->bx=first.index; r->si=D(ControlModeLabelPointers); r->di=(uint16_t)(D(Text_0B64)+first.destination);
+    uint16_t mode0=frontend_read16(r->ds,D(PlayerOneControlMode));MenusLabel first=menus_label(2,mode0);increment_word(r,mode0);r->bx=first.index; r->si=D(ControlModeLabelPointers); r->di=(uint16_t)(D(Text_0B64)+first.destination);
     MCALL(CopyIndexedMenuString,G(DrawControlOptions)+0x11);
-    uint16_t mode1=platforms_read16(r->ds,D(PlayerTwoControlMode));MenusLabel second=menus_label(3,mode1);increment_word(r,mode1);r->bx=second.index; r->si=D(ControlModeLabelPointers); r->di=(uint16_t)(D(Text_0B64)+second.destination);
+    uint16_t mode1=frontend_read16(r->ds,D(PlayerTwoControlMode));MenusLabel second=menus_label(3,mode1);increment_word(r,mode1);r->bx=second.index; r->si=D(ControlModeLabelPointers); r->di=(uint16_t)(D(Text_0B64)+second.destination);
     MCALL(CopyIndexedMenuString,G(DrawControlOptions)+0x1f);
     r->si=D(Text_0B64); r->cx=0x50; MCALL(DrawTextBlock,G(DrawControlOptions)+0x28);
     return ugh_dispatch(r->cs,G(SwapAndDisplayVgaPage),r);
 }
 EXPORT int c_EditLevelPassword(Regs *r) {
-    MCALL(RestoreKeyboardInterrupt,G(EditLevelPassword)+3);
-    MCALL(RestorePlayfieldBackground,G(EditLevelPassword)+6);
-    MCALL(DrawMainMenu,G(EditLevelPassword)+9);
-    r->si=19; set_al(r,32);
-    do { platforms_write8(r->ds,(uint16_t)(D(PasswordEditBuffer)+r->si),(uint8_t)r->ax); r->si=dec16(r,r->si); } while(!(r->flags&SF));
-    r->si=logic(r,0,16);
+    NativeFrontEditor editor={r->si,r->bx};
+    ECALL(RestoreKeyboardInterrupt,G(EditLevelPassword)+3);
+    ECALL(RestorePlayfieldBackground,G(EditLevelPassword)+6);
+    ECALL(DrawMainMenu,G(EditLevelPassword)+9);
+    editor.position=19; set_al(r,32);
+    do { frontend_write8(r->ds,(uint16_t)(D(PasswordEditBuffer)+editor.position),(uint8_t)r->ax); editor.position=dec16(r,editor.position); } while(!(r->flags&SF));
+    editor.position=logic(r,0,16);
 reset_blink:
-    r->bx&=0xff00; logic(r,0,8);
+    editor.blink_word&=0xff00; logic(r,0,8);
     for(unsigned budget=0;budget<100000;budget++) {
-        MCALL(WaitVerticalRetraceActive,G(EditLevelPassword)+0x1d);
-        FrontBlink blink=front_blink(r->si,20,(uint8_t)r->bx);uint8_t b=(uint8_t)r->bx; uint16_t cf=r->flags&CF;
-        b=compare_byte(r,b,1); flag(r,CF,cf); r->bx=(uint16_t)((r->bx&0xff00)|b);
-        logic(r,b&16,8); set_al(r,blink.character); sub16(r,r->si,20,0);
-        if(blink.write) platforms_write8(r->ds,(uint16_t)(D(PasswordEditBuffer)+r->si),(uint8_t)r->ax);
-        push(r,r->bx); push(r,r->si); r->ax=logic(r,0,16); r->bx=176; r->cx=320; r->dx=16;
-        MCALL(RestoreBackgroundRectangle,G(EditLevelPassword)+0x4a);
-        r->si=D(PasswordEditBuffer); r->cx=176; MCALL(DrawTextLine,G(EditLevelPassword)+0x53);
-        MCALL(SwapAndDisplayVgaPage,G(EditLevelPassword)+0x56); r->si=pop(r); r->bx=pop(r);
-        set_ah(r,1); int st=platform_interrupt(0x16,r); if(st) return st;
+        ECALL(WaitVerticalRetraceActive,G(EditLevelPassword)+0x1d);
+        FrontBlink blink=front_blink(editor.position,20,(uint8_t)editor.blink_word);uint8_t b=(uint8_t)editor.blink_word; uint16_t cf=r->flags&CF;
+        b=compare_byte(r,b,1); flag(r,CF,cf); editor.blink_word=(uint16_t)((editor.blink_word&0xff00)|b);
+        logic(r,b&16,8); set_al(r,blink.character); sub16(r,editor.position,20,0);
+        if(blink.write) frontend_write8(r->ds,(uint16_t)(D(PasswordEditBuffer)+editor.position),(uint8_t)r->ax);
+        push(r,editor.blink_word); push(r,editor.position); r->ax=logic(r,0,16); editor.blink_word=176; r->cx=320; r->dx=16;
+        ECALL(RestoreBackgroundRectangle,G(EditLevelPassword)+0x4a);
+        editor.position=D(PasswordEditBuffer); r->cx=176; ECALL(DrawTextLine,G(EditLevelPassword)+0x53);
+        ECALL(SwapAndDisplayVgaPage,G(EditLevelPassword)+0x56); editor.position=pop(r); editor.blink_word=pop(r);
+        set_ah(r,1); front_editor_request(r,&editor);int st=platform_interrupt(0x16,r);front_editor_reply(&editor,r); if(st) return st;
         if(r->flags&ZF) continue;
-        set_ah(r,0); logic(r,0,8); st=platform_interrupt(0x16,r); if(st) return st;
-        FrontEditCommand command=front_edit_command(r->si,20,(uint8_t)r->ax,0);compare_byte(r,(uint8_t)r->ax,8);
+        set_ah(r,0); logic(r,0,8); front_editor_request(r,&editor);st=platform_interrupt(0x16,r);front_editor_reply(&editor,r); if(st) return st;
+        FrontEditCommand command=front_edit_command(editor.position,20,(uint8_t)r->ax,0);compare_byte(r,(uint8_t)r->ax,8);
         if((uint8_t)r->ax==8) {
-            logic(r,r->si,16); if(!r->si) continue;
-            set_al(r,32); sub16(r,r->si,20,0);
-            if(command.erase_count==2) platforms_write8(r->ds,(uint16_t)(D(PasswordEditBuffer)+command.erase[0]),32);
-            dec16(r,r->si);r->si=command.position;platforms_write8(r->ds,(uint16_t)(D(PasswordEditBuffer)+r->si),32); goto reset_blink;
+            logic(r,editor.position,16); if(!editor.position) continue;
+            set_al(r,32); sub16(r,editor.position,20,0);
+            if(command.erase_count==2) frontend_write8(r->ds,(uint16_t)(D(PasswordEditBuffer)+command.erase[0]),32);
+            dec16(r,editor.position);editor.position=command.position;frontend_write8(r->ds,(uint16_t)(D(PasswordEditBuffer)+editor.position),32); goto reset_blink;
         }
         uint8_t ch=(uint8_t)r->ax;editor_compare_trace(r,ch,0);
         if(command.accepted) {
-            sub16(r,r->si,20,0); if(command.kind!=FRONT_EDIT_STORE) continue;
-            platforms_write8(r->ds,(uint16_t)(D(PasswordEditBuffer)+r->si),command.character);increment_word(r,r->si);r->si=command.position; goto reset_blink;
+            sub16(r,editor.position,20,0); if(command.kind!=FRONT_EDIT_STORE) continue;
+            frontend_write8(r->ds,(uint16_t)(D(PasswordEditBuffer)+editor.position),command.character);increment_word(r,editor.position);editor.position=command.position; goto reset_blink;
         }
         compare_byte(r,ch,13); if(command.kind!=FRONT_EDIT_FINISH) continue;
-        sub16(r,r->si,20,0);
+        sub16(r,editor.position,20,0);
         if(command.clear_current) {
-            platforms_write8(r->ds,(uint16_t)(D(PasswordEditBuffer)+r->si),32); logic(r,r->si,16);
-            if(!r->si) { platforms_write16(r->ds,D(PasswordEditBuffer),0x4f4e); platforms_write16(r->ds,D(PasswordEditChars2To3),0x454e); }
+            frontend_write8(r->ds,(uint16_t)(D(PasswordEditBuffer)+editor.position),32); logic(r,editor.position,16);
+            if(!editor.position) { frontend_write16(r->ds,D(PasswordEditBuffer),0x4f4e); frontend_write16(r->ds,D(PasswordEditChars2To3),0x454e); }
         }
-        return ugh_dispatch(r->cs,G(InstallKeyboardSequenceInterrupt),r);
+        front_editor_request(r,&editor);return ugh_dispatch(r->cs,G(InstallKeyboardSequenceInterrupt),r);
     }
-    return UGH_BUDGET;
+    front_editor_request(r,&editor);return UGH_BUDGET;
 }
 EXPORT int c_CopyIndexedMenuString(Regs *r) {
     r->es=r->ds;
     r->bx=menus_double_index(r->bx);
     r->si=rd16_linear(r->ds,(uint16_t)(r->bx+r->si));
     MenusStringCopy copy=menus_string_begin(r->si,r->di,!!(r->flags&DF));for(;;) {
-        uint8_t ch=platforms_read8(r->ds,r->si);
+        uint8_t ch=frontend_read8(r->ds,copy.source);
         menus_string_read(&copy,ch);r->si=copy.source;
         set_al(r,(uint8_t)logic(r,ch,8));
         if(copy.done) return UGH_OK;
-        platforms_write8(r->es,r->di,ch);
+        frontend_write8(r->es,copy.destination,ch);
         menus_string_written(&copy);r->di=copy.destination;
     }
 }
 EXPORT int c_DrawTextLine(Regs *r) {
-    r->bx=logic(r,0,16);
-    uint8_t ch=load_character(r); r->di=r->si;
+    NativeFrontTextCursor cursor={r->si,r->bx,r->cx};
+    cursor.x=logic(r,0,16);
+    uint8_t ch=front_text_character(r,&cursor); r->di=r->si;
     compare_byte(r,ch,0xfe);
     if(menus_text_centered(ch)) {
         r->bp=65535;
         do {
-            ch=load_character(r); r->bp=increment_word(r,r->bp);
+            ch=front_text_character(r,&cursor); r->bp=increment_word(r,r->bp);
         } while(ch!=0 && ch!=13 && ch!=0xfd);
-        r->bx=menus_text_center_x(r->bp);r->bp=(uint16_t)(r->bp<<4);
-        r->si=r->di; ch=load_character(r);
+        cursor.x=menus_text_center_x(r->bp);r->bp=(uint16_t)(r->bp<<4);
+        cursor.position=r->di;r->si=cursor.position; ch=front_text_character(r,&cursor);
     }
     for(;;) {
         MenusTextStep item=menus_text_step(ch);if(item.kind!=MENUS_TEXT_GLYPH) {
-            uint16_t next_y=menus_text_next_y(r->cx,ch);
-            if(ch==13) r->cx=add16(r,r->cx,8,0);
-            if(ch) r->cx=add16(r,r->cx,8,0);
-            r->cx=next_y;set_al(r,(uint8_t)logic(r,ch,8)); return UGH_OK;
+            uint16_t next_y=menus_text_next_y(cursor.y,ch);
+            if(ch==13) cursor.y=add16(r,cursor.y,8,0);
+            if(ch) cursor.y=add16(r,cursor.y,8,0);
+            cursor.y=next_y;set_al(r,(uint8_t)logic(r,ch,8)); front_text_request(r,&cursor);return UGH_OK;
         }
         ch=item.character;set_al(r,ch);set_ah(r,0);logic(r,0,8);
         add16(r,r->ax,0x237,0);r->ax=item.glyph;
-        int status=ugh_call_near(G(DrawTransparentSprite),
+        front_text_request(r,&cursor);int status=ugh_call_near(G(DrawTransparentSprite),
                                 (uint16_t)(G(DrawTextLine)+0x6c),r);
-        if(status) return status;
-        add16(r,r->bx,16,0);r->bx=menus_text_next_x(r->bx);ch=load_character(r);
+        front_text_reply(&cursor,r);if(status) return status;
+        add16(r,cursor.x,16,0);cursor.x=menus_text_next_x(cursor.x);ch=front_text_character(r,&cursor);
     }
 }
 EXPORT int c_DrawTextBlock(Regs *r) {
@@ -272,25 +279,25 @@ EXPORT int c_DrawTextBlock(Regs *r) {
     return UGH_OK;
 }
 EXPORT int c_PrepareAttractMap0(Regs *r) {
-    platforms_write16(r->ds,D(WaterYPixels),menus_water(0)); r->si=logic(r,0,16); r->di=logic(r,0,16);
+    frontend_write16(r->ds,D(WaterYPixels),menus_water(0)); r->si=logic(r,0,16); r->di=logic(r,0,16);
     return prepare_attract_map(r);
 }
 EXPORT int c_PrepareAttractMap90(Regs *r) {
-    platforms_write16(r->ds,D(WaterYPixels),menus_water(1)); r->si=menus_attract_map_offset(1); r->di=1; return prepare_attract_map(r);
+    frontend_write16(r->ds,D(WaterYPixels),menus_water(1)); r->si=menus_attract_map_offset(1); r->di=1; return prepare_attract_map(r);
 }
 EXPORT int c_ShowLevelIntroduction(Regs *r) {
     MCALL(ClearAllVgaPlanes,G(ShowLevelIntroduction)+3);
-    r->ax=platforms_read16(r->ds,D(WaterYPixels)); push(r,r->ax); platforms_write16(r->ds,D(WaterYPixels),menus_water(2));
-    uint8_t level=platforms_read8(r->ds,D(CurrentLevelIndex));inc_byte(r,level);set_al(r,menus_level_ordinal(level)); r->si=D(DecimalDigitBuffer);
+    r->ax=frontend_read16(r->ds,D(WaterYPixels)); push(r,r->ax); frontend_write16(r->ds,D(WaterYPixels),menus_water(2));
+    uint8_t level=frontend_read8(r->ds,D(CurrentLevelIndex));inc_byte(r,level);set_al(r,menus_level_ordinal(level)); r->si=D(DecimalDigitBuffer);
     MCALL(EncodeTwoDecimalDigits,G(ShowLevelIntroduction)+0x18);
-    {uint8_t digit=platforms_read8(r->ds,D(DecimalDigitBuffer));add_byte(r,digit,0x30);set_al(r,menus_ascii_digit(digit));} platforms_write8(r->ds,D(LevelNumberTensCharacter),(uint8_t)r->ax);
-    {uint8_t digit=platforms_read8(r->ds,D(DecimalDigit1));add_byte(r,digit,0x30);set_al(r,menus_ascii_digit(digit));} platforms_write8(r->ds,D(LevelNumberUnitsCharacter),(uint8_t)r->ax);
+    {uint8_t digit=frontend_read8(r->ds,D(DecimalDigitBuffer));add_byte(r,digit,0x30);set_al(r,menus_ascii_digit(digit));} frontend_write8(r->ds,D(LevelNumberTensCharacter),(uint8_t)r->ax);
+    {uint8_t digit=frontend_read8(r->ds,D(DecimalDigit1));add_byte(r,digit,0x30);set_al(r,menus_ascii_digit(digit));} frontend_write8(r->ds,D(LevelNumberUnitsCharacter),(uint8_t)r->ax);
     r->cx=32; r->si=D(Text_0BF6); MCALL(DrawTextLine,G(ShowLevelIntroduction)+0x31);
-    r->cx=add16(r,r->cx,32,0); r->si=platforms_read16(r->ds,D(LevelIntroTextPointer));
+    r->cx=add16(r,r->cx,32,0); r->si=frontend_read16(r->ds,D(LevelIntroTextPointer));
     MCALL(DrawTextBlock,G(ShowLevelIntroduction)+0x3b);
     r->cx=160; r->si=D(Text_0C00); MCALL(DrawTextLine,G(ShowLevelIntroduction)+0x44);
-    uint8_t dl=inc_byte(r,platforms_read8(r->ds,D(CurrentLevelIndex))); r->dx=(uint16_t)((r->dx&0xff00)|dl);
-    r->bx=sub16(r,platforms_read16(r->ds,D(PlayerArrayBytes)),2,0); r->si=platforms_read16(r->ds,(uint16_t)(D(PasswordListPointers)+r->bx));
+    uint8_t dl=inc_byte(r,frontend_read8(r->ds,D(CurrentLevelIndex))); r->dx=(uint16_t)((r->dx&0xff00)|dl);
+    r->bx=sub16(r,frontend_read16(r->ds,D(PlayerArrayBytes)),2,0); r->si=frontend_read16(r->ds,(uint16_t)(D(PasswordListPointers)+r->bx));
     for(unsigned budget=0;budget<65536;budget++) {
         dl=(uint8_t)r->dx; uint16_t cf=r->flags&CF; dl=compare_byte(r,dl,1); flag(r,CF,cf);
         r->dx=(uint16_t)((r->dx&0xff00)|dl); if(!dl) break;
@@ -308,18 +315,18 @@ EXPORT int c_ShowLevelIntroduction(Regs *r) {
     r->sp=(uint16_t)(r->sp+4); r->sp=add16(r,r->sp,8,0);
     MCALL(FadePaletteIn,G(ShowLevelIntroduction)+0x89);
     MCALL(WaitForScanChangeOrJoystickButton,G(ShowLevelIntroduction)+0x8c);
-    r->ax=pop(r); platforms_write16(r->ds,D(WaterYPixels),r->ax); return ugh_dispatch(r->cs,G(FadePaletteOut),r);
+    r->ax=pop(r); frontend_write16(r->ds,D(WaterYPixels),r->ax); return ugh_dispatch(r->cs,G(FadePaletteOut),r);
 }
 EXPORT int c_ShowCreditsPages(Regs *r) {
-    platforms_write16(r->ds,D(WaterYPixels),menus_water(3)); MCALL(DuplicateSourcePaletteHalves,G(ShowCreditsPages)+9); r->si=D(Text_091F);
+    frontend_write16(r->ds,D(WaterYPixels),menus_water(3)); MCALL(DuplicateSourcePaletteHalves,G(ShowCreditsPages)+9); r->si=D(Text_091F);
     for(unsigned pages=0;pages<32768;pages++) {
         push(r,r->si); r->cx=40; MCALL(WaitRetraceCount,G(ShowCreditsPages)+0x13);
         MCALL(ClearAllVgaPlanes,G(ShowCreditsPages)+0x16); MCALL(DrawMenuHeaderSprites,G(ShowCreditsPages)+0x19);
         MCALL(SaveDrawPageBackground,G(ShowCreditsPages)+0x1c); MCALL(SwapAndDisplayVgaPage,G(ShowCreditsPages)+0x1f);
         MCALL(RestorePlayfieldBackground,G(ShowCreditsPages)+0x22); r->si=pop(r); r->di=r->si; r->bp=logic(r,0,16);
-        if(platforms_read8(r->ds,r->si)==255) { r->ax=logic(r,0,16); return UGH_OK; }
+        if(frontend_read8(r->ds,r->si)==255) { r->ax=logic(r,0,16); return UGH_OK; }
         for(unsigned chars=0;chars<65536;chars++) {
-            set_al(r,platforms_read8(r->ds,r->si)); r->si=(uint16_t)(r->si+step(r));
+            set_al(r,frontend_read8(r->ds,r->si)); r->si=(uint16_t)(r->si+step(r));
             if((uint8_t)r->ax==0xfd || (uint8_t)r->ax==13) { uint16_t cf=r->flags&CF; r->bp=add16(r,r->bp,1,0); flag(r,CF,cf); continue; }
             if(!(uint8_t)r->ax) break;
             if(chars==65535) return UGH_BUDGET;

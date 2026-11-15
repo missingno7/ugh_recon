@@ -275,16 +275,26 @@ def other_edges():
         edges.append(edge("pixel-opaque:" + operation, "opaque_compatibility_service", "native/pixel_world.h", operation,
                           "Immediately before delivery to the opaque verification provider. Preserve already delivered pixel/control effects and operation journals. Do not dispatch the opaque binding.",
                           unit="pixel_world", operation=operation))
-    raw = {
-        "actor_world": ["descriptor_word", "journey_word", "update_or_script_word", "overlay_or_effect_word"],
-        "enemy_world": ["descriptor", "callback", "animation", "drop-list", "sound-handle"],
-    }
+    # Descriptor/callback/script/journey/animation/drop identities now have a
+    # finite generated vocabulary. Their raw words live only in verification.
+    # Sound handles belong to the independent audio continuation.
+    raw = {"enemy_world": ["sound-handle"]}
     for unit, fields in raw.items():
         for field in fields:
             edges.append(edge("raw-identity:" + unit + ":" + field, "raw_identity_interpretation",
                               "metadata/closure/" + unit + ".json", unit + "/decode/" + field,
                               "Reject before interpreting an unregistered raw transport word as a descriptor, callback, journey, animation, drop-list or sound role. Merely storing/serializing the word is allowed. Already recognized shipped bindings must be decoded by an explicit registry; word-to-token equality is not an admission rule.",
                               unit=unit, field=field, runtime_enforcement="pending typed identity/continuation cut"))
+    for family in ("actor descriptor", "enemy descriptor", "falling-item descriptor",
+                   "passenger itinerary", "motion script", "animation", "tree reward list"):
+        edges.append(edge("typed-object-resource:" + family, "typed_identity_admission",
+                          "native/object_identities.c", "object_resource_identity/" + family,
+                          "Before interpreting the view or cursor: reject an unregistered family, view or position with Unsupported. No raw compatibility fallback in the native constructor.",
+                          runtime_enforcement="object_resource_identity; full-word verifier round trips and actual C bounds properties"))
+    edges.append(edge("typed-object-callback", "typed_identity_admission", "native/object_identities.c",
+                      "object_callback_identity/role",
+                      "Before using the role: reject unknown actor/enemy/item/effect enums with Unsupported. Empty/zero resource members are explicit identities, never permission to execute a callback.",
+                      runtime_enforcement="object_callback_identity; direct callback invocation is a separate outstanding continuation"))
     edges.append(edge("audio:sb-digital", "unreachable_shipped_path", "metadata/closure/adlx_digital.json", "select-audio-backend/SB-or-digital",
                       "Before accepting an SB/digital backend or submitting its first service. Startup selects AdLib only; preserve any earlier lifecycle effects. Verification API contracts remain available.",
                       source_also=[source("metadata/closure/lifecycle.json"), source("metadata/closure/adlx_samples.json")]))
@@ -372,7 +382,7 @@ def unit_domains(cs, pack):
         roles = [r for r in enums if re.search("Callback|Role|Effect|Phase|Mode|Kind|Status|Error|Id$", r["type"])]
         callable_roles = []
         for row in roles:
-            if not re.search(r"Callback$|PeerRole$|MotionEffect$", row["type"]):
+            if not re.search(r"Callback$|CallbackRole$|PeerRole$|MotionEffect$", row["type"]):
                 continue
             names = [x.split("=", 1)[0].strip() for x in row["declarations"]]
             excluded = [x for x in names if re.search(r"(?:^|_)(?:OPEN|UNKNOWN|UNSUPPORTED|INVALID|OTHER|COUNT|CAPACITY|FIXTURE)(?:_|$)", x)
@@ -441,6 +451,16 @@ def semantic_certificate_hash(cert):
     return digest({k: v for k, v in cert.items() if k not in VOLATILE})
 
 
+def object_identity_domains():
+    graph = read(ROOT / "metadata/object-identities.json")
+    return {"source": source("metadata/object-identities.json"),
+            "native": source("native/object_identities.h"),
+            "resources": [{k: r[k] for k in ("kind", "view", "positions")} for r in graph["resources"]],
+            "callback_roles": [{k: r[k] for k in ("family", "role")} for r in graph["callbacks"]],
+            "graph_links": [{k: v for k, v in r.items() if k != "word"} for r in graph["links"]],
+            "scope": "Stable resource views, relative admitted positions and enum roles only. Historical words occur only in the verification bindings. A registered role is not permission to invoke it in arbitrary state; direct callback transport remains outstanding."}
+
+
 def assemble(previous=None):
     cs = certs(); ev = evidence(previous.get("evidence_snapshots") if previous else None)
     receipt_checks(cs, ev)
@@ -470,7 +490,10 @@ def assemble(previous=None):
             "docs/port-contract.md", "docs/standalone-plan.md", "src/asm/GAME.ASM",
             "native/pixel_world.h", "native/actor_world.h", "native/enemy_world.h",
             "native/resource_catalog.c", "native/resource_world.h", "native/resource_world.c",
-            "metadata/resource-world.json", "metadata/program-model.json", "port/resources.c")},
+            "metadata/resource-world.json", "metadata/program-model.json", "port/resources.c",
+            "native/object_identities.h", "native/object_identities.c", "native/object_identities.inc",
+            "native/bridge/object_identities_bridge.c", "native/bridge/object_identity_bindings.inc",
+            "metadata/object-identities.json", "tools/object_identities.py")},
         "model_storage_extents": {n: v["storage_extent"] for n, v in read(ROOT / "metadata/program-model.json")["variables"].items() if "storage_extent" in v},
         "evidence_snapshots": ev,
         "registry": {"resource_catalog": {"sprite": {"kind": 1, "indices": [0, 661]}, "codec": {"kind": 2, "indices": [0, 4]},
@@ -481,8 +504,10 @@ def assemble(previous=None):
                                         "workspace": read(ROOT / "metadata/resource-world.json")["workspace"]},
                      "pack_resources": pack["resources"],
                      "resource_groups": resource_groups(pack),
-                     "storage_only_units": {"actor_world": "Preserves raw words; callback registry is actor_pass, typed descriptors are actor_types. Storage is not permission to interpret an identity.",
-                                            "enemy_world": "Preserves raw descriptor/callback/list/sound words; checked hazard consumers own their interpretation. No new callable registry is created."},
+                     "object_identities": object_identity_domains(),
+                     "storage_only_units": {"actor_world": "Verification retains raw transports; descriptor, callback, script and journey interpretation uses the object identity vocabulary. Callback execution transport remains a separate continuation.",
+                                            "enemy_world": "Verification retains raw transports; descriptor, callback, animation and drop-list identities have the generated vocabulary. Sound-handle interpretation remains with the audio continuation.",
+                                            "item_world": "Verification retains raw transports; item descriptors and callback roles have the generated vocabulary. Invocation through direct native services remains outstanding."},
                      "pack_scope": "Data availability, not code/callback permission; opaque_mutable resources stay mutable. No original words are production IDs.",
                      "unknown_model_extents": [r["name"] for r in pack["model_bindings"] if r["resource"] is None]},
         "units": unit_domains(cs, pack),

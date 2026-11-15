@@ -1,0 +1,35 @@
+{
+  "component": "object_identities",
+  "flag": "UGH_NATIVE_OBJECT_IDENTITIES",
+  "order": 19,
+  "header": "native/bridge/object_identities_bridge.h",
+  "bridge": "native/bridge/object_identities_bridge.c",
+  "lanes": {
+    "predicate": null,
+    "declaration": "Typed identities borrow existing resource views; no new allocation",
+    "stability": "Generated shipped graph and fixed resource view membership",
+    "bytes": 0
+  },
+  "cold_import": null,
+  "seal": null,
+  "read": null,
+  "write": null,
+  "serialize": null,
+  "check": null,
+  "owned_bytes": null,
+  "borrowed_byte": "resource_data_borrowed_byte",
+  "borrowed_store": "resource_data_borrowed_store",
+  "storage_owner": "resource_world",
+  "platform_provider": null,
+  "compile_flags": [],
+  "gate": {"cases": "verif/world_cases/object_identity.py"},
+  "files": [
+    "metadata/object-identities.json",
+    "native/object_identities.inc",
+    "native/bridge/object_identity_bindings.inc",
+    "tools/object_identities.py",
+    "verif/object_identity_cases.py",
+    "verif/admission.py",
+    "metadata/admission.json"
+  ]
+}

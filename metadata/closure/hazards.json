@@ -627,6 +627,7 @@
         "actors_borrow.h",
         "enemies_borrow.h",
         "items_borrow.h",
+        "object_identities_bridge.h",
         "platform.h",
         "platforms_borrow.h",
         "player_borrow.h",
@@ -713,6 +714,7 @@
         "l1_WaitForBirdWarning",
         "lin",
         "logic",
+        "object_callback_from_legacy",
         "shell_AdvanceTreeRewardCooldown",
         "shell_AnimateTriopterusImpactRecovery",
         "shell_AnimateTriopterusRecovery",
@@ -754,11 +756,11 @@
   "verification_input_hashing": "sha256-lf-text",
   "verification_inputs": {
     "native/hazards.c": "590ad430fc32a4267004492dd602993de903618e7b4da6a79addc0746c692159",
-    "native/bridge/hazards_bridge.c": "d8f700db96794f704a87d6a958b06d9d3579f83b1d29dc729a040a20147b49c8",
+    "native/bridge/hazards_bridge.c": "da0c921e9de4c8024a940aec870be4ace212eb94bbb4da7b5e28533283662151",
     "native/contacts.c": "f809c3af54ddb43b07b60be870e30e404f0b0456f4542585011cb5108dcc8b15",
     "native/bridge/contacts_bridge.c": "fb4807cf6ac7d2415d64c02b25e9981febf5a3e746bb0e9a9fa53f740bc68059",
     "native/items.c": "d3ede593a1249fc46da025fc304f90ed8f962a5145a81731c6dc70b2f384b8ec",
-    "native/bridge/items_bridge.c": "5cb0719e8e21a6e776ca9c9ba7ca857f40bac993507bf94d03f8be518c0c296a",
+    "native/bridge/items_bridge.c": "986ea932a6af027545b86592057deb6d5b75b3239ba367b8861b54892affced4",
     "native/level_view.c": "f0b3db5747f718d7c112c721735ca5a497a9b93a6ecb33096223b188b170353d",
     "native/bridge/level_view_bridge.c": "0be946adae9146d92cd2b0447c6d0edbc83c11eb6ec5cad09468791a60609ebe",
     "native/hazards.h": "9c2086caf6c37a56b8da62cd7a843a13247f2f87d1c5da836158d6dfa0403331",
@@ -1015,6 +1017,34 @@
         "metadata/program-model.json"
       ],
       "dependency_change": false
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5x generated typed object identity registry and composed decoder borrowers; only actual changed source inputs or dependency contracts relocked. Direct callback service migration remains outstanding.",
+      "commands": [
+        "python verif/world_gate.py object_identities --jobs 3 --out build/workers/cut-5x/gate",
+        "python verif/world_gate.py object_identities --finalize --locks --out build/workers/cut-5x/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5x/sgate",
+        "python verif/standalone_census.py --all"
+      ],
+      "results": "PASS finalized 11-stage identity gate: API920+810+202 per profile, 3/3 controls, projector21/census21, hosts21+21 and levels81+7+8 both variants. Older root enemy API profile890+890 also passes with the new unit linked. Direct Regs/machine callback transport is not retired.",
+      "inputs": [
+        "native/bridge/hazards_bridge.c",
+        "native/bridge/items_bridge.c"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "Pending process-refactor replay",
+      "inputs": [
+        "tools/closure.py"
+      ]
     }
   ]
 }

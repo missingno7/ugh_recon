@@ -2455,7 +2455,7 @@
     "native/contacts.c": "f809c3af54ddb43b07b60be870e30e404f0b0456f4542585011cb5108dcc8b15",
     "native/bridge/contacts_bridge.c": "fb4807cf6ac7d2415d64c02b25e9981febf5a3e746bb0e9a9fa53f740bc68059",
     "native/items.c": "d3ede593a1249fc46da025fc304f90ed8f962a5145a81731c6dc70b2f384b8ec",
-    "native/bridge/items_bridge.c": "5cb0719e8e21a6e776ca9c9ba7ca857f40bac993507bf94d03f8be518c0c296a",
+    "native/bridge/items_bridge.c": "986ea932a6af027545b86592057deb6d5b75b3239ba367b8861b54892affced4",
     "native/passenger_itinerary.c": "111d8dcb3c6528a54ab34adb4c93025f3dd023d92fa53e10a6f0e0546fc75258",
     "native/bridge/passenger_itinerary_bridge.c": "679d2845bd17fd44d122a38ac1ab1472277431094c627c9300d2152c9fa36bfc",
     "native/coordinate_scale.c": "7bf708b14dc66fdace02a69b7a1b993b37c2535934a71dc0e5d9d397a5903118",
@@ -2757,6 +2757,33 @@
         "native/bridge/contacts_bridge.c",
         "native/bridge/items_bridge.c",
         "native/bridge/passenger_delivery_bridge.c"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5x generated typed object identity registry and composed decoder borrowers; only actual changed source inputs or dependency contracts relocked. Direct callback service migration remains outstanding.",
+      "commands": [
+        "python verif/world_gate.py object_identities --jobs 3 --out build/workers/cut-5x/gate",
+        "python verif/world_gate.py object_identities --finalize --locks --out build/workers/cut-5x/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5x/sgate",
+        "python verif/standalone_census.py --all"
+      ],
+      "results": "PASS finalized 11-stage identity gate: API920+810+202 per profile, 3/3 controls, projector21/census21, hosts21+21 and levels81+7+8 both variants. Older root enemy API profile890+890 also passes with the new unit linked. Direct Regs/machine callback transport is not retired.",
+      "inputs": [
+        "native/bridge/items_bridge.c"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "Pending process-refactor replay",
+      "inputs": [
+        "tools/closure.py"
       ]
     }
   ]

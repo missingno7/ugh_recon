@@ -25,7 +25,15 @@
 #include "run_borrow.h"
 #include "ugh.h"
 #include "../actor_pass.h"
+#ifdef UGH_NATIVE_OBJECT_IDENTITIES
+#include "object_identities_bridge.h"
+#endif
 static ActorCallback callback_identity(uint16_t word) {
+#ifdef UGH_NATIVE_OBJECT_IDENTITIES
+    ObjectCallbackIdentity identity;
+    return object_callback_from_legacy(OBJECT_LEGACY_ACTOR,word,&identity)==OBJECT_IDENTITY_OK ?
+        identity.actor : ACTOR_CALLBACK_UNSUPPORTED;
+#else
     if (word==G(ReadPassengerJourneyLeg)) return ACTOR_CALLBACK_ReadPassengerJourneyLeg;
     if (word==G(WaitForPassengerPlatform)) return ACTOR_CALLBACK_WaitForPassengerPlatform;
     if (word==G(PlacePassengerOnPlatform)) return ACTOR_CALLBACK_PlacePassengerOnPlatform;
@@ -63,6 +71,7 @@ static ActorCallback callback_identity(uint16_t word) {
     if (word==G(UpdateFloatingPassengerApproach)) return ACTOR_CALLBACK_UpdateFloatingPassengerApproach;
     if (word==G(IgnoreWaterbornePassengerState)) return ACTOR_CALLBACK_IgnoreWaterbornePassengerState;
     return ACTOR_CALLBACK_UNSUPPORTED;
+#endif
 }
 /* Direct calls to accepted native entry adapters. Preserve the historical
  * near frame and CS publication without any resolver or dispatcher round trip. */

@@ -319,9 +319,11 @@
       "includes": [
         "../items.h",
         "items_borrow.h",
+        "object_identities_bridge.h",
         "platform.h",
         "platforms_borrow.h",
         "player_borrow.h",
+        "resource_world_bridge.h",
         "run_borrow.h",
         "ugh.h"
       ],
@@ -353,6 +355,10 @@
         "l1_SpawnFallingItem",
         "lin",
         "logic",
+        "object_callback_from_legacy",
+        "object_resource_from_legacy",
+        "object_resource_read",
+        "resource_data_is_owned",
         "set_al",
         "sub16",
         "szp",
@@ -418,7 +424,7 @@
     "c/video.h": "35e4d6076edd69e2722cf7d52392871345f5e0eb78af7ce67e13c8ed0c02f192",
     "metadata/oracle.json": "7db8024058b1a1e34c7b02058e49f331f30effb6f35927945abcafaf63f9033f",
     "metadata/verif-tools.json": "943e1f5aa8a54405db2a3c51ae71cbd1bd9d52b3789ac26a383686e20d6c39d5",
-    "native/bridge/items_bridge.c": "5cb0719e8e21a6e776ca9c9ba7ca857f40bac993507bf94d03f8be518c0c296a",
+    "native/bridge/items_bridge.c": "986ea932a6af027545b86592057deb6d5b75b3239ba367b8861b54892affced4",
     "native/contacts.c": "f809c3af54ddb43b07b60be870e30e404f0b0456f4542585011cb5108dcc8b15",
     "native/contacts.h": "2d329a52985ea628a56afaee703e8b2f84ed9a328e58109c3be4dac3e90c1d29",
     "native/geometry.h": "e630be5b080076dfd0f95ff07be51887e5c39d8caa3bdfae7271e06be37c6410",
@@ -670,6 +676,33 @@
       "results": "PASS: complete15-stage world gate,11/11 controls, unchanged default bridge bodies and pure algorithms, projector/census, both hosts21/21 and levels81+7+8; supervisor gate PASS. See build/workers/cut-5g/REPORT.md.",
       "inputs": [
         "native/bridge/items_bridge.c"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5x generated typed object identity registry and composed decoder borrowers; only actual changed source inputs or dependency contracts relocked. Direct callback service migration remains outstanding.",
+      "commands": [
+        "python verif/world_gate.py object_identities --jobs 3 --out build/workers/cut-5x/gate",
+        "python verif/world_gate.py object_identities --finalize --locks --out build/workers/cut-5x/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5x/sgate",
+        "python verif/standalone_census.py --all"
+      ],
+      "results": "PASS finalized 11-stage identity gate: API920+810+202 per profile, 3/3 controls, projector21/census21, hosts21+21 and levels81+7+8 both variants. Older root enemy API profile890+890 also passes with the new unit linked. Direct Regs/machine callback transport is not retired.",
+      "inputs": [
+        "native/bridge/items_bridge.c"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "Pending process-refactor replay",
+      "inputs": [
+        "tools/closure.py"
       ]
     }
   ]

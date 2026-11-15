@@ -158,6 +158,7 @@
         "../actor_pass.h",
         "actors_borrow.h",
         "enemies_borrow.h",
+        "object_identities_bridge.h",
         "platform.h",
         "platforms_borrow.h",
         "player_borrow.h",
@@ -213,6 +214,7 @@
         "enemies_write16",
         "invoke_actor",
         "logic",
+        "object_callback_from_legacy",
         "sub16"
       ]
     }
@@ -221,7 +223,7 @@
   "verification_inputs": {
     "native/actor_pass.c": "51af4b214987bf35bdfdadd60c06d7722eaefbb0efb06f33f894c031f25c7a1e",
     "native/actor_pass.h": "bacd12e4aefb60987f641e3e814d83c799068588e443417456fe9ff2e2a7a8ad",
-    "native/bridge/actor_pass_bridge.c": "3100c0d4db1d54d546adb3d2315c4022e156599efbf2570aa469960dceb8cebd",
+    "native/bridge/actor_pass_bridge.c": "2636f24622ab5cd83ca19302f6806bb16c50d96eea06045e092560aac0247bc2",
     "verif/entry_retirement.py": "3b52d207fef7b3e51461a2357a06f012f59651b406f1fe9a0253876e55f76529",
     "verif/entry_retirement_proof.c": "2796c3423fef93b04f190cb38667b80bda47017806d83ff5e326fb204aebb95f",
     "verif/projector_evidence.py": "9427aa4eb3f4661b647b71596a42f0e9aa720746f52a552baec20fd3b43d923e",
@@ -512,6 +514,20 @@
         "metadata/program-model.json"
       ],
       "dependency_change": false
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5x generated typed object identity registry and composed decoder borrowers; only actual changed source inputs or dependency contracts relocked. Direct callback service migration remains outstanding.",
+      "commands": [
+        "python verif/world_gate.py object_identities --jobs 3 --out build/workers/cut-5x/gate",
+        "python verif/world_gate.py object_identities --finalize --locks --out build/workers/cut-5x/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5x/sgate",
+        "python verif/standalone_census.py --all"
+      ],
+      "results": "PASS finalized 11-stage identity gate: API920+810+202 per profile, 3/3 controls, projector21/census21, hosts21+21 and levels81+7+8 both variants. Older root enemy API profile890+890 also passes with the new unit linked. Direct Regs/machine callback transport is not retired.",
+      "inputs": [
+        "native/bridge/actor_pass_bridge.c"
+      ]
     }
   ]
 }

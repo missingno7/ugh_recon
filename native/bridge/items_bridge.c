@@ -20,6 +20,10 @@
 #include "run_borrow.h"
 #include "ugh.h"
 #include "../items.h"
+#ifdef UGH_NATIVE_OBJECT_IDENTITIES
+#include "object_identities_bridge.h"
+#include "resource_world_bridge.h"
+#endif
 
 int l1_SpawnFallingItem(Regs *r);
 int l1_AdvanceFallingItem(Regs *r);
@@ -31,6 +35,24 @@ static uint16_t item_word(Regs *r,uint16_t base,uint16_t index) {
 }
 static FallingItemType item_type(Regs *r,uint16_t descriptor) {
     FallingItemType type;
+#ifdef UGH_NATIVE_OBJECT_IDENTITIES
+    ObjectResourceIdentity identity;
+    if(r->ds==DATA_SEG && resource_data_is_owned(lin(r->ds,descriptor)) &&
+       object_resource_from_legacy(OBJECT_ITEM_DESCRIPTOR,descriptor,&identity)==OBJECT_IDENTITY_OK) {
+        uint16_t kind;
+        object_resource_read(identity,0,&type.geometry.anchor_x);
+        object_resource_read(identity,2,&type.geometry.anchor_y);
+        type.geometry.extent_x=3;type.geometry.extent_y=3;
+        object_resource_read(identity,12,&type.launch_impulse);
+        object_resource_read(identity,14,&type.amount);
+        object_resource_read(identity,16,&type.sprite);
+        object_resource_read(identity,18,&kind);
+        type.benefit=kind==0?ITEM_TIMER:kind==1?ITEM_LIVES:ITEM_MULTIPLIER;
+        return type;
+    }
+    /* Arbitrary descriptor words remain full verification compatibility data.
+     * The native typed API has already returned Unsupported for this identity. */
+#endif
     type.geometry.anchor_x=itemstate_read16(r->ds,descriptor);
     type.geometry.anchor_y=itemstate_read16(r->ds,(uint16_t)(descriptor+2));
     type.geometry.extent_x=3;type.geometry.extent_y=3;
@@ -44,7 +66,13 @@ static FallingItemType item_type(Regs *r,uint16_t descriptor) {
 static FallingItem item_project(Regs *r,uint16_t index) {
     FallingItem item;
     item.type=item_type(r,item_word(r,D(FallingItemDescriptors),index));
+#ifdef UGH_NATIVE_OBJECT_IDENTITIES
+    ObjectCallbackIdentity callback;
+    ObjectIdentityStatus status=object_callback_from_legacy(OBJECT_LEGACY_ITEM,item_word(r,D(FallingItemCallbacks),index),&callback);
+    item.phase=status==OBJECT_IDENTITY_OK && callback.item==ITEM_CALLBACK_COLLECT?ITEM_LANDED:ITEM_FLIGHT;
+#else
     item.phase=item_word(r,D(FallingItemCallbacks),index)==G(ExpireOrCollectFallingItem)?ITEM_LANDED:ITEM_FLIGHT;
+#endif
     item.sprite=item_word(r,D(FallingItemSprites),index);
     item.position.x32=item_word(r,D(FallingItemX),index);
     item.position.y32=item_word(r,D(FallingItemY),index);

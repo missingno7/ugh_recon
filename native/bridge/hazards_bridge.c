@@ -35,6 +35,9 @@
  * post-step overwrite. The independent L1 remains in c/ for comparisons. */
 #include "ugh.h"
 #include "../hazards.h"
+#ifdef UGH_NATIVE_OBJECT_IDENTITIES
+#include "object_identities_bridge.h"
+#endif
 typedef struct HazardPlan {
     HazardResult result;
     uint16_t descriptor;
@@ -110,6 +113,11 @@ static uint16_t hazard_target(HazardEntry entry) {
  }
 }
 static int hazard_entry(uint16_t target,HazardEntry *entry) {
+#ifdef UGH_NATIVE_OBJECT_IDENTITIES
+ ObjectCallbackIdentity identity;
+ if(object_callback_from_legacy(OBJECT_LEGACY_ENEMY,target,&identity)!=OBJECT_IDENTITY_OK)return 0;
+ *entry=identity.enemy;return 1;
+#else
  if(!target) { *entry=H_ZERO;return 1; }
  if(target==G(IgnoreActorState)) { *entry=H_IGNORE;return 1; }
  if(target==G(BeginBirdDelay)) { *entry=H_BIRD_DELAY;return 1; }
@@ -143,6 +151,7 @@ static int hazard_entry(uint16_t target,HazardEntry *entry) {
  if(target==G(AdvanceTreeRewardCooldown)) { *entry=H_TREE_COOLDOWN;return 1; }
  if(target==G(IgnoreExhaustedTree)) { *entry=H_TREE_EMPTY;return 1; }
  return 0;
+#endif
 }
 static uint16_t hazard_word(Regs *r,uint16_t base,uint16_t index) {
     return itemstate_read16(r->ds,(uint16_t)(base+index));

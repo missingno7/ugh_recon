@@ -8,4 +8,4 @@ SPEC = {'component':'resource_world',
             {'kind':'historical-case','id':'clipped-workspace'},
             {'kind':'historical-case','id':'wrong-view-token'},
             {'kind':'historical-case','id':'stale-parent-tail-overwrite'}],
- 'worlds_enabled':['timing_world','audio_world','palette_world','input_world','video_pages','pixel_world','presentation_world','run_world','random_world','player_world','resource_catalog','platform_world','actor_world','enemy_world','item_world','front_end_world','lifecycle_world','resource_world']}
+ 'worlds_enabled':['timing_world','audio_world','palette_world','input_world','video_pages','pixel_world','presentation_world','run_world','random_world','player_world','resource_catalog','platform_world','actor_world','enemy_world','item_world','front_end_world','lifecycle_world','resource_world','object_identities']}

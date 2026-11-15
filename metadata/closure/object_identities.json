@@ -1,0 +1,228 @@
+{
+  "component": "object_identities",
+  "status": "migrated",
+  "original": {
+    "composes": [
+      "actor_pass",
+      "hazards",
+      "falling_items",
+      "resource_world",
+      "resource_catalog"
+    ]
+  },
+  "native": {
+    "files": [
+      "native/object_identities.h",
+      "native/object_identities.c",
+      "native/bridge/object_identities_bridge.h",
+      "native/bridge/object_identities_bridge.c"
+    ],
+    "functions": [
+      "object_resource_identity",
+      "object_resource_read",
+      "object_callback_identity",
+      "object_graph_link",
+      "object_live_link"
+    ],
+    "bridge": "Verification-only transport words map to data identities and callback enum roles, never functions"
+  },
+  "purpose": "Cut5x identity registry: typed shipped resource graph; direct callback continuation is not yet retired",
+  "interface": {
+    "inputs": "Typed resource family, stable resource view, relative cursor or graph member; verifier alone admits historical words",
+    "outputs": "Typed resource identity or callback role; Unsupported for unknown/open identities; live scalar reads borrow the existing owner"
+  },
+  "callers": [
+    "Actor callback selection",
+    "Enemy callback projection",
+    "Item callback and descriptor projection",
+    "Typed resource consumers"
+  ],
+  "callees": [
+    "resource_world bounded views",
+    "resource_catalog sprite/demo token vocabulary"
+  ],
+  "indirect": [
+    "A generated graph of data links and enum roles; no callable function pointer or original-address resolver"
+  ],
+  "memory": {
+    "bytes": 0,
+    "owner": "No new storage; all resource bytes retain their existing resource_world/resource_catalog owner",
+    "native_bytes_after": 371857
+  },
+  "assumptions": [
+    "Shipped resource graph plus explicit Unsupported; arbitrary raw words stay compatibility data in verification",
+    "Generated graph links are the shipped schema; verification reads mutable encoded operands live before typing them",
+    "Registered positions preserve script opcode and itinerary leg boundaries; identities do not authorize arbitrary callback entry"
+  ],
+  "eliminated": [
+    "Ad hoc callback role decoding in the composed actor and enemy projectors",
+    "Raw pointer interpretation for registered item descriptor scalar reads"
+  ],
+  "retained": [
+    "All owner allocations, sealed RAM lanes, partial raw byte stores, alias behavior and observation serializers",
+    "Existing Regs callback transfers and machine frames; this certificate makes no direct callback service claim",
+    "All gameplay arithmetic and state-machine policies"
+  ],
+  "evidence": [
+    {
+      "property": "Typed data identity, bounded views and verifier round trips",
+      "level": "B",
+      "method": "Compiled full-word properties, actual C graph bounds, mutation controls and existing differential/projector/level comparisons",
+      "command": "python verif/world_gate.py object_identities --jobs 3 --out build/workers/cut-5x/gate",
+      "result": "Cut5x identity evidence is recorded in build/workers/cut-5x/gate/receipt.json; this certificate makes no direct callback-execution closure claim",
+      "date": "2026-11-15"
+    }
+  ],
+  "amiga": {
+    "classification": "not-used",
+    "finding": "DOS shipped resource graph only"
+  },
+  "uncertainty": [
+    "Direct typed callback services remain outstanding; compatibility frames still connect native entry adapters",
+    "Sound handle words are unchanged compatibility data"
+  ],
+  "dependencies": {
+    "native/object_identities.h": {
+      "includes": [
+        "actor_pass.h",
+        "hazards.h",
+        "resource_catalog.h",
+        "resource_world.h"
+      ],
+      "calls": []
+    },
+    "native/object_identities.c": {
+      "includes": [
+        "object_identities.h",
+        "object_identities.inc"
+      ],
+      "calls": [
+        "object_graph_link_at",
+        "object_graph_link_count",
+        "object_resource_identity",
+        "resource_world_read"
+      ]
+    },
+    "native/bridge/object_identities_bridge.h": {
+      "includes": [
+        "../object_identities.h"
+      ],
+      "calls": []
+    },
+    "native/bridge/object_identities_bridge.c": {
+      "includes": [
+        "object_identities_bridge.h",
+        "object_identity_bindings.inc"
+      ],
+      "calls": [
+        "object_callback_from_legacy",
+        "object_callback_identity",
+        "object_graph_link",
+        "object_resource_from_legacy",
+        "object_resource_identity",
+        "resource_world_read"
+      ]
+    }
+  },
+  "verification_input_hashing": "sha256-lf-text",
+  "verification_inputs": {
+    "native/object_identities.h": "5791ac6ae96dce040ba10d11fa8f3d4975bf250d261bebebfede99b4d76a39dc",
+    "native/object_identities.c": "eb180cd3983df302ac7e3a25d23d5e80278952b11ed5fd7cb215bf1d98004da8",
+    "native/bridge/object_identities_bridge.h": "a21b28293355c866ff808f9ba0e30558029919085b14530cdac163d190beb4e5",
+    "native/bridge/object_identities_bridge.c": "db1cf665deb130be311cc88319bb14507057b928dd4393d2aed8f0957e36f21f",
+    "metadata/object-identities.json": "aadd2e42e095d7087c63a189db18df03158af2250d93596f622bbbd6a796ba2b",
+    "native/object_identities.inc": "75f859409d269474a4258933b6f2477e48985ac06e0be9e3aacb1273af417d0f",
+    "native/bridge/object_identity_bindings.inc": "80d4dc43baf1e819aaa72eee22d2a9c2dafd122bdc1c45661b8985052c736c87",
+    "tools/object_identities.py": "14c3f17c3804a9fa7cb4318031e92a066fca6f896cd25c999c66e4d2da2df1c7",
+    "verif/object_identity_cases.py": "31bc1d001df5697ff02dc360b1375658cedb93aef0bdcfc128b804c43922ba6d",
+    "metadata/worlds/object_identities.json": "f7bcf61f9e671027fc66975873d5cb11661715abe4f7b29cf533db3966bda110",
+    "verif/world_cases/object_identity.py": "6429701af9721c8fc87238fbf7496c818c3f36c5d9d9a214b7f1557a1372e4e0",
+    "verif/world_cases/object_identity_operators.py": "339832b4addb12ab635097b5782b02533931f1eb5ed20243dbb3ef44f4311b57",
+    "tools/world_registry.py": "06893f72ab80e15b198bf45865a5927a76dac2bf9daddb8f60ef3f6ac0aba9a1",
+    "verif/world_gate.py": "2ba63041f75fd9c9c0b368ce40ef6ec1e40bb692bc17940c1dcf06f2b3311763",
+    "verif/world_api.py": "a83bc75b4264a5ed575e8716eba52478a858556dfdba447107dc90e0e982569e",
+    "verif/job_pool.py": "fd3a52cb8cb4dacd758e930a00ead9c5016776817d18d687a59d5399aa46348a",
+    "verif/world_cases/legacy_adapter.py": "9978014371764ca9a123efe557fe62a6b0fef06f0e19a52b944bf72fbb14d677",
+    "verif/admission.py": "dbaca33d35aa414d27e15109973c2a9b961a7331dd2e6eb4441d9cfffea3d429",
+    "metadata/admission.json": "70097b309f0be2720250fc4528567220908c7b6428366ebb9c82741a31d2c488"
+  },
+  "evidence_refreshed": [
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "Pending process-refactor replay",
+      "inputs": [
+        "metadata/object-identities.json",
+        "metadata/worlds/object_identities.json",
+        "native/bridge/object_identities_bridge.c",
+        "native/bridge/object_identities_bridge.h",
+        "native/bridge/object_identity_bindings.inc",
+        "native/object_identities.c",
+        "native/object_identities.h",
+        "native/object_identities.inc",
+        "tools/object_identities.py",
+        "tools/world_registry.py",
+        "verif/job_pool.py",
+        "verif/object_identity_cases.py",
+        "verif/world_api.py",
+        "verif/world_cases/legacy_adapter.py",
+        "verif/world_cases/object_identity.py",
+        "verif/world_cases/object_identity_operators.py",
+        "verif/world_gate.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5x typed object identity registry and composed decoder borrowers; only actual changed sources or dependency contracts relocked. No direct callback service claim.",
+      "commands": [
+        "python verif/world_gate.py object_identities --jobs 3 --out build/workers/cut-5x/gate",
+        "python verif/world_gate.py object_identities --finalize --locks --out build/workers/cut-5x/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5x/sgate"
+      ],
+      "results": "Pending complete cut5x gate replay; initial locks only",
+      "inputs": [
+        "metadata/admission.json",
+        "metadata/worlds/object_identities.json",
+        "native/bridge/object_identities_bridge.c",
+        "native/object_identities.c",
+        "native/object_identities.h",
+        "verif/admission.py",
+        "verif/object_identity_cases.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5x generated typed object identity registry and composed decoder borrowers; only actual changed source inputs or dependency contracts relocked. Direct callback service migration remains outstanding.",
+      "commands": [
+        "python verif/world_gate.py object_identities --jobs 3 --out build/workers/cut-5x/gate",
+        "python verif/world_gate.py object_identities --finalize --locks --out build/workers/cut-5x/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5x/sgate",
+        "python verif/standalone_census.py --all"
+      ],
+      "results": "PASS finalized 11-stage identity gate: API920+810+202 per profile, 3/3 controls, projector21/census21, hosts21+21 and levels81+7+8 both variants. This is an identity subcut; direct Regs/machine callback transport is not retired.",
+      "inputs": [
+        "verif/object_identity_cases.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5x generated typed object identity registry and composed decoder borrowers; only actual changed source inputs or dependency contracts relocked. Direct callback service migration remains outstanding.",
+      "commands": [
+        "python verif/world_gate.py object_identities --jobs 3 --out build/workers/cut-5x/gate",
+        "python verif/world_gate.py object_identities --finalize --locks --out build/workers/cut-5x/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5x/sgate",
+        "python verif/standalone_census.py --all"
+      ],
+      "results": "PASS finalized 11-stage identity gate: API920+810+202 per profile, 3/3 controls, projector21/census21, hosts21+21 and levels81+7+8 both variants. Older root enemy API profile890+890 also passes with the new unit linked. Direct Regs/machine callback transport is not retired.",
+      "inputs": [
+        "metadata/admission.json",
+        "native/object_identities.c"
+      ]
+    }
+  ]
+}

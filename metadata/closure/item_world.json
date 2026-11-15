@@ -205,8 +205,8 @@
     "verif/job_pool.py": "fd3a52cb8cb4dacd758e930a00ead9c5016776817d18d687a59d5399aa46348a",
     "native/bridge/actor_render_bridge.c": "fb5336186ea4b0e2016a6e7a9fb8ea79aa6ba391a23cc51b37aed4b4f798cf4e",
     "native/bridge/contacts_bridge.c": "fb4807cf6ac7d2415d64c02b25e9981febf5a3e746bb0e9a9fa53f740bc68059",
-    "native/bridge/hazards_bridge.c": "d8f700db96794f704a87d6a958b06d9d3579f83b1d29dc729a040a20147b49c8",
-    "native/bridge/items_bridge.c": "5cb0719e8e21a6e776ca9c9ba7ca857f40bac993507bf94d03f8be518c0c296a",
+    "native/bridge/hazards_bridge.c": "da0c921e9de4c8024a940aec870be4ace212eb94bbb4da7b5e28533283662151",
+    "native/bridge/items_bridge.c": "986ea932a6af027545b86592057deb6d5b75b3239ba367b8861b54892affced4",
     "native/bridge/passenger_delivery_bridge.c": "55357194b960fac8bc6dfc7e463988b7e971804dc50016bf8c9518aac032792b",
     "native/bridge/session_bridge.c": "dc657cd3fd640655b033c915fedffaba477d75fe1c1edf1e7943238c3e64be8d",
     "native/bridge/session_support.h": "7df8b311866e11d391cea33896ab84a1b1bc8373f933fd7661a131f1fb324226",
@@ -285,6 +285,21 @@
       "inputs": [
         "native/bridge/session_bridge.c",
         "native/bridge/session_support.h"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "Cut5x generated typed object identity registry and composed decoder borrowers; only actual changed source inputs or dependency contracts relocked. Direct callback service migration remains outstanding.",
+      "commands": [
+        "python verif/world_gate.py object_identities --jobs 3 --out build/workers/cut-5x/gate",
+        "python verif/world_gate.py object_identities --finalize --locks --out build/workers/cut-5x/gate",
+        "python tools/gate.py --jobs 3 --out build/workers/cut-5x/sgate",
+        "python verif/standalone_census.py --all"
+      ],
+      "results": "PASS finalized 11-stage identity gate: API920+810+202 per profile, 3/3 controls, projector21/census21, hosts21+21 and levels81+7+8 both variants. Older root enemy API profile890+890 also passes with the new unit linked. Direct Regs/machine callback transport is not retired.",
+      "inputs": [
+        "native/bridge/hazards_bridge.c",
+        "native/bridge/items_bridge.c"
       ]
     }
   ]

@@ -49,7 +49,7 @@ GSStatus game_calibrate_input(GameWorld *w,GameServices *s) {
     TRY(s->input.presence(s->input_context,&presence));
     for(unsigned i=0;i<2;i++)if(input_joystick_present(presence,(uint8_t)i)) {
         view=borrow(w);input_calibration_detect(&view,i);retain(w,&view);
-        TRY(game_sample_input(w,s));view=borrow(w);input_calibration_apply(&view,i);retain(w,&view);
+        TRY(game_sample_input_trigger(w,s,presence));view=borrow(w);input_calibration_apply(&view,i);retain(w,&view);
     }
     uint16_t doubled[]={w->input.joysticks[0].double_x,w->input.joysticks[0].double_y,w->input.joysticks[1].double_x,w->input.joysticks[1].double_y};
     w->input.loop_limit=input_calibration_limit(doubled);return GS_OK;
@@ -68,6 +68,13 @@ GSStatus game_poll_input(GameWorld *w,GameServices *s) {
             }else if(r.action==INPUT_KEY_READ_INDEX)reply=w->input.index;
             else if(r.action==INPUT_KEY_WRITE_INDEX)w->input.index=r.value;
             else if(r.action==INPUT_KEY_READ_MODE){if(r.position>2||(r.position&1))return GS_UNSUPPORTED;reply=w->run.configuration.control_mode[r.position/2];}
+            else if(r.action==INPUT_KEY_WRITE_ACTION){
+                if(r.position>=20)return GS_UNSUPPORTED;
+                NativePlayer *p=w->session.players.player+(r.position%4u)/2u;uint16_t *field;
+                switch(r.position/4u){case 0:field=&p->up;break;case 1:field=&p->down;break;
+                case 2:field=&p->left;break;case 3:field=&p->right;break;default:field=&p->action;break;}
+                unsigned shift=(r.position&1u)*8u;*field=(uint16_t)((*field&~(255u<<shift))|((uint16_t)r.value<<shift));
+            }
             else if(r.action==INPUT_KEY_BOUND)return GS_OVERFLOW;
             else return GS_UNSUPPORTED; /* command recipient belongs to session */
         }TRY(s->input.acknowledge(s->input_context));

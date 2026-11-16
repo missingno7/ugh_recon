@@ -1,7 +1,7 @@
 """Independent menu recorder; scenario events are future service deliveries only."""
 import cgen,s7_core_record,s7_demo_record,s7_audio_record
 
-def generate(out,scenario):
+def generate(out,scenario,sessions=False):
     import wholegame
     fixture=wholegame.scenario(cgen.ROOT/'tests/scenarios'/f'{scenario}.txt')
     limit=int(fixture['frames'])
@@ -46,6 +46,12 @@ def generate(out,scenario):
  for(unsigned i=0;i<6;i++)bs->runs[i]=(ScriptRun){bios[i].value,1};
  '''
         main=main.replace('GameMenuResult result=game_main',setup+'GameMenuResult result=game_main')
+    if not sessions:
+        main=main.replace('GameMenuResult result=game_main(world,&services,&menu);',
+            'GameBootResult boot=game_boot(world,&services);if(boot.kind!=GAME_BOOT_SLICE_END)return 4;'
+            'if(!lifecycle_consume(&world->lifecycle.continuation[LIFE_PROGRAM],LIFE_MAIN_MENU))return 4;'
+            'game_menu_begin(&menu);GameMenuResult result=game_menu_run(world,&services,&menu);'
+            'if(result.kind==GAME_MENU_EXIT){GSStatus stopped=game_menu_terminal(world,&services);if(stopped!=GS_OK)return 4;}')
     main=main.replace('free(world);free(backend);gs_resources_close(&pack);return result.kind==GAME_BOOT_SLICE_END&&frames==6?0:4;','if(result.kind==GAME_MENU_EXIT){terminal=1;frame();return 0;}return result.kind==GAME_MENU_SESSION_ENTRY?0:4;')
     main=main.replace('GameServices services=gs_test_services(backend);','GameServices services=gs_test_services(backend);services.input.pump=pump;')
     s=s[:s.index('int main(int argc,char **argv)')]+main

@@ -16,6 +16,7 @@ GSResourceId game_audio_game_over_resource(void){return game_audio_specs[GAME_AU
 GSResourceId game_audio_menu_resource(void){return game_audio_specs[GAME_AUDIO_MENU].id;}
 GSResourceId game_audio_score_resource(void){return game_audio_specs[GAME_AUDIO_SCORE].id;}
 GSResourceId game_audio_intro_resource(void){return game_audio_specs[GAME_AUDIO_INTRO].id;}
+GSResourceId game_audio_level_resource(void){return game_audio_specs[GAME_AUDIO_LEVEL].id;}
 GSStatus game_audio_construct(GameWorld *w,GameServices *s){
     for(unsigned i=0;i<11;i++){
         const GameAudioResourceSpec *r=&game_audio_specs[i];GSBytes bytes;GSResourceClass kind;

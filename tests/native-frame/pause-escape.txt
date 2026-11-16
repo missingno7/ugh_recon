@@ -1,0 +1,13 @@
+# Native frame/session diagnostic: shipped enemy-free level, pause handshake,
+# Escape and wrapping byte lives; original ASM is recorded independently.
+timing pit-quantum-at-polls
+entry GAME:RunGameFromPassword
+password AFTERTHERAIN
+players 1
+frames 1000
+card none
+end return
+1: cycle=enter,-enter
+8: cycle=off -enter
+160: 19 99 space -space
+200: esc -esc

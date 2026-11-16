@@ -178,7 +178,7 @@ def build(backend='test',out=None,negative_control=False):
         (out/'negative_include.h').write_text('#include "c/ugh.h"\n')
         includes+=['-include',out/'negative_include.h']
     objects=[];inputs={};closures={}
-    for relative in ['tools/gameplay_data.py','metadata/object-identities.json','metadata/resource-world.json']:
+    for relative in ['tools/gameplay_data.py','tools/session_data.py','tools/audio_data.py','metadata/object-identities.json','metadata/resource-world.json']:
         inputs[relative]=sha(ROOT/relative)
     for i,source in enumerate([ROOT/p for p in sources]+vendor):
         label='object-%02d'%i;obj=out/(label+'.o')

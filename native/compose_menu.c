@@ -2,6 +2,7 @@
 #include "compose_front_end.h"
 #include "compose_demo.h"
 #include "compose_audio.h"
+#include "compose_session.h"
 #include "game_startup.h"
 #include "game_defaults.h"
 #include <string.h>
@@ -125,6 +126,12 @@ GameMenuResult game_main(GameWorld *w,GameServices *s,GameMenu *menu){
     }
     if(!lifecycle_consume(&w->lifecycle.continuation[LIFE_PROGRAM],LIFE_MAIN_MENU))return (GameMenuResult){GAME_MENU_FAILED,GS_INVALID,MENUS_MAIN_DONE};
     game_menu_begin(menu);GameMenuResult result=game_menu_run(w,s,menu);
+    while(result.kind==GAME_MENU_SESSION_ENTRY){
+        GameSessionResult session=game_session_run(w,s,GAME_SESSION_PASSWORD);
+        if(session.kind!=GAME_SESSION_RETURNED){result.kind=GAME_MENU_FAILED;result.status=session.status;break;}
+        game_menu_session_return(menu,w->run.level>=session_data_count(w->run.configuration.player_bytes));
+        result=game_menu_run(w,s,menu);
+    }
     if(result.kind==GAME_MENU_EXIT){
         LifecycleProcess *program=&w->lifecycle.continuation[LIFE_PROGRAM];LifecycleRequest r=lifecycle_next(program);
         if(r.action!=LIFE_SHUTDOWN_PLATFORM||!lifecycle_consume(program,r.action))result.status=GS_INVALID;

@@ -147,3 +147,91 @@ Triopterus platform indices with bit 15 set), while the physical comparison
 words keep their raw high bits. Independent odd animation-cursor samples retain
 raw high sprite bytes. These are typed composition observations, not additional
 executable-byte ownership or reconstruction claims.
+
+## Native frame composition diagnostics (2026-11-16)
+
+Behavioral evidence only; no new binary-match bytes or changed matching sources.
+
+- `python verif/s7_frame.py tests/scenarios/gameplay.txt --build --out
+  build/workers/s7-frame/gameplay` reached 15 exact records, then the requested
+  enemy stub stopped at the initial fruit-tree update. The hypothesis that the
+  ordinary first level is enemy-free is false: CAVITY has an active tree slot.
+  The same boundary applies to the full gameplay-AdLib trace; a prefix is not
+  its 979-record certificate.
+- `python verif/s7_frame.py tests/levels/one-08.txt --out
+  build/workers/s7-frame/openings/one-08` initially differed only in the first
+  two device records. The component recorder retained the boot IRQ count;
+  setting the explicit component fixture's IRQ count to zero fixed observation.
+- `python verif/s7_frame.py tests/levels-audio/adlib-43.txt --out
+  build/workers/s7-frame/audio/adlib-43` initially had 360 equal RAM/device/scalar
+  records but a differing cumulative log. The recorder had reused gameplay's
+  score-file-dependent seed DOS operand. Restoring this scenario's operand
+  yielded all 360 complete records. Initial joystick/BIOS scripts also require
+  the oracle fixture's run compression; later Clock waveform replacements do not.
+- `python verif/s7_frame.py tests/scenarios/departure.txt --out
+  build/workers/s7-frame/scenarios/departure --dump 1` exposed two differing
+  gameport OUT operands in the calibration prefix. A separately bounded
+  `verif/s7_frame_diagnose.py` run against the literal DLL equaled original ASM
+  and identified both original values as the live presence byte (F0), versus
+  native zero. The composition now forwards that byte to the unchanged input
+  algorithm. Controls and timeout waits likewise forward the preceding scan
+  operand through the existing typed trigger entry. No accepted input kernel
+  changed.
+- `python verif/s7_frame.py tests/native-frame/pause-escape.txt --out
+  build/workers/s7-frame/deep/pause-escape` initially differed only in the final
+  return-observation word: a returned near component observes zero, rather
+  than its consumed FFF0 sentinel. Correcting the observer yielded 331 equal
+  records, including the raw pause release/make/break handshake and lives FF.
+- `python verif/s7_frame.py tests/native-frame/menu-session-return.txt --out
+  build/workers/s7-frame/deep/menu-session-return --dump 344` initially differed
+  only in terminal RAM. Independent literal diagnostics matched all original
+  ASM records and found the absent C shutdown-latch publication. The inherited
+  audio recorder published that latch only when a timer table existed. The new
+  frame observer publishes it unconditionally; production already held one.
+  All 345 records now agree through resumed-menu Q and terminal exit.
+
+The frame recorder links audited production objects, replacing main and wrapping
+three typed presentation/frame cuts plus the temporary enemy boundary for output
+metadata. Wrappers do not import expected state or change native continuation
+operands. It uses incremental cumulative I/O hashing and retains raw dumps only
+for an explicitly requested diagnostic frame. Its per-level 100000-frame bound
+is diagnostic; production has no such exit rule.
+
+The first common-gate attempt (`python tools/gate.py --jobs 3 --out
+build/workers/s7-frame/gate`) rejected native composition's collision-cell
+literal `0x720`: it coincided with an original code offset under the unchanged
+closure audit. The composer now spells its ten geometric deltas in 96-cell row
+units (19/6/12 rows), as in the accepted pixel primitive. This is not an address
+resolver or an audit exemption. After a fresh production build, all native COFF
+loadable sections (.text/.data/.bss/.rdata/.xdata/.pdata) are byte-identical to the
+preceding audited object; `geometry-spelling.json` records the check. A fresh
+one-43 recording also passes all 160 complete records. This native artifact
+comparison is not new original-game binary-match evidence.
+
+
+## Merged enemy/frame integration diagnostic (s7-frame-2)
+
+`python verif/s7_frame.py tests/scenarios/gameplay.txt --build --out
+build/sup/gameplay` on the merged tree exited 9 with no stderr after 15 complete,
+exact records. The unexecuted next observation was zero-based record 15. This
+was not an enemy constructor or operation-order failure: the session observer
+recognized only H_TREE_BEGIN/H_BIRD_DELAY/H_DINO_BEGIN/H_TRIO_PATROL_BEGIN.
+The initial tree update legitimately published H_TREE_ANIMATE, and the observer's
+closed switch exited rather than serializing that admitted role.
+
+`python verif/s7_frame.py tests/scenarios/gameplay.txt --build --production
+build/workers/s7-frame-2/production --out build/workers/s7-frame-2/gameplay --dump
+15` after expanding the observation-only switch passed all 979 records. The
+mapping now derives every typed enemy role from the same verification-only
+role/name census used by s7_enemies; no historical-word resolver or code address
+enters production. The merged enemy constructor and accepted operation ordering
+were already correct and were left unchanged. No accepted native algorithm or
+production source was changed.
+
+The merged s7_frame_suite now also invokes the completion scenario's actual
+standalone typed demo entry, instead of treating it as a whole-program menu run,
+and requires full matches rather than accepting the retired stub boundary.
+Its focused enemy case explicitly requests the unadmitted H_ZERO role, rather
+than relying on the deleted stub. The added missing-enemy-role observer control
+corrupts only the observed H_TREE_ANIMATE publication; native game state remains
+untouched. Expected records are read only after native exit.

@@ -218,6 +218,15 @@ original:
 | `verif/s7_frame_suite.py`: all gameplay scenarios, a 6,000-frame death-retry trace, all 81 level openings, the 7 audio and 8 deep level runs | 113 traces, 58,064 records, every one exact |
 | Startup, front end, audio, demos, menu, session, objects and enemies | `verif/s7_*.py`, each exact |
 
+The first interactive sessions (2026-11-16) found five SDL-backend problems, all fixed in
+c3cb30b and confirmed in play. Game logic and the verified test backend were unchanged:
+- Name entry got no keys: the BIOS key queue drained no SDL events.
+- High scores were never written: the original never closes its save handle.
+- The window stopped responding during fades.
+- Closing the window was reported as an error.
+- A 20 s black screen appeared at level load and level end: timer ticks were paced as 70 Hz
+  retraces instead of at their PIT interval.
+
 Every comparison covers RAM, devices, cumulative ordered I/O and scalars. The verification
 host, with its bridges and literal fallbacks, remains as the separate bit-exact compatibility
 build (decision D5).

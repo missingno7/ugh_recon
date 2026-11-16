@@ -13,6 +13,7 @@ GSStatus gs_files_init(GSSdlFiles *f,const char *path) {
     if(extra!=EOF||failed)return GS_INVALID;
     f->exists=1;f->length=(uint16_t)count;return GS_OK;
 }
+static GSStatus persist(void *ctx);
 static GSStatus open_scores(void *ctx,int create,GSFileReply *reply) {
     GSSdlFiles *f=ctx;if(!reply)return GS_INVALID;
     if(!create&&!f->exists){*reply=(GSFileReply){2,1};return GS_OK;}
@@ -38,7 +39,10 @@ static GSStatus write_scores(void *ctx,uint16_t handle,const uint8_t *bytes,uint
     if(count)memcpy(f->data+pos,bytes,count);
     f->handles[handle].position=(uint16_t)(pos+count);
     if(!count||f->length<pos+count)f->length=(uint16_t)(pos+count);
-    f->dirty=1;*reply=(GSFileReply){count,0};return GS_OK;
+    f->dirty=1;*reply=(GSFileReply){count,0};
+    /* DOS writes reach the file at once, and the original never closes its
+     * save handle, so write through to disk here rather than on close. */
+    return persist(ctx);
 }
 static GSStatus close_scores(void *ctx,uint16_t handle,GSFileReply *reply) {
     GSSdlFiles *f=ctx;if(!reply)return GS_INVALID;

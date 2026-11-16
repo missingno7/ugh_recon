@@ -103,8 +103,12 @@ static GSStatus scan(void *ctx,uint8_t *byte) {
  *byte=in->scans[in->scan_head++%4096];return GS_OK;
 }
 static GSStatus acknowledge(void *ctx){(void)ctx;return GS_OK;}
+static GSStatus drain(GSSdlInput *in);
 static GSStatus queue(void *ctx,GSQueueOp op,uint16_t *word) {
  GSSdlInput *in=ctx;if(!word||(unsigned)op>GS_QUEUE_TAKE)return GS_INVALID;
+ /* The editors read only the BIOS queue and never reach an input opportunity,
+  * so an empty queue drains pending SDL key events into it first. */
+ if(in->bios_head==in->bios_tail){GSStatus status=drain(in);if(status!=GS_OK)return status;}
  if(in->bios_head==in->bios_tail)return GS_EMPTY;
  *word=in->bios[in->bios_head%256];if(op==GS_QUEUE_TAKE)in->bios_head++;return GS_OK;
 }
@@ -147,9 +151,8 @@ static void open_pads(GSSdlInput *in) {
   if(!known)for(unsigned j=0;j<2;j++)if(!in->pads[j]){in->pads[j]=SDL_OpenGamepad(ids[k]);break;}
  }SDL_free(ids);
 }
-static GSStatus pump(void *ctx,GSInputPollCut cut) {
- if((unsigned)cut>GS_INPUT_WAIT)return GS_UNSUPPORTED;
- GSSdlInput *in=ctx;SDL_Event event;
+static GSStatus drain(GSSdlInput *in) {
+ SDL_Event event;
  while(SDL_PollEvent(&event)) {
   GSStatus status=GS_OK;
   if(event.type==SDL_EVENT_QUIT)in->quit=1;
@@ -160,6 +163,11 @@ static GSStatus pump(void *ctx,GSInputPollCut cut) {
   else if(event.type==SDL_EVENT_GAMEPAD_REMOVED)for(unsigned j=0;j<2;j++)if(in->pads[j]&&SDL_GetGamepadID(in->pads[j])==event.gdevice.which){SDL_CloseGamepad(in->pads[j]);in->pads[j]=NULL;gs_input_gamepad(in,j,0,0,0,0);}
   if(status!=GS_OK&&status!=GS_UNSUPPORTED)return status;
  }
+ return in->quit?GS_QUIT:GS_OK;
+}
+static GSStatus pump(void *ctx,GSInputPollCut cut) {
+ if((unsigned)cut>GS_INPUT_WAIT)return GS_UNSUPPORTED;
+ GSSdlInput *in=ctx;GSStatus status=drain(in);if(status!=GS_OK&&status!=GS_QUIT)return status;
  open_pads(in);
  for(unsigned j=0;j<2;j++)if(in->pads[j])gs_input_gamepad(in,j,1,
   in->focused?SDL_GetGamepadAxis(in->pads[j],SDL_GAMEPAD_AXIS_LEFTX):0,in->focused?SDL_GetGamepadAxis(in->pads[j],SDL_GAMEPAD_AXIS_LEFTY):0,

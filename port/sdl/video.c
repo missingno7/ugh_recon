@@ -111,8 +111,13 @@ GSStatus gs_video_window(GSSdlVideo *v,int scale) {
 static GSStatus present(void *ctx) {
     GSSdlVideo *v=ctx;uint32_t pixels[320*200];gs_video_rgb(v,pixels);
     if(!v->renderer)return GS_OK;
-    return SDL_UpdateTexture(v->texture,NULL,pixels,320*4)&&SDL_SetRenderDrawColor(v->renderer,0,0,0,255)&&
-        SDL_RenderClear(v->renderer)&&SDL_RenderTexture(v->renderer,v->texture,NULL,NULL)&&SDL_RenderPresent(v->renderer)?GS_OK:GS_IO_ERROR;
+    /* A failed present (window closing, display lost) skips this frame; it is
+     * presentation only and never ends the game. */
+    if(!(SDL_UpdateTexture(v->texture,NULL,pixels,320*4)&&SDL_SetRenderDrawColor(v->renderer,0,0,0,255)&&
+        SDL_RenderClear(v->renderer)&&SDL_RenderTexture(v->renderer,v->texture,NULL,NULL)&&SDL_RenderPresent(v->renderer))) {
+        static int reported;if(!reported++)SDL_Log("present failed, frame skipped: %s",SDL_GetError());
+    }
+    return GS_OK;
 }
 void gs_video_close(GSSdlVideo *v){SDL_DestroyTexture(v->texture);SDL_DestroyRenderer(v->renderer);SDL_DestroyWindow(v->window);v->texture=NULL;v->renderer=NULL;v->window=NULL;}
 static GSStatus compatibility(void *ctx){(void)ctx;return GS_UNSUPPORTED;}

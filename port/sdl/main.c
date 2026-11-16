@@ -38,8 +38,10 @@ int main(int argc,char **argv){
         else{GameMenu menu;GameMenuResult run=game_main(world,&services,&menu);
             result=(GameBootResult){run.kind==GAME_MENU_SESSION_ENTRY?GAME_BOOT_SLICE_END:run.kind==GAME_MENU_EXIT?GAME_BOOT_QUIT:GAME_BOOT_SERVICE_ERROR,run.status,LIFE_MAIN_MENU};}
     }
-    printf("{\"result\":\"%s\",\"status\":%u,\"action\":%u,\"frames\":%u,\"presentations\":%llu}\n",result.kind==GAME_BOOT_SLICE_END?(boot_only?"slice_end":"session_entry"):result.kind==GAME_BOOT_QUIT?"exit":"error",result.status,result.action,world->frames,(unsigned long long)platform.presentations);
-    code=result.kind==GAME_BOOT_SLICE_END?0:result.kind==GAME_BOOT_QUIT?platform.exit_code:1;
+    /* Closing the window ends the run through GS_QUIT; that is a normal close. */
+    int closed=result.kind==GAME_BOOT_SERVICE_ERROR&&result.status==GS_QUIT;
+    printf("{\"result\":\"%s\",\"status\":%u,\"action\":%u,\"frames\":%u,\"presentations\":%llu}\n",result.kind==GAME_BOOT_SLICE_END?(boot_only?"slice_end":"session_entry"):result.kind==GAME_BOOT_QUIT?"exit":closed?"closed":"error",result.status,result.action,world->frames,(unsigned long long)platform.presentations);
+    code=result.kind==GAME_BOOT_SLICE_END||closed?0:result.kind==GAME_BOOT_QUIT?platform.exit_code:1;
 done:
     if(input)gs_input_close(input);
     if(audio)gs_audio_close(audio);

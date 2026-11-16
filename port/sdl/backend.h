@@ -6,6 +6,8 @@
 
 typedef struct GSSdlTime {
     uint64_t tick,retrace_tick,timer_tick,epoch_ns,suspended_at;
+    /* Virtual time: retraces at 70 Hz; timer opportunities at their PIT interval. */
+    uint64_t timer_clocks,now_ns;uint32_t pending_clocks;
     int suspended,paced;
 } GSSdlTime;
 void gs_time_init(GSSdlTime *,int);

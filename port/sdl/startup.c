@@ -34,7 +34,13 @@ static GSStatus pit_counter(void *ctx,uint8_t value){GSSdlStartup *p=ctx;p->divi
 static GSStatus mask(void *ctx,uint8_t value){GSSdlStartup *p=ctx;p->mask=value;return GS_OK;}
 static GSStatus read_mask(void *ctx,uint8_t *value){GSSdlStartup *p=ctx;if(!value)return GS_INVALID;*value=p->mask;return GS_OK;}
 static GSStatus ack(void *ctx){(void)ctx;return GS_OK;}
-static GSStatus interrupt(void *ctx,unsigned irq,uint32_t clocks,int enabled){GSSdlStartup *p=ctx;(void)clocks;if(irq>=8)return GS_INVALID;return enabled&&!(p->mask&(1u<<irq))?GS_OK:GS_EMPTY;}
+static GSStatus interrupt(void *ctx,unsigned irq,uint32_t clocks,int enabled){
+    GSSdlStartup *p=ctx;
+    if(irq>=8)return GS_INVALID;
+    if(!enabled||(p->mask&(1u<<irq)))return GS_EMPTY;
+    if(irq==0)p->time->pending_clocks=clocks;
+    return GS_OK;
+}
 static GSStatus deliver(void *ctx,GSEventKind kind,GSEvent *event){
     GSSdlStartup *p=ctx;GSStatus result=p->time_ops.deliver(p->time,kind,event);if(result!=GS_OK)return result;
     if(kind==GS_RETRACE_ACTIVE)p->video->retrace=1;
@@ -45,6 +51,10 @@ static GSStatus deliver(void *ctx,GSEventKind kind,GSEvent *event){
      * existing retrace cut so each palette step is visible. This is provider
      * presentation/pacing, never another game frame or callback. */
     if(kind==GS_RETRACE_ACTIVE){
+        /* Fades and timed waits run without an input opportunity. Gathering
+         * OS events here keeps the window responsive; they stay queued in SDL
+         * and still reach the game only at its own input opportunities. */
+        SDL_PumpEvents();
         result=p->time_ops.pace(p->time);if(result!=GS_OK)return result;
         if(p->video->renderer){GSVideoOps video=gs_video_operations();result=video.present(p->video);if(result==GS_OK)p->presentations++;}
     }

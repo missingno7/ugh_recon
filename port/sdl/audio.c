@@ -20,7 +20,11 @@ static GSStatus status(void *ctx,uint8_t *reply) {
 GSStatus gs_audio_generate(GSSdlAudio *a,int16_t *samples,unsigned frames) {
     if(!samples&&frames)return GS_INVALID;
     OPL3_GenerateStream(&a->chip,samples,frames);a->frames+=frames;
-    if(a->stream&&!SDL_PutAudioStreamData(a->stream,samples,(int)(frames*4u)))return GS_IO_ERROR;
+    /* Bound latency to about 0.2 s; a failed push drops these samples. Audio
+     * output is presentation only and never ends the game. */
+    if(a->stream&&SDL_GetAudioStreamQueued(a->stream)<48000*4/5&&!SDL_PutAudioStreamData(a->stream,samples,(int)(frames*4u))) {
+        static int reported;if(!reported++)SDL_Log("audio push failed, samples dropped: %s",SDL_GetError());
+    }
     return GS_OK;
 }
 static GSStatus advance(void *ctx,uint64_t ns) {

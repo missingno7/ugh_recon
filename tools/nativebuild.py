@@ -59,7 +59,7 @@ def check_text(text,where):
     if match:raise ValueError(f'banned dependency {match[0]} in {where}')
 def check_closure(preprocessed,manifest,out,extra_headers=()):
     headers=set(manifest['headers'])|set(extra_headers)
-    generated={str((out/n).resolve()).lower() for n in ['resource_manifest.h','boot_data.h','audio_data.h','demo_data.h','session_data_generated.h']}
+    generated={str((out/n).resolve()).lower() for n in ['resource_manifest.h','boot_data.h','audio_data.h','demo_data.h','session_data_generated.h','gameplay_data.h']}
     # A prior SDL distribution includes the LGPL relink header beside the
     # executable. -I out can select it on a repeat build; admit only its pinned
     # original content, never arbitrary output-directory headers.
@@ -152,6 +152,8 @@ def data_header(manifest,out):
     (out/'audio_data.h').write_text('\n'.join(audio_data.generate(rows,symbols))+'\n')
     import session_data
     (out/'session_data_generated.h').write_text('\n'.join(session_data.generate(rows,symbols))+'\n')
+    import gameplay_data
+    (out/'gameplay_data.h').write_text('\n'.join(gameplay_data.generate(rows,symbols))+'\n')
 def build(backend='test',out=None,negative_control=False):
     out=Path(out or ROOT/'build/native').resolve();out.mkdir(parents=True,exist_ok=True)
     # Never leave a stale successful executable/receipt after a failed audit.
@@ -176,6 +178,8 @@ def build(backend='test',out=None,negative_control=False):
         (out/'negative_include.h').write_text('#include "c/ugh.h"\n')
         includes+=['-include',out/'negative_include.h']
     objects=[];inputs={};closures={}
+    for relative in ['tools/gameplay_data.py','metadata/object-identities.json','metadata/resource-world.json']:
+        inputs[relative]=sha(ROOT/relative)
     for i,source in enumerate([ROOT/p for p in sources]+vendor):
         label='object-%02d'%i;obj=out/(label+'.o')
         pp=run([GCC,*flags,*includes,'-E',source],out,label+'-preprocess')

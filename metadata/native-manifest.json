@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "scope": "Step 7 production startup, front-end, AdLib audio and demo composition",
+  "scope": "Step 7 production composition, including direct actor and falling-item continuations",
   "core": [
     "native/game_world.c",
     "native/game_defaults.c",
@@ -50,7 +50,16 @@
     "native/coordinate_scale.c",
     "native/hud.c",
     "native/compose_menu.c",
-    "native/terminal_tail.c"
+    "native/terminal_tail.c",
+    "native/game_object_data.c",
+    "native/compose_actors.c",
+    "native/compose_items.c",
+    "native/passenger_itinerary.c",
+    "native/passenger_delivery.c",
+    "native/passenger_water.c",
+    "native/stones.c",
+    "native/contacts.c",
+    "native/items.c"
   ],
   "backends": {
     "test": [
@@ -155,7 +164,9 @@
     "native/compose_audio.h",
     "native/compose_session.h",
     "native/session_data.h",
-    "native/compose_menu.h"
+    "native/compose_menu.h",
+    "native/game_object_data.h",
+    "native/compose_objects.h"
   ],
   "vendor": {
     "sdl": [
@@ -203,6 +214,11 @@
     "native/session_data.c",
     "native/session_data.h",
     "native/compose_menu.c",
-    "native/compose_menu.h"
+    "native/compose_menu.h",
+    "native/game_object_data.c",
+    "native/game_object_data.h",
+    "native/compose_actors.c",
+    "native/compose_items.c",
+    "native/compose_objects.h"
   ]
 }

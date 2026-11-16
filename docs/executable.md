@@ -102,3 +102,22 @@ diagnostics (`python verif/s7_session_prefix.py --diagnose`, inside the bounded
 worker runner) identified omitted demo terminator, HUD and reserved record-tail
 publications in the test recorder. Correcting the observer yielded six complete
 equal records for each of 81 physical openings; no native kernel was changed.
+
+## Native object composition diagnostics (2026-11-16)
+
+These are behavioral composition diagnostics, not binary-match evidence.
+`python tools/nativebuild.py --out build/workers/s7-gameplay/production`
+initially rejected an incorrect resource-enum spelling (`RESOURCE_SPRITE`);
+the admitted type is `RESOURCE_SPRITE_RECORD`. The following link rejected
+omitted `native/items.c` from the positive manifest; its unchanged accepted
+kernel is now explicitly linked. Missing plain-build scratch was recreated
+with `python tools/build.py` before extracting the DATA views.
+
+`python verif/s7_gameplay_objects.py --no-build`, after adding terminal-leg
+cases, stopped Unsupported on actor case zero. The hypothesis that the earlier
+object graph contained all nineteen actor callback members was false: its
+descriptor links stop at +2A, omitting the retirement member +2C. The additive
+production extractor reads that DATA member at build time and admits its
+already registered typed callback role. No runtime callback-word decoder or
+change to the accepted identity registry was introduced. Repeated loader/pass
+comparisons and direct terminal/departure/stone/water cases verify the result.

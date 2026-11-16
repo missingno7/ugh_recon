@@ -59,7 +59,9 @@
     "native/passenger_water.c",
     "native/stones.c",
     "native/contacts.c",
-    "native/items.c"
+    "native/items.c",
+    "native/compose_enemies.c",
+    "native/hazards.c"
   ],
   "backends": {
     "test": [
@@ -221,6 +223,7 @@
     "native/compose_actors.c",
     "native/compose_items.c",
     "native/compose_objects.h",
-    "native/compose_enemies.h"
+    "native/compose_enemies.h",
+    "native/compose_enemies.c"
   ]
 }

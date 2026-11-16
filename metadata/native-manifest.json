@@ -166,7 +166,8 @@
     "native/session_data.h",
     "native/compose_menu.h",
     "native/game_object_data.h",
-    "native/compose_objects.h"
+    "native/compose_objects.h",
+    "native/compose_enemies.h"
   ],
   "vendor": {
     "sdl": [
@@ -219,6 +220,7 @@
     "native/game_object_data.h",
     "native/compose_actors.c",
     "native/compose_items.c",
-    "native/compose_objects.h"
+    "native/compose_objects.h",
+    "native/compose_enemies.h"
   ]
 }

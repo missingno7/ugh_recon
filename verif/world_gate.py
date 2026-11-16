@@ -5,8 +5,9 @@ Each independent stage gets a private source/data tree and a private8-GiB,
 """
 import argparse,ast,collections,concurrent.futures,hashlib,importlib,importlib.util,io,json,os,re,shutil,subprocess,sys,tarfile,time
 from pathlib import Path
-ROOT=Path(__file__).resolve().parents[1];sys.path[:0]=[str(ROOT/'tools'),str(ROOT/'verif')]
+ROOT=Path(__file__).resolve().parents[1];sys.path[:0]=[str(ROOT/'tools'),str(ROOT/'verif'),str(ROOT/'tests')]
 import world_registry
+KEEP_STAGE_TREES=False  # --keep-stage-trees retains per-stage repository copies
 from job_pool import run,save
 
 NEW_FILES=['tools/world_registry.py','tools/gate.py','verif/world_gate.py','verif/world_api.py','verif/job_pool.py','verif/contract_locks.py','verif/level_check.py','verif/process_refactor.py','verif/world_registry_cases.py','verif/palette_platform_model.inc']
@@ -67,6 +68,10 @@ def freeze(out,component=None):
   else:
    target=tree/'build'/bank;target.mkdir(parents=True,exist_ok=True)
    for p in (ROOT/'build'/bank).glob('*.ref.json'):shutil.copyfile(p,target/p.name)
+ # The supervisor gate's port-services stage captures a reference picture through
+ # wholegame.original, which reads this historical call-edge ledger.
+ ledger=ROOT/'build/workers/c-close/call-edges.json'
+ if ledger.exists():(tree/'build/workers/c-close').mkdir(parents=True,exist_ok=True);shutil.copyfile(ledger,tree/'build/workers/c-close/call-edges.json')
  # Preserve independently recorded raw source bytes (not expected observations).
  # git archive uses LF; the DOS build receipt may pin unchanged CRLF inputs.
  build_inputs=json.loads((ROOT/'build/link/plain/build.json').read_text())['source_sha256']
@@ -275,12 +280,23 @@ def gate(component,out,jobs=3,stages=None):
     name,artifact=running.pop(future);r=future.result();stage_seconds[name]=r['seconds'];result=json.loads((artifact/'receipt.json').read_text());assert result.get('result')=='PASS',name;results[name]=canonical(result,artifact.parent.parent);artifacts[name]=artifact
  assert all(sha(ROOT/f)==h for f,h in info['inputs'].items()),'gate source changed during evidence; no resynchronization'
  primary=dict(result='PASS',component=component,stages={n:results[n] for n in names});save(out/'receipt.json',primary);save(out/'timings.json',dict(jobs=jobs,wall_seconds=time.perf_counter()-start,child_seconds=stage_seconds))
+ if not KEEP_STAGE_TREES:
+  # Each stage ran in a full repository copy. After a passing run only the
+  # receipts are evidence (finalize reads out/receipt.json), so keep each
+  # stage receipt and delete the copies and the frozen tree. A failing run
+  # never reaches here and keeps everything for diagnosis.
+  for n in names:
+   folder=out/'stages'/n
+   if (artifacts[n]/'receipt.json').exists():shutil.copyfile(artifacts[n]/'receipt.json',folder/'receipt.json')
+   reset_generated(folder/'baseline',folder)
+  reset_generated(out/'frozen',out)
  for n in names:print('PASS '+n)
  return primary
 
 def main(default_world=None):
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('world',nargs='?',default=default_world);p.add_argument('--out',type=Path);p.add_argument('--jobs',type=int,default=3);p.add_argument('--stages',nargs='+');p.add_argument('--child',type=Path);p.add_argument('--gate',action='store_true');p.add_argument('--all',action='store_true');p.add_argument('--finalize',action='store_true');p.add_argument('--locks',action='store_true')
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('world',nargs='?',default=default_world);p.add_argument('--out',type=Path);p.add_argument('--jobs',type=int,default=3);p.add_argument('--stages',nargs='+');p.add_argument('--child',type=Path);p.add_argument('--gate',action='store_true');p.add_argument('--all',action='store_true');p.add_argument('--finalize',action='store_true');p.add_argument('--locks',action='store_true');p.add_argument('--keep-stage-trees',action='store_true')
  args,old=p.parse_known_args()
+ global KEEP_STAGE_TREES;KEEP_STAGE_TREES=args.keep_stage_trees
  if args.child:
   r=json.loads(args.child.read_text());child(**r);return
  if not args.world:p.error('world component required')

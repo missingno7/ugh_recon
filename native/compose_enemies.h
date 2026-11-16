@@ -12,4 +12,6 @@ GSStatus game_enemies_erase(GameWorld *,GameServices *);
 GSStatus game_enemies_update(GameWorld *,GameServices *);
 GSStatus game_enemies_draw_back(GameWorld *,GameServices *);
 GSStatus game_enemies_draw_front(GameWorld *,GameServices *);
+/* Direct typed entry; incoming stone is a physical actor ordinal. */
+GSStatus game_enemy_call(GameWorld *,GameServices *,size_t,ObjectCallbackIdentity,size_t);
 #endif

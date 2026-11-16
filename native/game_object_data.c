@@ -54,3 +54,20 @@ GSStatus game_object_multiplier_limit(GameServices *s,uint16_t difficulty,uint16
     GSBytes b;GSStatus status=session_data_view(s,multiplier_limits,&b);if(status!=GS_OK)return status;
     *out=(uint16_t)(b.data[2*difficulty]|(uint16_t)b.data[2*difficulty+1]<<8);return GS_OK;
 }
+
+GSStatus game_object_enemy_type(LevelEnemyKind kind,ObjectResourceIdentity *out){
+    if(!out)return GS_INVALID;
+    if((unsigned)kind>=sizeof enemy_types/sizeof *enemy_types)return GS_UNSUPPORTED;
+    *out=enemy_types[kind];return GS_OK;
+}
+GSStatus game_object_enemy_kind(ObjectResourceIdentity id,LevelEnemyKind *out){
+    if(!out)return GS_INVALID;
+    if(id.kind!=OBJECT_ENEMY_DESCRIPTOR||id.position)return GS_UNSUPPORTED;
+    for(size_t i=0;i<sizeof enemy_types/sizeof *enemy_types;i++)
+        if(id.view.index==enemy_types[i].view.index){*out=(LevelEnemyKind)i;return GS_OK;}
+    return GS_UNSUPPORTED;
+}
+GSResourceId game_object_enemy_effect(HazardAudio audio){
+    switch(audio){case HA_WARNING:return bird_warning_effect;case HA_FLIGHT:return bird_flight_effect;
+    case HA_DINO:return dino_effect;case HA_REWARD:return bonus_effect;default:return 0;}
+}

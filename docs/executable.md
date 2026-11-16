@@ -122,6 +122,32 @@ already registered typed callback role. No runtime callback-word decoder or
 change to the accepted identity registry was introduced. Repeated loader/pass
 comparisons and direct terminal/departure/stone/water cases verify the result.
 
+
+## Native enemy composition diagnostics (2026-11-16)
+
+These are behavioral composition diagnostics, not new binary-match evidence.
+`python verif/s7_enemies.py --no-build` rejected the first patrol projection:
+it sampled only the incoming direction, while Triopterus can turn before its
+frame lookup. Borrowing both direction vectors fixed the composition; the
+accepted hazard kernel was unchanged. The same command rejected a renderer
+scratch mismatch caused by unequal test page heights (native zero, literal
+192). The independent render constructors now explicitly set the same page
+geometry, without changing a production rendering algorithm.
+
+`python verif/s7_enemies.py --no-build`, extended with active AdLib owner
+projections, rejected repeat=0 for warning, dino and reward effects: the
+independent compiled L1 retained repeat=1 and control=5. Only bird flight uses
+repeat=0. The enemy caller now supplies those distinct arguments. An additive
+`game_audio_effect_stop` entry borrows the unchanged allocation kernel so an
+inactive FFFF flight handle retains its ordinary no-op stop result; the older
+bounded-channel entry and all accepted audio algorithms are unchanged.
+
+The enemy projection preserves SHL-1 index aliases (bird targets 8000/8001 and
+Triopterus platform indices with bit 15 set), while the physical comparison
+words keep their raw high bits. Independent odd animation-cursor samples retain
+raw high sprite bytes. These are typed composition observations, not additional
+executable-byte ownership or reconstruction claims.
+
 ## Native frame composition diagnostics (2026-11-16)
 
 Behavioral evidence only; no new binary-match bytes or changed matching sources.

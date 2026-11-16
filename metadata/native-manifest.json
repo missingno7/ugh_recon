@@ -61,8 +61,9 @@
     "native/contacts.c",
     "native/items.c",
     "native/compose_frame.c",
-    "native/compose_enemies_stub.c",
-    "native/player_physics.c"
+    "native/player_physics.c",
+    "native/compose_enemies.c",
+    "native/hazards.c"
   ],
   "backends": {
     "test": [
@@ -228,6 +229,6 @@
     "native/compose_enemies.h",
     "native/compose_frame.c",
     "native/compose_frame.h",
-    "native/compose_enemies_stub.c"
+    "native/compose_enemies.c"
   ]
 }

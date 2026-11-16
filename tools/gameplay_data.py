@@ -69,13 +69,18 @@ def generate(rows, symbols):
     assert len(actors) == 8
     lines += [identity(r) + ',' for r in sorted(actors, key=lambda r: r['word'])]
     lines += ['};']
+    enemies = sorted((r for r in graph['resources'] if r['kind'] == 'OBJECT_ENEMY_DESCRIPTOR'), key=lambda r: r['word'])
+    lines += ['static const ObjectResourceIdentity enemy_types[]={'] + [identity(r)+',' for r in enemies] + ['};']
     bonus = next(r for r in graph['resources'] if r['kind'] == 'OBJECT_ITEM_DESCRIPTOR' and
                  r['word'] == symbols['DGROUP:FallingDescriptor_7A38']['offset'])
     lines += ['static const ObjectResourceIdentity delivery_bonus=%s;' % identity(bonus),
               'static const SessionDataView multiplier_limits=%s;' %
               view(symbols['DGROUP:MultiplierLimitsByDifficulty']['linear'], 6)]
     for name, label in [('stone_effect', 'data.B3632.AdlxHeader_3632'),
-                        ('bonus_effect', 'data.B3274.AdlxHeader_3274')]:
+                        ('bonus_effect', 'data.B3274.AdlxHeader_3274'),
+                        ('bird_warning_effect', 'data.B325B.AdlxHeader_325B'),
+                        ('bird_flight_effect', 'data.B3260.AdlxHeader_3260'),
+                        ('dino_effect', 'data.B3265.AdlxHeader_3265')]:
         lines.append('static const GSResourceId %s=UINT64_C(%d);' %
                      (name, next(r['id'] for r in rows if r['name'] == label)))
     return lines

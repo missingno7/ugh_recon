@@ -46,6 +46,13 @@ GameAudioResult game_audio_channel(GameWorld *w,GameServices *s,unsigned channel
     AudioAllocationResult r=audio_allocation_run(&w->audio,op,(uint16_t)channel,volume,w->audio_reset.devices);
     return result(emit(s,r.writes,r.write_count),r.value);
 }
+/* Effect handles include FFFF after a no-card start. The accepted allocation
+ * kernel admits every word on STOP and rejects inactive handles itself. */
+GSStatus game_audio_effect_stop(GameWorld *w,GameServices *s,uint16_t handle){
+    if(!audio_allocation_supported(&w->audio,AUDIO_ALLOCATION_STOP,handle,w->audio_reset.devices))return GS_UNSUPPORTED;
+    AudioAllocationResult r=audio_allocation_run(&w->audio,AUDIO_ALLOCATION_STOP,handle,0,w->audio_reset.devices);
+    return emit(s,r.writes,r.write_count);
+}
 static GSStatus stop_channel(GameWorld *w,GameServices *s,unsigned channel){return game_audio_channel(w,s,channel,0,0).status;}
 static GSStatus load(GameWorld *w,unsigned channel,AudioCursor input,uint16_t repeats,uint16_t *reply){
     /* Validate each chunk header before the accepted unchecked parser borrows

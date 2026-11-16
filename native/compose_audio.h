@@ -17,6 +17,7 @@ GameAudioResult game_audio_music_start(GameWorld *,GameServices *,GSResourceId,u
 GameAudioResult game_audio_music_stop(GameWorld *,GameServices *,uint16_t duration);
 GameAudioResult game_audio_effect(GameWorld *,GameServices *,GSResourceId,uint16_t volume,uint16_t repeats);
 GameAudioResult game_audio_channel(GameWorld *,GameServices *,unsigned,int start,uint16_t volume);
+GSStatus game_audio_effect_stop(GameWorld *,GameServices *,uint16_t);
 GSStatus game_audio_volume(GameWorld *,GameServices *,uint16_t);
 GSStatus game_audio_cancel_fade(GameWorld *,GameServices *);
 GSStatus game_audio_schedule_fade(GameWorld *,GameServices *);

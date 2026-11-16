@@ -1,0 +1,21 @@
+# Physical record 3A91; 1P order 8; map 64; FUNNY WATER BUT / YOU WILL MAKE IT
+# Shipped password, standard cold-session fixture; no level-state patching.
+timing pit-quantum-at-polls
+entry GAME:RunGameFromPassword
+password SPIRITUALCRAMP
+players 1
+frames 2400
+card none
+1: cycle=enter,-enter
+8: cycle=off -enter
+104: up
+120: -up right
+136: -right down
+144: -down 52
+145: -52
+148: left
+156: -left
+requires GAME:LoadCurrentLevelState GAME:InitializeLevelDisplay GAME:DrawTileMap GAME:DispatchActorUpdates GAME:DrawWaterSurface GAME:MovePlayerWithVgaCollisions
+
+# Keep introduction releases available on each natural retry.
+300: cycle=enter,-enter

@@ -182,7 +182,7 @@ static GSStatus front_wait(GameWorld *w,GameServices *s,uint16_t remaining,uint8
     case VIDEO_WAIT_INITIAL_SCAN:TRY(game_poll_input(w,s));break;
     case VIDEO_WAIT_SERVICE:TRY(s->input.pump(s->input_context,GS_INPUT_WAIT));break;
     case VIDEO_WAIT_SCAN:TRY(game_poll_input(w,s));reply=w->input.change;break;
-    case VIDEO_WAIT_SAMPLE:TRY(game_sample_input(w,s));reply=w->input.joysticks[0].buttons|w->input.joysticks[1].buttons;break;
+    case VIDEO_WAIT_SAMPLE:TRY(game_sample_input_trigger(w,s,(uint8_t)w->input.current_scan_storage));reply=w->input.joysticks[0].buttons|w->input.joysticks[1].buttons;break;
     case VIDEO_WAIT_RETRACE:TRY(game_video_next(w,s));break;
     case VIDEO_WAIT_COUNT:remaining=video_wait_decrement(remaining);reply=remaining;break;
     case VIDEO_WAIT_DONE_DEFAULT:*scan=57;*timeout=!remaining;return GS_OK;

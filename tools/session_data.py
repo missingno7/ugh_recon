@@ -101,4 +101,9 @@ def generate(rows, symbols):
         at = symbols['DGROUP:' + name]['linear']
         if any(mz.image[at:at + 20]):
             raise ValueError('nonzero platform default: ' + name)
+    def values(name, count):
+        return ','.join(str(word(symbols['DGROUP:' + name]['linear'] + 2*i)) for i in range(count))
+    lines.append('static const SessionFrameSpec session_frame_spec={{%s},{%s},{%s},%s,%s};' %
+                 (values('PlayerAnimationCycleStarts', 2), values('PlayerAnimationCycleEnds', 2),
+                  values('PlayerImpactLimits', 3), values('TimerBarDivisor', 1), values('TimerBarPointer', 1)))
     return lines

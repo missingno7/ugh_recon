@@ -2,6 +2,9 @@
 #include "compose_demo.h"
 #include "compose_front_end.h"
 #include "compose_audio.h"
+#include "compose_frame.h"
+#include "compose_objects.h"
+#include "compose_enemies.h"
 #include "game_startup.h"
 #include "coordinate_scale.h"
 #include "water_weather.h"
@@ -235,10 +238,8 @@ GSStatus game_session_initialize(GameWorld *w,GameServices *s,unsigned *stage){
         case 7:TRY(game_video_swap(w,s));break;
         case 8:TRY(game_front_restore(w,s,(FrontRectangle){0,0,320,w->pages.height}));break;
         case 9:for(unsigned i=0;i<2;i++){RenderDrawRequest t=hud_border(w->run.configuration.players,(uint8_t)i);TRY(game_front_sprite_draw(w,s,t.sprite,t.x,t.y));}break;
-        /* Typed gameplay peers are deliberately a closed boundary until their
-         * direct native continuations are composed. Never call a bridge. */
-        case 10:if(!w->session.enemy_end[0])return GS_UNSUPPORTED;break;
-        case 11:if(!w->session.actor_end[0])return GS_UNSUPPORTED;break;
+        case 10:TRY(game_enemies_update(w,s));break;
+        case 11:TRY(game_actors_update(w,s));break;
         case 12:TRY(game_demo_reset(w));break;
         case 13:return session_display_complete(&p)?GS_OK:GS_INVALID;
         default:return GS_INVALID;
@@ -252,32 +253,47 @@ static SessionWorld observe(GameWorld *w,uint16_t password,uint16_t palette){
         .level_limit=session_data_count(w->run.configuration.player_bytes),.password_reply=password,
         .lives=w->run.lives,.completion=w->run.completion,.rain=w->run.record.rain,.scan=(uint8_t)w->input.current_scan_storage};
 }
-GameSessionResult game_session_run(GameWorld *w,GameServices *s,GameSessionEntry entry){
-    GameSessionResult result={GAME_SESSION_SERVICE_ERROR,GS_INVALID,SESSION_INVALID,0,0};
-    if(!w||!s||!w->session.ready)return result;
-    if(entry!=GAME_SESSION_PASSWORD){result.kind=GAME_SESSION_UNSUPPORTED;result.status=GS_UNSUPPORTED;return result;}
-    SessionProcess p;session_begin(&p);uint16_t password=0,palette=0;
-    for(;;){
-        SessionRequest e=session_next(&p,observe(w,password,palette));GSStatus status=GS_OK;result.action=e.action;
+GSStatus game_session_begin(GameSessionCursor *cursor,GameSessionEntry entry){
+    if(!cursor)return GS_INVALID;
+    memset(cursor,0,sizeof *cursor);session_begin(&cursor->process);
+    cursor->result=(GameSessionResult){GAME_SESSION_RUNNING,GS_OK,SESSION_INVALID,0,0};
+    if(entry!=GAME_SESSION_PASSWORD){cursor->result.kind=GAME_SESSION_UNSUPPORTED;cursor->result.status=GS_UNSUPPORTED;return GS_UNSUPPORTED;}
+    return GS_OK;
+}
+GSStatus game_session_step(GameWorld *w,GameServices *s,GameSessionCursor *cursor){
+    if(!w||!s||!cursor||!w->session.ready)return GS_INVALID;
+    if(cursor->result.kind!=GAME_SESSION_RUNNING)return GS_INVALID;
+    SessionRequest e=session_next(&cursor->process,observe(w,cursor->password,cursor->palette));
+    GSStatus status=GS_OK;cursor->result.action=e.action;
         switch(e.action){
-        case SESSION_PASSWORD:status=game_session_password(w,s,&password);break;
+        case SESSION_PASSWORD:status=game_session_password(w,s,&cursor->password);break;
         case SESSION_SELECT_LEVEL:w->run.level=e.value;break;
         case SESSION_PREGAME:status=game_demo_play(w,s,DEMO_PRESENT_PREGAME).status;break;
         case SESSION_STOP_INITIAL_MUSIC:case SESSION_STOP_LEVEL_MUSIC:status=game_audio_music_stop(w,s,e.value).status;break;
         case SESSION_RESET_GAME:w->run.lives=(uint8_t)session_reset_value(0);w->run.multiplier=(uint8_t)session_reset_value(1);w->run.score=0;break;
         case SESSION_BLACK_PALETTE:status=black(w,s);break;
-        case SESSION_INITIALIZE_LEVEL:status=game_session_initialize(w,s,&result.display_stage);break;
+        case SESSION_INITIALIZE_LEVEL:status=game_session_initialize(w,s,&cursor->result.display_stage);break;
+        case SESSION_START_MUSIC:status=game_audio_music_start(w,s,game_audio_level_resource(),0,e.value).status;break;
         case SESSION_DECREMENT_LIVES:w->run.lives=(uint8_t)e.value;break;
         case SESSION_RESET_MULTIPLIER:w->run.multiplier=(uint8_t)e.value;break;
         case SESSION_INCREMENT_LEVEL:w->run.level=e.value;break;
         case SESSION_TEST_LEVEL_LIMIT:case SESSION_OUTCOME:case SESSION_RETURN:break;
-        case SESSION_FINISHED:result.kind=GAME_SESSION_RETURNED;result.status=GS_OK;return result;
-        default:status=GS_UNSUPPORTED;break;
+        case SESSION_FINISHED:cursor->result.kind=GAME_SESSION_RETURNED;cursor->result.status=GS_OK;cursor->result.completed_frames=cursor->process.completed_frames;return GS_OK;
+        default:status=game_frame_execute(w,s,e,&cursor->palette);break;
         }
-        result.completed_frames=p.completed_frames;
-        if(status!=GS_OK){result.status=status;result.kind=status==GS_UNSUPPORTED?GAME_SESSION_UNSUPPORTED:status==GS_QUIT?GAME_SESSION_QUIT:GAME_SESSION_SERVICE_ERROR;return result;}
-        if(!session_acknowledge(&p,e.action,observe(w,password,palette))){result.status=GS_INVALID;return result;}
-        /* No frame guard here: the verification host's 100000-frame bound is
-         * not a game timeout. Future frame execution continues this process. */
-    }
+
+    if(status==GS_OK&&!session_acknowledge(&cursor->process,e.action,observe(w,cursor->password,cursor->palette)))status=GS_INVALID;
+    cursor->result.completed_frames=cursor->process.completed_frames;
+    cursor->result.status=status;
+    if(status!=GS_OK)cursor->result.kind=status==GS_UNSUPPORTED?GAME_SESSION_UNSUPPORTED:status==GS_QUIT?GAME_SESSION_QUIT:GAME_SESSION_SERVICE_ERROR;
+    return status;
+}
+GameSessionResult game_session_run(GameWorld *w,GameServices *s,GameSessionEntry entry){
+    GameSessionCursor cursor;
+    if(!w||!s||!w->session.ready)return (GameSessionResult){GAME_SESSION_SERVICE_ERROR,GS_INVALID,SESSION_INVALID,0,0};
+    game_session_begin(&cursor,entry);
+    while(cursor.result.kind==GAME_SESSION_RUNNING)game_session_step(w,s,&cursor);
+    /* The recorder/verification host owns its diagnostic frame bound.
+     * Production has no per-level timeout or replacement exit condition. */
+    return cursor.result;
 }

@@ -1,0 +1,16 @@
+# Whole native program: menu -> enemy-free session -> Escape -> game over ->
+# resumed menu -> Q. Password and scans are external scenario inputs only.
+timing pit-quantum-at-polls
+password AFTERTHERAIN
+frames 1000
+card none
+end exit
+1: esc -esc
+4: esc -esc
+9: f1 -f1
+12: enter -enter
+14: cycle=enter,-enter
+160: 19 99 space -space
+200: esc -esc
+332: q -q
+344: q -q

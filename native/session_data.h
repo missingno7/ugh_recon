@@ -22,6 +22,10 @@ typedef struct SessionLevelSpec {
     SessionEnemySpec enemy[5];
     unsigned actor_count,enemy_count;
 } SessionLevelSpec;
+typedef struct SessionFrameSpec {
+    uint16_t cycle_start[2],cycle_end[2],impact_limit[3],timer_divisor,timer_position;
+} SessionFrameSpec;
+const SessionFrameSpec *session_data_frame(void);
 /* One store for the newly admitted player/platform domains. Identity cells
  * replace the compatibility-only descriptor/callback words in enemy/item
  * structs. Those words are never used by production composition. */

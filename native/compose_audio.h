@@ -11,6 +11,7 @@ GSResourceId game_audio_score_resource(void);
 GSResourceId game_audio_menu_resource(void);
 GSResourceId game_audio_game_over_resource(void);
 GSResourceId game_audio_intro_resource(void);
+GSResourceId game_audio_level_resource(void);
 GSStatus game_audio_init(GameWorld *,GameServices *,uint16_t mask);
 GameAudioResult game_audio_music_start(GameWorld *,GameServices *,GSResourceId,uint16_t duration,uint16_t volume);
 GameAudioResult game_audio_music_stop(GameWorld *,GameServices *,uint16_t duration);

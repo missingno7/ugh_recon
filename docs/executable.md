@@ -121,3 +121,63 @@ production extractor reads that DATA member at build time and admits its
 already registered typed callback role. No runtime callback-word decoder or
 change to the accepted identity registry was introduced. Repeated loader/pass
 comparisons and direct terminal/departure/stone/water cases verify the result.
+
+## Native frame composition diagnostics (2026-11-16)
+
+Behavioral evidence only; no new binary-match bytes or changed matching sources.
+
+- `python verif/s7_frame.py tests/scenarios/gameplay.txt --build --out
+  build/workers/s7-frame/gameplay` reached 15 exact records, then the requested
+  enemy stub stopped at the initial fruit-tree update. The hypothesis that the
+  ordinary first level is enemy-free is false: CAVITY has an active tree slot.
+  The same boundary applies to the full gameplay-AdLib trace; a prefix is not
+  its 979-record certificate.
+- `python verif/s7_frame.py tests/levels/one-08.txt --out
+  build/workers/s7-frame/openings/one-08` initially differed only in the first
+  two device records. The component recorder retained the boot IRQ count;
+  setting the explicit component fixture's IRQ count to zero fixed observation.
+- `python verif/s7_frame.py tests/levels-audio/adlib-43.txt --out
+  build/workers/s7-frame/audio/adlib-43` initially had 360 equal RAM/device/scalar
+  records but a differing cumulative log. The recorder had reused gameplay's
+  score-file-dependent seed DOS operand. Restoring this scenario's operand
+  yielded all 360 complete records. Initial joystick/BIOS scripts also require
+  the oracle fixture's run compression; later Clock waveform replacements do not.
+- `python verif/s7_frame.py tests/scenarios/departure.txt --out
+  build/workers/s7-frame/scenarios/departure --dump 1` exposed two differing
+  gameport OUT operands in the calibration prefix. A separately bounded
+  `verif/s7_frame_diagnose.py` run against the literal DLL equaled original ASM
+  and identified both original values as the live presence byte (F0), versus
+  native zero. The composition now forwards that byte to the unchanged input
+  algorithm. Controls and timeout waits likewise forward the preceding scan
+  operand through the existing typed trigger entry. No accepted input kernel
+  changed.
+- `python verif/s7_frame.py tests/native-frame/pause-escape.txt --out
+  build/workers/s7-frame/deep/pause-escape` initially differed only in the final
+  return-observation word: a returned near component observes zero, rather
+  than its consumed FFF0 sentinel. Correcting the observer yielded 331 equal
+  records, including the raw pause release/make/break handshake and lives FF.
+- `python verif/s7_frame.py tests/native-frame/menu-session-return.txt --out
+  build/workers/s7-frame/deep/menu-session-return --dump 344` initially differed
+  only in terminal RAM. Independent literal diagnostics matched all original
+  ASM records and found the absent C shutdown-latch publication. The inherited
+  audio recorder published that latch only when a timer table existed. The new
+  frame observer publishes it unconditionally; production already held one.
+  All 345 records now agree through resumed-menu Q and terminal exit.
+
+The frame recorder links audited production objects, replacing main and wrapping
+three typed presentation/frame cuts plus the temporary enemy boundary for output
+metadata. Wrappers do not import expected state or change native continuation
+operands. It uses incremental cumulative I/O hashing and retains raw dumps only
+for an explicitly requested diagnostic frame. Its per-level 100000-frame bound
+is diagnostic; production has no such exit rule.
+
+The first common-gate attempt (`python tools/gate.py --jobs 3 --out
+build/workers/s7-frame/gate`) rejected native composition's collision-cell
+literal `0x720`: it coincided with an original code offset under the unchanged
+closure audit. The composer now spells its ten geometric deltas in 96-cell row
+units (19/6/12 rows), as in the accepted pixel primitive. This is not an address
+resolver or an audit exemption. After a fresh production build, all native COFF
+loadable sections (.text/.data/.bss/.rdata/.xdata/.pdata) are byte-identical to the
+preceding audited object; `geometry-spelling.json` records the check. A fresh
+one-43 recording also passes all 160 complete records. This native artifact
+comparison is not new original-game binary-match evidence.

@@ -1,6 +1,7 @@
 #include "compose_session.h"
 #include <string.h>
 #include "session_data_generated.h"
+const SessionFrameSpec *session_data_frame(void){return &session_frame_spec;}
 GSStatus session_data_view(GameServices *s,SessionDataView v,GSBytes *out){
     GSBytes b;GSResourceClass kind;
     GSStatus status=s->resources.view(s->resources_context,v.resource,&b,&kind);

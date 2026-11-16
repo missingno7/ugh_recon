@@ -59,7 +59,10 @@
     "native/passenger_water.c",
     "native/stones.c",
     "native/contacts.c",
-    "native/items.c"
+    "native/items.c",
+    "native/compose_frame.c",
+    "native/compose_enemies_stub.c",
+    "native/player_physics.c"
   ],
   "backends": {
     "test": [
@@ -167,7 +170,8 @@
     "native/compose_menu.h",
     "native/game_object_data.h",
     "native/compose_objects.h",
-    "native/compose_enemies.h"
+    "native/compose_enemies.h",
+    "native/compose_frame.h"
   ],
   "vendor": {
     "sdl": [
@@ -221,6 +225,9 @@
     "native/compose_actors.c",
     "native/compose_items.c",
     "native/compose_objects.h",
-    "native/compose_enemies.h"
+    "native/compose_enemies.h",
+    "native/compose_frame.c",
+    "native/compose_frame.h",
+    "native/compose_enemies_stub.c"
   ]
 }

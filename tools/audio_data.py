@@ -11,6 +11,7 @@ def generate(rows,symbols):
     game_over=next(i for i,r in enumerate(objects) if r['name']=='data.B326B.AdlxHeader_326B')
     menu=next(i for i,r in enumerate(objects) if r['name']=='data.B3637.AdlxHeader_3637')
     intro=next(i for i,r in enumerate(objects) if r['name']=='data.B3629.AdlxHeader_3629')
+    level=next(i for i,r in enumerate(objects) if r['name']=='data.B3444.AdlxHeader_3444')
     lines=['/* Generated data IDs and offsets within admitted data objects. */',
            'typedef struct GameAudioResourceSpec {GSResourceId id,allocation;size_t offset,size;} GameAudioResourceSpec;',
            'static const GameAudioResourceSpec game_audio_specs[]={']
@@ -18,4 +19,4 @@ def generate(rows,symbols):
         start=r['image_start'];size=int.from_bytes(mz.image[start+4:start+8],'big')+8
         owner=next(a for a in rows if a['name'].startswith('world.allocation.') and a['image_start']<=start and start+size<=a['image_start']+a['size'])
         lines.append('{UINT64_C(%d),UINT64_C(%d),%d,%d},'%(r['id'],owner['id'],start-owner['image_start'],size))
-    return lines+['};','#define GAME_AUDIO_GAME_OVER %d'%game_over,'#define GAME_AUDIO_MENU %d'%menu,'#define GAME_AUDIO_SCORE %d'%score,'#define GAME_AUDIO_INTRO %d'%intro]
+    return lines+['};','#define GAME_AUDIO_GAME_OVER %d'%game_over,'#define GAME_AUDIO_MENU %d'%menu,'#define GAME_AUDIO_SCORE %d'%score,'#define GAME_AUDIO_INTRO %d'%intro,'#define GAME_AUDIO_LEVEL %d'%level]

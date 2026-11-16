@@ -192,6 +192,36 @@ covering closure, the build, both hosts and the level groups, in about 80 second
 every remaining cell, every piece of machine debt, and the five decisions that step 7 and step 8
 need.
 
+### Standalone native executable
+
+`ugh-native` plays the whole game with no emulator, no `c/` code and no emulated DOS memory.
+Build it with `python tools/nativebuild.py --backend sdl` (or `--backend test` for the
+deterministic test backend) from the positive manifest `metadata/native-manifest.json`. The
+build audits includes, tokens, object symbols and the link map against a banned list: `c/`,
+bridges, `Regs`, the dispatcher, the machine accessors, cold import and the projector. It
+starts from the resource pack built by `tools/respack.py` and runs this sequence natively over
+`GameWorld` and `GameServices`:
+- boot and the startup pictures;
+- the main menu, front end and demos;
+- AdLib music and effects;
+- the session: password, level loading, actors, passengers, stones, enemies and items;
+- the frame loop with death, completion, game over and two-player routing;
+- the return to the menu and the terminal path.
+
+The five adopted port decisions are implemented in `port/sdl/` and `port/test/`.
+
+Verification compares the production objects, through a test-only recorder, with the rebuilt
+original:
+
+| Check | Records |
+|---|---|
+| `verif/s7_frame_suite.py`: all gameplay scenarios, a 6,000-frame death-retry trace, all 81 level openings, the 7 audio and 8 deep level runs | 113 traces, 58,064 records, every one exact |
+| Startup, front end, audio, demos, menu, session, objects and enemies | `verif/s7_*.py`, each exact |
+
+Every comparison covers RAM, devices, cumulative ordered I/O and scalars. The verification
+host, with its bridges and literal fallbacks, remains as the separate bit-exact compatibility
+build (decision D5).
+
 The optional level suite (`tests/levels/`, `python verif/level_suite.py --all`, about two minutes
 with cached references) enters all 81 physical level records through their shipped passwords.
 Each runs 160 frames against the rebuilt original. Both hosts pass 81/81. The suite covers

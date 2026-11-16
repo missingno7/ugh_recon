@@ -58,13 +58,14 @@ int main(int argc,char **argv){
     s.input.pump=fail_pump;phase_at(&c,SP_POLL_CONTROLS);w->session.players.player[0].right=123;
     CHECK(game_session_step(w,&s,&c)==GS_IO_ERROR&&c.result.kind==GAME_SESSION_SERVICE_ERROR&&c.process.pending&&w->session.players.player[0].right==123);
     s=gs_test_services(b);
-    /* The stub never clears an active enemy or stale records past a sentinel. */
+    /* An unadmitted enemy role fails; a sentinel hides stale records. */
     w->session.enemy_end[0]=0;w->enemies.slot[0].counter=321;
+    w->session.enemy_callback[0]=(ObjectCallbackIdentity){.kind=OBJECT_CALLBACK_ENEMY,.enemy=H_ZERO};
     CHECK(game_enemies_update(w,&s)==GS_UNSUPPORTED&&w->enemies.slot[0].counter==321);
     w->session.enemy_end[0]=1;
     CHECK(game_enemies_update(w,&s)==GS_OK&&game_enemies_erase(w,&s)==GS_OK&&game_enemies_draw_back(w,&s)==GS_OK&&game_enemies_draw_front(w,&s)==GS_OK&&w->enemies.slot[0].counter==321);
     /* A failed renderer consumes the preceding player animation publication. */
     s.video.control_write=fail_control;NativePlayer *p=w->session.players.player;p->animation=0;p->thrust=90;p->sprite=218;p->pixel_x=20;p->pixel_y=20;uint16_t palette=0;
     CHECK(game_frame_execute(w,&s,(SessionRequest){.action=SESSION_DRAW_PLAYER},&palette)==GS_IO_ERROR&&p->animation==110&&p->sprite==219);
-    free(w);free(b);gs_resources_close(&pack);puts("PASS native frame/session byte lives, level wrap/limit, two-player equality, pause, stub and consumed failure cases");return 0;
+    free(w);free(b);gs_resources_close(&pack);puts("PASS native frame/session byte lives, level wrap/limit, two-player equality, pause, unadmitted enemy and consumed failure cases");return 0;
 }

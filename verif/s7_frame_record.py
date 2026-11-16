@@ -7,13 +7,23 @@ import wholegame
 import s7_menu_record
 import s7_session_record
 import s7_gameplay_objects
+import s7_enemies
 
 
 WRAPS=['game_frame_execute','game_demo_play','game_front_introduction','game_enemies_update']
 
+def wraps(path):
+    return [] if wholegame.scenario(path)['entry']=='GAME:PlayGameCompletionDemo' else WRAPS
+
 
 def generate(out,scenario,dump=-1):
     fixture=wholegame.scenario(scenario)
+    if fixture['entry']=='GAME:PlayGameCompletionDemo':
+        import s7_demo_record
+        source=s7_demo_record.generate(out,'completion',fixture['frames'])
+        text=source.read_text();calls='output("ram",observation,sizeof observation);output("devices",&device,offsetof(Devices,count));output("io",device.log,device.count*sizeof(IoEvent));'
+        text=text.replace(calls,'if(frames==%s){%s}'%(dump if dump>=0 else 'UINT32_MAX',calls))
+        source.write_text(text);return source
     # Reuse the independently maintained boot/menu/audio service observer.
     source=s7_menu_record.generate(out,'gameplay-adlib',sessions=True)
     s=source.read_text().replace('#include "native/compose_menu.h"','#include "native/compose_menu.h"\n#include "native/compose_frame.h"')
@@ -26,6 +36,8 @@ def generate(out,scenario,dump=-1):
     objhelpers,objfields,_=s7_gameplay_objects.projection()
     actor_switch=re.search(r'switch\(id.actor\)\{(.*?)default:exit\(9\);',objhelpers,re.S)[1]
     helpers=re.sub(r'(switch\(id.actor\)\{).*?(default:exit\(9\);)',lambda m:m[1]+actor_switch+m[2],helpers,flags=re.S)
+    enemy_switch=''.join('case %s:return %d;'%(role,o(name)) for role,name in s7_enemies.role_names().items())
+    helpers=re.sub(r'(switch\(id.enemy\)\{).*?(default:exit\(9\);)',lambda m:m[1]+enemy_switch+m[2],helpers,flags=re.S)
     helpers+=objhelpers[objhelpers.index('static uint16_t item_callback'):]
     # Select explicit item publications (the other object projection overlaps).
     fields+='\n'+'\n'.join(line for line in objfields.splitlines() if 'w->items.' in line or 'w->session.item_' in line)
@@ -33,13 +45,14 @@ def generate(out,scenario,dump=-1):
     # Shutdown is observable even when no audio timer was ever installed.
     fields+='\nput(%d,w->audio_shutdown,2);if(w->terminal_audio_latch)put(%d,1,2);'%(load+sy['CDATA:SoundSystemShutdown']['linear'],load+cgen.FRAMES['DGROUP']*16+2)
     fields+='\n#ifdef S7_FRAME_MISS_TIMER\nput(%d,0,2);\n#endif'%a('LevelTimer')
+    fields+='\n#ifdef S7_FRAME_MISS_ENEMY_ROLE\nif(w->session.enemy_callback[0].kind==OBJECT_CALLBACK_ENEMY&&w->session.enemy_callback[0].enemy==H_TREE_ANIMATE)put(%d,0,2);\n#endif'%a('EnemyStateCallbacks')
     wrappers=f'''
 static unsigned boundary,demopage;
 static unsigned level_frames;
 GSStatus __real_game_frame_execute(GameWorld *,GameServices *,SessionRequest,uint16_t *);
 GSStatus __real_game_enemies_update(GameWorld *,GameServices *);
 GSStatus __wrap_game_enemies_update(GameWorld *w,GameServices *s){{
- GSStatus r=__real_game_enemies_update(w,s);if(r==GS_UNSUPPORTED)fprintf(stderr,"WAIT_ENEMIES level=%u players=%u\\n",w->run.level,w->run.configuration.players);return r;
+ GSStatus r=__real_game_enemies_update(w,s);if(r!=GS_OK)fprintf(stderr,"enemy update status=%u level=%u players=%u\\n",r,w->run.level,w->run.configuration.players);return r;
 }}
 GSStatus __wrap_game_frame_execute(GameWorld *w,GameServices *s,SessionRequest e,uint16_t *p){{
  unsigned saved=boundary;if(e.action==SESSION_SWAP_PAGE){{boundary={o('RunGameFromPassword')+0x39d};if(++level_frames==100000){{fprintf(stderr,"diagnostic per-level frame bound\\n");exit(8);}}}}

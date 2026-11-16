@@ -207,3 +207,31 @@ loadable sections (.text/.data/.bss/.rdata/.xdata/.pdata) are byte-identical to 
 preceding audited object; `geometry-spelling.json` records the check. A fresh
 one-43 recording also passes all 160 complete records. This native artifact
 comparison is not new original-game binary-match evidence.
+
+
+## Merged enemy/frame integration diagnostic (s7-frame-2)
+
+`python verif/s7_frame.py tests/scenarios/gameplay.txt --build --out
+build/sup/gameplay` on the merged tree exited 9 with no stderr after 15 complete,
+exact records. The unexecuted next observation was zero-based record 15. This
+was not an enemy constructor or operation-order failure: the session observer
+recognized only H_TREE_BEGIN/H_BIRD_DELAY/H_DINO_BEGIN/H_TRIO_PATROL_BEGIN.
+The initial tree update legitimately published H_TREE_ANIMATE, and the observer's
+closed switch exited rather than serializing that admitted role.
+
+`python verif/s7_frame.py tests/scenarios/gameplay.txt --build --production
+build/workers/s7-frame-2/production --out build/workers/s7-frame-2/gameplay --dump
+15` after expanding the observation-only switch passed all 979 records. The
+mapping now derives every typed enemy role from the same verification-only
+role/name census used by s7_enemies; no historical-word resolver or code address
+enters production. The merged enemy constructor and accepted operation ordering
+were already correct and were left unchanged. No accepted native algorithm or
+production source was changed.
+
+The merged s7_frame_suite now also invokes the completion scenario's actual
+standalone typed demo entry, instead of treating it as a whole-program menu run,
+and requires full matches rather than accepting the retired stub boundary.
+Its focused enemy case explicitly requests the unadmitted H_ZERO role, rather
+than relying on the deleted stub. The added missing-enemy-role observer control
+corrupts only the observed H_TREE_ANIMATE publication; native game state remains
+untouched. Expected records are read only after native exit.

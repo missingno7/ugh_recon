@@ -34,7 +34,7 @@ def verify(path,out,prod,dump=-1,define=None,replacements=None):
     obj=out/'record.o';exe=out/'record.exe'
     run([GCC,'-O2','-std=c11','-Wall','-Wextra','-Werror','-Wno-misleading-indentation','-I',ROOT,'-I',ROOT/'port','-I',prod,'-c',source,'-o',obj],ROOT,out,'compile')
     objects=[(replacements or {}).get(p,p) for p in s7_audio.objects(prod)]
-    run([GCC,*objects,obj,*['-Wl,--wrap='+n for n in s7_frame_record.WRAPS],'-o',exe],ROOT,out,'link')
+    run([GCC,*objects,obj,*['-Wl,--wrap='+n for n in s7_frame_record.wraps(path)],'-o',exe],ROOT,out,'link')
     row=run([exe,prod/'ugh.res',out/'baseline.bin',out],ROOT,out,'record',allowed=(0,4))
     actual=[json.loads(line) for line in row['stdout'].splitlines()]
     group={'scenarios':'whole','levels':'levels','levels-audio':'levels-audio','levels-deep':'levels-deep'}.get(path.parent.name)
@@ -46,10 +46,13 @@ def verify(path,out,prod,dump=-1,define=None,replacements=None):
         run([sys.executable,Path(__file__),'--reference-worker',path,'--out',reference.parent],ROOT,out,'original')
     expected=json.loads(reference.read_text())['frames']
     diff=[dict(frame=i,field=k,actual=a.get(k),expected=b.get(k)) for i,(a,b) in enumerate(zip(actual,expected)) for k in sorted(set(a)|set(b)) if a.get(k)!=b.get(k)]
-    waiting='WAIT_ENEMIES' in row['stderr']
-    if len(actual)!=len(expected) and not waiting:diff.append(dict(field='count',actual=len(actual),expected=len(expected)))
+    if len(actual)!=len(expected):diff.append(dict(frame=min(len(actual),len(expected)),field='count',actual=len(actual),expected=len(expected)))
     save(out/'actual.json',dict(frames=actual));save(out/'differences.json',diff)
-    result=dict(result='FAIL' if diff else 'WAIT_ENEMIES' if waiting else 'PASS',scenario=str(path),records=len(actual),expected=len(expected),differences=diff,stop=row['stderr'])
+    first=min((d['frame'] for d in diff),default=None)
+    result=dict(result='FAIL' if diff else 'PASS',classification='exact prefix' if diff else 'full exact match',
+                exact_prefix_records=first if diff else len(actual),first_differing_record=first,
+                reason=', '.join(sorted({d['field'] for d in diff if d['frame']==first})) if diff else None,
+                scenario=str(path),records=len(actual),expected=len(expected),differences=diff,stop=row['stderr'])
     save(out/'receipt.json',result)
     print(path.stem,len(actual),'/',len(expected),result['result'],[(d.get('frame'),d['field']) for d in diff][:12],row['stderr'][-200:],flush=True)
     return not diff

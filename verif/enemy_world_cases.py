@@ -207,12 +207,20 @@ def defects(ROOT,OUT,bounded,save,snapshot,previous):
      field='direction_or_target_word' if tag=='collapsed-target-direction' else 'countdown'
      action='if(value==1)value=2;' if tag=='collapsed-target-direction' else 'value&=0x7fff;'
      text=text.replace(needle,'if(field->member==offsetof(NativeEnemyWorld,slot[0].'+field+')){'+action+'}'+needle)
-    elif tag=='stale-selected-player':
-     needle='uint32_t result=0,address=lin(bank,position);';assert text.count(needle)==1
-     text=text.replace(needle,needle+'if(width==2 && address>=A(PlayerHorizontalVelocities) && address<A(PlayerHorizontalVelocities)+4)return 0;')
-    elif tag=='wrong-stone-id':
-     needle='return result;';assert text.count(needle)==1
-     text=text.replace(needle,'if(width==2 && address>=A(ActorDescriptors) && address<A(ActorDescriptors)+32 && result==D(Data_7926)){return D(Data_78DC);}'+needle)
+   if tag=='stale-selected-player' and p.name=='hazards_bridge.c':
+    # The composed API routes player RAM through the typed player/item-state
+    # borrower. Mutating enemies_borrow_read leaves this access path untouched;
+    # corrupt the live hazard projection instead, where the selected velocities
+    # are actually consumed.
+    needle='static uint16_t hazard_word(Regs *r,uint16_t base,uint16_t index) {\n    return itemstate_read16(r->ds,(uint16_t)(base+index));\n}'
+    assert text.count(needle)==1
+    text=text.replace(needle,'static uint16_t hazard_word(Regs *r,uint16_t base,uint16_t index) {\n    if(base==D(PlayerHorizontalVelocities) && index<4)return 0;\n    return itemstate_read16(r->ds,(uint16_t)(base+index));\n}')
+   elif tag=='wrong-stone-id' and p.name=='hazards_bridge.c':
+    # Actor descriptors are owner-routed in composed mode, so the old enemy
+    # borrow reader is not on this path. Corrupt the live hazard descriptor read.
+    needle='static uint16_t hazard_word(Regs *r,uint16_t base,uint16_t index) {\n    return itemstate_read16(r->ds,(uint16_t)(base+index));\n}'
+    assert text.count(needle)==1
+    text=text.replace(needle,'static uint16_t hazard_word(Regs *r,uint16_t base,uint16_t index) {\n    uint16_t value=itemstate_read16(r->ds,(uint16_t)(base+index));\n    if(base==D(ActorDescriptors) && value==D(Data_7926))return D(Data_78DC);\n    return value;\n}')
    if tag=='award-after-failed-service' and p.name=='hazards_bridge.c':
     needle='return ugh_call_near(target,ret,r);';assert text.count(needle)==1
     text=text.replace(needle,'int failed=ugh_call_near(target,ret,r);if(failed)enemies_write16(r->ds,D(ScoreLowWord),(uint16_t)(enemies_read16(r->ds,D(ScoreLowWord))+1u));return failed;')
@@ -229,7 +237,9 @@ def defects(ROOT,OUT,bounded,save,snapshot,previous):
   if not fault:
    p=dest/'native/bridge/session_bridge.c';t=p.read_text()
    back='case SESSION_DRAW_ENEMIES_BACK:status=sq_draw_enemies(r,0);';front='case SESSION_DRAW_ENEMIES_FRONT:status=sq_draw_enemies(r,1);'
-   assert t.count(back)==1 and t.count(front)==1
+   # The maintained dispatcher has two actual session entry loops; seed both
+   # branches so whichever loop handles the runtime request carries the fault.
+   assert t.count(back)==2 and t.count(front)==2
    p.write_text(t.replace(back,back.replace('(r,0)','(r,1)')).replace(front,front.replace('(r,1)','(r,0)')))
   for p in (dest/'native/bridge').glob('*'):
    if p.suffix in ['.c','.h'] and 'abort()' in p.read_text():p.write_text('#include <stdio.h>\n#include <stdlib.h>\n'+p.read_text().replace('abort()','(fputs("ENEMY_CONTROL_BRIDGE_ASSERT\\n",stderr),exit(87))'))

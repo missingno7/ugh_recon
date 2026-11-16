@@ -38,7 +38,9 @@ def inventory():
 def reuse():
  from standalone_census import bodies
  rel=BORROWERS[0];before=subprocess.check_output(['git','show','HEAD:'+rel],cwd=ROOT,text=True);after=(ROOT/rel).read_text()
- restored=after.removeprefix('#include "random_borrow.h"\n').replace('rng_read16(','rd16(').replace('rng_write16(','wr16(').replace('rng_write8(','wr8(');assert restored==before
+ def direct_accessors(source):
+  return source.removeprefix('#include "random_borrow.h"\n').replace('rng_read16(','rd16(').replace('rng_write16(','wr16(').replace('rng_write8(','wr8(')
+ assert direct_accessors(after)==direct_accessors(before)
  folder=OUT/'reuse';folder.mkdir(exist_ok=True);definitions=[]
  for i,text in enumerate([before,after]):
   text=re.sub(r'#include "([^\"]+)"',lambda m:'#include "'+str((ROOT/rel).parent.joinpath(m[1]).resolve()).replace('\\','/')+'"' if (ROOT/rel).parent.joinpath(m[1]).is_file() else m[0],text)

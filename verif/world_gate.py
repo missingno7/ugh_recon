@@ -257,7 +257,7 @@ def gate(component,out,jobs=3,stages=None):
  names=stages or standard_stages(component)
  if stages and set(names)&{'backend','borrowers','defects',*cfg.get('extra_stages',[])}:
   required=['api-'+g for g in cfg['api']]
-  if 'defects' in names:required += [n for n in ['backend','borrowers',*cfg.get('extra_stages',[])] if callable(getattr(importlib.import_module(cfg['legacy']),n,None))]
+  if 'defects' in names:required += [n for n in ['router','backend','borrowers',*cfg.get('extra_stages',[])] if callable(getattr(importlib.import_module(cfg['legacy']),n,None))]
   names=list(dict.fromkeys(required+names))
  if 'deepcounts' in names and 'levels' not in names:names=['levels']+names
  pending=list(names);running={};results={};artifacts={};stage_seconds={}

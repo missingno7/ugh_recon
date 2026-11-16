@@ -172,10 +172,15 @@ def defects(ROOT,OUT,bounded,save,snapshot,previous):
    if tag=='retained-loader' and p.name.endswith('session_bridge.c'):
     needle='EXPORT int '+('fixture_load_body' if 'EXPORT int fixture_load_body(' in text else 'c_LoadCurrentLevelState')+'(Regs *r) {';assert text.count(needle)==1
     text=text.replace(needle,needle+'\n player_write16(DATA_SEG,D(PlayerCachedSpriteIds),0);player_write16(DATA_SEG,D(PlayerMinimumFares),0);',1);changed=True
-   elif tag=='stale-after-stone' and p.name=='player_world_bridge.c':
-    text=text.replace('static unsigned active;','static unsigned active;static NativePlayerWorld stale;').replace(' active=1;',' active=1;stale=*native_player_world();',1)
-    needle='uint32_t result=0,address=lin(bank,position);';assert text.count(needle)==1
-    text=text.replace(needle,needle+'if(borrower==PLAYER_BORROW_PHYSICS && width==2 && address==A(PlayerHorizontalVelocities))return stale.player[0].velocity_x;');changed=True
+   elif tag=='stale-after-stone' and p.name=='player_physics_bridge.c':
+    # Registry composition routes PlayerPlatformIndices and velocities through
+    # the player owner, bypassing the old borrower hook. Seed the stale-value
+    # fault at the live physics projection consumed after the stone service.
+    needle='static uint16_t physics_read(Regs *r,uint16_t base) {return '
+    assert text.count(needle)==1
+    replacement='static uint16_t physics_read(Regs *r,uint16_t base) {if(base==D(PlayerHorizontalVelocities))return 0;return '
+    text=text.replace(needle,replacement)
+    changed=True
    elif tag=='collision-order' and p.name=='player_physics_bridge.c':
     needle='pixel_collision_position(r->si,i)';assert text.count(needle)==1;text=text.replace(needle,'pixel_collision_position(r->si,9-i)');changed=True
    elif tag=='stale-after-stone' and p.name=='dispatch.c':

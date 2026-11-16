@@ -324,7 +324,7 @@
     "tools/world_registry.py": "06893f72ab80e15b198bf45865a5927a76dac2bf9daddb8f60ef3f6ac0aba9a1",
     "metadata/worlds/run_world.json": "1b036bc08bca2ac0dc5112c28bc93e8101cb6c1111544bfdeefc48f878f38bd2",
     "verif/world_cases/run.py": "7457c944ac35c9ed45e1d7859c03fa7742453f38eea284d83556598586d2d96c",
-    "verif/world_gate.py": "0c3997a7a9aad7bea80e190c7406118ee678c8cb4c1aa9de5b4db176af9dcd1b",
+    "verif/world_gate.py": "e02046b465fe9e8e22cfbf2beee19f76b950a5cf1987223e00ad889416074d56",
     "verif/world_api.py": "a83bc75b4264a5ed575e8716eba52478a858556dfdba447107dc90e0e982569e",
     "verif/job_pool.py": "fd3a52cb8cb4dacd758e930a00ead9c5016776817d18d687a59d5399aa46348a",
     "verif/world_cases/legacy_adapter.py": "9978014371764ca9a123efe557fe62a6b0fef06f0e19a52b944bf72fbb14d677",
@@ -815,6 +815,19 @@
         "native/bridge/actor_pass_bridge.c",
         "native/bridge/hazards_bridge.c",
         "native/bridge/items_bridge.c"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "Pending process-refactor replay",
+      "inputs": [
+        "verif/world_gate.py"
       ]
     },
     {

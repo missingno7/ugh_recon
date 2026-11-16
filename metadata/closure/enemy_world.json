@@ -382,7 +382,7 @@
     "verif/closure_support.py": "c82a8cc3419ad536f0c5cf2507c3072481927eaa222b23d04b8b980ffa934744",
     "verif/enemy_composition.py": "5faf3dee2f68cff8d5d0c7ec1032fd24cd4c55c6ca0772ebd6b96e388a8567e8",
     "verif/enemy_world_byte_proof.c": "8464571fc8d88b86d8ea983bd24e9e2fcffc250f7cf3029d419b34be36b18b5f",
-    "verif/enemy_world_cases.py": "e20ab8b67a70c2492076bab107c1cf5aa917d5efdf364a5897b47ae65c9cce6d",
+    "verif/enemy_world_cases.py": "5badfab204425623ecfc7a82032006448b3f67958632441d501e3b070f408ea7",
     "verif/enemy_world_router.c": "313bf18bb19c6a142b67e511bf1c5be1660882ae3ed432968adfdb7d04878c26",
     "verif/entry_retirement.py": "3b52d207fef7b3e51461a2357a06f012f59651b406f1fe9a0253876e55f76529",
     "verif/input_build.py": "106fc5b7c65a9591f24307c1be970ad5b947d36e020f16c15887d4024e35095b",
@@ -422,7 +422,7 @@
     "tools/world_registry.py": "06893f72ab80e15b198bf45865a5927a76dac2bf9daddb8f60ef3f6ac0aba9a1",
     "metadata/worlds/enemy_world.json": "86dde6657d84ad5d72cdb4b443ed80060556d388fd2f5e18583722562447ffe2",
     "verif/world_cases/enemy.py": "73dd4f8c91bf23fc80d2ca0a56a38bc1f8b30cb7e5d840dbe4d4db3d955f04a8",
-    "verif/world_gate.py": "0c3997a7a9aad7bea80e190c7406118ee678c8cb4c1aa9de5b4db176af9dcd1b",
+    "verif/world_gate.py": "e02046b465fe9e8e22cfbf2beee19f76b950a5cf1987223e00ad889416074d56",
     "verif/world_api.py": "a83bc75b4264a5ed575e8716eba52478a858556dfdba447107dc90e0e982569e",
     "verif/job_pool.py": "fd3a52cb8cb4dacd758e930a00ead9c5016776817d18d687a59d5399aa46348a",
     "verif/world_cases/legacy_adapter.py": "9978014371764ca9a123efe557fe62a6b0fef06f0e19a52b944bf72fbb14d677",
@@ -435,7 +435,7 @@
     "verif/world_cases/legacy_platform.py": "3d127cb6fe265f4ffad0c7b41819b7a4a80d4102b6fb52eb8da5de23b0e32e46",
     "verif/world_cases/legacy_player.py": "c496b5898312dbc3bb113aeb868309ef0fe5e30996b750476ccb131dd34148f5",
     "verif/world_cases/legacy_presentation.py": "71c3636da0a7fe030cf17716d2a81b69be44e02e9037e9841de7168f86ced787",
-    "verif/world_cases/legacy_random.py": "c60c0a16de1b17d3c11de7ab3d871bb640979b69e28f5856406212ad3395a2a6",
+    "verif/world_cases/legacy_random.py": "3d75e5fc58f6365da44e7df6de9abc4ca88ec0cbe13bb939ba51d677fc8f4da2",
     "verif/world_cases/legacy_resource.py": "44019f2b24c8a79576f7296ca02bde7d7e10bfed9fa74311370bd6906f4571fc",
     "verif/world_cases/legacy_run.py": "87897e384d2f9bbac96531949656b8ac853a6ecb24bb095c6fbbf086c53c90bc",
     "verif/world_cases/legacy_timing.py": "44a530c5f03ef7577b1b2898fdf4b78dfea937895c43d870d008f2a3502d62c8",
@@ -718,6 +718,21 @@
       ],
       "results": "Pending process-refactor replay",
       "inputs": [
+        "verif/world_gate.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "Pending process-refactor replay",
+      "inputs": [
+        "verif/enemy_world_cases.py",
+        "verif/world_cases/legacy_random.py",
         "verif/world_gate.py"
       ]
     }

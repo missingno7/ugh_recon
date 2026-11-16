@@ -360,7 +360,7 @@
     "tools/world_registry.py": "06893f72ab80e15b198bf45865a5927a76dac2bf9daddb8f60ef3f6ac0aba9a1",
     "metadata/worlds/resource_catalog.json": "e6b1df95766c162c031dfabf7aadeb3408435372e6613041c13e7132be1a699a",
     "verif/world_cases/resource.py": "45ba4e8258275cfdf00d99f770d6bb896ed9b82e056a1d2f6c4d3f79d79c175e",
-    "verif/world_gate.py": "0c3997a7a9aad7bea80e190c7406118ee678c8cb4c1aa9de5b4db176af9dcd1b",
+    "verif/world_gate.py": "e02046b465fe9e8e22cfbf2beee19f76b950a5cf1987223e00ad889416074d56",
     "verif/world_api.py": "a83bc75b4264a5ed575e8716eba52478a858556dfdba447107dc90e0e982569e",
     "verif/job_pool.py": "fd3a52cb8cb4dacd758e930a00ead9c5016776817d18d687a59d5399aa46348a",
     "verif/world_cases/legacy_adapter.py": "9978014371764ca9a123efe557fe62a6b0fef06f0e19a52b944bf72fbb14d677",
@@ -370,7 +370,7 @@
     "verif/world_cases/legacy_pixel.py": "11ac17202af4b5b82cfc016505c6565f0649bc30c52c65a12743654d0195322f",
     "verif/world_cases/legacy_player.py": "c496b5898312dbc3bb113aeb868309ef0fe5e30996b750476ccb131dd34148f5",
     "verif/world_cases/legacy_presentation.py": "71c3636da0a7fe030cf17716d2a81b69be44e02e9037e9841de7168f86ced787",
-    "verif/world_cases/legacy_random.py": "c60c0a16de1b17d3c11de7ab3d871bb640979b69e28f5856406212ad3395a2a6",
+    "verif/world_cases/legacy_random.py": "3d75e5fc58f6365da44e7df6de9abc4ca88ec0cbe13bb939ba51d677fc8f4da2",
     "verif/world_cases/legacy_resource.py": "44019f2b24c8a79576f7296ca02bde7d7e10bfed9fa74311370bd6906f4571fc",
     "verif/world_cases/legacy_run.py": "87897e384d2f9bbac96531949656b8ac853a6ecb24bb095c6fbbf086c53c90bc",
     "verif/world_cases/legacy_timing.py": "44a530c5f03ef7577b1b2898fdf4b78dfea937895c43d870d008f2a3502d62c8",
@@ -838,6 +838,20 @@
       ],
       "results": "Pending process-refactor replay",
       "inputs": [
+        "verif/world_gate.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "Pending process-refactor replay",
+      "inputs": [
+        "verif/world_cases/legacy_random.py",
         "verif/world_gate.py"
       ]
     }

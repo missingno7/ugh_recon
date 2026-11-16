@@ -80,7 +80,16 @@ def compile_trace(ROOT,OUT,bounded,label,mutation=None):
    assert text.count('rng_put(lane,value);return 1;')==1;text='#include "ugh.h"\nextern void api_rng_notify(uint32_t,uint8_t);\n'+text.replace('rng_put(lane,value);return 1;','rng_put(lane,value);api_rng_notify(address,value);return 1;');changed=True
   if mutation:
    name,old,new=mutation
-   if original.name==name:assert text.count(old)==1,(name,old);text=text.replace(old,new);changed=True
+   if original.name==name:
+    # Registry composition renames the random bridge's direct RNG accessors
+    # to the resource borrow accessors in its generated compile input. Keep
+    # mutations expressed against the maintained bridge, but translate that
+    # accessor vocabulary when applying them to the source that is compiled.
+    if text.count(old)!=1:
+     generated=lambda value:re.sub(r'\brng_(read|write)(8|16|32)\b',r'resource_\1\2',value)
+     generated_old,generated_new=generated(old),generated(new)
+     if text.count(generated_old)==1:old,new=generated_old,generated_new
+    assert text.count(old)==1,(name,old);text=text.replace(old,new);changed=True
   if changed:
    text=re.sub(r'#include "([^\"]+)"',lambda m:'#include "'+(original.parent/m[1]).resolve().as_posix()+'"' if (original.parent/m[1]).is_file() else m[0],text)
    target=folder/original.name;target.write_text(text);command[i]=str(target)

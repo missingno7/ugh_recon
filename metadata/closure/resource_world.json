@@ -185,7 +185,7 @@
     "verif/world_cases/resource_data.py": "3408958bb5b0b762f844b5888f4b173477999e9d51118b6a8bc40bc2eb2dfe04",
     "verif/world_cases/resource_data_operators.py": "2e58e04ae59ef33826953c12733f11e963137baf538153e395bcc9593d5e5445",
     "tools/world_registry.py": "06893f72ab80e15b198bf45865a5927a76dac2bf9daddb8f60ef3f6ac0aba9a1",
-    "verif/world_gate.py": "0c3997a7a9aad7bea80e190c7406118ee678c8cb4c1aa9de5b4db176af9dcd1b",
+    "verif/world_gate.py": "e02046b465fe9e8e22cfbf2beee19f76b950a5cf1987223e00ad889416074d56",
     "verif/world_api.py": "a83bc75b4264a5ed575e8716eba52478a858556dfdba447107dc90e0e982569e",
     "verif/job_pool.py": "fd3a52cb8cb4dacd758e930a00ead9c5016776817d18d687a59d5399aa46348a",
     "verif/resource_catalog_cases.py": "8a9e765c12bbc19320535e496360d6c3786012ad7e0d025d3a78776a232cba0e",
@@ -242,6 +242,19 @@
       "results": "PASS finalized 11-stage identity gate: API920+810+202 per profile, 3/3 controls, projector21/census21, hosts21+21 and levels81+7+8 both variants. Older root enemy API profile890+890 also passes with the new unit linked. Direct Regs/machine callback transport is not retired.",
       "inputs": [
         "verif/world_cases/resource_data.py"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "reason": "One-time registry/process refactor and canonical contract-v1 certificate locks; existing claims/results/status unchanged",
+      "commands": [
+        "python verif/world_gate.py enemy_world --jobs 3",
+        "python build/workers/close-adlx-29/all_controls.py",
+        "python tools/gate.py"
+      ],
+      "results": "Pending process-refactor replay",
+      "inputs": [
+        "verif/world_gate.py"
       ]
     },
     {

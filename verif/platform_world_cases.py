@@ -128,13 +128,16 @@ def defects(ROOT,OUT,bounded,save,snapshot,previous):
   for i,v in enumerate(cmd):
    if not v.endswith('.c'):continue
    p=Path(v);t=p.read_text();old=t
-   if tag in ['boarding','resurfacing','recomputed-index'] and p.name=='platform_world_bridge.c':
-    if tag=='recomputed-index':
-     n='uint32_t result=0,address=lin(bank,position);';assert t.count(n)==1;t=t.replace(n,n+'if(width==2 && address>=A(PlayerPlatformIndices) && address<A(PlayerPlatformIndices)+4u)return 0;')
-    else:
-     n=' platforms_field_put(fields+slot,lane,value);return 1;';assert t.count(n)==1
-     guard=' if(address>=A(PlatformActorOccupants) && address<A(PlatformActorOccupants)+20u'+(' && value==255' if tag=='resurfacing' else '')+'){return 1;}\n'
-     t=t.replace(n,guard+n)
+   if tag in ['boarding','resurfacing'] and p.name=='platform_world_bridge.c':
+    n=' platforms_field_put(fields+slot,lane,value);return 1;';assert t.count(n)==1
+    guard=' if(address>=A(PlatformActorOccupants) && address<A(PlatformActorOccupants)+20u'+(' && value==255' if tag=='resurfacing' else '')+'){return 1;}\n'
+    t=t.replace(n,guard+n)
+   elif tag=='recomputed-index' and p.name=='player_world_bridge.c':
+    # PlayerPlatformIndices is owned and read through the player world in
+    # composed mode; the old platform borrow hook is bypassed after registry
+    # routing. Corrupt the actual owner read consumed by MovePlayerWithVgaCollisions.
+    n='return (uint8_t)(value>>shift);';assert t.count(n)==1
+    t=t.replace(n,'if(field->member==offsetof(NativePlayerWorld,player[0].platform))value=0;\n '+n)
    elif tag in ['last-equal','exclusive-edge','wrong-sentinel'] and p.name=='player_physics.c':
     if tag=='last-equal':
      n='if(decision)return (int)i;';assert t.count(n)==1;t=t.replace(n,'if(decision){int found=(int)i;for(size_t j=i+1;j<w->platform_count;j++){int next=pp_platform_decision(&w->platforms[j],height,center);if(next<0)break;if(next)found=(int)j;}return found;}')
